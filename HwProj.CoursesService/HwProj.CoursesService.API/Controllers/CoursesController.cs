@@ -2,45 +2,60 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HwProj.CoursesService.API.Models;
 using Microsoft.AspNetCore.Mvc;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace HwProj.CoursesService.API.Controllers
 {
     [Route("api/[controller]")]
     public class CoursesController : Controller
     {
-        // GET: api/<controller>
+        private readonly ICourseRepository _repository;
+
+        public CoursesController(ICourseRepository repository)
+        {
+            _repository = repository;
+        }
+
         [HttpGet]
-        public IEnumerable<string> Get()
+        public IActionResult Get()
         {
-            return new string[] { "value1", "value2" };
+            return Json(_repository.Courses);
         }
 
-        // GET api/<controller>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-        // POST api/<controller>
         [HttpPost]
-        public void Post([FromBody]string value)
+        public async Task<IActionResult> AddCourse([FromBody]CourseViewModel courseViewModel)
         {
+            var course = new Course() { Name = courseViewModel.Name };
+            await _repository.AddAndSaveAsync(course);
+
+            return Ok(courseViewModel);
         }
 
-        // PUT api/<controller>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
-        {
-        }
-
-        // DELETE api/<controller>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<IActionResult> DeleteCourse(long id)
         {
+            var deleted = await _repository.DeleteByIdAndSaveAsync(id);
+
+            if (!deleted)
+            {
+                return NotFound();
+            }
+
+            return Ok(deleted);
+        }
+
+        [HttpPost("{id}")]
+        public async Task<IActionResult> ModifyCourse(long id, [FromBody]CourseViewModel courseViewModel)
+        {
+            var modified = await _repository.ModifyAndSaveAsync(id, courseViewModel);
+
+            if (!modified)
+            {
+                return NotFound();
+            }
+
+            return Ok(modified);
         }
     }
 }
