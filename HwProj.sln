@@ -3,9 +3,26 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.2042
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HwProj.CoursesService", "HwProj.CoursesService", "{1B308FF5-A77B-4B68-85D5-4C30BA3A8BD9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.CoursesService.API", "HwProj.CoursesService\HwProj.CoursesService.API\HwProj.CoursesService.API.csproj", "{DC858F4E-F3AF-46E7-972B-09D063DCEF73}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DC858F4E-F3AF-46E7-972B-09D063DCEF73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC858F4E-F3AF-46E7-972B-09D063DCEF73}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC858F4E-F3AF-46E7-972B-09D063DCEF73}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC858F4E-F3AF-46E7-972B-09D063DCEF73}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{DC858F4E-F3AF-46E7-972B-09D063DCEF73} = {1B308FF5-A77B-4B68-85D5-4C30BA3A8BD9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C03BF138-4A5B-4261-9495-6D3AC6CE9779}
