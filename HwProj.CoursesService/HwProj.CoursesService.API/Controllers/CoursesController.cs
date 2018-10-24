@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.CoursesService.API.Controllers
 {
+    [ApiController]
     [Route("api/[controller]")]
     public class CoursesController : Controller
     {
@@ -24,7 +25,7 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddCourse([FromBody]CourseViewModel courseViewModel)
+        public async Task<IActionResult> Post([FromBody]CourseViewModel courseViewModel)
         {
             var course = new Course() { Name = courseViewModel.Name };
             await _repository.AddAndSaveAsync(course);

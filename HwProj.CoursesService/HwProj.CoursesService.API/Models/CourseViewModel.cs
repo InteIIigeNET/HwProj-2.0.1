@@ -8,6 +8,8 @@ namespace HwProj.CoursesService.API.Models
 {
     public class CourseViewModel
     {
+        [Required]
+        [RegularExpression(@"^\S", ErrorMessage = "Name shouldn't start with wihte spaces.")]
         public string Name { get; set; }
     }
 }
