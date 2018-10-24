@@ -9,7 +9,7 @@ namespace HwProj.CoursesService.API.Models
     public class CourseViewModel
     {
         [Required]
-        [RegularExpression(@"^\S", ErrorMessage = "Name shouldn't start with wihte spaces.")]
+        [RegularExpression(@"^\S", ErrorMessage = "Name shouldn't start with white spaces.")]
         public string Name { get; set; }
     }
 }
