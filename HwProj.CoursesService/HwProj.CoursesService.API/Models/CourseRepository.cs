@@ -39,7 +39,11 @@ namespace HwProj.CoursesService.API.Models
         public async Task<bool> UpdateAsync(long id, CourseViewModel courseViewModel)
         {
             return await _context.Courses.Where(course => course.Id == id)
-                .UpdateAsync(course => new Course() { Name = courseViewModel.Name }) == 1;
+                .UpdateAsync(course => new Course() {
+                    Name = courseViewModel.Name,
+                    GroupName = courseViewModel.GroupName,
+                    IsOpen = courseViewModel.IsOpen
+                }) == 1;
         }
     }
 }

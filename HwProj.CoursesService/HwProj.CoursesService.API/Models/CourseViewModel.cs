@@ -11,5 +11,13 @@ namespace HwProj.CoursesService.API.Models
         [Required]
         [RegularExpression(@"^\S+.*", ErrorMessage = "Name shouldn't start with white spaces.")]
         public string Name { get; set; }
+
+        [Required]
+        public string GroupName { get; set; }
+
+        [Required]
+        public bool IsOpen { get; set; }
+
+        public bool IsComplete { get; set; }
     }
 }

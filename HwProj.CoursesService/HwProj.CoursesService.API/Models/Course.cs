@@ -11,5 +11,8 @@ namespace HwProj.CoursesService.API.Models
         [Key]
         public long Id { get; set; }
         public string Name { get; set; }
+        public string GroupName { get; set; }
+        public bool IsOpen { get; set; }
+        public bool IsComplete { get; set; }
     }
 }
