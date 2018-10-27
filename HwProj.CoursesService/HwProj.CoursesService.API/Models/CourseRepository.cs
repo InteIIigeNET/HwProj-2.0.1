@@ -37,16 +37,8 @@ namespace HwProj.CoursesService.API.Models
 
         public async Task<bool> UpdateAsync(long id, CourseViewModel courseViewModel)
         {
-            var course = Get(id);
-            if (course == null)
-            {
-                return false;
-            }
-
-            course.Name = courseViewModel.Name;
-            await _context.SaveChangesAsync();
-
-            return true;
+            return await _context.Courses.Where(course => course.Id == id)
+                .UpdateAsync(course => new Course() { Name = courseViewModel.Name }) == 1;
         }
     }
 }

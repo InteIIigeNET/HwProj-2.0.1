@@ -48,7 +48,7 @@ namespace HwProj.CoursesService.API.Controllers
             return Ok(deleted);
         }
 
-        [HttpPost("modify/{courseId}")]
+        [HttpPost("update/{courseId}")]
         public async Task<IActionResult> UpdateCourse(long courseId, [FromBody]CourseViewModel courseViewModel)
         {
             var modified = await _repository.UpdateAsync(courseId, courseViewModel);
