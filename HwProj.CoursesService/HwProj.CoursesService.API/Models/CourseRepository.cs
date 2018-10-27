@@ -23,19 +23,19 @@ namespace HwProj.CoursesService.API.Models
             return _context.Courses.FirstOrDefault(course => course.Id == id);
         }
 
-        public async Task AddAndSaveAsync(Course course)
+        public async Task AddAsync(Course course)
         {
             _context.Add(course);
             await _context.SaveChangesAsync();
         }
 
-        public async Task<bool> DeleteByIdAndSaveAsync(long id)
+        public async Task<bool> DeleteByIdAsync(long id)
         {
             var result = await _context.Courses.Where(course => course.Id == id).DeleteAsync();
             return result == 1;
         }
 
-        public async Task<bool> ModifyAndSaveAsync(long id, CourseViewModel courseViewModel)
+        public async Task<bool> UpdateAsync(long id, CourseViewModel courseViewModel)
         {
             var course = Get(id);
             if (course == null)

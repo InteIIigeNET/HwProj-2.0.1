@@ -8,8 +8,8 @@ namespace HwProj.CoursesService.API.Models
     public interface ICourseRepository
     {
         IEnumerable<Course> Courses { get; }
-        Task AddAndSaveAsync(Course course);
-        Task<bool> DeleteByIdAndSaveAsync(long id);
-        Task<bool> ModifyAndSaveAsync(long id, CourseViewModel courseViewModel);
+        Task AddAsync(Course course);
+        Task<bool> DeleteByIdAsync(long id);
+        Task<bool> UpdateAsync(long id, CourseViewModel courseViewModel);
     }
 }

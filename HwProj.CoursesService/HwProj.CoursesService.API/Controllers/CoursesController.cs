@@ -19,7 +19,7 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpGet]
-        public IActionResult Get()
+        public IActionResult GetAll()
         {
             return Json(_repository.Courses);
         }
@@ -28,7 +28,7 @@ namespace HwProj.CoursesService.API.Controllers
         public async Task<IActionResult> AddCourse([FromBody]CourseViewModel courseViewModel)
         {
             var course = new Course() { Name = courseViewModel.Name };
-            await _repository.AddAndSaveAsync(course);
+            await _repository.AddAsync(course);
 
             return Ok(courseViewModel);
         }
@@ -36,7 +36,7 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCourse(long id)
         {
-            var deleted = await _repository.DeleteByIdAndSaveAsync(id);
+            var deleted = await _repository.DeleteByIdAsync(id);
             if (!deleted)
             {
                 return NotFound();
@@ -46,9 +46,9 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost("modify/{courseId}")]
-        public async Task<IActionResult> ModifyCourse(long courseId, [FromBody]CourseViewModel courseViewModel)
+        public async Task<IActionResult> UpdateCourse(long courseId, [FromBody]CourseViewModel courseViewModel)
         {
-            var modified = await _repository.ModifyAndSaveAsync(courseId, courseViewModel);
+            var modified = await _repository.UpdateAsync(courseId, courseViewModel);
             if (!modified)
             {
                 return NotFound();
