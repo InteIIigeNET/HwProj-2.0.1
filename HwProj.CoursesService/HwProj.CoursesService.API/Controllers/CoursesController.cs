@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using HwProj.CoursesService.API.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,10 +13,12 @@ namespace HwProj.CoursesService.API.Controllers
     public class CoursesController : Controller
     {
         private readonly ICourseRepository _repository;
+        private readonly IMapper _mapper;
 
-        public CoursesController(ICourseRepository repository)
+        public CoursesController(ICourseRepository repository, IMapper mapper)
         {
             _repository = repository;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -27,7 +30,7 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpPost]
         public async Task<IActionResult> AddCourse([FromBody]CourseViewModel courseViewModel)
         {
-            var course = new Course() { Name = courseViewModel.Name };
+            var course = _mapper.Map<Course>(courseViewModel);
             await _repository.AddAsync(course);
 
             return Ok(courseViewModel);
