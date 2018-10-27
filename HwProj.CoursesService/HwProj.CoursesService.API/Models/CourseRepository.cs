@@ -18,9 +18,9 @@ namespace HwProj.CoursesService.API.Models
         public IEnumerable<Course> Courses
             => _context.Courses;
 
-        public Course Get(long id)
+        public Task<Course> GetAsync(long id)
         {
-            return _context.Courses.FirstOrDefault(course => course.Id == id);
+            return _context.Courses.FindAsync(id);
         }
 
         public Task AddAsync(Course course)

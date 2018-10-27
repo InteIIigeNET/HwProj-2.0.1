@@ -7,6 +7,7 @@ namespace HwProj.CoursesService.API.Models
 {
     public interface ICourseRepository
     {
+        Task<Course> GetAsync(long id);
         IEnumerable<Course> Courses { get; }
         Task AddAsync(Course course);
         Task<bool> DeleteByIdAsync(long id);

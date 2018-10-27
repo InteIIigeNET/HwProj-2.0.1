@@ -27,6 +27,18 @@ namespace HwProj.CoursesService.API.Controllers
             return Json(_repository.Courses);
         }
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get(long id)
+        {
+            var course = await _repository.GetAsync(id);
+            if (course == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(course);
+        }
+
         [HttpPost]
         public async Task<IActionResult> AddCourse([FromBody]CourseViewModel courseViewModel)
         {
