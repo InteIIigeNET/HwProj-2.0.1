@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,8 +16,8 @@ namespace HwProj.CoursesService.API.Models
             _context = context;
         }
 
-        public IEnumerable<Course> Courses
-            => _context.Courses;
+        public IReadOnlyCollection<Course> Courses
+            => _context.Courses.AsNoTracking().ToArray();
 
         public Task<Course> GetAsync(long id)
         {

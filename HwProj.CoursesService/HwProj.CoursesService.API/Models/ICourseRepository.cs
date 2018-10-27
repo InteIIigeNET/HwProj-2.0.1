@@ -8,9 +8,9 @@ namespace HwProj.CoursesService.API.Models
     public interface ICourseRepository
     {
         Task<Course> GetAsync(long id);
-        IEnumerable<Course> Courses { get; }
+        IReadOnlyCollection<Course> Courses { get; }
         Task AddAsync(Course course);
         Task<bool> DeleteByIdAsync(long id);
-        Task<bool> UpdateAsync(long id, CourseViewModel courseViewModel);
+        Task<bool> UpdateAsync(long id, CourseViewModel courseViwModel);
     }
 }

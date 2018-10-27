@@ -45,7 +45,7 @@ namespace HwProj.CoursesService.API.Controllers
             var course = _mapper.Map<Course>(courseViewModel);
             await _repository.AddAsync(course);
 
-            return Ok(courseViewModel);
+            return Ok(course);
         }
 
         [HttpDelete("{id}")]
