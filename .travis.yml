@@ -2,11 +2,9 @@ language: csharp
 sudo: required 
 dist: trusty
 mono: none
-dotnet: 2.1.4
+dotnet: 2.1.402
 install:
-- nuget restore HwProj.sln
-before_script:
 - dotnet restore
 script:
-- dotnet build -c Release -f netcoreapp2.0
+- dotnet build
 # - dotnet test TestDirectory/TestProject.csproj
