@@ -3,6 +3,8 @@ sudo: required
 dist: trusty
 mono: none
 dotnet: 2.1.4
+install:
+- nuget restore HwProj.sln
 before_script:
 - dotnet restore
 script:
