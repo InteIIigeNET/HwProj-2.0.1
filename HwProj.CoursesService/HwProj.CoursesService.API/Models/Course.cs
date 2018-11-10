@@ -14,5 +14,7 @@ namespace HwProj.CoursesService.API.Models
         public string GroupName { get; set; }
         public bool IsOpen { get; set; }
         public bool IsComplete { get; set; }
+
+        public List<CourseStudent> Students { get; set; } = new List<CourseStudent>();
     }
 }

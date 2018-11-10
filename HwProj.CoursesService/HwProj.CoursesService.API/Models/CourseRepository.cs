@@ -17,11 +17,17 @@ namespace HwProj.CoursesService.API.Models
         }
 
         public IReadOnlyCollection<Course> Courses
-            => _context.Courses.AsNoTracking().ToArray();
+            => _context.Courses
+            .Include(c => c.Students)
+                .ThenInclude(cs => cs.Student)
+            .AsNoTracking().ToArray();
 
         public Task<Course> GetAsync(long id)
         {
-            return _context.Courses.FindAsync(id);
+            return _context.Courses
+                .Include(c => c.Students).
+                    ThenInclude(cs => cs.Course)
+                .SingleAsync(c => c.Id == id);
         }
 
         public Task AddAsync(Course course)
@@ -45,5 +51,59 @@ namespace HwProj.CoursesService.API.Models
                     IsOpen = courseViewModel.IsOpen
                 }) == 1;
         }
+
+        public async Task<bool> AddStudentAsync(long courseId, long userId)
+        {
+            var course = await GetAsync(courseId);
+            var user = await GetUserAsync(userId);
+
+            if (course == null || user == null || course.Students.Exists(cs => cs.StudentId == userId))
+            {
+                return false;
+            }
+
+            course.Students.Add(new CourseStudent(course, user));
+            _context.SaveChanges();
+
+            return true;
+        }
+
+        public async Task<bool> AcceptStudentAsync(long courseId, long userId)
+        {
+            var course = await GetAsync(courseId);
+            var student = course.Students.Single(cs => cs.StudentId == userId);
+
+            if (course == null || student == null)
+            {
+                return false;
+            }
+
+            student.IsAccepted = true;
+            _context.SaveChanges();
+
+            return true;
+        }
+
+        #region временные методы для работы с юзерами
+
+        public Task AddUserAsync(User user)
+        {
+            _context.Users.Add(user);
+            return _context.SaveChangesAsync();
+        }
+
+        public IReadOnlyCollection<User> Users
+            => _context.Users
+            .Include(u => u.Courses)
+                .ThenInclude(cs => cs.Course)
+            .AsNoTracking().ToArray();
+
+        public Task<User> GetUserAsync(long userId) 
+            => _context.Users
+                .Include(u => u.Courses)
+                    .ThenInclude(cs => cs.Course)
+                .SingleAsync(u => u.Id == userId);
+
+        #endregion
     }
 }

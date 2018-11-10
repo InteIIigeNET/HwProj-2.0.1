@@ -71,5 +71,58 @@ namespace HwProj.CoursesService.API.Controllers
 
             return Ok(modified);
         }
+
+        [HttpPost("sign_in_course/{courseId}")]
+        public async Task<IActionResult> SignInCourse(long courseId, [FromQuery]long userId)
+        {
+            var added = await _repository.AddStudentAsync(courseId, userId);
+            if (added)
+            {
+                return Ok(added);
+            }
+
+            return NotFound();
+        }
+
+        [HttpPost("accept_student/{courseId}")]
+        public async Task<IActionResult> AcceptStudent(long courseId, [FromQuery]long userId)
+        {
+            var accepted = await _repository.AcceptStudentAsync(courseId, userId);
+            if (accepted)
+            {
+                return Ok(accepted);
+            }
+
+            return NotFound();
+        }
+
+        #region временные методы для работы с юзерами
+
+        [HttpPost("create_user")]
+        public async Task<IActionResult> CreateUser([FromBody]User user)
+        {
+            await _repository.AddUserAsync(user);
+            return Ok(user);
+        }
+
+        [HttpGet("users")]
+        public IActionResult GetUsers()
+        {
+            return Json(_repository.Users);
+        }
+
+        [HttpGet("user/{id}")]
+        public async Task<IActionResult> GetUser(long id)
+        {
+            var user = await _repository.GetUserAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return Json(user);
+        }
+
+        #endregion
     }
 }
