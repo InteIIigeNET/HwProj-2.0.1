@@ -23,12 +23,10 @@ namespace HwProj.CoursesService.API.Models
             .AsNoTracking().ToArray();
 
         public Task<Course> GetAsync(long id)
-        {
-            return _context.Courses
+            => _context.Courses
                 .Include(c => c.Students).
-                    ThenInclude(cs => cs.Course)
+                    ThenInclude(cs => cs.Student)
                 .SingleAsync(c => c.Id == id);
-        }
 
         public Task AddAsync(Course course)
         {
