@@ -31,12 +31,9 @@ namespace HwProj.CoursesService.API.Controllers
         public async Task<IActionResult> Get(long id)
         {
             var course = await _repository.GetAsync(id);
-            if (course == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(course);
+            return course == null
+                ? NotFound() as IActionResult
+                : Ok(course);
         }
 
         [HttpPost]
@@ -50,51 +47,38 @@ namespace HwProj.CoursesService.API.Controllers
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCourse(long id)
-        {
-            var deleted = await _repository.DeleteByIdAsync(id);
-            if (!deleted)
-            {
-                return NotFound();
-            }
-
-            return Ok(deleted);
-        }
+            => Result(await _repository.DeleteByIdAsync(id));
 
         [HttpPost("update/{courseId}")]
         public async Task<IActionResult> UpdateCourse(long courseId, [FromBody]CourseViewModel courseViewModel)
+            => Result(await _repository.UpdateAsync(courseId, courseViewModel));
+
+        [HttpPost("sign_in_course/{courseId}")]
+        public async Task<IActionResult> SignInCourse(long courseId, [FromQuery]long? userId)
         {
-            var modified = await _repository.UpdateAsync(courseId, courseViewModel);
-            if (!modified)
+            if (!userId.HasValue)
             {
                 return NotFound();
             }
 
-            return Ok(modified);
-        }
-
-        [HttpPost("sign_in_course/{courseId}")]
-        public async Task<IActionResult> SignInCourse(long courseId, [FromQuery]long userId)
-        {
-            var added = await _repository.AddStudentAsync(courseId, userId);
-            if (added)
-            {
-                return Ok(added);
-            }
-
-            return NotFound();
+            return Result(await _repository.AddStudentAsync(courseId, userId.Value));
         }
 
         [HttpPost("accept_student/{courseId}")]
-        public async Task<IActionResult> AcceptStudent(long courseId, [FromQuery]long userId)
+        public async Task<IActionResult> AcceptStudent(long courseId, [FromQuery]long? userId)
         {
-            var accepted = await _repository.AcceptStudentAsync(courseId, userId);
-            if (accepted)
+            if (!userId.HasValue)
             {
-                return Ok(accepted);
+                return NotFound();
             }
 
-            return NotFound();
+            return Result(await _repository.AcceptStudentAsync(courseId, userId.Value));
         }
+
+        private IActionResult Result(bool flag)
+            => flag
+            ? Ok() as IActionResult
+            : NotFound();
 
         #region временные методы для работы с юзерами
 
