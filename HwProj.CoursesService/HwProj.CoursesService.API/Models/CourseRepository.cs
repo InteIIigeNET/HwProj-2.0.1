@@ -26,7 +26,7 @@ namespace HwProj.CoursesService.API.Models
             => _context.Courses
                 .Include(c => c.Students).
                     ThenInclude(cs => cs.Student)
-                .SingleAsync(c => c.Id == id);
+                .FirstOrDefaultAsync(c => c.Id == id);
 
         public Task AddAsync(Course course)
         {
