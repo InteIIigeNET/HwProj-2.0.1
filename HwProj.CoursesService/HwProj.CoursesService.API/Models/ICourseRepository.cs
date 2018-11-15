@@ -14,6 +14,7 @@ namespace HwProj.CoursesService.API.Models
         Task<bool> UpdateAsync(long id, CourseViewModel courseViwModel);
         Task<bool> AddStudentAsync(long courseId, long userId);
         Task<bool> AcceptStudentAsync(long courseId, long userId);
+        Task<bool> RejectStudentAsync(long courseId, long userId);
 
         //временные методы
         IReadOnlyCollection<User> Users { get; }

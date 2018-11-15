@@ -82,6 +82,22 @@ namespace HwProj.CoursesService.API.Models
             return true;
         }
 
+        public async Task<bool> RejectStudentAsync(long courseId, long userId)
+        {
+            var course = await GetAsync(courseId);
+            var student = course.Students.Single(cs => cs.StudentId == userId);
+
+            if (course == null || student == null || course.IsOpen)
+            {
+                return false;
+            }
+
+            var result = course.Students.Remove(student);
+            _context.SaveChanges();
+
+            return result;
+        }
+
         #region временные методы для работы с юзерами
 
         public Task AddUserAsync(User user)

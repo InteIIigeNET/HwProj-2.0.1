@@ -75,6 +75,17 @@ namespace HwProj.CoursesService.API.Controllers
             return Result(await _repository.AcceptStudentAsync(courseId, userId.Value));
         }
 
+        [HttpPost("reject_student/{courseId}")]
+        public async Task<IActionResult> RejectStudent(long courseId, [FromQuery]long? userId)
+        {
+            if (!userId.HasValue)
+            {
+                return NotFound();
+            }
+
+            return Result(await _repository.RejectStudentAsync(courseId, userId.Value));
+        }
+
         private IActionResult Result(bool flag)
             => flag
             ? Ok() as IActionResult
