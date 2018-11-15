@@ -4,55 +4,83 @@ using NUnit.Framework;
 using System.Linq;
 using System.Threading.Tasks;
 using Shouldly;
+using Microsoft.Data.Sqlite;
 
 namespace Tests
 {
     [TestFixture]
     public class CourseRepositoryTests
     {
-        private CourseContext _context;
+        private SqliteConnection _connection;
+        private DbContextOptions<CourseContext> _options;
 
         [SetUp]
         public void Setup()
         {
-            var options = new DbContextOptionsBuilder<CourseContext>()
-                .UseInMemoryDatabase(databaseName: "repository_test")
+            _connection = new SqliteConnection("DataSource=:memory:");
+            _connection.Open();
+
+            _options = new DbContextOptionsBuilder<CourseContext>()
+                .UseSqlite(_connection)
                 .Options;
 
-            _context = new CourseContext(options);
-            _context.Database.EnsureDeleted();
-            _context.Database.EnsureCreated();
+            using (var context = new CourseContext(_options))
+            {
+                context.Database.EnsureCreated();
+            }
+        }
+
+        [TearDown]
+        public void Teardown()
+        {
+            using (var context = new CourseContext(_options))
+            {
+                context.Database.EnsureDeleted();
+            }
+            _connection.Close();
         }
 
         [Test]
         public async Task AddWritesToDatabase()
         {
-            var repository = new CourseRepository(_context);
             var course = new Course()
             {
                 Id = 1,
                 Name = "course_name"
             };
 
-            await repository.AddAsync(course);
-            var addedCourse = await _context.Courses.SingleAsync();
+            using (var context = new CourseContext(_options))
+            {
+                var repository = new CourseRepository(context);
+                await repository.AddAsync(course);
+            }
 
-            addedCourse.ShouldBe(course);
+            using (var context = new CourseContext(_options))
+            {
+                var addedCourse = await context.Courses.SingleAsync();
+                addedCourse.ShouldBe(course);
+            }
         }
 
         [Test]
         public void AddWritesSeveralCourses()
         {
-            var repository = new CourseRepository(_context);
             var courses = Enumerable.Range(1, 10)
                 .Select(i => new Course() { Id = i, Name = $"course{i}" })
                 .ToList();
 
-            courses.ForEach(async course => await repository.AddAsync(course));
-            var addedCourses = _context.Courses.ToList();
+            using (var context = new CourseContext(_options))
+            {
+                var repository = new CourseRepository(context);
+                courses.ForEach(async course => await repository.AddAsync(course));
+            }
 
-            addedCourses.Count.ShouldBe(courses.Count);
-            addedCourses.ShouldBe(courses);
+            using (var context = new CourseContext(_options))
+            {
+                var addedCourses = context.Courses.ToList();
+                addedCourses.Count.ShouldBe(courses.Count);
+                addedCourses.ShouldBe(courses);
+            }
         }
 
         [Test]
@@ -65,16 +93,64 @@ namespace Tests
                 GroupName = "123"
             };
 
+            using (var context = new CourseContext(_options))
             {
-                var repository = new CourseRepository(_context);
+                var repository = new CourseRepository(context);
                 await repository.AddAsync(course);
             }
 
+            using (var context = new CourseContext(_options))
             {
-                var repository = new CourseRepository(_context);
+                var repository = new CourseRepository(context);
                 var gottenCourse = await repository.GetAsync(course.Id);
 
                 gottenCourse.ShouldBe(course);
+            }
+        }
+
+        [Test]
+        public void CoursesGetsAllCourses()
+        {
+            var courses = Enumerable.Range(1, 10)
+                .Select(i => new Course() { Id = i, Name = $"course{i}" })
+                .ToList();
+
+            using (var context = new CourseContext(_options))
+            {
+                var repository = new CourseRepository(context);
+                courses.ForEach(async course => await repository.AddAsync(course));
+            }
+
+            using (var context = new CourseContext(_options))
+            {
+                var repository = new CourseRepository(context);
+
+                var gottenCourses = repository.Courses;
+                gottenCourses.ShouldBe(courses);
+            }
+        }
+
+        [Test]
+        public async Task DeleteByIdDeletesFromDatabase()
+        {
+            var course = new Course()
+            {
+                Id = 1,
+                Name = "course_name"
+            };
+
+            using (var context = new CourseContext(_options))
+            {
+                var repository = new CourseRepository(context);
+                await repository.AddAsync(course);
+            }
+
+            using (var context = new CourseContext(_options))
+            {
+                var repository = new CourseRepository(context);
+                await repository.DeleteByIdAsync(course.Id);
+
+                context.Courses.Count().ShouldBe(0);
             }
         }
     }

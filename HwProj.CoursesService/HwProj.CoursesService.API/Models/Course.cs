@@ -16,5 +16,16 @@ namespace HwProj.CoursesService.API.Models
         public bool IsComplete { get; set; }
 
         public List<CourseStudent> Students { get; set; } = new List<CourseStudent>();
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is Course other))
+            {
+                return false;
+            }
+
+            return Id == other.Id && Name == other.Name && GroupName == other.GroupName
+                && IsOpen == other.IsOpen && IsComplete == other.IsComplete && Enumerable.SequenceEqual(Students, other.Students);
+        }
     }
 }
