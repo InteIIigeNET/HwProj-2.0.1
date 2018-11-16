@@ -61,7 +61,7 @@ namespace HwProj.CoursesService.API.Models
             }
 
             course.Students.Add(new CourseStudent(course, user));
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return true;
         }
@@ -77,7 +77,7 @@ namespace HwProj.CoursesService.API.Models
             }
 
             student.IsAccepted = true;
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return true;
         }
@@ -93,7 +93,7 @@ namespace HwProj.CoursesService.API.Models
             }
 
             var result = course.Students.Remove(student);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return result;
         }
