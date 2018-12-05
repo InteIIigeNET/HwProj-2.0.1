@@ -11,5 +11,15 @@ namespace HwProj.CoursesService.API.Models
         public string Name { get; set; }
 
         public List<CourseStudent> Courses { get; set; } = new List<CourseStudent>();
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is User other))
+            {
+                return false;
+            }
+
+            return Id == other.Id && Name == other.Name && Enumerable.SequenceEqual(Courses, other.Courses);
+        }
     }
 }

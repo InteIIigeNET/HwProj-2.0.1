@@ -27,5 +27,15 @@ namespace HwProj.CoursesService.API.Models
             Student = student;
             IsAccepted = course.IsOpen;
         }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is CourseStudent other))
+            {
+                return false;
+            }
+
+            return StudentId == other.StudentId && CourseId == other.CourseId && IsAccepted == other.IsAccepted;
+        }
     }
 }

@@ -233,6 +233,7 @@ namespace Tests
                 course.Name = courseViewModel.Name;
                 course.GroupName = courseViewModel.GroupName;
                 course.IsOpen = courseViewModel.IsOpen;
+                course.IsComplete = courseViewModel.IsComplete;
 
                 var updatedCourse = context.Courses.Find(course.Id);
                 updatedCourse.ShouldBe(course);
@@ -292,6 +293,87 @@ namespace Tests
                 context.Courses.ShouldContain(course1);
                 context.Courses.Count().ShouldBe(1);
                 updated.ShouldBeFalse();
+            }
+        }
+
+        [Test]
+        public async Task AddStudentAddsStudent()
+        {
+            var student = new User() { Id = 1, Name = "username" };
+            using (var context = new CourseContext(_options))
+            {
+                var repository = new CourseRepository(context);
+                await repository.AddAsync(course1);
+                await repository.AddUserAsync(student);
+            }
+
+            using (var context = new CourseContext(_options))
+            {
+                var repository = new CourseRepository(context);
+                await repository.AddStudentAsync(course1.Id, student.Id);
+            }
+
+            using (var context = new CourseContext(_options))
+            {
+                var course = await context.Courses.Include(c => c.Students).SingleAsync();
+                var courseStudent = new CourseStudent(course1, student);
+
+                course.Students.Count.ShouldBe(1);
+                course.Students.Single().ShouldBe(courseStudent);
+            }
+        }
+
+        [Test]
+        public async Task AcceptUserWritesToDatabase()
+        {
+            var student = new User() { Id = 1, Name = "username" };
+            using (var context = new CourseContext(_options))
+            {
+                var repository = new CourseRepository(context);
+                await repository.AddAsync(course2);
+                await repository.AddUserAsync(student);
+                await repository.AddStudentAsync(course2.Id, student.Id);
+
+                context.Courses.Single().Students.Single().IsAccepted.ShouldBe(false);
+            }
+
+            using (var context = new CourseContext(_options))
+            {
+                var repository = new CourseRepository(context);
+                await repository.AcceptStudentAsync(course2.Id, student.Id);
+            }
+
+            using (var context = new CourseContext(_options))
+            {
+                var course = await context.Courses.Include(c => c.Students).SingleAsync();
+                course.Students.Single().IsAccepted.ShouldBe(true);
+            }
+        }
+
+        [Test]
+        public async Task RejectStudentWritesToDatabase()
+        {
+            var student = new User() { Id = 1, Name = "username" };
+            using (var context = new CourseContext(_options))
+            {
+                var repository = new CourseRepository(context);
+                await repository.AddAsync(course2);
+                await repository.AddUserAsync(student);
+                await repository.AddStudentAsync(course2.Id, student.Id);
+
+                context.Courses.Single().Students.Count.ShouldBe(1);
+            }
+
+            using (var context = new CourseContext(_options))
+            {
+                var repository = new CourseRepository(context);
+                await repository.RejectStudentAsync(course2.Id, student.Id);
+            }
+
+            using (var context = new CourseContext(_options))
+            {
+                var course = await context.Courses.Include(c => c.Students).SingleAsync();
+                course.Students.ShouldBeEmpty();
             }
         }
     }

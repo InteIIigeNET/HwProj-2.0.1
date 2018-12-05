@@ -60,7 +60,7 @@ namespace HwProj.CoursesService.API.Models
                 return false;
             }
 
-            course.Students.Add(new CourseStudent(course, user) { IsAccepted = course.IsOpen });
+            course.Students.Add(new CourseStudent(course, user));
             await _context.SaveChangesAsync();
 
             return true;
