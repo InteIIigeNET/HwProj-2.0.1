@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using HwProj.CoursesService.API.Models.ViewModels;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,13 +41,14 @@ namespace HwProj.CoursesService.API.Models
             return result == 1;
         }
 
-        public async Task<bool> UpdateAsync(long id, CourseViewModel courseViewModel)
+        public async Task<bool> UpdateAsync(long id, UpdateCourseViewModel courseViewModel)
         {
             return await _context.Courses.Where(course => course.Id == id)
                 .UpdateAsync(course => new Course() {
                     Name = courseViewModel.Name,
                     GroupName = courseViewModel.GroupName,
-                    IsOpen = courseViewModel.IsOpen
+                    IsOpen = courseViewModel.IsOpen,
+                    IsComplete = courseViewModel.IsComplete
                 }) == 1;
         }
 
@@ -69,7 +71,7 @@ namespace HwProj.CoursesService.API.Models
         public async Task<bool> AcceptStudentAsync(long courseId, long userId)
         {
             var course = await GetAsync(courseId);
-            var student = course.CourseStudents.Single(cs => cs.StudentId == userId);
+            var student = course.CourseStudents.FirstOrDefault(cs => cs.StudentId == userId);
 
             if (course == null || student == null)
             {
@@ -85,7 +87,7 @@ namespace HwProj.CoursesService.API.Models
         public async Task<bool> RejectStudentAsync(long courseId, long userId)
         {
             var course = await GetAsync(courseId);
-            var student = course.CourseStudents.Single(cs => cs.StudentId == userId);
+            var student = course.CourseStudents.FirstOrDefault(cs => cs.StudentId == userId);
 
             if (course == null || student == null || course.IsOpen)
             {

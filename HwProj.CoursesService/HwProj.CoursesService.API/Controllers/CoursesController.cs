@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.API.Models;
+using HwProj.CoursesService.API.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.CoursesService.API.Controllers
@@ -24,7 +25,7 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            return Json(_repository.Courses);
+            return Json(_repository.Courses.Select(c => CourseViewModel.FromCourse(c, _mapper)));
         }
 
         [HttpGet("{id}")]
@@ -33,11 +34,11 @@ namespace HwProj.CoursesService.API.Controllers
             var course = await _repository.GetAsync(id);
             return course == null
                 ? NotFound() as IActionResult
-                : Ok(course);
+                : Json(CourseViewModel.FromCourse(course, _mapper));
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddCourse([FromBody]CourseViewModel courseViewModel)
+        public async Task<IActionResult> AddCourse([FromBody]CreateCourseViewModel courseViewModel)
         {
             var course = _mapper.Map<Course>(courseViewModel);
             await _repository.AddAsync(course);
@@ -50,7 +51,7 @@ namespace HwProj.CoursesService.API.Controllers
             => Result(await _repository.DeleteByIdAsync(id));
 
         [HttpPost("update/{courseId}")]
-        public async Task<IActionResult> UpdateCourse(long courseId, [FromBody]CourseViewModel courseViewModel)
+        public async Task<IActionResult> UpdateCourse(long courseId, [FromBody]UpdateCourseViewModel courseViewModel)
             => Result(await _repository.UpdateAsync(courseId, courseViewModel));
 
         [HttpPost("sign_in_course/{courseId}")]

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using HwProj.CoursesService.API.Models;
+using HwProj.CoursesService.API.Models.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,8 @@ namespace HwProj.CoursesService.API
         public ApplicationProfile()
         {
             CreateMap<Course, CourseViewModel>().ReverseMap();
+            CreateMap<Course, CreateCourseViewModel>().ReverseMap();
+            CreateMap<Course, UpdateCourseViewModel>().ReverseMap();
         }
     }
 }

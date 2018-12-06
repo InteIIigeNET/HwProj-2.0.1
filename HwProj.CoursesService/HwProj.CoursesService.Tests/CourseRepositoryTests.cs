@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Shouldly;
 using Microsoft.Data.Sqlite;
 using System.Collections.Generic;
+using HwProj.CoursesService.API.Models.ViewModels;
 
 namespace Tests
 {
@@ -220,7 +221,7 @@ namespace Tests
                 await repository.AddAsync(course);
             }
 
-            var courseViewModel = new CourseViewModel() { Name = "c#", GroupName = "244", IsOpen = true };
+            var courseViewModel = new UpdateCourseViewModel() { Name = "c#", GroupName = "244", IsOpen = true };
             var updated = false;
             using (var context = new CourseContext(_options))
             {
@@ -233,7 +234,6 @@ namespace Tests
                 course.Name = courseViewModel.Name;
                 course.GroupName = courseViewModel.GroupName;
                 course.IsOpen = courseViewModel.IsOpen;
-                course.IsComplete = courseViewModel.IsComplete;
 
                 var updatedCourse = context.Courses.Find(course.Id);
                 updatedCourse.ShouldBe(course);
@@ -251,7 +251,7 @@ namespace Tests
                 await repository.AddAsync(course2);
             }
 
-            var courseViewModel = new CourseViewModel() { Name = "java", GroupName = "144", IsOpen = true };
+            var courseViewModel = new UpdateCourseViewModel() { Name = "java", GroupName = "144", IsOpen = true, IsComplete = true };
             var updated = false;
             using (var context = new CourseContext(_options))
             {
@@ -262,6 +262,10 @@ namespace Tests
             using (var context = new CourseContext(_options))
             {
                 course1.Name = courseViewModel.Name;
+                course1.GroupName = courseViewModel.GroupName;
+                course1.IsOpen = courseViewModel.IsOpen;
+                course1.IsComplete = courseViewModel.IsComplete;
+
                 var updatedCourse = context.Courses.Find(course1.Id);
 
                 updatedCourse.ShouldBe(course1);
@@ -280,7 +284,7 @@ namespace Tests
                 await repository.AddAsync(course1);
             }
 
-            var courseViewModel = new CourseViewModel() { Name = "c#", GroupName = "244", IsOpen = true };
+            var courseViewModel = new UpdateCourseViewModel() { Name = "c#", GroupName = "244", IsOpen = true };
             var updated = true;
             using (var context = new CourseContext(_options))
             {
