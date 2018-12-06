@@ -24,12 +24,12 @@ namespace HwProj.CoursesService.API.Models
 
             modelBuilder.Entity<CourseStudent>()
                 .HasOne(cs => cs.Student)
-                .WithMany(s => s.Courses)
+                .WithMany(s => s.CourseStudents)
                 .HasForeignKey(cs => cs.StudentId);
 
             modelBuilder.Entity<CourseStudent>()
                 .HasOne(cs => cs.Course)
-                .WithMany(c => c.Students)
+                .WithMany(c => c.CourseStudents)
                 .HasForeignKey(cs => cs.CourseId);
         }
     }

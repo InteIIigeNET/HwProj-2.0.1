@@ -15,7 +15,7 @@ namespace HwProj.CoursesService.API.Models
         public bool IsOpen { get; set; }
         public bool IsComplete { get; set; }
 
-        public List<CourseStudent> Students { get; set; } = new List<CourseStudent>();
+        public List<CourseStudent> CourseStudents { get; set; } = new List<CourseStudent>();
 
         public override bool Equals(object obj)
         {
@@ -25,7 +25,7 @@ namespace HwProj.CoursesService.API.Models
             }
 
             return Id == other.Id && Name == other.Name && GroupName == other.GroupName
-                && IsOpen == other.IsOpen && IsComplete == other.IsComplete && Enumerable.SequenceEqual(Students, other.Students);
+                && IsOpen == other.IsOpen && IsComplete == other.IsComplete && Enumerable.SequenceEqual(CourseStudents, other.CourseStudents);
         }
     }
 }

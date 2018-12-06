@@ -10,7 +10,7 @@ namespace HwProj.CoursesService.API.Models
         public long Id { get; set; }
         public string Name { get; set; }
 
-        public List<CourseStudent> Courses { get; set; } = new List<CourseStudent>();
+        public List<CourseStudent> CourseStudents { get; set; } = new List<CourseStudent>();
 
         public override bool Equals(object obj)
         {
@@ -19,7 +19,7 @@ namespace HwProj.CoursesService.API.Models
                 return false;
             }
 
-            return Id == other.Id && Name == other.Name && Enumerable.SequenceEqual(Courses, other.Courses);
+            return Id == other.Id && Name == other.Name && Enumerable.SequenceEqual(CourseStudents, other.CourseStudents);
         }
     }
 }

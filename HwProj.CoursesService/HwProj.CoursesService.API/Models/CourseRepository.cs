@@ -18,13 +18,13 @@ namespace HwProj.CoursesService.API.Models
 
         public IReadOnlyCollection<Course> Courses
             => _context.Courses
-            .Include(c => c.Students)
+            .Include(c => c.CourseStudents)
                 .ThenInclude(cs => cs.Student)
             .AsNoTracking().ToArray();
 
         public Task<Course> GetAsync(long id)
             => _context.Courses
-                .Include(c => c.Students).
+                .Include(c => c.CourseStudents).
                     ThenInclude(cs => cs.Student)
                 .FirstOrDefaultAsync(c => c.Id == id);
 
@@ -55,12 +55,12 @@ namespace HwProj.CoursesService.API.Models
             var course = await GetAsync(courseId);
             var user = await GetUserAsync(userId);
 
-            if (course == null || user == null || course.Students.Exists(cs => cs.StudentId == userId))
+            if (course == null || user == null || course.CourseStudents.Exists(cs => cs.StudentId == userId))
             {
                 return false;
             }
 
-            course.Students.Add(new CourseStudent(course, user));
+            course.CourseStudents.Add(new CourseStudent(course, user));
             await _context.SaveChangesAsync();
 
             return true;
@@ -69,7 +69,7 @@ namespace HwProj.CoursesService.API.Models
         public async Task<bool> AcceptStudentAsync(long courseId, long userId)
         {
             var course = await GetAsync(courseId);
-            var student = course.Students.Single(cs => cs.StudentId == userId);
+            var student = course.CourseStudents.Single(cs => cs.StudentId == userId);
 
             if (course == null || student == null)
             {
@@ -85,14 +85,14 @@ namespace HwProj.CoursesService.API.Models
         public async Task<bool> RejectStudentAsync(long courseId, long userId)
         {
             var course = await GetAsync(courseId);
-            var student = course.Students.Single(cs => cs.StudentId == userId);
+            var student = course.CourseStudents.Single(cs => cs.StudentId == userId);
 
             if (course == null || student == null || course.IsOpen)
             {
                 return false;
             }
 
-            var result = course.Students.Remove(student);
+            var result = course.CourseStudents.Remove(student);
             await _context.SaveChangesAsync();
 
             return result;
@@ -108,13 +108,13 @@ namespace HwProj.CoursesService.API.Models
 
         public IReadOnlyCollection<User> Users
             => _context.Users
-            .Include(u => u.Courses)
+            .Include(u => u.CourseStudents)
                 .ThenInclude(cs => cs.Course)
             .AsNoTracking().ToArray();
 
         public Task<User> GetUserAsync(long userId) 
             => _context.Users
-                .Include(u => u.Courses)
+                .Include(u => u.CourseStudents)
                     .ThenInclude(cs => cs.Course)
                 .SingleAsync(u => u.Id == userId);
 

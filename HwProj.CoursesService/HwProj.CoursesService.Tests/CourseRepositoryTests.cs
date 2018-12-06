@@ -315,11 +315,11 @@ namespace Tests
 
             using (var context = new CourseContext(_options))
             {
-                var course = await context.Courses.Include(c => c.Students).SingleAsync();
+                var course = await context.Courses.Include(c => c.CourseStudents).SingleAsync();
                 var courseStudent = new CourseStudent(course1, student);
 
-                course.Students.Count.ShouldBe(1);
-                course.Students.Single().ShouldBe(courseStudent);
+                course.CourseStudents.Count.ShouldBe(1);
+                course.CourseStudents.Single().ShouldBe(courseStudent);
             }
         }
 
@@ -334,7 +334,7 @@ namespace Tests
                 await repository.AddUserAsync(student);
                 await repository.AddStudentAsync(course2.Id, student.Id);
 
-                context.Courses.Single().Students.Single().IsAccepted.ShouldBe(false);
+                context.Courses.Single().CourseStudents.Single().IsAccepted.ShouldBe(false);
             }
 
             using (var context = new CourseContext(_options))
@@ -345,8 +345,8 @@ namespace Tests
 
             using (var context = new CourseContext(_options))
             {
-                var course = await context.Courses.Include(c => c.Students).SingleAsync();
-                course.Students.Single().IsAccepted.ShouldBe(true);
+                var course = await context.Courses.Include(c => c.CourseStudents).SingleAsync();
+                course.CourseStudents.Single().IsAccepted.ShouldBe(true);
             }
         }
 
@@ -361,7 +361,7 @@ namespace Tests
                 await repository.AddUserAsync(student);
                 await repository.AddStudentAsync(course2.Id, student.Id);
 
-                context.Courses.Single().Students.Count.ShouldBe(1);
+                context.Courses.Single().CourseStudents.Count.ShouldBe(1);
             }
 
             using (var context = new CourseContext(_options))
@@ -372,8 +372,8 @@ namespace Tests
 
             using (var context = new CourseContext(_options))
             {
-                var course = await context.Courses.Include(c => c.Students).SingleAsync();
-                course.Students.ShouldBeEmpty();
+                var course = await context.Courses.Include(c => c.CourseStudents).SingleAsync();
+                course.CourseStudents.ShouldBeEmpty();
             }
         }
     }
