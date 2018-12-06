@@ -311,10 +311,11 @@ namespace Tests
                 await repository.AddUserAsync(student);
             }
 
+            var added = false;
             using (var context = new CourseContext(_options))
             {
                 var repository = new CourseRepository(context);
-                await repository.AddStudentAsync(course1.Id, student.Id);
+                added = await repository.AddStudentAsync(course1.Id, student.Id);
             }
 
             using (var context = new CourseContext(_options))
@@ -324,11 +325,65 @@ namespace Tests
 
                 course.CourseStudents.Count.ShouldBe(1);
                 course.CourseStudents.Single().ShouldBe(courseStudent);
+                added.ShouldBeTrue();
             }
         }
 
         [Test]
-        public async Task AcceptUserWritesToDatabase()
+        public async Task AddStudentDontChangeDatabaseOnInvalidId()
+        {
+            using (var context = new CourseContext(_options))
+            {
+                var repository = new CourseRepository(context);
+                await repository.AddAsync(course1);
+            }
+
+            var added = true;
+            using (var context = new CourseContext(_options))
+            {
+                var repository = new CourseRepository(context);
+                added = await repository.AddStudentAsync(course1.Id, 7);
+            }
+
+            using (var context = new CourseContext(_options))
+            {
+                var course = await context.Courses.Include(c => c.CourseStudents).SingleAsync();
+
+                course.CourseStudents.ShouldBeEmpty();
+                added.ShouldBeFalse();
+            }
+        }
+
+        [Test]
+        public async Task AddStudentDontAddStudentTwice()
+        {
+            var student = new User() { Id = 1, Name = "username" };
+            using (var context = new CourseContext(_options))
+            {
+                var repository = new CourseRepository(context);
+                await repository.AddAsync(course1);
+                await repository.AddUserAsync(student);
+                await repository.AddStudentAsync(course1.Id, student.Id);
+            }
+
+            var added = true;
+            using (var context = new CourseContext(_options))
+            {
+                var repository = new CourseRepository(context);
+                added = await repository.AddStudentAsync(course1.Id, student.Id);
+            }
+
+            using (var context = new CourseContext(_options))
+            {
+                var course = await context.Courses.Include(c => c.CourseStudents).SingleAsync();
+
+                course.CourseStudents.Count.ShouldBe(1);
+                added.ShouldBeFalse();
+            }
+        }
+
+        [Test]
+        public async Task AcceptStudentWritesToDatabase()
         {
             var student = new User() { Id = 1, Name = "username" };
             using (var context = new CourseContext(_options))
@@ -338,24 +393,54 @@ namespace Tests
                 await repository.AddUserAsync(student);
                 await repository.AddStudentAsync(course2.Id, student.Id);
 
-                context.Courses.Single().CourseStudents.Single().IsAccepted.ShouldBe(false);
+                context.Courses.Single().CourseStudents.Single().IsAccepted.ShouldBeFalse();
             }
 
+            var accepted = false;
             using (var context = new CourseContext(_options))
             {
                 var repository = new CourseRepository(context);
-                await repository.AcceptStudentAsync(course2.Id, student.Id);
+                accepted = await repository.AcceptStudentAsync(course2.Id, student.Id);
             }
 
             using (var context = new CourseContext(_options))
             {
                 var course = await context.Courses.Include(c => c.CourseStudents).SingleAsync();
-                course.CourseStudents.Single().IsAccepted.ShouldBe(true);
+                course.CourseStudents.Single().IsAccepted.ShouldBeTrue();
+                accepted.ShouldBeTrue();
             }
         }
 
         [Test]
-        public async Task RejectStudentWritesToDatabase()
+        public async Task AcceptStudentDontWriteToDatabaseOnInvalidId()
+        {
+            var student = new User() { Id = 1, Name = "username" };
+            using (var context = new CourseContext(_options))
+            {
+                var repository = new CourseRepository(context);
+                await repository.AddAsync(course2);
+                await repository.AddUserAsync(student);
+                await repository.AddStudentAsync(course2.Id, student.Id);
+            }
+
+            var accepted = true;
+            using (var context = new CourseContext(_options))
+            {
+                var repository = new CourseRepository(context);
+                accepted = await repository.AcceptStudentAsync(course2.Id, 8);
+            }
+
+            using (var context = new CourseContext(_options))
+            {
+                var course = await context.Courses.Include(c => c.CourseStudents).SingleAsync();
+
+                course.CourseStudents.Single().IsAccepted.ShouldBeFalse();
+                accepted.ShouldBeFalse();
+            }
+        }
+
+        [Test]
+        public async Task RejectStudentDeletesFromCloseCourse()
         {
             var student = new User() { Id = 1, Name = "username" };
             using (var context = new CourseContext(_options))
@@ -368,16 +453,76 @@ namespace Tests
                 context.Courses.Single().CourseStudents.Count.ShouldBe(1);
             }
 
+            var deleted = false;
             using (var context = new CourseContext(_options))
             {
                 var repository = new CourseRepository(context);
-                await repository.RejectStudentAsync(course2.Id, student.Id);
+                deleted = await repository.RejectStudentAsync(course2.Id, student.Id);
             }
 
             using (var context = new CourseContext(_options))
             {
                 var course = await context.Courses.Include(c => c.CourseStudents).SingleAsync();
                 course.CourseStudents.ShouldBeEmpty();
+                deleted.ShouldBeTrue();
+            }
+        }
+
+        [Test]
+        public async Task RejectStudentDontWriteToDatabaseOnInvalidId()
+        {
+            var student = new User() { Id = 1, Name = "username" };
+            using (var context = new CourseContext(_options))
+            {
+                var repository = new CourseRepository(context);
+                await repository.AddAsync(course2);
+                await repository.AddUserAsync(student);
+                await repository.AddStudentAsync(course2.Id, student.Id);
+            }
+
+            var deleted = true;
+            using (var context = new CourseContext(_options))
+            {
+                var repository = new CourseRepository(context);
+                deleted = await repository.RejectStudentAsync(108, 9);
+            }
+
+            using (var context = new CourseContext(_options))
+            {
+                var course = await context.Courses.Include(c => c.CourseStudents).SingleAsync();
+
+                course.CourseStudents.Count.ShouldBe(1);
+                deleted.ShouldBeFalse();
+            }
+        }
+
+        [Test]
+        public async Task RejectStudentDontDeleteFromOpenCourse()
+        {
+            var student = new User() { Id = 1, Name = "username" };
+            course2.IsOpen = true;
+            using (var context = new CourseContext(_options))
+            {
+                var repository = new CourseRepository(context);
+                await repository.AddAsync(course2);
+                await repository.AddUserAsync(student);
+                await repository.AddStudentAsync(course2.Id, student.Id);
+            }
+
+            var deleted = true;
+            using (var context = new CourseContext(_options))
+            {
+                var repository = new CourseRepository(context);
+                deleted = await repository.RejectStudentAsync(course2.Id, student.Id);
+            }
+
+            using (var context = new CourseContext(_options))
+            {
+                var course = await context.Courses.Include(c => c.CourseStudents).SingleAsync();
+
+                course.CourseStudents.Count.ShouldBe(1);
+                course.CourseStudents.ShouldContain(new CourseStudent(course2, student));
+                deleted.ShouldBeFalse();
             }
         }
     }

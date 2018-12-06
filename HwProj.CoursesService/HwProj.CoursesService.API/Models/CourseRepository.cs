@@ -29,28 +29,23 @@ namespace HwProj.CoursesService.API.Models
                     ThenInclude(cs => cs.Student)
                 .FirstOrDefaultAsync(c => c.Id == id);
 
-        public Task AddAsync(Course course)
+        public async Task AddAsync(Course course)
         {
-            _context.Add(course);
-            return _context.SaveChangesAsync();
+            await _context.AddAsync(course);
+            await _context.SaveChangesAsync();
         }
 
         public async Task<bool> DeleteByIdAsync(long id)
-        {
-            var result = await _context.Courses.Where(course => course.Id == id).DeleteAsync();
-            return result == 1;
-        }
+            => await _context.Courses.Where(course => course.Id == id).DeleteAsync() == 1;
 
         public async Task<bool> UpdateAsync(long id, UpdateCourseViewModel courseViewModel)
-        {
-            return await _context.Courses.Where(course => course.Id == id)
+            => await _context.Courses.Where(course => course.Id == id)
                 .UpdateAsync(course => new Course() {
                     Name = courseViewModel.Name,
                     GroupName = courseViewModel.GroupName,
                     IsOpen = courseViewModel.IsOpen,
                     IsComplete = courseViewModel.IsComplete
                 }) == 1;
-        }
 
         public async Task<bool> AddStudentAsync(long courseId, long userId)
         {
@@ -71,7 +66,7 @@ namespace HwProj.CoursesService.API.Models
         public async Task<bool> AcceptStudentAsync(long courseId, long userId)
         {
             var course = await GetAsync(courseId);
-            var student = course.CourseStudents.FirstOrDefault(cs => cs.StudentId == userId);
+            var student = course?.CourseStudents.FirstOrDefault(cs => cs.StudentId == userId);
 
             if (course == null || student == null)
             {
@@ -87,7 +82,7 @@ namespace HwProj.CoursesService.API.Models
         public async Task<bool> RejectStudentAsync(long courseId, long userId)
         {
             var course = await GetAsync(courseId);
-            var student = course.CourseStudents.FirstOrDefault(cs => cs.StudentId == userId);
+            var student = course?.CourseStudents.FirstOrDefault(cs => cs.StudentId == userId);
 
             if (course == null || student == null || course.IsOpen)
             {
@@ -118,7 +113,7 @@ namespace HwProj.CoursesService.API.Models
             => _context.Users
                 .Include(u => u.CourseStudents)
                     .ThenInclude(cs => cs.Course)
-                .SingleAsync(u => u.Id == userId);
+                .FirstOrDefaultAsync(u => u.Id == userId);
 
         #endregion
     }
