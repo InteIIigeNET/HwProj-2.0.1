@@ -8,7 +8,7 @@ using Microsoft.Data.Sqlite;
 using System.Collections.Generic;
 using HwProj.CoursesService.API.Models.ViewModels;
 
-namespace Tests
+namespace HwProj.CoursesService.Tests
 {
     [TestFixture]
     public class CourseRepositoryTests
@@ -56,7 +56,7 @@ namespace Tests
         }
 
         [Test]
-        public async Task AddWritesToDatabase()
+        public async Task AddShouldWriteToDatabase()
         {
             using (var context = new CourseContext(_options))
             {
@@ -72,7 +72,7 @@ namespace Tests
         }
 
         [Test]
-        public void AddWritesSeveralCourses()
+        public void AddShouldWriteSeveralCourses()
         {
             using (var context = new CourseContext(_options))
             {
@@ -89,7 +89,7 @@ namespace Tests
         }
 
         [Test]
-        public async Task GetAsyncGetsRightCourse()
+        public async Task GetAsyncShouldGetRightCourse()
         {
             using (var context = new CourseContext(_options))
             {
@@ -107,7 +107,7 @@ namespace Tests
         }
 
         [Test]
-        public async Task GetAsyncGetsNullOnInvalidId()
+        public async Task GetAsyncShouldGetNullOnInvalidId()
         {
             using (var context = new CourseContext(_options))
             {
@@ -123,7 +123,7 @@ namespace Tests
         }
 
         [Test]
-        public void CoursesGetsAllCourses()
+        public void CoursesShouldGetAllCourses()
         {
             using (var context = new CourseContext(_options))
             {
@@ -141,7 +141,7 @@ namespace Tests
         }
 
         [Test]
-        public async Task DeleteByIdDeletesFromDatabase()
+        public async Task DeleteByIdShouldDeleteFromDatabase()
         {
             using (var context = new CourseContext(_options))
             {
@@ -164,7 +164,7 @@ namespace Tests
         }
 
         [Test]
-        public async Task DeleteByIdDeletesRightCourse()
+        public async Task DeleteByIdShouldDeleteRightCourse()
         {
             using (var context = new CourseContext(_options))
             {
@@ -189,7 +189,7 @@ namespace Tests
         }
 
         [Test]
-        public async Task DeleteByIdDontChangeDatabaseOnInvalidId()
+        public async Task DeleteByIdShouldNotChangeDatabaseOnInvalidId()
         {
             using (var context = new CourseContext(_options))
             {
@@ -215,7 +215,7 @@ namespace Tests
         }
 
         [Test]
-        public async Task UpdateWritesToDatabase()
+        public async Task UpdateShouldWriteToDatabase()
         {
             var course = new Course() { Id = 100, Name = "java", GroupName = "144", Mentor = mentor};
             using (var context = new CourseContext(_options))
@@ -245,7 +245,7 @@ namespace Tests
         }
 
         [Test]
-        public async Task UpdateModifiesRightCourse()
+        public async Task UpdateShouldModifyRightCourse()
         {
             using (var context = new CourseContext(_options))
             {
@@ -279,7 +279,7 @@ namespace Tests
         }
 
         [Test]
-        public async Task UpdateDontChangeDatabaseOnInvalidId()
+        public async Task UpdateShouldNotChangeDatabaseOnInvalidId()
         {
             using (var context = new CourseContext(_options))
             {
@@ -304,7 +304,7 @@ namespace Tests
         }
 
         [Test]
-        public async Task AddStudentAddsStudent()
+        public async Task AddStudentShouldAddStudentToDatabase()
         {
             var student = new User() { Id = 1, Name = "username" };
             using (var context = new CourseContext(_options))
@@ -333,7 +333,7 @@ namespace Tests
         }
 
         [Test]
-        public async Task AddStudentDontChangeDatabaseOnInvalidId()
+        public async Task AddStudentShouldNotChangeDatabaseOnInvalidId()
         {
             using (var context = new CourseContext(_options))
             {
@@ -358,7 +358,7 @@ namespace Tests
         }
 
         [Test]
-        public async Task AddStudentDontAddStudentTwice()
+        public async Task AddStudentShouldNotAddStudentTwice()
         {
             var student = new User() { Id = 1, Name = "username" };
             using (var context = new CourseContext(_options))
@@ -386,7 +386,7 @@ namespace Tests
         }
 
         [Test]
-        public async Task AddStudentDontAddMentor()
+        public async Task AddStudentShouldNotAddMentor()
         {
             using (var context = new CourseContext(_options))
             {
@@ -411,7 +411,7 @@ namespace Tests
         }
 
         [Test]
-        public async Task AcceptStudentWritesToDatabase()
+        public async Task AcceptStudentShouldWriteToDatabase()
         {
             var student = new User() { Id = 1, Name = "username" };
             using (var context = new CourseContext(_options))
@@ -440,7 +440,7 @@ namespace Tests
         }
 
         [Test]
-        public async Task AcceptStudentDontWriteToDatabaseOnInvalidId()
+        public async Task AcceptStudentShouldNotWriteToDatabaseOnInvalidId()
         {
             var student = new User() { Id = 1, Name = "username" };
             using (var context = new CourseContext(_options))
@@ -468,7 +468,7 @@ namespace Tests
         }
 
         [Test]
-        public async Task RejectStudentDeletesFromCloseCourse()
+        public async Task RejectStudentShouldDeleteFromCloseCourse()
         {
             var student = new User() { Id = 1, Name = "username" };
             using (var context = new CourseContext(_options))
@@ -497,7 +497,7 @@ namespace Tests
         }
 
         [Test]
-        public async Task RejectStudentDontWriteToDatabaseOnInvalidId()
+        public async Task RejectStudentShouldNotWriteToDatabaseOnInvalidId()
         {
             var student = new User() { Id = 1, Name = "username" };
             using (var context = new CourseContext(_options))
@@ -525,7 +525,7 @@ namespace Tests
         }
 
         [Test]
-        public async Task RejectStudentDontDeleteFromOpenCourse()
+        public async Task RejectStudentShouldNotDeleteFromOpenCourse()
         {
             var student = new User() { Id = 1, Name = "username" };
             course2.IsOpen = true;
