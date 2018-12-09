@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using HwProj.AuthService.API.Models;
+using HwProj.AuthService.API.ViewModels;
+using System.Threading.Tasks;
 
 namespace HwProj.AuthService.API.Controllers
 {
@@ -9,21 +11,58 @@ namespace HwProj.AuthService.API.Controllers
     public class AccountController : Controller
     {
         private readonly UserManager<User> userManager;
+        private readonly SignInManager<User> signInManager;
 
-        public AccountController(UserManager<User> userManager)
-            => this.userManager = userManager;
+        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager)
+        {
+            this.userManager = userManager;
+            this.signInManager = signInManager;
+        }
 
         [HttpPost]
-        public async void Register(RegisterModel model)
+        public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            User user = new User
-            {
-                Name = model.Name,
-                Surname = model.Surname,
-                Email = model.Email
-            };
-
+            var user = new User(model.Name, model.Surname, model.Email);
             var result = await userManager.CreateAsync(user, model.Password);
+
+            if (result.Succeeded)
+            {
+                await signInManager.SignInAsync(user, false);
+            }
+            else
+            {
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError("", error.Description);
+                }
+
+                return BadRequest();
+            }
+
+            return Ok();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Login(LoginViewModel model)
+        {
+            var result = await signInManager.
+                PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
+
+            if (!result.Succeeded)
+            {
+                ModelState.AddModelError("", "Incorrect login or password");
+                return Unauthorized();
+            }
+
+            return Ok();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async void LogOff()
+        {
+            await signInManager.SignOutAsync();
         }
     }
 }
