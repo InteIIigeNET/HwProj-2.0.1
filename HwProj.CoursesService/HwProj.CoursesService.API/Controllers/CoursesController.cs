@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.API.Models;
@@ -24,9 +22,7 @@ namespace HwProj.CoursesService.API.Controllers
 
         [HttpGet]
         public IActionResult GetAll()
-        {
-            return Json(_repository.Courses.Select(c => CourseViewModel.FromCourse(c, _mapper)));
-        }
+            => Json(_repository.Courses.Select(c => CourseViewModel.FromCourse(c, _mapper)));
 
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(long id)
@@ -56,36 +52,21 @@ namespace HwProj.CoursesService.API.Controllers
 
         [HttpPost("sign_in_course/{courseId}")]
         public async Task<IActionResult> SignInCourse(long courseId, [FromQuery]long? userId)
-        {
-            if (!userId.HasValue)
-            {
-                return NotFound();
-            }
-
-            return Result(await _repository.AddStudentAsync(courseId, userId.Value));
-        }
+            => userId.HasValue
+            ? Result(await _repository.AddStudentAsync(courseId, userId.Value))
+            : NotFound() as IActionResult;
 
         [HttpPost("accept_student/{courseId}")]
         public async Task<IActionResult> AcceptStudent(long courseId, [FromQuery]long? userId)
-        {
-            if (!userId.HasValue)
-            {
-                return NotFound();
-            }
-
-            return Result(await _repository.AcceptStudentAsync(courseId, userId.Value));
-        }
+        => userId.HasValue
+            ? Result(await _repository.AcceptStudentAsync(courseId, userId.Value))
+            : NotFound() as IActionResult;
 
         [HttpPost("reject_student/{courseId}")]
         public async Task<IActionResult> RejectStudent(long courseId, [FromQuery]long? userId)
-        {
-            if (!userId.HasValue)
-            {
-                return NotFound();
-            }
-
-            return Result(await _repository.RejectStudentAsync(courseId, userId.Value));
-        }
+        => userId.HasValue
+            ? Result(await _repository.RejectStudentAsync(courseId, userId.Value))
+            : NotFound() as IActionResult;
 
         private IActionResult Result(bool flag)
             => flag
