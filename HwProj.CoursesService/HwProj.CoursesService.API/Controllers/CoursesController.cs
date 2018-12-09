@@ -65,25 +65,25 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpPost("sign_in_course/{courseId}")]
         public async Task<IActionResult> SignInCourse(long courseId, [FromQuery]long? userId)
             => userId.HasValue
-            ? Result(await _repository.AddStudentAsync(courseId, userId.Value))
-            : NotFound() as IActionResult;
+                ? Result(await _repository.AddStudentAsync(courseId, userId.Value))
+                : NotFound() as IActionResult;
 
         [HttpPost("accept_student/{courseId}")]
         public async Task<IActionResult> AcceptStudent(long courseId, [FromQuery]long? userId)
-        => userId.HasValue
-            ? Result(await _repository.AcceptStudentAsync(courseId, userId.Value))
-            : NotFound() as IActionResult;
+            => userId.HasValue
+                ? Result(await _repository.AcceptStudentAsync(courseId, userId.Value))
+                : NotFound() as IActionResult;
 
         [HttpPost("reject_student/{courseId}")]
         public async Task<IActionResult> RejectStudent(long courseId, [FromQuery]long? userId)
-        => userId.HasValue
-            ? Result(await _repository.RejectStudentAsync(courseId, userId.Value))
-            : NotFound() as IActionResult;
+            => userId.HasValue
+                ? Result(await _repository.RejectStudentAsync(courseId, userId.Value))
+                : NotFound() as IActionResult;
 
         private IActionResult Result(bool flag)
             => flag
-            ? Ok() as IActionResult
-            : NotFound();
+                ? Ok() as IActionResult
+                : NotFound();
 
         #region временные методы для работы с юзерами
 
