@@ -50,10 +50,15 @@ namespace HwProj.CoursesService.API.Models
 
         public async Task<bool> AddStudentAsync(long courseId, string userId)
         {
-            var course = await GetAsync(courseId);
-            var user = await GetUserAsync(userId);
+            var getCourseTask = GetAsync(courseId);
+            var getUserTask = GetUserAsync(userId);
+            await Task.WhenAll(getCourseTask, getUserTask);
 
-            if (course == null || user == null || course.CourseStudents.Exists(cs => cs.StudentId == userId) || course.MentorId == user.Id)
+            var course = getCourseTask.Result;
+            var user = getUserTask.Result;
+
+            if (course == null || user == null || course.CourseStudents.Exists(cs => cs.StudentId == userId)
+                || course.MentorId == user.Id || course.IsComplete)
             {
                 return false;
             }
