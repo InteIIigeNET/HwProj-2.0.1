@@ -18,12 +18,14 @@ namespace HwProj.CoursesService.API.Models
 
         public IReadOnlyCollection<Course> Courses
             => _context.Courses
-            .Include(c => c.CourseStudents)
-                .ThenInclude(cs => cs.Student)
-            .AsNoTracking().ToArray();
+                .Include(c => c.Mentor)
+                .Include(c => c.CourseStudents)
+                    .ThenInclude(cs => cs.Student)
+                .AsNoTracking().ToArray();
 
         public Task<Course> GetAsync(long id)
             => _context.Courses
+                .Include(c => c.Mentor)
                 .Include(c => c.CourseStudents).
                     ThenInclude(cs => cs.Student)
                 .FirstOrDefaultAsync(c => c.Id == id);
@@ -51,7 +53,7 @@ namespace HwProj.CoursesService.API.Models
             var course = await GetAsync(courseId);
             var user = await GetUserAsync(userId);
 
-            if (course == null || user == null || course.CourseStudents.Exists(cs => cs.StudentId == userId))
+            if (course == null || user == null || course.CourseStudents.Exists(cs => cs.StudentId == userId) || course.MentorId == user.Id)
             {
                 return false;
             }

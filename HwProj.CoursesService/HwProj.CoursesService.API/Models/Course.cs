@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 
 namespace HwProj.CoursesService.API.Models
@@ -12,6 +13,10 @@ namespace HwProj.CoursesService.API.Models
         public string GroupName { get; set; }
         public bool IsOpen { get; set; }
         public bool IsComplete { get; set; }
+
+        public long MentorId { get; set; }
+        [ForeignKey(nameof(MentorId))]
+        public User Mentor { get; set; }
 
         public List<CourseStudent> CourseStudents { get; set; } = new List<CourseStudent>();
 

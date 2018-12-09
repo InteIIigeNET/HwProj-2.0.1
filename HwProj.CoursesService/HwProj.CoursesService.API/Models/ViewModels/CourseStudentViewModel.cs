@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace HwProj.CoursesService.API.Models.ViewModels
+﻿namespace HwProj.CoursesService.API.Models.ViewModels
 {
     public class CourseStudentViewModel
     {

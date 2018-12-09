@@ -18,6 +18,7 @@ namespace Tests
 
         private Course course1;
         private Course course2;
+        private readonly User mentor = new User() { Id = 666, Name = "admin" };
         private List<Course> courses;
 
         [SetUp]
@@ -33,12 +34,14 @@ namespace Tests
             using (var context = new CourseContext(_options))
             {
                 context.Database.EnsureCreated();
+                context.SaveChanges();
             }
 
-            course1 = new Course() { Id = 1, Name = "course_name1", GroupName = "144", IsOpen = true };
-            course2 = new Course() { Id = 2, Name = "course_name2", GroupName = "243" };
+            
+            course1 = new Course() { Id = 1, Name = "course_name1", GroupName = "144", IsOpen = true, Mentor = mentor};
+            course2 = new Course() { Id = 2, Name = "course_name2", GroupName = "243", Mentor = mentor };
             courses = Enumerable.Range(1, 10)
-                .Select(i => new Course() { Id = i, Name = $"course{i}" })
+                .Select(i => new Course() { Id = i, Name = $"course{i}", Mentor = mentor })
                 .ToList();
         }
 
@@ -214,7 +217,7 @@ namespace Tests
         [Test]
         public async Task UpdateWritesToDatabase()
         {
-            var course = new Course() { Id = 100, Name = "java", GroupName = "144" };
+            var course = new Course() { Id = 100, Name = "java", GroupName = "144", Mentor = mentor};
             using (var context = new CourseContext(_options))
             {
                 var repository = new CourseRepository(context);

@@ -15,6 +15,11 @@ namespace HwProj.CoursesService.API.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Course>()
+                .HasOne(c => c.Mentor)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<CourseStudent>()
                 .HasKey(t => new { t.StudentId, t.CourseId });
 
