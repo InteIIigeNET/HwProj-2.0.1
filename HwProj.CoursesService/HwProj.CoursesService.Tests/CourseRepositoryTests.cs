@@ -386,6 +386,31 @@ namespace Tests
         }
 
         [Test]
+        public async Task AddStudentDontAddMentor()
+        {
+            using (var context = new CourseContext(_options))
+            {
+                var repository = new CourseRepository(context);
+                await repository.AddAsync(course1);
+            }
+
+            var added = true;
+            using (var context = new CourseContext(_options))
+            {
+                var repository = new CourseRepository(context);
+                added = await repository.AddStudentAsync(course1.Id, mentor.Id);
+            }
+
+            using (var context = new CourseContext(_options))
+            {
+                var course = await context.Courses.Include(c => c.Mentor).Include(c => c.CourseStudents).SingleAsync();
+
+                course.CourseStudents.ShouldBeEmpty();
+                added.ShouldBeFalse();
+            }
+        }
+
+        [Test]
         public async Task AcceptStudentWritesToDatabase()
         {
             var student = new User() { Id = 1, Name = "username" };
