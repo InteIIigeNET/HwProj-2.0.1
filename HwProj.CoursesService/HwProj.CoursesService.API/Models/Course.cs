@@ -14,7 +14,7 @@ namespace HwProj.CoursesService.API.Models
         public bool IsOpen { get; set; }
         public bool IsComplete { get; set; }
 
-        public long MentorId { get; set; }
+        public string MentorId { get; set; }
         [ForeignKey(nameof(MentorId))]
         public User Mentor { get; set; }
 

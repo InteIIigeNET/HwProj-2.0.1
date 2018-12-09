@@ -40,16 +40,13 @@ namespace HwProj.CoursesService.API.Models.ViewModels
         public string GroupName { get; set; }
         public bool IsOpen { get; set; }
         public bool IsComplete { get; set; }
-        public long MentorId { get; set; }
-        public string Mentor { get; set; }
+        public string MentorId { get; set; }
 
         public List<CourseStudentViewModel> Students { get; set; } = new List<CourseStudentViewModel>();
 
         public static CourseViewModel FromCourse(Course course, IMapper mapper)
         {
             var courseViewModel = mapper.Map<CourseViewModel>(course);
-            courseViewModel.MentorId = course.MentorId;
-            courseViewModel.Mentor = course.Mentor.Name;
             courseViewModel.Students = course.CourseStudents.Select(cs => new CourseStudentViewModel(cs)).ToList();
 
             return courseViewModel;

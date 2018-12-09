@@ -18,7 +18,7 @@ namespace HwProj.CoursesService.Tests
 
         private Course course1;
         private Course course2;
-        private readonly User mentor = new User() { Id = 666, Name = "admin" };
+        private readonly User mentor = new User() { Id = "admin" };
         private List<Course> courses;
 
         [SetUp]
@@ -306,7 +306,7 @@ namespace HwProj.CoursesService.Tests
         [Test]
         public async Task AddStudentShouldAddStudentToDatabase()
         {
-            var student = new User() { Id = 1, Name = "username" };
+            var student = new User() { Id = "username" };
             using (var context = new CourseContext(_options))
             {
                 var repository = new CourseRepository(context);
@@ -345,7 +345,7 @@ namespace HwProj.CoursesService.Tests
             using (var context = new CourseContext(_options))
             {
                 var repository = new CourseRepository(context);
-                added = await repository.AddStudentAsync(course1.Id, 7);
+                added = await repository.AddStudentAsync(course1.Id, "invalid id");
             }
 
             using (var context = new CourseContext(_options))
@@ -360,7 +360,7 @@ namespace HwProj.CoursesService.Tests
         [Test]
         public async Task AddStudentShouldNotAddStudentTwice()
         {
-            var student = new User() { Id = 1, Name = "username" };
+            var student = new User() { Id = "username" };
             using (var context = new CourseContext(_options))
             {
                 var repository = new CourseRepository(context);
@@ -413,7 +413,7 @@ namespace HwProj.CoursesService.Tests
         [Test]
         public async Task AcceptStudentShouldWriteToDatabase()
         {
-            var student = new User() { Id = 1, Name = "username" };
+            var student = new User() { Id = "username" };
             using (var context = new CourseContext(_options))
             {
                 var repository = new CourseRepository(context);
@@ -442,7 +442,7 @@ namespace HwProj.CoursesService.Tests
         [Test]
         public async Task AcceptStudentShouldNotWriteToDatabaseOnInvalidId()
         {
-            var student = new User() { Id = 1, Name = "username" };
+            var student = new User() { Id = "username" };
             using (var context = new CourseContext(_options))
             {
                 var repository = new CourseRepository(context);
@@ -455,7 +455,7 @@ namespace HwProj.CoursesService.Tests
             using (var context = new CourseContext(_options))
             {
                 var repository = new CourseRepository(context);
-                accepted = await repository.AcceptStudentAsync(course2.Id, 8);
+                accepted = await repository.AcceptStudentAsync(course2.Id, "invalid id");
             }
 
             using (var context = new CourseContext(_options))
@@ -470,7 +470,7 @@ namespace HwProj.CoursesService.Tests
         [Test]
         public async Task RejectStudentShouldDeleteFromCloseCourse()
         {
-            var student = new User() { Id = 1, Name = "username" };
+            var student = new User() { Id = "username" };
             using (var context = new CourseContext(_options))
             {
                 var repository = new CourseRepository(context);
@@ -499,7 +499,7 @@ namespace HwProj.CoursesService.Tests
         [Test]
         public async Task RejectStudentShouldNotWriteToDatabaseOnInvalidId()
         {
-            var student = new User() { Id = 1, Name = "username" };
+            var student = new User() { Id = "username" };
             using (var context = new CourseContext(_options))
             {
                 var repository = new CourseRepository(context);
@@ -512,7 +512,7 @@ namespace HwProj.CoursesService.Tests
             using (var context = new CourseContext(_options))
             {
                 var repository = new CourseRepository(context);
-                deleted = await repository.RejectStudentAsync(108, 9);
+                deleted = await repository.RejectStudentAsync(108, "invalid id");
             }
 
             using (var context = new CourseContext(_options))
@@ -527,7 +527,7 @@ namespace HwProj.CoursesService.Tests
         [Test]
         public async Task RejectStudentShouldNotDeleteFromOpenCourse()
         {
-            var student = new User() { Id = 1, Name = "username" };
+            var student = new User() { Id = "username" };
             course2.IsOpen = true;
             using (var context = new CourseContext(_options))
             {

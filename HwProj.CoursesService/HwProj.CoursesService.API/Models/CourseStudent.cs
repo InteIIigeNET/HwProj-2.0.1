@@ -5,7 +5,7 @@
         public long CourseId { get; set; }
         public Course Course { get; set; }
 
-        public long StudentId { get; set; }
+        public string StudentId { get; set; }
         public User Student { get; set; }
 
         public bool IsAccepted { get; set; }

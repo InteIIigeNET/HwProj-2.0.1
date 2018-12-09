@@ -48,7 +48,7 @@ namespace HwProj.CoursesService.API.Models
                     IsComplete = courseViewModel.IsComplete
                 }) == 1;
 
-        public async Task<bool> AddStudentAsync(long courseId, long userId)
+        public async Task<bool> AddStudentAsync(long courseId, string userId)
         {
             var course = await GetAsync(courseId);
             var user = await GetUserAsync(userId);
@@ -64,7 +64,7 @@ namespace HwProj.CoursesService.API.Models
             return true;
         }
 
-        public async Task<bool> AcceptStudentAsync(long courseId, long userId)
+        public async Task<bool> AcceptStudentAsync(long courseId, string userId)
         {
             var course = await GetAsync(courseId);
             var student = course?.CourseStudents.FirstOrDefault(cs => cs.StudentId == userId);
@@ -80,7 +80,7 @@ namespace HwProj.CoursesService.API.Models
             return true;
         }
 
-        public async Task<bool> RejectStudentAsync(long courseId, long userId)
+        public async Task<bool> RejectStudentAsync(long courseId, string userId)
         {
             var course = await GetAsync(courseId);
             var student = course?.CourseStudents.FirstOrDefault(cs => cs.StudentId == userId);
@@ -110,7 +110,7 @@ namespace HwProj.CoursesService.API.Models
                 .ThenInclude(cs => cs.Course)
             .AsNoTracking().ToArray();
 
-        public Task<User> GetUserAsync(long userId) 
+        public Task<User> GetUserAsync(string userId) 
             => _context.Users
                 .Include(u => u.CourseStudents)
                     .ThenInclude(cs => cs.Course)

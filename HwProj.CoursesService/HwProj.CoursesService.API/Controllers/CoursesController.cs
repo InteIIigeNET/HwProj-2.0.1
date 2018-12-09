@@ -34,14 +34,14 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddCourse([FromBody]CreateCourseViewModel courseViewModel, [FromQuery]long? mentorId)
+        public async Task<IActionResult> AddCourse([FromBody]CreateCourseViewModel courseViewModel, [FromQuery]string mentorId)
         {
-            if (!mentorId.HasValue)
+            if (string.IsNullOrEmpty(mentorId))
             {
                 return NotFound();
             }
 
-            var mentor = await _repository.GetUserAsync(mentorId.Value);
+            var mentor = await _repository.GetUserAsync(mentorId);
             if (mentor == null)
             {
                 return NotFound();
@@ -63,22 +63,22 @@ namespace HwProj.CoursesService.API.Controllers
             => Result(await _repository.UpdateAsync(courseId, courseViewModel));
 
         [HttpPost("sign_in_course/{courseId}")]
-        public async Task<IActionResult> SignInCourse(long courseId, [FromQuery]long? userId)
-            => userId.HasValue
-                ? Result(await _repository.AddStudentAsync(courseId, userId.Value))
-                : NotFound() as IActionResult;
+        public async Task<IActionResult> SignInCourse(long courseId, [FromQuery]string userId)
+            => string.IsNullOrEmpty(userId)
+                ? NotFound() as IActionResult
+                : Result(await _repository.AddStudentAsync(courseId, userId));
 
         [HttpPost("accept_student/{courseId}")]
-        public async Task<IActionResult> AcceptStudent(long courseId, [FromQuery]long? userId)
-            => userId.HasValue
-                ? Result(await _repository.AcceptStudentAsync(courseId, userId.Value))
-                : NotFound() as IActionResult;
+        public async Task<IActionResult> AcceptStudent(long courseId, [FromQuery]string userId)
+            => string.IsNullOrEmpty(userId)
+                ? NotFound() as IActionResult
+                : Result(await _repository.AcceptStudentAsync(courseId, userId));
 
         [HttpPost("reject_student/{courseId}")]
-        public async Task<IActionResult> RejectStudent(long courseId, [FromQuery]long? userId)
-            => userId.HasValue
-                ? Result(await _repository.RejectStudentAsync(courseId, userId.Value))
-                : NotFound() as IActionResult;
+        public async Task<IActionResult> RejectStudent(long courseId, [FromQuery]string userId)
+            => string.IsNullOrEmpty(userId)
+                ? NotFound() as IActionResult
+                : Result(await _repository.RejectStudentAsync(courseId, userId));
 
         private IActionResult Result(bool flag)
             => flag
@@ -101,8 +101,13 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpGet("user/{id}")]
-        public async Task<IActionResult> GetUser(long id)
+        public async Task<IActionResult> GetUser(string id)
         {
+            if (string.IsNullOrEmpty(id))
+            {
+                return NotFound();
+            }
+
             var user = await _repository.GetUserAsync(id);
             if (user == null)
             {
