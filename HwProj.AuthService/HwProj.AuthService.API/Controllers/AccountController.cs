@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using HwProj.AuthService.API.Models;
 using HwProj.AuthService.API.ViewModels;
 using System.Threading.Tasks;
+using HwProj.AuthService.API.Extentions;
 
 namespace HwProj.AuthService.API.Controllers
 {
@@ -31,11 +32,7 @@ namespace HwProj.AuthService.API.Controllers
             }
             else
             {
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError("", error.Description);
-                }
-
+                ModelState.AddModelErrors(result.Errors as IdentityError[]);
                 return BadRequest();
             }
 
