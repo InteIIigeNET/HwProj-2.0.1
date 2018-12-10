@@ -26,16 +26,54 @@ namespace HwProj.AuthService.API.Controllers
             var user = new User(model.Name, model.Surname, model.Email);
             var result = await userManager.CreateAsync(user, model.Password);
 
-            if (result.Succeeded)
-            {
-                await signInManager.SignInAsync(user, false);
-            }
-            else
+            if (!result.Succeeded)
             {
                 ModelState.AddModelErrors(result.Errors as IdentityError[]);
                 return BadRequest();
             }
 
+            await userManager.AddToRoleAsync(user, "student");
+
+            var token = userManager.GenerateEmailConfirmationTokenAsync(user);
+            var verificationLink = Url.Action(
+                "ConfirmEmail",
+                "Account",
+                new { userId = user.Id, userToken = token },
+                protocol: HttpContext.Request.Scheme);
+
+            var emailService = new EmailService();
+            await emailService.SendEmailAsync(
+                user.Email,
+                "Подтверждение регистрации",
+                $"Для подтверждения регистрации перейдите по ссылке\n" +
+                $"<a href='{verificationLink}'>link</a>");
+
+            return Ok();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ConfirmEmail(string userId, string userToken)
+        {
+            if (userId == null || userToken == null)
+            {
+                return BadRequest();
+            }
+
+            var user = await userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                return BadRequest();
+            }
+
+            var result = await userManager.ConfirmEmailAsync(user, userToken);
+
+            if (!result.Succeeded)
+            {
+                return BadRequest();
+            }
+
+            await signInManager.SignInAsync(user, false);
             return Ok();
         }
 
@@ -43,12 +81,20 @@ namespace HwProj.AuthService.API.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
+            var user = await userManager.FindByNameAsync(model.Email);
+
+            if (user != null && !await userManager.IsEmailConfirmedAsync(user))
+            {
+                ModelState.AddModelError("", "Попытка авторизации без подтверждения email");
+                return BadRequest();
+            }
+
             var result = await signInManager.
                 PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
 
             if (!result.Succeeded)
             {
-                ModelState.AddModelError("", "Incorrect login or password");
+                ModelState.AddModelError("", "Неверный логин или пароль");
                 return Unauthorized();
             }
 

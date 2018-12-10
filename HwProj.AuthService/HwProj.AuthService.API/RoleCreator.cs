@@ -13,7 +13,7 @@ namespace HwProj.AuthService.API
                 await roleManager.CreateAsync(new IdentityRole("lecture"));
             }
 
-            if (roleManager.FindByNameAsync("student") == null)
+            if (await roleManager.FindByNameAsync("student") == null)
             {
                 await roleManager.CreateAsync(new IdentityRole("student"));
             }

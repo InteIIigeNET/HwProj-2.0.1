@@ -23,7 +23,8 @@ namespace HwProj.AuthService.API
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddIdentity<User, IdentityRole>()
-                .AddEntityFrameworkStores<IdentityContext>();
+                .AddEntityFrameworkStores<IdentityContext>()
+                .AddDefaultTokenProviders();        
 
             services.AddMvc();
         }
