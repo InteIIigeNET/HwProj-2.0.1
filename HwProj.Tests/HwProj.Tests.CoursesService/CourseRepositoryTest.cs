@@ -1,4 +1,4 @@
-using HwProj.CoursesService.API.Models;
+﻿using HwProj.CoursesService.API.Models;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using System.Linq;
@@ -37,8 +37,8 @@ namespace HwProj.CoursesService.Tests
                 context.SaveChanges();
             }
 
-            
-            course1 = new Course() { Id = 1, Name = "course_name1", GroupName = "144", IsOpen = true, Mentor = mentor};
+
+            course1 = new Course() { Id = 1, Name = "course_name1", GroupName = "144", IsOpen = true, Mentor = mentor };
             course2 = new Course() { Id = 2, Name = "course_name2", GroupName = "243", Mentor = mentor };
             courses = Enumerable.Range(1, 10)
                 .Select(i => new Course() { Id = i, Name = $"course{i}", Mentor = mentor })
@@ -217,7 +217,7 @@ namespace HwProj.CoursesService.Tests
         [Test]
         public async Task UpdateShouldWriteToDatabase()
         {
-            var course = new Course() { Id = 100, Name = "java", GroupName = "144", Mentor = mentor};
+            var course = new Course() { Id = 100, Name = "java", GroupName = "144", Mentor = mentor };
             using (var context = new CourseContext(_options))
             {
                 var repository = new CourseRepository(context);

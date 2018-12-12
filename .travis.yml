@@ -7,4 +7,4 @@ install:
 - dotnet restore
 script:
 - dotnet build
-- dotnet test HwProj.CoursesService/HwProj.CoursesService.Tests/HwProj.CoursesService.Tests.csproj
+- dotnet test HwProj.Tests/HwProj.Tests.CoursesService/HwProj.Tests.CoursesService.csproj
