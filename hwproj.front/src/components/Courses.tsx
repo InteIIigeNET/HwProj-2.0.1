@@ -2,7 +2,7 @@ import * as React from 'react';
 import CoursesApi from '../api/CoursesApi'
 import ICourse from '../models/Course'
 
-export interface IState {
+interface IState {
     isLoaded: boolean;
     courses: ICourse[];
 }
