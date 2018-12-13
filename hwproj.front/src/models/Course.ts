@@ -9,4 +9,19 @@ export default interface ICourse
     isComplete: boolean,
     mentorId: string,
     students: IStudent[]
-}  
+}
+
+export default interface ICreateCourseModel
+{
+    name: string,
+    groupName: string,
+    isOpen: boolean
+}
+
+export default interface IUpdateCourseModel
+{
+    name: string,
+    groupName: string,
+    isOpen: boolean,
+    isComplete: boolean
+}
