@@ -19,6 +19,7 @@ namespace HwProj.CoursesService.Tests
 
         private Course course1;
         private Course course2;
+        private User student;
         private readonly User mentor = new User() { Id = "admin" };
         private List<Course> courses;
 
@@ -38,6 +39,7 @@ namespace HwProj.CoursesService.Tests
                 context.SaveChanges();
             }
 
+            student = new User() { Id = "username" };
             course1 = new Course() { Id = 1, Name = "course_name1", GroupName = "144", IsOpen = true, Mentor = mentor };
             course2 = new Course() { Id = 2, Name = "course_name2", GroupName = "243", Mentor = mentor };
             courses = Enumerable.Range(1, 10)
@@ -306,14 +308,11 @@ namespace HwProj.CoursesService.Tests
         [Test]
         public async Task AddStudentShouldAddStudentToDatabase()
         {
-            var student = new User() { Id = "username" };
             using (var context = new CourseContext(_options))
             {
                 var courseRepository = new CourseRepository(context);
-                var userRepository = new UserRepository(context);
 
                 await courseRepository.AddAsync(course1);
-                //await userRepository.AddAsync(student);
             }
 
             var added = false;
@@ -335,7 +334,7 @@ namespace HwProj.CoursesService.Tests
         }
 
         [Test]
-        public async Task AddStudentShouldNotChangeDatabaseOnInvalidId()
+        public async Task AddStudentShouldNotCrashOnNullUser()
         {
             using (var context = new CourseContext(_options))
             {
@@ -362,7 +361,6 @@ namespace HwProj.CoursesService.Tests
         [Test]
         public async Task AddStudentShouldNotAddStudentTwice()
         {
-            var student = new User() { Id = "username" };
             using (var context = new CourseContext(_options))
             {
                 var courseRepository = new CourseRepository(context);
@@ -415,16 +413,91 @@ namespace HwProj.CoursesService.Tests
         }
 
         [Test]
-        public async Task AcceptStudentShouldWriteToDatabase()
+        public async Task DeleteShouldNotDeleteMentorAndStudents()
         {
-            var student = new User() { Id = "username" };
             using (var context = new CourseContext(_options))
             {
                 var courseRepository = new CourseRepository(context);
-                var userRepository = new UserRepository(context);
+
+                await courseRepository.AddAsync(course1);
+                await courseRepository.AddStudentAsync(course1.Id, student);
+            }
+
+            using (var context = new CourseContext(_options))
+            {
+                var courseRepository = new CourseRepository(context);
+
+                await courseRepository.DeleteByIdAsync(course1.Id);
+            }
+
+            using (var context = new CourseContext(_options))
+            {
+                (await context.Users.ContainsAsync(mentor)).ShouldBeTrue();
+                (await context.Users.ContainsAsync(student)).ShouldBeTrue();
+            }
+        }
+
+        [Test]
+        public async Task UpdateShouldNotChangeMentorAndStudents()
+        {
+            var course = new Course() { Id = 100, Name = "java", GroupName = "144", Mentor = mentor };
+            using (var context = new CourseContext(_options))
+            {
+                var repository = new CourseRepository(context);
+                await repository.AddAsync(course);
+                await repository.AddStudentAsync(course.Id, student);
+            }
+
+            var courseViewModel = new UpdateCourseViewModel() { Name = "c#", GroupName = "244", IsOpen = true };
+            using (var context = new CourseContext(_options))
+            {
+                var repository = new CourseRepository(context);
+                await repository.UpdateAsync(course.Id, courseViewModel);
+            }
+
+            using (var context = new CourseContext(_options))
+            {
+                var gottenCourse = await context.Courses
+                    .Include(c => c.Mentor)
+                    .Include(c => c.CourseStudents)
+                        .ThenInclude(cs => cs.Student)
+                    .SingleAsync();
+
+                gottenCourse.Mentor.ShouldBe(mentor);
+                gottenCourse.CourseStudents.Single().Student.ShouldBe(student);
+            }
+        }
+
+        [Test]
+        public async Task GetShouldNotChangeMentorAndStudents()
+        {
+            using (var context = new CourseContext(_options))
+            {
+                var courseRepository = new CourseRepository(context);
+
+                await courseRepository.AddAsync(course1);
+                await courseRepository.AddStudentAsync(course1.Id, student);
+            }
+
+            using (var context = new CourseContext(_options))
+            {
+                var courseRepository = new CourseRepository(context);
+
+                var gottenCourse = await courseRepository.GetAsync(course1.Id);
+
+                gottenCourse.CourseStudents.Single().Student.ShouldBe(student);
+                gottenCourse.Mentor.ShouldBe(mentor);
+            }
+        }
+
+        [Test]
+        public async Task AcceptStudentShouldWriteToDatabase()
+        {
+            using (var context = new CourseContext(_options))
+            {
+                var courseRepository = new CourseRepository(context);
 
                 await courseRepository.AddAsync(course2);
-                await userRepository.AddAsync(student);
                 await courseRepository.AddStudentAsync(course2.Id, student);
 
                 context.Courses.Single().CourseStudents.Single().IsAccepted.ShouldBeFalse();
@@ -446,9 +519,8 @@ namespace HwProj.CoursesService.Tests
         }
 
         [Test]
-        public async Task AcceptStudentShouldNotWriteToDatabaseOnInvalidId()
+        public async Task AcceptStudentShouldNotAcceptNotStudent()
         {
-            var student = new User() { Id = "username" };
             var notStudent = new User { Id = "notstudent" };
             using (var context = new CourseContext(_options))
             {
@@ -456,7 +528,6 @@ namespace HwProj.CoursesService.Tests
                 var userRepository = new UserRepository(context);
 
                 await courseRepository.AddAsync(course2);
-                await userRepository.AddAsync(student);
                 await userRepository.AddAsync(notStudent);
                 await courseRepository.AddStudentAsync(course2.Id, student);
             }
@@ -478,9 +549,35 @@ namespace HwProj.CoursesService.Tests
         }
 
         [Test]
+        public async Task AcceptStudentShouldNotCrashOnNulluser()
+        {
+            using (var context = new CourseContext(_options))
+            {
+                var courseRepository = new CourseRepository(context);
+
+                await courseRepository.AddAsync(course2);
+                await courseRepository.AddStudentAsync(course2.Id, student);
+            }
+
+            var accepted = true;
+            using (var context = new CourseContext(_options))
+            {
+                var repository = new CourseRepository(context);
+                accepted = await repository.AcceptStudentAsync(course2.Id, null);
+            }
+
+            using (var context = new CourseContext(_options))
+            {
+                var course = await context.Courses.Include(c => c.CourseStudents).SingleAsync();
+
+                course.CourseStudents.Single().IsAccepted.ShouldBeFalse();
+                accepted.ShouldBeFalse();
+            }
+        }
+
+        [Test]
         public async Task RejectStudentShouldDeleteFromCloseCourse()
         {
-            var student = new User() { Id = "username" };
             using (var context = new CourseContext(_options))
             {
                 var courseRepository = new CourseRepository(context);
@@ -509,9 +606,8 @@ namespace HwProj.CoursesService.Tests
         }
 
         [Test]
-        public async Task RejectStudentShouldNotWriteToDatabaseOnInvalidId()
+        public async Task RejectStudentShouldNotWriteToDatabaseOnNotStudent()
         {
-            var student = new User() { Id = "username" };
             var notStudent = new User() { Id = "notstudent" };
             using (var context = new CourseContext(_options))
             {
@@ -540,9 +636,35 @@ namespace HwProj.CoursesService.Tests
         }
 
         [Test]
+        public async Task RejectStudentShouldNotCrashOnNullUser()
+        {
+            using (var context = new CourseContext(_options))
+            {
+                var courseRepository = new CourseRepository(context);
+
+                await courseRepository.AddAsync(course2);
+                await courseRepository.AddStudentAsync(course2.Id, student);
+            }
+
+            var deleted = true;
+            using (var context = new CourseContext(_options))
+            {
+                var repository = new CourseRepository(context);
+                deleted = await repository.RejectStudentAsync(108, null);
+            }
+
+            using (var context = new CourseContext(_options))
+            {
+                var course = await context.Courses.Include(c => c.CourseStudents).SingleAsync();
+
+                course.CourseStudents.Count.ShouldBe(1);
+                deleted.ShouldBeFalse();
+            }
+        }
+
+        [Test]
         public async Task RejectStudentShouldNotDeleteFromOpenCourse()
         {
-            var student = new User() { Id = "username" };
             course2.IsOpen = true;
             using (var context = new CourseContext(_options))
             {
