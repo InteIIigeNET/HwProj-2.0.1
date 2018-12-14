@@ -7,6 +7,7 @@ using Shouldly;
 using Microsoft.Data.Sqlite;
 using System.Collections.Generic;
 using HwProj.CoursesService.API.Models.ViewModels;
+using HwProj.CoursesService.API.Models.Repositories;
 
 namespace HwProj.CoursesService.Tests
 {
@@ -36,7 +37,6 @@ namespace HwProj.CoursesService.Tests
                 context.Database.EnsureCreated();
                 context.SaveChanges();
             }
-
 
             course1 = new Course() { Id = 1, Name = "course_name1", GroupName = "144", IsOpen = true, Mentor = mentor };
             course2 = new Course() { Id = 2, Name = "course_name2", GroupName = "243", Mentor = mentor };
@@ -135,7 +135,7 @@ namespace HwProj.CoursesService.Tests
             {
                 var repository = new CourseRepository(context);
 
-                var gottenCourses = repository.Courses;
+                var gottenCourses = repository.GetAll();
                 gottenCourses.ShouldBe(courses);
             }
         }
@@ -309,16 +309,18 @@ namespace HwProj.CoursesService.Tests
             var student = new User() { Id = "username" };
             using (var context = new CourseContext(_options))
             {
-                var repository = new CourseRepository(context);
-                await repository.AddAsync(course1);
-                await repository.AddUserAsync(student);
+                var courseRepository = new CourseRepository(context);
+                var userRepository = new UserRepository(context);
+
+                await courseRepository.AddAsync(course1);
+                //await userRepository.AddAsync(student);
             }
 
             var added = false;
             using (var context = new CourseContext(_options))
             {
                 var repository = new CourseRepository(context);
-                added = await repository.AddStudentAsync(course1.Id, student.Id);
+                added = await repository.AddStudentAsync(course1.Id, student);
             }
 
             using (var context = new CourseContext(_options))
@@ -345,7 +347,7 @@ namespace HwProj.CoursesService.Tests
             using (var context = new CourseContext(_options))
             {
                 var repository = new CourseRepository(context);
-                added = await repository.AddStudentAsync(course1.Id, "invalid id");
+                added = await repository.AddStudentAsync(course1.Id, null);
             }
 
             using (var context = new CourseContext(_options))
@@ -363,17 +365,19 @@ namespace HwProj.CoursesService.Tests
             var student = new User() { Id = "username" };
             using (var context = new CourseContext(_options))
             {
-                var repository = new CourseRepository(context);
-                await repository.AddAsync(course1);
-                await repository.AddUserAsync(student);
-                await repository.AddStudentAsync(course1.Id, student.Id);
+                var courseRepository = new CourseRepository(context);
+                var userRepository = new UserRepository(context);
+
+                await courseRepository.AddAsync(course1);
+                await userRepository.AddAsync(student);
+                await courseRepository.AddStudentAsync(course1.Id, student);
             }
 
             var added = true;
             using (var context = new CourseContext(_options))
             {
                 var repository = new CourseRepository(context);
-                added = await repository.AddStudentAsync(course1.Id, student.Id);
+                added = await repository.AddStudentAsync(course1.Id, student);
             }
 
             using (var context = new CourseContext(_options))
@@ -398,7 +402,7 @@ namespace HwProj.CoursesService.Tests
             using (var context = new CourseContext(_options))
             {
                 var repository = new CourseRepository(context);
-                added = await repository.AddStudentAsync(course1.Id, mentor.Id);
+                added = await repository.AddStudentAsync(course1.Id, mentor);
             }
 
             using (var context = new CourseContext(_options))
@@ -416,10 +420,12 @@ namespace HwProj.CoursesService.Tests
             var student = new User() { Id = "username" };
             using (var context = new CourseContext(_options))
             {
-                var repository = new CourseRepository(context);
-                await repository.AddAsync(course2);
-                await repository.AddUserAsync(student);
-                await repository.AddStudentAsync(course2.Id, student.Id);
+                var courseRepository = new CourseRepository(context);
+                var userRepository = new UserRepository(context);
+
+                await courseRepository.AddAsync(course2);
+                await userRepository.AddAsync(student);
+                await courseRepository.AddStudentAsync(course2.Id, student);
 
                 context.Courses.Single().CourseStudents.Single().IsAccepted.ShouldBeFalse();
             }
@@ -428,7 +434,7 @@ namespace HwProj.CoursesService.Tests
             using (var context = new CourseContext(_options))
             {
                 var repository = new CourseRepository(context);
-                accepted = await repository.AcceptStudentAsync(course2.Id, student.Id);
+                accepted = await repository.AcceptStudentAsync(course2.Id, student);
             }
 
             using (var context = new CourseContext(_options))
@@ -443,19 +449,23 @@ namespace HwProj.CoursesService.Tests
         public async Task AcceptStudentShouldNotWriteToDatabaseOnInvalidId()
         {
             var student = new User() { Id = "username" };
+            var notStudent = new User { Id = "notstudent" };
             using (var context = new CourseContext(_options))
             {
-                var repository = new CourseRepository(context);
-                await repository.AddAsync(course2);
-                await repository.AddUserAsync(student);
-                await repository.AddStudentAsync(course2.Id, student.Id);
+                var courseRepository = new CourseRepository(context);
+                var userRepository = new UserRepository(context);
+
+                await courseRepository.AddAsync(course2);
+                await userRepository.AddAsync(student);
+                await userRepository.AddAsync(notStudent);
+                await courseRepository.AddStudentAsync(course2.Id, student);
             }
 
             var accepted = true;
             using (var context = new CourseContext(_options))
             {
                 var repository = new CourseRepository(context);
-                accepted = await repository.AcceptStudentAsync(course2.Id, "invalid id");
+                accepted = await repository.AcceptStudentAsync(course2.Id, notStudent);
             }
 
             using (var context = new CourseContext(_options))
@@ -473,10 +483,12 @@ namespace HwProj.CoursesService.Tests
             var student = new User() { Id = "username" };
             using (var context = new CourseContext(_options))
             {
-                var repository = new CourseRepository(context);
-                await repository.AddAsync(course2);
-                await repository.AddUserAsync(student);
-                await repository.AddStudentAsync(course2.Id, student.Id);
+                var courseRepository = new CourseRepository(context);
+                var userRepository = new UserRepository(context);
+
+                await courseRepository.AddAsync(course2);
+                await userRepository.AddAsync(student);
+                await courseRepository.AddStudentAsync(course2.Id, student);
 
                 context.Courses.Single().CourseStudents.Count.ShouldBe(1);
             }
@@ -485,7 +497,7 @@ namespace HwProj.CoursesService.Tests
             using (var context = new CourseContext(_options))
             {
                 var repository = new CourseRepository(context);
-                deleted = await repository.RejectStudentAsync(course2.Id, student.Id);
+                deleted = await repository.RejectStudentAsync(course2.Id, student);
             }
 
             using (var context = new CourseContext(_options))
@@ -500,19 +512,22 @@ namespace HwProj.CoursesService.Tests
         public async Task RejectStudentShouldNotWriteToDatabaseOnInvalidId()
         {
             var student = new User() { Id = "username" };
+            var notStudent = new User() { Id = "notstudent" };
             using (var context = new CourseContext(_options))
             {
-                var repository = new CourseRepository(context);
-                await repository.AddAsync(course2);
-                await repository.AddUserAsync(student);
-                await repository.AddStudentAsync(course2.Id, student.Id);
+                var courseRepository = new CourseRepository(context);
+                var userRepository = new UserRepository(context);
+
+                await courseRepository.AddAsync(course2);
+                await userRepository.AddAsync(student);
+                await courseRepository.AddStudentAsync(course2.Id, student);
             }
 
             var deleted = true;
             using (var context = new CourseContext(_options))
             {
                 var repository = new CourseRepository(context);
-                deleted = await repository.RejectStudentAsync(108, "invalid id");
+                deleted = await repository.RejectStudentAsync(108, notStudent);
             }
 
             using (var context = new CourseContext(_options))
@@ -531,17 +546,19 @@ namespace HwProj.CoursesService.Tests
             course2.IsOpen = true;
             using (var context = new CourseContext(_options))
             {
-                var repository = new CourseRepository(context);
-                await repository.AddAsync(course2);
-                await repository.AddUserAsync(student);
-                await repository.AddStudentAsync(course2.Id, student.Id);
+                var courseRepository = new CourseRepository(context);
+                var userRepository = new UserRepository(context);
+
+                await courseRepository.AddAsync(course2);
+                await userRepository.AddAsync(student);
+                await courseRepository.AddStudentAsync(course2.Id, student);
             }
 
             var deleted = true;
             using (var context = new CourseContext(_options))
             {
                 var repository = new CourseRepository(context);
-                deleted = await repository.RejectStudentAsync(course2.Id, student.Id);
+                deleted = await repository.RejectStudentAsync(course2.Id, student);
             }
 
             using (var context = new CourseContext(_options))
