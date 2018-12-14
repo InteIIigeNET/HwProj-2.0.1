@@ -11,6 +11,8 @@ namespace HwProj.CoursesService.API.Models
 
         public List<CourseStudent> CourseStudents { get; set; } = new List<CourseStudent>();
 
+        public List<Course> Courses { get; set; } = new List<Course>();
+
         public override bool Equals(object obj)
         {
             if (!(obj is User other))

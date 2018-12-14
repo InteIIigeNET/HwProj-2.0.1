@@ -15,6 +15,7 @@ namespace HwProj.CoursesService.API.Models.Repositories
 
         protected override IQueryable<User> GetEntities()
             => GetAllEntites()
+                .Include(u => u.Courses)
                 .Include(u => u.CourseStudents)
                     .ThenInclude(cs => cs.Course);
 

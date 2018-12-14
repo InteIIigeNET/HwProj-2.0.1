@@ -84,6 +84,24 @@ namespace HwProj.CoursesService.API.Controllers
                 ? NotFound() as IActionResult
                 : Result(await _courseRepository.RejectStudentAsync(courseId, await _userRepository.GetAsync(userId)));
 
+        [HttpGet("student_courses/{userId}")]
+        public async Task<IActionResult> GetStudentCourses(string userId)
+        {
+            var user = await _userRepository.GetAsync(userId);
+            return user == null
+                ? NotFound() as IActionResult
+                : Json(user.CourseStudents.Select(cs => cs.Course.Id));
+        }
+
+        [HttpGet("mentor_courses/{userId}")]
+        public async Task<IActionResult> GetMentorCourses(string userId)
+        {
+            var user = await _userRepository.GetAsync(userId);
+            return user == null
+                ? NotFound() as IActionResult
+                : Json(user.Courses.Select(c => c.Id));
+        }
+
         private IActionResult Result(bool flag)
             => flag
                 ? Ok() as IActionResult
