@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\HwProj.CoursesService\HwProj.CoursesService.API\HwProj.CoursesService.API.csproj" />
+    <ProjectReference Include="..\..\HwProj.Repositories\HwProj.Repositories.csproj" />
   </ItemGroup>
 
 </Project>

@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HwProj.CoursesService.API",
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HwProj.Tests", "HwProj.Tests", "{91499033-7B76-49AF-A27D-9BAC79062D86}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.Tests.CoursesService", "HwProj.Tests\HwProj.Tests.CoursesService\HwProj.Tests.CoursesService.csproj", "{BA633340-D09E-427A-B91A-F1D767D36E00}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HwProj.Tests.CoursesService", "HwProj.Tests\HwProj.Tests.CoursesService\HwProj.Tests.CoursesService.csproj", "{BA633340-D09E-427A-B91A-F1D767D36E00}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.Repositories", "HwProj.Repositories\HwProj.Repositories.csproj", "{FD01E494-0953-46AE-8165-976E6F73B517}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,6 +27,10 @@ Global
 		{BA633340-D09E-427A-B91A-F1D767D36E00}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BA633340-D09E-427A-B91A-F1D767D36E00}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BA633340-D09E-427A-B91A-F1D767D36E00}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD01E494-0953-46AE-8165-976E6F73B517}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD01E494-0953-46AE-8165-976E6F73B517}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD01E494-0953-46AE-8165-976E6F73B517}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD01E494-0953-46AE-8165-976E6F73B517}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
