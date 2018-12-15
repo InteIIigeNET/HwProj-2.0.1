@@ -34,6 +34,7 @@ namespace HwProj.HomeworkService.API
             services.AddDbContext<HomeworksContext>(options => options.UseSqlServer(connection));
             services.AddScoped<IHomeworkRepository, HomeworkRepository>();
             services.AddScoped<ICourseRepository, CourseRepository>();
+            services.AddScoped<IApplicationRepository, ApplicationRepository>();
             services.AddMvc().AddJsonOptions(options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
             services.AddAutoMapper();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);

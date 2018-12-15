@@ -15,12 +15,14 @@ namespace HwProj.HomeworkService.API.Controllers
     {
         private readonly IHomeworkRepository _homeworkRepository;
         private readonly ICourseRepository _courseRepository;
+        private readonly IApplicationRepository _applicationRepository;
         private readonly IMapper _mapper;
 
-        public HomeworksController(IHomeworkRepository homeworkRepository, ICourseRepository courseRepository, IMapper mapper)
+        public HomeworksController(IHomeworkRepository homeworkRepository, ICourseRepository courseRepository, IApplicationRepository applicationRepository, IMapper mapper)
         {
             _homeworkRepository = homeworkRepository;
             _courseRepository = courseRepository;
+            _applicationRepository = applicationRepository;
             _mapper = mapper;
         }
 
@@ -57,11 +59,25 @@ namespace HwProj.HomeworkService.API.Controllers
         }
 
         [HttpPost("add_application/{homeworkId}")]
-        public async Task<IActionResult> AddApplication(long homeworkId, [FromBody]HomeworkApplicationViewModel applicationViewModel)
+        public async Task<IActionResult> AddApplication(long homeworkId, [FromBody]CreateHomeworkApplicationViewModel applicationViewModel)
         {
             var application = _mapper.Map<HomeworkApplication>(applicationViewModel);
             var added = await _homeworkRepository.AddApplication(homeworkId, application);
             return added
+                ? Ok()
+                : NotFound() as IActionResult;
+        }
+
+        [HttpPost("update_application/{applicationId}")]
+        public async Task<IActionResult> UpdateApplication(long applicationId, [FromBody]HomeworkApplicationViewModel applicationViewModel)
+        {
+            var updated = await _applicationRepository.UpdateAsync(a => a.Id == applicationId, a => new HomeworkApplication
+            {
+                Name = applicationViewModel.Name,
+                Link = applicationViewModel.Link
+            });
+
+            return updated
                 ? Ok()
                 : NotFound() as IActionResult;
         }
