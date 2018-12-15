@@ -17,7 +17,7 @@ namespace HwProj.CoursesService.API.Models
         {
             modelBuilder.Entity<Course>()
                 .HasOne(c => c.Mentor)
-                .WithMany(u => u.Courses)
+                .WithMany()
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<CourseStudent>()

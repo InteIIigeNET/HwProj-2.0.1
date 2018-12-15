@@ -99,7 +99,9 @@ namespace HwProj.CoursesService.API.Controllers
             var user = await _userRepository.GetAsync(userId);
             return user == null
                 ? NotFound() as IActionResult
-                : Json(user.Courses.Select(c => c.Id));
+                : Json(_courseRepository.GetAll()
+                    .Where(c => c.MentorId == userId)
+                    .Select(c => c.Id));
         }
 
         private IActionResult Result(bool flag)
