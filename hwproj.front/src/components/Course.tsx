@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { RouteComponentProps } from 'react-router-dom'
 import CoursesApi from '../api/CoursesApi'
-import ICourse from '../models/Course'
+import { ICourse } from '../models/Course'
 
 interface IRouteInfo {
     id: string

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import CoursesApi from '../api/CoursesApi'
-import ICourse from '../models/Course'
+import { ICourse } from '../models/Course'
 
 interface IState {
     isLoaded: boolean;

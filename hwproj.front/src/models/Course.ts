@@ -1,6 +1,6 @@
 import IStudent from './Student'
 
-export default interface ICourse
+export interface ICourse
 {
     id: number,
     name: string,
@@ -11,14 +11,14 @@ export default interface ICourse
     students: IStudent[]
 }
 
-export default interface ICreateCourseModel
+export interface ICreateCourseModel
 {
     name: string,
     groupName: string,
     isOpen: boolean
 }
 
-export default interface IUpdateCourseModel
+export interface IUpdateCourseModel
 {
     name: string,
     groupName: string,
