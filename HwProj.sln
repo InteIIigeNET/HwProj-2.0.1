@@ -13,6 +13,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HwProj.Tests.CoursesService
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.Repositories", "HwProj.Repositories\HwProj.Repositories.csproj", "{FD01E494-0953-46AE-8165-976E6F73B517}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HwProj.HomeworkService", "HwProj.HomeworkService", "{B470208D-4A52-4C89-AA65-57E5B6406AC5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.HomeworkService.API", "HwProj.HomeworkService\HwProj.HomeworkService.API\HwProj.HomeworkService.API.csproj", "{E02B8C69-3A2D-4858-8C5B-86FA7AB717F8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +35,10 @@ Global
 		{FD01E494-0953-46AE-8165-976E6F73B517}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FD01E494-0953-46AE-8165-976E6F73B517}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FD01E494-0953-46AE-8165-976E6F73B517}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E02B8C69-3A2D-4858-8C5B-86FA7AB717F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E02B8C69-3A2D-4858-8C5B-86FA7AB717F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E02B8C69-3A2D-4858-8C5B-86FA7AB717F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E02B8C69-3A2D-4858-8C5B-86FA7AB717F8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -38,6 +46,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{DC858F4E-F3AF-46E7-972B-09D063DCEF73} = {1B308FF5-A77B-4B68-85D5-4C30BA3A8BD9}
 		{BA633340-D09E-427A-B91A-F1D767D36E00} = {91499033-7B76-49AF-A27D-9BAC79062D86}
+		{E02B8C69-3A2D-4858-8C5B-86FA7AB717F8} = {B470208D-4A52-4C89-AA65-57E5B6406AC5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C03BF138-4A5B-4261-9495-6D3AC6CE9779}
