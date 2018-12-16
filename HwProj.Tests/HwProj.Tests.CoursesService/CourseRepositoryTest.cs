@@ -8,6 +8,7 @@ using Microsoft.Data.Sqlite;
 using System.Collections.Generic;
 using HwProj.CoursesService.API.Models.ViewModels;
 using HwProj.CoursesService.API.Models.Repositories;
+using HwProj.Repositories;
 
 namespace HwProj.CoursesService.Tests
 {

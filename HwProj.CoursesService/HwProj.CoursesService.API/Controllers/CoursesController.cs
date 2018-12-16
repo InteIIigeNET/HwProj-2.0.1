@@ -4,6 +4,7 @@ using AutoMapper;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Models.Repositories;
 using HwProj.CoursesService.API.Models.ViewModels;
+using HwProj.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.CoursesService.API.Controllers

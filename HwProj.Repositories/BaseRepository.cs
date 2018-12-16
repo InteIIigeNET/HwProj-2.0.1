@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Linq.Expressions;
 using Z.EntityFramework.Plus;
 
-namespace HwProj.CoursesService.API.Models.Repositories
+namespace HwProj.Repositories
 {
     public abstract class BaseRepository<T> : ReadOnlyRepository<T>, ICrudRepository<T>
         where T : class, new()

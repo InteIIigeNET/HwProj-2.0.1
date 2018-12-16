@@ -5,7 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
-namespace HwProj.CoursesService.API.Models.Repositories
+namespace HwProj.Repositories
 {
     public abstract class ReadOnlyRepository<T> : IReadOnlyRepository<T>
         where T : class, new()
