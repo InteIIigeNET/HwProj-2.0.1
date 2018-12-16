@@ -25,6 +25,11 @@ namespace HwProj.AuthService.API.Controllers
         [HttpPost, Route("register")]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
+            if (userManager.FindByEmailAsync(model.Email) != null)
+            {
+                return BadRequest("Пользователь с таким email уже зарегистрирован");
+            }
+
             var user = (User)model;
             var result = await userManager.CreateAsync(user, model.Password);
 
@@ -42,6 +47,11 @@ namespace HwProj.AuthService.API.Controllers
         [HttpPost, Route("login")]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
+            if ((await userManager.FindByEmailAsync(model.Email)) == null)
+            {
+                return BadRequest();
+            }
+
             var result = await signInManager.PasswordSignInAsync(
                 await userManager.FindByEmailAsync(model.Email),
                 model.Password,
@@ -57,10 +67,7 @@ namespace HwProj.AuthService.API.Controllers
         }
 
         [HttpPost, Route("logoff")]
-        public async void LogOff()
-        {
-            await signInManager.SignOutAsync();
-        }
+        public async void LogOff() => await signInManager.SignOutAsync();
 
         [HttpPost, Route("edit")]
         [Authorize]
@@ -81,6 +88,56 @@ namespace HwProj.AuthService.API.Controllers
             }
 
             return BadRequest(result.Errors);
+        }
+
+        [HttpPost, Route("delete")]
+        [Authorize]
+        public async Task<IActionResult> Delete(DeleteViewModel model)
+        {
+            var user = await userManager.FindByNameAsync(User.Identity.Name);
+
+            if (!await userManager.CheckPasswordAsync(user, model.Password))
+            {
+                return BadRequest("Неверный пароль");
+            }
+
+            var result = await userManager.DeleteAsync(user);
+
+            if (result.Succeeded)
+            {
+                return Ok();
+            }
+
+            return BadRequest(result.Errors);
+        }
+
+        [HttpPost, Route("changePassword")]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+        {
+            var user = await userManager.FindByNameAsync(User.Identity.Name);
+
+            if (!await userManager.CheckPasswordAsync(user, model.Password))
+            {
+                return BadRequest("Неверный пароль");
+            }
+
+            var passwordValidator = HttpContext.RequestServices.GetService(
+                typeof(IPasswordValidator<User>)) as IPasswordValidator<User>;
+            var passwordHasher = HttpContext.RequestServices.GetService(
+                typeof(IPasswordHasher<User>)) as IPasswordHasher<User>;
+
+            var result = await passwordValidator.ValidateAsync(userManager, user, model.NewPassword);
+
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.Errors);
+            }
+
+            user.PasswordHash = passwordHasher.HashPassword(user, model.NewPassword);
+            await userManager.UpdateAsync(user);
+
+            return Ok();
         }
 
         [HttpPost, Route("inviteLecturer")]
