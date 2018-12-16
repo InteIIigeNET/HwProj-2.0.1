@@ -1,4 +1,4 @@
-﻿using HwProj.CoursesService.API.Models.Repositories;
+﻿using HwProj.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
