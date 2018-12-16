@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using HwProj.AuthService.API.Models;
 using HwProj.AuthService.API.ViewModels;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace HwProj.AuthService.API.Controllers
 {
@@ -19,10 +20,17 @@ namespace HwProj.AuthService.API.Controllers
             this.signInManager = signInManager;
         }
 
-        [HttpPost]
+        [HttpPost, Route("register")]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            var user = new User(model.Name, model.Surname, model.Email);
+            var user = new User
+            {
+                Name = model.Name,
+                Surname = model.Surname,
+                Email = model.Email,
+                UserName = model.UserName
+            };
+
             var result = await userManager.CreateAsync(user, model.Password);
 
             if (result.Succeeded)
@@ -31,19 +39,13 @@ namespace HwProj.AuthService.API.Controllers
             }
             else
             {
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError("", error.Description);
-                }
-
-                return BadRequest();
+                return BadRequest(result.Errors);
             }
 
             return Ok();
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpPost, Route("login")]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             var result = await signInManager.
@@ -58,11 +60,16 @@ namespace HwProj.AuthService.API.Controllers
             return Ok();
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpPost, Route("logoff")]
         public async void LogOff()
         {
             await signInManager.SignOutAsync();
+        }
+
+        [HttpGet, Route("getAll")]
+        public IQueryable<User> Get()
+        {
+            return userManager.Users;
         }
     }
 }
