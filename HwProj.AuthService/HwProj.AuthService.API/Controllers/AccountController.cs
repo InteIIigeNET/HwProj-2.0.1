@@ -25,7 +25,7 @@ namespace HwProj.AuthService.API.Controllers
         [HttpPost, Route("register")]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            if (userManager.FindByEmailAsync(model.Email) != null)
+            if ((await userManager.FindByEmailAsync(model.Email)) != null)
             {
                 return BadRequest("Пользователь с таким email уже зарегистрирован");
             }
@@ -38,8 +38,41 @@ namespace HwProj.AuthService.API.Controllers
                 return BadRequest(result.Errors);
             }
 
-            await signInManager.SignInAsync(user, false);
             await userManager.AddToRoleAsync(user, "student");
+
+            var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+            var callbackUrl = Url.Action(
+                "ConfirmEmail",
+                "Account",
+                new { userId = user.Id, code = token },
+                protocol: HttpContext.Request.Scheme);
+
+            // тут отправить Url студенту на почту. а пока он возвращается в Ok
+
+            return Ok(callbackUrl);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ConfirmEmail(string userId, string code)
+        {
+            if (userId == null || code == null)
+            {
+                return BadRequest();
+            }
+
+            var user = await userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                return BadRequest();
+            }
+
+            var result = await userManager.ConfirmEmailAsync(user, code);
+
+            if (!result.Succeeded)
+            {
+                return BadRequest();
+            }
 
             return Ok();
         }
@@ -52,8 +85,15 @@ namespace HwProj.AuthService.API.Controllers
                 return BadRequest();
             }
 
+            var user = await userManager.FindByEmailAsync(model.Email);
+
+            if (!await userManager.IsEmailConfirmedAsync(user))
+            {
+                return BadRequest("email не был подтвержден");
+            }
+
             var result = await signInManager.PasswordSignInAsync(
-                await userManager.FindByEmailAsync(model.Email),
+                user,
                 model.Password,
                 model.RememberMe,
                 false);
@@ -73,12 +113,27 @@ namespace HwProj.AuthService.API.Controllers
         [Authorize]
         public async Task<IActionResult> Edit(EditViewModel model)
         {
+            if (!signInManager.IsSignedIn(User))
+            {
+                return BadRequest();
+            }
+
             var user = await userManager.FindByNameAsync(User.Identity.Name);
 
-            user.Name = model.Name ?? "";
-            user.Surname = model.Surname ?? "";
+            user.Name = model.NewName ?? "";
+            user.Surname = model.NewSurname ?? "";
 
-            //смена email. генерация токена для подтверждения нового email
+            if (model.NewEmail != null)
+            {
+                var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+                var callbackUrl = Url.Action(
+                    "ConfirmNewEmail",
+                    "Account",
+                    new { userId = user.Id, code = token, email = model.NewEmail },
+                    protocol: HttpContext.Request.Scheme);
+
+                // отправить Url для подтвереждения новой почты пользователю
+            }
 
             var result = await userManager.UpdateAsync(user);
 
@@ -90,10 +145,40 @@ namespace HwProj.AuthService.API.Controllers
             return BadRequest(result.Errors);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> ConfirmNewEmail(string userId, string code, string newEmail)
+        {
+            if (userId == null || code == null || newEmail == null)
+            {
+                return BadRequest();
+            }
+
+            var user = await userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                return BadRequest();
+            }
+
+            user.Email = newEmail;
+            user.UserName = newEmail;
+
+            await userManager.UpdateAsync(user);
+            await userManager.UpdateNormalizedEmailAsync(user);
+            await userManager.UpdateNormalizedUserNameAsync(user);
+
+            return Ok();
+        }
+
         [HttpPost, Route("delete")]
         [Authorize]
         public async Task<IActionResult> Delete(DeleteViewModel model)
         {
+            if (!signInManager.IsSignedIn(User))
+            {
+                return BadRequest();
+            }
+
             var user = await userManager.FindByNameAsync(User.Identity.Name);
 
             if (!await userManager.CheckPasswordAsync(user, model.Password))
@@ -115,12 +200,12 @@ namespace HwProj.AuthService.API.Controllers
         [Authorize]
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {
-            var user = await userManager.FindByNameAsync(User.Identity.Name);
-
-            if (!await userManager.CheckPasswordAsync(user, model.Password))
+            if (!signInManager.IsSignedIn(User))
             {
-                return BadRequest("Неверный пароль");
+                return BadRequest();
             }
+
+            var user = await userManager.FindByNameAsync(User.Identity.Name);
 
             var passwordValidator = HttpContext.RequestServices.GetService(
                 typeof(IPasswordValidator<User>)) as IPasswordValidator<User>;
@@ -144,6 +229,11 @@ namespace HwProj.AuthService.API.Controllers
         [Authorize(Roles = "lecturer")]
         public async Task<IActionResult> InviteLecturer(string emailOfInvitedPerson)
         {
+            if (!signInManager.IsSignedIn(User))
+            {
+                return BadRequest();
+            }
+
             var invitedUser = await userManager.FindByEmailAsync(emailOfInvitedPerson);
 
             if (invitedUser == null)

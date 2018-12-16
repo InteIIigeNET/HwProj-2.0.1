@@ -23,8 +23,9 @@ namespace HwProj.AuthService.API
             services.AddDbContext<IdentityContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddIdentity<User, IdentityRole>()
-                .AddEntityFrameworkStores<IdentityContext>();
+            services.AddIdentity<User, IdentityRole>(opts => { opts.User.RequireUniqueEmail = true; })
+                .AddEntityFrameworkStores<IdentityContext>()
+                .AddDefaultTokenProviders();
 
             services.AddSwaggerGen(c =>
             {
