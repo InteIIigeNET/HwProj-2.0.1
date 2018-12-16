@@ -49,28 +49,33 @@ namespace HwProj.HomeworkService.API.Controllers
                 : Json(course.Homeworks.Select(h => h.Id));
         }
 
-        [HttpPost("{courseId}")]
+        [HttpPost("add_homework/{courseId}")]
         public async Task<IActionResult> AddHomework(long courseId, [FromBody]CreateHomeworkViewModel homeworkViewModel)
         {
             var homework = _mapper.Map<Homework>(homeworkViewModel);
-            var added = await _courseRepository.AddHomework(courseId, homework);
-            return added
-                ? Ok()
-                : NotFound() as IActionResult;
+            return Result(await _courseRepository.AddHomework(courseId, homework));
         }
+
+        [HttpPost("update_homework/{homeworkId}")]
+        public async Task<IActionResult> UpdateHomework(long homeworkId, [FromBody]CreateHomeworkViewModel homework)
+        {
+            var updated = await _homeworkRepository.UpdateAsync(h => h.Id == homeworkId, h => new Homework() { Name = homework.Name });
+            return Result(updated);
+        }
+
+        [HttpDelete("delete_homework/{homeworkId}")]
+        public async Task<IActionResult> DeleteHomework(long homeworkId)
+            => Result(await _homeworkRepository.DeleteAsync(h => h.Id == homeworkId));
 
         [HttpPost("add_application/{homeworkId}")]
         public async Task<IActionResult> AddApplication(long homeworkId, [FromBody]CreateHomeworkApplicationViewModel applicationViewModel)
         {
             var application = _mapper.Map<HomeworkApplication>(applicationViewModel);
-            var added = await _homeworkRepository.AddApplication(homeworkId, application);
-            return added
-                ? Ok()
-                : NotFound() as IActionResult;
+            return Result(await _homeworkRepository.AddApplication(homeworkId, application));
         }
 
         [HttpPost("update_application/{applicationId}")]
-        public async Task<IActionResult> UpdateApplication(long applicationId, [FromBody]HomeworkApplicationViewModel applicationViewModel)
+        public async Task<IActionResult> UpdateApplication(long applicationId, [FromBody]CreateHomeworkApplicationViewModel applicationViewModel)
         {
             var updated = await _applicationRepository.UpdateAsync(a => a.Id == applicationId, a => new HomeworkApplication
             {
@@ -78,9 +83,16 @@ namespace HwProj.HomeworkService.API.Controllers
                 Link = applicationViewModel.Link
             });
 
-            return updated
+            return Result(updated);
+        }
+
+        [HttpDelete("delete_application/{applicationId}")]
+        public async Task<IActionResult> DeleteApplication(long applicationId)
+            => Result(await _applicationRepository.DeleteAsync(a => a.Id == applicationId));
+
+        private IActionResult Result(bool flag)
+            => flag
                 ? Ok()
                 : NotFound() as IActionResult;
-        }
     }
 }
