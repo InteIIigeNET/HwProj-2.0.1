@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using HwProj.HomeworkService.API.Models;
+using HwProj.HomeworkService.API.Models.ViewModels;
 
 namespace HwProj.HomeworkService.API
 {

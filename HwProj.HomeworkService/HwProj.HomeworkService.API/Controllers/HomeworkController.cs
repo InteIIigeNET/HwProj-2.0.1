@@ -5,20 +5,21 @@ using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.HomeworkService.API.Models;
 using HwProj.HomeworkService.API.Models.Repositories;
+using HwProj.HomeworkService.API.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.HomeworkService.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class HomeworksController : Controller
+    public class HomeworkController : Controller
     {
         private readonly IHomeworkRepository _homeworkRepository;
         private readonly ICourseRepository _courseRepository;
         private readonly IApplicationRepository _applicationRepository;
         private readonly IMapper _mapper;
 
-        public HomeworksController(IHomeworkRepository homeworkRepository, ICourseRepository courseRepository, IApplicationRepository applicationRepository, IMapper mapper)
+        public HomeworkController(IHomeworkRepository homeworkRepository, ICourseRepository courseRepository, IApplicationRepository applicationRepository, IMapper mapper)
         {
             _homeworkRepository = homeworkRepository;
             _courseRepository = courseRepository;
@@ -39,7 +40,7 @@ namespace HwProj.HomeworkService.API.Controllers
                 : Json(HomeworkViewModel.FromHomework(homework, _mapper));
         }
 
-        [HttpGet("all_homeworks/{courseId}")]
+        [HttpGet("course_homework/{courseId}")]
         public async Task<IActionResult> GetHomeworks(long courseId)
         {
             var course = await _courseRepository.GetAsync(c => c.Id == courseId);

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace HwProj.HomeworkService.API.Models
+namespace HwProj.HomeworkService.API.Models.ViewModels
 {
     public class CreateHomeworkViewModel
     {
@@ -24,18 +24,5 @@ namespace HwProj.HomeworkService.API.Models
 
             return result;
         }
-    }
-
-    public class CreateHomeworkApplicationViewModel
-    {
-        public string Name { get; set; }
-        public string Link { get; set; }
-    }
-
-    public class HomeworkApplicationViewModel
-    {
-        public long Id { get; set; }
-        public string Name { get; set; }
-        public string Link { get; set; }
     }
 }
