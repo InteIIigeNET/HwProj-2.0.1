@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
-namespace HwProj.CoursesService.API.Models.Repositories
+namespace HwProj.Repositories
 {
     public interface ICrudRepository<T> : IReadOnlyRepository<T>
         where T : class, new()
