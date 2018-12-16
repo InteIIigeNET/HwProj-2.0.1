@@ -5,6 +5,7 @@ using HwProj.AuthService.API.ViewModels;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HwProj.AuthService.API.Controllers
 {
@@ -24,25 +25,16 @@ namespace HwProj.AuthService.API.Controllers
         [HttpPost, Route("register")]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            var user = new User
-            {
-                Name = model.Name,
-                Surname = model.Surname,
-                Email = model.Email,
-                UserName = model.UserName
-            };
-
+            var user = (User)model;
             var result = await userManager.CreateAsync(user, model.Password);
 
-            if (result.Succeeded)
-            {
-                await signInManager.SignInAsync(user, false);
-                await userManager.AddToRoleAsync(user, "student");
-            }
-            else
+            if (!result.Succeeded)
             {
                 return BadRequest(result.Errors);
             }
+
+            await signInManager.SignInAsync(user, false);
+            await userManager.AddToRoleAsync(user, "student");
 
             return Ok();
         }
@@ -68,6 +60,44 @@ namespace HwProj.AuthService.API.Controllers
         public async void LogOff()
         {
             await signInManager.SignOutAsync();
+        }
+
+        [HttpPost, Route("edit")]
+        [Authorize]
+        public async Task<IActionResult> Edit(EditViewModel model)
+        {
+            var user = await userManager.FindByNameAsync(User.Identity.Name);
+
+            user.Name = model.Name ?? "";
+            user.Surname = model.Surname ?? "";
+
+            //смена email. генерация токена для подтверждения нового email
+
+            var result = await userManager.UpdateAsync(user);
+
+            if (result.Succeeded)
+            {
+                return Ok();
+            }
+
+            return BadRequest(result.Errors);
+        }
+
+        [HttpPost, Route("inviteLecturer")]
+        [Authorize(Roles = "lecturer")]
+        public async Task<IActionResult> InviteLecturer(string emailOfInvitedPerson)
+        {
+            var invitedUser = await userManager.FindByEmailAsync(emailOfInvitedPerson);
+
+            if (invitedUser == null)
+            {
+                return BadRequest("Пользователь не найден");
+            }
+
+            await userManager.AddToRoleAsync(invitedUser, "lecturer");
+            await userManager.RemoveFromRoleAsync(invitedUser, "student");
+
+            return Ok();
         }
 
         [HttpGet, Route("getAll")]
