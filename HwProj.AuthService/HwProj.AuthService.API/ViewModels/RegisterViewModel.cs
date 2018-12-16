@@ -17,7 +17,7 @@ namespace HwProj.AuthService.API.ViewModels
         public string Email { get; set; }
 
         [Required]
-        //[DataType(DataType.Password)]
+        [DataType(DataType.Password)]
         public string Password { get; set; }
     }
 }

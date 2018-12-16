@@ -4,6 +4,7 @@ using HwProj.AuthService.API.Models;
 using HwProj.AuthService.API.ViewModels;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace HwProj.AuthService.API.Controllers
 {
@@ -36,6 +37,7 @@ namespace HwProj.AuthService.API.Controllers
             if (result.Succeeded)
             {
                 await signInManager.SignInAsync(user, false);
+                await userManager.AddToRoleAsync(user, "student");
             }
             else
             {
@@ -48,12 +50,14 @@ namespace HwProj.AuthService.API.Controllers
         [HttpPost, Route("login")]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
-            var result = await signInManager.
-                PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
+            var result = await signInManager.PasswordSignInAsync(
+                await userManager.FindByEmailAsync(model.Email),
+                model.Password,
+                model.RememberMe,
+                false);
 
             if (!result.Succeeded)
             {
-                ModelState.AddModelError("", "Incorrect login or password");
                 return Unauthorized();
             }
 
@@ -70,6 +74,12 @@ namespace HwProj.AuthService.API.Controllers
         public IQueryable<User> Get()
         {
             return userManager.Users;
+        }
+
+        [HttpGet, Route("getRoles")]
+        public async Task<IList<string>> GetRoles(string email)
+        {
+            return await userManager.GetRolesAsync(await userManager.FindByEmailAsync(email));
         }
     }
 }
