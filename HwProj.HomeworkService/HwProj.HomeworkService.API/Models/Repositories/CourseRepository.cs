@@ -17,9 +17,10 @@ namespace HwProj.HomeworkService.API.Models.Repositories
 
         protected override IQueryable<Course> GetEntities()
             => GetAllEntites()
-                .Include(c => c.Homeworks);
+                .Include(c => c.Homeworks)
+                    .ThenInclude(h => h.Applications);
 
-        public async Task<bool> AddHomework(long courseId, Homework homework)
+        public async Task AddHomework(long courseId, Homework homework)
         {
             var course = await GetAsync(c => c.Id == courseId);
             if (course == null)
@@ -30,7 +31,6 @@ namespace HwProj.HomeworkService.API.Models.Repositories
 
             course.Homeworks.Add(homework);
             await SaveAsync();
-            return true;
         }
     }
 }

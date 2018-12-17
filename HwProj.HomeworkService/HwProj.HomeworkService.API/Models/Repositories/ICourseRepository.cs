@@ -8,6 +8,6 @@ namespace HwProj.HomeworkService.API.Models.Repositories
 {
     public interface ICourseRepository : ICrudRepository<Course>
     {
-        Task<bool> AddHomework(long courseId, Homework homework);
+        Task AddHomework(long courseId, Homework homework);
     }
 }

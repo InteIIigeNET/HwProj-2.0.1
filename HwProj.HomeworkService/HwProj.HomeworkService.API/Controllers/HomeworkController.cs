@@ -46,20 +46,22 @@ namespace HwProj.HomeworkService.API.Controllers
             var course = await _courseRepository.GetAsync(c => c.Id == courseId);
             return course == null
                 ? NotFound() as IActionResult
-                : Json(course.Homeworks.Select(h => h.Id));
+                : Json(course.Homeworks.Select(h => HomeworkViewModel.FromHomework(h, _mapper)));
         }
 
         [HttpPost("add_homework/{courseId}")]
         public async Task<IActionResult> AddHomework(long courseId, [FromBody]CreateHomeworkViewModel homeworkViewModel)
         {
             var homework = _mapper.Map<Homework>(homeworkViewModel);
-            return Result(await _courseRepository.AddHomework(courseId, homework));
+            await _courseRepository.AddHomework(courseId, homework);
+
+            return Ok(HomeworkViewModel.FromHomework(homework, _mapper));
         }
 
         [HttpPost("update_homework/{homeworkId}")]
         public async Task<IActionResult> UpdateHomework(long homeworkId, [FromBody]CreateHomeworkViewModel homework)
         {
-            var updated = await _homeworkRepository.UpdateAsync(h => h.Id == homeworkId, h => new Homework() { Name = homework.Name });
+            var updated = await _homeworkRepository.UpdateAsync(h => h.Id == homeworkId, h => new Homework() { Title = homework.Title });
             return Result(updated);
         }
 
@@ -79,7 +81,7 @@ namespace HwProj.HomeworkService.API.Controllers
         {
             var updated = await _applicationRepository.UpdateAsync(a => a.Id == applicationId, a => new HomeworkApplication
             {
-                Name = applicationViewModel.Name,
+                Title = applicationViewModel.Title,
                 Link = applicationViewModel.Link
             });
 

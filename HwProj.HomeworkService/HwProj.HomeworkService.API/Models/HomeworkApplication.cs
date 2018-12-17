@@ -8,7 +8,7 @@ namespace HwProj.HomeworkService.API.Models
     public class HomeworkApplication
     {
         public long Id { get; set; }
-        public string Name { get; set; }
+        public string Title { get; set; }
         public string Link { get; set; }
 
         public long HomeworkId { get; set; }

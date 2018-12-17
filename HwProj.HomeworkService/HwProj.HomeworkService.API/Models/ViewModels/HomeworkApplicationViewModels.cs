@@ -7,14 +7,14 @@ namespace HwProj.HomeworkService.API.Models.ViewModels
 {
     public class CreateHomeworkApplicationViewModel
     {
-        public string Name { get; set; }
+        public string Title { get; set; }
         public string Link { get; set; }
     }
 
     public class HomeworkApplicationViewModel
     {
         public long Id { get; set; }
-        public string Name { get; set; }
+        public string Title { get; set; }
         public string Link { get; set; }
     }
 }

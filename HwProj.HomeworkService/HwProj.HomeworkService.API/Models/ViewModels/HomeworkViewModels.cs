@@ -8,13 +8,13 @@ namespace HwProj.HomeworkService.API.Models.ViewModels
 {
     public class CreateHomeworkViewModel
     {
-        public string Name { get; set; }
+        public string Title { get; set; }
     }
 
     public class HomeworkViewModel
     {
         public long Id { get; set; }
-        public string Name { get; set; }
+        public string Title { get; set; }
         public List<HomeworkApplicationViewModel> Applications { get; set; } = new List<HomeworkApplicationViewModel>();
 
         public static HomeworkViewModel FromHomework(Homework homework, IMapper maper)
