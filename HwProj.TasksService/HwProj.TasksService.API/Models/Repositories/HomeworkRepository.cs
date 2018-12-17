@@ -17,5 +17,18 @@ namespace HwProj.TasksService.API.Models.Repositories
         protected override IQueryable<Homework> GetEntities()
             => GetAllEntites()
                 .Include(h => h.Tasks);
+
+        public async Task AddTask(long homeworkId, HomeworkTask task)
+        {
+            var homework = await GetAsync(h => h.Id == homeworkId);
+            if (homework == null)
+            {
+                homework = new Homework() { Id = homeworkId };
+                await AddAsync(homework);
+            }
+
+            homework.Tasks.Add(task);
+            await SaveAsync();
+        }
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HwProj.TasksService.API.Models.Repositories
 {
-    public interface ITaskRepository : ICrudRepository<Task>
+    public interface ITaskRepository : ICrudRepository<HomeworkTask>
     {
     }
 }

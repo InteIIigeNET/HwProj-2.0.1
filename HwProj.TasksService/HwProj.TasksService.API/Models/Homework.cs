@@ -11,6 +11,6 @@ namespace HwProj.TasksService.API.Models
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public long Id { get; set; }
 
-        public List<Task> Tasks { get; set; } = new List<Task>();
+        public List<HomeworkTask> Tasks { get; set; } = new List<HomeworkTask>();
     }
 }

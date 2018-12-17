@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace HwProj.TasksService.API.Models.Repositories
 {
-    public class TaskRepository : BaseRepository<Task>, ITaskRepository
+    public class TaskRepository : BaseRepository<HomeworkTask>, ITaskRepository
     {
         public TaskRepository(TaskContext context)
             : base(context)
         {
         }
 
-        protected override IQueryable<Task> GetEntities()
+        protected override IQueryable<HomeworkTask> GetEntities()
             => GetAllEntites()
                 .Include(t => t.Homework);
     }

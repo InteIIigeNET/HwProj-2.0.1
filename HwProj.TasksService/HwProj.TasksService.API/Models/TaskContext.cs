@@ -8,7 +8,13 @@ namespace HwProj.TasksService.API.Models
 {
     public class TaskContext : DbContext
     {
-        public DbSet<Task> Tasks { get; set; }
+        public DbSet<HomeworkTask> Tasks { get; set; }
         public DbSet<Homework> Homeworks { get; set; }
+
+        public TaskContext(DbContextOptions options)
+            : base(options)
+        {
+            Database.EnsureCreated();
+        }
     }
 }
