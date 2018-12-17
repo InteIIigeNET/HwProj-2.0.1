@@ -7,8 +7,5 @@ namespace HwProj.AuthService.API.ViewModels
         public string NewName { get; set; }
 
         public string NewSurname { get; set; }
-
-        [DataType(DataType.EmailAddress)]
-        public string NewEmail { get; set; }
     }
 }

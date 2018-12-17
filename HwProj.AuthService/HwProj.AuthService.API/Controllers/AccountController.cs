@@ -40,19 +40,13 @@ namespace HwProj.AuthService.API.Controllers
 
             await userManager.AddToRoleAsync(user, "student");
 
-            var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
-            var callbackUrl = Url.Action(
-                "ConfirmEmail",
-                "Account",
-                new { userId = user.Id, code = token },
-                protocol: HttpContext.Request.Scheme);
-
+            var callbackUrl = await GetCallbackUrlForEmailConfirmation(user);
             // тут отправить Url студенту на почту. а пока он возвращается в Ok
 
             return Ok(callbackUrl);
         }
-
-        [HttpGet]
+        
+        [HttpGet, Route("confirmemail")]
         public async Task<IActionResult> ConfirmEmail(string userId, string code)
         {
             if (userId == null || code == null)
@@ -71,7 +65,7 @@ namespace HwProj.AuthService.API.Controllers
 
             if (!result.Succeeded)
             {
-                return BadRequest();
+                return BadRequest(result.Errors);
             }
 
             return Ok();
@@ -120,35 +114,48 @@ namespace HwProj.AuthService.API.Controllers
 
             var user = await userManager.FindByNameAsync(User.Identity.Name);
 
-            user.Name = model.NewName ?? "";
-            user.Surname = model.NewSurname ?? "";
-
-            if (model.NewEmail != null)
-            {
-                var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
-                var callbackUrl = Url.Action(
-                    "ConfirmNewEmail",
-                    "Account",
-                    new { userId = user.Id, code = token, email = model.NewEmail },
-                    protocol: HttpContext.Request.Scheme);
-
-                // отправить Url для подтвереждения новой почты пользователю
-            }
+            user.Name = model.NewName ?? user.Name;
+            user.Surname = model.NewSurname ?? user.Surname;
 
             var result = await userManager.UpdateAsync(user);
 
-            if (result.Succeeded)
+            if (!result.Succeeded)
             {
-                return Ok();
+                return BadRequest(result.Errors);
             }
 
-            return BadRequest(result.Errors);
+            return Ok();
         }
 
-        [HttpGet]
-        public async Task<IActionResult> ConfirmNewEmail(string userId, string code, string newEmail)
+        [HttpPost, Route("changeemail")]
+        [Authorize]
+        public async Task<IActionResult> ChangeEmail(ChangeEmailViewModel model)
         {
-            if (userId == null || code == null || newEmail == null)
+            if (!signInManager.IsSignedIn(User))
+            {
+                return BadRequest();
+            }
+
+            if ((await userManager.FindByEmailAsync(model.NewEmail)) != null)
+            {
+                return BadRequest("Пользователь с таким email уже зарегистрирован");
+            }
+
+            var user = await userManager.FindByNameAsync(User.Identity.Name);
+
+            string callbackUrl = await GetCallbackUrlForChangeEmail(user, model.NewEmail);
+            // отправить Url для подтвереждения новой почты пользователю. пока возвращаю в Ok
+
+            return Ok(callbackUrl);
+        }
+
+        [HttpGet, Route("confirmchangeemail")]
+        public async Task<IActionResult> ConfirmChangeEmail(
+            string userId,
+            string email,
+            string code)
+        {
+            if (userId == null || code == null || email == null)
             {
                 return BadRequest();
             }
@@ -160,12 +167,15 @@ namespace HwProj.AuthService.API.Controllers
                 return BadRequest();
             }
 
-            user.Email = newEmail;
-            user.UserName = newEmail;
+            var result = await userManager.ChangeEmailAsync(user, email, code);
 
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.Errors);
+            }
+
+            user.UserName = email;
             await userManager.UpdateAsync(user);
-            await userManager.UpdateNormalizedEmailAsync(user);
-            await userManager.UpdateNormalizedUserNameAsync(user);
 
             return Ok();
         }
@@ -196,7 +206,7 @@ namespace HwProj.AuthService.API.Controllers
             return BadRequest(result.Errors);
         }
 
-        [HttpPost, Route("changePassword")]
+        [HttpPost, Route("changepassword")]
         [Authorize]
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {
@@ -225,7 +235,7 @@ namespace HwProj.AuthService.API.Controllers
             return Ok();
         }
 
-        [HttpPost, Route("inviteLecturer")]
+        [HttpPost, Route("invitelecturer")]
         [Authorize(Roles = "lecturer")]
         public async Task<IActionResult> InviteLecturer(string emailOfInvitedPerson)
         {
@@ -253,10 +263,24 @@ namespace HwProj.AuthService.API.Controllers
             return userManager.Users;
         }
 
-        [HttpGet, Route("getRoles")]
-        public async Task<IList<string>> GetRoles(string email)
+        private async Task<string> GetCallbackUrlForEmailConfirmation(User user)
         {
-            return await userManager.GetRolesAsync(await userManager.FindByEmailAsync(email));
+            var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+            return Url.Action(
+                "confirmemail",
+                "Account",
+                new { userId = user.Id, code = token },
+                protocol: HttpContext.Request.Scheme);
+        }
+
+        private async Task<string> GetCallbackUrlForChangeEmail(User user, string newEmail)
+        {
+            var token = await userManager.GenerateChangeEmailTokenAsync(user, newEmail);
+            return Url.Action(
+                "confirmchangeemail",
+                "Account",
+                new { userId = user.Id, email = newEmail, code = token },
+                protocol: HttpContext.Request.Scheme);
         }
     }
 }
