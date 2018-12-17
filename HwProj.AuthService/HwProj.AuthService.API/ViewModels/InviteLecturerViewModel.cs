@@ -2,10 +2,10 @@
 
 namespace HwProj.AuthService.API.ViewModels
 {
-    public class ChangeEmailViewModel
+    public class InviteLecturerViewModel
     {
         [Required]
         [EmailAddress]
-        public string NewEmail { get; set; }
+        public string EmailOfInvitedPerson { get; set; }
     }
 }

@@ -7,3 +7,4 @@ install:
 - dotnet restore
 script:
 - dotnet build
+# - dotnet test TestDirectory/TestProject.csproj
