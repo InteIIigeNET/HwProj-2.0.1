@@ -13,11 +13,13 @@ namespace HwProj.AuthService.API.Controllers
     {
         private readonly UserManager<User> userManager;
         private readonly SignInManager<User> signInManager;
+        private readonly UserService userService;
 
         public AccountController(UserManager<User> userManager, SignInManager<User> signInManager)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
+            userService = new UserService(userManager, signInManager);
         }
 
         [HttpPost, Route("register")]
@@ -29,16 +31,15 @@ namespace HwProj.AuthService.API.Controllers
             }
 
             var user = (User)model;
-            var result = await userManager.CreateAsync(user, model.Password);
 
-            if (!result.Succeeded)
+            if (!(await userManager.CreateAsync(user, model.Password)).Succeeded)
             {
                 return BadRequest();
             }
 
             await userManager.AddToRoleAsync(user, "student");
 
-            var callbackUrl = await GetCallbackUrlForEmailConfirmation(user);
+            var callbackUrl = await userService.GetCallbackUrlForEmailConfirmation(user, HttpContext, Url);
             // тут отправить Url студенту на почту. а пока он возвращается в Ok
 
             return Ok(callbackUrl);
@@ -59,9 +60,7 @@ namespace HwProj.AuthService.API.Controllers
                 return BadRequest("Пользователь не найден");
             }
 
-            var result = await userManager.ConfirmEmailAsync(user, code);
-
-            if (!result.Succeeded)
+            if (!(await userManager.ConfirmEmailAsync(user, code)).Succeeded)
             {
                 return BadRequest();
             }
@@ -112,12 +111,7 @@ namespace HwProj.AuthService.API.Controllers
 
             var user = await userManager.FindByNameAsync(User.Identity.Name);
 
-            user.Name = model.NewName ?? user.Name;
-            user.Surname = model.NewSurname ?? user.Surname;
-
-            var result = await userManager.UpdateAsync(user);
-
-            if (!result.Succeeded)
+            if (!(await userService.ChangeUserData(user, model)).Succeeded)
             {
                 return BadRequest();
             }
@@ -141,7 +135,7 @@ namespace HwProj.AuthService.API.Controllers
 
             var user = await userManager.FindByNameAsync(User.Identity.Name);
 
-            string callbackUrl = await GetCallbackUrlForChangeEmail(user, model.NewEmail);
+            string callbackUrl = await userService.GetCallbackUrlForChangeEmail(user, model.NewEmail, HttpContext, Url);
             // отправить Url для подтвереждения новой почты пользователю. пока возвращаю в Ok
 
             return Ok(callbackUrl);
@@ -165,15 +159,10 @@ namespace HwProj.AuthService.API.Controllers
                 return BadRequest("Пользователь не найден");
             }
 
-            var result = await userManager.ChangeEmailAsync(user, email, code);
-
-            if (!result.Succeeded)
+            if (!(await userService.ChangeUserEmail(user, email, code)).Succeeded)
             {
                 return BadRequest();
             }
-
-            user.UserName = email;
-            await userManager.UpdateAsync(user);
 
             return Ok();
         }
@@ -194,9 +183,7 @@ namespace HwProj.AuthService.API.Controllers
                 return BadRequest("Неверный пароль");
             }
 
-            var result = await userManager.DeleteAsync(user);
-
-            if (!result.Succeeded)
+            if (!(await userManager.DeleteAsync(user)).Succeeded)
             {
                 return BadRequest();
             }
@@ -215,20 +202,15 @@ namespace HwProj.AuthService.API.Controllers
 
             var user = await userManager.FindByNameAsync(User.Identity.Name);
 
-            var passwordValidator = HttpContext.RequestServices.GetService(
-                typeof(IPasswordValidator<User>)) as IPasswordValidator<User>;
-            var passwordHasher = HttpContext.RequestServices.GetService(
-                typeof(IPasswordHasher<User>)) as IPasswordHasher<User>;
+            if (!await userManager.CheckPasswordAsync(user, model.Password))
+            {
+                return BadRequest("Неверный пароль");
+            }
 
-            var result = await passwordValidator.ValidateAsync(userManager, user, model.NewPassword);
-
-            if (!result.Succeeded)
+            if (!(await userService.ChangeUserPassword(user, model.NewPassword, HttpContext)).Succeeded)
             {
                 return BadRequest();
             }
-
-            user.PasswordHash = passwordHasher.HashPassword(user, model.NewPassword);
-            await userManager.UpdateAsync(user);
 
             return Ok();
         }
@@ -253,26 +235,6 @@ namespace HwProj.AuthService.API.Controllers
             await userManager.RemoveFromRoleAsync(invitedUser, "student");
 
             return Ok();
-        }
-
-        private async Task<string> GetCallbackUrlForEmailConfirmation(User user)
-        {
-            var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
-            return Url.Action(
-                "confirmemail",
-                "Account",
-                new { userId = user.Id, code = token },
-                protocol: HttpContext.Request.Scheme);
-        }
-
-        private async Task<string> GetCallbackUrlForChangeEmail(User user, string newEmail)
-        {
-            var token = await userManager.GenerateChangeEmailTokenAsync(user, newEmail);
-            return Url.Action(
-                "confirmchangeemail",
-                "Account",
-                new { userId = user.Id, email = newEmail, code = token },
-                protocol: HttpContext.Request.Scheme);
         }
     }
 }
