@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using HwProj.AuthService.API.Exceptions;
-using System;
 using System.Security.Claims;
 
 namespace HwProj.AuthService.API
@@ -33,11 +32,11 @@ namespace HwProj.AuthService.API
 
             if (!result.Succeeded)
             {
-                throw new Exception();
+                throw new FailedExecutionException(result.Errors);
             }
         }
 
-        public async Task ConfirmUserEmail(string userId, string code)
+        public async Task ConfirmEmail(string userId, string code)
         {
             var user = await userManager.FindByIdAsync(userId);
 
@@ -46,9 +45,11 @@ namespace HwProj.AuthService.API
                 throw new UserNotFoundException();
             }
 
-            if (!(await userManager.ConfirmEmailAsync(user, code)).Succeeded)
+            var result = await userManager.ConfirmEmailAsync(user, code);
+
+            if (!result.Succeeded)
             {
-                throw new Exception();
+                throw new FailedExecutionException(result.Errors);
             }
         }
 
@@ -74,7 +75,7 @@ namespace HwProj.AuthService.API
 
             if (!result.Succeeded)
             {
-                throw new Exception();
+                throw new FailedExecutionException();
             }
         }
 
@@ -86,10 +87,11 @@ namespace HwProj.AuthService.API
             }
 
             var user = (User)model;
+            var result = await userManager.CreateAsync(user, model.Password);
 
-            if (!(await userManager.CreateAsync(user, model.Password)).Succeeded)
+            if (!result.Succeeded)
             {
-                throw new Exception();
+                throw new FailedExecutionException(result.Errors);
             }
 
             await userManager.AddToRoleAsync(user, "student");
@@ -130,11 +132,11 @@ namespace HwProj.AuthService.API
                 throw new UserNotFoundException();
             }
 
-            var result = await ChangeUserEmailAfterConfirm(user, email, code);
+            var result = await ChangeEmailAfterConfirm(user, email, code);
 
             if (!result.Succeeded)
             {
-                throw new Exception();
+                throw new FailedExecutionException(result.Errors);
             }
         }
 
@@ -154,7 +156,7 @@ namespace HwProj.AuthService.API
 
             if (!(await userManager.DeleteAsync(user)).Succeeded)
             {
-                throw new Exception();
+                throw new FailedExecutionException();
             }
         }
 
@@ -179,7 +181,7 @@ namespace HwProj.AuthService.API
 
             if (!result.Succeeded)
             {
-                throw new Exception();
+                throw new FailedExecutionException(result.Errors);
             }
         }
 
@@ -224,7 +226,7 @@ namespace HwProj.AuthService.API
             return result;
         }
 
-        private async Task<IdentityResult> ChangeUserEmailAfterConfirm(User user, string newEmai, string code)
+        private async Task<IdentityResult> ChangeEmailAfterConfirm(User user, string newEmai, string code)
         {
             var result = await userManager.ChangeEmailAsync(user, newEmai, code);
 

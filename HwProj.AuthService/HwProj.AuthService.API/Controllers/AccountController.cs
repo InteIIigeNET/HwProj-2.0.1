@@ -5,6 +5,8 @@ using HwProj.AuthService.API.ViewModels;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using HwProj.AuthService.API.Filters;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace HwProj.AuthService.API.Controllers
 {
@@ -14,9 +16,12 @@ namespace HwProj.AuthService.API.Controllers
     {
         private readonly UserService userService;
 
+        private readonly UserManager<User> userManager;
+
         public AccountController(UserManager<User> userManager, SignInManager<User> signInManager)
         {
             userService = new UserService(userManager, signInManager);
+            this.userManager = userManager;
         }
 
         [HttpPost, Route("register")]
@@ -38,7 +43,7 @@ namespace HwProj.AuthService.API.Controllers
                 return BadRequest("Некорректные параметры запроса");
             }
 
-            await userService.ConfirmUserEmail(userId, code);
+            await userService.ConfirmEmail(userId, code);
             return Ok();
         }
 

@@ -9,11 +9,7 @@ namespace HwProj.AuthService.API.Filters
         public void OnException(ExceptionContext exceptionContext)
         {
             var exception = exceptionContext.Exception;
-
-            exceptionContext.Result = exception is Exception
-                ? (ActionResult)new BadRequestResult()
-                : new BadRequestObjectResult(exception.Message);
-
+            exceptionContext.Result = new BadRequestObjectResult(exception.Message);
             exceptionContext.ExceptionHandled = true;
         }
     }
