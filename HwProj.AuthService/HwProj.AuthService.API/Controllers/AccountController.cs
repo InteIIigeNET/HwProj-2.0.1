@@ -4,6 +4,7 @@ using HwProj.AuthService.API.Models;
 using HwProj.AuthService.API.ViewModels;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using HwProj.AuthService.API.Filters;
 
 namespace HwProj.AuthService.API.Controllers
 {
@@ -11,41 +12,25 @@ namespace HwProj.AuthService.API.Controllers
     [ApiController]
     public class AccountController : Controller
     {
-        private readonly UserManager<User> userManager;
-        private readonly SignInManager<User> signInManager;
         private readonly UserService userService;
 
         public AccountController(UserManager<User> userManager, SignInManager<User> signInManager)
         {
-            this.userManager = userManager;
-            this.signInManager = signInManager;
             userService = new UserService(userManager, signInManager);
         }
 
         [HttpPost, Route("register")]
+        [ExceptionFilter]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            if ((await userManager.FindByEmailAsync(model.Email)) != null)
-            {
-                return BadRequest("Пользователь с таким email уже зарегистрирован");
-            }
-
-            var user = (User)model;
-
-            if (!(await userManager.CreateAsync(user, model.Password)).Succeeded)
-            {
-                return BadRequest();
-            }
-
-            await userManager.AddToRoleAsync(user, "student");
-
-            var callbackUrl = await userService.GetCallbackUrlForEmailConfirmation(user, HttpContext, Url);
+            var callbackUrl = await userService.Register(model, HttpContext, Url);
             // тут отправить Url студенту на почту. а пока он возвращается в Ok
 
             return Ok(callbackUrl);
         }
 
         [HttpGet, Route("confirmemail")]
+        [ExceptionFilter]
         public async Task<IActionResult> ConfirmEmail(string userId, string code)
         {
             if (userId == null || code == null)
@@ -53,95 +38,43 @@ namespace HwProj.AuthService.API.Controllers
                 return BadRequest("Некорректные параметры запроса");
             }
 
-            var user = await userManager.FindByIdAsync(userId);
-
-            if (user == null)
-            {
-                return BadRequest("Пользователь не найден");
-            }
-
-            if (!(await userManager.ConfirmEmailAsync(user, code)).Succeeded)
-            {
-                return BadRequest();
-            }
-
+            await userService.ConfirmUserEmail(userId, code);
             return Ok();
         }
 
         [HttpPost, Route("login")]
+        [ExceptionFilter]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
-            if ((await userManager.FindByEmailAsync(model.Email)) == null)
-            {
-                return BadRequest("Пользователь не найден");
-            }
-
-            var user = await userManager.FindByEmailAsync(model.Email);
-
-            if (!await userManager.IsEmailConfirmedAsync(user))
-            {
-                return BadRequest("Email не был подтвержден");
-            }
-
-            var result = await signInManager.PasswordSignInAsync(
-                user,
-                model.Password,
-                model.RememberMe,
-                false);
-
-            if (!result.Succeeded)
-            {
-                return Unauthorized();
-            }
-
+            await userService.Login(model);
             return Ok();
         }
 
         [HttpPost, Route("logoff")]
-        public async void LogOff() => await signInManager.SignOutAsync();
+        public async void LogOff() => await userService.LogOff();
 
         [HttpPost, Route("edit")]
+        [ExceptionFilter]
         [Authorize]
         public async Task<IActionResult> Edit(EditViewModel model)
         {
-            if (!signInManager.IsSignedIn(User))
-            {
-                return BadRequest("Вход не выполнен");
-            }
-
-            var user = await userManager.FindByNameAsync(User.Identity.Name);
-
-            if (!(await userService.ChangeUserData(user, model)).Succeeded)
-            {
-                return BadRequest();
-            }
-
+            await userService.Edit(model, User);
             return Ok();
         }
 
         [HttpPost, Route("changeemail")]
+        [ExceptionFilter]
         [Authorize]
         public async Task<IActionResult> ChangeEmail(ChangeEmailViewModel model)
         {
-            if (!signInManager.IsSignedIn(User))
-            {
-                return BadRequest("Вход не выполнен");
-            }
-
-            if ((await userManager.FindByEmailAsync(model.NewEmail)) != null)
-            {
-                return BadRequest("Пользователь с таким Email уже зарегистрирован");
-            }
-
-            var user = await userManager.FindByNameAsync(User.Identity.Name);
-
-            string callbackUrl = await userService.GetCallbackUrlForChangeEmail(user, model.NewEmail, HttpContext, Url);
+            string callbackUrl = await userService.RequestToChangeEmail(model, User, HttpContext, Url);
             // отправить Url для подтвереждения новой почты пользователю. пока возвращаю в Ok
 
             return Ok(callbackUrl);
         }
 
         [HttpGet, Route("confirmchangeemail")]
+        [ExceptionFilter]
         public async Task<IActionResult> ConfirmChangeEmail(
             string userId,
             string email,
@@ -152,88 +85,34 @@ namespace HwProj.AuthService.API.Controllers
                 return BadRequest("Некорректные параметры запроса");
             }
 
-            var user = await userManager.FindByIdAsync(userId);
-
-            if (user == null)
-            {
-                return BadRequest("Пользователь не найден");
-            }
-
-            if (!(await userService.ChangeUserEmail(user, email, code)).Succeeded)
-            {
-                return BadRequest();
-            }
-
+            await userService.ConfirmChangeEmail(userId, email, code);
             return Ok();
         }
 
         [HttpPost, Route("delete")]
+        [ExceptionFilter]
         [Authorize]
         public async Task<IActionResult> Delete(DeleteViewModel model)
         {
-            if (!signInManager.IsSignedIn(User))
-            {
-                return BadRequest("Вход не выполнен");
-            }
-
-            var user = await userManager.FindByNameAsync(User.Identity.Name);
-
-            if (!await userManager.CheckPasswordAsync(user, model.Password))
-            {
-                return BadRequest("Неверный пароль");
-            }
-
-            if (!(await userManager.DeleteAsync(user)).Succeeded)
-            {
-                return BadRequest();
-            }
-
+            await userService.Delete(model, User);
             return Ok();
         }
 
         [HttpPost, Route("changepassword")]
+        [ExceptionFilter]
         [Authorize]
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {
-            if (!signInManager.IsSignedIn(User))
-            {
-                return BadRequest("Вход не выполнен");
-            }
-
-            var user = await userManager.FindByNameAsync(User.Identity.Name);
-
-            if (!await userManager.CheckPasswordAsync(user, model.Password))
-            {
-                return BadRequest("Неверный пароль");
-            }
-
-            if (!(await userService.ChangeUserPassword(user, model.NewPassword, HttpContext)).Succeeded)
-            {
-                return BadRequest();
-            }
-
+            await userService.ChangePassword(model, User, HttpContext);
             return Ok();
         }
 
         [HttpPost, Route("invitenewlecturer")]
+        [ExceptionFilter]
         [Authorize(Roles = "lecturer")]
         public async Task<IActionResult> InviteNewLecturer(InviteLecturerViewModel model)
         {
-            if (!signInManager.IsSignedIn(User))
-            {
-                return BadRequest("Вход не выполнен");
-            }
-
-            var invitedUser = await userManager.FindByEmailAsync(model.EmailOfInvitedPerson);
-
-            if (invitedUser == null)
-            {
-                return BadRequest("Пользователь не найден");
-            }
-
-            await userManager.AddToRoleAsync(invitedUser, "lecturer");
-            await userManager.RemoveFromRoleAsync(invitedUser, "student");
-
+            await userService.InviteNewLecturer(model, User);
             return Ok();
         }
     }
