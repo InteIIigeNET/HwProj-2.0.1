@@ -1,28 +1,20 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using HwProj.AuthService.API.Models;
-using HwProj.AuthService.API.ViewModels;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using HwProj.AuthService.API.Filters;
-using System.Collections.Generic;
-using System.Linq;
+using HwProj.AuthService.API.Services;
+using HwProj.AuthService.API.Models;
+using HwProj.AuthService.API.ViewModels;
 
 namespace HwProj.AuthService.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/account")]
     [ApiController]
-    public class AccountController : Controller
+    public class AccountController : ControllerBase
     {
-        private readonly UserService userService;
+        private readonly IUserService userService;
 
-        private readonly UserManager<User> userManager;
-
-        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager)
-        {
-            userService = new UserService(userManager, signInManager);
-            this.userManager = userManager;
-        }
+        public AccountController(IUserService userService) => this.userService = userService;
 
         [HttpPost, Route("register")]
         [ExceptionFilter]
@@ -119,6 +111,12 @@ namespace HwProj.AuthService.API.Controllers
         {
             await userService.InviteNewLecturer(model, User);
             return Ok();
+        }
+
+        [HttpGet, Route("get")]
+        public async Task<User> Get(string email)
+        {
+            return await userService.Get(email);
         }
     }
 }

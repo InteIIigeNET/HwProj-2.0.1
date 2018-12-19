@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.27703.2042
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HwProj.AuthService", "HwProj.AuthService", "{D7F8BC73-A6CB-4E07-984D-2D65B740BC69}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.AuthService.API", "HwProj.AuthService\HwProj.AuthService.API\HwProj.AuthService.API.csproj", "{7ECE830B-68EA-4BA3-BDEC-0D1E9FACB19A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HwProj.AuthService.API", "HwProj.AuthService\HwProj.AuthService.API\HwProj.AuthService.API.csproj", "{7ECE830B-68EA-4BA3-BDEC-0D1E9FACB19A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

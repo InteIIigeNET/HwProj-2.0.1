@@ -6,6 +6,7 @@ using HwProj.AuthService.API.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Swagger;
+using HwProj.AuthService.API.Services;
 
 namespace HwProj.AuthService.API
 {
@@ -33,6 +34,8 @@ namespace HwProj.AuthService.API
             });
 
             services.AddMvc();
+
+            services.AddScoped<IUserService, UserService>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

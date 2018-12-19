@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 using HwProj.AuthService.API.Exceptions;
 using System.Security.Claims;
 
-namespace HwProj.AuthService.API
+namespace HwProj.AuthService.API.Services
 {
-    public class UserService
+    public class UserService : IUserService
     {
         private readonly UserManager<User> userManager;
         private readonly SignInManager<User> signInManager;
@@ -18,6 +18,11 @@ namespace HwProj.AuthService.API
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
+        }
+
+        public async Task<User> Get(string Email)
+        {
+            return await userManager.FindByEmailAsync(Email);
         }
 
         public async Task Edit(EditViewModel model, ClaimsPrincipal User)
