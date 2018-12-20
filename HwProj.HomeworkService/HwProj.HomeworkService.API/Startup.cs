@@ -36,6 +36,7 @@ namespace HwProj.HomeworkService.API
             services.AddScoped<IHomeworkRepository, HomeworkRepository>();
             services.AddScoped<ICourseRepository, CourseRepository>();
             services.AddScoped<IApplicationRepository, ApplicationRepository>();
+            services.AddScoped<ITaskRepository, TaskRepository>();
             services.AddMvc().AddJsonOptions(options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
             services.AddAutoMapper();
             services.AddSwaggerGen(c =>

@@ -18,7 +18,9 @@ namespace HwProj.HomeworkService.API.Models.Repositories
         protected override IQueryable<Course> GetEntities()
             => GetAllEntites()
                 .Include(c => c.Homeworks)
-                    .ThenInclude(h => h.Applications);
+                    .ThenInclude(h => h.Applications)
+                .Include(c => c.Homeworks)
+                    .ThenInclude(h => h.Tasks);
 
         public async Task AddHomework(long courseId, Homework homework)
         {

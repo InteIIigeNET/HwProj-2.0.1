@@ -11,6 +11,7 @@ namespace HwProj.HomeworkService.API.Models
         public DbSet<Homework> Homeworks { get; set; }
         public DbSet<HomeworkApplication> Applications { get; set; }
         public DbSet<Course> Courses { get; set; }
+        public DbSet<HomeworkTask> Tasks { get; set; }
 
         public HomeworksContext(DbContextOptions options)
             : base(options)

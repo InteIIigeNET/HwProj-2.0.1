@@ -17,13 +17,16 @@ namespace HwProj.HomeworkService.API.Controllers
         private readonly IHomeworkRepository _homeworkRepository;
         private readonly ICourseRepository _courseRepository;
         private readonly IApplicationRepository _applicationRepository;
+        private readonly ITaskRepository _taskRepository;
         private readonly IMapper _mapper;
 
-        public HomeworkController(IHomeworkRepository homeworkRepository, ICourseRepository courseRepository, IApplicationRepository applicationRepository, IMapper mapper)
+        public HomeworkController(IHomeworkRepository homeworkRepository, ICourseRepository courseRepository,
+            IApplicationRepository applicationRepository, ITaskRepository taskRepository, IMapper mapper)
         {
             _homeworkRepository = homeworkRepository;
             _courseRepository = courseRepository;
             _applicationRepository = applicationRepository;
+            _taskRepository = taskRepository;
             _mapper = mapper;
         }
 
@@ -91,6 +94,47 @@ namespace HwProj.HomeworkService.API.Controllers
         [HttpDelete("delete_application/{applicationId}")]
         public async Task<IActionResult> DeleteApplication(long applicationId)
             => Result(await _applicationRepository.DeleteAsync(a => a.Id == applicationId));
+
+        [HttpGet("get_task/{taskid}")]
+        public async Task<IActionResult> GetTask(long taskId)
+        {
+            var task = await _taskRepository.GetAsync(t => t.Id == taskId);
+            return task == null
+                ? NotFound() as IActionResult
+                : Ok(_mapper.Map<TaskViewModel>(task));
+        }
+
+        [HttpPost("add_task/{homeworkId}")]
+        public async Task<IActionResult> AddTask(long homeworkId, [FromBody]CreateTaskViewModel taskViewModel)
+        {
+            var homework = await _homeworkRepository.GetAsync(h => h.Id == homeworkId);
+            if (homework == null)
+            {
+                return NotFound();
+            }
+
+            var task = _mapper.Map<HomeworkTask>(taskViewModel);
+            task.HomeworkId = homeworkId;
+            await _taskRepository.AddAsync(task);
+
+            return Ok(task);
+        }
+
+        [HttpPost("update_task/{taskId}")]
+        public async Task<IActionResult> UpdateTask(long taskId, [FromBody]CreateTaskViewModel taskViewModel)
+        {
+            var updated = await _taskRepository.UpdateAsync(t => t.Id == taskId, t => new HomeworkTask()
+            {
+                Title = taskViewModel.Title,
+                Description = taskViewModel.Description
+            });
+
+            return Result(updated);
+        }
+
+        [HttpDelete("delete_task/{taskId}")]
+        public async Task<IActionResult> DeleteTask(long taskId)
+            => Result(await _taskRepository.DeleteAsync(t => t.Id == taskId));
 
         private IActionResult Result(bool flag)
             => flag

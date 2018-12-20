@@ -14,5 +14,7 @@ namespace HwProj.HomeworkService.API.Models
         public Course Course { get; set; }
 
         public List<HomeworkApplication> Applications { get; set; } = new List<HomeworkApplication>();
+
+        public List<HomeworkTask> Tasks { get; set; } = new List<HomeworkTask>();
     }
 }
