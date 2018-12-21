@@ -11,6 +11,8 @@ namespace HwProj.AuthService.API.Services
     {
         Task<User> Get(string Email);
 
+        Task<bool> GetRoleIfUserAuthorized(ClaimsPrincipal User);
+
         Task<string> GetIdIfUserAuthorized(ClaimsPrincipal User);
 
         Task<bool> GetRoleById(string userId);

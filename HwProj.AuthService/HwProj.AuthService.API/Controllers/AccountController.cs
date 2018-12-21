@@ -113,13 +113,17 @@ namespace HwProj.AuthService.API.Controllers
             return Ok();
         }
 
-        [HttpGet, Route("getrole")]
+        [HttpGet, Route("getrolebyid")]
         public async Task<bool> GetRoleById(string userId)
             => await userService.GetRoleById(userId);
 
-        [HttpGet, Route("getid")]
+        [HttpGet, Route("getidifauthorized")]
         public async Task<string> GetIdIfUserAuthorized()
             => await userService.GetIdIfUserAuthorized(User);
+
+        [HttpGet, Route("getroleifauthorized")]
+        public async Task<bool> GetRoleIfUserAuthorized()
+            => await userService.GetRoleIfUserAuthorized(User);
 
         [HttpGet, Route("get")]
         public async Task<User> Get(string email)
