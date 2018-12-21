@@ -113,7 +113,7 @@ namespace HwProj.AuthService.API.Controllers
             return Ok();
         }
 
-        [HttpGet]
+        [HttpGet, Route("getrole")]
         public async Task<bool> GetRoleById(string userId)
             => await userService.GetRoleById(userId);
 
