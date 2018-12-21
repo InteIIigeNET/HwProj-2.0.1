@@ -25,6 +25,19 @@ namespace HwProj.AuthService.API.Services
             return await userManager.FindByEmailAsync(Email);
         }
 
+        //IsStudent - true
+        public async Task<bool> GetRoleById(string userId)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                throw new UserNotFoundException();
+            }
+
+            return (await userManager.GetRolesAsync(user))[0] == "student";
+        }
+
         public async Task Edit(EditViewModel model, ClaimsPrincipal User)
         {
             if (!signInManager.IsSignedIn(User))

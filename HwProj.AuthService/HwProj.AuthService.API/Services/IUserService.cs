@@ -11,6 +11,8 @@ namespace HwProj.AuthService.API.Services
     {
         Task<User> Get(string Email);
 
+        Task<bool> GetRoleById(string userId);
+
         Task<string> Register(RegisterViewModel model, HttpContext httpContext, IUrlHelper url);
 
         Task Edit(EditViewModel model, ClaimsPrincipal User);
