@@ -117,6 +117,10 @@ namespace HwProj.AuthService.API.Controllers
         public async Task<bool> GetRoleById(string userId)
             => await userService.GetRoleById(userId);
 
+        [HttpGet, Route("getid")]
+        public async Task<string> GetIdIfUserAuthorized()
+            => await userService.GetIdIfUserAuthorized(User);
+
         [HttpGet, Route("get")]
         public async Task<User> Get(string email)
         {

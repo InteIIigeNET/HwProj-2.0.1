@@ -25,6 +25,17 @@ namespace HwProj.AuthService.API.Services
             return await userManager.FindByEmailAsync(Email);
         }
 
+        public async Task<string> GetIdIfUserAuthorized(ClaimsPrincipal User)
+        {
+            if (!signInManager.IsSignedIn(User))
+            {
+                throw new UserNotSignInException();
+            }
+
+            var user = await userManager.FindByNameAsync(User.Identity.Name);
+            return await userManager.GetUserIdAsync(user);
+        }
+
         //IsStudent - true
         public async Task<bool> GetRoleById(string userId)
         {
