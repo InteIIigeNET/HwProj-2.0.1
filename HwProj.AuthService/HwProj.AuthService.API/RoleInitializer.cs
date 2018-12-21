@@ -17,6 +17,24 @@ namespace HwProj.AuthService.API
             {
                 await roleManager.CreateAsync(new IdentityRole("student"));
             }
+
+            string email = "admin@gmail.com";
+            string password = "Admin@1234";
+
+            if (await userManager.FindByNameAsync(email) == null)
+            {
+                var admin = new User { Name = "admin",
+                    Surname = "admin",
+                    Email = email,
+                    UserName = email };
+
+                var result = await userManager.CreateAsync(admin, password);
+
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(admin, "lecturer");
+                }
+            }
         }
     }
 }
