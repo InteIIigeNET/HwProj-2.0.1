@@ -33,6 +33,8 @@ namespace HwProj.AuthService.API
                 if (result.Succeeded)
                 {
                     await userManager.AddToRoleAsync(admin, "lecturer");
+                    admin.EmailConfirmed = true;
+                    await userManager.UpdateAsync(admin);
                 }
             }
         }
