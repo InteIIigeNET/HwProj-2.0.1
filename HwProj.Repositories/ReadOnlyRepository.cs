@@ -26,8 +26,8 @@ namespace HwProj.Repositories
         public TEntity Find(Func<TEntity, bool> predicate)
             => _context.Set<TEntity>().FirstOrDefault(predicate);
 
-        public IReadOnlyCollection<TEntity> FindAll(Func<TEntity, bool> predicate)
-            => _context.Set<TEntity>().AsNoTracking().AsEnumerable().Where(predicate).ToArray();
+        public IReadOnlyCollection<TEntity> FindAll(Expression<Func<TEntity, bool>> predicate)
+            => _context.Set<TEntity>().Where(predicate).AsNoTracking().ToArray();
 
         public Task<TEntity> GetAsync(long id)
             => _context.FindAsync<TEntity>(id);
