@@ -21,11 +21,11 @@ namespace HwProj.Repositories
             _context.SaveChanges();
         }
 
-        public bool Delete(long id)
-            => _context.Set<TEntity>().Where(entity => entity.Id == id).Delete() == 1;
+        public void Delete(long id)
+            => _context.Set<TEntity>().Where(entity => entity.Id == id).Delete();
 
-        public bool Update(long id, Expression<Func<TEntity, TEntity>> updateFactory)
-            => _context.Set<TEntity>().Where(entity => entity.Id == id).Update(updateFactory) == 1;
+        public void Update(long id, Expression<Func<TEntity, TEntity>> updateFactory)
+            => _context.Set<TEntity>().Where(entity => entity.Id == id).Update(updateFactory);
 
         public async Task AddAsync(TEntity item)
         {
@@ -33,10 +33,10 @@ namespace HwProj.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<bool> DeleteAsync(long id)
-            => await _context.Set<TEntity>().Where(entity => entity.Id == id).DeleteAsync() == 1;
+        public Task DeleteAsync(long id)
+            => _context.Set<TEntity>().Where(entity => entity.Id == id).DeleteAsync();
 
-        public async Task<bool> UpdateAsync(long id, Expression<Func<TEntity, TEntity>> updateFactory)
-            => await _context.Set<TEntity>().Where(entity => entity.Id == id).UpdateAsync(updateFactory) == 1;
+        public Task UpdateAsync(long id, Expression<Func<TEntity, TEntity>> updateFactory)
+            => _context.Set<TEntity>().Where(entity => entity.Id == id).UpdateAsync(updateFactory);
     }
 }

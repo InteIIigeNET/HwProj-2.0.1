@@ -8,10 +8,10 @@ namespace HwProj.Repositories
         where TEntity : IEntity
     {
         void Add(TEntity item);
-        bool Delete(long id);
-        bool Update(long id, Expression<Func<TEntity, TEntity>> updateFactory);
+        void Delete(long id);
+        void Update(long id, Expression<Func<TEntity, TEntity>> updateFactory);
         Task AddAsync(TEntity item);
-        Task<bool> DeleteAsync(long id);
-        Task<bool> UpdateAsync(long id, Expression<Func<TEntity, TEntity>> updateFactory);
+        Task DeleteAsync(long id);
+        Task UpdateAsync(long id, Expression<Func<TEntity, TEntity>> updateFactory);
     }
 }
