@@ -10,6 +10,7 @@ namespace HwProj.HomeworkService.API.Models
         public string Title { get; set; }
         public string Description { get; set; }
         public DateTime Date { get; set; }
+        public long CourseId { get; set; }
         
         public List<HomeworkTask> Tasks { get; set; }
     }
