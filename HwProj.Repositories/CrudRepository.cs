@@ -15,10 +15,11 @@ namespace HwProj.Repositories
         {
         }
         
-        public void Add(TEntity item)
+        public long Add(TEntity item)
         {
             _context.Add(item);
             _context.SaveChanges();
+            return item.Id;
         }
 
         public void Delete(long id)
@@ -27,10 +28,11 @@ namespace HwProj.Repositories
         public void Update(long id, Expression<Func<TEntity, TEntity>> updateFactory)
             => _context.Set<TEntity>().Where(entity => entity.Id == id).Update(updateFactory);
 
-        public async Task AddAsync(TEntity item)
+        public async Task<long> AddAsync(TEntity item)
         {
             await _context.AddAsync(item);
             await _context.SaveChangesAsync();
+            return item.Id;
         }
 
         public Task DeleteAsync(long id)
