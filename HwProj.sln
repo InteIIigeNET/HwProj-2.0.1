@@ -23,6 +23,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HwProj.CoursesService.API",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HwProj.CoursesService.Tests", "HwProj.CoursesService\HwProj.CoursesService.Tests\HwProj.CoursesService.Tests.csproj", "{6AA3505A-04E4-4B4C-90C9-A30393C878C0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.EventBus", "HwProj.EventBus\HwProj.EventBus\HwProj.EventBus.csproj", "{C3F00D7F-9701-474A-A669-169B6079875D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.EventBusRabbitMQ", "HwProj.EventBus\HwProj.EventBusRabbitMQ\HwProj.EventBusRabbitMQ.csproj", "{7BEB832E-E8EE-4922-A9CD-BF4568561E47}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +61,14 @@ Global
 		{6AA3505A-04E4-4B4C-90C9-A30393C878C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6AA3505A-04E4-4B4C-90C9-A30393C878C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6AA3505A-04E4-4B4C-90C9-A30393C878C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3F00D7F-9701-474A-A669-169B6079875D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3F00D7F-9701-474A-A669-169B6079875D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3F00D7F-9701-474A-A669-169B6079875D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3F00D7F-9701-474A-A669-169B6079875D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7BEB832E-E8EE-4922-A9CD-BF4568561E47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7BEB832E-E8EE-4922-A9CD-BF4568561E47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7BEB832E-E8EE-4922-A9CD-BF4568561E47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7BEB832E-E8EE-4922-A9CD-BF4568561E47}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
