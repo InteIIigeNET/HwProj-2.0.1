@@ -22,6 +22,10 @@ namespace HwProj.SolutionsService.API.Controllers
             _mapper = mapper;
         }
 
+        [HttpGet]
+        public List<SolutionViewModel> GetAllSolutions()
+            => _solutionRepository.GetAll().Select(_mapper.Map<SolutionViewModel>).ToList();    
+        
         [HttpGet("{solutionId}")]
         public async Task<List<SolutionViewModel>> GetSolution(long solutionId)
         {
@@ -41,6 +45,13 @@ namespace HwProj.SolutionsService.API.Controllers
 
             return new List<SolutionViewModel> {_mapper.Map<SolutionViewModel>(solution)};
         }
+
+        [HttpPost("accept_solution/{solutionId}")]
+        public async Task AcceptSolution(long solutionId)
+            => await _solutionRepository.UpdateAsync(solutionId, solution => new Solution() { State = Solution.SolutionState.Accepted});
         
+        [HttpPost("reject_solution/{solutionId}")]
+        public async Task RejectSolution(long solutionId)
+            => await _solutionRepository.UpdateAsync(solutionId, solution => new Solution() { State = Solution.SolutionState.Rejected});
     }
 }
