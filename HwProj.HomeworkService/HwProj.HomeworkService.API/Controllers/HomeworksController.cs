@@ -46,24 +46,24 @@ namespace HwProj.HomeworkService.API.Controllers
         }
 
         [HttpPost("{courseId}")]
-        public async Task<List<HomeworkViewModel>> AddHomework(long courseId,
+        public async Task<List<long>> AddHomework(long courseId,
             [FromBody] CreateHomeworkViewModel homeworkViewModel)
         {
             var homework = _mapper.Map<Homework>(homeworkViewModel);
             homework.CourseId = courseId;
             homework.Date = DateTime.Now;
             await _homeworkRepository.AddAsync(homework);
-            return new List<HomeworkViewModel> {_mapper.Map<HomeworkViewModel>(homework)};
+            return new List<long> {homework.Id};
         }
 
         [HttpPost("add_task/{homeworkId}")]
-        public async Task<List<HomeworkTaskViewModel>> AddTask(long homeworkId,
+        public async Task<List<long>> AddTask(long homeworkId,
             [FromBody] CreateTaskViewModel taskViewModel)
         {
             var task = _mapper.Map<HomeworkTask>(taskViewModel);
             task.HomeworkId = homeworkId;
             await _taskRepository.AddAsync(task);
-            return new List<HomeworkTaskViewModel> {_mapper.Map<HomeworkTaskViewModel>(task)};
+            return new List<long> {task.Id};
         }
 
         [HttpDelete("{homeworkId}")]
