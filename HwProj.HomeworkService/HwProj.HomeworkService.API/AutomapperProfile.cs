@@ -10,6 +10,7 @@ namespace HwProj.HomeworkService.API
             CreateMap<Homework, CreateHomeworkViewModel>().ReverseMap();
             CreateMap<Homework, HomeworkViewModel>().ReverseMap();
             CreateMap<HomeworkTask, HomeworkTaskViewModel>().ReverseMap();
+            CreateMap<HomeworkTask, CreateTaskViewModel>().ReverseMap();
         }
     }
 }

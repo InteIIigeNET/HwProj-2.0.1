@@ -10,4 +10,10 @@
         
         public long HomeworkId { get; set; }
     }
+
+    public class CreateTaskViewModel
+    {
+        public string Title { get; set; }
+        public string Description { get; set; }
+    }
 }
