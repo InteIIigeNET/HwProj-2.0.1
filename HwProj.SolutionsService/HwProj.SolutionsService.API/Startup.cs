@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using HwProj.SolutionsService.API.Models;
 using HwProj.SolutionsService.API.Models.Repositories;
 using Microsoft.AspNetCore.Builder;
@@ -28,9 +29,10 @@ namespace HwProj.SolutionsService.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var connectionString = Configuration.GetConnectionString("DefaultConnectino");
+            var connectionString = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<SolutionContext>(options => options.UseSqlServer(connectionString));
             services.AddScoped<ISolutionRepository, SolutionRepository>();
+            services.AddAutoMapper();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
