@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using HwProj.HomeworkService.API.Models;
 using HwProj.HomeworkService.API.Models.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -14,42 +15,23 @@ namespace HwProj.HomeworkService.API.Controllers
     {
         private readonly IHomeworkRepository _homeworkRepository;
         private readonly ITaskRepository _taskRepository;
+        private readonly IMapper _mapper;
 
-        public HomeworksController(ITaskRepository taskRepository, IHomeworkRepository homeworkRepository)
+        public HomeworksController(ITaskRepository taskRepository, IHomeworkRepository homeworkRepository,
+            IMapper mapper)
         {
             _homeworkRepository = homeworkRepository;
             _taskRepository = taskRepository;
-        }
-        
-        [HttpGet]
-        public ActionResult<IEnumerable<string>> Get()
-        {
-            return new string[] { "value1", "value2" };
+            _mapper = mapper;
         }
 
-        // GET api/values/5
-        [HttpGet("{id}")]
-        public ActionResult<string> Get(int id)
+        [HttpPost("add_homework/{courseId}")]
+        public async Task<List<HomeworkViewModel>> AddHomework(long courseId, [FromBody] CreateHomeworkViewModel homeworkViewModel)
         {
-            return "value";
-        }
-
-        // POST api/values
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
-        // PUT api/values/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            var homework = _mapper.Map<Homework>(homeworkViewModel);
+            homework.CourseId = courseId;
+            await _homeworkRepository.AddAsync(homework);
+            return new List<HomeworkViewModel> { _mapper.Map<HomeworkViewModel>(homework) };
         }
     }
 }

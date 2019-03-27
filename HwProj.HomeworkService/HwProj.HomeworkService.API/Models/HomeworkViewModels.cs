@@ -1,10 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using HwProj.Repositories;
 
 namespace HwProj.HomeworkService.API.Models
 {
-    public class Homework : IEntity
+    public class CreateHomeworkViewModel
+    {
+        public string Title { get; set; }
+        
+        public string Description { get; set; }
+    }
+
+    public class HomeworkViewModel
     {
         public long Id { get; set; }
         
@@ -16,6 +22,6 @@ namespace HwProj.HomeworkService.API.Models
         
         public long CourseId { get; set; }
         
-        public List<HomeworkTask> Tasks { get; set; }
+        public List<HomeworkTaskViewModel> Tasks { get; set; }
     }
 }

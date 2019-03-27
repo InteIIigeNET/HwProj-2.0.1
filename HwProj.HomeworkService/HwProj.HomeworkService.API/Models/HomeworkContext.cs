@@ -10,6 +10,7 @@ namespace HwProj.HomeworkService.API.Models
         public HomeworkContext(DbContextOptions options)
             : base(options)
         {
+            Database.EnsureCreated();
         }
     }
 }

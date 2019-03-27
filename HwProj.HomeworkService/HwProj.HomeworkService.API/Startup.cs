@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using HwProj.HomeworkService.API.Models;
 using HwProj.HomeworkService.API.Models.Repositories;
 using Microsoft.AspNetCore.Builder;
@@ -28,10 +29,11 @@ namespace HwProj.HomeworkService.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var connectionString = "Server=localhost;Database=homeworkdb;User Id=admin;Password=Admin12345;";
+            var connectionString = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<HomeworkContext>(options => options.UseSqlServer(connectionString));
             services.AddScoped<IHomeworkRepository, HomeworkRepository>();
             services.AddScoped<ITaskRepository, TaskRepository>();
+            services.AddAutoMapper();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
