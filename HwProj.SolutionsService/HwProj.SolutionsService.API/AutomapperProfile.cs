@@ -8,6 +8,7 @@ namespace HwProj.SolutionsService.API
         public AutomapperProfile()
         {
             CreateMap<Solution, CreateSolutionViewModel>().ReverseMap();
+            CreateMap<Solution, SolutionViewModel>().ReverseMap();
         }
     }
 }

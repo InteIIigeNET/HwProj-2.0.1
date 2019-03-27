@@ -23,23 +23,23 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpGet("{solutionId}")]
-        public async Task<List<Solution>> GetSolution(long solutionId)
+        public async Task<List<SolutionViewModel>> GetSolution(long solutionId)
         {
             var solution = await _solutionRepository.GetAsync(solutionId);
             return solution == null
-                ? new List<Solution>()
-                : new List<Solution> {solution};
+                ? new List<SolutionViewModel>()
+                : new List<SolutionViewModel> {_mapper.Map<SolutionViewModel>(solution)};
         }
 
         [HttpPost("{taskId}")]
-        public async Task<List<Solution>> AddSolution(long taskId,
+        public async Task<List<SolutionViewModel>> AddSolution(long taskId,
             [FromBody] CreateSolutionViewModel solutionViewModel)
         {
             var solution = _mapper.Map<Solution>(solutionViewModel);
             solution.TaskId = taskId;
             await _solutionRepository.AddAsync(solution);
 
-            return new List<Solution> {solution};
+            return new List<SolutionViewModel> {_mapper.Map<SolutionViewModel>(solution)};
         }
         
     }

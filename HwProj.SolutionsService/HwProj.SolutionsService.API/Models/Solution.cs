@@ -9,9 +9,16 @@ namespace HwProj.SolutionsService.API.Models
         public string GithubUrl { get; set; }
         
         public string Comment { get; set; }
+
+        public SolutionState State { get; set; } = SolutionState.Posted;
         
         public string StudentId { get; set; }
         
         public long TaskId { get; set; }
+
+        public enum SolutionState
+        {
+            Posted, Rejected, Accepted
+        }
     }
 }
