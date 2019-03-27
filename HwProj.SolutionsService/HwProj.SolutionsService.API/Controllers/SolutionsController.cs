@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.SolutionsService.API.Models;
@@ -36,14 +37,29 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpPost("{taskId}")]
-        public async Task<List<SolutionViewModel>> AddSolution(long taskId,
+        public async Task<List<long>> PostSolution(long taskId,
             [FromBody] CreateSolutionViewModel solutionViewModel)
         {
-            var solution = _mapper.Map<Solution>(solutionViewModel);
-            solution.TaskId = taskId;
-            await _solutionRepository.AddAsync(solution);
+            var solution = await _solutionRepository
+                .FindAsync(s => s.TaskId == taskId && s.StudentId == solutionViewModel.StudentId);
+            
+            if (solution == null)
+            {
+                solution = _mapper.Map<Solution>(solutionViewModel);
+                solution.TaskId = taskId;
+                await _solutionRepository.AddAsync(solution);
+            }
+            else
+            {
+                await _solutionRepository.UpdateAsync(solution.Id, s => new Solution()
+                {
+                    GithubUrl = solutionViewModel.GithubUrl,
+                    Comment = solutionViewModel.Comment,
+                    State = Solution.SolutionState.Posted
+                });
+            }
 
-            return new List<SolutionViewModel> {_mapper.Map<SolutionViewModel>(solution)};
+            return new List<long> {solution.Id};
         }
 
         [HttpPost("accept_solution/{solutionId}")]
@@ -53,5 +69,9 @@ namespace HwProj.SolutionsService.API.Controllers
         [HttpPost("reject_solution/{solutionId}")]
         public async Task RejectSolution(long solutionId)
             => await _solutionRepository.UpdateAsync(solutionId, solution => new Solution() { State = Solution.SolutionState.Rejected});
+        
+        [HttpDelete("{solutionId}")]
+        public async Task DeleteSolution(long solutionId)
+            => await _solutionRepository.DeleteAsync(solutionId);
     }
 }
