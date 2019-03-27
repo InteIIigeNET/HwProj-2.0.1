@@ -73,5 +73,27 @@ namespace HwProj.HomeworkService.API.Controllers
         [HttpDelete("delete_task/{taskId}")]
         public async Task DeleteTask(long taskId)
             => await _taskRepository.DeleteAsync(taskId);
+
+        [HttpPost("update_homework/{homeworkId}")]
+        public async Task UpdateHomework(long homeworkId,
+            [FromBody] CreateHomeworkViewModel homeworkViewModel)
+        {
+            await _homeworkRepository.UpdateAsync(homeworkId, homework => new Homework()
+            {
+                Title = homeworkViewModel.Title,
+                Description = homeworkViewModel.Description
+            });
+        }
+        
+        [HttpPost("update_task/{taskId}")]
+        public async Task UpdateTask(long taskId,
+            [FromBody] CreateTaskViewModel taskViewModel)
+        {
+            await _homeworkRepository.UpdateAsync(taskId, homework => new Homework()
+            {
+                Title = taskViewModel.Title,
+                Description = taskViewModel.Description
+            });
+        }
     }
 }
