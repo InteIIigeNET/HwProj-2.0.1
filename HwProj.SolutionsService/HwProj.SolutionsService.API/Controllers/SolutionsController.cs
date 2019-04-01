@@ -26,16 +26,16 @@ namespace HwProj.SolutionsService.API.Controllers
             => _solutionRepository.GetAll().Select(_mapper.Map<SolutionViewModel>).ToList();    
         
         [HttpGet("{solutionId}")]
-        public async Task<List<SolutionViewModel>> GetSolution(long solutionId)
+        public async Task<IActionResult> GetSolution(long solutionId)
         {
             var solution = await _solutionRepository.GetAsync(solutionId);
             return solution == null
-                ? new List<SolutionViewModel>()
-                : new List<SolutionViewModel> {_mapper.Map<SolutionViewModel>(solution)};
+                ? NotFound()
+                : Ok(_mapper.Map<SolutionViewModel>(solution)) as IActionResult;
         }
 
         [HttpPost("{taskId}")]
-        public async Task<List<long>> PostSolution(long taskId,
+        public async Task<long> PostSolution(long taskId,
             [FromBody] CreateSolutionViewModel solutionViewModel)
         {
             var solution = await _solutionRepository
@@ -57,7 +57,7 @@ namespace HwProj.SolutionsService.API.Controllers
                 });
             }
 
-            return new List<long> {solution.Id};
+            return solution.Id;
         }
 
         [HttpPost("accept_solution/{solutionId}")]
