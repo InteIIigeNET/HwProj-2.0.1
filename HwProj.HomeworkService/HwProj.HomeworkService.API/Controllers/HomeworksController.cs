@@ -27,15 +27,33 @@ namespace HwProj.HomeworkService.API.Controllers
 
         [HttpGet]
         public List<HomeworkViewModel> GetAllHomeworks()
-            => _homeworkRepository.GetAll().Select(_mapper.Map<HomeworkViewModel>).ToList();
+            => _homeworkRepository.GetAll().Select(homework =>
+            {
+                var homeworkViewModel = _mapper.Map<HomeworkViewModel>(homework);
+                homeworkViewModel.Tasks = _taskRepository
+                    .FindAll(task => task.HomeworkId == homework.Id)
+                    .Select(task => task.Id)
+                    .ToList();
+
+                return homeworkViewModel;
+            }).ToList();
 
         [HttpGet("{homeworkId}")]
         public async Task<IActionResult> GetHomework(long homeworkId)
         {
             var homework = await _homeworkRepository.GetAsync(homeworkId);
-            return homework == null
-                ? NotFound()
-                : Ok(_mapper.Map<HomeworkViewModel>(homework)) as IActionResult;
+            if (homework == null)
+            {
+                return NotFound();
+            }
+
+            var homeworkViewModel = _mapper.Map<HomeworkViewModel>(homework);
+            homeworkViewModel.Tasks = _taskRepository
+                .FindAll(task => task.HomeworkId == homeworkId)
+                .Select(task => task.Id)
+                .ToList();
+
+            return Ok(homeworkViewModel);
         }
 
         [HttpGet("get_task/{taskId}")]
@@ -51,7 +69,16 @@ namespace HwProj.HomeworkService.API.Controllers
         public List<HomeworkViewModel> GetCourseHomeworks(long courseId)
         {
             var courseHomeworks = _homeworkRepository.FindAll(hw => hw.CourseId == courseId);
-            return courseHomeworks.Select(_mapper.Map<HomeworkViewModel>).ToList();
+            return courseHomeworks.Select(homework =>
+            {
+                var homeworkViewModel = _mapper.Map<HomeworkViewModel>(homework);
+                homeworkViewModel.Tasks = _taskRepository
+                    .FindAll(task => task.HomeworkId == homework.Id)
+                    .Select(task => task.Id)
+                    .ToList();
+
+                return homeworkViewModel;
+            }).ToList();;
         }
 
         [HttpPost("{courseId}")]
