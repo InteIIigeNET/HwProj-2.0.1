@@ -30,12 +30,12 @@ namespace HwProj.HomeworkService.API.Controllers
             => _homeworkRepository.GetAll().Select(_mapper.Map<HomeworkViewModel>).ToList();
 
         [HttpGet("{homeworkId}")]
-        public async Task<List<HomeworkViewModel>> GetHomework(long homeworkId)
+        public async Task<IActionResult> GetHomework(long homeworkId)
         {
             var homework = await _homeworkRepository.GetAsync(homeworkId);
             return homework == null
-                ? new List<HomeworkViewModel>()
-                : new List<HomeworkViewModel> {_mapper.Map<HomeworkViewModel>(homework)};
+                ? NotFound()
+                : Ok(_mapper.Map<HomeworkViewModel>(homework)) as IActionResult;
         }
 
         [HttpGet("course_homeworks/{courseId}")]
@@ -46,24 +46,24 @@ namespace HwProj.HomeworkService.API.Controllers
         }
 
         [HttpPost("{courseId}")]
-        public async Task<List<long>> AddHomework(long courseId,
+        public async Task<long> AddHomework(long courseId,
             [FromBody] CreateHomeworkViewModel homeworkViewModel)
         {
             var homework = _mapper.Map<Homework>(homeworkViewModel);
             homework.CourseId = courseId;
             homework.Date = DateTime.Now;
             await _homeworkRepository.AddAsync(homework);
-            return new List<long> {homework.Id};
+            return homework.Id;
         }
 
         [HttpPost("add_task/{homeworkId}")]
-        public async Task<List<long>> AddTask(long homeworkId,
+        public async Task<long> AddTask(long homeworkId,
             [FromBody] CreateTaskViewModel taskViewModel)
         {
             var task = _mapper.Map<HomeworkTask>(taskViewModel);
             task.HomeworkId = homeworkId;
             await _taskRepository.AddAsync(task);
-            return new List<long> {task.Id};
+            return task.Id;
         }
 
         [HttpDelete("{homeworkId}")]
