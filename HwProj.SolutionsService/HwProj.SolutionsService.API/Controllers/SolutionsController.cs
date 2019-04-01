@@ -64,11 +64,11 @@ namespace HwProj.SolutionsService.API.Controllers
 
         [HttpPost("accept_solution/{solutionId}")]
         public async Task AcceptSolution(long solutionId)
-            => await _solutionRepository.UpdateAsync(solutionId, solution => new Solution() { State = SolutionState.Accepted});
-        
+            => await _solutionRepository.UpdateSolutionStateAsync(solutionId, SolutionState.Accepted);
+
         [HttpPost("reject_solution/{solutionId}")]
         public async Task RejectSolution(long solutionId)
-            => await _solutionRepository.UpdateAsync(solutionId, solution => new Solution() { State = SolutionState.Rejected});
+            => await _solutionRepository.UpdateSolutionStateAsync(solutionId, SolutionState.Rejected);
         
         [HttpDelete("{solutionId}")]
         public async Task DeleteSolution(long solutionId)

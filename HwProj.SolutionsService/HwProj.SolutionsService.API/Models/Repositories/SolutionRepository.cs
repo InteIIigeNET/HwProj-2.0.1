@@ -1,4 +1,6 @@
-﻿using HwProj.Repositories;
+﻿using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
+using HwProj.Repositories;
 
 namespace HwProj.SolutionsService.API.Models.Repositories
 {
@@ -8,5 +10,8 @@ namespace HwProj.SolutionsService.API.Models.Repositories
             : base(context)
         {
         }
+
+        public Task UpdateSolutionStateAsync(long solutionId, SolutionState newState)
+            => UpdateAsync(solutionId, solution => new Solution() {State = newState});
     }
 }
