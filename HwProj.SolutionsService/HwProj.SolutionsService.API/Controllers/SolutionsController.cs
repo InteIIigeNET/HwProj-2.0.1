@@ -55,7 +55,7 @@ namespace HwProj.SolutionsService.API.Controllers
                 {
                     GithubUrl = solutionViewModel.GithubUrl,
                     Comment = solutionViewModel.Comment,
-                    State = Solution.SolutionState.Posted
+                    State = SolutionState.Posted
                 });
             }
 
@@ -64,11 +64,11 @@ namespace HwProj.SolutionsService.API.Controllers
 
         [HttpPost("accept_solution/{solutionId}")]
         public async Task AcceptSolution(long solutionId)
-            => await _solutionRepository.UpdateAsync(solutionId, solution => new Solution() { State = Solution.SolutionState.Accepted});
+            => await _solutionRepository.UpdateAsync(solutionId, solution => new Solution() { State = SolutionState.Accepted});
         
         [HttpPost("reject_solution/{solutionId}")]
         public async Task RejectSolution(long solutionId)
-            => await _solutionRepository.UpdateAsync(solutionId, solution => new Solution() { State = Solution.SolutionState.Rejected});
+            => await _solutionRepository.UpdateAsync(solutionId, solution => new Solution() { State = SolutionState.Rejected});
         
         [HttpDelete("{solutionId}")]
         public async Task DeleteSolution(long solutionId)

@@ -15,10 +15,5 @@ namespace HwProj.SolutionsService.API.Models
         public string StudentId { get; set; }
         
         public long TaskId { get; set; }
-
-        public enum SolutionState
-        {
-            Posted, Rejected, Accepted
-        }
     }
 }
