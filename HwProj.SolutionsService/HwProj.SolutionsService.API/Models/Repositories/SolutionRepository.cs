@@ -1,5 +1,4 @@
-﻿using System.Security.Cryptography.X509Certificates;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using HwProj.Repositories;
 
 namespace HwProj.SolutionsService.API.Models.Repositories
