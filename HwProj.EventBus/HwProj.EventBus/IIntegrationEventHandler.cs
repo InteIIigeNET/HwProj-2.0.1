@@ -8,5 +8,4 @@ namespace HwProj.EventBus
     {
         Task Handle(TIntegrationEvent @event);
     }
-
 }

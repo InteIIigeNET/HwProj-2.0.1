@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.EventBus", "HwProj.E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.EventBusRabbitMQ", "HwProj.EventBus\HwProj.EventBusRabbitMQ\HwProj.EventBusRabbitMQ.csproj", "{7BEB832E-E8EE-4922-A9CD-BF4568561E47}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.EventBusTest", "HwProj.EventBus\HwProj.EventBusTest\HwProj.EventBusTest.csproj", "{3E2FB7A2-B68D-41FB-9C25-EE09489C698A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,10 @@ Global
 		{7BEB832E-E8EE-4922-A9CD-BF4568561E47}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7BEB832E-E8EE-4922-A9CD-BF4568561E47}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7BEB832E-E8EE-4922-A9CD-BF4568561E47}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E2FB7A2-B68D-41FB-9C25-EE09489C698A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E2FB7A2-B68D-41FB-9C25-EE09489C698A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E2FB7A2-B68D-41FB-9C25-EE09489C698A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E2FB7A2-B68D-41FB-9C25-EE09489C698A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

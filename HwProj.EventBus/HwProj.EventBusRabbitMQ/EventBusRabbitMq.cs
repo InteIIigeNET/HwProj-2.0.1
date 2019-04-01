@@ -13,7 +13,7 @@ using IModel = RabbitMQ.Client.IModel;
 
 namespace HwProj.EventBusRabbitMQ
 {
-    public class EventBusRabbitMQ : IEventBus, IDisposable
+    public class EventBusRabbitMq : IEventBus, IDisposable
     {
         const string BROKER_NAME = "hwproj_event_bus";
 
@@ -25,7 +25,7 @@ namespace HwProj.EventBusRabbitMQ
         private IModel _consumerChannel;
         private string _queueName;
 
-        public EventBusRabbitMQ(IRabbitMQPersistentConnection persistentConnection,
+        public EventBusRabbitMq(IRabbitMQPersistentConnection persistentConnection,
             IEventBusSubscriptionsManager subsManager, IServiceProvider serviceProvider,
             string queueName = null, int retryCount = 5)
         {
@@ -128,8 +128,6 @@ namespace HwProj.EventBusRabbitMQ
             where T : IntegrationEvent
             where TH : IIntegrationEventHandler<T>
         {
-            var eventName = _subsManager.GetEventKey<T>();
-
             _subsManager.RemoveSubscription<T, TH>();
         }
 
