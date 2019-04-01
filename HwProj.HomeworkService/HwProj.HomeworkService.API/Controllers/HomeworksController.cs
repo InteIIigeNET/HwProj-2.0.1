@@ -38,6 +38,15 @@ namespace HwProj.HomeworkService.API.Controllers
                 : Ok(_mapper.Map<HomeworkViewModel>(homework)) as IActionResult;
         }
 
+        [HttpGet("get_task/{taskId}")]
+        public async Task<IActionResult> GetTask(long taskId)
+        {
+            var task = await _taskRepository.GetAsync(taskId);
+            return task == null
+                ? NotFound()
+                : Ok(_mapper.Map<HomeworkTaskViewModel>(task)) as IActionResult;
+        }
+
         [HttpGet("course_homeworks/{courseId}")]
         public List<HomeworkViewModel> GetCourseHomeworks(long courseId)
         {
