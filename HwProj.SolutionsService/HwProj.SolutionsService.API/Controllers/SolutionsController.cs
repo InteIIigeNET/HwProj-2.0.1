@@ -22,8 +22,8 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpGet]
-        public List<SolutionViewModel> GetAllSolutions()
-            => _solutionRepository.GetAll().Select(_mapper.Map<SolutionViewModel>).ToList();    
+        public List<Solution> GetAllSolutions()
+            => _solutionRepository.GetAll().ToList();    
         
         [HttpGet("{solutionId}")]
         public async Task<IActionResult> GetSolution(long solutionId)
@@ -31,12 +31,12 @@ namespace HwProj.SolutionsService.API.Controllers
             var solution = await _solutionRepository.GetAsync(solutionId);
             return solution == null
                 ? NotFound()
-                : Ok(_mapper.Map<SolutionViewModel>(solution)) as IActionResult;
+                : Ok(solution) as IActionResult;
         }
 
         [HttpPost("{taskId}")]
         public async Task<long> PostSolution(long taskId,
-            [FromBody] CreateSolutionViewModel solutionViewModel)
+            [FromBody] SolutionViewModel solutionViewModel)
         {
             var solution = await _solutionRepository
                 .FindAsync(s => s.TaskId == taskId && s.StudentId == solutionViewModel.StudentId);

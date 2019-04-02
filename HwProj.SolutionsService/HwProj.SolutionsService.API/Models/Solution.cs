@@ -1,4 +1,6 @@
 ﻿using HwProj.Repositories;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace HwProj.SolutionsService.API.Models
 {
@@ -10,9 +12,10 @@ namespace HwProj.SolutionsService.API.Models
         
         public string Comment { get; set; }
 
-        public SolutionState State { get; set; } = SolutionState.Posted;
+        [JsonConverter(typeof(StringEnumConverter))]
+        public SolutionState State { get; set; }
         
-        public string StudentId { get; set; }
+        public long StudentId { get; set; }
         
         public long TaskId { get; set; }
     }
