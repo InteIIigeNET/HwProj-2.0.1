@@ -38,24 +38,9 @@ namespace HwProj.SolutionsService.API.Controllers
         public async Task<long> PostSolution(long taskId,
             [FromBody] SolutionViewModel solutionViewModel)
         {
-            var solution = await _solutionRepository
-                .FindAsync(s => s.TaskId == taskId && s.StudentId == solutionViewModel.StudentId);
-            
-            if (solution == null)
-            {
-                solution = _mapper.Map<Solution>(solutionViewModel);
-                solution.TaskId = taskId;
-                await _solutionRepository.AddAsync(solution);
-            }
-            else
-            {
-                await _solutionRepository.UpdateAsync(solution.Id, s => new Solution()
-                {
-                    GithubUrl = solutionViewModel.GithubUrl,
-                    Comment = solutionViewModel.Comment,
-                    State = SolutionState.Posted
-                });
-            }
+            var solution = _mapper.Map<Solution>(solutionViewModel);
+            solution.TaskId = taskId;
+            await _solutionRepository.AddAsync(solution);
 
             return solution.Id;
         }
