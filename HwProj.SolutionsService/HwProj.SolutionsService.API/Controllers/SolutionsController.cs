@@ -34,6 +34,13 @@ namespace HwProj.SolutionsService.API.Controllers
                 : Ok(solution) as IActionResult;
         }
 
+        [HttpGet("task_solutions/{taskId}/{studentId}")]
+        public List<long> GetTaskSolutionsFromStudent(long taskId, long studentId)
+            => _solutionRepository
+                .FindAll(solution => solution.TaskId == taskId && solution.StudentId == studentId)
+                .Select(solution => solution.Id)
+                .ToList();
+
         [HttpPost("{taskId}")]
         public async Task<long> PostSolution(long taskId,
             [FromBody] SolutionViewModel solutionViewModel)
@@ -44,7 +51,7 @@ namespace HwProj.SolutionsService.API.Controllers
 
             return solution.Id;
         }
-
+        
         [HttpPost("accept_solution/{solutionId}")]
         public async Task AcceptSolution(long solutionId)
             => await _solutionRepository.UpdateSolutionStateAsync(solutionId, SolutionState.Accepted);
