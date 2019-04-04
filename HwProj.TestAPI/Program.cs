@@ -20,7 +20,7 @@ namespace HwProj.TestAPI
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
-                .UseUrls("http://localhost:5000")
+                .UseUrls("http://localhost:44364")
                 .Build();
     }
 }

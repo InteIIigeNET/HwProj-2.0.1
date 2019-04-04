@@ -1,6 +1,10 @@
 ﻿using System.IO;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Ocelot.DependencyInjection;
+using Ocelot.Middleware;
 
 namespace HwProj.APIGateway
 {
@@ -8,17 +12,26 @@ namespace HwProj.APIGateway
     {
         public static void Main(string[] args)
         {
-            IWebHostBuilder builder = new WebHostBuilder();
-            builder.ConfigureServices(s =>
-            {
-                s.AddSingleton(builder);
-            });
-            builder.UseKestrel()
-                   .UseContentRoot(Directory.GetCurrentDirectory())
-                   .UseStartup<Startup>();
-
-            var host = builder.Build();
-            host.Run();
+            new WebHostBuilder()
+                .UseKestrel()
+                .UseContentRoot(Directory.GetCurrentDirectory())
+                .ConfigureAppConfiguration((hostingContext, config) =>
+                {
+                    config
+                        .SetBasePath(hostingContext.HostingEnvironment.ContentRootPath)
+                        .AddJsonFile("configuration.json")
+                        .AddEnvironmentVariables();
+                })
+                .ConfigureServices(s => {
+                    s.AddOcelot();
+                })
+                .UseIISIntegration()
+                .Configure(app =>
+                {
+                    app.UseOcelot().Wait();
+                })
+                .Build()
+                .Run();
         }
     }
 }
