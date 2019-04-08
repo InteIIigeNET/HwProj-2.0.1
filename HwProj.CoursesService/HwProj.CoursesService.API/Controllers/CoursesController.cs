@@ -1,10 +1,10 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Models.Repositories;
 using HwProj.CoursesService.API.Models.ViewModels;
-using HwProj.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.CoursesService.API.Controllers
@@ -14,134 +14,140 @@ namespace HwProj.CoursesService.API.Controllers
     public class CoursesController : Controller
     {
         private readonly ICourseRepository _courseRepository;
-        private readonly IUserRepository _userRepository;
+        private readonly IUserRepository _studentRepository;
+        private readonly ICourseStudentRepository _courseStudentRepository;
         private readonly IMapper _mapper;
 
-        public CoursesController(ICourseRepository courseRepository, IUserRepository userRepository, IMapper mapper)
+        public CoursesController(ICourseRepository courseRepository, IUserRepository studentRepository,
+            ICourseStudentRepository courseStudentRepository, IMapper mapper)
         {
             _courseRepository = courseRepository;
-            _userRepository = userRepository;
+            _studentRepository = studentRepository;
+            _courseStudentRepository = courseStudentRepository;
             _mapper = mapper;
         }
 
         [HttpGet]
-        public IActionResult GetAll()
-            => Json(_courseRepository.GetAll().Select(c => CourseViewModel.FromCourse(c, _mapper)));
+        public List<CourseViewModel> GetAll()
+            => _courseRepository.GetAll().Select(FromCourseToViewModel).ToList();
 
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(long id)
         {
             var course = await _courseRepository.GetAsync(id);
             return course == null
-                ? NotFound() as IActionResult
-                : Json(CourseViewModel.FromCourse(course, _mapper));
+                ? NotFound()
+                : Ok(FromCourseToViewModel(course)) as IActionResult;
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddCourse([FromBody]CreateCourseViewModel courseViewModel, [FromQuery]string mentorId)
+        public async Task<long> AddCourse([FromBody]CreateCourseViewModel courseViewModel,
+            [FromQuery] long mentorId)
         {
-            if (string.IsNullOrEmpty(mentorId))
-            {
-                return NotFound();
-            }
-
-            var mentor = await _userRepository.GetAsync(mentorId) ?? new User() { Id = mentorId };
             var course = _mapper.Map<Course>(courseViewModel);
-            course.Mentor = mentor;
-            await _courseRepository.AddAsync(course);
-
-            return Ok(CourseViewModel.FromCourse(course, _mapper));
+            course.MentorId = mentorId;
+            
+            return await _courseRepository.AddAsync(course);
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCourse(long id)
-            => Result(await _courseRepository.DeleteByIdAsync(id));
+        public async Task DeleteCourse(long id)
+            => await _courseRepository.DeleteAsync(id);
 
         [HttpPost("update/{courseId}")]
-        public async Task<IActionResult> UpdateCourse(long courseId, [FromBody]UpdateCourseViewModel courseViewModel)
-            => Result(await _courseRepository.UpdateAsync(courseId, courseViewModel));
+        public async Task UpdateCourse(long courseId, [FromBody] UpdateCourseViewModel courseViewModel)
+            => await _courseRepository.UpdateAsync(courseId, course => new Course()
+            {
+                Name = courseViewModel.Name,
+                GroupName = courseViewModel.GroupName,
+                IsComplete = courseViewModel.IsComplete,
+                IsOpen = courseViewModel.IsOpen
+            });
 
         [HttpPost("sign_in_course/{courseId}")]
-        public async Task<IActionResult> SignInCourse(long courseId, [FromQuery]string userId)
+        public async Task<IActionResult> SignInCourse(long courseId, [FromQuery] long studentId)
         {
-            if (string.IsNullOrEmpty(userId))
+            var course = await _courseRepository.GetAsync(courseId);
+            if (course == null || course.IsComplete)
             {
                 return NotFound();
             }
 
-            var student = await _userRepository.GetAsync(userId) ?? new User() { Id = userId };
-            return Result(await _courseRepository.AddStudentAsync(courseId, student));
+            var student = await _studentRepository.GetAsync(studentId);
+            if (student == null)
+            {
+                student = new Student() {Id = studentId};
+                await _studentRepository.AddAsync(student);
+            }
+
+            if (_courseStudentRepository.FindAll(cs => cs.CourseId == courseId && cs.StudentId == studentId).Any())
+            {
+                return Ok();
+            }
+            
+            var courseStudent = new CourseStudent()
+            {
+                CourseId = courseId,
+                StudentId = studentId,
+                IsAccepted = course.IsOpen
+            };
+            await _courseStudentRepository.AddAsync(courseStudent);
+            return Ok();
         }
 
         [HttpPost("accept_student/{courseId}")]
-        public async Task<IActionResult> AcceptStudent(long courseId, [FromQuery]string userId)
-            => string.IsNullOrEmpty(userId)
-                ? NotFound() as IActionResult
-                : Result(await _courseRepository.AcceptStudentAsync(courseId, await _userRepository.GetAsync(userId)));
+        public async Task<IActionResult> AcceptStudent(long courseId, [FromQuery] long studentId)
+        {
+            var courseStudent = await _courseStudentRepository
+                .FindAsync(cs => cs.CourseId == courseId && cs.StudentId == studentId);
+
+            if (courseStudent == null)
+            {
+                return NotFound();
+            }
+            
+            await _courseStudentRepository.UpdateAsync(courseStudent.Id, cs => new CourseStudent() {IsAccepted = true});
+            return Ok();
+        }
+
 
         [HttpPost("reject_student/{courseId}")]
-        public async Task<IActionResult> RejectStudent(long courseId, [FromQuery]string userId)
-            => string.IsNullOrEmpty(userId)
-                ? NotFound() as IActionResult
-                : Result(await _courseRepository.RejectStudentAsync(courseId, await _userRepository.GetAsync(userId)));
-
-        [HttpGet("student_courses/{userId}")]
-        public async Task<IActionResult> GetStudentCourses(string userId)
+        public async Task<IActionResult> RejectStudent(long courseId, [FromQuery] long studentId)
         {
-            var user = await _userRepository.GetAsync(userId);
-            return user == null
-                ? NotFound() as IActionResult
-                : Json(user.CourseStudents.Select(cs => cs.Course.Id));
-        }
+            var courseStudent = await _courseStudentRepository
+                .FindAsync(cs => cs.CourseId == courseId && cs.StudentId == studentId);
 
-        [HttpGet("mentor_courses/{userId}")]
-        public async Task<IActionResult> GetMentorCourses(string userId)
-        {
-            var user = await _userRepository.GetAsync(userId);
-            return user == null
-                ? NotFound() as IActionResult
-                : Json(_courseRepository.GetAll()
-                    .Where(c => c.MentorId == userId)
-                    .Select(c => c.Id));
-        }
-
-        private IActionResult Result(bool flag)
-            => flag
-                ? Ok() as IActionResult
-                : NotFound();
-
-        #region временные методы для работы с юзерами
-
-        [HttpPost("create_user")]
-        public async Task<IActionResult> CreateUser([FromBody]User user)
-        {
-            await _userRepository.AddAsync(user);
-            return Ok(user);
-        }
-
-        [HttpGet("users")]
-        public IActionResult GetUsers()
-        {
-            return Json(_userRepository.GetAll());
-        }
-
-        [HttpGet("user/{id}")]
-        public async Task<IActionResult> GetUser(string id)
-        {
-            if (string.IsNullOrEmpty(id))
+            if (courseStudent == null)
             {
                 return NotFound();
             }
-
-            var user = await _userRepository.GetAsync(id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return Json(user);
+            
+            await _courseStudentRepository.DeleteAsync(courseStudent.Id);
+            return Ok();
         }
 
-        #endregion
+        [HttpGet("student_courses/{studentId}")]
+        public List<long> GetStudentCourses(long studentId)
+            => _courseStudentRepository
+                .FindAll(cs => cs.StudentId == studentId && cs.IsAccepted)
+                .Select(cs => cs.CourseId)
+                .ToList();
+
+        [HttpGet("mentor_courses/{mentodId}")]
+        public List<long> GetMentorCourses(long mentodId)
+            => _courseRepository
+                .FindAll(c => c.MentorId == mentodId)
+                .Select(c => c.Id)
+                .ToList();
+
+        private CourseViewModel FromCourseToViewModel(Course course)
+        {
+            var courseViewModel = _mapper.Map<CourseViewModel>(course);
+            courseViewModel.CourseStudents = _courseStudentRepository.FindAll(cs => cs.CourseId == course.Id)
+                .Select(cs => new CourseStudentViewModel(cs))
+                .ToList();
+
+            return courseViewModel;
+        }
     }
 }

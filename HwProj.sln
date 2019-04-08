@@ -9,6 +9,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HwProj.SolutionsService", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.SolutionsService.API", "HwProj.SolutionsService\HwProj.SolutionsService.API\HwProj.SolutionsService.API.csproj", "{D59EB6F0-8220-417A-AB3E-6960E9A15459}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.CoursesService.API", "HwProj.CoursesService\HwProj.CoursesService.API\HwProj.CoursesService.API.csproj", "{0F329B39-7AFD-430B-B6C8-0E5F9DC8A977}"
+EndProject
 Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -25,6 +27,10 @@ Global
 		{D59EB6F0-8220-417A-AB3E-6960E9A15459}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D59EB6F0-8220-417A-AB3E-6960E9A15459}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D59EB6F0-8220-417A-AB3E-6960E9A15459}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F329B39-7AFD-430B-B6C8-0E5F9DC8A977}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F329B39-7AFD-430B-B6C8-0E5F9DC8A977}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F329B39-7AFD-430B-B6C8-0E5F9DC8A977}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F329B39-7AFD-430B-B6C8-0E5F9DC8A977}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

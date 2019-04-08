@@ -2,12 +2,12 @@
 {
     public class CourseStudentViewModel
     {
-        public string Id { get; set; }
+        public long StudentId { get; set; }
         public bool IsAccepted { get; set; }
 
         public CourseStudentViewModel(CourseStudent courseStudent)
         {
-            Id = courseStudent.StudentId;
+            StudentId = courseStudent.StudentId;
             IsAccepted = courseStudent.IsAccepted;
         }
     }

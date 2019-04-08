@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 
 namespace HwProj.CoursesService.API.Models.Repositories
 {
-    public interface IUserRepository : ICrudRepository<User>
+    public interface IUserRepository : ICrudRepository<Student>
     {
-        Task<User> GetAsync(string id);
     }
 }

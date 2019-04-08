@@ -5,7 +5,8 @@ namespace HwProj.CoursesService.API.Models
     public class CourseContext : DbContext
     {
         public DbSet<Course> Courses { get; set; }
-        public DbSet<User> Users { get; set; }
+        public DbSet<Student> Users { get; set; }
+        public DbSet<CourseStudent> CourseStudents { get; set; }
 
         public CourseContext(DbContextOptions options)
             : base(options)
@@ -15,14 +16,6 @@ namespace HwProj.CoursesService.API.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Course>()
-                .HasOne(c => c.Mentor)
-                .WithMany()
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<CourseStudent>()
-                .HasKey(t => new { t.StudentId, t.CourseId });
-
             modelBuilder.Entity<CourseStudent>()
                 .HasOne(cs => cs.Student)
                 .WithMany(s => s.CourseStudents)
