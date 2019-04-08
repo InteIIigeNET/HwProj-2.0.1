@@ -88,8 +88,7 @@ namespace HwProj.HomeworkService.API.Controllers
             var homework = _mapper.Map<Homework>(homeworkViewModel);
             homework.CourseId = courseId;
             homework.Date = DateTime.Now;
-            await _homeworkRepository.AddAsync(homework);
-            return homework.Id;
+            return await _homeworkRepository.AddAsync(homework);
         }
 
         [HttpPost("add_task/{homeworkId}")]
@@ -98,8 +97,7 @@ namespace HwProj.HomeworkService.API.Controllers
         {
             var task = _mapper.Map<HomeworkTask>(taskViewModel);
             task.HomeworkId = homeworkId;
-            await _taskRepository.AddAsync(task);
-            return task.Id;
+            return await _taskRepository.AddAsync(task);
         }
 
         [HttpDelete("{homeworkId}")]
