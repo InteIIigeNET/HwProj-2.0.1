@@ -78,7 +78,7 @@ namespace HwProj.HomeworkService.API.Controllers
                     .ToList();
 
                 return homeworkViewModel;
-            }).ToList();;
+            }).ToList();
         }
 
         [HttpPost("{courseId}")]
