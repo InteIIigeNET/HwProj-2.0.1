@@ -72,13 +72,18 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpPost("sign_in_course/{courseId}")]
         public async Task<IActionResult> SignInCourse(long courseId, [FromQuery] long studentId)
         {
-            var course = await _courseRepository.GetAsync(courseId);
+            var courseTask = _courseRepository.GetAsync(courseId);
+            var studentTask = _studentRepository.GetAsync(studentId);
+            await Task.WhenAll(courseTask, studentTask);
+            
+            var course = courseTask.Result;
+            var student = studentTask.Result;
+            
             if (studentId == 0 || course == null || course.IsComplete)
             {
                 return NotFound();
             }
 
-            var student = await _studentRepository.GetAsync(studentId);
             if (student == null)
             {
                 student = new Student() {Id = studentId};
