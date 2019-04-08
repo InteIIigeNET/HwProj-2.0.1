@@ -41,13 +41,18 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost]
-        public async Task<long> AddCourse([FromBody]CreateCourseViewModel courseViewModel,
+        public async Task<IActionResult> AddCourse([FromBody]CreateCourseViewModel courseViewModel,
             [FromQuery] long mentorId)
         {
+            if (mentorId == 0)
+            {
+                return NotFound();
+            }
+            
             var course = _mapper.Map<Course>(courseViewModel);
             course.MentorId = mentorId;
             
-            return await _courseRepository.AddAsync(course);
+            return Ok(await _courseRepository.AddAsync(course));
         }
 
         [HttpDelete("{id}")]
@@ -68,7 +73,7 @@ namespace HwProj.CoursesService.API.Controllers
         public async Task<IActionResult> SignInCourse(long courseId, [FromQuery] long studentId)
         {
             var course = await _courseRepository.GetAsync(courseId);
-            if (course == null || course.IsComplete)
+            if (studentId == 0 || course == null || course.IsComplete)
             {
                 return NotFound();
             }
