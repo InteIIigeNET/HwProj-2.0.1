@@ -18,7 +18,7 @@ namespace HwProj.HomeworkService.API.Models
         
         public string Description { get; set; }
         
-        public DateTime Date { get; set; }
+        public string Date { get; set; }
         
         public long CourseId { get; set; }
         
