@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Linq;
+using AutoMapper;
 using HwProj.HomeworkService.API.Models;
 
 namespace HwProj.HomeworkService.API
@@ -7,10 +8,11 @@ namespace HwProj.HomeworkService.API
     {
         public AutomapperProfile()
         {
-            CreateMap<Homework, CreateHomeworkViewModel>().ReverseMap();
-            CreateMap<Homework, HomeworkViewModel>().ReverseMap();
+            CreateMap<CreateHomeworkViewModel, Homework>();
+            CreateMap<Homework, HomeworkViewModel>()
+                .ForMember(dest => dest.Tasks, opts => opts.MapFrom(src => src.Tasks.Select(t => t.Id)));
             CreateMap<HomeworkTask, HomeworkTaskViewModel>().ReverseMap();
-            CreateMap<HomeworkTask, CreateTaskViewModel>().ReverseMap();
+            CreateMap<CreateTaskViewModel, HomeworkTask>().ReverseMap();
         }
     }
 }
