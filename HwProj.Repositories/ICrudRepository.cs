@@ -1,15 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace HwProj.Repositories
 {
-    public interface ICrudRepository<T> : IReadOnlyRepository<T>
-        where T : class, new()
+    public interface ICrudRepository<TEntity> : IReadOnlyRepository<TEntity>
+        where TEntity : IEntity
     {
-        Task AddAsync(T item);
-        Task<bool> DeleteAsync(Expression<Func<T, bool>> predicate);
-        Task<bool> UpdateAsync(Expression<Func<T, bool>> predicate, Expression<Func<T, T>> updateFactory);
+        long Add(TEntity item);
+        void Delete(long id);
+        void Update(long id, Expression<Func<TEntity, TEntity>> updateFactory);
+        Task<long> AddAsync(TEntity item);
+        Task DeleteAsync(long id);
+        Task UpdateAsync(long id, Expression<Func<TEntity, TEntity>> updateFactory);
     }
 }

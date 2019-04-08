@@ -1,37 +1,38 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.Repositories
 {
-    public abstract class ReadOnlyRepository<T> : IReadOnlyRepository<T>
-        where T : class, new()
+    public class ReadOnlyRepository<TEntity> : IReadOnlyRepository<TEntity>
+        where TEntity : class, IEntity, new()
     {
-        private readonly DbContext _context;
+        protected readonly DbContext _context;
 
         public ReadOnlyRepository(DbContext context)
         {
             _context = context;
         }
+        
+        public TEntity Get(long id)
+            => _context.Find<TEntity>(id);
 
-        protected abstract IQueryable<T> GetEntities();
+        public IReadOnlyCollection<TEntity> GetAll()
+            => _context.Set<TEntity>().AsNoTracking().ToArray();
 
-        protected IQueryable<T> GetAllEntites()
-            => _context.Set<T>();
+        public TEntity Find(Func<TEntity, bool> predicate)
+            => _context.Set<TEntity>().FirstOrDefault(predicate);
 
-        public IReadOnlyCollection<T> GetAll()
-            => GetEntities()
-                    .AsNoTracking().ToArray();
+        public IReadOnlyCollection<TEntity> FindAll(Expression<Func<TEntity, bool>> predicate)
+            => _context.Set<TEntity>().Where(predicate).AsNoTracking().ToArray();
 
-        public async Task<T> GetAsync(Expression<Func<T, bool>> predicate)
-            => await GetEntities()
-                .Where(predicate)
-                .FirstOrDefaultAsync();
+        public Task<TEntity> GetAsync(long id)
+            => _context.FindAsync<TEntity>(id);
 
-        public async Task<bool> ContainsAsync(Expression<Func<T, bool>> predicate)
-            => await _context.Set<T>().Where(predicate).AnyAsync();
+        public Task<TEntity> FindAsync(Expression<Func<TEntity, bool>> predicate)
+            => _context.Set<TEntity>().FirstOrDefaultAsync(predicate);
     }
 }
