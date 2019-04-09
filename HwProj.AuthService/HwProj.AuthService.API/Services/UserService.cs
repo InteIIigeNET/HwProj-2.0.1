@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using HwProj.AuthService.API.Exceptions;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using System;
 
 namespace HwProj.AuthService.API.Services
 {
@@ -108,16 +110,27 @@ namespace HwProj.AuthService.API.Services
                 throw new InvalidEmailException("Email не был подтвержден");
             }
 
-            var result = await signInManager.PasswordSignInAsync(
-                user,
-                model.Password,
-                model.RememberMe,
-                false);
-
-            if (!result.Succeeded)
+            if (!await userManager.CheckPasswordAsync(user, model.Password))
             {
                 throw new FailedExecutionException();
             }
+
+            var props = new AuthenticationProperties
+            {
+                ExpiresUtc = DateTimeOffset.UtcNow.AddHours(3),
+                AllowRefresh = true
+            };
+
+            if (model.RememberMe)
+            {
+                props = new AuthenticationProperties
+                {
+                    IsPersistent = true,
+                    ExpiresUtc = DateTimeOffset.UtcNow.AddYears(10)
+                };
+            };
+
+            await signInManager.SignInAsync(user, props);
         }
 
         public async Task<string> Register(RegisterViewModel model, HttpContext httpContext, IUrlHelper url)
