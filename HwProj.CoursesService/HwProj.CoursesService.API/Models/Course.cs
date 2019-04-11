@@ -21,6 +21,6 @@ namespace HwProj.CoursesService.API.Models
         
         public long MentorId { get; set; }
 
-        public List<CourseStudent> CourseStudents { get; set; } = new List<CourseStudent>();
+        public List<CourseMate> CourseMates { get; set; } = new List<CourseMate>();
     }
 }

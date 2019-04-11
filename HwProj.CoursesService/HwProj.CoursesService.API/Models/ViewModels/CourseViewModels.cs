@@ -47,6 +47,6 @@ namespace HwProj.CoursesService.API.Models.ViewModels
         
         public string MentorId { get; set; }
 
-        public List<CourseStudentViewModel> CourseStudents { get; set; } = new List<CourseStudentViewModel>();
+        public List<CourseMateViewModel> CourseMates { get; set; } = new List<CourseMateViewModel>();
     }
 }

@@ -5,26 +5,12 @@ namespace HwProj.CoursesService.API.Models
     public class CourseContext : DbContext
     {
         public DbSet<Course> Courses { get; set; }
-        public DbSet<Student> Users { get; set; }
-        public DbSet<CourseStudent> CourseStudents { get; set; }
+        public DbSet<CourseMate> CourseMates { get; set; }
 
         public CourseContext(DbContextOptions options)
             : base(options)
         {
             Database.EnsureCreated();
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<CourseStudent>()
-                .HasOne(cs => cs.Student)
-                .WithMany(s => s.CourseStudents)
-                .HasForeignKey(cs => cs.StudentId);
-
-            modelBuilder.Entity<CourseStudent>()
-                .HasOne(cs => cs.Course)
-                .WithMany(c => c.CourseStudents)
-                .HasForeignKey(cs => cs.CourseId);
         }
     }
 }

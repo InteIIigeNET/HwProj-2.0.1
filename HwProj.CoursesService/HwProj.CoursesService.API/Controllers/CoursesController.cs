@@ -14,16 +14,14 @@ namespace HwProj.CoursesService.API.Controllers
     public class CoursesController : Controller
     {
         private readonly ICourseRepository _courseRepository;
-        private readonly IUserRepository _studentRepository;
-        private readonly ICourseStudentRepository _courseStudentRepository;
+        private readonly ICourseMateRepository _courseMateRepository;
         private readonly IMapper _mapper;
 
-        public CoursesController(ICourseRepository courseRepository, IUserRepository studentRepository,
-            ICourseStudentRepository courseStudentRepository, IMapper mapper)
+        public CoursesController(ICourseRepository courseRepository,
+            ICourseMateRepository courseMateRepository, IMapper mapper)
         {
             _courseRepository = courseRepository;
-            _studentRepository = studentRepository;
-            _courseStudentRepository = courseStudentRepository;
+            _courseMateRepository = courseMateRepository;
             _mapper = mapper;
         }
 
@@ -72,43 +70,32 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpPost("sign_in_course/{courseId}")]
         public async Task<IActionResult> SignInCourse(long courseId, [FromQuery] long studentId)
         {
-            var courseTask = _courseRepository.GetAsync(courseId);
-            var studentTask = _studentRepository.GetAsync(studentId);
-            await Task.WhenAll(courseTask, studentTask);
+            var course = await _courseRepository.GetAsync(courseId);
             
-            var course = courseTask.Result;
-            var student = studentTask.Result;
-            
-            if (studentId == 0 || course == null || course.IsComplete)
+            if (studentId == 0 || course == null || course.IsComplete || studentId == course.MentorId)
             {
                 return NotFound();
             }
 
-            if (student == null)
-            {
-                student = new Student() {Id = studentId};
-                await _studentRepository.AddAsync(student);
-            }
-
-            if (_courseStudentRepository.FindAll(cs => cs.CourseId == courseId && cs.StudentId == studentId).Any())
+            if (_courseMateRepository.FindAll(cs => cs.CourseId == courseId && cs.StudentId == studentId).Any())
             {
                 return Ok();
             }
             
-            var courseStudent = new CourseStudent()
+            var courseStudent = new CourseMate()
             {
                 CourseId = courseId,
                 StudentId = studentId,
                 IsAccepted = course.IsOpen
             };
-            await _courseStudentRepository.AddAsync(courseStudent);
+            await _courseMateRepository.AddAsync(courseStudent);
             return Ok();
         }
 
         [HttpPost("accept_student/{courseId}")]
         public async Task<IActionResult> AcceptStudent(long courseId, [FromQuery] long studentId)
         {
-            var courseStudent = await _courseStudentRepository
+            var courseStudent = await _courseMateRepository
                 .FindAsync(cs => cs.CourseId == courseId && cs.StudentId == studentId);
 
             if (courseStudent == null)
@@ -116,7 +103,7 @@ namespace HwProj.CoursesService.API.Controllers
                 return NotFound();
             }
             
-            await _courseStudentRepository.UpdateAsync(courseStudent.Id, cs => new CourseStudent() {IsAccepted = true});
+            await _courseMateRepository.UpdateAsync(courseStudent.Id, cs => new CourseMate() {IsAccepted = true});
             return Ok();
         }
 
@@ -124,7 +111,7 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpPost("reject_student/{courseId}")]
         public async Task<IActionResult> RejectStudent(long courseId, [FromQuery] long studentId)
         {
-            var courseStudent = await _courseStudentRepository
+            var courseStudent = await _courseMateRepository
                 .FindAsync(cs => cs.CourseId == courseId && cs.StudentId == studentId);
 
             if (courseStudent == null)
@@ -132,13 +119,13 @@ namespace HwProj.CoursesService.API.Controllers
                 return NotFound();
             }
             
-            await _courseStudentRepository.DeleteAsync(courseStudent.Id);
+            await _courseMateRepository.DeleteAsync(courseStudent.Id);
             return Ok();
         }
 
         [HttpGet("student_courses/{studentId}")]
         public List<long> GetStudentCourses(long studentId)
-            => _courseStudentRepository
+            => _courseMateRepository
                 .FindAll(cs => cs.StudentId == studentId && cs.IsAccepted)
                 .Select(cs => cs.CourseId)
                 .ToList();
@@ -153,8 +140,8 @@ namespace HwProj.CoursesService.API.Controllers
         private CourseViewModel FromCourseToViewModel(Course course)
         {
             var courseViewModel = _mapper.Map<CourseViewModel>(course);
-            courseViewModel.CourseStudents = _courseStudentRepository.FindAll(cs => cs.CourseId == course.Id)
-                .Select(cs => new CourseStudentViewModel(cs))
+            courseViewModel.CourseMates = _courseMateRepository.FindAll(cs => cs.CourseId == course.Id)
+                .Select(_mapper.Map<CourseMateViewModel>)
                 .ToList();
 
             return courseViewModel;
