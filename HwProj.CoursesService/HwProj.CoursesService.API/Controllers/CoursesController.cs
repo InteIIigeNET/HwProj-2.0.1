@@ -26,16 +26,16 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpGet]
-        public List<CourseViewModel> GetAll()
-            => _courseRepository.GetAll().Select(FromCourseToViewModel).ToList();
+        public async Task<List<CourseViewModel>> GetAll()
+            => _mapper.Map<List<CourseViewModel>>(await _courseRepository.GetAllWithCourseMatesAsync());
 
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(long id)
         {
-            var course = await _courseRepository.GetAsync(id);
+            var course = await _courseRepository.GetWithCourseMatesAsync(id);
             return course == null
                 ? NotFound()
-                : Ok(FromCourseToViewModel(course)) as IActionResult;
+                : Ok(_mapper.Map<CourseViewModel>(course)) as IActionResult;
         }
 
         [HttpPost]
@@ -136,15 +136,5 @@ namespace HwProj.CoursesService.API.Controllers
                 .FindAll(c => c.MentorId == mentodId)
                 .Select(c => c.Id)
                 .ToList();
-
-        private CourseViewModel FromCourseToViewModel(Course course)
-        {
-            var courseViewModel = _mapper.Map<CourseViewModel>(course);
-            courseViewModel.CourseMates = _courseMateRepository.FindAll(cs => cs.CourseId == course.Id)
-                .Select(_mapper.Map<CourseMateViewModel>)
-                .ToList();
-
-            return courseViewModel;
-        }
     }
 }
