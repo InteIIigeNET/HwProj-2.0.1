@@ -73,7 +73,7 @@ namespace HwProj.CoursesService.API.Controllers
                 return NotFound();
             }
 
-            return await _coursesService.AddStudent(courseId, studentId)
+            return await _coursesService.AddStudentAsync(courseId, studentId)
                 ? Ok()
                 : NotFound() as IActionResult;
         }
@@ -86,7 +86,7 @@ namespace HwProj.CoursesService.API.Controllers
                 return NotFound();
             }
 
-            return await _coursesService.AcceptCourseMate(courseId, studentId)
+            return await _coursesService.AcceptCourseMateAsync(courseId, studentId)
                 ? Ok()
                 : NotFound() as IActionResult;
         }
@@ -100,7 +100,7 @@ namespace HwProj.CoursesService.API.Controllers
                 return NotFound();
             }
 
-            return await _coursesService.RejectCourseMate(courseId, studentId)
+            return await _coursesService.RejectCourseMateAsync(courseId, studentId)
                 ? Ok()
                 : NotFound() as IActionResult;
         }

@@ -15,9 +15,9 @@ namespace HwProj.CoursesService.API.Services
         Task<long> AddAsync(Course course);
         Task DeleteAsync(long id);
         Task UpdateAsync(long courseId, Expression<Func<Course, Course>> updateFactory);
-        Task<bool> AddStudent(long courseId, long studentId);
-        Task<bool> AcceptCourseMate(long courseId, long studentId);
-        Task<bool> RejectCourseMate(long courseId, long studentId);
+        Task<bool> AddStudentAsync(long courseId, long studentId);
+        Task<bool> AcceptCourseMateAsync(long courseId, long studentId);
+        Task<bool> RejectCourseMateAsync(long courseId, long studentId);
         List<long> GetStudentCourses(long studentId);
         List<long> GetMentorCourses(long mentorId);
     }
