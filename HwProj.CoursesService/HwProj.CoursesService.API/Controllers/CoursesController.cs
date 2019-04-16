@@ -5,6 +5,7 @@ using AutoMapper;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Models.Repositories;
 using HwProj.CoursesService.API.Models.ViewModels;
+using HwProj.CoursesService.API.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.CoursesService.API.Controllers
@@ -13,26 +14,23 @@ namespace HwProj.CoursesService.API.Controllers
     [Route("api/[controller]")]
     public class CoursesController : Controller
     {
-        private readonly ICourseRepository _courseRepository;
-        private readonly ICourseMateRepository _courseMateRepository;
+        private readonly ICoursesService _coursesService;
         private readonly IMapper _mapper;
 
-        public CoursesController(ICourseRepository courseRepository,
-            ICourseMateRepository courseMateRepository, IMapper mapper)
+        public CoursesController(ICoursesService coursesService, IMapper mapper)
         {
-            _courseRepository = courseRepository;
-            _courseMateRepository = courseMateRepository;
+            _coursesService = coursesService;
             _mapper = mapper;
         }
 
         [HttpGet]
         public async Task<List<CourseViewModel>> GetAll()
-            => _mapper.Map<List<CourseViewModel>>(await _courseRepository.GetAllWithCourseMatesAsync());
+            => _mapper.Map<List<CourseViewModel>>(await _coursesService.GetAllAsync());
 
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(long id)
         {
-            var course = await _courseRepository.GetWithCourseMatesAsync(id);
+            var course = await _coursesService.GetAsync(id);
             return course == null
                 ? NotFound()
                 : Ok(_mapper.Map<CourseViewModel>(course)) as IActionResult;
@@ -50,16 +48,16 @@ namespace HwProj.CoursesService.API.Controllers
             var course = _mapper.Map<Course>(courseViewModel);
             course.MentorId = mentorId;
             
-            return Ok(await _courseRepository.AddAsync(course));
+            return Ok(await _coursesService.AddAsync(course));
         }
 
         [HttpDelete("{id}")]
         public async Task DeleteCourse(long id)
-            => await _courseRepository.DeleteAsync(id);
+            => await _coursesService.DeleteAsync(id);
 
         [HttpPost("update/{courseId}")]
         public async Task UpdateCourse(long courseId, [FromBody] UpdateCourseViewModel courseViewModel)
-            => await _courseRepository.UpdateAsync(courseId, course => new Course()
+            => await _coursesService.UpdateAsync(courseId, course => new Course()
             {
                 Name = courseViewModel.Name,
                 GroupName = courseViewModel.GroupName,
@@ -70,71 +68,49 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpPost("sign_in_course/{courseId}")]
         public async Task<IActionResult> SignInCourse(long courseId, [FromQuery] long studentId)
         {
-            var course = await _courseRepository.GetAsync(courseId);
-            
-            if (studentId == 0 || course == null || course.IsComplete || studentId == course.MentorId)
+            if (studentId == 0)
             {
                 return NotFound();
             }
 
-            if (_courseMateRepository.FindAll(cs => cs.CourseId == courseId && cs.StudentId == studentId).Any())
-            {
-                return Ok();
-            }
-            
-            var courseStudent = new CourseMate()
-            {
-                CourseId = courseId,
-                StudentId = studentId,
-                IsAccepted = course.IsOpen
-            };
-            await _courseMateRepository.AddAsync(courseStudent);
-            return Ok();
+            return await _coursesService.AddStudent(courseId, studentId)
+                ? Ok()
+                : NotFound() as IActionResult;
         }
 
         [HttpPost("accept_student/{courseId}")]
         public async Task<IActionResult> AcceptStudent(long courseId, [FromQuery] long studentId)
         {
-            var courseStudent = await _courseMateRepository
-                .FindAsync(cs => cs.CourseId == courseId && cs.StudentId == studentId);
-
-            if (courseStudent == null)
+            if (studentId == 0)
             {
                 return NotFound();
             }
-            
-            await _courseMateRepository.UpdateAsync(courseStudent.Id, cs => new CourseMate() {IsAccepted = true});
-            return Ok();
+
+            return await _coursesService.AcceptCourseMate(courseId, studentId)
+                ? Ok()
+                : NotFound() as IActionResult;
         }
 
 
         [HttpPost("reject_student/{courseId}")]
         public async Task<IActionResult> RejectStudent(long courseId, [FromQuery] long studentId)
         {
-            var courseStudent = await _courseMateRepository
-                .FindAsync(cs => cs.CourseId == courseId && cs.StudentId == studentId);
-
-            if (courseStudent == null)
+            if (studentId == 0)
             {
                 return NotFound();
             }
-            
-            await _courseMateRepository.DeleteAsync(courseStudent.Id);
-            return Ok();
+
+            return await _coursesService.RejectCourseMate(courseId, studentId)
+                ? Ok()
+                : NotFound() as IActionResult;
         }
 
         [HttpGet("student_courses/{studentId}")]
         public List<long> GetStudentCourses(long studentId)
-            => _courseMateRepository
-                .FindAll(cs => cs.StudentId == studentId && cs.IsAccepted)
-                .Select(cs => cs.CourseId)
-                .ToList();
+            => _coursesService.GetStudentCourses(studentId);
 
-        [HttpGet("mentor_courses/{mentodId}")]
-        public List<long> GetMentorCourses(long mentodId)
-            => _courseRepository
-                .FindAll(c => c.MentorId == mentodId)
-                .Select(c => c.Id)
-                .ToList();
+        [HttpGet("mentor_courses/{mentorId}")]
+        public List<long> GetMentorCourses(long mentorId)
+            => _coursesService.GetMentorCourses(mentorId);
     }
 }

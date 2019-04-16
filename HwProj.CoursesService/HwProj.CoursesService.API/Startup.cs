@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Models.Repositories;
+using HwProj.CoursesService.API.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -35,6 +36,7 @@ namespace HwProj.CoursesService.API
             services.AddDbContext<CourseContext>(options => options.UseSqlServer(connection));
             services.AddScoped<ICourseRepository, CourseRepository>();
             services.AddScoped<ICourseMateRepository, CourseMateRepository>();
+            services.AddScoped<ICoursesService, Services.CoursesService>();
             services.AddAutoMapper();
             services.AddMvc().AddJsonOptions(options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore)
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
