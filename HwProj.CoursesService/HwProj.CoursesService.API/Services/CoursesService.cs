@@ -38,10 +38,15 @@ namespace HwProj.CoursesService.API.Services
         public async Task<bool> AddStudentAsync(long courseId, long studentId)
         {
             var course = await _courseRepository.GetAsync(courseId);
-            if (course == null ||_courseMateRepository
-                    .FindAll(mate => mate.CourseId == courseId && mate.StudentId == studentId).Any())
+            if (course == null)
             {
                 return false;
+            }
+
+            if (await _courseMateRepository
+                .FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId) != null)
+            {
+                return true;
             }
             
             var courseMate = new CourseMate()

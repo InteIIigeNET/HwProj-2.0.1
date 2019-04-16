@@ -37,7 +37,7 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddCourse([FromBody]CreateCourseViewModel courseViewModel,
+        public async Task<IActionResult> AddCourse([FromBody] CreateCourseViewModel courseViewModel,
             [FromQuery] long mentorId)
         {
             if (mentorId == 0)
