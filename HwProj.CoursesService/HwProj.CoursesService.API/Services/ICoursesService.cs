@@ -19,6 +19,6 @@ namespace HwProj.CoursesService.API.Services
         Task<bool> AcceptCourseMate(long courseId, long studentId);
         Task<bool> RejectCourseMate(long courseId, long studentId);
         List<long> GetStudentCourses(long studentId);
-        List<long> GetMentorCourses(long mentodId);
+        List<long> GetMentorCourses(long mentorId);
     }
 }
