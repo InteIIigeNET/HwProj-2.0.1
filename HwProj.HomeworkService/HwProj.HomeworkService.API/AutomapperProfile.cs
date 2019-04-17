@@ -10,8 +10,7 @@ namespace HwProj.HomeworkService.API
         {
             CreateMap<CreateHomeworkViewModel, Homework>();
             CreateMap<Homework, HomeworkViewModel>()
-                .ForMember(dest => dest.Tasks, opts => opts.MapFrom(src => src.Tasks.Select(t => t.Id)))
-                .ForMember(dest => dest.Date, opts => opts.MapFrom(src => src.Date.ToString("dd-MM-yy")));
+                .ForMember(dest => dest.Tasks, opts => opts.MapFrom(src => src.Tasks.Select(t => t.Id)));
             CreateMap<HomeworkTask, HomeworkTaskViewModel>().ReverseMap();
             CreateMap<CreateTaskViewModel, HomeworkTask>().ReverseMap();
         }
