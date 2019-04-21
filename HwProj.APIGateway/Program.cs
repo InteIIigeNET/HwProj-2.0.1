@@ -15,6 +15,7 @@ namespace HwProj.APIGateway
             new WebHostBuilder()
                 .UseKestrel()
                 .UseContentRoot(Directory.GetCurrentDirectory())
+                .UseStartup<Startup>()
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
                     config
@@ -22,14 +23,7 @@ namespace HwProj.APIGateway
                         .AddJsonFile("configuration.json")
                         .AddEnvironmentVariables();
                 })
-                .ConfigureServices(s => {
-                    s.AddOcelot();
-                })
                 .UseIISIntegration()
-                .Configure(app =>
-                {
-                    app.UseOcelot().Wait();
-                })
                 .Build()
                 .Run();
         }

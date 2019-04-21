@@ -12,7 +12,6 @@ namespace HwProj.TestAPI.Controllers
     public class TestController : ControllerBase
     {
         [HttpGet]
-        [Authorize]
         public ActionResult<string> Get()
         {
             return "success";
