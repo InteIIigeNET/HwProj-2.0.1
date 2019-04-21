@@ -23,7 +23,7 @@ namespace HwProj.AuthService.API.Services
 
         Task ConfirmEmail(string userId, string code);
 
-        Task Login(LoginViewModel model);
+        Task<string> Login(LoginViewModel model);
 
         Task<string> RequestToChangeEmail(
             ChangeEmailViewModel model,

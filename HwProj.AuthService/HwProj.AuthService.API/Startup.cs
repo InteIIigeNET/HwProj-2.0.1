@@ -7,9 +7,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Swagger;
 using HwProj.AuthService.API.Services;
-using IdentityServer4.Services;
-using IdentityServer4.AspNetIdentity;
-using IdentityServer4.Configuration;
 
 namespace HwProj.AuthService.API
 {
@@ -35,13 +32,6 @@ namespace HwProj.AuthService.API
             {
                 c.SwaggerDoc("v1", new Info { Title = "My API", Version = "v1" });
             });
-
-            services.AddIdentityServer()
-                .AddDeveloperSigningCredential()
-                .AddInMemoryIdentityResources(Config.GetIdentityResources())
-                .AddInMemoryApiResources(Config.GetApis())
-                .AddInMemoryClients(Config.GetClients())
-                .AddAspNetIdentity<User>();
 
             services.AddMvc();
 
@@ -70,8 +60,6 @@ namespace HwProj.AuthService.API
             app.UseHttpsRedirection();
 
             app.UseAuthentication();
-
-            app.UseIdentityServer();
 
             app.UseMvc(routes =>
             {

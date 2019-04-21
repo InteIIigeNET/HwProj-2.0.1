@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.TestAPI.Controllers
@@ -11,6 +12,7 @@ namespace HwProj.TestAPI.Controllers
     public class TestController : ControllerBase
     {
         [HttpGet]
+        [Authorize]
         public ActionResult<string> Get()
         {
             return "success";

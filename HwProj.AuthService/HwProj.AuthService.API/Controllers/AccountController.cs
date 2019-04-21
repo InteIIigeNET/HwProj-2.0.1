@@ -43,8 +43,8 @@ namespace HwProj.AuthService.API.Controllers
         [ExceptionFilter]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
-            await userService.Login(model);
-            return Ok();
+            var token = await userService.Login(model);
+            return Ok(token);
         }
 
         [HttpPost, Route("logoff")]

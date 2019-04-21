@@ -6,8 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using HwProj.AuthService.API.Exceptions;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using Newtonsoft.Json;
 using System;
+using System.Text;
 
 namespace HwProj.AuthService.API.Services
 {
@@ -96,7 +99,7 @@ namespace HwProj.AuthService.API.Services
             }
         }
 
-        public async Task Login(LoginViewModel model)
+        public async Task<string> Login(LoginViewModel model)
         {
             if ((await userManager.FindByEmailAsync(model.Email)) == null)
             {
@@ -110,27 +113,18 @@ namespace HwProj.AuthService.API.Services
                 throw new InvalidEmailException("Email не был подтвержден");
             }
 
-            if (!await userManager.CheckPasswordAsync(user, model.Password))
+            var result = await signInManager.PasswordSignInAsync(
+                user,
+                model.Password,
+                model.RememberMe,
+                false);
+
+            if (!result.Succeeded)
             {
                 throw new FailedExecutionException();
             }
 
-            var props = new AuthenticationProperties
-            {
-                ExpiresUtc = DateTimeOffset.UtcNow.AddHours(3),
-                AllowRefresh = true
-            };
-
-            if (model.RememberMe)
-            {
-                props = new AuthenticationProperties
-                {
-                    IsPersistent = true,
-                    ExpiresUtc = DateTimeOffset.UtcNow.AddYears(10)
-                };
-            };
-
-            await signInManager.SignInAsync(user, props);
+            return await GetToken(user);
         }
 
         public async Task<string> Register(RegisterViewModel model, HttpContext httpContext, IUrlHelper url)
@@ -258,6 +252,18 @@ namespace HwProj.AuthService.API.Services
         }
 
         public async Task LogOff() => await signInManager.SignOutAsync();
+
+        private async Task<string> GetToken(User user)
+        {
+            var token = new JwtSecurityToken(
+                    issuer: "AuthSurvice",
+                    notBefore: DateTime.UtcNow,
+                    claims: await userManager.GetClaimsAsync(user),
+                    signingCredentials: 
+                        new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes("Mkey12412rf12f1g12412e21f212g")), SecurityAlgorithms.HmacSha256));
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
 
         private async Task<IdentityResult> ChangeUserPassword(
             User user,
