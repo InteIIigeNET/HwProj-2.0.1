@@ -21,10 +21,12 @@ namespace HwProj.AuthService.API.Services
         public async Task<string> GetToken(User user)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("Mkey12412rf12f1g12412e21f212g"));
+            var timeNow = DateTime.UtcNow;
 
             var token = new JwtSecurityToken(
                     issuer: "AuthSurvice",
-                    notBefore: DateTime.UtcNow,
+                    notBefore: timeNow,
+                    expires: timeNow.Add(TimeSpan.FromMinutes(2)),
                     claims: new[]
                     {
                         new Claim("email", user.Email),

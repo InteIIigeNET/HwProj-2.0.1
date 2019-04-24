@@ -37,7 +37,7 @@ namespace HwProj.APIGateway
 
                         ValidateAudience = false,
 
-                        ValidateLifetime = false,
+                        ValidateLifetime = true,
 
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("Mkey12412rf12f1g12412e21f212g")),
                         ValidateIssuerSigningKey = true,
