@@ -18,11 +18,13 @@ namespace HwProj.AuthService.API.Services
     {
         private readonly UserManager<User> userManager;
         private readonly SignInManager<User> signInManager;
+        private readonly TokenService tokenService;
 
         public UserService(UserManager<User> userManager, SignInManager<User> signInManager)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
+            tokenService = new TokenService(userManager);
         }
 
         public async Task<User> Get(string Email)
@@ -124,7 +126,7 @@ namespace HwProj.AuthService.API.Services
                 throw new FailedExecutionException();
             }
 
-            return await GetToken(user);
+            return await tokenService.GetToken(user);
         }
 
         public async Task<string> Register(RegisterViewModel model, HttpContext httpContext, IUrlHelper url)
@@ -252,18 +254,6 @@ namespace HwProj.AuthService.API.Services
         }
 
         public async Task LogOff() => await signInManager.SignOutAsync();
-
-        private async Task<string> GetToken(User user)
-        {
-            var token = new JwtSecurityToken(
-                    issuer: "AuthSurvice",
-                    notBefore: DateTime.UtcNow,
-                    claims: await userManager.GetClaimsAsync(user),
-                    signingCredentials: 
-                        new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes("Mkey12412rf12f1g12412e21f212g")), SecurityAlgorithms.HmacSha256));
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }
 
         private async Task<IdentityResult> ChangeUserPassword(
             User user,
