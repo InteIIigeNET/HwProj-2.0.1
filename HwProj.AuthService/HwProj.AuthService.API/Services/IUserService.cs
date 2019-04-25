@@ -25,6 +25,8 @@ namespace HwProj.AuthService.API.Services
 
         Task<string> Login(LoginViewModel model);
 
+        Task<string> RefreshToken(ClaimsPrincipal User);
+
         Task<string> RequestToChangeEmail(
             ChangeEmailViewModel model,
             ClaimsPrincipal User,

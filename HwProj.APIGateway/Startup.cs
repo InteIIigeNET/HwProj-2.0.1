@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,21 +27,25 @@ namespace HwProj.APIGateway
         {
             var authenticationProviderKey = "TestKey";
 
-            services.AddAuthentication()
+            services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
                 .AddJwtBearer(authenticationProviderKey, x =>
                 {
+                    x.SaveToken = true;
                     x.RequireHttpsMetadata = false;
                     x.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuer = true,
-                        ValidIssuer = "AuthSurvice",
-
+                        ValidIssuer = "AuthService",
                         ValidateAudience = false,
 
                         ValidateLifetime = true,
 
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("Mkey12412rf12f1g12412e21f212g")),
-                        ValidateIssuerSigningKey = true,
+                        ValidateIssuerSigningKey = true 
                     };
                 });
 

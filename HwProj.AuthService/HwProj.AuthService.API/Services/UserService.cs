@@ -24,7 +24,7 @@ namespace HwProj.AuthService.API.Services
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
-            tokenService = new TokenService(userManager);
+            tokenService = new TokenService(userManager, signInManager);
         }
 
         public async Task<User> Get(string Email)
@@ -128,6 +128,9 @@ namespace HwProj.AuthService.API.Services
 
             return await tokenService.GetToken(user);
         }
+
+        public async Task<string> RefreshToken(ClaimsPrincipal User)
+            => await tokenService.RefreshToken(User);
 
         public async Task<string> Register(RegisterViewModel model, HttpContext httpContext, IUrlHelper url)
         {

@@ -1,4 +1,5 @@
-﻿using HwProj.AuthService.API.Models;
+﻿using HwProj.AuthService.API.Exceptions;
+using HwProj.AuthService.API.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -14,9 +15,24 @@ namespace HwProj.AuthService.API.Services
     public class TokenService
     {
         private readonly UserManager<User> userManager;
+        private readonly SignInManager<User> signInManager;
 
-        public TokenService(UserManager<User> userManager)
-            => this.userManager = userManager;
+        public TokenService(UserManager<User> userManager, SignInManager<User> signInManager)
+        {
+            this.userManager = userManager;
+            this.signInManager = signInManager;
+        }
+
+        public async Task<string> RefreshToken(ClaimsPrincipal User)
+        {
+            if (!signInManager.IsSignedIn(User))
+            {
+                throw new UserNotSignInException();
+            }
+
+            var user = await userManager.FindByNameAsync(User.Identity.Name);
+            return await GetToken(user);
+        }
 
         public async Task<string> GetToken(User user)
         {

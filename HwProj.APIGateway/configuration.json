@@ -14,7 +14,11 @@
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "TestKey",
         "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "Role": "lecturer"
       }
+
     }
   ],
   "GlobalConfiguration": {
