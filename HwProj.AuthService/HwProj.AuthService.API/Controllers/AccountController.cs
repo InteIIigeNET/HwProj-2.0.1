@@ -48,6 +48,14 @@ namespace HwProj.AuthService.API.Controllers
             return Ok(tokenAndExpiresIn);
         }
 
+        [HttpPost, Route("refresh")]
+        [ExceptionFilter]
+        public async Task<IActionResult> RefreshToken()
+        {
+            var tokenAndExpiresIn = JsonConvert.DeserializeObject(await userService.RefreshToken(User));
+            return Ok(tokenAndExpiresIn);
+        }
+
         [HttpPost, Route("logoff")]
         public async void LogOff() => await userService.LogOff();
 

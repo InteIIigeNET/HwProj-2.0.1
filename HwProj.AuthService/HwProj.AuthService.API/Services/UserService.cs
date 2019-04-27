@@ -126,7 +126,17 @@ namespace HwProj.AuthService.API.Services
                 throw new FailedExecutionException();
             }
 
-            var jwt = await tokenService.GetToken(user);
+            return await tokenService.GetToken(user);
+        }
+
+        public async Task<string> RefreshToken(ClaimsPrincipal User)
+        {
+            if (!signInManager.IsSignedIn(User))
+            {
+                throw new UserNotSignInException();
+            }
+
+            var user = await userManager.FindByNameAsync(User.Identity.Name);
 
             return await tokenService.GetToken(user);
         }

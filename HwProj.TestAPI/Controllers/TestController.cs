@@ -13,7 +13,7 @@ namespace HwProj.TestAPI.Controllers
     public class TestController : ControllerBase
     {
         [HttpGet]
-        [Authorize(Roles = "student")]
+        [Authorize(Roles = "lecturer")]
         public ActionResult<List<string>> Get()
         {
             string name = User.FindFirst("_name").Value;

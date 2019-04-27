@@ -27,7 +27,7 @@ namespace HwProj.APIGateway
                     x.RequireHttpsMetadata = false;
                     x.TokenValidationParameters = new TokenValidationParameters
                     {
-                        ValidIssuer = "AuthSurvice",
+                        ValidIssuer = "AuthService",
                         ValidateIssuer = true,
 
                         ValidateAudience = false,

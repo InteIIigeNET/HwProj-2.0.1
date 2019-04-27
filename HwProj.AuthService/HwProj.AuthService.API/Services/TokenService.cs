@@ -23,7 +23,7 @@ namespace HwProj.AuthService.API.Services
             var timeNow = DateTime.UtcNow;
 
             var token = new JwtSecurityToken(
-                    issuer: "AuthSurvice",
+                    issuer: "AuthService",
                     notBefore: timeNow,
                     expires: timeNow.Add(TimeSpan.FromMinutes(40)),
                     claims: new[]
