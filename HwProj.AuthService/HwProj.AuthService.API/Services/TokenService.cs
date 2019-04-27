@@ -1,6 +1,7 @@
 ﻿using HwProj.AuthService.API.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -24,7 +25,7 @@ namespace HwProj.AuthService.API.Services
             var token = new JwtSecurityToken(
                     issuer: "AuthSurvice",
                     notBefore: timeNow,
-                    expires: timeNow.Add(TimeSpan.FromMinutes(50)),
+                    expires: timeNow.Add(TimeSpan.FromMinutes(40)),
                     claims: new[]
                     {
                         new Claim("_surname", user.Surname),
@@ -36,7 +37,13 @@ namespace HwProj.AuthService.API.Services
                     signingCredentials:
                         new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256));
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            var response = new
+            {
+                accessToken = new JwtSecurityTokenHandler().WriteToken(token),
+                expiresIn = (int)TimeSpan.FromMinutes(35).TotalSeconds
+            };
+
+            return JsonConvert.SerializeObject(response);
         }
     }
 }

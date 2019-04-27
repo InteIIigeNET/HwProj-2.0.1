@@ -126,6 +126,8 @@ namespace HwProj.AuthService.API.Services
                 throw new FailedExecutionException();
             }
 
+            var jwt = await tokenService.GetToken(user);
+
             return await tokenService.GetToken(user);
         }
 

@@ -5,6 +5,7 @@ using HwProj.AuthService.API.Filters;
 using HwProj.AuthService.API.Services;
 using HwProj.AuthService.API.Models;
 using HwProj.AuthService.API.ViewModels;
+using Newtonsoft.Json;
 
 namespace HwProj.AuthService.API.Controllers
 {
@@ -43,8 +44,8 @@ namespace HwProj.AuthService.API.Controllers
         [ExceptionFilter]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
-            var token = await userService.Login(model);
-            return Ok(token);
+            var tokenAndExpiresIn = JsonConvert.DeserializeObject(await userService.Login(model));
+            return Ok(tokenAndExpiresIn);
         }
 
         [HttpPost, Route("logoff")]
