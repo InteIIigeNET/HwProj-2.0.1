@@ -12,13 +12,9 @@
       "UpstreamPathTemplate": "/test",
       "UpstreamHttpMethod": [ "GET" ],
       "AuthenticationOptions": {
-        "AuthenticationProviderKey": "TestKey",
+        "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
-      },
-      "RouteClaimsRequirement": {
-        "Role": "lecturer"
       }
-
     }
   ],
   "GlobalConfiguration": {

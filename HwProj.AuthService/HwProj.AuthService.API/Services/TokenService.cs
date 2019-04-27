@@ -1,11 +1,8 @@
-﻿using HwProj.AuthService.API.Exceptions;
-using HwProj.AuthService.API.Models;
+﻿using HwProj.AuthService.API.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,24 +12,9 @@ namespace HwProj.AuthService.API.Services
     public class TokenService
     {
         private readonly UserManager<User> userManager;
-        private readonly SignInManager<User> signInManager;
 
-        public TokenService(UserManager<User> userManager, SignInManager<User> signInManager)
-        {
-            this.userManager = userManager;
-            this.signInManager = signInManager;
-        }
-
-        public async Task<string> RefreshToken(ClaimsPrincipal User)
-        {
-            if (!signInManager.IsSignedIn(User))
-            {
-                throw new UserNotSignInException();
-            }
-
-            var user = await userManager.FindByNameAsync(User.Identity.Name);
-            return await GetToken(user);
-        }
+        public TokenService(UserManager<User> userManager)
+            => this.userManager = userManager;
 
         public async Task<string> GetToken(User user)
         {
@@ -42,11 +24,14 @@ namespace HwProj.AuthService.API.Services
             var token = new JwtSecurityToken(
                     issuer: "AuthSurvice",
                     notBefore: timeNow,
-                    expires: timeNow.Add(TimeSpan.FromMinutes(2)),
+                    expires: timeNow.Add(TimeSpan.FromMinutes(50)),
                     claims: new[]
                     {
-                        new Claim("email", user.Email),
-                        new Claim("role", (await userManager.GetRolesAsync(user))[0])
+                        new Claim("_surname", user.Surname),
+                        new Claim("_name", user.Name),
+                        new Claim("_id", user.Id),
+                        new Claim("_email", user.Email),
+                        new Claim(ClaimsIdentity.DefaultRoleClaimType, (await userManager.GetRolesAsync(user))[0])
                     },
                     signingCredentials:
                         new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256));

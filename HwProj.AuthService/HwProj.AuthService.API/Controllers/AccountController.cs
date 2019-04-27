@@ -14,8 +14,7 @@ namespace HwProj.AuthService.API.Controllers
     {
         private readonly IUserService userService;
 
-        public AccountController(IUserService userService)
-            => this.userService = userService;
+        public AccountController(IUserService userService) => this.userService = userService;
 
         [HttpPost, Route("register")]
         [ExceptionFilter]
@@ -45,14 +44,6 @@ namespace HwProj.AuthService.API.Controllers
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             var token = await userService.Login(model);
-            return Ok(token);
-        }
-
-        [HttpPost, Route("refresh")]
-        [ExceptionFilter]
-        public async Task<IActionResult> RefreshToken()
-        {
-            var token = await userService.RefreshToken(User);
             return Ok(token);
         }
 

@@ -1,51 +1,42 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace HwProj.APIGateway
 {
     public class Startup
     {
         public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+            => Configuration = configuration;
 
         public IConfiguration Configuration { get; }
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var authenticationProviderKey = "TestKey";
+            var authenticationProviderKey = "GatewayKey";
+            var securityKey = Encoding.ASCII.GetBytes("Mkey12412rf12f1g12412e21f212g");
 
-            services.AddAuthentication(x =>
-            {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
+            services.AddAuthentication()
                 .AddJwtBearer(authenticationProviderKey, x =>
                 {
-                    x.SaveToken = true;
                     x.RequireHttpsMetadata = false;
                     x.TokenValidationParameters = new TokenValidationParameters
                     {
+                        ValidIssuer = "AuthSurvice",
                         ValidateIssuer = true,
-                        ValidIssuer = "AuthService",
+
                         ValidateAudience = false,
 
                         ValidateLifetime = true,
 
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("Mkey12412rf12f1g12412e21f212g")),
-                        ValidateIssuerSigningKey = true 
+                        IssuerSigningKey = new SymmetricSecurityKey(securityKey),
+
+                        ValidateIssuerSigningKey = true
                     };
                 });
 
@@ -53,17 +44,6 @@ namespace HwProj.APIGateway
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
-        {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseHsts();
-            }
-
-            app.UseOcelot().Wait();
-        }
+            => app.UseOcelot().Wait();
     }
 }
