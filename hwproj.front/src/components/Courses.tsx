@@ -1,17 +1,14 @@
 import * as React from 'react';
-import ListItem from '@material-ui/core/ListItem';
-import List from '@material-ui/core/List';
 import Link from '@material-ui/core/Link';
+import Typography from '@material-ui/core/Typography';
 import { CourseViewModel, CoursesApi } from "../api/courses/api";
-import classNames from 'classnames';
-import { Typography } from '@material-ui/core';
 
 interface ICoursesState {
     isLoaded: boolean,
     courses: CourseViewModel[]
 }
 
-export default class Course extends React.Component<{}, ICoursesState> {
+export default class Courses extends React.Component<{}, ICoursesState> {
     constructor(props : {}) {
         super(props);
         this.state = {
@@ -22,25 +19,31 @@ export default class Course extends React.Component<{}, ICoursesState> {
 
     public render() {
         const { isLoaded, courses} = this.state;
+
         if (isLoaded) {
-            let coursesItems = courses.map(course => 
-                    <ListItem key={course.id}>
+            let courseList = courses.map(course => 
+                    <li key={course.id}>
                             <Link href={"/courses/" + course.id!.toString()}>
-                                    {course.groupName} {course.name}
+                                {course.name}
                             </Link>
-                    </ListItem>
+                            <br />
+                            {course.groupName}
+                            <br />
+                            <br />
+                    </li>
             ).reverse();
 
             return (
                 <div>
-                    <List>
-                        {coursesItems}
-                    </List>
+                    <Typography variant='h5' gutterBottom>Текущие курсы:</Typography>
+                    <ul>
+                        {courseList}
+                    </ul>
                 </div>
             )
         }
 
-        return (<h1>Loading...</h1>);
+        return (<h1></h1>);
     }
 
     componentDidMount(): void {

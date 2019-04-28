@@ -1,8 +1,6 @@
 import * as React from 'react';
+import Typography from '@material-ui/core/Typography';
 import { HomeworkTaskViewModel, TasksApi } from "../api/homeworks/api";
-import {RouteComponentProps} from "react-router";
-import AppBar from './AppBar';
-import { Typography } from '@material-ui/core';
 
 interface ITaskState {
     isLoaded: boolean,
@@ -14,7 +12,7 @@ interface ITaskProp {
     id: number
 }
 
-export default class Course extends React.Component<ITaskProp, ITaskState> {
+export default class Task extends React.Component<ITaskProp, ITaskState> {
     constructor(props : ITaskProp) {
         super(props);
         this.state = {
@@ -26,6 +24,7 @@ export default class Course extends React.Component<ITaskProp, ITaskState> {
 
     public render() {
         const { isLoaded, isFound, task} = this.state;
+        
         if (isLoaded) {
             if (isFound) {
                 return (
@@ -44,7 +43,7 @@ export default class Course extends React.Component<ITaskProp, ITaskState> {
             }
         }
 
-        return (<h1>Loading...</h1>);
+        return (<h1></h1>);
     }
 
     componentDidMount(): void {

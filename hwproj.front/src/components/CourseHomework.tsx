@@ -1,11 +1,9 @@
 import * as React from 'react';
 import ListItem from '@material-ui/core/ListItem';
 import List from '@material-ui/core/List';
-import Link from '@material-ui/core/Link';
-import { HomeworkViewModel, HomeworksApi} from "../api/homeworks/api";
-import {RouteComponentProps} from "react-router";
-import Homework from './Homework';
 import { Typography } from '@material-ui/core';
+import { HomeworksApi} from "../api/homeworks/api";
+import Homework from './Homework';
 
 interface ICourseHomeworkProps {
     id: number
@@ -26,26 +24,27 @@ export default class CourseHomework extends React.Component<ICourseHomeworkProps
     }
 
     public render() {
-        const { isLoaded, homeworks} = this.state;
+        const { isLoaded, homeworks } = this.state;
 
         if (isLoaded) {
-                let listItems = homeworks.map(homeworkId => <ListItem>
+                let homeworkList = homeworks.map(homeworkId =>
+                    <ListItem key={homeworkId}>
                         <Homework id={homeworkId} />
                     </ListItem>).reverse();
                 
                 return (
                     <div>
-                        {listItems.length > 0 &&
+                        {homeworkList.length > 0 &&
                             <Typography variant='h5'>Задачи</Typography>
                         }
                         <List>
-                            {listItems}
+                            {homeworkList}
                         </List>
                     </div>
                 )
         }
 
-        return <h1>loading...</h1>
+        return <h1></h1>
     }
 
     componentDidMount(): void {

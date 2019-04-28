@@ -1,22 +1,16 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
-import Checkbox from '@material-ui/core/Checkbox'
 import Button from '@material-ui/core/Button'
-import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Typography from '@material-ui/core/Typography';
 import {TasksApi, CreateTaskViewModel} from "../api/homeworks/api";
-import {RouteComponentProps} from "react-router-dom"
-import { Typography } from '@material-ui/core';
 
-interface ICreateTaskProps {
+interface IAddTaskProps {
     id: number
     onAdding: () => void
 }
 
-export default class AddTask extends React.Component<ICreateTaskProps, CreateTaskViewModel> {
-    constructor(props : ICreateTaskProps) {
+export default class AddTask extends React.Component<IAddTaskProps, CreateTaskViewModel> {
+    constructor(props : IAddTaskProps) {
         super(props);
         this.state = {
             title: "",
@@ -25,9 +19,9 @@ export default class AddTask extends React.Component<ICreateTaskProps, CreateTas
     }
 
     public handleSubmit(e: any) {
-        e.preventDefault();
         let api = new TasksApi();
         api.addTask(this.props.id, this.state)
+            .then(taskId => console.log(taskId))
             .then(this.props.onAdding);
     }
 
@@ -40,8 +34,8 @@ export default class AddTask extends React.Component<ICreateTaskProps, CreateTas
                     label="Название задачи"
                     variant="outlined"
                     margin="normal"
-                    name={this.state.title}
-                    onChange={e => this.setState({ title: e.target.value})}
+                    value={this.state.title}
+                    onChange={e => this.setState({ title: e.target.value })}
                 />
                 <br />
                 <TextField
@@ -49,10 +43,10 @@ export default class AddTask extends React.Component<ICreateTaskProps, CreateTas
                     variant="outlined"
                     margin="normal"
                     value={this.state.description}
-                    onChange={e => this.setState({ description: e.target.value})}
+                    onChange={e => this.setState({ description: e.target.value })}
                 />
                 <br />
-                <Button variant="contained" color="primary" type="submit">Добавить домашку</Button>
+                <Button variant="contained" color="primary" type="submit">Добавить задачу</Button>
             </form>
         </div>);
     }

@@ -10,7 +10,7 @@ interface ICourseState {
     isLoaded: boolean,
     isFound: boolean,
     course: CourseViewModel,
-    create: boolean
+    createHomework: boolean
 }
 
 interface ICourseProp {
@@ -24,12 +24,12 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
             isLoaded: false,
             isFound: false,
             course: {},
-            create: false
+            createHomework: false
         };
     }
 
     public render() {
-        const { isLoaded, isFound, course} = this.state;
+        const { isLoaded, isFound, course, createHomework } = this.state;
         if (isLoaded) {
             if (isFound) {
                 return (
@@ -40,20 +40,20 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                         <Typography variant="h4" gutterBottom>
                             {course.groupName}
                         </Typography>
-                        {this.state.create &&
+                        {createHomework &&
                             <div>
                                 <AddHomework
                                 id={+this.props.match.params.id}
-                                onSubmit={() => { this.setState({create: false })}} />
+                                onSubmit={() => { this.setState({createHomework: false })}} />
                                 <CourseHomework id={+this.props.match.params.id} />
                             </div>
                         }
-                        {!this.state.create &&
+                        {!createHomework &&
                             <div>
                                 <Button
                                 variant="contained"
                                 color="primary"
-                                onClick={() => { this.setState({create: true })}}>Добавить домашку</Button>
+                                onClick={() => { this.setState({createHomework: true })}}>Добавить домашку</Button>
                                 <CourseHomework id={+this.props.match.params.id} />
                             </div>
                         }
@@ -66,7 +66,7 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                     </Typography>
         }
 
-        return <h1> loading ... </h1>
+        return <h1></h1>
     }
 
     componentDidMount(): void {

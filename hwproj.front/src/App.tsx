@@ -21,7 +21,6 @@ class App extends Component {
               <Route exact path='/' component={Courses} />
               <Route exact path='/create_course' component={CreateCourse} />
               <Route exact path='/courses/:id' component={Course} />
-              <Route exact path='/courses/:id/add_homework' component={AddHomework} />
           </Router>
         </div>
     );

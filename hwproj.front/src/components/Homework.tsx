@@ -1,12 +1,7 @@
 import * as React from 'react';
-import ListItem from '@material-ui/core/ListItem';
-import List from '@material-ui/core/List';
-import Link from '@material-ui/core/Link';
-import { HomeworkViewModel, HomeworksApi} from "../api/homeworks/api";
-import {RouteComponentProps} from "react-router";
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
-import Task from './Task';
+import { HomeworkViewModel, HomeworksApi} from "../api/homeworks/api";
 import AddTask from'./AddTask'
 import HomeworkTasks from './HomeworkTasks'
 
@@ -21,7 +16,7 @@ interface IHomeworkState {
     createTask: boolean
 }
 
-export default class Course extends React.Component<IHomeworkProps, IHomeworkState> {
+export default class Homework extends React.Component<IHomeworkProps, IHomeworkState> {
     constructor(props : IHomeworkProps) {
         super(props);
         this.state = {
@@ -45,7 +40,7 @@ export default class Course extends React.Component<IHomeworkProps, IHomeworkSta
                             {homework.description}
                         </Typography>
                         
-                        {createTask && 
+                        {this.state.createTask && 
                             <div>
                                 <HomeworkTasks id={this.props.id} />
                                 <AddTask
@@ -53,7 +48,7 @@ export default class Course extends React.Component<IHomeworkProps, IHomeworkSta
                                 onAdding={() => this.setState({createTask: false})} />
                             </div>
                         }
-                        {!createTask &&
+                        {!this.state.createTask &&
                             <div>
                                 <HomeworkTasks id={this.props.id} />
                                 <Button
@@ -67,17 +62,17 @@ export default class Course extends React.Component<IHomeworkProps, IHomeworkSta
             }
         }
 
-        return <h1>loading...</h1>
+        return <h1></h1>
     }
 
     componentDidMount(): void {
         let api = new HomeworksApi();
         api.getHomework(this.props.id)
             .then(res => res.json())
-            .then(data => this.setState({
+            .then(homework => this.setState({
                 isLoaded: true,
                 isFound: true,
-                homework: data
+                homework: homework
             }))
             .catch(err => this.setState({
                 isLoaded: true,

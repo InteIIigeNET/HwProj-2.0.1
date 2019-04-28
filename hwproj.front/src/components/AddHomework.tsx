@@ -1,28 +1,22 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
-import Checkbox from '@material-ui/core/Checkbox'
 import Button from '@material-ui/core/Button'
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import {HomeworksApi, CreateHomeworkViewModel, CreateTaskViewModel, TasksApi} from "../api/homeworks/api";
-import {RouteComponentProps} from "react-router-dom"
-import { Typography } from '@material-ui/core';
+import Typography from '@material-ui/core/Typography';
+import {HomeworksApi, CreateTaskViewModel, TasksApi} from "../api/homeworks/api";
 
-interface ICreateHomeworkProps {
+interface IAddHomeworkProps {
     id: number
     onSubmit: () => void
 }
 
-interface ICreateHomeworkState {
+interface IAddHomeworkState {
     title: string,
     description: string,
     tasks: CreateTaskViewModel[]
 }
 
-export default class CreateCourse extends React.Component<ICreateHomeworkProps, ICreateHomeworkState> {
-    constructor(props : ICreateHomeworkProps) {
+export default class AddHomework extends React.Component<IAddHomeworkProps, IAddHomeworkState> {
+    constructor(props : IAddHomeworkProps) {
         super(props);
         this.state = {
             title: "",
@@ -59,34 +53,40 @@ export default class CreateCourse extends React.Component<ICreateHomeworkProps, 
                     label="Описание домашки"
                     variant="outlined"
                     margin="normal"
-                    value={this.state.description}
+                    name={this.state.description}
                     onChange={e => this.setState({ description: e.target.value})}
                 />
                 <ol>
-                    {this.state.tasks.map(task => <div>
-                        <Typography variant='subtitle1'> Задача</Typography>
-                        <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => this.setState({tasks: this.state.tasks.slice(0, this.state.tasks.length - 1)})}>Убрать задачу</Button>
-                        <br />
-                        <TextField
-                            required
-                            label="Название задачи"
-                            variant="outlined"
-                            margin="normal"
-                            name={task.title}
-                            onChange={e => task.title = e.target.value}
-                        />
-                        <br />
-                        <TextField
-                            label="Условие задачи"
-                            variant="outlined"
-                            margin="normal"
-                            name={task.description}
-                            onChange={e => task.description = e.target.value}
-                        />
-                    </div>)}
+                        {this.state.tasks.map((task, index) =>
+                        <li key={index}>
+                            <Typography variant='subtitle1'>Задача</Typography>
+                            <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => this.setState({
+                                    tasks: this.state.tasks.slice(0, this.state.tasks.length - 1)
+                                })}>
+                                Убрать задачу
+                            </Button>
+
+                            <br />
+                            <TextField
+                                required
+                                label="Название задачи"
+                                variant="outlined"
+                                margin="normal"
+                                name={task.title}
+                                onChange={e => task.title = e.target.value}
+                            />
+                            <br />
+                            <TextField
+                                label="Условие задачи"
+                                variant="outlined"
+                                margin="normal"
+                                name={task.description}
+                                onChange={e => task.description = e.target.value}
+                            />
+                        </li>)}
                 </ol>
                 <Button variant="contained" color="primary" onClick={() => this.setState({tasks: [...this.state.tasks, { title: "", description: ""}]})}>Ещё задачу</Button>
                 <br />

@@ -1,13 +1,11 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import Checkbox from '@material-ui/core/Checkbox'
 import Button from '@material-ui/core/Button'
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import {CoursesApi, CreateCourseViewModel} from "../api/courses/api";
+import Typography from '@material-ui/core/Typography'
 import { Redirect } from 'react-router-dom';
+import { CoursesApi } from "../api/courses/api";
 
 interface ICreateCourseState {
     name: string,
@@ -29,6 +27,7 @@ export default class CreateCourse extends React.Component<{}, ICreateCourseState
     public handleSubmit(e: any) {
         e.preventDefault();
         let api = new CoursesApi();
+
         let courseViewModel = {
             name: this.state.name,
             groupName: this.state.groupName,
@@ -49,7 +48,7 @@ export default class CreateCourse extends React.Component<{}, ICreateCourseState
         }
         return (
             <div>
-                <h1>Create new course</h1>
+                <Typography variant='h4' gutterBottom>Создать курс</Typography>
                 <form onSubmit={e => this.handleSubmit(e)}>
                     <TextField
                         required

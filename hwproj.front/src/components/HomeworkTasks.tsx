@@ -1,11 +1,5 @@
 import * as React from 'react';
-import ListItem from '@material-ui/core/ListItem';
-import List from '@material-ui/core/List';
-import Link from '@material-ui/core/Link';
-import { HomeworkTaskViewModel, HomeworksApi} from "../api/homeworks/api";
-import {RouteComponentProps} from "react-router";
-import Homework from './Homework';
-import { Typography } from '@material-ui/core';
+import { HomeworksApi} from "../api/homeworks/api";
 import Task from './Task'
 
 interface IHomeworkTasksProps {
@@ -30,20 +24,21 @@ export default class HomeworkTasks extends React.Component<IHomeworkTasksProps, 
         const { isLoaded, tasks} = this.state;
 
         if (isLoaded) {
-                let listItems = tasks.map(homeworkId => <li>
-                        <Task id={homeworkId} />
+                let taskList = tasks.map(taskId =>
+                    <li key={taskId}>
+                        <Task id={taskId} />
                     </li>);
                 
                 return (
                     <div>
                         <ol>
-                            {listItems}
+                            {taskList}
                         </ol>
                     </div>
                 )
         }
 
-        return <h1>loading...</h1>
+        return <h1></h1>
     }
 
     componentDidMount(): void {
