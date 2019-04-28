@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -22,18 +23,18 @@ namespace HwProj.AuthService.API.Services
             this.appSettings = appSettings.Value;
         }
 
-        public async Task<string> GetToken(User user)
+        public async Task<List<object>> GetToken(User user)
         {
-            const int expireInForTOken = 40;
+            const int expireInForToken = 40;
             const int expireInForResponse = 30;
 
             var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(appSettings.SecurityKey));
             var timeNow = DateTime.UtcNow;
 
             var token = new JwtSecurityToken(
-                    issuer: "AuthService",
+                    issuer: appSettings.ApiName,
                     notBefore: timeNow,
-                    expires: timeNow.Add(TimeSpan.FromMinutes(expireInForTOken)),
+                    expires: timeNow.Add(TimeSpan.FromMinutes(expireInForToken)),
                     claims: new[]
                     {
                         new Claim("_surname", user.Surname),
@@ -45,13 +46,10 @@ namespace HwProj.AuthService.API.Services
                     signingCredentials:
                         new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256));
 
-            var response = new
-            {
-                accessToken = new JwtSecurityTokenHandler().WriteToken(token),
-                expiresIn = (int)TimeSpan.FromMinutes(expireInForResponse).TotalSeconds
-            };
+            var accessToken = new JwtSecurityTokenHandler().WriteToken(token);
+            var expiresIn = (int)TimeSpan.FromMinutes(expireInForResponse).TotalSeconds;
 
-            return JsonConvert.SerializeObject(response);
+            return new List<object> { accessToken, expiresIn };
         }
     }
 }

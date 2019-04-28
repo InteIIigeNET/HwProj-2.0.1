@@ -6,12 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using HwProj.AuthService.API.Exceptions;
 using System.Security.Claims;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using Newtonsoft.Json;
-using System;
-using System.Text;
 using Microsoft.Extensions.Options;
+using System.Collections.Generic;
 
 namespace HwProj.AuthService.API.Services
 {
@@ -28,47 +24,6 @@ namespace HwProj.AuthService.API.Services
             this.userManager = userManager;
             this.signInManager = signInManager;
             tokenService = new TokenService(userManager, appSettings);
-        }
-
-        public async Task<User> Get(string Email)
-        {
-            return await userManager.FindByEmailAsync(Email);
-        }
-
-        //IsStudent - true
-        public async Task<bool> GetRoleIfUserAuthorized(ClaimsPrincipal User)
-        {
-            if (!signInManager.IsSignedIn(User))
-            {
-                throw new UserNotSignInException();
-            }
-
-            var user = await userManager.FindByNameAsync(User.Identity.Name);
-            return (await userManager.GetRolesAsync(user))[0] == "student";
-        }
-
-        public async Task<string> GetIdIfUserAuthorized(ClaimsPrincipal User)
-        {
-            if (!signInManager.IsSignedIn(User))
-            {
-                throw new UserNotSignInException();
-            }
-
-            var user = await userManager.FindByNameAsync(User.Identity.Name);
-            return await userManager.GetUserIdAsync(user);
-        }
-
-        //IsStudent - true
-        public async Task<bool> GetRoleById(string userId)
-        {
-            var user = await userManager.FindByIdAsync(userId);
-
-            if (user == null)
-            {
-                throw new UserNotFoundException();
-            }
-
-            return (await userManager.GetRolesAsync(user))[0] == "student";
         }
 
         public async Task Edit(EditViewModel model, ClaimsPrincipal User)
@@ -104,7 +59,7 @@ namespace HwProj.AuthService.API.Services
             }
         }
 
-        public async Task<string> Login(LoginViewModel model)
+        public async Task<List<object>> Login(LoginViewModel model)
         {
             if ((await userManager.FindByEmailAsync(model.Email)) == null)
             {
@@ -132,7 +87,7 @@ namespace HwProj.AuthService.API.Services
             return await tokenService.GetToken(user);
         }
 
-        public async Task<string> RefreshToken(ClaimsPrincipal User)
+        public async Task<List<object>> RefreshToken(ClaimsPrincipal User)
         {
             if (!signInManager.IsSignedIn(User))
             {
@@ -185,10 +140,7 @@ namespace HwProj.AuthService.API.Services
             return await GetCallbackUrlForChangeEmail(user, model.NewEmail, httpContext, url);
         }
 
-        public async Task ConfirmChangeEmail(
-            string userId,
-            string email,
-            string code)
+        public async Task ConfirmChangeEmail(string userId, string email, string code)
         {
             var user = await userManager.FindByIdAsync(userId);
 
