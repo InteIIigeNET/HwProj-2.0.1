@@ -39,6 +39,10 @@ export default class AddTask extends React.Component<IAddTaskProps, CreateTaskVi
                 />
                 <br />
                 <TextField
+                    multiline
+                    fullWidth
+                    rows="4"
+                    rowsMax="15"
                     label="Условие задачи"
                     variant="outlined"
                     margin="normal"

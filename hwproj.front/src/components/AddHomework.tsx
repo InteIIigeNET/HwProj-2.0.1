@@ -50,6 +50,10 @@ export default class AddHomework extends React.Component<IAddHomeworkProps, IAdd
                 />
                 <br />
                 <TextField
+                    multiline
+                    fullWidth
+                    rows="4"
+                    rowsMax="15"
                     label="Описание домашки"
                     variant="outlined"
                     margin="normal"
@@ -80,6 +84,10 @@ export default class AddHomework extends React.Component<IAddHomeworkProps, IAdd
                             />
                             <br />
                             <TextField
+                                multiline
+                                fullWidth
+                                rows="4"
+                                rowsMax="15"
                                 label="Условие задачи"
                                 variant="outlined"
                                 margin="normal"
