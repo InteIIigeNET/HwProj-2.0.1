@@ -36,6 +36,7 @@ export default class AddTask extends React.Component<ICreateTaskProps, CreateTas
             <Typography variant='h6'>Добавить задачу</Typography>
             <form onSubmit={e => this.handleSubmit(e)}>
                 <TextField
+                    required
                     label="Название задачи"
                     variant="outlined"
                     margin="normal"

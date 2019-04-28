@@ -52,6 +52,7 @@ export default class CreateCourse extends React.Component<{}, ICreateCourseState
                 <h1>Create new course</h1>
                 <form onSubmit={e => this.handleSubmit(e)}>
                     <TextField
+                        required
                         label="Название курса"
                         variant="outlined"
                         margin="normal"
@@ -60,6 +61,7 @@ export default class CreateCourse extends React.Component<{}, ICreateCourseState
                     />
                     <br />
                     <TextField
+                        required
                         label="Номер группы"
                         variant="outlined"
                         margin="normal"

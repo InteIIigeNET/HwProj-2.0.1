@@ -47,6 +47,7 @@ export default class CreateCourse extends React.Component<ICreateHomeworkProps, 
             <Typography variant='h6'>Добавить домашку</Typography>
             <form onSubmit={e => this.handleSubmit(e)}>
                 <TextField
+                    required
                     label="Название домашки"
                     variant="outlined"
                     margin="normal"
@@ -65,6 +66,7 @@ export default class CreateCourse extends React.Component<ICreateHomeworkProps, 
                     {this.state.tasks.map(task => <div>
                         <Typography variant='subtitle1'> Задача</Typography>
                         <TextField
+                            required
                             label="Название задачи"
                             variant="outlined"
                             margin="normal"
