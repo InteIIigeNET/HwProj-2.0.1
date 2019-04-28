@@ -1,6 +1,7 @@
 import * as React from 'react';
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
+import ReactMarkdown from 'react-markdown'
 import { HomeworkViewModel, HomeworksApi} from "../api/homeworks/api";
 import AddTask from'./AddTask'
 import HomeworkTasks from './HomeworkTasks'
@@ -36,8 +37,7 @@ export default class Homework extends React.Component<IHomeworkProps, IHomeworkS
                     <div>
                         <Typography variant="subtitle1" gutterBottom>
                             <b>{homework.title}</b> {homework.date}
-                            <br />
-                            {homework.description}
+                            <ReactMarkdown source={homework.description} />
                         </Typography>
                         
                         {this.state.createTask && 

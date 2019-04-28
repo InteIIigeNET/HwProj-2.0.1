@@ -1,5 +1,6 @@
 import * as React from 'react';
 import Typography from '@material-ui/core/Typography';
+import ReactMarkdown from 'react-markdown'
 import { HomeworkTaskViewModel, TasksApi } from "../api/homeworks/api";
 
 interface ITaskState {
@@ -32,7 +33,7 @@ export default class Task extends React.Component<ITaskProp, ITaskState> {
                         <Typography variant="subtitle2">
                             {task.title}
                         </Typography>
-                        {task.description}
+                        <ReactMarkdown source={task.description} />
                     </div>
                 );
             }
