@@ -41,15 +41,22 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                             {course.groupName}
                         </Typography>
                         {this.state.create &&
-                        <AddHomework id={+this.props.match.params.id} />}
-                        {!this.state.create &&
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => { this.setState({create: true })}}>Добавить домашку</Button>
+                            <div>
+                                <AddHomework
+                                id={+this.props.match.params.id}
+                                onSubmit={() => { this.setState({create: false })}} />
+                                <CourseHomework id={+this.props.match.params.id} />
+                            </div>
                         }
-                        <br />
-                        <CourseHomework id={course.id!} />
+                        {!this.state.create &&
+                            <div>
+                                <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={() => { this.setState({create: true })}}>Добавить домашку</Button>
+                                <CourseHomework id={+this.props.match.params.id} />
+                            </div>
+                        }
                     </div>
                 )
             }

@@ -6,32 +6,45 @@ import TextField from '@material-ui/core/TextField';
 import Checkbox from '@material-ui/core/Checkbox'
 import Button from '@material-ui/core/Button'
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import {HomeworksApi, CreateHomeworkViewModel} from "../api/homeworks/api";
+import {HomeworksApi, CreateHomeworkViewModel, CreateTaskViewModel, TasksApi} from "../api/homeworks/api";
 import {RouteComponentProps} from "react-router-dom"
+import { Typography } from '@material-ui/core';
 
 interface ICreateHomeworkProps {
     id: number
+    onSubmit: () => void
 }
 
-export default class CreateCourse extends React.Component<ICreateHomeworkProps, CreateHomeworkViewModel> {
+interface ICreateHomeworkState {
+    title: string,
+    description: string,
+    tasks: CreateTaskViewModel[]
+}
+
+export default class CreateCourse extends React.Component<ICreateHomeworkProps, ICreateHomeworkState> {
     constructor(props : ICreateHomeworkProps) {
         super(props);
         this.state = {
             title: "",
-            description: ""
+            description: "",
+            tasks: [{ title: "", description: ""}]
         };
     }
 
     public handleSubmit(e: any) {
         e.preventDefault();
-        let api = new HomeworksApi();
-        api.addHomework(this.props.id, this.state)
-            .then(res => console.log(res));
+        let homeworksApi = new HomeworksApi();
+        let tasksApi = new TasksApi()
+        homeworksApi.addHomework(this.props.id, {title: this.state.title, description: this.state.description})
+            .then(homeworkId => this.state.tasks.forEach(t => {
+                tasksApi.addTask(homeworkId, t)
+            }))
+            .then(this.props.onSubmit);
     }
 
     public render() {
         return (<div>
-            <h1>Добавить домашку</h1>
+            <Typography variant='h6'>Добавить домашку</Typography>
             <form onSubmit={e => this.handleSubmit(e)}>
                 <TextField
                     label="Название домашки"
@@ -48,6 +61,27 @@ export default class CreateCourse extends React.Component<ICreateHomeworkProps, 
                     value={this.state.description}
                     onChange={e => this.setState({ description: e.target.value})}
                 />
+                <ol>
+                    {this.state.tasks.map(task => <div>
+                        <Typography variant='subtitle1'> Задача</Typography>
+                        <TextField
+                            label="Название задачи"
+                            variant="outlined"
+                            margin="normal"
+                            name={task.title}
+                            onChange={e => task.title = e.target.value}
+                        />
+                        <br />
+                        <TextField
+                            label="Условие задачи"
+                            variant="outlined"
+                            margin="normal"
+                            name={task.description}
+                            onChange={e => task.description = e.target.value}
+                        />
+                    </div>)}
+                </ol>
+                <Button variant="contained" color="primary" onClick={() => this.setState({tasks: [...this.state.tasks, { title: "", description: ""}]})}>Ещё задачу</Button>
                 <br />
                 <Button variant="contained" color="primary" type="submit">Добавить домашку</Button>
             </form>

@@ -5,7 +5,10 @@ import Link from '@material-ui/core/Link';
 import { HomeworkViewModel, HomeworksApi} from "../api/homeworks/api";
 import {RouteComponentProps} from "react-router";
 import Typography from '@material-ui/core/Typography'
+import Button from '@material-ui/core/Button'
 import Task from './Task';
+import AddTask from'./AddTask'
+import HomeworkTasks from './HomeworkTasks'
 
 interface IHomeworkProps {
     id: number
@@ -14,7 +17,8 @@ interface IHomeworkProps {
 interface IHomeworkState {
     isLoaded: boolean,
     isFound: boolean,
-    homework: HomeworkViewModel
+    homework: HomeworkViewModel,
+    createTask: boolean
 }
 
 export default class Course extends React.Component<IHomeworkProps, IHomeworkState> {
@@ -23,19 +27,16 @@ export default class Course extends React.Component<IHomeworkProps, IHomeworkSta
         this.state = {
             isLoaded: false,
             isFound: false,
-            homework: {}
+            homework: {},
+            createTask: false
         };
     }
 
     public render() {
-        const { isLoaded, isFound, homework} = this.state;
+        const { isLoaded, isFound, homework, createTask } = this.state;
 
         if (isLoaded) {
             if (isFound) {
-                let listItems = homework.tasks!.map(taskId => <li>
-                        <Task id={taskId} />
-                    </li>);
-                
                 return (
                     <div>
                         <Typography variant="subtitle1" gutterBottom>
@@ -43,9 +44,24 @@ export default class Course extends React.Component<IHomeworkProps, IHomeworkSta
                             <br />
                             {homework.description}
                         </Typography>
-                        <ol>
-                            {listItems}
-                        </ol>
+                        
+                        {createTask && 
+                            <div>
+                                <HomeworkTasks id={this.props.id} />
+                                <AddTask
+                                id={homework.id!}
+                                onAdding={() => this.setState({createTask: false})} />
+                            </div>
+                        }
+                        {!createTask &&
+                            <div>
+                                <HomeworkTasks id={this.props.id} />
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={() => { this.setState({createTask: true })}}>Добавить задачу</Button>
+                            </div>
+                        }
                     </div>
                 )
             }
