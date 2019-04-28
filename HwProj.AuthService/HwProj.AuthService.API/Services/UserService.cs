@@ -11,6 +11,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Newtonsoft.Json;
 using System;
 using System.Text;
+using Microsoft.Extensions.Options;
 
 namespace HwProj.AuthService.API.Services
 {
@@ -20,11 +21,13 @@ namespace HwProj.AuthService.API.Services
         private readonly SignInManager<User> signInManager;
         private readonly TokenService tokenService;
 
-        public UserService(UserManager<User> userManager, SignInManager<User> signInManager)
+        public UserService(UserManager<User> userManager,
+            SignInManager<User> signInManager,
+            IOptions<AppSettings> appSettings)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
-            tokenService = new TokenService(userManager);
+            tokenService = new TokenService(userManager, appSettings);
         }
 
         public async Task<User> Get(string Email)

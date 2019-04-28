@@ -18,8 +18,8 @@ namespace HwProj.APIGateway
 
         public void ConfigureServices(IServiceCollection services)
         {
+            var securityKey = Encoding.ASCII.GetBytes("U8_.wpvk93fPWG<f2$Op[vwegmQGF25_fNG2V0ijnm2e0igv24g");
             var authenticationProviderKey = "GatewayKey";
-            var securityKey = Encoding.ASCII.GetBytes("Mkey12412rf12f1g12412e21f212g");
 
             services.AddAuthentication()
                 .AddJwtBearer(authenticationProviderKey, x =>
