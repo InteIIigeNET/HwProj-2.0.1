@@ -65,6 +65,11 @@ export default class CreateCourse extends React.Component<ICreateHomeworkProps, 
                 <ol>
                     {this.state.tasks.map(task => <div>
                         <Typography variant='subtitle1'> Задача</Typography>
+                        <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => this.setState({tasks: this.state.tasks.slice(0, this.state.tasks.length - 1)})}>Убрать задачу</Button>
+                        <br />
                         <TextField
                             required
                             label="Название задачи"
