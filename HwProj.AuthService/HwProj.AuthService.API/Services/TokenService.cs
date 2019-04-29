@@ -41,7 +41,7 @@ namespace HwProj.AuthService.API.Services
                         new Claim("_name", user.Name),
                         new Claim("_id", user.Id),
                         new Claim("_email", user.Email),
-                        new Claim(ClaimsIdentity.DefaultRoleClaimType, (await userManager.GetRolesAsync(user))[0])
+                        new Claim("_role", (await userManager.GetRolesAsync(user))[0])
                     },
                     signingCredentials:
                         new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256));

@@ -1,7 +1,7 @@
 {
   "ReRoutes": [
     {
-      "DownstreamPathTemplate": "/api/test",
+      "DownstreamPathTemplate": "/api/test/get",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -14,6 +14,9 @@
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "student"
       }
     }
   ],
