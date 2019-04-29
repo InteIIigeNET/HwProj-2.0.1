@@ -1,5 +1,6 @@
 {
   "ReRoutes": [
+    //Homeworks
     {
       "DownstreamPathTemplate": "/api/Homeworks",
       "DownstreamScheme": "http",
@@ -84,6 +85,88 @@
         }
       ],
       "UpstreamPathTemplate": "/api/Homeworks/update/{homeworkId}",
+      "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "lecturer"
+      }
+    },
+    //Tasks
+    {
+      "DownstreamPathTemplate": "/api/Tasks",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 38986
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Tasks",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/Tasks/{taskId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 38986
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Tasks/{taskId}",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/Tasks/{taskId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 38986
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Tasks/{taskId}",
+      "UpstreamHttpMethod": [ "DELETE" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "lecturer"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Tasks/{homeworkId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 38986
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Tasks/{homeworkId}",
+      "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "lecturer"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Tasks/update/{taskId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 38986
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Tasks/update/{taskId}",
       "UpstreamHttpMethod": [ "POST" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
