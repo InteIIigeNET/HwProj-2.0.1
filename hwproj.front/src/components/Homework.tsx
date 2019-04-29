@@ -1,13 +1,16 @@
 import * as React from 'react';
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
+import IconButton from '@material-ui/core/IconButton'
+import DeleteIcon from '@material-ui/icons/Delete'
 import ReactMarkdown from 'react-markdown';
 import { HomeworkViewModel, HomeworksApi} from "../api/homeworks/api";
 import AddTask from'./AddTask'
 import HomeworkTasks from './HomeworkTasks'
 
 interface IHomeworkProps {
-    id: number
+    id: number,
+    onDeleteClick: () => void
 }
 
 interface IHomeworkState {
@@ -38,6 +41,9 @@ export default class Homework extends React.Component<IHomeworkProps, IHomeworkS
                     <div>
                         <Typography variant="subtitle1" gutterBottom>
                             <b>{homework.title}</b> {homeworkDateString}
+                            <IconButton aria-label="Delete" onClick={() => this.deleteHomework()}>
+                                <DeleteIcon fontSize="small" />
+                            </IconButton>
                         </Typography>
                         <ReactMarkdown source={homework.description} />
                         
@@ -53,6 +59,7 @@ export default class Homework extends React.Component<IHomeworkProps, IHomeworkS
                             <div>
                                 <HomeworkTasks id={this.props.id} />
                                 <Button
+                                    size="small"
                                     variant="contained"
                                     color="primary"
                                     onClick={() => { this.setState({createTask: true })}}>Добавить задачу</Button>
@@ -64,6 +71,12 @@ export default class Homework extends React.Component<IHomeworkProps, IHomeworkS
         }
 
         return <h1></h1>
+    }
+
+    deleteHomework(): void {
+        let api = new HomeworksApi();
+        api.deleteHomework(this.props.id)
+            .then(res => this.props.onDeleteClick());
     }
 
     componentDidMount(): void {

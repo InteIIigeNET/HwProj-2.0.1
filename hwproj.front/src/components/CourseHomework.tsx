@@ -29,7 +29,7 @@ export default class CourseHomework extends React.Component<ICourseHomeworkProps
         if (isLoaded) {
                 let homeworkList = homeworks.map(homeworkId =>
                     <ListItem key={homeworkId}>
-                        <Homework id={homeworkId} />
+                        <Homework id={homeworkId} onDeleteClick={() => this.componentDidMount()}/>
                     </ListItem>).reverse();
                 
                 return (
