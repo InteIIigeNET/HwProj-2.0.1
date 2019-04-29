@@ -175,6 +175,174 @@
       "RouteClaimsRequirement": {
         "_role": "lecturer"
       }
+    },
+    //Courses
+    {
+      "DownstreamPathTemplate": "/api/Courses",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 59105
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Courses",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/Courses",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 59105
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Courses",
+      "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "lecturer"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Courses/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 59105
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Courses/{id}",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/Courses/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 59105
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Courses/{id}",
+      "UpstreamHttpMethod": [ "DELETE" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "lecturer"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Courses/update/{courseId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 59105
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Courses/update/{courseId}",
+      "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "lecturer"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Courses/sign_in_course/{courseId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 59105
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Courses/sign_in_course/{courseId}",
+      "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Courses/accept_student/{courseId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 59105
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Courses/accept_student/{courseId}",
+      "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "lecturer"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Courses/reject_student/{courseId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 59105
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Courses/reject_student/{courseId}",
+      "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "lecturer"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Courses/student_courses/{studentId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 59105
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Courses/student_courses/{studentId}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Courses/mentor_courses/{mentorId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 59105
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Courses/mentor_courses/{mentorId}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      }
     }
   ],
   "GlobalConfiguration": {
