@@ -33,10 +33,11 @@ export default class Homework extends React.Component<IHomeworkProps, IHomeworkS
 
         if (isLoaded) {
             if (isFound) {
+                let homeworkDateString = new Date(homework.date!.toString()).toLocaleDateString("ru-RU");
                 return (
                     <div>
                         <Typography variant="subtitle1" gutterBottom>
-                            <b>{homework.title}</b> {homework.date}
+                            <b>{homework.title}</b> {homeworkDateString}
                         </Typography>
                         <ReactMarkdown source={homework.description} />
                         
