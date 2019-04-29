@@ -2,13 +2,16 @@ import * as React from 'react';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton'
 import DeleteIcon from '@material-ui/icons/Delete'
+import Button from '@material-ui/core/Button'
 import ReactMarkdown from 'react-markdown'
 import { HomeworkTaskViewModel, TasksApi } from "../api/homeworks/api";
+import AddSolution from './AddSolution'
 
 interface ITaskState {
     isLoaded: boolean,
     isFound: boolean,
-    task: HomeworkTaskViewModel
+    task: HomeworkTaskViewModel,
+    addSolution: boolean
 }
 
 interface ITaskProp {
@@ -22,7 +25,8 @@ export default class Task extends React.Component<ITaskProp, ITaskState> {
         this.state = {
             isLoaded: false,
             isFound: false,
-            task: {}
+            task: {},
+            addSolution: false
         };
     }
 
@@ -40,6 +44,16 @@ export default class Task extends React.Component<ITaskProp, ITaskState> {
                             </IconButton>
                         </Typography>
                         <ReactMarkdown source={task.description} />
+                        {!this.state.addSolution && 
+                            <Button
+                            size="small"
+                            variant="contained"
+                            color="primary"
+                            onClick={() => { this.setState({addSolution: true })}}>Добавить решение</Button>
+                        }
+                        {this.state.addSolution && 
+                            <AddSolution id={this.props.id} onAdding={() => this.setState({addSolution: false})} />
+                        }
                     </div>
                 );
             }

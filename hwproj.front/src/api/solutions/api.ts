@@ -107,7 +107,7 @@ export interface Solution {
      * @type {number}
      * @memberof Solution
      */
-    state?: Solution.StateEnum;
+    state?: StateEnum;
     /**
      * 
      * @type {number}
@@ -122,21 +122,27 @@ export interface Solution {
     taskId?: number;
 }
 
+export enum StateEnum {
+    NUMBER_0 = <any> 0,
+    NUMBER_1 = <any> 1,
+    NUMBER_2 = <any> 2
+}
+
 /**
  * @export
  * @namespace Solution
  */
-export namespace Solution {
-    /**
-     * @export
-     * @enum {string}
-     */
-    export enum StateEnum {
-        NUMBER_0 = <any> 0,
-        NUMBER_1 = <any> 1,
-        NUMBER_2 = <any> 2
-    }
-}
+// export namespace Solution {
+//     /**
+//      * @export
+//      * @enum {string}
+//      */
+//     export enum StateEnum {
+//         NUMBER_0 = <any> 0,
+//         NUMBER_1 = <any> 1,
+//         NUMBER_2 = <any> 2
+//     }
+// }
 
 /**
  * 
