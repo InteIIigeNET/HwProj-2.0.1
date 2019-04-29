@@ -343,6 +343,131 @@
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
       }
+    },
+    //Solutions
+    {
+      "DownstreamPathTemplate": "/api/Solutions",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 1306
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Solutions",
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Solutions/{solutionId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 1306
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Solutions/{solutionId}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Solutions/task_solutions/{taskId}/{studentId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 1306
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Solutions/task_solutions/{taskId}/{studentId}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Solutions/{taskId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 1306
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Solutions/{taskId}",
+      "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "student"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Solutions/accept_solution/{solutionId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 1306
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Solutions/accept_solution/{solutionId}",
+      "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "lecturer"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Solutions/reject_solution/{solutionId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 1306
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Solutions/reject_solution/{solutionId}",
+      "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "lecturer"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Solutions/{solutionId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 1306
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Solutions/{solutionId}",
+      "UpstreamHttpMethod": [ "DELETE" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "lecturer"
+      }
     }
   ],
   "GlobalConfiguration": {
