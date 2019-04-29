@@ -16,6 +16,7 @@ namespace HwProj.AuthService.API.Services
         private readonly UserManager<User> userManager;
         private readonly SignInManager<User> signInManager;
         private readonly TokenService tokenService;
+        private readonly EmailService emailService;
 
         public UserService(UserManager<User> userManager,
             SignInManager<User> signInManager,
@@ -24,6 +25,7 @@ namespace HwProj.AuthService.API.Services
             this.userManager = userManager;
             this.signInManager = signInManager;
             tokenService = new TokenService(userManager, appSettings);
+            emailService = new EmailService(appSettings);
         }
 
         public async Task Edit(EditViewModel model, ClaimsPrincipal User)
@@ -99,7 +101,7 @@ namespace HwProj.AuthService.API.Services
             return await tokenService.GetToken(user);
         }
 
-        public async Task<string> Register(RegisterViewModel model, HttpContext httpContext, IUrlHelper url)
+        public async Task Register(RegisterViewModel model, HttpContext httpContext, IUrlHelper url)
         {
             if ((await userManager.FindByEmailAsync(model.Email)) != null)
             {
@@ -116,10 +118,12 @@ namespace HwProj.AuthService.API.Services
 
             await userManager.AddToRoleAsync(user, "student");
 
-            return await GetCallbackUrlForEmailConfirmation(user, httpContext, url);
+            await emailService.SendEmailForConfirmation(
+                model.Email,
+                await GetCallbackUrlForEmailConfirmation(user, httpContext, url));
         }
 
-        public async Task<string> RequestToChangeEmail(
+        public async Task RequestToChangeEmail(
             ChangeEmailViewModel model,
             ClaimsPrincipal User,
             HttpContext httpContext,
@@ -137,7 +141,9 @@ namespace HwProj.AuthService.API.Services
 
             var user = await userManager.FindByNameAsync(User.Identity.Name);
 
-            return await GetCallbackUrlForChangeEmail(user, model.NewEmail, httpContext, url);
+            await emailService.SendEmailForConfirmation(
+                model.NewEmail,
+                await GetCallbackUrlForChangeEmail(user, model.NewEmail, httpContext, url));
         }
 
         public async Task ConfirmChangeEmail(string userId, string email, string code)

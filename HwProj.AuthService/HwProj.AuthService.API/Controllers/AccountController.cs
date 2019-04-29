@@ -20,10 +20,8 @@ namespace HwProj.AuthService.API.Controllers
         [ExceptionFilter]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            var callbackUrl = await userService.Register(model, HttpContext, Url);
-            // тут отправить Url студенту на почту. а пока он возвращается в Ok
-
-            return Ok(callbackUrl);
+            await userService.Register(model, HttpContext, Url);
+            return Ok();
         }
 
         [HttpGet, Route("confirmemail")]
@@ -86,10 +84,8 @@ namespace HwProj.AuthService.API.Controllers
         [Authorize]
         public async Task<IActionResult> ChangeEmail(ChangeEmailViewModel model)
         {
-            string callbackUrl = await userService.RequestToChangeEmail(model, User, HttpContext, Url);
-            // отправить Url для подтвереждения новой почты пользователю. пока возвращаю в Ok
-
-            return Ok(callbackUrl);
+            await userService.RequestToChangeEmail(model, User, HttpContext, Url);
+            return Ok();
         }
 
         [HttpGet, Route("confirmchangeemail")]
