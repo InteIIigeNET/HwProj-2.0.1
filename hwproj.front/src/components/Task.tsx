@@ -1,5 +1,7 @@
 import * as React from 'react';
 import Typography from '@material-ui/core/Typography';
+import IconButton from '@material-ui/core/IconButton'
+import DeleteIcon from '@material-ui/icons/Delete'
 import ReactMarkdown from 'react-markdown'
 import { HomeworkTaskViewModel, TasksApi } from "../api/homeworks/api";
 
@@ -10,7 +12,8 @@ interface ITaskState {
 }
 
 interface ITaskProp {
-    id: number
+    id: number,
+    onDeleteClick: () => void
 }
 
 export default class Task extends React.Component<ITaskProp, ITaskState> {
@@ -32,6 +35,9 @@ export default class Task extends React.Component<ITaskProp, ITaskState> {
                     <div>
                         <Typography variant="subtitle2">
                             {task.title}
+                            <IconButton aria-label="Delete" onClick={() => this.deleteTask()}>
+                                <DeleteIcon fontSize="small" />
+                            </IconButton>
                         </Typography>
                         <ReactMarkdown source={task.description} />
                     </div>
@@ -45,6 +51,12 @@ export default class Task extends React.Component<ITaskProp, ITaskState> {
         }
 
         return (<h1></h1>);
+    }
+
+    deleteTask(): void {
+        let api = new TasksApi();
+        api.deleteTask(this.props.id)
+            .then(res => this.props.onDeleteClick())
     }
 
     componentDidMount(): void {
