@@ -1,22 +1,96 @@
 {
   "ReRoutes": [
     {
-      "DownstreamPathTemplate": "/api/test/get",
+      "DownstreamPathTemplate": "/api/Homeworks",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44364
+          "Port": 38986
         }
       ],
-      "UpstreamPathTemplate": "/test",
-      "UpstreamHttpMethod": [ "GET" ],
+      "UpstreamPathTemplate": "/api/Homeworks",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/Homeworks/{homeworkId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 38986
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Homeworks/{homeworkId}",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/Homeworks/{homeworkId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 38986
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Homeworks/{homeworkId}",
+      "UpstreamHttpMethod": [ "DELETE" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
       },
       "RouteClaimsRequirement": {
-        "_role": "student"
+        "_role": "lecturer"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Homeworks/course_homeworks/{courseId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 38986
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Homeworks/course_homeworks/{courseId}",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/Homeworks/{courseId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 38986
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Homeworks/{courseId}",
+      "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "lecturer"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Homeworks/update/{homeworkId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 38986
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Homeworks/update/{homeworkId}",
+      "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "lecturer"
       }
     }
   ],
