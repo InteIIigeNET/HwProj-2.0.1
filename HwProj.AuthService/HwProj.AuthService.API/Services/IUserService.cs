@@ -19,7 +19,7 @@ namespace HwProj.AuthService.API.Services
 
         Task<List<object>> RefreshToken(ClaimsPrincipal User);
 
-        Task<string> RequestToChangeEmail(
+        Task RequestToChangeEmail(
             ChangeEmailViewModel model,
             ClaimsPrincipal User,
             HttpContext httpContext,
