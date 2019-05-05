@@ -2,6 +2,8 @@ import * as React from 'react';
 import {SolutionsApi} from '../api/solutions/api'
 import SolutionComponent from './Solution'
 import {RouteComponentProps} from "react-router-dom"
+import Task from './Task'
+import Typography from '@material-ui/core/Typography'
 
 interface ITaskSolutionsProps {
     taskId: string,
@@ -30,7 +32,18 @@ export default class TaskSolutions extends React.Component<RouteComponentProps<I
                 <SolutionComponent id={id} />
             </li>)
 
-            return (<ol>{solutionList}</ol>)
+            return (
+                <div>
+                    <Task id={+this.props.match.params.taskId} isDeletable={false} onDeleteClick={() => 3} />
+                    <br />
+                    {solutionList.length > 0 &&
+                        <div>
+                            <Typography variant='h4'>Решения: </Typography>
+                            <ol>{solutionList}</ol>
+                        </div>
+                    }
+                </div>
+            )
         }
 
         return ""

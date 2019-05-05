@@ -17,6 +17,7 @@ interface ITaskState {
 
 interface ITaskProp {
     id: number,
+    isDeletable: boolean
     onDeleteClick: () => void
 }
 
@@ -42,9 +43,11 @@ export default class Task extends React.Component<ITaskProp, ITaskState> {
                             <Link href={"/task/" + task.id!.toString() + "/55"}>
                                 {task.title}
                             </Link>
-                            <IconButton aria-label="Delete" onClick={() => this.deleteTask()}>
-                                <DeleteIcon fontSize="small" />
-                            </IconButton>
+                            {this.props.isDeletable && 
+                                <IconButton aria-label="Delete" onClick={() => this.deleteTask()}>
+                                    <DeleteIcon fontSize="small" />
+                                </IconButton>
+                            }
                         </Typography>
                         <ReactMarkdown source={task.description} />
                         {!this.state.addSolution && 
