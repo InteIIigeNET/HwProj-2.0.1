@@ -1,5 +1,6 @@
 import * as React from 'react';
 import Typography from '@material-ui/core/Typography';
+import Link from '@material-ui/core/Link';
 import IconButton from '@material-ui/core/IconButton'
 import DeleteIcon from '@material-ui/icons/Delete'
 import Button from '@material-ui/core/Button'
@@ -38,7 +39,9 @@ export default class Task extends React.Component<ITaskProp, ITaskState> {
                 return (
                     <div>
                         <Typography variant="subtitle2">
-                            {task.title}
+                            <Link href={"/task/" + task.id!.toString() + "/55"}>
+                                {task.title}
+                            </Link>
                             <IconButton aria-label="Delete" onClick={() => this.deleteTask()}>
                                 <DeleteIcon fontSize="small" />
                             </IconButton>
