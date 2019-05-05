@@ -13,7 +13,7 @@ export default class AddSolution extends React.Component<IAddSolutionProps, Solu
         super(props);
         this.state = {
             githubUrl: "",
-            comment: "",
+            comment: "4",
             studentId: 55
         };
     }
