@@ -45,6 +45,10 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                                 <AddHomework
                                 id={+this.props.match.params.id}
                                 onSubmit={() => { this.setState({createHomework: false })}} />
+                                <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={() => { this.setState({createHomework: false })}}>Отменить</Button>
                                 <CourseHomework id={+this.props.match.params.id} />
                             </div>
                         }
