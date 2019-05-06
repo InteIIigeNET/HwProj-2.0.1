@@ -34,12 +34,26 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
             if (isFound) {
                 return (
                     <div className="container">
-                        <Typography variant="h5">
-                            {course.name}
-                        </Typography>
-                        <Typography variant="subtitle1" gutterBottom>
-                            {course.groupName}
-                        </Typography>
+                        <div className="d-flex justify-content-between">
+                            <div>
+                                <Typography variant="h5">
+                                    {course.name}
+                                </Typography>
+                                <Typography variant="subtitle1" gutterBottom>
+                                    {course.groupName}
+                                </Typography>
+                            </div>
+                            <div>
+                                <Typography variant="h5">
+                                    Mentod ID: {course.mentorId}
+                                </Typography>
+                                <Button
+                                    size="small"
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={() => this.joinCourse()}>Записаться</Button>
+                            </div>
+                        </div>
                         {createHomework &&
                             <div>
                                 <AddHomework
@@ -70,6 +84,11 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
         }
 
         return <h1></h1>
+    }
+
+    joinCourse() {
+        let api = new CoursesApi();
+        api.signInCourse(+this.props.match.params.id, 55);
     }
 
     componentDidMount(): void {
