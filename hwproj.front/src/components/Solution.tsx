@@ -33,9 +33,9 @@ export default class SolutionComponent extends React.Component<ISolutionProps, I
         if (isLoaded) {
             return (
                 <div>
-                    Link: {solution.githubUrl}
+                    Ссылка на решение: {solution.githubUrl}
                     <br />
-                    Status: {solution.state}
+                    Статус решения: {solution.state}
                     <br />
                     <MuiThemeProvider theme={greenTheme}>
                         <IconButton color="primary" onClick={() => this.acceptSolution()}>

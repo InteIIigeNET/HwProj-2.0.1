@@ -35,7 +35,7 @@ export default class CourseHomework extends React.Component<ICourseHomeworkProps
                 return (
                     <div>
                         {homeworkList.length > 0 &&
-                            <Typography variant='h5'>Задачи</Typography>
+                            <Typography variant='h6'>Задачи</Typography>
                         }
                         <List>
                             {homeworkList}

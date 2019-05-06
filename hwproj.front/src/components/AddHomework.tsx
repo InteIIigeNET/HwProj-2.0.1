@@ -38,7 +38,7 @@ export default class AddHomework extends React.Component<IAddHomeworkProps, IAdd
 
     public render() {
         return (<div>
-            <Typography variant='h6'>Добавить домашку</Typography>
+            <Typography variant='subtitle1'>Добавить домашку</Typography>
             <form onSubmit={e => this.handleSubmit(e)}>
                 <TextField
                     required
@@ -48,7 +48,6 @@ export default class AddHomework extends React.Component<IAddHomeworkProps, IAdd
                     name={this.state.title}
                     onChange={e => this.setState({ title: e.target.value})}
                 />
-                <br />
                 <TextField
                     multiline
                     fullWidth
@@ -60,11 +59,13 @@ export default class AddHomework extends React.Component<IAddHomeworkProps, IAdd
                     name={this.state.description}
                     onChange={e => this.setState({ description: e.target.value})}
                 />
+                <div className="container">
                 <ol>
                         {this.state.tasks.map((task, index) =>
                         <li key={index}>
-                            <Typography variant='subtitle1'>Задача</Typography>
+                            <Typography variant='subtitle2'>Задача</Typography>
                             <Button
+                            size="small"
                             variant="contained"
                             color="primary"
                             onClick={() => this.setState({
@@ -96,9 +97,10 @@ export default class AddHomework extends React.Component<IAddHomeworkProps, IAdd
                             />
                         </li>)}
                 </ol>
-                <Button variant="contained" color="primary" onClick={() => this.setState({tasks: [...this.state.tasks, { title: "", description: ""}]})}>Ещё задачу</Button>
+                <Button size="small" variant="contained" color="primary" onClick={() => this.setState({tasks: [...this.state.tasks, { title: "", description: ""}]})}>Ещё задачу</Button>
+                </div>
                 <br />
-                <Button variant="contained" color="primary" type="submit">Добавить домашку</Button>
+                <Button size="small" variant="contained" color="primary" type="submit">Добавить домашку</Button>
             </form>
         </div>);
     }

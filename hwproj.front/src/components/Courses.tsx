@@ -28,13 +28,11 @@ export default class Courses extends React.Component<{}, ICoursesState> {
                             </Link>
                             <br />
                             {course.groupName}
-                            <br />
-                            <br />
                     </li>
             ).reverse();
 
             return (
-                <div>
+                <div className="container">
                     <Typography variant='h5' gutterBottom>Текущие курсы:</Typography>
                     <ul>
                         {courseList}

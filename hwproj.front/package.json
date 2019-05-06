@@ -13,6 +13,7 @@
     "@types/react-syntax-highlighter": "^10.1.0",
     "@types/remarkable": "^1.7.4",
     "@types/request": "^2.48.1",
+    "bootstrap": "^4.3.1",
     "classnames": "^2.2.6",
     "es6-promise": "^4.2.6",
     "portable-fetch": "^3.0.0",

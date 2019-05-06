@@ -39,7 +39,7 @@ export default class Task extends React.Component<ITaskProp, ITaskState> {
             if (isFound) {
                 return (
                     <div>
-                        <Typography variant="subtitle2">
+                        <Typography variant="subtitle1">
                             <Link href={"/task/" + task.id!.toString() + "/55"}>
                                 {task.title}
                             </Link>
@@ -49,7 +49,10 @@ export default class Task extends React.Component<ITaskProp, ITaskState> {
                                 </IconButton>
                             }
                         </Typography>
-                        <ReactMarkdown source={task.description} />
+                        
+                        <Typography variant="body1">
+                            <ReactMarkdown source={task.description} />
+                        </Typography>
                         {!this.state.addSolution && 
                             <Button
                             size="small"

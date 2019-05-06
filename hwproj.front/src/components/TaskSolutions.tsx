@@ -33,12 +33,12 @@ export default class TaskSolutions extends React.Component<RouteComponentProps<I
             </li>)
 
             return (
-                <div>
+                <div className="container">
                     <Task id={+this.props.match.params.taskId} isDeletable={false} onDeleteClick={() => 3} />
                     <br />
                     {solutionList.length > 0 &&
                         <div>
-                            <Typography variant='h4'>Решения: </Typography>
+                            <Typography variant='h6'>Решения: </Typography>
                             <ol>{solutionList}</ol>
                         </div>
                     }

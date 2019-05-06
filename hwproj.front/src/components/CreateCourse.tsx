@@ -47,8 +47,8 @@ export default class CreateCourse extends React.Component<{}, ICreateCourseState
             return <Redirect to={'/courses/' + this.state.courseId} />
         }
         return (
-            <div>
-                <Typography variant='h4' gutterBottom>Создать курс</Typography>
+            <div className="container">
+                <Typography variant='h6' gutterBottom>Создать курс</Typography>
                 <form onSubmit={e => this.handleSubmit(e)}>
                     <TextField
                         required
@@ -80,7 +80,7 @@ export default class CreateCourse extends React.Component<{}, ICreateCourseState
                         label="Открытый курс"
                     />
                     <br />
-                    <Button variant="contained" color="primary" type="submit">Create course</Button>
+                    <Button size="small" variant="contained" color="primary" type="submit">Создать курс</Button>
                 </form>
             </div>
         );

@@ -28,6 +28,7 @@ export default class AddSolution extends React.Component<IAddSolutionProps, Solu
         return (<div>
             <form onSubmit={e => this.handleSubmit(e)}>
                 <TextField
+                    fullWidth
                     required
                     label="Ссылка на решение"
                     variant="outlined"

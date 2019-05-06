@@ -27,7 +27,7 @@ export default class AddTask extends React.Component<IAddTaskProps, CreateTaskVi
 
     public render() {
         return (<div>
-            <Typography variant='h6'>Добавить задачу</Typography>
+            <Typography variant='subtitle1'>Добавить задачу</Typography>
             <form onSubmit={e => this.handleSubmit(e)}>
                 <TextField
                     required
@@ -50,7 +50,7 @@ export default class AddTask extends React.Component<IAddTaskProps, CreateTaskVi
                     onChange={e => this.setState({ description: e.target.value })}
                 />
                 <br />
-                <Button variant="contained" color="primary" type="submit">Добавить задачу</Button>
+                <Button size="small" variant="contained" color="primary" type="submit">Добавить задачу</Button>
             </form>
         </div>);
     }

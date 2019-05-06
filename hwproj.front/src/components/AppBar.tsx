@@ -34,6 +34,7 @@ function ButtonAppBar(props: Props) {
           <Button href="/create_course" color="inherit">Create course</Button>
         </Toolbar>
       </AppBar>
+      <br />
     </div>
   );
 }

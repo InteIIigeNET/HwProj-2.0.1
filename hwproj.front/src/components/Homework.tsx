@@ -38,15 +38,12 @@ export default class Homework extends React.Component<IHomeworkProps, IHomeworkS
             if (isFound) {
                 let homeworkDateString = new Date(homework.date!.toString()).toLocaleDateString("ru-RU");
                 return (
-                    <div>
-                        <Typography variant="subtitle1" gutterBottom>
-                            <b>{homework.title}</b> {homeworkDateString}
-                            <IconButton aria-label="Delete" onClick={() => this.deleteHomework()}>
-                                <DeleteIcon fontSize="small" />
-                            </IconButton>
-                        </Typography>
+                    <div className="container">
+                        <b>{homework.title}</b> {homeworkDateString}
+                        <IconButton aria-label="Delete" onClick={() => this.deleteHomework()}>
+                            <DeleteIcon fontSize="small" />
+                        </IconButton>
                         <ReactMarkdown source={homework.description} />
-                        
                         {this.state.createTask && 
                             <div>
                                 <HomeworkTasks id={this.props.id} />

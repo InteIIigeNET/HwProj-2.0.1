@@ -33,11 +33,11 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
         if (isLoaded) {
             if (isFound) {
                 return (
-                    <div>
-                        <Typography variant="h3" gutterBottom>
+                    <div className="container">
+                        <Typography variant="h5">
                             {course.name}
                         </Typography>
-                        <Typography variant="h4" gutterBottom>
+                        <Typography variant="subtitle1" gutterBottom>
                             {course.groupName}
                         </Typography>
                         {createHomework &&
@@ -46,6 +46,7 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                                 id={+this.props.match.params.id}
                                 onSubmit={() => { this.setState({createHomework: false })}} />
                                 <Button
+                                size="small"
                                 variant="contained"
                                 color="primary"
                                 onClick={() => { this.setState({createHomework: false })}}>Отменить</Button>
@@ -55,6 +56,7 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                         {!createHomework &&
                             <div>
                                 <Button
+                                size="small"
                                 variant="contained"
                                 color="primary"
                                 onClick={() => { this.setState({createHomework: true })}}>Добавить домашку</Button>
