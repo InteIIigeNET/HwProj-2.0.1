@@ -10,6 +10,7 @@ import HomeworkTasks from './HomeworkTasks'
 
 interface IHomeworkProps {
     id: number,
+    forMentor: boolean,
     onDeleteClick: () => void
 }
 
@@ -40,28 +41,33 @@ export default class Homework extends React.Component<IHomeworkProps, IHomeworkS
                 return (
                     <div className="container">
                         <b>{homework.title}</b> {homeworkDateString}
-                        <IconButton aria-label="Delete" onClick={() => this.deleteHomework()}>
-                            <DeleteIcon fontSize="small" />
-                        </IconButton>
+                        {this.props.forMentor &&
+                            <IconButton aria-label="Delete" onClick={() => this.deleteHomework()}>
+                                <DeleteIcon fontSize="small" />
+                            </IconButton>
+                        }
                         <ReactMarkdown source={homework.description} />
-                        {this.state.createTask && 
+                        {(this.props.forMentor && this.state.createTask) && 
                             <div>
-                                <HomeworkTasks id={this.props.id} />
+                                <HomeworkTasks forMentor={this.props.forMentor} id={this.props.id} />
                                 <AddTask
                                 id={homework.id!}
                                 onAdding={() => this.setState({createTask: false})}
                                 onCancel={() => this.setState({createTask: false})} />
                             </div>
                         }
-                        {!this.state.createTask &&
+                        {(this.props.forMentor && !this.state.createTask) &&
                             <div>
-                                <HomeworkTasks id={this.props.id} />
+                                <HomeworkTasks forMentor={this.props.forMentor} id={this.props.id} />
                                 <Button
                                     size="small"
                                     variant="contained"
                                     color="primary"
                                     onClick={() => { this.setState({createTask: true })}}>Добавить задачу</Button>
                             </div>
+                        }
+                        {!this.props.forMentor &&
+                            <HomeworkTasks forMentor={this.props.forMentor} id={this.props.id} />
                         }
                     </div>
                 )

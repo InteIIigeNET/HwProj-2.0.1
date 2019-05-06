@@ -7,6 +7,8 @@ import Button from '@material-ui/core/Button';
 import AddHomework from './AddHomework';
 import CourseStudents from'./CourseStudents';
 
+const userId = "1";
+
 interface ICourseState {
     isLoaded: boolean,
     isFound: boolean,
@@ -56,24 +58,28 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                             </div>
                         </div>
                         <CourseStudents courseId={+this.props.match.params.id} />
+                        <br />
                         {createHomework &&
                             <div>
                                 <AddHomework
                                 id={+this.props.match.params.id}
                                 onCancel={() => this.componentDidMount()}
                                 onSubmit={() => this.componentDidMount()} />
-                                <CourseHomework id={+this.props.match.params.id} />
+                                <CourseHomework forMentor={this.state.course.mentorId === userId} id={+this.props.match.params.id} />
                             </div>
                         }
-                        {!createHomework &&
+                        {(userId === this.state.course.mentorId && !createHomework) &&
                             <div>
                                 <Button
                                 size="small"
                                 variant="contained"
                                 color="primary"
                                 onClick={() => { this.setState({createHomework: true })}}>Добавить домашку</Button>
-                                <CourseHomework id={+this.props.match.params.id} />
+                                <CourseHomework forMentor={this.state.course.mentorId === userId} id={+this.props.match.params.id} />
                             </div>
+                        }
+                        {userId !== this.state.course.mentorId &&
+                            <CourseHomework forMentor={this.state.course.mentorId === userId} id={+this.props.match.params.id} />
                         }
                         
                     </div>

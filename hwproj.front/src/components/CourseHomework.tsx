@@ -6,7 +6,8 @@ import { HomeworksApi} from "../api/homeworks/api";
 import Homework from './Homework';
 
 interface ICourseHomeworkProps {
-    id: number
+    id: number,
+    forMentor: boolean
 }
 
 interface ICourseHomeworkState {
@@ -29,7 +30,7 @@ export default class CourseHomework extends React.Component<ICourseHomeworkProps
         if (isLoaded) {
                 let homeworkList = homeworks.map(homeworkId =>
                     <ListItem key={homeworkId}>
-                        <Homework id={homeworkId} onDeleteClick={() => this.componentDidMount()}/>
+                        <Homework id={homeworkId} forMentor={this.props.forMentor} onDeleteClick={() => this.componentDidMount()}/>
                     </ListItem>).reverse();
                 
                 return (

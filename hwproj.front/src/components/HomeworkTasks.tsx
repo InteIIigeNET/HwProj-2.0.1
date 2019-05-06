@@ -3,7 +3,8 @@ import { HomeworksApi} from "../api/homeworks/api";
 import Task from './Task'
 
 interface IHomeworkTasksProps {
-    id: number
+    id: number,
+    forMentor: boolean
 }
 
 interface IHomeworkTasksState {
@@ -26,7 +27,7 @@ export default class HomeworkTasks extends React.Component<IHomeworkTasksProps, 
         if (isLoaded) {
                 let taskList = tasks.map(taskId =>
                     <li key={taskId}>
-                        <Task id={taskId} isDeletable={true} onDeleteClick={() => this.componentDidMount()} />
+                        <Task id={taskId} isDeletable={this.props.forMentor} onDeleteClick={() => this.componentDidMount()} />
                     </li>);
                 
                 return (
