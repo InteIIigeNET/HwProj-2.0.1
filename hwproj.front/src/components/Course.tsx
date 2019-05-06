@@ -44,12 +44,8 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                             <div>
                                 <AddHomework
                                 id={+this.props.match.params.id}
-                                onSubmit={() => { this.setState({createHomework: false })}} />
-                                <Button
-                                size="small"
-                                variant="contained"
-                                color="primary"
-                                onClick={() => { this.setState({createHomework: false })}}>Отменить</Button>
+                                onCancel={() => this.componentDidMount()}
+                                onSubmit={() => this.componentDidMount()} />
                                 <CourseHomework id={+this.props.match.params.id} />
                             </div>
                         }
@@ -63,6 +59,7 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                                 <CourseHomework id={+this.props.match.params.id} />
                             </div>
                         }
+                        
                     </div>
                 )
             }
@@ -82,7 +79,8 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
             .then(course => this.setState({
                 isLoaded: true,
                 isFound: true,
-                course: course
+                course: course,
+                createHomework: false
             }))
             .catch(err => this.setState({ isLoaded: true, isFound: false }))
     }

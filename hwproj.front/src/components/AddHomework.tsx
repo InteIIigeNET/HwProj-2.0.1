@@ -6,7 +6,8 @@ import {HomeworksApi, CreateTaskViewModel, TasksApi} from "../api/homeworks/api"
 
 interface IAddHomeworkProps {
     id: number
-    onSubmit: () => void
+    onSubmit: () => void,
+    onCancel: () => void
 }
 
 interface IAddHomeworkState {
@@ -101,6 +102,8 @@ export default class AddHomework extends React.Component<IAddHomeworkProps, IAdd
                 </div>
                 <br />
                 <Button size="small" variant="contained" color="primary" type="submit">Добавить домашку</Button>
+                &nbsp;
+                <Button onClick={() => this.props.onCancel()} size="small" variant="contained" color="primary">Отменить</Button>
             </form>
         </div>);
     }
