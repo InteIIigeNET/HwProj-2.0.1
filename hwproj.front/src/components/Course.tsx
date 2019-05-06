@@ -4,7 +4,8 @@ import CourseHomework from "./CourseHomework"
 import {RouteComponentProps} from "react-router-dom"
 import { Typography } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
-import AddHomework from './AddHomework'
+import AddHomework from './AddHomework';
+import CourseStudents from'./CourseStudents';
 
 interface ICourseState {
     isLoaded: boolean,
@@ -54,6 +55,7 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                                     onClick={() => this.joinCourse()}>Записаться</Button>
                             </div>
                         </div>
+                        <CourseStudents courseId={+this.props.match.params.id} />
                         {createHomework &&
                             <div>
                                 <AddHomework
