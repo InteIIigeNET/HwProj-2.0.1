@@ -5,7 +5,8 @@ import {SolutionsApi, SolutionViewModel} from "../api/solutions/api";
 
 interface IAddSolutionProps {
     id: number,
-    onAdding: () => void
+    onAdding: () => void,
+    onCancel: () => void
 }
 
 export default class AddSolution extends React.Component<IAddSolutionProps, SolutionViewModel> {
@@ -37,6 +38,8 @@ export default class AddSolution extends React.Component<IAddSolutionProps, Solu
                     onChange={e => this.setState({ githubUrl: e.target.value })}
                 />
                 <Button size="small" variant="contained" color="primary" type="submit">Добавить решение</Button>
+                &nbsp;
+                <Button onClick={() => this.props.onCancel()} size="small" variant="contained" color="primary">Отменить</Button>
             </form>
         </div>);
     }

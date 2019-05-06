@@ -61,7 +61,10 @@ export default class Task extends React.Component<ITaskProp, ITaskState> {
                             onClick={() => { this.setState({addSolution: true })}}>Добавить решение</Button>
                         }
                         {this.state.addSolution && 
-                            <AddSolution id={this.props.id} onAdding={() => this.setState({addSolution: false})} />
+                            <AddSolution
+                            id={this.props.id}
+                            onAdding={() => this.setState({addSolution: false})}
+                            onCancel={() => this.setState({addSolution: false})} />
                         }
                     </div>
                 );
