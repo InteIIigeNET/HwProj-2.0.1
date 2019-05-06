@@ -5,8 +5,9 @@ import Typography from '@material-ui/core/Typography';
 import {TasksApi, CreateTaskViewModel} from "../api/homeworks/api";
 
 interface IAddTaskProps {
-    id: number
-    onAdding: () => void
+    id: number,
+    onAdding: () => void,
+    onCancel: () => void
 }
 
 export default class AddTask extends React.Component<IAddTaskProps, CreateTaskViewModel> {
@@ -51,6 +52,8 @@ export default class AddTask extends React.Component<IAddTaskProps, CreateTaskVi
                 />
                 <br />
                 <Button size="small" variant="contained" color="primary" type="submit">Добавить задачу</Button>
+                &nbsp;
+                <Button onClick={() => this.props.onCancel()} size="small" variant="contained" color="primary">Отменить</Button>
             </form>
         </div>);
     }

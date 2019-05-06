@@ -49,7 +49,8 @@ export default class Homework extends React.Component<IHomeworkProps, IHomeworkS
                                 <HomeworkTasks id={this.props.id} />
                                 <AddTask
                                 id={homework.id!}
-                                onAdding={() => this.setState({createTask: false})} />
+                                onAdding={() => this.setState({createTask: false})}
+                                onCancel={() => this.setState({createTask: false})} />
                             </div>
                         }
                         {!this.state.createTask &&
