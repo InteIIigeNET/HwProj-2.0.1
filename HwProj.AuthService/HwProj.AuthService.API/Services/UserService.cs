@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using HwProj.AuthService.API.Exceptions;
 using System.Security.Claims;
+using Microsoft.Extensions.Options;
+using System.Collections.Generic;
 
 namespace HwProj.AuthService.API.Services
 {
@@ -13,52 +15,17 @@ namespace HwProj.AuthService.API.Services
     {
         private readonly UserManager<User> userManager;
         private readonly SignInManager<User> signInManager;
+        private readonly TokenService tokenService;
+        private readonly EmailService emailService;
 
-        public UserService(UserManager<User> userManager, SignInManager<User> signInManager)
+        public UserService(UserManager<User> userManager,
+            SignInManager<User> signInManager,
+            IOptions<AppSettings> appSettings)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
-        }
-
-        public async Task<User> Get(string Email)
-        {
-            return await userManager.FindByEmailAsync(Email);
-        }
-
-        //IsStudent - true
-        public async Task<bool> GetRoleIfUserAuthorized(ClaimsPrincipal User)
-        {
-            if (!signInManager.IsSignedIn(User))
-            {
-                throw new UserNotSignInException();
-            }
-
-            var user = await userManager.FindByNameAsync(User.Identity.Name);
-            return (await userManager.GetRolesAsync(user))[0] == "student";
-        }
-
-        public async Task<string> GetIdIfUserAuthorized(ClaimsPrincipal User)
-        {
-            if (!signInManager.IsSignedIn(User))
-            {
-                throw new UserNotSignInException();
-            }
-
-            var user = await userManager.FindByNameAsync(User.Identity.Name);
-            return await userManager.GetUserIdAsync(user);
-        }
-
-        //IsStudent - true
-        public async Task<bool> GetRoleById(string userId)
-        {
-            var user = await userManager.FindByIdAsync(userId);
-
-            if (user == null)
-            {
-                throw new UserNotFoundException();
-            }
-
-            return (await userManager.GetRolesAsync(user))[0] == "student";
+            tokenService = new TokenService(userManager, appSettings);
+            emailService = new EmailService(appSettings);
         }
 
         public async Task Edit(EditViewModel model, ClaimsPrincipal User)
@@ -94,7 +61,7 @@ namespace HwProj.AuthService.API.Services
             }
         }
 
-        public async Task Login(LoginViewModel model)
+        public async Task<List<object>> Login(LoginViewModel model)
         {
             if ((await userManager.FindByEmailAsync(model.Email)) == null)
             {
@@ -118,9 +85,23 @@ namespace HwProj.AuthService.API.Services
             {
                 throw new FailedExecutionException();
             }
+
+            return await tokenService.GetToken(user);
         }
 
-        public async Task<string> Register(RegisterViewModel model, HttpContext httpContext, IUrlHelper url)
+        public async Task<List<object>> RefreshToken(ClaimsPrincipal User)
+        {
+            if (!signInManager.IsSignedIn(User))
+            {
+                throw new UserNotSignInException();
+            }
+
+            var user = await userManager.FindByNameAsync(User.Identity.Name);
+
+            return await tokenService.GetToken(user);
+        }
+
+        public async Task Register(RegisterViewModel model, HttpContext httpContext, IUrlHelper url)
         {
             if ((await userManager.FindByEmailAsync(model.Email)) != null)
             {
@@ -137,10 +118,12 @@ namespace HwProj.AuthService.API.Services
 
             await userManager.AddToRoleAsync(user, "student");
 
-            return await GetCallbackUrlForEmailConfirmation(user, httpContext, url);
+            await emailService.SendEmailForConfirmation(
+                model.Email,
+                await GetCallbackUrlForEmailConfirmation(user, httpContext, url));
         }
 
-        public async Task<string> RequestToChangeEmail(
+        public async Task RequestToChangeEmail(
             ChangeEmailViewModel model,
             ClaimsPrincipal User,
             HttpContext httpContext,
@@ -158,13 +141,12 @@ namespace HwProj.AuthService.API.Services
 
             var user = await userManager.FindByNameAsync(User.Identity.Name);
 
-            return await GetCallbackUrlForChangeEmail(user, model.NewEmail, httpContext, url);
+            await emailService.SendEmailForConfirmation(
+                model.NewEmail,
+                await GetCallbackUrlForChangeEmail(user, model.NewEmail, httpContext, url));
         }
 
-        public async Task ConfirmChangeEmail(
-            string userId,
-            string email,
-            string code)
+        public async Task ConfirmChangeEmail(string userId, string email, string code)
         {
             var user = await userManager.FindByIdAsync(userId);
 

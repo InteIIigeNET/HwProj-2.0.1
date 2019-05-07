@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using HwProj.AuthService.API.Filters;
 using HwProj.AuthService.API.Services;
-using HwProj.AuthService.API.Models;
 using HwProj.AuthService.API.ViewModels;
+using Newtonsoft.Json;
 
 namespace HwProj.AuthService.API.Controllers
 {
@@ -20,10 +20,8 @@ namespace HwProj.AuthService.API.Controllers
         [ExceptionFilter]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            var callbackUrl = await userService.Register(model, HttpContext, Url);
-            // тут отправить Url студенту на почту. а пока он возвращается в Ok
-
-            return Ok(callbackUrl);
+            await userService.Register(model, HttpContext, Url);
+            return Ok();
         }
 
         [HttpGet, Route("confirmemail")]
@@ -43,8 +41,30 @@ namespace HwProj.AuthService.API.Controllers
         [ExceptionFilter]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
-            await userService.Login(model);
-            return Ok();
+            var tokenAndExpiresIn = await userService.Login(model);
+
+            var response = new
+            {
+                accessToken = tokenAndExpiresIn[0].ToString(),
+                expiresIn = (int)tokenAndExpiresIn[1]
+            };
+
+            return Ok(response);
+        }
+
+        [HttpPost, Route("refresh")]
+        [ExceptionFilter]
+        public async Task<IActionResult> RefreshToken()
+        {
+            var tokenAndExpiresIn = await userService.RefreshToken(User);
+
+            var response = new
+            {
+                accessToken = tokenAndExpiresIn[0].ToString(),
+                expiresIn = (int)tokenAndExpiresIn[1]
+            };
+
+            return Ok(response);
         }
 
         [HttpPost, Route("logoff")]
@@ -64,10 +84,8 @@ namespace HwProj.AuthService.API.Controllers
         [Authorize]
         public async Task<IActionResult> ChangeEmail(ChangeEmailViewModel model)
         {
-            string callbackUrl = await userService.RequestToChangeEmail(model, User, HttpContext, Url);
-            // отправить Url для подтвереждения новой почты пользователю. пока возвращаю в Ok
-
-            return Ok(callbackUrl);
+            await userService.RequestToChangeEmail(model, User, HttpContext, Url);
+            return Ok();
         }
 
         [HttpGet, Route("confirmchangeemail")]
@@ -111,24 +129,6 @@ namespace HwProj.AuthService.API.Controllers
         {
             await userService.InviteNewLecturer(model, User);
             return Ok();
-        }
-
-        [HttpGet, Route("getrolebyid")]
-        public async Task<bool> GetRoleById(string userId)
-            => await userService.GetRoleById(userId);
-
-        [HttpGet, Route("getidifauthorized")]
-        public async Task<string> GetIdIfUserAuthorized()
-            => await userService.GetIdIfUserAuthorized(User);
-
-        [HttpGet, Route("getroleifauthorized")]
-        public async Task<bool> GetRoleIfUserAuthorized()
-            => await userService.GetRoleIfUserAuthorized(User);
-
-        [HttpGet, Route("get")]
-        public async Task<User> Get(string email)
-        {
-            return await userService.Get(email);
         }
     }
 }
