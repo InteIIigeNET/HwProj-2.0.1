@@ -27,7 +27,7 @@ export default class HomeworkTasks extends React.Component<IHomeworkTasksProps, 
         if (isLoaded) {
                 let taskList = tasks.map(taskId =>
                     <li key={taskId}>
-                        <Task id={taskId} isDeletable={this.props.forMentor} onDeleteClick={() => this.componentDidMount()} />
+                        <Task id={taskId} forMentor={this.props.forMentor} onDeleteClick={() => this.componentDidMount()} />
                     </li>);
                 
                 return (

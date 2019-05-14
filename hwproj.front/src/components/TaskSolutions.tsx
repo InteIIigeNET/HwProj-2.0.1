@@ -34,7 +34,7 @@ export default class TaskSolutions extends React.Component<RouteComponentProps<I
 
             return (
                 <div className="container">
-                    <Task id={+this.props.match.params.taskId} isDeletable={false} onDeleteClick={() => 3} />
+                    <Task id={+this.props.match.params.taskId} forMentor={false} onDeleteClick={() => 3} />
                     <br />
                     {solutionList.length > 0 &&
                         <div>

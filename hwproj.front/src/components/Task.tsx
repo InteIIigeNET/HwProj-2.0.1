@@ -17,7 +17,7 @@ interface ITaskState {
 
 interface ITaskProp {
     id: number,
-    isDeletable: boolean
+    forMentor: boolean
     onDeleteClick: () => void
 }
 
@@ -43,7 +43,7 @@ export default class Task extends React.Component<ITaskProp, ITaskState> {
                             <Link href={"/task/" + task.id!.toString() + "/55"}>
                                 {task.title}
                             </Link>
-                            {this.props.isDeletable && 
+                            {this.props.forMentor && 
                                 <IconButton aria-label="Delete" onClick={() => this.deleteTask()}>
                                     <DeleteIcon fontSize="small" />
                                 </IconButton>
@@ -53,7 +53,7 @@ export default class Task extends React.Component<ITaskProp, ITaskState> {
                         <Typography variant="body1">
                             <ReactMarkdown source={task.description} />
                         </Typography>
-                        {!this.state.addSolution && 
+                        {(!this.state.addSolution && !this.props.forMentor) && 
                             <Button
                             size="small"
                             variant="contained"
