@@ -10,7 +10,7 @@
           "Port": 38986
         }
       ],
-      "UpstreamPathTemplate": "/api/Homeworks",
+      "UpstreamPathTemplate": "/api/Homeworks/",
       "UpstreamHttpMethod": [ "GET" ]
     },
     {
@@ -22,7 +22,7 @@
           "Port": 38986
         }
       ],
-      "UpstreamPathTemplate": "/api/Homeworks/{homeworkId}",
+      "UpstreamPathTemplate": "/api/Homeworks/{homeworkId}/",
       "UpstreamHttpMethod": [ "GET" ]
     },
     {
@@ -34,7 +34,7 @@
           "Port": 38986
         }
       ],
-      "UpstreamPathTemplate": "/api/Homeworks/{homeworkId}",
+      "UpstreamPathTemplate": "/api/Homeworks/{homeworkId}/",
       "UpstreamHttpMethod": [ "DELETE" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
@@ -42,6 +42,9 @@
       },
       "RouteClaimsRequirement": {
         "_role": "lecturer"
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
       }
     },
     {
@@ -53,7 +56,7 @@
           "Port": 38986
         }
       ],
-      "UpstreamPathTemplate": "/api/Homeworks/course_homeworks/{courseId}",
+      "UpstreamPathTemplate": "/api/Homeworks/course_homeworks/{courseId}/",
       "UpstreamHttpMethod": [ "GET" ]
     },
     {
@@ -65,7 +68,7 @@
           "Port": 38986
         }
       ],
-      "UpstreamPathTemplate": "/api/Homeworks/{courseId}",
+      "UpstreamPathTemplate": "/api/Homeworks/{courseId}/",
       "UpstreamHttpMethod": [ "POST" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
@@ -73,6 +76,9 @@
       },
       "RouteClaimsRequirement": {
         "_role": "lecturer"
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
       }
     },
     {
@@ -84,7 +90,7 @@
           "Port": 38986
         }
       ],
-      "UpstreamPathTemplate": "/api/Homeworks/update/{homeworkId}",
+      "UpstreamPathTemplate": "/api/Homeworks/update/{homeworkId}/",
       "UpstreamHttpMethod": [ "POST" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
@@ -92,6 +98,9 @@
       },
       "RouteClaimsRequirement": {
         "_role": "lecturer"
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
       }
     },
     //Tasks
@@ -104,7 +113,7 @@
           "Port": 38986
         }
       ],
-      "UpstreamPathTemplate": "/api/Tasks",
+      "UpstreamPathTemplate": "/api/Tasks/",
       "UpstreamHttpMethod": [ "GET" ]
     },
     {
@@ -116,7 +125,7 @@
           "Port": 38986
         }
       ],
-      "UpstreamPathTemplate": "/api/Tasks/{taskId}",
+      "UpstreamPathTemplate": "/api/Tasks/{taskId}/",
       "UpstreamHttpMethod": [ "GET" ]
     },
     {
@@ -128,7 +137,7 @@
           "Port": 38986
         }
       ],
-      "UpstreamPathTemplate": "/api/Tasks/{taskId}",
+      "UpstreamPathTemplate": "/api/Tasks/{taskId}/",
       "UpstreamHttpMethod": [ "DELETE" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
@@ -136,6 +145,9 @@
       },
       "RouteClaimsRequirement": {
         "_role": "lecturer"
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
       }
     },
     {
@@ -147,7 +159,7 @@
           "Port": 38986
         }
       ],
-      "UpstreamPathTemplate": "/api/Tasks/{homeworkId}",
+      "UpstreamPathTemplate": "/api/Tasks/{homeworkId}/",
       "UpstreamHttpMethod": [ "POST" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
@@ -155,6 +167,9 @@
       },
       "RouteClaimsRequirement": {
         "_role": "lecturer"
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
       }
     },
     {
@@ -166,7 +181,7 @@
           "Port": 38986
         }
       ],
-      "UpstreamPathTemplate": "/api/Tasks/update/{taskId}",
+      "UpstreamPathTemplate": "/api/Tasks/update/{taskId}/",
       "UpstreamHttpMethod": [ "POST" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
@@ -174,6 +189,9 @@
       },
       "RouteClaimsRequirement": {
         "_role": "lecturer"
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
       }
     },
     //Courses
@@ -186,7 +204,7 @@
           "Port": 59105
         }
       ],
-      "UpstreamPathTemplate": "/api/Courses",
+      "UpstreamPathTemplate": "/api/Courses/",
       "UpstreamHttpMethod": [ "GET" ]
     },
     {
@@ -198,7 +216,7 @@
           "Port": 59105
         }
       ],
-      "UpstreamPathTemplate": "/api/Courses",
+      "UpstreamPathTemplate": "/api/Courses/",
       "UpstreamHttpMethod": [ "POST" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
@@ -206,6 +224,9 @@
       },
       "RouteClaimsRequirement": {
         "_role": "lecturer"
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
       }
     },
     {
@@ -217,7 +238,7 @@
           "Port": 59105
         }
       ],
-      "UpstreamPathTemplate": "/api/Courses/{id}",
+      "UpstreamPathTemplate": "/api/Courses/{id}/",
       "UpstreamHttpMethod": [ "GET" ]
     },
     {
@@ -229,7 +250,7 @@
           "Port": 59105
         }
       ],
-      "UpstreamPathTemplate": "/api/Courses/{id}",
+      "UpstreamPathTemplate": "/api/Courses/{id}/",
       "UpstreamHttpMethod": [ "DELETE" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
@@ -237,6 +258,9 @@
       },
       "RouteClaimsRequirement": {
         "_role": "lecturer"
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
       }
     },
     {
@@ -248,7 +272,7 @@
           "Port": 59105
         }
       ],
-      "UpstreamPathTemplate": "/api/Courses/update/{courseId}",
+      "UpstreamPathTemplate": "/api/Courses/update/{courseId}/",
       "UpstreamHttpMethod": [ "POST" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
@@ -256,6 +280,9 @@
       },
       "RouteClaimsRequirement": {
         "_role": "lecturer"
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
       }
     },
     {
@@ -267,11 +294,14 @@
           "Port": 59105
         }
       ],
-      "UpstreamPathTemplate": "/api/Courses/sign_in_course/{courseId}",
+      "UpstreamPathTemplate": "/api/Courses/sign_in_course/{courseId}/",
       "UpstreamHttpMethod": [ "POST" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
       }
     },
     {
@@ -283,7 +313,7 @@
           "Port": 59105
         }
       ],
-      "UpstreamPathTemplate": "/api/Courses/accept_student/{courseId}",
+      "UpstreamPathTemplate": "/api/Courses/accept_student/{courseId}/",
       "UpstreamHttpMethod": [ "POST" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
@@ -291,6 +321,9 @@
       },
       "RouteClaimsRequirement": {
         "_role": "lecturer"
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
       }
     },
     {
@@ -302,7 +335,7 @@
           "Port": 59105
         }
       ],
-      "UpstreamPathTemplate": "/api/Courses/reject_student/{courseId}",
+      "UpstreamPathTemplate": "/api/Courses/reject_student/{courseId}/",
       "UpstreamHttpMethod": [ "POST" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
@@ -310,6 +343,9 @@
       },
       "RouteClaimsRequirement": {
         "_role": "lecturer"
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
       }
     },
     {
@@ -321,11 +357,14 @@
           "Port": 59105
         }
       ],
-      "UpstreamPathTemplate": "/api/Courses/student_courses/{studentId}",
+      "UpstreamPathTemplate": "/api/Courses/student_courses/{studentId}/",
       "UpstreamHttpMethod": [ "GET" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
       }
     },
     {
@@ -337,11 +376,14 @@
           "Port": 59105
         }
       ],
-      "UpstreamPathTemplate": "/api/Courses/mentor_courses/{mentorId}",
+      "UpstreamPathTemplate": "/api/Courses/mentor_courses/{mentorId}/",
       "UpstreamHttpMethod": [ "GET" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
       }
     },
     //Solutions
@@ -354,11 +396,14 @@
           "Port": 1306
         }
       ],
-      "UpstreamPathTemplate": "/api/Solutions",
+      "UpstreamPathTemplate": "/api/Solutions/",
       "UpstreamHttpMethod": [ "GET" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
       }
     },
     {
@@ -370,11 +415,14 @@
           "Port": 1306
         }
       ],
-      "UpstreamPathTemplate": "/api/Solutions/{solutionId}",
+      "UpstreamPathTemplate": "/api/Solutions/{solutionId}/",
       "UpstreamHttpMethod": [ "GET" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
       }
     },
     {
@@ -386,11 +434,14 @@
           "Port": 1306
         }
       ],
-      "UpstreamPathTemplate": "/api/Solutions/task_solutions/{taskId}/{studentId}",
+      "UpstreamPathTemplate": "/api/Solutions/task_solutions/{taskId}/{studentId}/",
       "UpstreamHttpMethod": [ "GET" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
       }
     },
     {
@@ -402,7 +453,7 @@
           "Port": 1306
         }
       ],
-      "UpstreamPathTemplate": "/api/Solutions/{taskId}",
+      "UpstreamPathTemplate": "/api/Solutions/{taskId}/",
       "UpstreamHttpMethod": [ "POST" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
@@ -410,6 +461,9 @@
       },
       "RouteClaimsRequirement": {
         "_role": "student"
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
       }
     },
     {
@@ -421,7 +475,7 @@
           "Port": 1306
         }
       ],
-      "UpstreamPathTemplate": "/api/Solutions/accept_solution/{solutionId}",
+      "UpstreamPathTemplate": "/api/Solutions/accept_solution/{solutionId}/",
       "UpstreamHttpMethod": [ "POST" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
@@ -429,6 +483,9 @@
       },
       "RouteClaimsRequirement": {
         "_role": "lecturer"
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
       }
     },
     {
@@ -440,7 +497,7 @@
           "Port": 1306
         }
       ],
-      "UpstreamPathTemplate": "/api/Solutions/reject_solution/{solutionId}",
+      "UpstreamPathTemplate": "/api/Solutions/reject_solution/{solutionId}/",
       "UpstreamHttpMethod": [ "POST" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
@@ -448,6 +505,9 @@
       },
       "RouteClaimsRequirement": {
         "_role": "lecturer"
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
       }
     },
     {
@@ -459,7 +519,7 @@
           "Port": 1306
         }
       ],
-      "UpstreamPathTemplate": "/api/Solutions/{solutionId}",
+      "UpstreamPathTemplate": "/api/Solutions/{solutionId}/",
       "UpstreamHttpMethod": [ "DELETE" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
@@ -467,6 +527,9 @@
       },
       "RouteClaimsRequirement": {
         "_role": "lecturer"
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
       }
     }
   ],

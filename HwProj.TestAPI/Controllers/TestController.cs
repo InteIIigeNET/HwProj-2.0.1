@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 
 namespace HwProj.TestAPI.Controllers
 {
@@ -13,14 +14,10 @@ namespace HwProj.TestAPI.Controllers
     public class TestController : ControllerBase
     {
         [HttpGet("get")]
-        public ActionResult<List<string>> Get()
+        public string Get()
         {
-            string name = User.FindFirst("_name").Value;
-            string surname = User.FindFirst("_surname").Value;
-            string email = User.FindFirst("_email").Value;
-            string id = User.FindFirst("_id").Value;
-
-            return new List<string> { name, surname, email, id };
+            var id = Request.Query.First(x => x.Key == "_id").Value.ToString();
+            return id;
         }
     }
 }

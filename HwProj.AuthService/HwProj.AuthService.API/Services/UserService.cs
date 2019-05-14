@@ -101,7 +101,7 @@ namespace HwProj.AuthService.API.Services
             return await tokenService.GetToken(user);
         }
 
-        public async Task Register(RegisterViewModel model, HttpContext httpContext, IUrlHelper url)
+        public async Task<string> Register(RegisterViewModel model, HttpContext httpContext, IUrlHelper url)
         {
             if ((await userManager.FindByEmailAsync(model.Email)) != null)
             {
@@ -118,9 +118,11 @@ namespace HwProj.AuthService.API.Services
 
             await userManager.AddToRoleAsync(user, "student");
 
-            await emailService.SendEmailForConfirmation(
-                model.Email,
-                await GetCallbackUrlForEmailConfirmation(user, httpContext, url));
+            return await GetCallbackUrlForEmailConfirmation(user, httpContext, url);
+
+            //await emailService.SendEmailForConfirmation(
+            //    model.Email,
+            //    await GetCallbackUrlForEmailConfirmation(user, httpContext, url));
         }
 
         public async Task RequestToChangeEmail(

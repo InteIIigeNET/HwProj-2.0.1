@@ -20,8 +20,8 @@ namespace HwProj.AuthService.API.Controllers
         [ExceptionFilter]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            await userService.Register(model, HttpContext, Url);
-            return Ok();
+            var res = await userService.Register(model, HttpContext, Url);
+            return Ok(res);
         }
 
         [HttpGet, Route("confirmemail")]
