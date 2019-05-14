@@ -11,8 +11,7 @@ import AddSolution from './AddSolution'
 interface ITaskState {
     isLoaded: boolean,
     isFound: boolean,
-    task: HomeworkTaskViewModel,
-    addSolution: boolean
+    task: HomeworkTaskViewModel
 }
 
 interface ITaskProp {
@@ -27,8 +26,7 @@ export default class Task extends React.Component<ITaskProp, ITaskState> {
         this.state = {
             isLoaded: false,
             isFound: false,
-            task: {},
-            addSolution: false
+            task: {}
         };
     }
 
@@ -53,19 +51,6 @@ export default class Task extends React.Component<ITaskProp, ITaskState> {
                         <Typography variant="body1">
                             <ReactMarkdown source={task.description} />
                         </Typography>
-                        {(!this.state.addSolution && !this.props.forMentor) && 
-                            <Button
-                            size="small"
-                            variant="contained"
-                            color="primary"
-                            onClick={() => { this.setState({addSolution: true })}}>Добавить решение</Button>
-                        }
-                        {this.state.addSolution && 
-                            <AddSolution
-                            id={this.props.id}
-                            onAdding={() => this.setState({addSolution: false})}
-                            onCancel={() => this.setState({addSolution: false})} />
-                        }
                     </div>
                 );
             }

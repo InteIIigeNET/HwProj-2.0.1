@@ -7,7 +7,7 @@ import Button from '@material-ui/core/Button';
 import AddHomework from './AddHomework';
 import CourseStudents from'./CourseStudents';
 
-const userId = "1";
+const userId = "55";
 
 interface ICourseState {
     isLoaded: boolean,
