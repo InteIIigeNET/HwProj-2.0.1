@@ -14,7 +14,7 @@ export default class AddSolution extends React.Component<IAddSolutionProps, Solu
         super(props);
         this.state = {
             githubUrl: "",
-            comment: "4",
+            comment: "",
             studentId: 55
         };
     }
@@ -36,6 +36,17 @@ export default class AddSolution extends React.Component<IAddSolutionProps, Solu
                     margin="normal"
                     value={this.state.githubUrl}
                     onChange={e => this.setState({ githubUrl: e.target.value })}
+                />
+                <TextField
+                    multiline
+                    fullWidth
+                    rows="3"
+                    rowsMax="15"
+                    label="Комментарий"
+                    variant="outlined"
+                    margin="normal"
+                    value={this.state.comment}
+                    onChange={e => this.setState({ comment: e.target.value })}
                 />
                 <Button size="small" variant="contained" color="primary" type="submit">Добавить решение</Button>
                 &nbsp;

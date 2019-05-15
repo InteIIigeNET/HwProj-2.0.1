@@ -5,6 +5,7 @@ import HighlightOff from '@material-ui/icons/HighlightOff'
 import IconButton from '@material-ui/core/IconButton'
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
 import { red, green } from '@material-ui/core/colors'
+import Link from '@material-ui/core/Link'
 
 const redTheme = createMuiTheme({ palette: { primary: red } })
 const greenTheme = createMuiTheme({ palette: { primary: green } })
@@ -33,8 +34,14 @@ export default class SolutionComponent extends React.Component<ISolutionProps, I
         if (isLoaded) {
             return (
                 <div>
-                    Ссылка на решение: {solution.githubUrl}
+                    <Link href={solution.githubUrl}>Ссылка на решение</Link>
                     <br />
+                    {solution.comment!.length > 0 &&
+                    <div>
+                        Комментарий к решению: {solution.comment}
+                        <br />
+                    </div>
+                    }
                     Статус решения: {solution.state}
                     <br />
                     <MuiThemeProvider theme={greenTheme}>
