@@ -3,6 +3,7 @@ import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
 import IconButton from '@material-ui/core/IconButton'
 import DeleteIcon from '@material-ui/icons/Delete'
+import EditIcon from '@material-ui/icons/Edit'
 import Button from '@material-ui/core/Button'
 import ReactMarkdown from 'react-markdown'
 import { HomeworkTaskViewModel, TasksApi } from "../api/homeworks/api";
@@ -43,9 +44,14 @@ export default class Task extends React.Component<ITaskProp, ITaskState> {
                                 {task.title}
                             </RouterLink>
                             {this.props.forMentor && 
-                                <IconButton aria-label="Delete" onClick={() => this.deleteTask()}>
-                                    <DeleteIcon fontSize="small" />
-                                </IconButton>
+                                    <IconButton aria-label="Delete" onClick={() => this.deleteTask()}>
+                                        <DeleteIcon fontSize="small" />
+                                    </IconButton>
+                            }
+                            {this.props.forMentor && 
+                                    <RouterLink to={'/task/' + task.id!.toString() + '/edit'}>
+                                        <EditIcon fontSize="small" />
+                                    </RouterLink>
                             }
                         </Typography>
                         
