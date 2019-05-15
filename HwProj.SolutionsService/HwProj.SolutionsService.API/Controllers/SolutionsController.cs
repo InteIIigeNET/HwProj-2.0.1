@@ -35,7 +35,7 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpGet("task_solutions/{taskId}/{studentId}")]
-        public List<long> GetTaskSolutionsFromStudent(long taskId, long studentId)
+        public List<long> GetTaskSolutionsFromStudent(long taskId, string studentId)
             => _solutionRepository
                 .FindAll(solution => solution.TaskId == taskId && solution.StudentId == studentId)
                 .Select(solution => solution.Id)

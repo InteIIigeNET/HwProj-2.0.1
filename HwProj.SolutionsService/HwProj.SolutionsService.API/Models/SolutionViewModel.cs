@@ -6,6 +6,6 @@
         
         public string Comment { get; set; }
         
-        public long StudentId { get; set; }
+        public string StudentId { get; set; }
     }
 }
