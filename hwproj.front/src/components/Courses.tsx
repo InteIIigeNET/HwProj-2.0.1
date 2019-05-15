@@ -3,10 +3,14 @@ import Link from '@material-ui/core/Link';
 import Typography from '@material-ui/core/Typography';
 import { CourseViewModel, CoursesApi } from "../api/courses/api";
 import { Link as RouterLink} from 'react-router-dom'
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
+import Paper from '@material-ui/core/Paper';
 
 interface ICoursesState {
     isLoaded: boolean,
-    courses: CourseViewModel[]
+    courses: CourseViewModel[],
+    tabValue: number
 }
 
 export default class Courses extends React.Component<{}, ICoursesState> {
@@ -14,30 +18,42 @@ export default class Courses extends React.Component<{}, ICoursesState> {
         super(props);
         this.state = {
             isLoaded: false,
-            courses: []
+            courses: [],
+            tabValue: 0
         };
     }
 
     public render() {
-        const { isLoaded, courses} = this.state;
+        const { isLoaded, courses, tabValue } = this.state;
 
         if (isLoaded) {
-            let courseList = courses.map(course => 
+            let activeCourses = courses.filter(course => !course.isComplete).map(course => 
                     <li key={course.id}>
                             <RouterLink to={"/courses/" + course.id!.toString()}>
                                 {course.name}
                             </RouterLink>
                             <br />
                             {course.groupName}
-                    </li>
-            ).reverse();
+                    </li>).reverse();
+            
+            let completedCourses = courses.filter(course => course.isComplete).map(course => 
+                <li key={course.id}>
+                        <RouterLink to={"/courses/" + course.id!.toString()}>
+                            {course.name}
+                        </RouterLink>
+                        <br />
+                        {course.groupName}
+                </li>).reverse();
 
             return (
                 <div className="container">
-                    <Typography variant='h5' gutterBottom>Текущие курсы:</Typography>
-                    <ul>
-                        {courseList}
-                    </ul>
+                    <Tabs value={tabValue} onChange={(event, value) => {this.setState({tabValue: value})}}>
+                        <Tab label="Текущие курсы" />
+                        <Tab label="Завершенные курсы" />
+                    </Tabs>
+                    <br />
+                        {tabValue === 0 && <ul>{activeCourses}</ul>}
+                        {tabValue === 1 && <ul>{completedCourses}</ul>}
                 </div>
             )
         }
