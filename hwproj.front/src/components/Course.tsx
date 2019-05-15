@@ -22,6 +22,7 @@ interface ICourseProp {
 }
 
 export default class Course extends React.Component<RouteComponentProps<ICourseProp>, ICourseState> {
+    authService = new AuthService();
     constructor(props : RouteComponentProps<ICourseProp>) {
         super(props);
         this.state = {
@@ -33,8 +34,7 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
     }
 
     public render() {
-        let authService = new AuthService();
-        let isLogged = authService.loggedIn();
+        let isLogged = this.authService.loggedIn();
         const { isLoaded, isFound, course, createHomework } = this.state;
         if (isLoaded) {
             if (isFound) {
@@ -115,5 +115,7 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                 createHomework: false
             }))
             .catch(err => this.setState({ isLoaded: true, isFound: false }))
+        
+        console.log(this.authService.getProfile());
     }
 }

@@ -2,6 +2,7 @@ import * as React from 'react';
 import Link from '@material-ui/core/Link';
 import Typography from '@material-ui/core/Typography';
 import { CourseViewModel, CoursesApi } from "../api/courses/api";
+import { Link as RouterLink} from 'react-router-dom'
 
 interface ICoursesState {
     isLoaded: boolean,
@@ -23,9 +24,9 @@ export default class Courses extends React.Component<{}, ICoursesState> {
         if (isLoaded) {
             let courseList = courses.map(course => 
                     <li key={course.id}>
-                            <Link href={"/courses/" + course.id!.toString()}>
+                            <RouterLink to={"/courses/" + course.id!.toString()}>
                                 {course.name}
-                            </Link>
+                            </RouterLink>
                             <br />
                             {course.groupName}
                     </li>

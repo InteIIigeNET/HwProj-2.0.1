@@ -7,6 +7,7 @@ import Button from '@material-ui/core/Button'
 import ReactMarkdown from 'react-markdown'
 import { HomeworkTaskViewModel, TasksApi } from "../api/homeworks/api";
 import AddSolution from './AddSolution'
+import {Link as RouterLink} from 'react-router-dom'
 
 interface ITaskState {
     isLoaded: boolean,
@@ -38,9 +39,9 @@ export default class Task extends React.Component<ITaskProp, ITaskState> {
                 return (
                     <div>
                         <Typography variant="subtitle1">
-                            <Link href={"/task/" + task.id!.toString() + "/55"}>
+                            <RouterLink to={"/task/" + task.id!.toString() + "/55"}>
                                 {task.title}
-                            </Link>
+                            </RouterLink>
                             {this.props.forMentor && 
                                 <IconButton aria-label="Delete" onClick={() => this.deleteTask()}>
                                     <DeleteIcon fontSize="small" />

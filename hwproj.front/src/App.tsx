@@ -18,8 +18,9 @@ class App extends Component {
   render() {
     return (
         <div>
-          <AppBar />
+          
           <Router>
+              <AppBar />
               <Route exact path='/' component={Courses} />
               <Route exact path='/create_course' component={CreateCourse} />
               <Route exact path='/courses/:id' component={Course} />
