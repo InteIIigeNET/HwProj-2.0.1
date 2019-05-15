@@ -10,9 +10,11 @@ namespace HwProj.AuthService.API.Services
 {
     public interface IUserService
     {
+        bool IsSignIn(ClaimsPrincipal User);
+
         Uri GetSignInUriGithub();
 
-        Task<string> LogInGitHub(string userCode);
+        Task LogInGitHub(string userCode);
 
         Task<string> Register(RegisterViewModel model, HttpContext httpContext, IUrlHelper url);
 

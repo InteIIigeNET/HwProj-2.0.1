@@ -31,15 +31,19 @@ namespace HwProj.AuthService.API.Controllers
             return Ok(signInUri);
         }
 
+        [HttpGet, Route("issignin")]
+        [ExceptionFilter]
+        public IActionResult IsSignIn()
+            => Ok(userService.IsSignIn(User));
+
         [HttpGet, Route("callbackgithub")]
         [ExceptionFilter]
         public async Task<IActionResult> CallbackGitHub()
         {
             var userCode = Request.Query.First(x => x.Key == "code").Value.ToString();
+            await userService.LogInGitHub(userCode);
 
-            var userData = await userService.LogInGitHub(userCode);
-
-            return Ok(userData);
+            return Ok();
         }
 
         [HttpPost, Route("register")]

@@ -1,6 +1,7 @@
 ﻿using HwProj.AuthService.API.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Linq;
 using System.Net.Http;
@@ -54,7 +55,7 @@ namespace HwProj.AuthService.API.Services
             return (await response.Content.ReadAsFormDataAsync()).GetValues("access_token").First();
         }
 
-        public async Task<string> GetUserGitHub(string userCode)
+        public async Task<User> GetUserGitHub(string userCode)
         {
             const string userDataPath = "https://api.github.com/user";
             var token = await GetTokenGitHub(userCode);
@@ -68,7 +69,10 @@ namespace HwProj.AuthService.API.Services
                 response = await client.GetAsync(userDataPath);
             }
 
-            return await response.Content.ReadAsStringAsync();
+            var userData = await response.Content.ReadAsStringAsync();
+            var userEmail = JObject.Parse(userData)["email"].ToString();
+
+            return await userManager.FindByEmailAsync(userEmail);
         }
     }
 }

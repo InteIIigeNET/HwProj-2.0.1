@@ -31,12 +31,27 @@ namespace HwProj.AuthService.API.Services
             providerService = new ThirdPartyProviderService(userManager, appSettings);
         }
 
+        public bool IsSignIn(ClaimsPrincipal User)
+            => signInManager.IsSignedIn(User);
+
         public Uri GetSignInUriGithub()
             => providerService.GetSignInUriGithub();
 
-        public async Task<string> LogInGitHub(string userCode)
+        public async Task LogInGitHub(string userCode)
         {
-            return await providerService.GetUserGitHub(userCode);
+            var user = await providerService.GetUserGitHub(userCode);
+
+            if (user == null)
+            {
+                throw new UserNotFoundException();
+            }
+
+            if (!await userManager.IsEmailConfirmedAsync(user))
+            {
+                throw new InvalidEmailException("Email не был подтвержден");
+            }
+
+            await signInManager.SignInAsync(user, false, "LogInGitHub");
         }
 
         public async Task Edit(EditViewModel model, ClaimsPrincipal User)
