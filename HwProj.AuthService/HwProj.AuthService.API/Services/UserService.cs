@@ -8,6 +8,7 @@ using HwProj.AuthService.API.Exceptions;
 using System.Security.Claims;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
+using System;
 
 namespace HwProj.AuthService.API.Services
 {
@@ -17,6 +18,7 @@ namespace HwProj.AuthService.API.Services
         private readonly SignInManager<User> signInManager;
         private readonly TokenService tokenService;
         private readonly EmailService emailService;
+        private readonly ThirdPartyProviderService providerService;
 
         public UserService(UserManager<User> userManager,
             SignInManager<User> signInManager,
@@ -26,12 +28,15 @@ namespace HwProj.AuthService.API.Services
             this.signInManager = signInManager;
             tokenService = new TokenService(userManager, appSettings);
             emailService = new EmailService(appSettings);
+            providerService = new ThirdPartyProviderService(userManager, appSettings);
         }
 
-        public async Task<string> Git(ClaimsPrincipal User)
+        public Uri GetSignInUriGithub()
+            => providerService.GetSignInUriGithub();
+
+        public async Task<string> LogInGitHub(string userCode)
         {
-            var user = await userManager.FindByNameAsync(User.Identity.Name);
-            return user.Email;
+            return await providerService.GetUserGitHub(userCode);
         }
 
         public async Task Edit(EditViewModel model, ClaimsPrincipal User)

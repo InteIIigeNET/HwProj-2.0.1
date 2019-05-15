@@ -1,6 +1,7 @@
 ﻿using HwProj.AuthService.API.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -9,7 +10,9 @@ namespace HwProj.AuthService.API.Services
 {
     public interface IUserService
     {
-        Task<string> Git(ClaimsPrincipal User);
+        Uri GetSignInUriGithub();
+
+        Task<string> LogInGitHub(string userCode);
 
         Task<string> Register(RegisterViewModel model, HttpContext httpContext, IUrlHelper url);
 

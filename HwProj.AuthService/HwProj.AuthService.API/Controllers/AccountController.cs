@@ -25,17 +25,10 @@ namespace HwProj.AuthService.API.Controllers
 
         [HttpPost, Route("logingithub")]
         [ExceptionFilter]
-        public IActionResult LoginGitHub()
+        public IActionResult GetSignInUriGithub()
         {
-            var uriBuilder = new UriBuilder("https://github.com/login/oauth/authorize");
-
-            var parameters = HttpUtility.ParseQueryString(string.Empty);
-            parameters["client_id"] = "724aadcc454b9ed5c1b1";
-            parameters["scope"] = "user:email";
-            uriBuilder.Query = parameters.ToString();
-
-            var finalUrl = uriBuilder.Uri;
-            return Ok(finalUrl);
+            var signInUri = userService.GetSignInUriGithub();
+            return Ok(signInUri);
         }
 
         [HttpGet, Route("callbackgithub")]
@@ -44,34 +37,9 @@ namespace HwProj.AuthService.API.Controllers
         {
             var userCode = Request.Query.First(x => x.Key == "code").Value.ToString();
 
-            var uriBuilder = new UriBuilder("https://github.com/login/oauth/access_token");
-            var parameters = HttpUtility.ParseQueryString(string.Empty);
-            parameters["client_id"] = "724aadcc454b9ed5c1b1";
-            parameters["client_secret"] = "5006166a27ce2c3d6477c3dd5ac79a3069f4f001";
-            parameters["code"] = userCode;
-            uriBuilder.Query = parameters.ToString();
-            var finalUrl = uriBuilder.Uri;
+            var userData = await userService.LogInGitHub(userCode);
 
-            HttpResponseMessage response = null;
-
-            using (var client = new HttpClient())
-            {
-                response = await client.GetAsync(finalUrl);
-            }
-
-            var token = (await response.Content.ReadAsFormDataAsync()).GetValues("access_token").First();
-
-
-            HttpResponseMessage endResponse = null;
-
-            using (var cclient = new HttpClient())
-            {
-                cclient.DefaultRequestHeaders.Add("Authorization", "Bearer " + token);
-                cclient.DefaultRequestHeaders.Add("User-Agent", "my-agent");
-                endResponse = await cclient.GetAsync("https://api.github.com/user");
-            }
-
-            return Ok(await endResponse.Content.ReadAsStringAsync());
+            return Ok(userData);
         }
 
         [HttpPost, Route("register")]
