@@ -12,6 +12,7 @@ import Task from "./components/Task"
 import AddHomework from "./components/AddHomework"
 import TaskSolutionsPage from './components/TaskSolutionsPage'
 import AppBar from "./components/AppBar"
+import Login from "./components/Login"
 
 class App extends Component {
   render() {
@@ -23,6 +24,7 @@ class App extends Component {
               <Route exact path='/create_course' component={CreateCourse} />
               <Route exact path='/courses/:id' component={Course} />
               <Route exact path='/task/:taskId/:studentId' component={TaskSolutionsPage} />
+              <Route exact path='/login' component={Login} />
           </Router>
         </div>
     );
