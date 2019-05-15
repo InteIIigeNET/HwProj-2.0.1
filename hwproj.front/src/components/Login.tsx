@@ -15,18 +15,22 @@ interface ILoginState {
 }
 
 export default class CreateCourse extends React.Component<{}, ILoginState> {
-    Auth = new AuthService();
-    state = {
-        email: "",
-        password: "",
-        logged: false
-    };        
+    auth = new AuthService();
+    constructor(props: {}) {
+        super(props);
+        this.auth = new AuthService();
+        this.state = {
+            email: "",
+            password: "",
+            logged: this.auth.loggedIn()
+        };  
+    }
 
     public handleSubmit(e: any) {
         e.preventDefault();
       
-        this.Auth.login(this.state.email, this.state.password)
-            .then((res : any) => this.setState({logged: true}))
+        this.auth.login(this.state.email, this.state.password)
+            .then((res : any) => window.location.assign('/'))
             .catch((err : any) =>{
                 alert(err);
             })
@@ -42,6 +46,7 @@ export default class CreateCourse extends React.Component<{}, ILoginState> {
                 <form onSubmit={e => this.handleSubmit(e)}>
                     <TextField
                         required
+                        type="email"
                         label="Email"
                         variant="outlined"
                         margin="normal"
@@ -51,12 +56,14 @@ export default class CreateCourse extends React.Component<{}, ILoginState> {
                     <br />
                     <TextField
                         required
+                        type="password"
                         label="Password"
                         variant="outlined"
                         margin="normal"
                         value={this.state.password}
                         onChange={e => this.setState({ password: e.target.value})}
                     />
+                    <br />
                     <Button size="small" variant="contained" color="primary" type="submit">Войти</Button>
                 </form>
             </div>

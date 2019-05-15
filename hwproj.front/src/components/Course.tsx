@@ -5,7 +5,8 @@ import {RouteComponentProps} from "react-router-dom"
 import { Typography } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import AddHomework from './AddHomework';
-import CourseStudents from'./CourseStudents';
+import CourseStudents from './CourseStudents';
+import AuthService from './AuthService';
 
 const userId = "55";
 
@@ -32,6 +33,8 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
     }
 
     public render() {
+        let authService = new AuthService();
+        let isLogged = authService.loggedIn();
         const { isLoaded, isFound, course, createHomework } = this.state;
         if (isLoaded) {
             if (isFound) {
@@ -50,11 +53,13 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                                 <Typography variant="h5">
                                     Mentod ID: {course.mentorId}
                                 </Typography>
+                                {isLogged &&
                                 <Button
                                     size="small"
                                     variant="contained"
                                     color="primary"
                                     onClick={() => this.joinCourse()}>Записаться</Button>
+                                }
                             </div>
                         </div>
                         <CourseStudents courseId={+this.props.match.params.id} />
