@@ -5,6 +5,13 @@ using HwProj.AuthService.API.Filters;
 using HwProj.AuthService.API.Services;
 using HwProj.AuthService.API.ViewModels;
 using Newtonsoft.Json;
+using System;
+using System.Web;
+using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
+using System.Linq;
+using System.Net.Http;
+using System.Net;
+using Newtonsoft.Json.Linq;
 
 namespace HwProj.AuthService.API.Controllers
 {
@@ -16,12 +23,63 @@ namespace HwProj.AuthService.API.Controllers
 
         public AccountController(IUserService userService) => this.userService = userService;
 
+        [HttpPost, Route("logingithub")]
+        [ExceptionFilter]
+        public IActionResult LoginGitHub()
+        {
+            var uriBuilder = new UriBuilder("https://github.com/login/oauth/authorize");
+
+            var parameters = HttpUtility.ParseQueryString(string.Empty);
+            parameters["client_id"] = "724aadcc454b9ed5c1b1";
+            parameters["scope"] = "user:email";
+            uriBuilder.Query = parameters.ToString();
+
+            var finalUrl = uriBuilder.Uri;
+            return Ok(finalUrl);
+        }
+
+        [HttpGet, Route("callbackgithub")]
+        [ExceptionFilter]
+        public async Task<IActionResult> CallbackGitHub()
+        {
+            var userCode = Request.Query.First(x => x.Key == "code").Value.ToString();
+
+            var uriBuilder = new UriBuilder("https://github.com/login/oauth/access_token");
+            var parameters = HttpUtility.ParseQueryString(string.Empty);
+            parameters["client_id"] = "724aadcc454b9ed5c1b1";
+            parameters["client_secret"] = "5006166a27ce2c3d6477c3dd5ac79a3069f4f001";
+            parameters["code"] = userCode;
+            uriBuilder.Query = parameters.ToString();
+            var finalUrl = uriBuilder.Uri;
+
+            HttpResponseMessage response = null;
+
+            using (var client = new HttpClient())
+            {
+                response = await client.GetAsync(finalUrl);
+            }
+
+            var token = (await response.Content.ReadAsFormDataAsync()).GetValues("access_token").First();
+
+
+            HttpResponseMessage endResponse = null;
+
+            using (var cclient = new HttpClient())
+            {
+                cclient.DefaultRequestHeaders.Add("Authorization", "Bearer " + token);
+                cclient.DefaultRequestHeaders.Add("User-Agent", "my-agent");
+                endResponse = await cclient.GetAsync("https://api.github.com/user");
+            }
+
+            return Ok(await endResponse.Content.ReadAsStringAsync());
+        }
+
         [HttpPost, Route("register")]
         [ExceptionFilter]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            await userService.Register(model, HttpContext, Url);
-            return Ok();
+            var res = await userService.Register(model, HttpContext, Url);
+            return Ok(res);
         }
 
         [HttpGet, Route("confirmemail")]

@@ -28,6 +28,12 @@ namespace HwProj.AuthService.API.Services
             emailService = new EmailService(appSettings);
         }
 
+        public async Task<string> Git(ClaimsPrincipal User)
+        {
+            var user = await userManager.FindByNameAsync(User.Identity.Name);
+            return user.Email;
+        }
+
         public async Task Edit(EditViewModel model, ClaimsPrincipal User)
         {
             if (!signInManager.IsSignedIn(User))
@@ -101,7 +107,7 @@ namespace HwProj.AuthService.API.Services
             return await tokenService.GetToken(user);
         }
 
-        public async Task Register(RegisterViewModel model, HttpContext httpContext, IUrlHelper url)
+        public async Task<string> Register(RegisterViewModel model, HttpContext httpContext, IUrlHelper url)
         {
             if ((await userManager.FindByEmailAsync(model.Email)) != null)
             {
@@ -118,9 +124,10 @@ namespace HwProj.AuthService.API.Services
 
             await userManager.AddToRoleAsync(user, "student");
 
-            await emailService.SendEmailForConfirmation(
-                model.Email,
-                await GetCallbackUrlForEmailConfirmation(user, httpContext, url));
+            return await GetCallbackUrlForEmailConfirmation(user, httpContext, url);
+            //await emailService.SendEmailForConfirmation(
+            //    model.Email,
+            //    await GetCallbackUrlForEmailConfirmation(user, httpContext, url));
         }
 
         public async Task RequestToChangeEmail(

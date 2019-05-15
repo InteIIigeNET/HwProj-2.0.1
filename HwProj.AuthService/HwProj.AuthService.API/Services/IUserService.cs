@@ -9,7 +9,9 @@ namespace HwProj.AuthService.API.Services
 {
     public interface IUserService
     {
-        Task Register(RegisterViewModel model, HttpContext httpContext, IUrlHelper url);
+        Task<string> Git(ClaimsPrincipal User);
+
+        Task<string> Register(RegisterViewModel model, HttpContext httpContext, IUrlHelper url);
 
         Task Edit(EditViewModel model, ClaimsPrincipal User);
 
