@@ -10,7 +10,7 @@ namespace HwProj.CoursesService.API.Models
         
         public long CourseId { get; set; }
         
-        public long StudentId { get; set; }
+        public string StudentId { get; set; }
         
         public bool IsAccepted { get; set; }
     }

@@ -37,14 +37,9 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddCourse([FromBody] CreateCourseViewModel courseViewModel,
-            [FromQuery] long mentorId)
+        public async Task<IActionResult> AddCourse([FromBody] CreateCourseViewModel courseViewModel)
         {
-            if (mentorId == 0)
-            {
-                return NotFound();
-            }
-            
+            var mentorId = Request.Query.First(x => x.Key == "_id").Value.ToString();
             var course = _mapper.Map<Course>(courseViewModel);
             course.MentorId = mentorId;
             
@@ -66,26 +61,17 @@ namespace HwProj.CoursesService.API.Controllers
             });
 
         [HttpPost("sign_in_course/{courseId}")]
-        public async Task<IActionResult> SignInCourse(long courseId, [FromQuery] long studentId)
+        public async Task<IActionResult> SignInCourse(long courseId)
         {
-            if (studentId == 0)
-            {
-                return NotFound();
-            }
-
+            var studentId = Request.Query.First(x => x.Key == "_id").Value.ToString();
             return await _coursesService.AddStudentAsync(courseId, studentId)
                 ? Ok()
                 : NotFound() as IActionResult;
         }
 
         [HttpPost("accept_student/{courseId}")]
-        public async Task<IActionResult> AcceptStudent(long courseId, [FromQuery] long studentId)
+        public async Task<IActionResult> AcceptStudent(long courseId, [FromQuery] string studentId)
         {
-            if (studentId == 0)
-            {
-                return NotFound();
-            }
-
             return await _coursesService.AcceptCourseMateAsync(courseId, studentId)
                 ? Ok()
                 : NotFound() as IActionResult;
@@ -93,24 +79,19 @@ namespace HwProj.CoursesService.API.Controllers
 
 
         [HttpPost("reject_student/{courseId}")]
-        public async Task<IActionResult> RejectStudent(long courseId, [FromQuery] long studentId)
+        public async Task<IActionResult> RejectStudent(long courseId, [FromQuery] string studentId)
         {
-            if (studentId == 0)
-            {
-                return NotFound();
-            }
-
             return await _coursesService.RejectCourseMateAsync(courseId, studentId)
                 ? Ok()
                 : NotFound() as IActionResult;
         }
 
         [HttpGet("student_courses/{studentId}")]
-        public List<long> GetStudentCourses(long studentId)
+        public List<long> GetStudentCourses(string studentId)
             => _coursesService.GetStudentCourses(studentId);
 
         [HttpGet("mentor_courses/{mentorId}")]
-        public List<long> GetMentorCourses(long mentorId)
+        public List<long> GetMentorCourses(string mentorId)
             => _coursesService.GetMentorCourses(mentorId);
     }
 }

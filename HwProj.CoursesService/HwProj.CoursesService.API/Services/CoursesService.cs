@@ -35,7 +35,7 @@ namespace HwProj.CoursesService.API.Services
         public Task UpdateAsync(long courseId, Expression<Func<Course, Course>> updateFactory)
             => _courseRepository.UpdateAsync(courseId, updateFactory);
 
-        public async Task<bool> AddStudentAsync(long courseId, long studentId)
+        public async Task<bool> AddStudentAsync(long courseId, string studentId)
         {
             var course = await _courseRepository.GetAsync(courseId);
             if (course == null)
@@ -60,7 +60,7 @@ namespace HwProj.CoursesService.API.Services
             return true;
         }
 
-        public async Task<bool> AcceptCourseMateAsync(long courseId, long studentId)
+        public async Task<bool> AcceptCourseMateAsync(long courseId, string studentId)
         {
             var courseMate = await _courseMateRepository
                 .FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
@@ -74,7 +74,7 @@ namespace HwProj.CoursesService.API.Services
             return true;
         }
 
-        public async Task<bool> RejectCourseMateAsync(long courseId, long studentId)
+        public async Task<bool> RejectCourseMateAsync(long courseId, string studentId)
         {
             var courseMate = await _courseMateRepository
                 .FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
@@ -88,13 +88,13 @@ namespace HwProj.CoursesService.API.Services
             return true;
         }
 
-        public List<long> GetStudentCourses(long studentId)
+        public List<long> GetStudentCourses(string studentId)
             => _courseMateRepository
                 .FindAll(cm => cm.StudentId == studentId && cm.IsAccepted)
                 .Select(cm => cm.CourseId)
                 .ToList();
 
-        public List<long> GetMentorCourses(long mentorId)
+        public List<long> GetMentorCourses(string mentorId)
             => _courseRepository
                 .FindAll(c => c.MentorId == mentorId)
                 .Select(c => c.Id)

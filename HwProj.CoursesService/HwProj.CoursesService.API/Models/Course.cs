@@ -19,7 +19,7 @@ namespace HwProj.CoursesService.API.Models
         
         public bool IsComplete { get; set; }
         
-        public long MentorId { get; set; }
+        public string MentorId { get; set; }
 
         public List<CourseMate> CourseMates { get; set; } = new List<CourseMate>();
     }

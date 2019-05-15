@@ -2,7 +2,7 @@
 {
     public class CourseMateViewModel
     {
-        public long StudentId { get; set; }
+        public string StudentId { get; set; }
         public bool IsAccepted { get; set; }
     }
 }
