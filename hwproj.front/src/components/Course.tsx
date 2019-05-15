@@ -115,7 +115,5 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                 createHomework: false
             }))
             .catch(err => this.setState({ isLoaded: true, isFound: false }))
-        
-        console.log(this.authService.getProfile());
     }
 }

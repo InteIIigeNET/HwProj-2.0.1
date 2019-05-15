@@ -55,7 +55,8 @@ class ButtonAppBar extends React.Component<Props, IAppBarState> {
               {loggedIn &&
               <Button onClick={() => {
                 authService.logout();
-                this.setState({loaded: true, loggedIn: false})
+                this.setState({loaded: true, loggedIn: false});
+                window.location.assign('/');
               }}  color="inherit">Logout</Button>
               }
               {!loggedIn &&
