@@ -13,7 +13,8 @@ interface IEditCourseState {
     groupName: string,
     isOpen: boolean,
     isComplete: boolean,
-    edited: boolean
+    edited: boolean,
+    deleted: boolean
 }
 
 interface IEditCourseProps {
@@ -28,7 +29,8 @@ export default class EditCourse extends React.Component<RouteComponentProps<IEdi
             groupName: "",
             isOpen: false,
             isComplete: false,
-            edited: false
+            edited: false,
+            deleted: false
         };
     }
             
@@ -47,9 +49,19 @@ export default class EditCourse extends React.Component<RouteComponentProps<IEdi
             .then(res => this.setState({edited: true}))
     }
 
+    public onDelete() {
+        let api = new CoursesApi();
+        api.deleteCourse(+this.props.match.params.courseId)
+            .then(res => this.setState({deleted: true}));
+    }
+
     public render() {
         if (this.state.edited) {
             return <Redirect to={'/courses/' + this.props.match.params.courseId} />
+        }
+
+        if (this.state.deleted) {
+            return <Redirect to='/' />
         }
         return (
             <div className="container">
@@ -97,6 +109,9 @@ export default class EditCourse extends React.Component<RouteComponentProps<IEdi
                     />
                     <br />
                     <Button size="small" variant="contained" color="primary" type="submit">Редактировать курс</Button>
+                    <br />
+                    <br />
+                    <Button onClick={() => this.onDelete()} size="small" variant="contained" color="secondary">Удалить курс</Button>
                 </form>
             </div>
         );

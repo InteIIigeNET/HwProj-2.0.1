@@ -1,14 +1,17 @@
 import * as React from 'react';
 import { CourseViewModel, CoursesApi } from "../api/courses/api";
 import CourseHomework from "./CourseHomework"
-import {RouteComponentProps} from "react-router-dom"
+import {RouteComponentProps, Route} from "react-router-dom"
 import { Typography } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
+import IconButton from '@material-ui/core/IconButton'
+import EditIcon from '@material-ui/icons/Edit'
 import AddHomework from './AddHomework';
 import CourseStudents from './CourseStudents';
 import AuthService from './AuthService';
+import { Link as RouterLink } from 'react-router-dom'
 
-const userId = "55";
+const userId = "1";
 
 interface ICourseState {
     isLoaded: boolean,
@@ -43,7 +46,12 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                         <div className="d-flex justify-content-between">
                             <div>
                                 <Typography variant="h5">
-                                    {course.name}
+                                    {course.name} &nbsp;
+                                    {this.state.course.mentorId === userId && 
+                                        <RouterLink to={'./' + this.state.course.id + '/edit'}>
+                                            <EditIcon fontSize="small" />
+                                        </RouterLink>
+                                    }
                                 </Typography>
                                 <Typography variant="subtitle1" gutterBottom>
                                     {course.groupName}
