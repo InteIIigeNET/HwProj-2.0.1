@@ -6,7 +6,7 @@ namespace HwProj.EventBusTest
 {
     public class TestHandler : IIntegrationEventHandler<IntegrationEvent>
     {
-        public bool IsHandled { get; set; } = false;
+        public bool IsHandled { get; private set; } = false;
         
         public Task Handle(IntegrationEvent @event)
         {

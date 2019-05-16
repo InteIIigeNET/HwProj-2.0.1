@@ -30,7 +30,7 @@ namespace HwProj.EventBus
         {
             var eventName = GetEventKey<T>();
 
-            DoAddSubscription(typeof(TH), eventName, isDynamic: false);
+            DoAddSubscription(typeof(TH), eventName);
 
             if (!_eventTypes.Contains(typeof(T)))
             {
@@ -38,7 +38,7 @@ namespace HwProj.EventBus
             }
         }
 
-        private void DoAddSubscription(Type handlerType, string eventName, bool isDynamic)
+        private void DoAddSubscription(Type handlerType, string eventName)
         {
             if (!HasSubscriptionsForEvent(eventName))
             {

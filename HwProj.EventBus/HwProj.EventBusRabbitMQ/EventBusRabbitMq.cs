@@ -15,7 +15,7 @@ namespace HwProj.EventBusRabbitMQ
 {
     public class EventBusRabbitMq : IEventBus, IDisposable
     {
-        const string BROKER_NAME = "hwproj_event_bus";
+        private const string BrokerName = "hwproj_event_bus";
 
         private readonly IRabbitMQPersistentConnection _persistentConnection;
         private readonly IServiceProvider _serviceProvider;
@@ -49,7 +49,7 @@ namespace HwProj.EventBusRabbitMQ
             using (var channel = _persistentConnection.CreateModel())
             {
                 channel.QueueUnbind(queue: _queueName,
-                    exchange: BROKER_NAME,
+                    exchange: BrokerName,
                     routingKey: eventName);
 
                 if (_subsManager.IsEmpty)
@@ -76,7 +76,7 @@ namespace HwProj.EventBusRabbitMQ
                 var eventName = @event.GetType()
                     .Name;
 
-                channel.ExchangeDeclare(exchange: BROKER_NAME,
+                channel.ExchangeDeclare(exchange: BrokerName,
                     type: "direct");
 
                 var message = JsonConvert.SerializeObject(@event);
@@ -87,7 +87,7 @@ namespace HwProj.EventBusRabbitMQ
                     var properties = channel.CreateBasicProperties();
                     properties.DeliveryMode = 2; // persistent
 
-                    channel.BasicPublish(exchange: BROKER_NAME,
+                    channel.BasicPublish(exchange: BrokerName,
                         routingKey: eventName,
                         mandatory: true,
                         basicProperties: properties,
@@ -119,7 +119,7 @@ namespace HwProj.EventBusRabbitMQ
             using (var channel = _persistentConnection.CreateModel())
             {
                 channel.QueueBind(queue: _queueName,
-                    exchange: BROKER_NAME,
+                    exchange: BrokerName,
                     routingKey: eventName);
             }
         }
@@ -147,7 +147,7 @@ namespace HwProj.EventBusRabbitMQ
 
             var channel = _persistentConnection.CreateModel();
 
-            channel.ExchangeDeclare(exchange: BROKER_NAME,
+            channel.ExchangeDeclare(exchange: BrokerName,
                 type: "direct");
 
             channel.QueueDeclare(queue: _queueName,

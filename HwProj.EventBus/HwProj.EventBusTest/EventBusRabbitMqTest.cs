@@ -16,7 +16,7 @@ namespace HwProj.EventBusTest
         private const string Hostname = "localhost";
         
         [Test]
-        public void ShouldMessagePrintInConsole()
+        public void ShouldHandleEventPropertyChange()
         {
             //arrange
 
