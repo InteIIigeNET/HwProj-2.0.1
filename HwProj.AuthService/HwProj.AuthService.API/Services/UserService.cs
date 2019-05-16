@@ -9,6 +9,8 @@ using System.Security.Claims;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System;
+using Microsoft.Extensions.Primitives;
+using System.Linq;
 
 namespace HwProj.AuthService.API.Services
 {
@@ -41,8 +43,14 @@ namespace HwProj.AuthService.API.Services
         /// Если вход произведен, связывается аккаунт пользователя c его github аккаунтом, иначе
         /// Проверяется совпадение idGitHub пользователя с Id на стороне github 
         /// Если успешно, происходит вход, возрващается jwt-токен c метаданными
-        public async Task<List<object>> LogInGitHub(string userCode, ClaimsPrincipal User)
+        public async Task<List<object>> LogInGitHub(ClaimsPrincipal User, HttpRequest request)
         {
+            if (!request.Query.TryGetValue("code", out StringValues code))
+            {
+                throw new FailedExecutionException();
+            }
+
+            var userCode = code.ToString();
             var userIdGitHub = await providerService.GetUserIdGitHub(userCode);
 
             if (signInManager.IsSignedIn(User))
@@ -52,11 +60,11 @@ namespace HwProj.AuthService.API.Services
                 return await tokenService.GetToken(user);
             }
 
-            User userGitHub = providerService.GetUserGitHub(userIdGitHub);
+            User userGitHub = await providerService.GetUserGitHub(userIdGitHub);
 
             if (userGitHub == null)
             {
-                throw new FailedExecutionException();
+                throw new FailedLogInGitHubException();
             }
 
             await signInManager.SignInAsync(userGitHub, false, "LogInGitHub");

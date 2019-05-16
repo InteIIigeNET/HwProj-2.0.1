@@ -23,7 +23,7 @@ namespace HwProj.AuthService.API.Controllers
 
         public AccountController(IUserService userService) => this.userService = userService;
 
-        [HttpPost, Route("logingithub")]
+        [HttpGet, Route("logingithub")]
         [ExceptionFilter]
         public IActionResult GetSignInUriGithub()
         {
@@ -40,8 +40,7 @@ namespace HwProj.AuthService.API.Controllers
         [ExceptionFilter]
         public async Task<IActionResult> CallbackGitHub()
         {
-            var userCode = Request.Query.First(x => x.Key == "code").Value.ToString();
-            var tokenAndMetadata = await userService.LogInGitHub(userCode, User);
+            var tokenAndMetadata = await userService.LogInGitHub(User, Request);
 
             var response = new
             {

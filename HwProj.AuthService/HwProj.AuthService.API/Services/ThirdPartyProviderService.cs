@@ -56,7 +56,18 @@ namespace HwProj.AuthService.API.Services
                 response = await client.GetAsync(getTokenUriBuilder.Uri);
             }
 
-            return (await response.Content.ReadAsFormDataAsync()).GetValues("access_token").First();
+            string token = null;
+
+            try
+            {
+                token = (await response.Content.ReadAsFormDataAsync()).GetValues("access_token").First();
+            }
+            catch (Exception)
+            {
+                throw new FailedExecutionException();
+            }
+
+            return token;
         }
 
         /// Получение id пользователя на стороне github
@@ -76,7 +87,7 @@ namespace HwProj.AuthService.API.Services
 
             var userData = await response.Content.ReadAsStringAsync();
             var userIdGitHub = JObject.Parse(userData)["id"].ToString();
-            
+
             if (userIdGitHub == String.Empty)
             {
                 throw new FailedExecutionException();
@@ -89,36 +100,34 @@ namespace HwProj.AuthService.API.Services
         /// или его IdGitHub совпадает c Id на стороне github
         public async Task BindGitHub(User user, string userIdGitHub)
         {
-            if (user.IdGitHub == null)
+            var claimGitHub = (await userManager.GetClaimsAsync(user))
+                .Where(x => x.Type == "IdGitHub");
+
+            if (claimGitHub.Count() == 0)
             {
-                user.IdGitHub = userIdGitHub;
-                await userManager.UpdateAsync(user);
+                await userManager.AddClaimAsync(user, new Claim("IdGitHub", userIdGitHub));
                 return;
             }
 
-            if (user.IdGitHub != null && userIdGitHub == user.IdGitHub)
+            if (claimGitHub.Count() == 1 && claimGitHub.First().Value == userIdGitHub)
             {
                 return;
             }
 
-            throw new FailedExecutionException();
+            throw new GitHubAccAlreadyExistsException();
         }
 
-        /// Поиск пользователя по IdGitHub. null, если пользователя нет
-        public User GetUserGitHub(string userIdGitHub)
+        /// Поиск пользователя по IdGitHub
+        public async Task<User> GetUserGitHub(string userIdGitHub)
         {
-            User userGitHub = null;
+            var user = await userManager.GetUsersForClaimAsync(new Claim("IdGitHub", userIdGitHub));
 
-            foreach (var user in userManager.Users)
+            if (user.Count == 0)
             {
-                if (user.IdGitHub == userIdGitHub)
-                {
-                    userGitHub = user;
-                    break;
-                }
+                return null;
             }
 
-            return userGitHub;
+            return user[0];
         }
     }
 }
