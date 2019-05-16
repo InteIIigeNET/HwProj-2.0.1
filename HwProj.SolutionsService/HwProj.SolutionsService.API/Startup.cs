@@ -14,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace HwProj.SolutionsService.API
 {
@@ -31,6 +32,10 @@ namespace HwProj.SolutionsService.API
         {
             var connectionString = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<SolutionContext>(options => options.UseSqlServer(connectionString));
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info { Title = "Solutions API", Version = "v1" });
+            });
             services.AddScoped<ISolutionRepository, SolutionRepository>();
             services.AddAutoMapper();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
@@ -47,6 +52,13 @@ namespace HwProj.SolutionsService.API
             {
                 app.UseHsts();
             }
+
+            app.UseSwagger();
+            
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+            });
 
             app.UseHttpsRedirection();
             app.UseMvc();
