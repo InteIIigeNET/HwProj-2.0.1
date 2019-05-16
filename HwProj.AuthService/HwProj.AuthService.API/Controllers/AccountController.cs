@@ -87,7 +87,7 @@ namespace HwProj.AuthService.API.Controllers
             return Ok(response);
         }
 
-        [HttpPost, Route("refresh")]
+        [HttpGet, Route("refresh")]
         [ExceptionFilter]
         public async Task<IActionResult> RefreshToken()
         {
@@ -139,7 +139,7 @@ namespace HwProj.AuthService.API.Controllers
             return Ok();
         }
 
-        [HttpPost, Route("delete")]
+        [HttpDelete, Route("delete")]
         [ExceptionFilter]
         [Authorize]
         public async Task<IActionResult> Delete(DeleteViewModel model)
