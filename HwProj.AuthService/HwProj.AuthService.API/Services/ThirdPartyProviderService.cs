@@ -30,7 +30,7 @@ namespace HwProj.AuthService.API.Services
             var signInUriBuilder = new UriBuilder(authorizePath);
 
             var parameters = HttpUtility.ParseQueryString(string.Empty);
-            parameters["client_id"] = "724aadcc454b9ed5c1b1";
+            parameters["client_id"] = appSettings.ClientIdGitHub;
             parameters["scope"] = "user:email";
             signInUriBuilder.Query = parameters.ToString();
 
@@ -44,8 +44,8 @@ namespace HwProj.AuthService.API.Services
             var getTokenUriBuilder = new UriBuilder(accessTokenPath);
 
             var parameters = HttpUtility.ParseQueryString(string.Empty);
-            parameters["client_id"] = "724aadcc454b9ed5c1b1";
-            parameters["client_secret"] = "5006166a27ce2c3d6477c3dd5ac79a3069f4f001";
+            parameters["client_id"] = appSettings.ClientIdGitHub;
+            parameters["client_secret"] = appSettings.ClientSecretGitHub;
             parameters["code"] = userCode;
             getTokenUriBuilder.Query = parameters.ToString();
 

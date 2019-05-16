@@ -7,8 +7,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HwProj.AuthService", "HwPro
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HwProj.AuthService.API", "HwProj.AuthService\HwProj.AuthService.API\HwProj.AuthService.API.csproj", "{7ECE830B-68EA-4BA3-BDEC-0D1E9FACB19A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HwProj.TestAPI", "HwProj.TestAPI\HwProj.TestAPI.csproj", "{A9A1D85A-76D6-4895-AC26-FECBB8A93365}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,10 +17,6 @@ Global
 		{7ECE830B-68EA-4BA3-BDEC-0D1E9FACB19A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7ECE830B-68EA-4BA3-BDEC-0D1E9FACB19A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7ECE830B-68EA-4BA3-BDEC-0D1E9FACB19A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A9A1D85A-76D6-4895-AC26-FECBB8A93365}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A9A1D85A-76D6-4895-AC26-FECBB8A93365}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A9A1D85A-76D6-4895-AC26-FECBB8A93365}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A9A1D85A-76D6-4895-AC26-FECBB8A93365}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
