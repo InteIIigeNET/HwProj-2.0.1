@@ -41,9 +41,15 @@ namespace HwProj.AuthService.API.Controllers
         public async Task<IActionResult> CallbackGitHub()
         {
             var userCode = Request.Query.First(x => x.Key == "code").Value.ToString();
-            await userService.LogInGitHub(userCode);
+            var tokenAndMetadata = await userService.LogInGitHub(userCode, User);
 
-            return Ok();
+            var response = new
+            {
+                accessToken = tokenAndMetadata[0].ToString(),
+                expiresIn = (int)tokenAndMetadata[1]
+            };
+
+            return Ok(response);
         }
 
         [HttpPost, Route("register")]
@@ -71,12 +77,12 @@ namespace HwProj.AuthService.API.Controllers
         [ExceptionFilter]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
-            var tokenAndExpiresIn = await userService.Login(model);
+            var tokenAndMetadata = await userService.Login(model);
 
             var response = new
             {
-                accessToken = tokenAndExpiresIn[0].ToString(),
-                expiresIn = (int)tokenAndExpiresIn[1]
+                accessToken = tokenAndMetadata[0].ToString(),
+                expiresIn = (int)tokenAndMetadata[1]
             };
 
             return Ok(response);
@@ -86,12 +92,12 @@ namespace HwProj.AuthService.API.Controllers
         [ExceptionFilter]
         public async Task<IActionResult> RefreshToken()
         {
-            var tokenAndExpiresIn = await userService.RefreshToken(User);
+            var tokenAndMetadata = await userService.RefreshToken(User);
 
             var response = new
             {
-                accessToken = tokenAndExpiresIn[0].ToString(),
-                expiresIn = (int)tokenAndExpiresIn[1]
+                accessToken = tokenAndMetadata[0].ToString(),
+                expiresIn = (int)tokenAndMetadata[1]
             };
 
             return Ok(response);

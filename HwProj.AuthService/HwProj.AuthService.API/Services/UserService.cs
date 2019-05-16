@@ -34,24 +34,33 @@ namespace HwProj.AuthService.API.Services
         public bool IsSignIn(ClaimsPrincipal User)
             => signInManager.IsSignedIn(User);
 
+        /// Получение Uri для перехода к аутентификации на стороне github
         public Uri GetSignInUriGithub()
             => providerService.GetSignInUriGithub();
 
-        public async Task LogInGitHub(string userCode)
+        /// Если вход произведен, связывается аккаунт пользователя c его github аккаунтом, иначе
+        /// Проверяется совпадение idGitHub пользователя с Id на стороне github 
+        /// Если успешно, происходит вход, возрващается jwt-токен c метаданными
+        public async Task<List<object>> LogInGitHub(string userCode, ClaimsPrincipal User)
         {
-            var user = await providerService.GetUserGitHub(userCode);
+            var userIdGitHub = await providerService.GetUserIdGitHub(userCode);
 
-            if (user == null)
+            if (signInManager.IsSignedIn(User))
             {
-                throw new UserNotFoundException();
+                var user = await userManager.FindByNameAsync(User.Identity.Name);
+                await providerService.BindGitHub(user, userIdGitHub);
+                return await tokenService.GetToken(user);
             }
 
-            if (!await userManager.IsEmailConfirmedAsync(user))
+            User userGitHub = providerService.GetUserGitHub(userIdGitHub);
+
+            if (userGitHub == null)
             {
-                throw new InvalidEmailException("Email не был подтвержден");
+                throw new FailedExecutionException();
             }
 
-            await signInManager.SignInAsync(user, false, "LogInGitHub");
+            await signInManager.SignInAsync(userGitHub, false, "LogInGitHub");
+            return await tokenService.GetToken(userGitHub);
         }
 
         public async Task Edit(EditViewModel model, ClaimsPrincipal User)
@@ -60,7 +69,7 @@ namespace HwProj.AuthService.API.Services
             {
                 throw new UserNotSignInException();
             }
-
+            
             var user = await userManager.FindByNameAsync(User.Identity.Name);
             var result = await ChangeUserData(user, model);
 

@@ -14,7 +14,7 @@ namespace HwProj.AuthService.API.Services
 
         Uri GetSignInUriGithub();
 
-        Task LogInGitHub(string userCode);
+        Task<List<object>> LogInGitHub(string userCode, ClaimsPrincipal User);
 
         Task<string> Register(RegisterViewModel model, HttpContext httpContext, IUrlHelper url);
 

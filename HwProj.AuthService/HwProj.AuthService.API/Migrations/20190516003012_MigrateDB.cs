@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace HwProj.AuthService.API.Migrations
 {
-    public partial class NewMigr : Migration
+    public partial class MigrateDB : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -43,8 +43,7 @@ namespace HwProj.AuthService.API.Migrations
                     AccessFailedCount = table.Column<int>(nullable: false),
                     Name = table.Column<string>(nullable: true),
                     Surname = table.Column<string>(nullable: true),
-                    Year = table.Column<string>(nullable: true),
-                    Year2 = table.Column<string>(nullable: true)
+                    IdGitHub = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {

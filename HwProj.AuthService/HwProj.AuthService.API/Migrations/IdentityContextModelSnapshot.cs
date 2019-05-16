@@ -15,7 +15,7 @@ namespace HwProj.AuthService.API.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.1.4-rtm-31024")
+                .HasAnnotation("ProductVersion", "2.1.8-servicing-32085")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -33,6 +33,8 @@ namespace HwProj.AuthService.API.Migrations
                         .HasMaxLength(256);
 
                     b.Property<bool>("EmailConfirmed");
+
+                    b.Property<string>("IdGitHub");
 
                     b.Property<bool>("LockoutEnabled");
 
@@ -60,10 +62,6 @@ namespace HwProj.AuthService.API.Migrations
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256);
-
-                    b.Property<string>("Year");
-
-                    b.Property<string>("Year2");
 
                     b.HasKey("Id");
 

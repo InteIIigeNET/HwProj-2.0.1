@@ -9,6 +9,8 @@ namespace HwProj.AuthService.API.Models
 
         public string Surname { get; set; }
 
+        public string IdGitHub { get; set; }
+
         public User()
         {
 
