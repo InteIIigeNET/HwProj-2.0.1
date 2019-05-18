@@ -61,7 +61,10 @@ class ButtonAppBar extends React.Component<Props, IAppBarState> {
               }}  color="inherit">Logout</Button>
               }
               {!loggedIn &&
-              <Button href="/login" color="inherit">Login</Button>
+              <div>
+                <Button href="/login" color="inherit">Login</Button>
+                <Button href="/register" color="inherit">Register</Button>
+              </div>
               }
             </Toolbar>
           </AppBar>

@@ -40,29 +40,29 @@ export default class CourseStudents extends React.Component<ICourseStudentsProps
                             <TableHead>
                                 <TableRow>
                                     <TableCell>Студент</TableCell>
-                                    {this.state.homeworks.map(hw => (
-                                        <TableCell>{hw.title}</TableCell>
+                                    {this.state.homeworks.map(homework => (
+                                        <TableCell align="center" colSpan={homework.tasks!.length}>{homework.title}</TableCell>
                                     ))}
+                                </TableRow>
+                                <TableRow>
+                                    <TableCell></TableCell>
+                                    {this.state.homeworks.map(homework =>
+                                        homework.tasks!.map(task =>
+                                            <TableCell>{task}</TableCell>))
+                                    }
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                <TableRow key="1">
-                                    <TableCell component="th" scope="row"> </TableCell>
-                                    {this.state.homeworks.map(hw => (
-                                        <TableCell>
-                                            <TableRow>
-                                                {hw.tasks!.map((task, index) => (
-                                                    <TableCell component="th" scope="row">{index + 1}</TableCell>
-                                                ))}
-                                            </TableRow>
-                                        </TableCell>
-                                    ))}
-                                </TableRow>
                                 {this.props.course.courseMates!.map(cm => (
                                     <TableRow key={cm.studentId}>
-                                        <TableCell component="th" scope="row">
+                                        <TableCell scope="row">
                                             {cm.studentId}
                                         </TableCell>
+                                        {this.state.homeworks.map(homework =>
+                                            homework.tasks!.map(task =>
+                                                <TableCell scope="row">
+                                                    +
+                                                </TableCell>))}
                                     </TableRow>
                                 ))}
                             </TableBody>
