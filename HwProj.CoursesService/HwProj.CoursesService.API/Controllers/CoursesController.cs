@@ -47,18 +47,47 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task DeleteCourse(long id)
-            => await _coursesService.DeleteAsync(id);
+        public async Task<IActionResult> DeleteCourse(long id)
+        {
+            var course = await _coursesService.GetAsync(id);
+            if (course == null)
+            {
+                return Ok();
+            }
+
+            if (!IsCourseMentor(course))
+            {
+                return Forbid();
+            }
+            
+            await _coursesService.DeleteAsync(id);
+            return Ok();
+        }
 
         [HttpPost("update/{courseId}")]
-        public async Task UpdateCourse(long courseId, [FromBody] UpdateCourseViewModel courseViewModel)
-            => await _coursesService.UpdateAsync(courseId, course => new Course()
+        public async Task<IActionResult> UpdateCourse(long courseId, [FromBody] UpdateCourseViewModel courseViewModel)
+        {
+            var course = await _coursesService.GetAsync(courseId);
+            if (course == null)
+            {
+                return Ok();
+            }
+
+            if (!IsCourseMentor(course))
+            {
+                return Forbid();
+            }
+            
+            await _coursesService.UpdateAsync(courseId, c => new Course()
             {
                 Name = courseViewModel.Name,
                 GroupName = courseViewModel.GroupName,
                 IsComplete = courseViewModel.IsComplete,
                 IsOpen = courseViewModel.IsOpen
             });
+
+            return Ok();
+        }
 
         [HttpPost("sign_in_course/{courseId}")]
         public async Task<IActionResult> SignInCourse(long courseId)
@@ -72,6 +101,17 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpPost("accept_student/{courseId}")]
         public async Task<IActionResult> AcceptStudent(long courseId, [FromQuery] string studentId)
         {
+            var course = await _coursesService.GetAsync(courseId);
+            if (course == null)
+            {
+                return Ok();
+            }
+
+            if (!IsCourseMentor(course))
+            {
+                return Forbid();
+            }
+            
             return await _coursesService.AcceptCourseMateAsync(courseId, studentId)
                 ? Ok()
                 : NotFound() as IActionResult;
@@ -81,17 +121,44 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpPost("reject_student/{courseId}")]
         public async Task<IActionResult> RejectStudent(long courseId, [FromQuery] string studentId)
         {
+            var course = await _coursesService.GetAsync(courseId);
+            if (course == null)
+            {
+                return Ok();
+            }
+
+            if (!IsCourseMentor(course))
+            {
+                return Forbid();
+            }
+            
             return await _coursesService.RejectCourseMateAsync(courseId, studentId)
                 ? Ok()
                 : NotFound() as IActionResult;
         }
 
         [HttpGet("student_courses/{studentId}")]
-        public List<long> GetStudentCourses(string studentId)
-            => _coursesService.GetStudentCourses(studentId);
+        public IActionResult GetStudentCourses(string studentId)
+        {
+            var userId = Request.Query.First(x => x.Key == "_id").Value.ToString();
+            return userId == studentId
+                ? Ok(_coursesService.GetStudentCourses(studentId))
+                : Forbid() as IActionResult;
+        }
 
         [HttpGet("mentor_courses/{mentorId}")]
-        public List<long> GetMentorCourses(string mentorId)
-            => _coursesService.GetMentorCourses(mentorId);
+        public IActionResult GetMentorCourses(string mentorId)
+        {
+            var userId = Request.Query.First(x => x.Key == "_id").Value.ToString();
+            return userId == mentorId
+                ? Ok(_coursesService.GetMentorCourses(mentorId))
+                : Forbid() as IActionResult;
+        }
+
+        private bool IsCourseMentor(Course course)
+        {
+            var userId = Request.Query.First(x => x.Key == "_id").Value.ToString();
+            return course.MentorId != userId;
+        }
     }
 }
