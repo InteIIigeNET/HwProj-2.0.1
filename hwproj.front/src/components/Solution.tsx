@@ -11,7 +11,8 @@ const redTheme = createMuiTheme({ palette: { primary: red } })
 const greenTheme = createMuiTheme({ palette: { primary: green } })
 
 interface ISolutionProps {
-    id: number
+    id: number,
+    forMentor: boolean
 }
 
 interface ISolutionState {
@@ -43,17 +44,21 @@ export default class SolutionComponent extends React.Component<ISolutionProps, I
                     </div>
                     }
                     Статус решения: {solution.state}
-                    <br />
-                    <MuiThemeProvider theme={greenTheme}>
-                        <IconButton color="primary" onClick={() => this.acceptSolution()}>
-                            <CheckCircle />
-                        </IconButton>
-                    </MuiThemeProvider>
-                    <MuiThemeProvider theme={redTheme}>
-                        <IconButton color="primary" onClick={() => this.rejectSolution()}>
-                            <HighlightOff />
-                        </IconButton>
-                    </MuiThemeProvider>
+                    {this.props.forMentor &&
+                        <div>
+                            <br />
+                            <MuiThemeProvider theme={greenTheme}>
+                                <IconButton color="primary" onClick={() => this.acceptSolution()}>
+                                    <CheckCircle />
+                                </IconButton>
+                            </MuiThemeProvider>
+                            <MuiThemeProvider theme={redTheme}>
+                                <IconButton color="primary" onClick={() => this.rejectSolution()}>
+                                    <HighlightOff />
+                                </IconButton>
+                            </MuiThemeProvider>
+                        </div>
+                    }
                 </div>
             )
         }

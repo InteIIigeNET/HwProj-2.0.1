@@ -61,7 +61,7 @@ export default class TaskSolutionsPage extends React.Component<RouteComponentPro
                                 color="primary"
                                 onClick={() => { this.setState({addSolution: true })}}>Добавить решение</Button>
                                 <br />
-                                <TaskSolutions taskId={+this.props.match.params.taskId} studentId={userId} />
+                                <TaskSolutions forMentor={false} taskId={+this.props.match.params.taskId} studentId={userId} />
                             </div>
                         }
                         {this.state.addSolution && 
@@ -72,7 +72,7 @@ export default class TaskSolutionsPage extends React.Component<RouteComponentPro
                                 onAdding={() => this.setState({addSolution: false})}
                                 onCancel={() => this.setState({addSolution: false})} />
                                 <br />
-                                <TaskSolutions taskId={+this.props.match.params.taskId} studentId={userId} />
+                                <TaskSolutions forMentor={false} taskId={+this.props.match.params.taskId} studentId={userId} />
                             </div>
                         }
                         <br />

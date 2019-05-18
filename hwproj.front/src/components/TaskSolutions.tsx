@@ -5,7 +5,8 @@ import Typography from '@material-ui/core/Typography'
 
 interface ITaskSolutionsProps {
     taskId: number,
-    studentId: string
+    studentId: string,
+    forMentor: boolean
 }
 
 interface ITaskSolutionsState {
@@ -27,7 +28,7 @@ export default class TaskSolutions extends React.Component<ITaskSolutionsProps, 
 
         if (isLoaded) {
             let solutionList = solutions.map(id => <li key={id}>
-                <SolutionComponent id={id} />
+                <SolutionComponent forMentor={this.props.forMentor} id={id} />
             </li>)
 
             return (
@@ -35,7 +36,7 @@ export default class TaskSolutions extends React.Component<ITaskSolutionsProps, 
                     {solutionList.length > 0 &&
                         <div>
                             <Typography variant='h6'>Решения: </Typography>
-                            <ol>{solutionList}</ol>
+                            <ol reversed>{solutionList.reverse()}</ol>
                         </div>
                     }
                 </div>
