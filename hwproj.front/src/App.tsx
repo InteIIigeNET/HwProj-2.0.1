@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
 import logo from './logo.svg';
 import './App.css';
@@ -22,14 +22,16 @@ class App extends Component {
         <div>
           
           <Router>
-              <AppBar />
-              <Route exact path='/' component={Courses} />
-              <Route exact path='/create_course' component={CreateCourse} />
-              <Route exact path='/courses/:id' component={Course} />
-              <Route exact path='/courses/:courseId/edit' component={EditCourse} />
-              <Route exact path='/task/:taskId/:studentId' component={TaskSolutionsPage} />
-              <Route exact path='/task/:taskId/edit' component={EditTask} />
-              <Route exact path='/login' component={Login} />
+                <AppBar />
+                <Route exact path='/' component={Courses} />
+                <Route exact path='/create_course' component={CreateCourse} />
+                <Route exact path='/courses/:id' component={Course} />
+                <Route exact path='/courses/:courseId/edit' component={EditCourse} />
+                <Switch>
+                  <Route exact path='/task/:taskId/edit' component={EditTask} />
+                  <Route exact path='/task/:taskId/:studentId' component={TaskSolutionsPage} />
+                </Switch>
+                <Route exact path='/login' component={Login} />
           </Router>
         </div>
     );
