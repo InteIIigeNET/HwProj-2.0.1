@@ -5,7 +5,6 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
-import IconButton from '@material-ui/core/IconButton';
 import AuthService from './AuthService'
 
 const styles = createStyles({
@@ -29,17 +28,17 @@ interface IAppBarState {
 }
 
 class ButtonAppBar extends React.Component<Props, IAppBarState> {
+  authService! : AuthService
   constructor(props: Props) {
     super(props);
     this.state = {
       loaded: false,
       loggedIn: false
     }
+    this.authService = new AuthService();
   }
 
   public render() {
-    let authService = new AuthService();
-
     const { loaded, loggedIn } = this.state;
     const { classes } = this.props;
 
@@ -51,10 +50,12 @@ class ButtonAppBar extends React.Component<Props, IAppBarState> {
               <Button href="/" color="inherit">HwProj</Button>
               <Typography variant="h6" color="inherit" className={classes.grow}>
               </Typography>
-              <Button href="/create_course" color="inherit">Create course</Button>
+              {(loggedIn && this.authService.getProfile()._role === "lecturer") &&
+                <Button href="/create_course" color="inherit">Create course</Button>
+              }
               {loggedIn &&
               <Button onClick={() => {
-                authService.logout();
+                this.authService.logout();
                 this.setState({loaded: true, loggedIn: false});
                 window.location.assign('/');
               }}  color="inherit">Logout</Button>
@@ -84,8 +85,10 @@ class ButtonAppBar extends React.Component<Props, IAppBarState> {
   }
 
   componentDidMount() {
-    let authService = new AuthService();
-    this.setState({loaded: true, loggedIn: authService.loggedIn()});
+    this.setState({
+      loaded: true,
+      loggedIn: this.authService.loggedIn()
+    });
   }
 }
 
