@@ -11,6 +11,7 @@ import HomeworkTasks from './HomeworkTasks'
 interface IHomeworkProps {
     id: number,
     forMentor: boolean,
+    forStudent: boolean,
     onDeleteClick: () => void
 }
 
@@ -49,7 +50,7 @@ export default class Homework extends React.Component<IHomeworkProps, IHomeworkS
                         <ReactMarkdown source={homework.description} />
                         {(this.props.forMentor && this.state.createTask) && 
                             <div>
-                                <HomeworkTasks forMentor={this.props.forMentor} id={this.props.id} />
+                                <HomeworkTasks forStudent={this.props.forStudent} forMentor={this.props.forMentor} id={this.props.id} />
                                 <AddTask
                                 id={homework.id!}
                                 onAdding={() => this.setState({createTask: false})}
@@ -58,7 +59,7 @@ export default class Homework extends React.Component<IHomeworkProps, IHomeworkS
                         }
                         {(this.props.forMentor && !this.state.createTask) &&
                             <div>
-                                <HomeworkTasks forMentor={this.props.forMentor} id={this.props.id} />
+                                <HomeworkTasks forStudent={this.props.forStudent} forMentor={this.props.forMentor} id={this.props.id} />
                                 <Button
                                     size="small"
                                     variant="contained"
@@ -67,7 +68,7 @@ export default class Homework extends React.Component<IHomeworkProps, IHomeworkS
                             </div>
                         }
                         {!this.props.forMentor &&
-                            <HomeworkTasks forMentor={this.props.forMentor} id={this.props.id} />
+                            <HomeworkTasks forStudent={this.props.forStudent} forMentor={this.props.forMentor} id={this.props.id} />
                         }
                     </div>
                 )

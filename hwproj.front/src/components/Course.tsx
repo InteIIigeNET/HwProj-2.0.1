@@ -11,8 +11,6 @@ import CourseStudents from './CourseStudents';
 import AuthService from './AuthService';
 import { Link as RouterLink } from 'react-router-dom'
 
-const userId = "26f27645-e197-4c39-82aa-72cfedf5aa56";
-
 interface ICourseState {
     isLoaded: boolean,
     isFound: boolean,
@@ -26,6 +24,7 @@ interface ICourseProp {
 
 export default class Course extends React.Component<RouteComponentProps<ICourseProp>, ICourseState> {
     authService = new AuthService();
+    coursesApi = new CoursesApi();
     constructor(props : RouteComponentProps<ICourseProp>) {
         super(props);
         this.state = {
@@ -37,17 +36,21 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
     }
 
     public render() {
-        let isLogged = this.authService.loggedIn();
         const { isLoaded, isFound, course, createHomework } = this.state;
         if (isLoaded) {
             if (isFound) {
+                let isLogged = this.authService.loggedIn();
+                let userId = isLogged ? this.authService.getProfile()._id : undefined
+                let isMentor = isLogged && userId === course.mentorId;
+                let isSignedInCourse = isLogged && course.courseMates!.some(cm => cm.studentId === userId)
+                let isAcceptedStudent = isLogged && course.courseMates!.some(cm => cm.studentId === userId && cm.isAccepted!)
                 return (
                     <div className="container">
                         <div className="d-flex justify-content-between">
                             <div>
                                 <Typography variant="h5">
                                     {course.name} &nbsp;
-                                    {this.state.course.mentorId === userId && 
+                                    {isMentor && 
                                         <RouterLink to={'./' + this.state.course.id + '/edit'}>
                                             <EditIcon fontSize="small" />
                                         </RouterLink>
@@ -61,7 +64,7 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                                 <Typography variant="h5">
                                     Mentod ID: {course.mentorId}
                                 </Typography>
-                                {isLogged &&
+                                {(isLogged && !isSignedInCourse && !isMentor) &&
                                 <Button
                                     size="small"
                                     variant="contained"
@@ -78,21 +81,21 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                                 id={+this.props.match.params.id}
                                 onCancel={() => this.componentDidMount()}
                                 onSubmit={() => this.componentDidMount()} />
-                                <CourseHomework forMentor={this.state.course.mentorId === userId} id={+this.props.match.params.id} />
+                                <CourseHomework forStudent={isAcceptedStudent} forMentor={isMentor} id={+this.props.match.params.id} />
                             </div>
                         }
-                        {(userId === this.state.course.mentorId && !createHomework) &&
+                        {(isMentor && !createHomework) &&
                             <div>
                                 <Button
                                 size="small"
                                 variant="contained"
                                 color="primary"
                                 onClick={() => { this.setState({createHomework: true })}}>Добавить домашку</Button>
-                                <CourseHomework forMentor={this.state.course.mentorId === userId} id={+this.props.match.params.id} />
+                                <CourseHomework forStudent={isAcceptedStudent} forMentor={isMentor} id={+this.props.match.params.id} />
                             </div>
                         }
-                        {userId !== this.state.course.mentorId &&
-                            <CourseHomework forMentor={this.state.course.mentorId === userId} id={+this.props.match.params.id} />
+                        {!isMentor &&
+                            <CourseHomework forStudent={isAcceptedStudent} forMentor={isMentor} id={+this.props.match.params.id} />
                         }
                         
                     </div>
@@ -108,13 +111,11 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
     }
 
     joinCourse() {
-        let api = new CoursesApi();
-        api.signInCourse(+this.props.match.params.id, 55);
+        this.coursesApi.signInCourse(+this.props.match.params.id, 55);
     }
 
     componentDidMount(): void {
-        let api = new CoursesApi();
-        api.get(+this.props.match.params.id)
+        this.coursesApi.get(+this.props.match.params.id)
             .then(res => res.json())
             .then(course => this.setState({
                 isLoaded: true,

@@ -43,7 +43,7 @@ export default class TaskSolutionsPage extends React.Component<RouteComponentPro
                     <br />
                     <br />
                     <div className="container">
-                        <Task id={+this.props.match.params.taskId} forMentor={false} onDeleteClick={() => 3} />
+                        <Task forStudent={false} id={+this.props.match.params.taskId} forMentor={false} onDeleteClick={() => 3} />
                         {(!this.state.addSolution) && 
                             <div>
                                 <Button
