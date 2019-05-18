@@ -39,8 +39,9 @@ namespace HwProj.HomeworkService.API.Controllers
         }
 
         [HttpGet("course_homeworks/{courseId}")]
-        public List<HomeworkViewModel> GetCourseHomeworks(long courseId)
-            => _mapper.Map<List<HomeworkViewModel>>(_homeworkRepository.FindAll(hw => hw.CourseId == courseId));
+        public async Task<List<HomeworkViewModel>> GetCourseHomeworks(long courseId)
+            => _mapper.Map<List<HomeworkViewModel>>((await _homeworkRepository.GetAllWithTasksAsync())
+                .Where(hw => hw.CourseId == courseId));
 
         [HttpPost("{courseId}")]
         public async Task<long> AddHomework(long courseId,
