@@ -10,7 +10,6 @@ using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System;
 using Microsoft.Extensions.Primitives;
-using System.Linq;
 
 namespace HwProj.AuthService.API.Services
 {
@@ -33,16 +32,21 @@ namespace HwProj.AuthService.API.Services
             providerService = new ThirdPartyProviderService(userManager, appSettings);
         }
 
+        /// <summary>
+        /// True, если пользователь аутентифицирован
+        /// </summary>
         public bool IsSignIn(ClaimsPrincipal User)
             => signInManager.IsSignedIn(User);
 
+        /// <summary>
         /// Получение Uri для перехода к аутентификации на стороне github
+        /// </summary>
         public Uri GetSignInUriGithub()
             => providerService.GetSignInUriGithub();
 
-        /// Если вход произведен, связывается аккаунт пользователя c его github аккаунтом, иначе
-        /// Проверяется совпадение idGitHub пользователя с Id на стороне github 
-        /// Если успешно, происходит вход, возрващается jwt-токен c метаданными
+        /// <summary>
+        /// Аутентификация через аккаунт github
+        /// </summary>
         public async Task<List<object>> LogInGitHub(ClaimsPrincipal User, HttpRequest request)
         {
             if (!request.Query.TryGetValue("code", out StringValues code))
@@ -71,6 +75,9 @@ namespace HwProj.AuthService.API.Services
             return await tokenService.GetToken(userGitHub);
         }
 
+        /// <summary>
+        /// Изменение профиля
+        /// </summary>
         public async Task Edit(EditViewModel model, ClaimsPrincipal User)
         {
             if (!signInManager.IsSignedIn(User))
@@ -87,6 +94,9 @@ namespace HwProj.AuthService.API.Services
             }
         }
 
+        /// <summary>
+        /// Подтвержения почты в системе
+        /// </summary>
         public async Task ConfirmEmail(string userId, string code)
         {
             var user = await userManager.FindByIdAsync(userId);
@@ -104,6 +114,9 @@ namespace HwProj.AuthService.API.Services
             }
         }
 
+        /// <summary>
+        /// Аутентификация пользователя
+        /// </summary>
         public async Task<List<object>> Login(LoginViewModel model)
         {
             if ((await userManager.FindByEmailAsync(model.Email)) == null)
@@ -132,6 +145,9 @@ namespace HwProj.AuthService.API.Services
             return await tokenService.GetToken(user);
         }
 
+        /// <summary>
+        /// Обновление токена 
+        /// </summary>
         public async Task<List<object>> RefreshToken(ClaimsPrincipal User)
         {
             if (!signInManager.IsSignedIn(User))
@@ -144,6 +160,9 @@ namespace HwProj.AuthService.API.Services
             return await tokenService.GetToken(user);
         }
 
+        /// <summary>
+        /// Регистрация пользователя 
+        /// </summary>
         public async Task<string> Register(RegisterViewModel model, HttpContext httpContext, IUrlHelper url)
         {
             if ((await userManager.FindByEmailAsync(model.Email)) != null)
@@ -167,6 +186,9 @@ namespace HwProj.AuthService.API.Services
             //    await GetCallbackUrlForEmailConfirmation(user, httpContext, url));
         }
 
+        /// <summary>
+        /// Выполнение запроса на изменение почты 
+        /// </summary>
         public async Task RequestToChangeEmail(
             ChangeEmailViewModel model,
             ClaimsPrincipal User,
@@ -190,6 +212,9 @@ namespace HwProj.AuthService.API.Services
                 await GetCallbackUrlForChangeEmail(user, model.NewEmail, httpContext, url));
         }
 
+        /// <summary>
+        /// Подтверждение в системе почты после ее изменения
+        /// </summary>
         public async Task ConfirmChangeEmail(string userId, string email, string code)
         {
             var user = await userManager.FindByIdAsync(userId);
@@ -207,6 +232,9 @@ namespace HwProj.AuthService.API.Services
             }
         }
 
+        /// <summary>
+        /// Удаление пользователя 
+        /// </summary>
         public async Task Delete(DeleteViewModel model, ClaimsPrincipal User)
         {
             if (!signInManager.IsSignedIn(User))
@@ -227,6 +255,9 @@ namespace HwProj.AuthService.API.Services
             }
         }
 
+        /// <summary>
+        /// Изменение пароля
+        /// </summary>
         public async Task ChangePassword(
             ChangePasswordViewModel model,
             ClaimsPrincipal User,
@@ -252,6 +283,9 @@ namespace HwProj.AuthService.API.Services
             }
         }
 
+        /// <summary>
+        /// Изменение роли на преподавателя для пользователя из InviteLecturerViewModel
+        /// </summary>
         public async Task InviteNewLecturer(InviteLecturerViewModel model, ClaimsPrincipal User)
         {
             if (!signInManager.IsSignedIn(User))
@@ -270,6 +304,9 @@ namespace HwProj.AuthService.API.Services
             await userManager.RemoveFromRoleAsync(invitedUser, "student");
         }
 
+        /// <summary>
+        /// Выход из системы
+        /// </summary>
         public async Task LogOff() => await signInManager.SignOutAsync();
 
         private async Task<IdentityResult> ChangeUserPassword(

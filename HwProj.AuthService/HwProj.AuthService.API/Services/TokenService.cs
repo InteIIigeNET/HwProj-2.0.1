@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -23,6 +22,9 @@ namespace HwProj.AuthService.API.Services
             this.appSettings = appSettings.Value;
         }
 
+        /// <summary>
+        /// Генерация токена для пользователя
+        /// </summary>
         public async Task<List<object>> GetToken(User user)
         {
             const int expireInForToken = 40;

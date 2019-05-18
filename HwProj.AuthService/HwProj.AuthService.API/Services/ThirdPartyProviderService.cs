@@ -23,7 +23,9 @@ namespace HwProj.AuthService.API.Services
             this.appSettings = appSettings.Value;
         }
 
+        /// <summary>
         /// Генерация Uri для перехода к аутентификации на стороне github
+        /// </summary>
         public Uri GetSignInUriGithub()
         {
             const string authorizePath = "https://github.com/login/oauth/authorize";
@@ -37,7 +39,9 @@ namespace HwProj.AuthService.API.Services
             return signInUriBuilder.Uri;
         }
 
+        /// <summary>
         /// Получение access token для доступа к данным пользователя на стороне github
+        /// </summary>
         public async Task<string> GetTokenGitHub(string userCode)
         {
             const string accessTokenPath = "https://github.com/login/oauth/access_token";
@@ -70,7 +74,9 @@ namespace HwProj.AuthService.API.Services
             return token;
         }
 
+        /// <summary>
         /// Получение id пользователя на стороне github
+        /// </summary>
         public async Task<string> GetUserIdGitHub(string userCode)
         {
             const string userDataPath = "https://api.github.com/user";
@@ -96,8 +102,10 @@ namespace HwProj.AuthService.API.Services
             return userIdGitHub;
         }
 
+        /// <summary>
         /// Пропустить пользователя, если он проходит аутентификацию на стороне github впервые
-        /// или его IdGitHub совпадает c Id на стороне github
+        /// Или его IdGitHub совпадает c Id на стороне github
+        /// </summary>
         public async Task BindGitHub(User user, string userIdGitHub)
         {
             var claimGitHub = (await userManager.GetClaimsAsync(user))
@@ -117,7 +125,9 @@ namespace HwProj.AuthService.API.Services
             throw new GitHubAccAlreadyExistsException();
         }
 
-        /// Поиск пользователя по IdGitHub
+        /// <summary>
+        /// Поиск пользователя в системе по IdGitHub. null, если пользователь не был найден
+        /// </summary>
         public async Task<User> GetUserGitHub(string userIdGitHub)
         {
             var user = await userManager.GetUsersForClaimAsync(new Claim("IdGitHub", userIdGitHub));

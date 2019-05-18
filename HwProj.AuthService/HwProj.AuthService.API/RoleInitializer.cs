@@ -1,12 +1,14 @@
 ﻿using HwProj.AuthService.API.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
 
 namespace HwProj.AuthService.API
 {
     public class RoleInitializer
     {
-        public static async Task InitializeAsync(UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
+        public static async Task InitializeAsync(UserManager<User> userManager,
+            RoleManager<IdentityRole> roleManager)
         {
             if (await roleManager.FindByNameAsync("lecturer") == null)
             {

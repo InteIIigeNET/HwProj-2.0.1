@@ -4,14 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using HwProj.AuthService.API.Filters;
 using HwProj.AuthService.API.Services;
 using HwProj.AuthService.API.ViewModels;
-using Newtonsoft.Json;
-using System;
-using System.Web;
-using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
-using System.Linq;
-using System.Net.Http;
-using System.Net;
-using Newtonsoft.Json.Linq;
 
 namespace HwProj.AuthService.API.Controllers
 {

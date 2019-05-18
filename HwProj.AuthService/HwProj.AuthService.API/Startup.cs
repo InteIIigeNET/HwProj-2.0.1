@@ -24,7 +24,15 @@ namespace HwProj.AuthService.API
             services.AddDbContext<IdentityContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddIdentity<User, IdentityRole>(opts => { opts.User.RequireUniqueEmail = true; })
+            services.AddIdentity<User, IdentityRole>(opts => 
+                {
+                    opts.User.RequireUniqueEmail = true;
+                    opts.Password.RequiredLength = 6;   
+                    opts.Password.RequireNonAlphanumeric = false;   
+                    opts.Password.RequireLowercase = false; 
+                    opts.Password.RequireUppercase = false; 
+                    opts.Password.RequireDigit = false;
+                })
                 .AddEntityFrameworkStores<IdentityContext>()
                 .AddDefaultTokenProviders();
 

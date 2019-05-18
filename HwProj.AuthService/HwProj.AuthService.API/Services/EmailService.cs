@@ -12,6 +12,9 @@ namespace HwProj.AuthService.API.Services
         public EmailService(IOptions<AppSettings> appSettings)
             => this.appSettings = appSettings.Value;
 
+        /// <summary>
+        /// Отправляет ссылку для подтверждения Email на почту
+        /// </summary>
         public async Task SendEmailForConfirmation(string address, string url)
         {
             var message = new MimeMessage();
@@ -20,7 +23,7 @@ namespace HwProj.AuthService.API.Services
             message.Subject = "Подтверждение почты";
             message.Body = new TextPart(MimeKit.Text.TextFormat.Html)
             {
-                Text = $"<a href='{url}'>нажми на меня для подтверждения почты</a>"
+                Text = $"<a href='{url}'>Нажмите для подтверждения</a>"
             };
 
             using (var client = new SmtpClient())
