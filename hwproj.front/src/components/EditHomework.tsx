@@ -1,18 +1,19 @@
 import * as React from 'react';
 import TextField from '@material-ui/core/TextField';
-import Checkbox from '@material-ui/core/Checkbox'
 import Button from '@material-ui/core/Button'
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Typography from '@material-ui/core/Typography'
 import { Redirect, Link } from 'react-router-dom';
 import { HomeworksApi } from "../api/homeworks/api";
+import { CoursesApi } from "../api/courses/api"
 import {RouteComponentProps} from "react-router-dom"
+import AuthService from './AuthService'
 
 interface IEditHomeworkState {
     isLoaded: boolean,
     title: string,
     description: string,
     courseId: number,
+    courseMentorId: string,
     edited: boolean
 }
 
@@ -22,6 +23,8 @@ interface IEditHomeworkProps {
 
 export default class EditHomework extends React.Component<RouteComponentProps<IEditHomeworkProps>, IEditHomeworkState> {
     homeworkApi = new HomeworksApi();
+    coursesApi = new CoursesApi();
+    authService = new AuthService();
     constructor(props: RouteComponentProps<IEditHomeworkProps>) {
         super(props)
         this.state = {
@@ -29,6 +32,7 @@ export default class EditHomework extends React.Component<RouteComponentProps<IE
             title: "",
             description: "",
             courseId: 0,
+            courseMentorId: "",
             edited: false
         };
     }
@@ -51,6 +55,9 @@ export default class EditHomework extends React.Component<RouteComponentProps<IE
         }
 
         if (this.state.isLoaded) {
+            if (!this.authService.loggedIn() || this.authService.getProfile()._id !== this.state.courseMentorId) {
+                return <Typography variant='h6' gutterBottom>Только преподаватель может редактировать домашку</Typography>
+            }
             return (
                 <div>
                     &nbsp; <Link to={'/courses/' + this.state.courseId.toString()}>Назад к курсу</Link>
@@ -93,11 +100,14 @@ export default class EditHomework extends React.Component<RouteComponentProps<IE
     componentDidMount() {
         this.homeworkApi.getHomework(+this.props.match.params.homeworkId)
             .then(res => res.json())
-            .then(homework => this.setState({
-                isLoaded: true,
-                title: homework.title,
-                description: homework.description,
-                courseId: homework.courseId
-        }))
+            .then(homework => this.coursesApi.get(homework.courseId)
+                .then(res => res.json())
+                .then(course => this.setState({
+                    isLoaded: true,
+                    title: homework.title,
+                    description: homework.description,
+                    courseId: homework.courseId,
+                    courseMentorId: course.mentorId
+        })))
     }
 }
