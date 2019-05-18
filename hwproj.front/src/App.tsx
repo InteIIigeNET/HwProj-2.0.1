@@ -15,6 +15,7 @@ import AppBar from "./components/AppBar"
 import Login from "./components/Login"
 import EditCourse from './components/EditCourse'
 import EditTask from './components/EditTask'
+import EditHomework from './components/EditHomework'
 
 class App extends Component {
   render() {
@@ -27,6 +28,7 @@ class App extends Component {
                 <Route exact path='/create_course' component={CreateCourse} />
                 <Route exact path='/courses/:id' component={Course} />
                 <Route exact path='/courses/:courseId/edit' component={EditCourse} />
+                <Route exact path='/homework/:homeworkId/edit' component={EditHomework} />
                 <Switch>
                   <Route exact path='/task/:taskId/edit' component={EditTask} />
                   <Route exact path='/task/:taskId/:studentId' component={TaskSolutionsPage} />

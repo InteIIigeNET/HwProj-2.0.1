@@ -7,6 +7,8 @@ import ReactMarkdown from 'react-markdown';
 import { HomeworkViewModel, HomeworksApi} from "../api/homeworks/api";
 import AddTask from'./AddTask'
 import HomeworkTasks from './HomeworkTasks'
+import EditIcon from '@material-ui/icons/Edit'
+import {Link as RouterLink} from 'react-router-dom'
 
 interface IHomeworkProps {
     id: number,
@@ -46,6 +48,11 @@ export default class Homework extends React.Component<IHomeworkProps, IHomeworkS
                             <IconButton aria-label="Delete" onClick={() => this.deleteHomework()}>
                                 <DeleteIcon fontSize="small" />
                             </IconButton>
+                        }
+                        {this.props.forMentor && 
+                                <RouterLink to={'/homework/' + homework.id!.toString() + '/edit'}>
+                                    <EditIcon fontSize="small" />
+                                </RouterLink>
                         }
                         <ReactMarkdown source={homework.description} />
                         {(this.props.forMentor && this.state.createTask) && 
