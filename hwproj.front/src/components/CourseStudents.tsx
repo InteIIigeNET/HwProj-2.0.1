@@ -1,41 +1,73 @@
 import React from 'react'
 import List from '@material-ui/core/List'
-import { CoursesApi, CourseMateViewModel } from '../api/courses/api'
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import { CoursesApi, CourseViewModel } from '../api/courses/api'
+import { HomeworksApi, TasksApi, HomeworkViewModel } from '../api/homeworks/api'
+import { Paper } from '@material-ui/core';
 
 interface ICourseStudentsProps {
-    courseId: number
+    course: CourseViewModel
 }
 
 interface ICourseStudentsState {
     isLoaded: boolean,
-    courseMates: CourseMateViewModel[]
+    homeworks: HomeworkViewModel[]
 }
 
 export default class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStudentsState> {
+    homeworksApi = new HomeworksApi();
+    tasksApi = new TasksApi();
     constructor(props: ICourseStudentsProps) {
         super(props);
         this.state = {
             isLoaded: false,
-            courseMates: []
+            homeworks: []
         }
     }
 
     public render() {
-        const { isLoaded, courseMates } = this.state;
+        const { isLoaded } = this.state;
 
         if (isLoaded) {
-            let courseMateList = courseMates.map(cm => <li>
-                {cm.studentId}
-                &nbsp;
-                {cm.isAccepted ? "Accepted" : "Waiting"}
-            </li>)
-
             return (
                 <div>
-                    {courseMateList.length > 0 ? "Студенты:" : ""}
-                    <div className="container">
-                        <List>{courseMateList}</List>
-                    </div>
+                    <Paper>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Студент</TableCell>
+                                    {this.state.homeworks.map(hw => (
+                                        <TableCell>{hw.title}</TableCell>
+                                    ))}
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                <TableRow key="1">
+                                    <TableCell component="th" scope="row"> </TableCell>
+                                    {this.state.homeworks.map(hw => (
+                                        <TableCell>
+                                            <TableRow>
+                                                {hw.tasks!.map((task, index) => (
+                                                    <TableCell component="th" scope="row">{index + 1}</TableCell>
+                                                ))}
+                                            </TableRow>
+                                        </TableCell>
+                                    ))}
+                                </TableRow>
+                                {this.props.course.courseMates!.map(cm => (
+                                    <TableRow key={cm.studentId}>
+                                        <TableCell component="th" scope="row">
+                                            {cm.studentId}
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </Paper>
                 </div>
             )
         }
@@ -44,12 +76,7 @@ export default class CourseStudents extends React.Component<ICourseStudentsProps
     }
 
     componentDidMount() {
-        let api = new CoursesApi();
-        api.get(this.props.courseId)
-            .then(res => res.json())
-            .then(course => this.setState({
-                isLoaded: true,
-                courseMates: course.courseMates
-            }))
+        this.homeworksApi.getCourseHomeworks(this.props.course.id!)
+            .then(homeworks => this.setState({isLoaded: true, homeworks: homeworks}));
     }
 }

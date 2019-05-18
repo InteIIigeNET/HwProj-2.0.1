@@ -16,6 +16,7 @@ import Login from "./components/Login"
 import EditCourse from './components/EditCourse'
 import EditTask from './components/EditTask'
 import EditHomework from './components/EditHomework'
+import Register from './components/Register'
 
 class App extends Component {
   render() {
@@ -34,6 +35,7 @@ class App extends Component {
                   <Route exact path='/task/:taskId/' component={TaskSolutionsPage} />
                 </Switch>
                 <Route exact path='/login' component={Login} />
+                <Route exact path='/register' component={Register} />
           </Router>
         </div>
     );

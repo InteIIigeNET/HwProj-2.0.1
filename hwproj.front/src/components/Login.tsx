@@ -14,7 +14,7 @@ interface ILoginState {
     logged: boolean,
 }
 
-export default class CreateCourse extends React.Component<{}, ILoginState> {
+export default class Login extends React.Component<{}, ILoginState> {
     auth = new AuthService();
     constructor(props: {}) {
         super(props);

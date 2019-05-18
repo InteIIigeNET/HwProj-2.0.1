@@ -73,7 +73,7 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                                 }
                             </div>
                         </div>
-                        <CourseStudents courseId={+this.props.match.params.id} />
+                        <CourseStudents course={this.state.course} />
                         <br />
                         {createHomework &&
                             <div>
