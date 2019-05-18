@@ -52,7 +52,7 @@ export default class TaskSolutionsPage extends React.Component<RouteComponentPro
                                 color="primary"
                                 onClick={() => { this.setState({addSolution: true })}}>Добавить решение</Button>
                                 <br />
-                                <TaskSolutions taskId={+this.props.match.params.taskId} studentId={+this.props.match.params.studentId} />
+                                <TaskSolutions taskId={+this.props.match.params.taskId} studentId={this.props.match.params.studentId} />
                             </div>
                         }
                         {this.state.addSolution && 
@@ -62,7 +62,7 @@ export default class TaskSolutionsPage extends React.Component<RouteComponentPro
                                 onAdding={() => this.setState({addSolution: false})}
                                 onCancel={() => this.setState({addSolution: false})} />
                                 <br />
-                                <TaskSolutions taskId={+this.props.match.params.taskId} studentId={+this.props.match.params.studentId} />
+                                <TaskSolutions taskId={+this.props.match.params.taskId} studentId={this.props.match.params.studentId} />
                             </div>
                         }
                         <br />
@@ -80,7 +80,7 @@ export default class TaskSolutionsPage extends React.Component<RouteComponentPro
         let tasksApi = new TasksApi();
         let homeworksApi = new HomeworksApi();
 
-        solutionsApi.getTaskSolutionsFromStudent(+this.props.match.params.taskId, +this.props.match.params.studentId)
+        solutionsApi.getTaskSolutionsFromStudent(+this.props.match.params.taskId, this.props.match.params.studentId)
             .then(ids => tasksApi.getTask(+this.props.match.params.taskId)
                 .then(res => res.json())
                 .then(task => homeworksApi.getHomework(task.homeworkId)

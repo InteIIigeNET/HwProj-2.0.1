@@ -15,7 +15,7 @@ export default class AddSolution extends React.Component<IAddSolutionProps, Solu
         this.state = {
             githubUrl: "",
             comment: "",
-            studentId: 55
+            studentId: "55"
         };
     }
 

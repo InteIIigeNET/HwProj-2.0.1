@@ -11,7 +11,7 @@ import CourseStudents from './CourseStudents';
 import AuthService from './AuthService';
 import { Link as RouterLink } from 'react-router-dom'
 
-const userId = "1";
+const userId = "26f27645-e197-4c39-82aa-72cfedf5aa56";
 
 interface ICourseState {
     isLoaded: boolean,

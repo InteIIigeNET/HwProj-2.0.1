@@ -110,10 +110,10 @@ export interface Solution {
     state?: StateEnum;
     /**
      * 
-     * @type {number}
+     * @type {string}
      * @memberof Solution
      */
-    studentId?: number;
+    studentId?: string;
     /**
      * 
      * @type {number}
@@ -122,27 +122,12 @@ export interface Solution {
     taskId?: number;
 }
 
+
 export enum StateEnum {
     NUMBER_0 = <any> 0,
     NUMBER_1 = <any> 1,
     NUMBER_2 = <any> 2
 }
-
-/**
- * @export
- * @namespace Solution
- */
-// export namespace Solution {
-//     /**
-//      * @export
-//      * @enum {string}
-//      */
-//     export enum StateEnum {
-//         NUMBER_0 = <any> 0,
-//         NUMBER_1 = <any> 1,
-//         NUMBER_2 = <any> 2
-//     }
-// }
 
 /**
  * 
@@ -164,10 +149,10 @@ export interface SolutionViewModel {
     comment?: string;
     /**
      * 
-     * @type {number}
+     * @type {string}
      * @memberof SolutionViewModel
      */
-    studentId?: number;
+    studentId?: string;
 }
 
 
@@ -286,11 +271,11 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
         /**
          * 
          * @param {number} taskId 
-         * @param {number} studentId 
+         * @param {string} studentId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getTaskSolutionsFromStudent(taskId: number, studentId: number, options: any = {}): FetchArgs {
+        getTaskSolutionsFromStudent(taskId: number, studentId: string, options: any = {}): FetchArgs {
             // verify required parameter 'taskId' is not null or undefined
             if (taskId === null || taskId === undefined) {
                 throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling getTaskSolutionsFromStudent.');
@@ -461,11 +446,11 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @param {number} taskId 
-         * @param {number} studentId 
+         * @param {string} studentId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getTaskSolutionsFromStudent(taskId: number, studentId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<number>> {
+        getTaskSolutionsFromStudent(taskId: number, studentId: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<number>> {
             const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).getTaskSolutionsFromStudent(taskId, studentId, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
@@ -561,11 +546,11 @@ export const SolutionsApiFactory = function (configuration?: Configuration, fetc
         /**
          * 
          * @param {number} taskId 
-         * @param {number} studentId 
+         * @param {string} studentId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getTaskSolutionsFromStudent(taskId: number, studentId: number, options?: any) {
+        getTaskSolutionsFromStudent(taskId: number, studentId: string, options?: any) {
             return SolutionsApiFp(configuration).getTaskSolutionsFromStudent(taskId, studentId, options)(fetch, basePath);
         },
         /**
@@ -643,12 +628,12 @@ export class SolutionsApi extends BaseAPI {
     /**
      * 
      * @param {number} taskId 
-     * @param {number} studentId 
+     * @param {string} studentId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof SolutionsApi
      */
-    public getTaskSolutionsFromStudent(taskId: number, studentId: number, options?: any) {
+    public getTaskSolutionsFromStudent(taskId: number, studentId: string, options?: any) {
         return SolutionsApiFp(this.configuration).getTaskSolutionsFromStudent(taskId, studentId, options)(this.fetch, this.basePath);
     }
 

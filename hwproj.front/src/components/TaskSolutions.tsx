@@ -5,7 +5,7 @@ import Typography from '@material-ui/core/Typography'
 
 interface ITaskSolutionsProps {
     taskId: number,
-    studentId: number
+    studentId: string
 }
 
 interface ITaskSolutionsState {
