@@ -42,7 +42,7 @@ export default class Task extends React.Component<ITaskProp, ITaskState> {
                     <div>
                         <Typography variant="subtitle1">
                             {this.props.forStudent &&
-                                <RouterLink to={"/task/" + task.id!.toString() + "/55"}>
+                                <RouterLink to={"/task/" + task.id!.toString()}>
                                     {task.title}
                                 </RouterLink>
                             }

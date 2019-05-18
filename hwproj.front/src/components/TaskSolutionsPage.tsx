@@ -8,42 +8,51 @@ import AddSolution from './AddSolution'
 import Button from '@material-ui/core/Button'
 import TaskSolutions from './TaskSolutions'
 import { TasksApi, HomeworksApi } from '../api/homeworks';
+import { CoursesApi, CourseViewModel } from '../api/courses'
+import AuthService from './AuthService'
 
 interface ITaskSolutionsProps {
-    taskId: string,
-    studentId: string
+    taskId: string
 }
 
 interface ITaskSolutionsState {
     isLoaded: boolean,
-    solutions: number[],
     addSolution: boolean,
-    courseId: number
+    course: CourseViewModel
 }
 
 export default class TaskSolutionsPage extends React.Component<RouteComponentProps<ITaskSolutionsProps>, ITaskSolutionsState> {
+    authService = new AuthService();
+    coursesApi = new CoursesApi();
+    tasksApi = new TasksApi();
+    homeworksApi = new HomeworksApi();
     constructor(props: RouteComponentProps<ITaskSolutionsProps>) {
         super(props);
         this.state = {
             isLoaded: false,
-            solutions: [],
             addSolution: false,
-            courseId: 0
+            course: {}
         };
     }
 
     public render() {
-        const { isLoaded, solutions } = this.state;
-
+        const { isLoaded } = this.state;
+        let userId = this.authService.loggedIn() ? this.authService.getProfile()._id : undefined;
 
         if (isLoaded) {
+            if (!this.authService.loggedIn() ||
+                userId === this.state.course.mentorId ||
+                !this.state.course.courseMates!.some(cm => cm.isAccepted! && cm.studentId === userId)) {
+                return <Typography variant='h6'>Страница не найдена</Typography>
+            }
+
             return (
                 <div>
-                    &nbsp; <Link to={'/courses/' + this.state.courseId.toString()}>Назад к курсу</Link>
+                    &nbsp; <Link to={'/courses/' + this.state.course.id!.toString()}>Назад к курсу</Link>
                     <br />
                     <br />
                     <div className="container">
-                        <Task forStudent={false} id={+this.props.match.params.taskId} forMentor={false} onDeleteClick={() => 3} />
+                        <Task forStudent={true} id={+this.props.match.params.taskId} forMentor={false} onDeleteClick={() => 3} />
                         {(!this.state.addSolution) && 
                             <div>
                                 <Button
@@ -52,17 +61,18 @@ export default class TaskSolutionsPage extends React.Component<RouteComponentPro
                                 color="primary"
                                 onClick={() => { this.setState({addSolution: true })}}>Добавить решение</Button>
                                 <br />
-                                <TaskSolutions taskId={+this.props.match.params.taskId} studentId={this.props.match.params.studentId} />
+                                <TaskSolutions taskId={+this.props.match.params.taskId} studentId={userId} />
                             </div>
                         }
                         {this.state.addSolution && 
                             <div>
                                 <AddSolution
-                                id={+this.props.match.params.taskId}
+                                studentId={userId}
+                                taskId={+this.props.match.params.taskId}
                                 onAdding={() => this.setState({addSolution: false})}
                                 onCancel={() => this.setState({addSolution: false})} />
                                 <br />
-                                <TaskSolutions taskId={+this.props.match.params.taskId} studentId={this.props.match.params.studentId} />
+                                <TaskSolutions taskId={+this.props.match.params.taskId} studentId={userId} />
                             </div>
                         }
                         <br />
@@ -76,19 +86,15 @@ export default class TaskSolutionsPage extends React.Component<RouteComponentPro
     }
 
     componentDidMount() {
-        let solutionsApi = new SolutionsApi();
-        let tasksApi = new TasksApi();
-        let homeworksApi = new HomeworksApi();
-
-        solutionsApi.getTaskSolutionsFromStudent(+this.props.match.params.taskId, this.props.match.params.studentId)
-            .then(ids => tasksApi.getTask(+this.props.match.params.taskId)
+        this.tasksApi.getTask(+this.props.match.params.taskId)
+            .then(res => res.json())
+            .then(task => this.homeworksApi.getHomework(task.homeworkId)
                 .then(res => res.json())
-                .then(task => homeworksApi.getHomework(task.homeworkId)
+                .then(homework => this.coursesApi.get(homework.courseId)
                     .then(res => res.json())
-                    .then(homework => this.setState({
+                    .then(course => this.setState({
                         isLoaded: true,
-                        solutions: ids,
-                        courseId: homework.courseId
+                        course: course
                     }))));
     }
 }

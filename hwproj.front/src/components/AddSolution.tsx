@@ -4,7 +4,8 @@ import Button from '@material-ui/core/Button'
 import {SolutionsApi, SolutionViewModel} from "../api/solutions/api";
 
 interface IAddSolutionProps {
-    id: number,
+    taskId: number,
+    studentId: string,
     onAdding: () => void,
     onCancel: () => void
 }
@@ -15,13 +16,13 @@ export default class AddSolution extends React.Component<IAddSolutionProps, Solu
         this.state = {
             githubUrl: "",
             comment: "",
-            studentId: "55"
+            studentId: this.props.studentId
         };
     }
 
     public handleSubmit(e: any) {
         let api = new SolutionsApi();
-        api.postSolution(this.props.id, this.state)
+        api.postSolution(this.props.taskId, this.state)
             .then(this.props.onAdding);
     }
 
