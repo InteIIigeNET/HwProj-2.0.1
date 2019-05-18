@@ -1,18 +1,19 @@
 import * as React from 'react';
 import TextField from '@material-ui/core/TextField';
-import Checkbox from '@material-ui/core/Checkbox'
 import Button from '@material-ui/core/Button'
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Typography from '@material-ui/core/Typography'
 import { Redirect, Link } from 'react-router-dom';
 import { TasksApi, HomeworksApi } from "../api/homeworks/api";
+import { CoursesApi } from "../api/courses/api"
 import {RouteComponentProps} from "react-router-dom"
+import AuthService from './AuthService'
 
 interface IEditTaskState {
     isLoaded: boolean,
     title: string,
     description: string,
     courseId: number,
+    courseMentorId: string,
     edited: boolean
 }
 
@@ -21,6 +22,10 @@ interface IEditTaskProps {
 }
 
 export default class EditTask extends React.Component<RouteComponentProps<IEditTaskProps>, IEditTaskState> {
+    tasksClient = new TasksApi();
+    homeworksClient = new HomeworksApi();
+    coursesClient = new CoursesApi();
+    authService = new AuthService();
     constructor(props: RouteComponentProps<IEditTaskProps>) {
         super(props)
         this.state = {
@@ -28,6 +33,7 @@ export default class EditTask extends React.Component<RouteComponentProps<IEditT
             title: "",
             description: "",
             courseId: 0,
+            courseMentorId: "",
             edited: false
         };
     }
@@ -51,6 +57,9 @@ export default class EditTask extends React.Component<RouteComponentProps<IEditT
         }
 
         if (this.state.isLoaded) {
+            if (!this.authService.loggedIn() || this.authService.getProfile()._id !== this.state.courseMentorId) {
+                return <Typography variant='h6' gutterBottom>Только преподаваталь может редактировать задачу</Typography>
+            }
             return (
                 <div>
                     &nbsp; <Link to={'/courses/' + this.state.courseId.toString()}>Назад к курсу</Link>
@@ -91,17 +100,18 @@ export default class EditTask extends React.Component<RouteComponentProps<IEditT
     }
 
     componentDidMount() {
-        let tasksClient = new TasksApi();
-        let homeworksClient = new HomeworksApi();
-        tasksClient.getTask(+this.props.match.params.taskId)
+        this.tasksClient.getTask(+this.props.match.params.taskId)
             .then(res => res.json())
-            .then(task => homeworksClient.getHomework(task.homeworkId)
+            .then(task => this.homeworksClient.getHomework(task.homeworkId)
                 .then(res => res.json())
-                .then(homework => this.setState({
-                    isLoaded: true,
-                    title: task.title,
-                    description: task.description,
-                    courseId: homework.courseId
-            })))
+                .then(homework => this.coursesClient.get(homework.courseId)
+                    .then(res => res.json())
+                    .then(course => this.setState({
+                        isLoaded: true,
+                        title: task.title,
+                        description: task.description,
+                        courseId: homework.courseId,
+                        courseMentorId: course.mentorId
+                    }))))
     }
 }
