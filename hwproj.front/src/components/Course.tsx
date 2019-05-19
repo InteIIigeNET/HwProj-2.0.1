@@ -73,10 +73,10 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                                 }
                             </div>
                         </div>
-                        <CourseStudents course={this.state.course} />
-                        <br />
                         {createHomework &&
                             <div>
+                                <CourseStudents course={this.state.course} />
+                                <br />
                                 <AddHomework
                                 id={+this.props.match.params.id}
                                 onCancel={() => this.componentDidMount()}
@@ -86,6 +86,8 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                         }
                         {(isMentor && !createHomework) &&
                             <div>
+                                <CourseStudents course={this.state.course} />
+                                <br />
                                 <Button
                                 size="small"
                                 variant="contained"
@@ -94,8 +96,13 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                                 <CourseHomework forStudent={isAcceptedStudent} forMentor={isMentor} id={+this.props.match.params.id} />
                             </div>
                         }
+                        {isAcceptedStudent &&
+                            <CourseStudents course={this.state.course} />
+                        }
                         {!isMentor &&
-                            <CourseHomework forStudent={isAcceptedStudent} forMentor={isMentor} id={+this.props.match.params.id} />
+                            <div>
+                                <CourseHomework forStudent={isAcceptedStudent} forMentor={isMentor} id={+this.props.match.params.id} />
+                            </div>
                         }
                         
                     </div>

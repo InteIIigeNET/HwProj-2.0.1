@@ -7,7 +7,8 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import { CoursesApi, CourseViewModel } from '../api/courses/api'
 import { HomeworksApi, TasksApi, HomeworkViewModel } from '../api/homeworks/api'
-import { Paper } from '@material-ui/core';
+import { Paper, createStyles, Theme, withStyles } from '@material-ui/core';
+import TaskCell from './TaskCell'
 
 interface ICourseStudentsProps {
     course: CourseViewModel
@@ -18,7 +19,15 @@ interface ICourseStudentsState {
     homeworks: HomeworkViewModel[]
 }
 
-export default class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStudentsState> {
+const styles = (theme : Theme) => createStyles({
+    paper: {
+        width: '100%',
+        marginTop: theme.spacing.unit * 3,
+        overflowX: 'auto',
+        },
+   });
+
+class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStudentsState> {
     homeworksApi = new HomeworksApi();
     tasksApi = new TasksApi();
     constructor(props: ICourseStudentsProps) {
@@ -35,32 +44,32 @@ export default class CourseStudents extends React.Component<ICourseStudentsProps
         if (isLoaded) {
             return (
                 <div>
-                    <Paper>
+                    <Paper className="paper">
                         <Table>
                             <TableHead>
                                 <TableRow>
-                                    <TableCell>Студент</TableCell>
-                                    {this.state.homeworks.map(homework => (
-                                        <TableCell align="center" colSpan={homework.tasks!.length}>{homework.title}</TableCell>
+                                    <TableCell align="center" padding="none" component="td"><b>Студент</b></TableCell>
+                                    {this.state.homeworks.map((homework, index) => (
+                                        <TableCell padding="none" component="td" align="center" colSpan={homework.tasks!.length}>{index + 1}</TableCell>
                                     ))}
                                 </TableRow>
                                 <TableRow>
-                                    <TableCell></TableCell>
+                                    <TableCell component="td"></TableCell>
                                     {this.state.homeworks.map(homework =>
-                                        homework.tasks!.map(task =>
-                                            <TableCell>{task}</TableCell>))
+                                        homework.tasks!.map(taskId =>
+                                            <TaskCell taskId={taskId} />))
                                     }
                                 </TableRow>
                             </TableHead>
                             <TableBody>
                                 {this.props.course.courseMates!.map(cm => (
                                     <TableRow key={cm.studentId}>
-                                        <TableCell scope="row">
+                                        <TableCell align="center" padding="none" component="td" scope="row">
                                             {cm.studentId}
                                         </TableCell>
                                         {this.state.homeworks.map(homework =>
                                             homework.tasks!.map(task =>
-                                                <TableCell scope="row">
+                                                <TableCell component="td" padding="none" scope="row">
                                                     +
                                                 </TableCell>))}
                                     </TableRow>
@@ -80,3 +89,5 @@ export default class CourseStudents extends React.Component<ICourseStudentsProps
             .then(homeworks => this.setState({isLoaded: true, homeworks: homeworks}));
     }
 }
+
+export default withStyles(styles)(CourseStudents);
