@@ -31,6 +31,11 @@ namespace HwProj.AuthService.API.Services
         Task<List<object>> LogInGitHub(ClaimsPrincipal User, HttpRequest request);
 
         /// <summary>
+        /// Регистрация пользователя  через аккаунт github
+        /// </summary>
+        Task<string> RegisterGitHub(RegisterGitHubViewModel model, HttpContext httpContext, IUrlHelper url);
+
+        /// <summary>
         /// Регистрация пользователя 
         /// </summary>
         Task<string> Register(RegisterViewModel model, HttpContext httpContext, IUrlHelper url);
