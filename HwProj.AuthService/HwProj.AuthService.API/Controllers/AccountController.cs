@@ -15,6 +15,23 @@ namespace HwProj.AuthService.API.Controllers
 
         public AccountController(IUserService userService) => this.userService = userService;
 
+        [HttpGet, Route("getuserdatabyid")]
+        [ExceptionFilter]
+        public async Task<IActionResult> GetUserDataById(string userId)
+        {
+            var userData = await userService.GetUserDataById(userId);
+
+            var response = new
+            {
+                name = userData[0].ToString(),
+                surname = userData[1].ToString(),
+                email = userData[2].ToString(),
+                role = userData[3].ToString()
+            };
+
+            return Ok(response);
+        }
+
         [HttpGet, Route("logingithub")]
         [ExceptionFilter]
         public IActionResult GetSignInUriGithub()

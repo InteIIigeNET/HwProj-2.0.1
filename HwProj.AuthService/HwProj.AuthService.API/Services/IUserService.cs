@@ -11,6 +11,11 @@ namespace HwProj.AuthService.API.Services
     public interface IUserService
     {
         /// <summary>
+        /// Возвращает данные о пользователе 
+        /// </summary>
+        Task<List<object>> GetUserDataById(string userId);
+
+        /// <summary>
         /// True, если пользователь аутентифицирован
         /// </summary>
         bool IsSignIn(ClaimsPrincipal User);

@@ -33,6 +33,22 @@ namespace HwProj.AuthService.API.Services
         }
 
         /// <summary>
+        /// Возвращает данные о пользователе 
+        /// </summary>
+        public async Task<List<object>> GetUserDataById(string userId)
+        {
+            if ((await userManager.FindByIdAsync(userId)) == null)
+            {
+                throw new UserNotFoundException();
+            }
+
+            var user = await userManager.FindByIdAsync(userId);
+            var userRole = (await userManager.GetRolesAsync(user))[0];
+
+            return new List<object>() { user.Name, user.Surname, user.Email, userRole};
+        }
+
+        /// <summary>
         /// True, если пользователь аутентифицирован
         /// </summary>
         public bool IsSignIn(ClaimsPrincipal User)
