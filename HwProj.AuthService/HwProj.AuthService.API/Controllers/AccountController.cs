@@ -34,7 +34,7 @@ namespace HwProj.AuthService.API.Controllers
 
         [HttpGet, Route("logingithub")]
         [ExceptionFilter]
-        public IActionResult GetSignInUriGithub()
+        public IActionResult LoginGitHub()
         {
             var signInUri = userService.GetSignInUriGithub();
             return Ok(signInUri);
