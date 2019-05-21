@@ -189,10 +189,10 @@ export interface HomeworkViewModel {
     courseId?: number;
     /**
      * 
-     * @type {Array<number>}
+     * @type {Array<HomeworkTaskViewModel>}
      * @memberof HomeworkViewModel
      */
-    tasks?: Array<number>;
+    tasks?: Array<HomeworkTaskViewModel>;
 }
 
 

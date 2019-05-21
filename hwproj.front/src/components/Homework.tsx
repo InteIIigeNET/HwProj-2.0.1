@@ -47,7 +47,7 @@ export default class Homework extends React.Component<IHomeworkProps, IHomeworkS
                 <ReactMarkdown source={this.props.homework.description} />
                 {(this.props.forMentor && this.state.createTask) && 
                     <div>
-                        <HomeworkTasks forStudent={this.props.forStudent} forMentor={this.props.forMentor} id={this.props.homework.id!} />
+                        <HomeworkTasks onDelete={() => this.props.onDeleteClick()} tasks={this.props.homework.tasks!} forStudent={this.props.forStudent} forMentor={this.props.forMentor} />
                         <AddTask
                         id={this.props.homework.id!}
                         onAdding={() => this.setState({createTask: false})}
@@ -56,7 +56,7 @@ export default class Homework extends React.Component<IHomeworkProps, IHomeworkS
                 }
                 {(this.props.forMentor && !this.state.createTask) &&
                     <div>
-                        <HomeworkTasks forStudent={this.props.forStudent} forMentor={this.props.forMentor} id={this.props.homework.id!} />
+                        <HomeworkTasks onDelete={() => this.props.onDeleteClick()} tasks={this.props.homework.tasks!} forStudent={this.props.forStudent} forMentor={this.props.forMentor} />
                         <Button
                             size="small"
                             variant="contained"
@@ -65,7 +65,7 @@ export default class Homework extends React.Component<IHomeworkProps, IHomeworkS
                     </div>
                 }
                 {!this.props.forMentor &&
-                    <HomeworkTasks forStudent={this.props.forStudent} forMentor={this.props.forMentor} id={this.props.homework.id!} />
+                    <HomeworkTasks onDelete={() => this.props.onDeleteClick()} tasks={this.props.homework.tasks!} forStudent={this.props.forStudent} forMentor={this.props.forMentor} />
                 }
             </div>
         )

@@ -7,7 +7,7 @@ import Typography from '@material-ui/core/Typography'
 import AddSolution from './AddSolution'
 import Button from '@material-ui/core/Button'
 import TaskSolutions from './TaskSolutions'
-import { TasksApi, HomeworksApi } from '../api/homeworks';
+import { TasksApi, HomeworksApi, HomeworkTaskViewModel } from '../api/homeworks';
 import { CoursesApi, CourseViewModel } from '../api/courses'
 import AuthService from './AuthService'
 
@@ -17,6 +17,7 @@ interface ITaskSolutionsProps {
 
 interface ITaskSolutionsState {
     isLoaded: boolean,
+    task: HomeworkTaskViewModel
     addSolution: boolean,
     course: CourseViewModel
 }
@@ -30,6 +31,7 @@ export default class TaskSolutionsPage extends React.Component<RouteComponentPro
         super(props);
         this.state = {
             isLoaded: false,
+            task: {},
             addSolution: false,
             course: {}
         };
@@ -52,7 +54,7 @@ export default class TaskSolutionsPage extends React.Component<RouteComponentPro
                     <br />
                     <br />
                     <div className="container">
-                        <Task forStudent={true} id={+this.props.match.params.taskId} forMentor={false} onDeleteClick={() => 3} />
+                        <Task task={this.state.task} forStudent={true} forMentor={false} onDeleteClick={() => 3} />
                         {(!this.state.addSolution) && 
                             <div>
                                 <Button
@@ -94,6 +96,7 @@ export default class TaskSolutionsPage extends React.Component<RouteComponentPro
                     .then(res => res.json())
                     .then(course => this.setState({
                         isLoaded: true,
+                        task: task,
                         course: course
                     }))));
     }

@@ -2,7 +2,7 @@ import * as React from 'react';
 import {RouteComponentProps, Link} from "react-router-dom";
 import AuthService from './AuthService';
 import { CourseViewModel, CoursesApi } from '../api/courses/api'
-import { TasksApi, HomeworksApi } from '../api/homeworks/api'
+import { TasksApi, HomeworksApi, HomeworkTaskViewModel } from '../api/homeworks/api'
 import Typography from '@material-ui/core/Typography'
 import Task from './Task'
 import TaskSolutions from './TaskSolutions'
@@ -13,6 +13,7 @@ interface IStudentSolutionsPageProps {
 }
 
 interface IStudentSolutionsPageState {
+    task: HomeworkTaskViewModel,
     isLoaded: boolean,
     course: CourseViewModel
 }
@@ -25,6 +26,7 @@ export default class StudentSolutionsPage extends React.Component<RouteComponent
     constructor(props : RouteComponentProps<IStudentSolutionsPageProps>) {
         super(props);
         this.state = {
+            task: {},
             isLoaded: false,
             course: {}
         }
@@ -46,7 +48,7 @@ export default class StudentSolutionsPage extends React.Component<RouteComponent
                     <br />
                     <br />
                     <div className="container">
-                        <Task forStudent={false} id={+this.props.match.params.taskId} forMentor={true} onDeleteClick={() => 3} />
+                        <Task task={this.state.task} forStudent={false} forMentor={true} onDeleteClick={() => 0} />
                         <TaskSolutions forMentor={true} taskId={+this.props.match.params.taskId} studentId={this.props.match.params.studentId} />
                     </div>
                 </div>
@@ -64,6 +66,7 @@ export default class StudentSolutionsPage extends React.Component<RouteComponent
                 .then(homework => this.coursesApi.get(homework.courseId)
                     .then(res => res.json())
                     .then(course => this.setState({
+                        task: task,
                         isLoaded: true,
                         course: course
                     }))));

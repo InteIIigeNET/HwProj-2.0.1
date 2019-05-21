@@ -48,8 +48,9 @@ class CourseStudents extends React.Component<ICourseStudentsProps, {}> {
                                 <TableRow>
                                     <TableCell component="td"></TableCell>
                                     {this.props.homeworks.map(homework =>
-                                        homework.tasks!.map(taskId =>
-                                            <TaskCell taskId={taskId} />))
+                                        homework.tasks!.map(task =>
+                                            <TableCell padding="none" component="td" align="center">{task.title}</TableCell>)
+                                            )
                                     }
                                 </TableRow>
                             </TableHead>
@@ -61,7 +62,7 @@ class CourseStudents extends React.Component<ICourseStudentsProps, {}> {
                                         </TableCell>
                                         {this.props.homeworks.map(homework =>
                                             homework.tasks!.map(task => (
-                                                <TaskStudentCell userId={this.props.userId} forMentor={this.props.forMentor} studentId={cm.studentId!} taskId={task} />
+                                                <TaskStudentCell userId={this.props.userId} forMentor={this.props.forMentor} studentId={cm.studentId!} taskId={task.id!} />
                                             )))}
                                     </TableRow>
                                 ))}
