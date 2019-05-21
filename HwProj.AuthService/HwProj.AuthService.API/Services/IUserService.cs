@@ -13,7 +13,7 @@ namespace HwProj.AuthService.API.Services
         /// <summary>
         /// Возвращает данные о пользователе 
         /// </summary>
-        Task<List<object>> GetUserDataById(string userId);
+        Task<Dictionary<string, string>> GetUserDataById(string userId);
 
         /// <summary>
         /// True, если пользователь аутентифицирован
@@ -33,7 +33,7 @@ namespace HwProj.AuthService.API.Services
         /// <summary>
         /// Регистрация пользователя 
         /// </summary>
-        Task<string> Register(RegisterViewModel model, HttpContext httpContext, IUrlHelper url);
+        Task Register(RegisterViewModel model, HttpContext httpContext, IUrlHelper url);
 
         /// <summary>
         /// Изменение профиля

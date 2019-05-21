@@ -35,7 +35,7 @@ namespace HwProj.AuthService.API.Services
         /// <summary>
         /// Возвращает данные о пользователе 
         /// </summary>
-        public async Task<List<object>> GetUserDataById(string userId)
+        public async Task<Dictionary<string, string>> GetUserDataById(string userId)
         {
             if ((await userManager.FindByIdAsync(userId)) == null)
             {
@@ -45,7 +45,15 @@ namespace HwProj.AuthService.API.Services
             var user = await userManager.FindByIdAsync(userId);
             var userRole = (await userManager.GetRolesAsync(user))[0];
 
-            return new List<object>() { user.Name, user.Surname, user.Email, userRole};
+            var userData = new Dictionary<string, string>
+            {
+                { "name", user.Name },
+                { "surname", user.Surname },
+                { "email", user.Email },
+                { "role", userRole }
+            };
+
+            return userData;
         }
 
         /// <summary>
@@ -179,7 +187,7 @@ namespace HwProj.AuthService.API.Services
         /// <summary>
         /// Регистрация пользователя 
         /// </summary>
-        public async Task<string> Register(RegisterViewModel model, HttpContext httpContext, IUrlHelper url)
+        public async Task Register(RegisterViewModel model, HttpContext httpContext, IUrlHelper url)
         {
             if ((await userManager.FindByEmailAsync(model.Email)) != null)
             {
@@ -196,10 +204,9 @@ namespace HwProj.AuthService.API.Services
 
             await userManager.AddToRoleAsync(user, "student");
 
-            return await GetCallbackUrlForEmailConfirmation(user, httpContext, url);
-            //await emailService.SendEmailForConfirmation(
-            //    model.Email,
-            //    await GetCallbackUrlForEmailConfirmation(user, httpContext, url));
+            // для подтверждения почты письмом вернуть emailService.SendEmailForConfirmation
+            user.EmailConfirmed = true;
+            await userManager.UpdateAsync(user);
         }
 
         /// <summary>
@@ -269,6 +276,8 @@ namespace HwProj.AuthService.API.Services
             {
                 throw new FailedExecutionException();
             }
+
+            await signInManager.SignOutAsync();
         }
 
         /// <summary>

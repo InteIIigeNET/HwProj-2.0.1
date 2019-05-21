@@ -23,21 +23,13 @@ namespace HwProj.AuthService.API.Controllers
 
             var response = new
             {
-                name = userData[0].ToString(),
-                surname = userData[1].ToString(),
-                email = userData[2].ToString(),
-                role = userData[3].ToString()
+                name = userData["name"],
+                surname = userData["surname"],
+                email = userData["email"],
+                role = userData["role"]
             };
 
             return Ok(response);
-        }
-
-        [HttpGet, Route("logingithub")]
-        [ExceptionFilter]
-        public IActionResult LoginGitHub()
-        {
-            var signInUri = userService.GetSignInUriGithub();
-            return Ok(signInUri);
         }
 
         [HttpGet, Route("issignin")]
@@ -45,39 +37,11 @@ namespace HwProj.AuthService.API.Controllers
         public IActionResult IsSignIn()
             => Ok(userService.IsSignIn(User));
 
-        [HttpGet, Route("callbackgithub")]
-        [ExceptionFilter]
-        public async Task<IActionResult> CallbackGitHub()
-        {
-            var tokenAndMetadata = await userService.LogInGitHub(User, Request);
-
-            var response = new
-            {
-                accessToken = tokenAndMetadata[0].ToString(),
-                expiresIn = (int)tokenAndMetadata[1]
-            };
-
-            return Ok(response);
-        }
-
         [HttpPost, Route("register")]
         [ExceptionFilter]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            var res = await userService.Register(model, HttpContext, Url);
-            return Ok(res);
-        }
-
-        [HttpGet, Route("confirmemail")]
-        [ExceptionFilter]
-        public async Task<IActionResult> ConfirmEmail(string userId, string code)
-        {
-            if (userId == null || code == null)
-            {
-                return BadRequest("Некорректные параметры запроса");
-            }
-
-            await userService.ConfirmEmail(userId, code);
+            await userService.Register(model, HttpContext, Url);
             return Ok();
         }
 
@@ -120,31 +84,6 @@ namespace HwProj.AuthService.API.Controllers
         public async Task<IActionResult> Edit(EditViewModel model)
         {
             await userService.Edit(model, User);
-            return Ok();
-        }
-
-        [HttpPost, Route("changeemail")]
-        [ExceptionFilter]
-        [Authorize]
-        public async Task<IActionResult> ChangeEmail(ChangeEmailViewModel model)
-        {
-            await userService.RequestToChangeEmail(model, User, HttpContext, Url);
-            return Ok();
-        }
-
-        [HttpGet, Route("confirmchangeemail")]
-        [ExceptionFilter]
-        public async Task<IActionResult> ConfirmChangeEmail(
-            string userId,
-            string email,
-            string code)
-        {
-            if (userId == null || code == null || email == null)
-            {
-                return BadRequest("Некорректные параметры запроса");
-            }
-
-            await userService.ConfirmChangeEmail(userId, email, code);
             return Ok();
         }
 
