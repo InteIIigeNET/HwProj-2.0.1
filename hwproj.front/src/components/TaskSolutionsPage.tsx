@@ -71,8 +71,8 @@ export default class TaskSolutionsPage extends React.Component<RouteComponentPro
                                 <AddSolution
                                 studentId={userId}
                                 taskId={+this.props.match.params.taskId}
-                                onAdding={() => this.setState({addSolution: false})}
-                                onCancel={() => this.setState({addSolution: false})} />
+                                onAdding={() => this.componentDidMount()}
+                                onCancel={() => this.componentDidMount()} />
                                 <br />
                                 <TaskSolutions forMentor={false} taskId={+this.props.match.params.taskId} studentId={userId} />
                             </div>
@@ -96,6 +96,7 @@ export default class TaskSolutionsPage extends React.Component<RouteComponentPro
                     .then(res => res.json())
                     .then(course => this.setState({
                         isLoaded: true,
+                        addSolution: false,
                         task: task,
                         course: course
                     }))));
