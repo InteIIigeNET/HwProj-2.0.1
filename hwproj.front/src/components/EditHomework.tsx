@@ -87,7 +87,7 @@ export default class EditHomework extends React.Component<RouteComponentProps<IE
                                 onChange={e => this.setState({ description: e.target.value})}
                             />
                             <br />
-                            <Button size="small" variant="contained" color="primary" type="submit">Редактировать задачу</Button>
+                            <Button size="small" variant="contained" color="primary" type="submit">Редактировать домашку</Button>
                         </form>
                     </div>
                 </div>
