@@ -9,6 +9,7 @@ import { CoursesApi, CourseViewModel } from '../api/courses/api'
 import { HomeworksApi, TasksApi, HomeworkViewModel } from '../api/homeworks/api'
 import { Paper, createStyles, Theme, withStyles } from '@material-ui/core';
 import TaskCell from './TaskCell'
+import TaskStudentCell from './TaskStudentCell'
 
 interface ICourseStudentsProps {
     course: CourseViewModel
@@ -68,10 +69,9 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
                                             {cm.studentId}
                                         </TableCell>
                                         {this.state.homeworks.map(homework =>
-                                            homework.tasks!.map(task =>
-                                                <TableCell component="td" padding="none" scope="row">
-                                                    +
-                                                </TableCell>))}
+                                            homework.tasks!.map(task => (
+                                                <TaskStudentCell studentId={cm.studentId!} taskId={task} />
+                                            )))}
                                     </TableRow>
                                 ))}
                             </TableBody>

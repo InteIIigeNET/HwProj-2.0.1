@@ -486,7 +486,7 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getTaskSolutionsFromStudent(taskId: number, studentId: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<number>> {
+        getTaskSolutionsFromStudent(taskId: number, studentId: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<Solution>> {
             const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).getTaskSolutionsFromStudent(taskId, studentId, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {

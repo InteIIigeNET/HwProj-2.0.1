@@ -49,9 +49,9 @@ export default class TaskSolutions extends React.Component<ITaskSolutionsProps, 
     componentDidMount() {
         let api = new SolutionsApi();
         api.getTaskSolutionsFromStudent(this.props.taskId, this.props.studentId)
-            .then(ids => this.setState({
+            .then(solutions => this.setState({
                 isLoaded: true,
-                solutions: ids
+                solutions: solutions.map(s => s.id!)
             }));
     }
 }
