@@ -9,8 +9,7 @@ namespace HwProj.HomeworkService.API
         public AutomapperProfile()
         {
             CreateMap<CreateHomeworkViewModel, Homework>();
-            CreateMap<Homework, HomeworkViewModel>()
-                .ForMember(dest => dest.Tasks, opts => opts.MapFrom(src => src.Tasks.Select(t => t.Id)));
+            CreateMap<Homework, HomeworkViewModel>();
             CreateMap<HomeworkTask, HomeworkTaskViewModel>().ReverseMap();
             CreateMap<CreateTaskViewModel, HomeworkTask>().ReverseMap();
         }
