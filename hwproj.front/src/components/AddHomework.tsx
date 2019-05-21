@@ -3,6 +3,7 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography';
 import {HomeworksApi, CreateTaskViewModel, TasksApi} from "../api/homeworks/api";
+import { Redirect } from 'react-router-dom'
 
 interface IAddHomeworkProps {
     id: number
@@ -13,7 +14,8 @@ interface IAddHomeworkProps {
 interface IAddHomeworkState {
     title: string,
     description: string,
-    tasks: CreateTaskViewModel[]
+    tasks: CreateTaskViewModel[],
+    added: boolean
 }
 
 export default class AddHomework extends React.Component<IAddHomeworkProps, IAddHomeworkState> {
@@ -22,7 +24,8 @@ export default class AddHomework extends React.Component<IAddHomeworkProps, IAdd
         this.state = {
             title: "",
             description: "",
-            tasks: [{ title: "", description: ""}]
+            tasks: [{ title: "", description: ""}],
+            added: false
         };
     }
 
@@ -31,13 +34,15 @@ export default class AddHomework extends React.Component<IAddHomeworkProps, IAdd
         let homeworksApi = new HomeworksApi();
         let tasksApi = new TasksApi()
         homeworksApi.addHomework(this.props.id, {title: this.state.title, description: this.state.description})
-            .then(homeworkId => this.state.tasks.forEach(t => {
-                tasksApi.addTask(homeworkId, t)
-            }))
-            .then(this.props.onSubmit);
+            .then(homeworkId => Promise.all(this.state.tasks.map(t =>
+                tasksApi.addTask(homeworkId, t))))
+            .then(res => this.props.onSubmit());
     }
 
     public render() {
+        if (this.state.added) {
+            return <Redirect to={'/courses/' + this.props.id.toString} />
+        }
         return (<div>
             <Typography variant='subtitle1'>Добавить домашку</Typography>
             <form onSubmit={e => this.handleSubmit(e)}>
