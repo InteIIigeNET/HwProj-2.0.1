@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { CourseViewModel, CoursesApi } from "../api/courses/api";
+import { HomeworkViewModel, HomeworksApi } from '../api/homeworks/api'
 import CourseHomework from "./CourseHomework"
 import {RouteComponentProps, Route} from "react-router-dom"
 import { Typography } from '@material-ui/core';
@@ -15,6 +16,7 @@ interface ICourseState {
     isLoaded: boolean,
     isFound: boolean,
     course: CourseViewModel,
+    courseHomework: HomeworkViewModel[],
     createHomework: boolean
 }
 
@@ -25,12 +27,14 @@ interface ICourseProp {
 export default class Course extends React.Component<RouteComponentProps<ICourseProp>, ICourseState> {
     authService = new AuthService();
     coursesApi = new CoursesApi();
+    homeworksApi = new HomeworksApi();
     constructor(props : RouteComponentProps<ICourseProp>) {
         super(props);
         this.state = {
             isLoaded: false,
             isFound: false,
             course: {},
+            courseHomework: [],
             createHomework: false
         };
     }
@@ -75,33 +79,33 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                         </div>
                         {createHomework &&
                             <div>
-                                <CourseStudents userId={userId} forMentor={isMentor} course={this.state.course} />
+                                <CourseStudents homeworks={this.state.courseHomework} userId={userId} forMentor={isMentor} course={this.state.course} />
                                 <br />
                                 <AddHomework
                                 id={+this.props.match.params.id}
                                 onCancel={() => this.componentDidMount()}
                                 onSubmit={() => this.componentDidMount()} />
-                                <CourseHomework forStudent={isAcceptedStudent} forMentor={isMentor} id={+this.props.match.params.id} />
+                                <CourseHomework onDelete={() => this.componentDidMount()} forStudent={isAcceptedStudent} forMentor={isMentor} homework={this.state.courseHomework} />
                             </div>
                         }
                         {(isMentor && !createHomework) &&
                             <div>
-                                <CourseStudents userId={userId} forMentor={isMentor} course={this.state.course} />
+                                <CourseStudents homeworks={this.state.courseHomework} userId={userId} forMentor={isMentor} course={this.state.course} />
                                 <br />
                                 <Button
                                 size="small"
                                 variant="contained"
                                 color="primary"
                                 onClick={() => { this.setState({createHomework: true })}}>Добавить домашку</Button>
-                                <CourseHomework forStudent={isAcceptedStudent} forMentor={isMentor} id={+this.props.match.params.id} />
+                                <CourseHomework onDelete={() => this.componentDidMount()} forStudent={isAcceptedStudent} forMentor={isMentor} homework={this.state.courseHomework} />
                             </div>
                         }
                         {isAcceptedStudent &&
-                            <CourseStudents userId={userId} forMentor={isMentor} course={this.state.course} />
+                            <CourseStudents homeworks={this.state.courseHomework} userId={userId} forMentor={isMentor} course={this.state.course} />
                         }
                         {!isMentor &&
                             <div>
-                                <CourseHomework forStudent={isAcceptedStudent} forMentor={isMentor} id={+this.props.match.params.id} />
+                                <CourseHomework onDelete={() => this.componentDidMount()} homework={this.state.courseHomework} forStudent={isAcceptedStudent} forMentor={isMentor}/>
                             </div>
                         }
                         
@@ -124,12 +128,14 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
     componentDidMount(): void {
         this.coursesApi.get(+this.props.match.params.id)
             .then(res => res.json())
-            .then(course => this.setState({
-                isLoaded: true,
-                isFound: true,
-                course: course,
-                createHomework: false
-            }))
+            .then(course => this.homeworksApi.getCourseHomeworks(course.id)
+                .then(homework => this.setState({
+                    isLoaded: true,
+                    isFound: true,
+                    course: course,
+                    courseHomework: homework,
+                    createHomework: false
+            })))
             .catch(err => this.setState({ isLoaded: true, isFound: false }))
     }
 }

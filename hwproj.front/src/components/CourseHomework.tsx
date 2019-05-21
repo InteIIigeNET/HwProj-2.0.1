@@ -2,59 +2,36 @@ import * as React from 'react';
 import ListItem from '@material-ui/core/ListItem';
 import List from '@material-ui/core/List';
 import { Typography } from '@material-ui/core';
-import { HomeworksApi} from "../api/homeworks/api";
+import { HomeworksApi, HomeworkViewModel } from "../api/homeworks/api";
 import Homework from './Homework';
 
 interface ICourseHomeworkProps {
-    id: number,
+    homework: HomeworkViewModel[]
     forMentor: boolean,
-    forStudent: boolean
+    forStudent: boolean,
+    onDelete: () => void
 }
 
-interface ICourseHomeworkState {
-    isLoaded: boolean,
-    homeworks: number[]
-}
-
-export default class CourseHomework extends React.Component<ICourseHomeworkProps, ICourseHomeworkState> {
+export default class CourseHomework extends React.Component<ICourseHomeworkProps, {}> {
     constructor(props : ICourseHomeworkProps) {
         super(props);
-        this.state = {
-            isLoaded: false,
-            homeworks: []
-        };
     }
 
     public render() {
-        const { isLoaded, homeworks } = this.state;
-
-        if (isLoaded) {
-                let homeworkList = homeworks.map(homeworkId =>
-                    <ListItem key={homeworkId}>
-                        <Homework forStudent={this.props.forStudent} id={homeworkId} forMentor={this.props.forMentor} onDeleteClick={() => this.componentDidMount()}/>
-                    </ListItem>).reverse();
-                
-                return (
-                    <div>
-                        {homeworkList.length > 0 &&
-                            <Typography variant='h6'>Задачи</Typography>
-                        }
-                        <List>
-                            {homeworkList}
-                        </List>
-                    </div>
-                )
-        }
-
-        return <h1></h1>
-    }
-
-    componentDidMount(): void {
-        let api = new HomeworksApi();
-        api.getCourseHomeworks(this.props.id)
-            .then(homeworks => this.setState({
-                isLoaded: true,
-                homeworks: homeworks.map(hw => hw.id!)
-            }));
+        let homeworkList = this.props.homework.map(hw =>
+            <ListItem key={hw.id}>
+                <Homework homework={hw} forStudent={this.props.forStudent} forMentor={this.props.forMentor} onDeleteClick={() => this.props.onDelete()}/>
+            </ListItem>).reverse();
+        
+        return (
+            <div>
+                {homeworkList.length > 0 &&
+                    <Typography variant='h6'>Задачи</Typography>
+                }
+                <List>
+                    {homeworkList}
+                </List>
+            </div>
+        )
     }
 }

@@ -11,16 +11,13 @@ import EditIcon from '@material-ui/icons/Edit'
 import {Link as RouterLink} from 'react-router-dom'
 
 interface IHomeworkProps {
-    id: number,
+    homework: HomeworkViewModel,
     forMentor: boolean,
     forStudent: boolean,
     onDeleteClick: () => void
 }
 
 interface IHomeworkState {
-    isLoaded: boolean,
-    isFound: boolean,
-    homework: HomeworkViewModel,
     createTask: boolean
 }
 
@@ -28,81 +25,55 @@ export default class Homework extends React.Component<IHomeworkProps, IHomeworkS
     constructor(props : IHomeworkProps) {
         super(props);
         this.state = {
-            isLoaded: false,
-            isFound: false,
-            homework: {},
             createTask: false
         };
     }
 
     public render() {
-        const { isLoaded, isFound, homework, createTask } = this.state;
-
-        if (isLoaded) {
-            if (isFound) {
-                let homeworkDateString = new Date(homework.date!.toString()).toLocaleDateString("ru-RU");
-                return (
-                    <div className="container">
-                        <b>{homework.title}</b> {homeworkDateString}
-                        {this.props.forMentor &&
-                            <IconButton aria-label="Delete" onClick={() => this.deleteHomework()}>
-                                <DeleteIcon fontSize="small" />
-                            </IconButton>
-                        }
-                        {this.props.forMentor && 
-                                <RouterLink to={'/homework/' + homework.id!.toString() + '/edit'}>
-                                    <EditIcon fontSize="small" />
-                                </RouterLink>
-                        }
-                        <ReactMarkdown source={homework.description} />
-                        {(this.props.forMentor && this.state.createTask) && 
-                            <div>
-                                <HomeworkTasks forStudent={this.props.forStudent} forMentor={this.props.forMentor} id={this.props.id} />
-                                <AddTask
-                                id={homework.id!}
-                                onAdding={() => this.setState({createTask: false})}
-                                onCancel={() => this.setState({createTask: false})} />
-                            </div>
-                        }
-                        {(this.props.forMentor && !this.state.createTask) &&
-                            <div>
-                                <HomeworkTasks forStudent={this.props.forStudent} forMentor={this.props.forMentor} id={this.props.id} />
-                                <Button
-                                    size="small"
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={() => { this.setState({createTask: true })}}>Добавить задачу</Button>
-                            </div>
-                        }
-                        {!this.props.forMentor &&
-                            <HomeworkTasks forStudent={this.props.forStudent} forMentor={this.props.forMentor} id={this.props.id} />
-                        }
+        let homeworkDateString = new Date(this.props.homework.date!.toString()).toLocaleDateString("ru-RU");
+        return (
+            <div className="container">
+                <b>{this.props.homework.title}</b> {homeworkDateString}
+                {this.props.forMentor &&
+                    <IconButton aria-label="Delete" onClick={() => this.deleteHomework()}>
+                        <DeleteIcon fontSize="small" />
+                    </IconButton>
+                }
+                {this.props.forMentor && 
+                        <RouterLink to={'/homework/' + this.props.homework.id!.toString() + '/edit'}>
+                            <EditIcon fontSize="small" />
+                        </RouterLink>
+                }
+                <ReactMarkdown source={this.props.homework.description} />
+                {(this.props.forMentor && this.state.createTask) && 
+                    <div>
+                        <HomeworkTasks forStudent={this.props.forStudent} forMentor={this.props.forMentor} id={this.props.homework.id!} />
+                        <AddTask
+                        id={this.props.homework.id!}
+                        onAdding={() => this.setState({createTask: false})}
+                        onCancel={() => this.setState({createTask: false})} />
                     </div>
-                )
-            }
-        }
-
-        return <h1></h1>
+                }
+                {(this.props.forMentor && !this.state.createTask) &&
+                    <div>
+                        <HomeworkTasks forStudent={this.props.forStudent} forMentor={this.props.forMentor} id={this.props.homework.id!} />
+                        <Button
+                            size="small"
+                            variant="contained"
+                            color="primary"
+                            onClick={() => { this.setState({createTask: true })}}>Добавить задачу</Button>
+                    </div>
+                }
+                {!this.props.forMentor &&
+                    <HomeworkTasks forStudent={this.props.forStudent} forMentor={this.props.forMentor} id={this.props.homework.id!} />
+                }
+            </div>
+        )
     }
 
     deleteHomework(): void {
         let api = new HomeworksApi();
-        api.deleteHomework(this.props.id)
+        api.deleteHomework(this.props.homework.id!)
             .then(res => this.props.onDeleteClick());
-    }
-
-    componentDidMount(): void {
-        let api = new HomeworksApi();
-        api.getHomework(this.props.id)
-            .then(res => res.json())
-            .then(homework => this.setState({
-                isLoaded: true,
-                isFound: true,
-                homework: homework
-            }))
-            .catch(err => this.setState({
-                isLoaded: true,
-                isFound: false
-            }));
     }
 }

@@ -13,13 +13,9 @@ import TaskStudentCell from './TaskStudentCell'
 
 interface ICourseStudentsProps {
     course: CourseViewModel,
+    homeworks: HomeworkViewModel[],
     forMentor: boolean,
     userId: string
-}
-
-interface ICourseStudentsState {
-    isLoaded: boolean,
-    homeworks: HomeworkViewModel[]
 }
 
 const styles = (theme : Theme) => createStyles({
@@ -30,21 +26,14 @@ const styles = (theme : Theme) => createStyles({
         },
    });
 
-class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStudentsState> {
+class CourseStudents extends React.Component<ICourseStudentsProps, {}> {
     homeworksApi = new HomeworksApi();
     tasksApi = new TasksApi();
     constructor(props: ICourseStudentsProps) {
         super(props);
-        this.state = {
-            isLoaded: false,
-            homeworks: []
-        }
     }
 
     public render() {
-        const { isLoaded } = this.state;
-
-        if (isLoaded) {
             return (
                 <div>
                     <Paper className="paper">
@@ -52,13 +41,13 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
                             <TableHead>
                                 <TableRow>
                                     <TableCell align="center" padding="none" component="td"><b>Студент</b></TableCell>
-                                    {this.state.homeworks.map((homework, index) => (
+                                    {this.props.homeworks.map((homework, index) => (
                                         <TableCell padding="none" component="td" align="center" colSpan={homework.tasks!.length}>{index + 1}</TableCell>
                                     ))}
                                 </TableRow>
                                 <TableRow>
                                     <TableCell component="td"></TableCell>
-                                    {this.state.homeworks.map(homework =>
+                                    {this.props.homeworks.map(homework =>
                                         homework.tasks!.map(taskId =>
                                             <TaskCell taskId={taskId} />))
                                     }
@@ -70,7 +59,7 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
                                         <TableCell align="center" padding="none" component="td" scope="row">
                                             {cm.studentId}
                                         </TableCell>
-                                        {this.state.homeworks.map(homework =>
+                                        {this.props.homeworks.map(homework =>
                                             homework.tasks!.map(task => (
                                                 <TaskStudentCell userId={this.props.userId} forMentor={this.props.forMentor} studentId={cm.studentId!} taskId={task} />
                                             )))}
@@ -81,14 +70,6 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
                     </Paper>
                 </div>
             )
-        }
-
-        return "";
-    }
-
-    componentDidMount() {
-        this.homeworksApi.getCourseHomeworks(this.props.course.id!)
-            .then(homeworks => this.setState({isLoaded: true, homeworks: homeworks}));
     }
 }
 
