@@ -32,8 +32,8 @@ class App extends Component {
                 <Route exact path='/courses/:courseId/edit' component={EditCourse} />
                 <Route exact path='/homework/:homeworkId/edit' component={EditHomework} />
                 <Switch>
-                  <Route exact path='/task/:taskId/:studentId'component={StudentSolutionsPage} />
                   <Route exact path='/task/:taskId/edit' component={EditTask} />
+                  <Route exact path='/task/:taskId/:studentId'component={StudentSolutionsPage} />
                   <Route exact path='/task/:taskId/' component={TaskSolutionsPage} />
                 </Switch>
                 <Route exact path='/login' component={Login} />
