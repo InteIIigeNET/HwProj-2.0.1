@@ -75,7 +75,7 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                         </div>
                         {createHomework &&
                             <div>
-                                <CourseStudents course={this.state.course} />
+                                <CourseStudents userId={userId} forMentor={isMentor} course={this.state.course} />
                                 <br />
                                 <AddHomework
                                 id={+this.props.match.params.id}
@@ -86,7 +86,7 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                         }
                         {(isMentor && !createHomework) &&
                             <div>
-                                <CourseStudents course={this.state.course} />
+                                <CourseStudents userId={userId} forMentor={isMentor} course={this.state.course} />
                                 <br />
                                 <Button
                                 size="small"
@@ -97,7 +97,7 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                             </div>
                         }
                         {isAcceptedStudent &&
-                            <CourseStudents course={this.state.course} />
+                            <CourseStudents userId={userId} forMentor={isMentor} course={this.state.course} />
                         }
                         {!isMentor &&
                             <div>

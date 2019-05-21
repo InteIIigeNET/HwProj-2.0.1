@@ -12,7 +12,9 @@ import TaskCell from './TaskCell'
 import TaskStudentCell from './TaskStudentCell'
 
 interface ICourseStudentsProps {
-    course: CourseViewModel
+    course: CourseViewModel,
+    forMentor: boolean,
+    userId: string
 }
 
 interface ICourseStudentsState {
@@ -70,7 +72,7 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
                                         </TableCell>
                                         {this.state.homeworks.map(homework =>
                                             homework.tasks!.map(task => (
-                                                <TaskStudentCell studentId={cm.studentId!} taskId={task} />
+                                                <TaskStudentCell userId={this.props.userId} forMentor={this.props.forMentor} studentId={cm.studentId!} taskId={task} />
                                             )))}
                                     </TableRow>
                                 ))}

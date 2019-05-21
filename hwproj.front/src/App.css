@@ -12,6 +12,21 @@ td {
   border: 1px solid #c0c0c0;
 }
 
+.posted {
+  background-color: rgb(203, 243, 162);
+  border: 1px solid #c0c0c0;
+}
+
+.accepted {
+  background-color: #095009;
+  border: 1px solid #c0c0c0;
+}
+
+.rejected {
+  background-color: rgb(226, 177, 72);
+  border: 1px solid #c0c0c0;
+}
+
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
