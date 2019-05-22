@@ -14,7 +14,8 @@ interface ICourseStudentsProps {
     course: CourseViewModel,
     homeworks: HomeworkViewModel[],
     forMentor: boolean,
-    userId: string
+    userId: string,
+    courseMates: string[]
 }
 
 const styles = (theme : Theme) => createStyles({
@@ -54,10 +55,10 @@ class CourseStudents extends React.Component<ICourseStudentsProps, {}> {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {this.props.course.courseMates!.map(cm => (
+                                {this.props.course.courseMates!.map((cm, index) => (
                                     <TableRow key={cm.studentId}>
                                         <TableCell align="center" padding="none" component="td" scope="row">
-                                            {cm.studentId}
+                                            {this.props.courseMates[index]}
                                         </TableCell>
                                         {this.props.homeworks.map(homework =>
                                             homework.tasks!.map(task => (

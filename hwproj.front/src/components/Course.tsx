@@ -13,18 +13,21 @@ import CourseStudents from './CourseStudents';
 import AuthService from './AuthService';
 import { Link as RouterLink } from 'react-router-dom'
 
+interface User {
+    name: string,
+    surname: string,
+    email: string,
+    role: string
+}
+
 interface ICourseState {
     isLoaded: boolean,
     isFound: boolean,
     course: CourseViewModel,
     courseHomework: HomeworkViewModel[],
     createHomework: boolean,
-    mentor: {
-        name: string,
-        surname: string,
-        email: string,
-        role: string
-    }
+    mentor: User,
+    courseMates: string[]
 }
 
 interface ICourseProp {
@@ -49,7 +52,8 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                 surname: "",
                 email: "",
                 role: ""
-            }
+            },
+            courseMates: []
         };
     }
 
@@ -98,7 +102,7 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                         </div>
                         {createHomework &&
                             <div>
-                                <CourseStudents homeworks={this.state.courseHomework} userId={userId} forMentor={isMentor} course={this.state.course} />
+                                <CourseStudents courseMates={this.state.courseMates} homeworks={this.state.courseHomework} userId={userId} forMentor={isMentor} course={this.state.course} />
                                 <br />
                                 <AddHomework
                                 id={+this.props.match.params.id}
@@ -109,7 +113,7 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                         }
                         {(isMentor && !createHomework) &&
                             <div>
-                                <CourseStudents homeworks={this.state.courseHomework} userId={userId} forMentor={isMentor} course={this.state.course} />
+                                <CourseStudents courseMates={this.state.courseMates} homeworks={this.state.courseHomework} userId={userId} forMentor={isMentor} course={this.state.course} />
                                 <br />
                                 <Button
                                 size="small"
@@ -120,7 +124,7 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                             </div>
                         }
                         {isAcceptedStudent &&
-                            <CourseStudents homeworks={this.state.courseHomework} userId={userId} forMentor={isMentor} course={this.state.course} />
+                            <CourseStudents courseMates={this.state.courseMates} homeworks={this.state.courseHomework} userId={userId} forMentor={isMentor} course={this.state.course} />
                         }
                         {!isMentor &&
                             <div>
@@ -144,20 +148,24 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
         this.coursesApi.signInCourse(+this.props.match.params.id, 55);
     }
 
-    componentDidMount(): void {
-        this.coursesApi.get(+this.props.match.params.id)
+    async componentDidMount() {
+        await this.coursesApi.get(+this.props.match.params.id)
             .then(res => res.json())
-            .then(course => this.homeworksApi.getCourseHomeworks(course.id)
+            .then((course : CourseViewModel) => this.homeworksApi.getCourseHomeworks(course.id!)
                 .then(homework => this.authApi.getUserDataById(course.mentorId)
                     .then(res => res.json())
-                    .then(mentor => this.setState({
+                    .then(async mentor => await Promise.all(course.courseMates!.map(async cm => {
+                        let res = await this.authApi.getUserDataById(cm.studentId);
+                        return res.json();
+                    })).then(courseMates => this.setState({
                     isLoaded: true,
                     isFound: true,
                     course: course,
                     courseHomework: homework,
                     createHomework: false,
-                    mentor: mentor
-            }))))
+                    mentor: mentor,
+                    courseMates: courseMates.map(cm => cm.surname + ' ' + cm.name)
+            })))))
             .catch(err => this.setState({ isLoaded: true, isFound: false }))
     }
 }

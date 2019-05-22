@@ -36,7 +36,7 @@ export default class Register extends React.Component<{}, IRegisterState> {
 
         this.authApi.register({
             name: this.state.name,
-            surname: this.state.name,
+            surname: this.state.surname,
             email: this.state.email,
             password: this.state.password,
             passwordConfirm: this.state.confirmPassword
