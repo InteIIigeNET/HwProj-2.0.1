@@ -3,7 +3,6 @@ import { AccountApi } from '../api/auth/api'
 
 export default class AuthService {
     client = new AccountApi();
-    domain = 'http://localhost:5000/api/account'
     constructor() {
         this.login = this.login.bind(this)
         this.getProfile = this.getProfile.bind(this)
@@ -20,13 +19,25 @@ export default class AuthService {
 
     loggedIn() {
         const token = this.getToken();
-        return !!token && !this.isTokenExpired(token);
+        if (!token) {
+            return false;
+        }
+
+        if (this.isTokenExpired(token)) {
+            this.client.refreshToken()
+                .then(res => res.json())
+                .then(res => {
+                    this.setToken(res.accessToken);
+                })
+        }
+
+        return true;
     }
 
     isTokenExpired(token) {
         try {
             let decoded = decode(token);
-            return decoded.exp < Date.now() / 1000;
+            return decoded.exp + 300 < Date.now() / 1000;
         }
         catch (err) {
             return false;
@@ -43,6 +54,7 @@ export default class AuthService {
 
     logout() {
         localStorage.removeItem('id_token');
+        this.client.logOff();
     }
 
     getProfile() {
