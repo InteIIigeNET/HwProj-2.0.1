@@ -27,7 +27,8 @@ interface ICourseState {
     courseHomework: HomeworkViewModel[],
     createHomework: boolean,
     mentor: User,
-    courseMates: string[]
+    acceptedStudents: string[],
+    newStudents: string[]
 }
 
 interface ICourseProp {
@@ -53,7 +54,8 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                 email: "",
                 role: ""
             },
-            courseMates: []
+            acceptedStudents: [],
+            newStudents: []
         };
     }
 
@@ -102,7 +104,7 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                         </div>
                         {createHomework &&
                             <div>
-                                <CourseStudents courseMates={this.state.courseMates} homeworks={this.state.courseHomework} userId={userId} forMentor={isMentor} course={this.state.course} />
+                                <CourseStudents courseMates={this.state.acceptedStudents} homeworks={this.state.courseHomework} userId={userId} forMentor={isMentor} course={this.state.course} />
                                 <br />
                                 <AddHomework
                                 id={+this.props.match.params.id}
@@ -113,7 +115,7 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                         }
                         {(isMentor && !createHomework) &&
                             <div>
-                                <CourseStudents courseMates={this.state.courseMates} homeworks={this.state.courseHomework} userId={userId} forMentor={isMentor} course={this.state.course} />
+                                <CourseStudents courseMates={this.state.acceptedStudents} homeworks={this.state.courseHomework} userId={userId} forMentor={isMentor} course={this.state.course} />
                                 <br />
                                 <Button
                                 size="small"
@@ -124,7 +126,7 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                             </div>
                         }
                         {isAcceptedStudent &&
-                            <CourseStudents courseMates={this.state.courseMates} homeworks={this.state.courseHomework} userId={userId} forMentor={isMentor} course={this.state.course} />
+                            <CourseStudents courseMates={this.state.acceptedStudents} homeworks={this.state.courseHomework} userId={userId} forMentor={isMentor} course={this.state.course} />
                         }
                         {!isMentor &&
                             <div>
@@ -156,7 +158,8 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                     .then(res => res.json())
                     .then(async mentor => await Promise.all(course.courseMates!.map(async cm => {
                         let res = await this.authApi.getUserDataById(cm.studentId);
-                        return res.json();
+                        let user = await res.json();
+                        return {user: user, isAccepted: cm.isAccepted}
                     })).then(courseMates => this.setState({
                     isLoaded: true,
                     isFound: true,
@@ -164,7 +167,8 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                     courseHomework: homework,
                     createHomework: false,
                     mentor: mentor,
-                    courseMates: courseMates.map(cm => cm.surname + ' ' + cm.name)
+                    acceptedStudents: courseMates.filter(cm => cm.isAccepted).map(cm => cm.user.surname + ' ' + cm.user.name),
+                    newStudents: courseMates.filter(cm => !cm.isAccepted).map(cm => cm.user.surname + ' ' + cm.user.name),
             })))))
             .catch(err => this.setState({ isLoaded: true, isFound: false }))
     }

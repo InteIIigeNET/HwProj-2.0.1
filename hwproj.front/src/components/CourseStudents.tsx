@@ -55,7 +55,7 @@ class CourseStudents extends React.Component<ICourseStudentsProps, {}> {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {this.props.course.courseMates!.map((cm, index) => (
+                                {this.props.course.courseMates!.filter(cm => cm.isAccepted).map((cm, index) => (
                                     <TableRow key={cm.studentId}>
                                         <TableCell align="center" padding="none" component="td" scope="row">
                                             {this.props.courseMates[index]}
