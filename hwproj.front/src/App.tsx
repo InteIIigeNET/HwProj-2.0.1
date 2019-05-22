@@ -23,7 +23,6 @@ class App extends Component {
   render() {
     return (
         <div>
-          
           <Router>
                 <AppBar />
                 <Route exact path='/' component={Courses} />

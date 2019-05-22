@@ -51,19 +51,19 @@ class ButtonAppBar extends React.Component<Props, IAppBarState> {
               <Typography variant="h6" color="inherit" className={classes.grow}>
               </Typography>
               {(loggedIn && this.authService.getProfile()._role === "lecturer") &&
-                <Button href="/create_course" color="inherit">Create course</Button>
+                <Button href="/create_course" color="inherit">Создать курс</Button>
               }
               {loggedIn &&
               <Button onClick={() => {
                 this.authService.logout();
                 this.setState({loaded: true, loggedIn: false});
                 window.location.assign('/');
-              }}  color="inherit">Logout</Button>
+              }}  color="inherit">Выйти</Button>
               }
               {!loggedIn &&
               <div>
-                <Button href="/login" color="inherit">Login</Button>
-                <Button href="/register" color="inherit">Register</Button>
+                <Button href="/login" color="inherit">Вход</Button>
+                <Button href="/register" color="inherit">Регистрация</Button>
               </div>
               }
             </Toolbar>
