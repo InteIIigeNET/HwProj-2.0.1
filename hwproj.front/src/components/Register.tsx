@@ -12,9 +12,7 @@ interface IRegisterState {
     email: string,
     password: string,
     confirmPassword: string,
-    logged: boolean,
-    registred: boolean,
-    confirmationLink: string
+    logged: boolean
 }
 
 export default class Register extends React.Component<{}, IRegisterState> {
@@ -29,9 +27,7 @@ export default class Register extends React.Component<{}, IRegisterState> {
             email: "",
             password: "",
             confirmPassword: "",
-            logged: this.authService.loggedIn(),
-            registred: false,
-            confirmationLink: ""
+            logged: this.authService.loggedIn()
         };  
     }
 
@@ -45,15 +41,13 @@ export default class Register extends React.Component<{}, IRegisterState> {
             password: this.state.password,
             passwordConfirm: this.state.confirmPassword
         })
+        .then(res => this.authService.login(this.state.email, this.state.password)
+            .then(res => window.location.assign('/')));
     }
 
     public render() {
         if (this.state.logged) {
             return <Redirect to={'/'} />
-        }
-
-        if (this.state.registred) {
-            return <Redirect to={this.state.confirmationLink} />
         }
 
         return (
