@@ -89,7 +89,7 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                                 <Typography variant="h5">
                                     {mentor.name}&nbsp;{mentor.surname}
                                 </Typography>
-                                {(isMentor || isSignedInCourse) &&
+                                {(isMentor || isAcceptedStudent) &&
                                     <Typography variant="subtitle1">
                                         {mentor.email}
                                     </Typography>
