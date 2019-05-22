@@ -12,6 +12,7 @@ import AddHomework from './AddHomework';
 import CourseStudents from './CourseStudents';
 import AuthService from './AuthService';
 import { Link as RouterLink } from 'react-router-dom'
+import NewCourseStudents from './NewCourseStudents'
 
 interface User {
     name: string,
@@ -106,6 +107,8 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                             <div>
                                 <CourseStudents courseMates={this.state.acceptedStudents} homeworks={this.state.courseHomework} userId={userId} forMentor={isMentor} course={this.state.course} />
                                 <br />
+                                <NewCourseStudents onUpdate={() => this.componentDidMount()} course={this.state.course} studentNames={this.state.newStudents} />
+                                <br />
                                 <AddHomework
                                 id={+this.props.match.params.id}
                                 onCancel={() => this.componentDidMount()}
@@ -116,6 +119,8 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                         {(isMentor && !createHomework) &&
                             <div>
                                 <CourseStudents courseMates={this.state.acceptedStudents} homeworks={this.state.courseHomework} userId={userId} forMentor={isMentor} course={this.state.course} />
+                                <br />
+                                <NewCourseStudents onUpdate={() => this.componentDidMount()} course={this.state.course} studentNames={this.state.newStudents} />
                                 <br />
                                 <Button
                                 size="small"
