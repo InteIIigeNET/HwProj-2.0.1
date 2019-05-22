@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { CourseViewModel, CoursesApi } from "../api/courses/api";
 import { HomeworkViewModel, HomeworksApi } from '../api/homeworks/api'
+import { AccountApi } from '../api/auth/api'
 import CourseHomework from "./CourseHomework"
 import {RouteComponentProps, Route} from "react-router-dom"
 import { Typography } from '@material-ui/core';
@@ -17,7 +18,13 @@ interface ICourseState {
     isFound: boolean,
     course: CourseViewModel,
     courseHomework: HomeworkViewModel[],
-    createHomework: boolean
+    createHomework: boolean,
+    mentor: {
+        name: string,
+        surname: string,
+        email: string,
+        role: string
+    }
 }
 
 interface ICourseProp {
@@ -28,6 +35,7 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
     authService = new AuthService();
     coursesApi = new CoursesApi();
     homeworksApi = new HomeworksApi();
+    authApi = new AccountApi();
     constructor(props : RouteComponentProps<ICourseProp>) {
         super(props);
         this.state = {
@@ -35,12 +43,18 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
             isFound: false,
             course: {},
             courseHomework: [],
-            createHomework: false
+            createHomework: false,
+            mentor: {
+                name: "",
+                surname: "",
+                email: "",
+                role: ""
+            }
         };
     }
 
     public render() {
-        const { isLoaded, isFound, course, createHomework } = this.state;
+        const { isLoaded, isFound, course, createHomework, mentor } = this.state;
         if (isLoaded) {
             if (isFound) {
                 let isLogged = this.authService.loggedIn();
@@ -66,8 +80,13 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                             </div>
                             <div>
                                 <Typography variant="h5">
-                                    Mentod ID: {course.mentorId}
+                                    {mentor.name}&nbsp;{mentor.surname}
                                 </Typography>
+                                {(isMentor || isSignedInCourse) &&
+                                    <Typography variant="subtitle1">
+                                        {mentor.email}
+                                    </Typography>
+                                }
                                 {(isLogged && !isSignedInCourse && !isMentor) &&
                                 <Button
                                     size="small"
@@ -129,13 +148,16 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
         this.coursesApi.get(+this.props.match.params.id)
             .then(res => res.json())
             .then(course => this.homeworksApi.getCourseHomeworks(course.id)
-                .then(homework => this.setState({
+                .then(homework => this.authApi.getUserDataById(course.mentorId)
+                    .then(res => res.json())
+                    .then(mentor => this.setState({
                     isLoaded: true,
                     isFound: true,
                     course: course,
                     courseHomework: homework,
-                    createHomework: false
-            })))
+                    createHomework: false,
+                    mentor: mentor
+            }))))
             .catch(err => this.setState({ isLoaded: true, isFound: false }))
     }
 }
