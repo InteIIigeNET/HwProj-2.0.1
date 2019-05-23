@@ -1133,7 +1133,7 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             const localVarQueryParameter = {} as any;
 
             let authService = new AuthService();
-            if (authService.loggedIn()) {
+            if (authService.isTokenInLocalStorage()) {
                 localVarHeaderParameter['Authorization'] = 'Bearer ' + authService.getToken()
             }
 

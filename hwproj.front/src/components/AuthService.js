@@ -34,6 +34,10 @@ export default class AuthService {
         return true;
     }
 
+    isTokenInLocalStorage() {
+        return !!this.getToken();
+    }
+
     isTokenExpired(token) {
         try {
             let decoded = decode(token);
