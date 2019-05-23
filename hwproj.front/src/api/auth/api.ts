@@ -953,11 +953,6 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
 
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
 
-            let authService = new AuthService();
-            if (authService.loggedIn()) {
-                localVarHeaderParameter['Authorization'] = 'Bearer ' + authService.getToken()
-            }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
@@ -1133,7 +1128,7 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             const localVarQueryParameter = {} as any;
 
             let authService = new AuthService();
-            if (authService.isTokenInLocalStorage()) {
+            if (authService.loggedIn()) {
                 localVarHeaderParameter['Authorization'] = 'Bearer ' + authService.getToken()
             }
 
@@ -1159,11 +1154,6 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
-            let authService = new AuthService();
-            if (authService.loggedIn()) {
-                localVarHeaderParameter['Authorization'] = 'Bearer ' + authService.getToken()
-            }
 
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
 

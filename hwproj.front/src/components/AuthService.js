@@ -19,23 +19,7 @@ export default class AuthService {
 
     loggedIn() {
         const token = this.getToken();
-        if (!token) {
-            return false;
-        }
-
-        if (this.isTokenExpired(token)) {
-            this.client.refreshToken()
-                .then(res => res.json())
-                .then(res => {
-                    this.setToken(res.accessToken);
-                })
-        }
-
-        return true;
-    }
-
-    isTokenInLocalStorage() {
-        return !!this.getToken();
+        return !!token && !this.isTokenExpired(token);
     }
 
     isTokenExpired(token) {
