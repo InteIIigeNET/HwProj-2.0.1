@@ -104,12 +104,9 @@ namespace HwProj.AuthService.API.Services
         /// </summary>
         public async Task Edit(EditViewModel model, ClaimsPrincipal User)
         {
-            if (!signInManager.IsSignedIn(User))
-            {
-                throw new UserNotSignInException();
-            }
-            
-            var user = await userManager.FindByNameAsync(User.Identity.Name);
+            var id = User.FindFirst("_id").Value;
+
+            var user = await userManager.FindByIdAsync(id);
             var result = await ChangeUserData(user, model);
 
             if (!result.Succeeded)

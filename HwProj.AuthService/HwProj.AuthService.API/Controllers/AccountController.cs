@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using HwProj.AuthService.API.Filters;
 using HwProj.AuthService.API.Services;
 using HwProj.AuthService.API.ViewModels;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace HwProj.AuthService.API.Controllers
 {
@@ -80,7 +81,7 @@ namespace HwProj.AuthService.API.Controllers
 
         [HttpPost, Route("edit")]
         [ExceptionFilter]
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Edit(EditViewModel model)
         {
             await userService.Edit(model, User);
