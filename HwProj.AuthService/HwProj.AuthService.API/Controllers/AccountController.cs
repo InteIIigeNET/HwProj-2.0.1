@@ -90,7 +90,7 @@ namespace HwProj.AuthService.API.Controllers
 
         [HttpDelete, Route("delete")]
         [ExceptionFilter]
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Delete(DeleteViewModel model)
         {
             await userService.Delete(model, User);
@@ -99,7 +99,7 @@ namespace HwProj.AuthService.API.Controllers
 
         [HttpPost, Route("changepassword")]
         [ExceptionFilter]
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {
             await userService.ChangePassword(model, User, HttpContext);
@@ -108,7 +108,7 @@ namespace HwProj.AuthService.API.Controllers
 
         [HttpPost, Route("invitenewlecturer")]
         [ExceptionFilter]
-        [Authorize(Roles = "lecturer")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> InviteNewLecturer(InviteLecturerViewModel model)
         {
             await userService.InviteNewLecturer(model, User);

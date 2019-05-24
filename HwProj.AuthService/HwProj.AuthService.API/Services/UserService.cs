@@ -257,12 +257,8 @@ namespace HwProj.AuthService.API.Services
         /// </summary>
         public async Task Delete(DeleteViewModel model, ClaimsPrincipal User)
         {
-            if (!signInManager.IsSignedIn(User))
-            {
-                throw new UserNotSignInException();
-            }
-
-            var user = await userManager.FindByNameAsync(User.Identity.Name);
+            var id = User.FindFirst("_role").Value;
+            var user = await userManager.FindByIdAsync(id);
 
             if (!await userManager.CheckPasswordAsync(user, model.Password))
             {
@@ -285,12 +281,8 @@ namespace HwProj.AuthService.API.Services
             ClaimsPrincipal User,
             HttpContext httpContext)
         {
-            if (!signInManager.IsSignedIn(User))
-            {
-                throw new UserNotSignInException();
-            }
-
-            var user = await userManager.FindByNameAsync(User.Identity.Name);
+            var id = User.FindFirst("_role").Value;
+            var user = await userManager.FindByIdAsync(id);
 
             if (!await userManager.CheckPasswordAsync(user, model.Password))
             {
@@ -310,9 +302,9 @@ namespace HwProj.AuthService.API.Services
         /// </summary>
         public async Task InviteNewLecturer(InviteLecturerViewModel model, ClaimsPrincipal User)
         {
-            if (!signInManager.IsSignedIn(User))
+            if (User.FindFirst("_role").Value != "lecturer")
             {
-                throw new UserNotSignInException();
+                throw new FailedExecutionException();
             }
 
             var invitedUser = await userManager.FindByEmailAsync(model.EmailOfInvitedPerson);
