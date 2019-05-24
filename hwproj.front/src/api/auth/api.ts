@@ -18,7 +18,7 @@ import * as portableFetch from "portable-fetch";
 import { Configuration } from "./configuration";
 import AuthService from '../../components/AuthService'
 
-const BASE_PATH = "http://localhost:5000".replace(/\/+$/, "");
+const BASE_PATH = "http://54.91.242.26:8084/".replace(/\/+$/, "");
 
 /**
  *
@@ -952,6 +952,11 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             const localVarQueryParameter = {} as any;
 
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            let authService = new AuthService();
+            if (authService.loggedIn()) {
+                localVarHeaderParameter['Authorization'] = 'Bearer ' + authService.getToken()
+            }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
