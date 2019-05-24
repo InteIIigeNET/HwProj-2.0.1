@@ -101,6 +101,9 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                                     color="primary"
                                     onClick={() => this.joinCourse()}>Записаться</Button>
                                 }
+                                {(isLogged && isSignedInCourse && !isAcceptedStudent) &&
+                                    "Ваша заявка рассматривается."
+                                }
                             </div>
                         </div>
                         {createHomework &&
@@ -152,7 +155,8 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
     }
 
     joinCourse() {
-        this.coursesApi.signInCourse(+this.props.match.params.id, 55);
+        this.coursesApi.signInCourse(+this.props.match.params.id, 55)
+            .then(res => this.componentDidMount());
     }
 
     async componentDidMount() {
