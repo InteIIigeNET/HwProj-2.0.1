@@ -27,7 +27,7 @@ class App extends Component {
         <div>
           <Router>
                 <AppBar />
-                <Route exact path='/invite_new_lecturer' component={InviteNewLecturer} />
+                <Route exact path='/invite_lecturer' component={InviteNewLecturer} />
                 <Route exact path='/user/edit' component={EditProfile} />
                 <Route exact path='/' component={Courses} />
                 <Route exact path='/create_course' component={CreateCourse} />
