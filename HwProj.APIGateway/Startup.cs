@@ -18,8 +18,19 @@ namespace HwProj.APIGateway
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var securityKey = 
-                new SymmetricSecurityKey(Encoding.ASCII.GetBytes("U8_.wpvk93fPWG<f2$Op[vwegmQGF25_fNG2V0ijnm2e0igv24g"));
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy",
+                    builder => builder
+                        .SetIsOriginAllowed((host) => true)
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials());
+            });
+
+            var securityKey =
+                new SymmetricSecurityKey(
+                    Encoding.ASCII.GetBytes("U8_.wpvk93fPWG<f2$Op[vwegmQGF25_fNG2V0ijnm2e0igv24g"));
             var authenticationProviderKey = "GatewayKey";
 
             services.AddAuthentication()
@@ -45,6 +56,9 @@ namespace HwProj.APIGateway
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
-            => app.UseOcelot().Wait();
+        {
+            app.UseCors("CorsPolicy");
+            app.UseOcelot().Wait();
+        }
     }
 }
