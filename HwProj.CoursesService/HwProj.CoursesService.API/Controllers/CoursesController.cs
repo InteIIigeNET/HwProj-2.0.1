@@ -55,7 +55,8 @@ namespace HwProj.CoursesService.API.Controllers
                 return Ok();
             }
 
-            if (!IsCourseMentor(course))
+            var userId = Request.Query.First(x => x.Key == "_id").Value.ToString();
+            if (userId != course.MentorId)
             {
                 return Forbid();
             }
@@ -73,7 +74,8 @@ namespace HwProj.CoursesService.API.Controllers
                 return Ok();
             }
 
-            if (!IsCourseMentor(course))
+            var userId = Request.Query.First(x => x.Key == "_id").Value.ToString();
+            if (userId != course.MentorId)
             {
                 return Forbid();
             }
@@ -107,7 +109,8 @@ namespace HwProj.CoursesService.API.Controllers
                 return Ok();
             }
 
-            if (!IsCourseMentor(course))
+            var userId = Request.Query.First(x => x.Key == "_id").Value.ToString();
+            if (userId != course.MentorId)
             {
                 return Forbid();
             }
@@ -127,7 +130,8 @@ namespace HwProj.CoursesService.API.Controllers
                 return Ok();
             }
 
-            if (!IsCourseMentor(course))
+            var userId = Request.Query.First(x => x.Key == "_id").Value.ToString();
+            if (userId != course.MentorId)
             {
                 return Forbid();
             }
@@ -153,12 +157,6 @@ namespace HwProj.CoursesService.API.Controllers
             return userId == mentorId
                 ? Ok(_coursesService.GetMentorCourses(mentorId))
                 : Forbid() as IActionResult;
-        }
-
-        private bool IsCourseMentor(Course course)
-        {
-            var userId = Request.Query.First(x => x.Key == "_id").Value.ToString();
-            return course.MentorId != userId;
         }
     }
 }
