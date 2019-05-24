@@ -6,8 +6,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 38986
+          "Host": "54.91.242.26",
+          "Port": 8081
         }
       ],
       "UpstreamPathTemplate": "/api/Homeworks/",
@@ -18,8 +18,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 38986
+          "Host": "54.91.242.26",
+          "Port": 8081
         }
       ],
       "UpstreamPathTemplate": "/api/Homeworks/{homeworkId}/",
@@ -30,8 +30,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 38986
+          "Host": "54.91.242.26",
+          "Port": 8081
         }
       ],
       "UpstreamPathTemplate": "/api/Homeworks/{homeworkId}/",
@@ -52,8 +52,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 38986
+          "Host": "54.91.242.26",
+          "Port": 8081
         }
       ],
       "UpstreamPathTemplate": "/api/Homeworks/course_homeworks/{courseId}/",
@@ -64,8 +64,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 38986
+          "Host": "54.91.242.26",
+          "Port": 8081
         }
       ],
       "UpstreamPathTemplate": "/api/Homeworks/{courseId}/",
@@ -86,8 +86,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 38986
+          "Host": "54.91.242.26",
+          "Port": 8081
         }
       ],
       "UpstreamPathTemplate": "/api/Homeworks/update/{homeworkId}/",
@@ -109,8 +109,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 38986
+          "Host": "54.91.242.26",
+          "Port": 8081
         }
       ],
       "UpstreamPathTemplate": "/api/Tasks/",
@@ -121,8 +121,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 38986
+          "Host": "54.91.242.26",
+          "Port": 8081
         }
       ],
       "UpstreamPathTemplate": "/api/Tasks/{taskId}/",
@@ -133,8 +133,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 38986
+          "Host": "54.91.242.26",
+          "Port": 8081
         }
       ],
       "UpstreamPathTemplate": "/api/Tasks/{taskId}/",
@@ -155,8 +155,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 38986
+          "Host": "54.91.242.26",
+          "Port": 8081
         }
       ],
       "UpstreamPathTemplate": "/api/Tasks/{homeworkId}/",
@@ -177,8 +177,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 38986
+          "Host": "54.91.242.26",
+          "Port": 8081
         }
       ],
       "UpstreamPathTemplate": "/api/Tasks/update/{taskId}/",
@@ -200,8 +200,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 59105
+          "Host": "54.91.242.26",
+          "Port": 8083
         }
       ],
       "UpstreamPathTemplate": "/api/Courses/",
@@ -212,8 +212,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 59105
+          "Host": "54.91.242.26",
+          "Port": 8083
         }
       ],
       "UpstreamPathTemplate": "/api/Courses/",
@@ -234,8 +234,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 59105
+          "Host": "54.91.242.26",
+          "Port": 8083
         }
       ],
       "UpstreamPathTemplate": "/api/Courses/{id}/",
@@ -246,8 +246,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 59105
+          "Host": "54.91.242.26",
+          "Port": 8083
         }
       ],
       "UpstreamPathTemplate": "/api/Courses/{id}/",
@@ -268,8 +268,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 59105
+          "Host": "54.91.242.26",
+          "Port": 8083
         }
       ],
       "UpstreamPathTemplate": "/api/Courses/update/{courseId}/",
@@ -290,8 +290,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 59105
+          "Host": "54.91.242.26",
+          "Port": 8083
         }
       ],
       "UpstreamPathTemplate": "/api/Courses/sign_in_course/{courseId}/",
@@ -309,8 +309,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 59105
+          "Host": "54.91.242.26",
+          "Port": 8083
         }
       ],
       "UpstreamPathTemplate": "/api/Courses/accept_student/{courseId}/",
@@ -331,8 +331,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 59105
+          "Host": "54.91.242.26",
+          "Port": 8083
         }
       ],
       "UpstreamPathTemplate": "/api/Courses/reject_student/{courseId}/",
@@ -353,8 +353,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 59105
+          "Host": "54.91.242.26",
+          "Port": 8083
         }
       ],
       "UpstreamPathTemplate": "/api/Courses/student_courses/{studentId}/",
@@ -372,8 +372,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 59105
+          "Host": "54.91.242.26",
+          "Port": 8083
         }
       ],
       "UpstreamPathTemplate": "/api/Courses/mentor_courses/{mentorId}/",
@@ -392,8 +392,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 1306
+          "Host": "54.91.242.26",
+          "Port": 8082
         }
       ],
       "UpstreamPathTemplate": "/api/Solutions/",
@@ -411,8 +411,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 1306
+          "Host": "54.91.242.26",
+          "Port": 8082
         }
       ],
       "UpstreamPathTemplate": "/api/Solutions/{solutionId}/",
@@ -430,8 +430,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 1306
+          "Host": "54.91.242.26",
+          "Port": 8082
         }
       ],
       "UpstreamPathTemplate": "/api/Solutions/task_solutions/{taskId}/{studentId}/",
@@ -449,8 +449,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 1306
+          "Host": "54.91.242.26",
+          "Port": 8082
         }
       ],
       "UpstreamPathTemplate": "/api/Solutions/{taskId}/",
@@ -471,8 +471,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 1306
+          "Host": "54.91.242.26",
+          "Port": 8082
         }
       ],
       "UpstreamPathTemplate": "/api/Solutions/accept_solution/{solutionId}/",
@@ -493,8 +493,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 1306
+          "Host": "54.91.242.26",
+          "Port": 8082
         }
       ],
       "UpstreamPathTemplate": "/api/Solutions/reject_solution/{solutionId}/",
@@ -515,8 +515,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 1306
+          "Host": "54.91.242.26",
+          "Port": 8082
         }
       ],
       "UpstreamPathTemplate": "/api/Solutions/{solutionId}/",
