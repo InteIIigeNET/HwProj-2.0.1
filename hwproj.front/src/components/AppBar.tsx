@@ -47,11 +47,11 @@ class ButtonAppBar extends React.Component<Props, IAppBarState> {
         <div className={classes.root}>
           <AppBar position="static">
             <Toolbar>
-              <Button href="/" color="inherit">HwProj</Button>
+              <Button onClick={() => window.location.assign('/')} color="inherit">HwProj</Button>
               <Typography variant="h6" color="inherit" className={classes.grow}>
               </Typography>
               {(loggedIn && this.authService.getProfile()._role === "lecturer") &&
-                <Button href="/create_course" color="inherit">Создать курс</Button>
+                <Button onClick={() => window.location.assign('/create_course')} color="inherit">Создать курс</Button>
               }
               {loggedIn &&
               <Button onClick={() => {
@@ -62,8 +62,8 @@ class ButtonAppBar extends React.Component<Props, IAppBarState> {
               }
               {!loggedIn &&
               <div>
-                <Button href="/login" color="inherit">Вход</Button>
-                <Button href="/register" color="inherit">Регистрация</Button>
+                <Button onClick={() => window.location.assign('/login')} color="inherit">Вход</Button>
+                <Button onClick={() => window.location.assign('/register')} color="inherit">Регистрация</Button>
               </div>
               }
             </Toolbar>
