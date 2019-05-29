@@ -33,11 +33,6 @@ namespace HwProj.AuthService.API.Controllers
             return Ok(response);
         }
 
-        [HttpGet, Route("issignin")]
-        [ExceptionFilter]
-        public IActionResult IsSignIn()
-            => Ok(userService.IsSignIn(User));
-
         [HttpPost, Route("register")]
         [ExceptionFilter]
         public async Task<IActionResult> Register(RegisterViewModel model)
@@ -60,24 +55,6 @@ namespace HwProj.AuthService.API.Controllers
 
             return Ok(response);
         }
-
-        [HttpGet, Route("refresh")]
-        [ExceptionFilter]
-        public async Task<IActionResult> RefreshToken()
-        {
-            var tokenAndMetadata = await userService.RefreshToken(User);
-
-            var response = new
-            {
-                accessToken = tokenAndMetadata[0].ToString(),
-                expiresIn = (int)tokenAndMetadata[1]
-            };
-
-            return Ok(response);
-        }
-
-        [HttpPost, Route("logoff")]
-        public async void LogOff() => await userService.LogOff();
 
         [HttpPost, Route("edit")]
         [ExceptionFilter]

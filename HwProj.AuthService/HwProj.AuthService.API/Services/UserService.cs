@@ -8,8 +8,6 @@ using HwProj.AuthService.API.Exceptions;
 using System.Security.Claims;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
-using System;
-using Microsoft.Extensions.Primitives;
 
 namespace HwProj.AuthService.API.Services
 {
@@ -18,8 +16,6 @@ namespace HwProj.AuthService.API.Services
         private readonly UserManager<User> userManager;
         private readonly SignInManager<User> signInManager;
         private readonly TokenService tokenService;
-        private readonly EmailService emailService;
-        private readonly ThirdPartyProviderService providerService;
 
         public UserService(UserManager<User> userManager,
             SignInManager<User> signInManager,
@@ -28,8 +24,6 @@ namespace HwProj.AuthService.API.Services
             this.userManager = userManager;
             this.signInManager = signInManager;
             tokenService = new TokenService(userManager, appSettings);
-            emailService = new EmailService(appSettings);
-            providerService = new ThirdPartyProviderService(userManager, appSettings);
         }
 
         /// <summary>
@@ -57,49 +51,6 @@ namespace HwProj.AuthService.API.Services
         }
 
         /// <summary>
-        /// True, если пользователь аутентифицирован
-        /// </summary>
-        public bool IsSignIn(ClaimsPrincipal User)
-            => signInManager.IsSignedIn(User);
-
-        /// <summary>
-        /// Получение Uri для перехода к аутентификации на стороне github
-        /// </summary>
-        public Uri GetSignInUriGithub()
-            => providerService.GetSignInUriGithub();
-
-        /// <summary>
-        /// Аутентификация через аккаунт github
-        /// </summary>
-        public async Task<List<object>> LogInGitHub(ClaimsPrincipal User, HttpRequest request)
-        {
-            if (!request.Query.TryGetValue("code", out StringValues code))
-            {
-                throw new FailedExecutionException();
-            }
-
-            var userCode = code.ToString();
-            var userIdGitHub = await providerService.GetUserIdGitHub(userCode);
-
-            if (signInManager.IsSignedIn(User))
-            {
-                var user = await userManager.FindByNameAsync(User.Identity.Name);
-                await providerService.BindGitHub(user, userIdGitHub);
-                return await tokenService.GetToken(user);
-            }
-
-            User userGitHub = await providerService.GetUserGitHub(userIdGitHub);
-
-            if (userGitHub == null)
-            {
-                throw new FailedLogInGitHubException();
-            }
-
-            await signInManager.SignInAsync(userGitHub, false, "LogInGitHub");
-            return await tokenService.GetToken(userGitHub);
-        }
-
-        /// <summary>
         /// Изменение профиля
         /// </summary>
         public async Task Edit(EditViewModel model, ClaimsPrincipal User)
@@ -108,26 +59,6 @@ namespace HwProj.AuthService.API.Services
 
             var user = await userManager.FindByIdAsync(id);
             var result = await ChangeUserData(user, model);
-
-            if (!result.Succeeded)
-            {
-                throw new FailedExecutionException(result.Errors);
-            }
-        }
-
-        /// <summary>
-        /// Подтвержения почты в системе
-        /// </summary>
-        public async Task ConfirmEmail(string userId, string code)
-        {
-            var user = await userManager.FindByIdAsync(userId);
-
-            if (user == null)
-            {
-                throw new UserNotFoundException();
-            }
-
-            var result = await userManager.ConfirmEmailAsync(user, code);
 
             if (!result.Succeeded)
             {
@@ -167,21 +98,6 @@ namespace HwProj.AuthService.API.Services
         }
 
         /// <summary>
-        /// Обновление токена 
-        /// </summary>
-        public async Task<List<object>> RefreshToken(ClaimsPrincipal User)
-        {
-            if (!signInManager.IsSignedIn(User))
-            {
-                throw new UserNotSignInException();
-            }
-
-            var user = await userManager.FindByNameAsync(User.Identity.Name);
-
-            return await tokenService.GetToken(user);
-        }
-
-        /// <summary>
         /// Регистрация пользователя 
         /// </summary>
         public async Task Register(RegisterViewModel model, HttpContext httpContext, IUrlHelper url)
@@ -204,52 +120,6 @@ namespace HwProj.AuthService.API.Services
             // для подтверждения почты письмом вернуть emailService.SendEmailForConfirmation
             user.EmailConfirmed = true;
             await userManager.UpdateAsync(user);
-        }
-
-        /// <summary>
-        /// Выполнение запроса на изменение почты 
-        /// </summary>
-        public async Task RequestToChangeEmail(
-            ChangeEmailViewModel model,
-            ClaimsPrincipal User,
-            HttpContext httpContext,
-            IUrlHelper url)
-        {
-            if (!signInManager.IsSignedIn(User))
-            {
-                throw new UserNotSignInException();
-            }
-
-            if ((await userManager.FindByEmailAsync(model.NewEmail)) != null)
-            {
-                throw new InvalidEmailException("Пользователь с таким Email уже зарегистрирован");
-            }
-
-            var user = await userManager.FindByNameAsync(User.Identity.Name);
-
-            await emailService.SendEmailForConfirmation(
-                model.NewEmail,
-                await GetCallbackUrlForChangeEmail(user, model.NewEmail, httpContext, url));
-        }
-
-        /// <summary>
-        /// Подтверждение в системе почты после ее изменения
-        /// </summary>
-        public async Task ConfirmChangeEmail(string userId, string email, string code)
-        {
-            var user = await userManager.FindByIdAsync(userId);
-
-            if (user == null)
-            {
-                throw new UserNotFoundException();
-            }
-
-            var result = await ChangeEmailAfterConfirm(user, email, code);
-
-            if (!result.Succeeded)
-            {
-                throw new FailedExecutionException(result.Errors);
-            }
         }
 
         /// <summary>
@@ -318,11 +188,6 @@ namespace HwProj.AuthService.API.Services
             await userManager.RemoveFromRoleAsync(invitedUser, "student");
         }
 
-        /// <summary>
-        /// Выход из системы
-        /// </summary>
-        public async Task LogOff() => await signInManager.SignOutAsync();
-
         private async Task<IdentityResult> ChangeUserPassword(
             User user,
             string newPassword,
@@ -344,52 +209,12 @@ namespace HwProj.AuthService.API.Services
             return result;
         }
 
-        private async Task<IdentityResult> ChangeEmailAfterConfirm(User user, string newEmai, string code)
-        {
-            var result = await userManager.ChangeEmailAsync(user, newEmai, code);
-
-            if (result.Succeeded)
-            {
-                user.UserName = newEmai;
-                await userManager.UpdateAsync(user);
-            }
-
-            return result;
-        }
-
         private async Task<IdentityResult> ChangeUserData(User user, EditViewModel model)
         {
             user.Name = model.NewName ?? user.Name;
             user.Surname = model.NewSurname ?? user.Surname;
 
             return await userManager.UpdateAsync(user);
-        }
-
-        private async Task<string> GetCallbackUrlForEmailConfirmation(
-            User user,
-            HttpContext httpContext,
-            IUrlHelper url)
-        {
-            var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
-            return url.Action(
-                "confirmemail",
-                "Account",
-                new { userId = user.Id, code = token },
-                protocol: httpContext.Request.Scheme);
-        }
-
-        private async Task<string> GetCallbackUrlForChangeEmail(
-            User user,
-            string newEmail,
-            HttpContext httpContext,
-            IUrlHelper url)
-        {
-            var token = await userManager.GenerateChangeEmailTokenAsync(user, newEmail);
-            return url.Action(
-                "confirmchangeemail",
-                "Account",
-                new { userId = user.Id, email = newEmail, code = token },
-                protocol: httpContext.Request.Scheme);
         }
     }
 }
