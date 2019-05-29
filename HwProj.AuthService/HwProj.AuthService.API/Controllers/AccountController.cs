@@ -15,6 +15,14 @@ namespace HwProj.AuthService.API.Controllers
 
         public AccountController(IUserService userService) => this.userService = userService;
 
+        [HttpPost, Route("registergithub")]
+        [ExceptionFilter]
+        public async Task<IActionResult> RegisterGitHub(RegisterGitHubViewModel model)
+        {
+            var res = await userService.RegisterGitHub(model, HttpContext, Url);
+            return Ok(res);
+        }
+
         [HttpGet, Route("getuserdatabyid")]
         [ExceptionFilter]
         public async Task<IActionResult> GetUserDataById(string userId)
@@ -49,12 +57,17 @@ namespace HwProj.AuthService.API.Controllers
         [ExceptionFilter]
         public async Task<IActionResult> CallbackGitHub()
         {
-            var tokenAndMetadata = await userService.LogInGitHub(User, Request);
+            var result = await userService.LogInGitHub(User, Request);
+
+            if (result[0].ToString() == "id")
+            {
+                return Ok(result[1]);
+            }
 
             var response = new
             {
-                accessToken = tokenAndMetadata[0].ToString(),
-                expiresIn = (int)tokenAndMetadata[1]
+                accessToken = result[0].ToString(),
+                expiresIn = (int)result[1]
             };
 
             return Ok(response);

@@ -73,6 +73,7 @@ namespace HwProj.AuthService.API.Services
             var userCode = code.ToString();
             var userIdGitHub = await providerService.GetUserIdGitHub(userCode);
 
+            // Привязать аккаунт github, если пользователь в системе
             if (signInManager.IsSignedIn(User))
             {
                 var user = await userManager.FindByNameAsync(User.Identity.Name);
@@ -80,15 +81,51 @@ namespace HwProj.AuthService.API.Services
                 return await tokenService.GetToken(user);
             }
 
-            User userGitHub = await providerService.GetUserGitHub(userIdGitHub);
+            var userGitHub = await providerService.GetUserGitHub(userIdGitHub);
 
+            // Предложить пользователю зарегистрироваться через github
             if (userGitHub == null)
             {
-                throw new FailedLogInGitHubException();
+                return new List<object> { "id", userIdGitHub };
+            }
+            
+            // Если пользователь зареган через github, но не подтвердил почту
+            if (!await userManager.IsEmailConfirmedAsync(userGitHub))
+            {
+                throw new InvalidEmailException("Email не был подтвержден");
             }
 
             await signInManager.SignInAsync(userGitHub, false, "LogInGitHub");
             return await tokenService.GetToken(userGitHub);
+        }
+
+        /// <summary>
+        /// Регистрация пользователя  через аккаунт github
+        /// </summary>
+        public async Task<string> RegisterGitHub(RegisterGitHubViewModel model,
+            HttpContext httpContext,
+            IUrlHelper url)
+        {
+            if ((await userManager.FindByEmailAsync(model.Email)) != null)
+            {
+                throw new InvalidEmailException("Пользователь с таким email уже зарегистрирован");
+            }
+
+            var user = (User)model;
+            var result = await userManager.CreateAsync(user);
+
+            if (!result.Succeeded)
+            {
+                throw new FailedExecutionException(result.Errors);
+            }
+
+            await userManager.AddToRoleAsync(user, "student");
+            await userManager.AddClaimAsync(user, new Claim("IdGitHub", model.IdGitHub));
+
+            return await GetCallbackUrlForEmailConfirmation(user, httpContext, url);
+            //await emailService.SendEmailForConfirmation(
+            //    model.Email,
+            //    await GetCallbackUrlForEmailConfirmation(user, httpContext, url));
         }
 
         /// <summary>
