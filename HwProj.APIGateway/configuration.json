@@ -534,6 +534,6 @@
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "http://localhost:5000"
+    "BaseUrl": "http://3.82.112.167:8085"
   }
 }
