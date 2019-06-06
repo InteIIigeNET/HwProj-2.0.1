@@ -10,6 +10,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HwProj.SolutionsService.API", "HwProj.SolutionsService\HwProj.SolutionsService.API\HwProj.SolutionsService.API.csproj", "{D59EB6F0-8220-417A-AB3E-6960E9A15459}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.SolutionsService.Tests", "HwProj.SolutionsService\HwProj.SolutionsService.Tests\HwProj.SolutionsService.Tests.csproj", "{D4F585EF-2B4E-46AF-8292-398BF43D6D03}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HwProj.HomeworkService", "HwProj.HomeworkService", "{D13BC804-6A52-412C-92D3-34F18C9964E3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HwProj.HomeworkService.API", "HwProj.HomeworkService\HwProj.HomeworkService.API\HwProj.HomeworkService.API.csproj", "{C9C4D702-24CD-452B-8704-544FB55902A6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,6 +32,10 @@ Global
 		{D4F585EF-2B4E-46AF-8292-398BF43D6D03}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D4F585EF-2B4E-46AF-8292-398BF43D6D03}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D4F585EF-2B4E-46AF-8292-398BF43D6D03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9C4D702-24CD-452B-8704-544FB55902A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9C4D702-24CD-452B-8704-544FB55902A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9C4D702-24CD-452B-8704-544FB55902A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9C4D702-24CD-452B-8704-544FB55902A6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -36,6 +43,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{D59EB6F0-8220-417A-AB3E-6960E9A15459} = {A85A3030-2878-4923-B450-9683832CDAC1}
 		{D4F585EF-2B4E-46AF-8292-398BF43D6D03} = {A85A3030-2878-4923-B450-9683832CDAC1}
+		{C9C4D702-24CD-452B-8704-544FB55902A6} = {D13BC804-6A52-412C-92D3-34F18C9964E3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C03BF138-4A5B-4261-9495-6D3AC6CE9779}
