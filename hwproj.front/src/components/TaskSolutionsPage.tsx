@@ -9,7 +9,7 @@ import Button from '@material-ui/core/Button'
 import TaskSolutions from './TaskSolutions'
 import { TasksApi, HomeworksApi, HomeworkTaskViewModel } from '../api/homeworks';
 import { CoursesApi, CourseViewModel } from '../api/courses'
-import AuthService from './AuthService'
+import AuthService from '../services/AuthService'
 
 interface ITaskSolutionsProps {
     taskId: string

@@ -7,7 +7,7 @@ import Typography from '@material-ui/core/Typography'
 import { Redirect } from 'react-router-dom';
 import { CoursesApi } from "../api/courses/api";
 import {RouteComponentProps, Link} from "react-router-dom"
-import AuthService from './AuthService'
+import AuthService from '../services/AuthService'
 
 interface IEditCourseState {
     isLoaded: boolean,

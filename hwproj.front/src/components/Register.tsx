@@ -3,7 +3,7 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
 import { Redirect } from 'react-router-dom';
-import AuthService from './AuthService';
+import AuthService from '../services/AuthService';
 import { AccountApi } from '../api/auth/api'
 
 interface IRegisterState {

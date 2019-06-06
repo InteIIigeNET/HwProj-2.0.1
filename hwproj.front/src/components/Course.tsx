@@ -10,7 +10,7 @@ import IconButton from '@material-ui/core/IconButton'
 import EditIcon from '@material-ui/icons/Edit'
 import AddHomework from './AddHomework';
 import CourseStudents from './CourseStudents';
-import AuthService from './AuthService';
+import AuthService from '../services/AuthService';
 import { Link as RouterLink } from 'react-router-dom'
 import NewCourseStudents from './NewCourseStudents'
 

@@ -6,7 +6,7 @@ import { Redirect, Link } from 'react-router-dom';
 import { TasksApi, HomeworksApi } from "../api/homeworks/api";
 import { CoursesApi } from "../api/courses/api"
 import {RouteComponentProps} from "react-router-dom"
-import AuthService from './AuthService'
+import AuthService from '../services/AuthService'
 
 interface IEditTaskState {
     isLoaded: boolean,
