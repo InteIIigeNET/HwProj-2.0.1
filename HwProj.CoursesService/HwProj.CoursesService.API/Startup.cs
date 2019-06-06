@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
+using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.CoursesService.API.Services;
@@ -37,6 +34,7 @@ namespace HwProj.CoursesService.API
             services.AddScoped<ICourseRepository, CourseRepository>();
             services.AddScoped<ICourseMateRepository, CourseMateRepository>();
             services.AddScoped<ICoursesService, Services.CoursesService>();
+            services.AddScoped<IsCourseMentor>();
             services.AddAutoMapper();
             services.AddMvc().AddJsonOptions(options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore)
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);

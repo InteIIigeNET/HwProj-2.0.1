@@ -1,7 +1,7 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.API.Extensions;
+using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Models.ViewModels;
 using HwProj.CoursesService.API.Services;
@@ -28,7 +28,7 @@ namespace HwProj.CoursesService.API.Controllers
             return _mapper.Map<CourseViewModel[]>(await _coursesService.GetAllAsync());
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{courseId}")]
         public async Task<IActionResult> Get(long id)
         {
             var course = await _coursesService.GetAsync(id);
@@ -45,38 +45,28 @@ namespace HwProj.CoursesService.API.Controllers
             return Ok(await _coursesService.AddAsync(course, mentorId));
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCourse(long id)
-        {
-            var course = await _coursesService.GetAsync(id);
-            if (course == null)
-            {
-                return Ok();
-            }
-
-            var userId = Request.GetUserId();
-            if (userId != course.MentorId)
-            {
-                return Forbid();
-            }
-            
-            await _coursesService.DeleteAsync(id);
-            return Ok();
-        }
-
-        [HttpPost("update/{courseId}")]
-        public async Task<IActionResult> UpdateCourse(long courseId, [FromBody] UpdateCourseViewModel courseViewModel)
+        [HttpDelete("{courseId}")]
+        [ServiceFilter(typeof(IsCourseMentor))]
+        public async Task<IActionResult> DeleteCourse(long courseId)
         {
             var course = await _coursesService.GetAsync(courseId);
             if (course == null)
             {
                 return Ok();
             }
+            
+            await _coursesService.DeleteAsync(courseId);
+            return Ok();
+        }
 
-            var userId = Request.GetUserId();
-            if (userId != course.MentorId)
+        [HttpPost("update/{courseId}")]
+        [ServiceFilter(typeof(IsCourseMentor))]
+        public async Task<IActionResult> UpdateCourse(long courseId, [FromBody] UpdateCourseViewModel courseViewModel)
+        {
+            var course = await _coursesService.GetAsync(courseId);
+            if (course == null)
             {
-                return Forbid();
+                return Ok();
             }
             
             await _coursesService.UpdateAsync(courseId, new Course()
@@ -100,18 +90,13 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost("accept_student/{courseId}")]
+        [ServiceFilter(typeof(IsCourseMentor))]
         public async Task<IActionResult> AcceptStudent(long courseId, [FromQuery] string studentId)
         {
             var course = await _coursesService.GetAsync(courseId);
             if (course == null)
             {
                 return Ok();
-            }
-
-            var userId = Request.GetUserId();
-            if (userId != course.MentorId)
-            {
-                return Forbid();
             }
             
             return await _coursesService.AcceptCourseMateAsync(courseId, studentId)
@@ -121,18 +106,13 @@ namespace HwProj.CoursesService.API.Controllers
 
 
         [HttpPost("reject_student/{courseId}")]
+        [ServiceFilter(typeof(IsCourseMentor))]
         public async Task<IActionResult> RejectStudent(long courseId, [FromQuery] string studentId)
         {
             var course = await _coursesService.GetAsync(courseId);
             if (course == null)
             {
                 return Ok();
-            }
-
-            var userId = Request.GetUserId();
-            if (userId != course.MentorId)
-            {
-                return Forbid();
             }
             
             return await _coursesService.RejectCourseMateAsync(courseId, studentId)
