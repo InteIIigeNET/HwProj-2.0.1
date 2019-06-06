@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
-using HwProj.CoursesService.API.Models.ViewModels;
-using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -18,7 +13,7 @@ namespace HwProj.CoursesService.API.Services
         Task<bool> AddStudentAsync(long courseId, string studentId);
         Task<bool> AcceptCourseMateAsync(long courseId, string studentId);
         Task<bool> RejectCourseMateAsync(long courseId, string studentId);
-        long[] GetStudentCourses(string studentId);
-        long[] GetMentorCourses(string mentorId);
+        long[] GetStudentCourseIds(string studentId);
+        long[] GetMentorCourseIds(string mentorId);
     }
 }

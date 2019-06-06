@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Linq.Expressions;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
@@ -18,20 +16,20 @@ namespace HwProj.CoursesService.API.Services
             _courseMateRepository = courseMateRepository;
         }
 
-        public Task<Course[]> GetAllAsync()
+        public async Task<Course[]> GetAllAsync()
         {
-            return _courseRepository.GetAllWithCourseMatesAsync();
+            return await _courseRepository.GetAllWithCourseMatesAsync();
         }
 
-        public Task<Course> GetAsync(long id)
+        public async Task<Course> GetAsync(long id)
         {
-            return _courseRepository.GetWithCourseMatesAsync(id);
+            return await _courseRepository.GetWithCourseMatesAsync(id);
         }
 
-        public Task<long> AddAsync(Course course, string mentorId)
+        public async Task<long> AddAsync(Course course, string mentorId)
         {
             course.MentorId = mentorId;
-            return _courseRepository.AddAsync(course);
+            return await _courseRepository.AddAsync(course);
         }
 
         public async Task DeleteAsync(long id)
@@ -41,7 +39,7 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task UpdateAsync(long courseId, Course updated)
         {
-            await _courseRepository.UpdateAsync(courseId, c => new Course()
+            await _courseRepository.UpdateAsync(courseId, c => new Course
             {
                 Name = updated.Name,
                 GroupName = updated.GroupName,
@@ -52,76 +50,75 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<bool> AddStudentAsync(long courseId, string studentId)
         {
-            var course = await _courseRepository.GetAsync(courseId);
-            if (course == null)
+            var getCourseTask = _courseRepository.GetAsync(courseId);
+            var getCourseMateTask =
+                _courseMateRepository.FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
+            await Task.WhenAll(getCourseTask, getCourseMateTask);
+
+            if (getCourseTask.Result == null)
             {
                 return false;
             }
-
-            if (await _courseMateRepository
-                .FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId) != null)
+            if (getCourseMateTask.Result != null)
             {
                 return true;
             }
-            
-            var courseMate = new CourseMate()
+
+            var courseMate = new CourseMate
             {
                 CourseId = courseId,
                 StudentId = studentId,
-                IsAccepted = course.IsOpen
+                IsAccepted = getCourseTask.Result.IsOpen
             };
-            await _courseMateRepository.AddAsync(courseMate);
 
+            await _courseMateRepository.AddAsync(courseMate);
             return true;
         }
 
         public async Task<bool> AcceptCourseMateAsync(long courseId, string studentId)
         {
-            var course = await _courseRepository.GetAsync(courseId);
-            if (course == null)
+            var getCourseTask = _courseRepository.GetAsync(courseId);
+            var getCourseMateTask =
+                _courseMateRepository.FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
+            await Task.WhenAll(getCourseTask, getCourseMateTask);
+
+            if (getCourseTask.Result == null || getCourseMateTask.Result == null)
             {
                 return false;
             }
-            
-            var courseMate = await _courseMateRepository
-                .FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
-            if (courseMate == null)
-            {
-                return false;
-            }
-            
-            await _courseMateRepository.UpdateAsync(courseMate.Id, cm => new CourseMate() {IsAccepted = true});
+
+            await _courseMateRepository.UpdateAsync(
+                getCourseMateTask.Result.Id,
+                cm => new CourseMate {IsAccepted = true}
+            );
             return true;
         }
 
         public async Task<bool> RejectCourseMateAsync(long courseId, string studentId)
         {
-            var course = await _courseRepository.GetAsync(courseId);
-            if (course == null)
+            var getCourseTask = _courseRepository.GetAsync(courseId);
+            var getCourseMateTask =
+                _courseMateRepository.FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
+            await Task.WhenAll(getCourseTask, getCourseMateTask);
+
+            if (getCourseTask.Result == null || getCourseMateTask.Result == null)
             {
                 return false;
             }
-            
-            var courseMate = await _courseMateRepository
-                .FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
-            if (courseMate == null)
-            {
-                return false;
-            }
-            
-            await _courseMateRepository.DeleteAsync(courseMate.Id);
+
+            await _courseMateRepository.DeleteAsync(getCourseMateTask.Result.Id);
             return true;
         }
 
-        public long[] GetStudentCourses(string studentId)
+        public long[] GetStudentCourseIds(string studentId)
         {
             return _courseMateRepository
-                .FindAll(cm => cm.StudentId == studentId && cm.IsAccepted)
+                .FindAll(cm => cm.StudentId == studentId && cm.IsAccepted == true)
                 .Select(cm => cm.CourseId)
                 .ToArray();
         }
 
-        public long[] GetMentorCourses(string mentorId)
+        public long[] GetMentorCourseIds(string mentorId)
         {
             return _courseRepository
                 .FindAll(c => c.MentorId == mentorId)

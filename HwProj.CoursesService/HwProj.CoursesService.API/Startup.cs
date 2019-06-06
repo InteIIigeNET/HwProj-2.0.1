@@ -5,13 +5,10 @@ using HwProj.CoursesService.API.Repositories;
 using HwProj.CoursesService.API.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Swagger;
 
@@ -34,7 +31,7 @@ namespace HwProj.CoursesService.API
             services.AddScoped<ICourseRepository, CourseRepository>();
             services.AddScoped<ICourseMateRepository, CourseMateRepository>();
             services.AddScoped<ICoursesService, Services.CoursesService>();
-            services.AddScoped<IsCourseMentor>();
+            services.AddScoped<CourseMentorOnlyAttribute>();
             services.AddAutoMapper();
             services.AddMvc().AddJsonOptions(options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore)
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);

@@ -1,7 +1,5 @@
-﻿using AutoMapper;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 
 namespace HwProj.CoursesService.API.Models.ViewModels
 {

@@ -6,21 +6,23 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace HwProj.CoursesService.API.Filters
 {
-    public class IsCourseMentor : Attribute, IAuthorizationFilter
+    public class CourseMentorOnlyAttribute : Attribute, IAuthorizationFilter
     {
         private readonly ICourseRepository _courseRepository;
         
-        public IsCourseMentor(ICourseRepository courseRepository)
+        public CourseMentorOnlyAttribute(ICourseRepository courseRepository)
         {
             _courseRepository = courseRepository;
         }
         
         public void OnAuthorization(AuthorizationFilterContext context)
         {
-            if (context.HttpContext.Request.Query.TryGetValue("courseId", out var courseId))
+            var query = context.HttpContext.Request.Query;
+
+            if (query.TryGetValue("courseId", out var courseId))
             {
-                var userId = context.HttpContext.Request.Query.FirstOrDefault(x => x.Key == "_id").Value.ToString();
-                var course = _courseRepository.Get(long.Parse(courseId.ToString()));
+                var userId = query.Single(x => x.Key == "_id").Value;
+                var course = _courseRepository.Get(long.Parse(courseId));
                 if (course?.MentorId != userId)
                 {
                     context.Result = new ForbidResult();

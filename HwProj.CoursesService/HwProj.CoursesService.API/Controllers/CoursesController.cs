@@ -25,7 +25,8 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpGet]
         public async Task<CourseViewModel[]> GetAll()
         {
-            return _mapper.Map<CourseViewModel[]>(await _coursesService.GetAllAsync());
+            var courses = await _coursesService.GetAllAsync();
+            return _mapper.Map<CourseViewModel[]>(courses);
         }
 
         [HttpGet("{courseId}")]
@@ -46,7 +47,7 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpDelete("{courseId}")]
-        [ServiceFilter(typeof(IsCourseMentor))]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> DeleteCourse(long courseId)
         {
             await _coursesService.DeleteAsync(courseId);
@@ -54,7 +55,7 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost("update/{courseId}")]
-        [ServiceFilter(typeof(IsCourseMentor))]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> UpdateCourse(long courseId, [FromBody] UpdateCourseViewModel courseViewModel)
         {
             await _coursesService.UpdateAsync(courseId, new Course()
@@ -78,7 +79,7 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost("accept_student/{courseId}")]
-        [ServiceFilter(typeof(IsCourseMentor))]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> AcceptStudent(long courseId, [FromQuery] string studentId)
         {
             return await _coursesService.AcceptCourseMateAsync(courseId, studentId)
@@ -86,9 +87,8 @@ namespace HwProj.CoursesService.API.Controllers
                 : NotFound() as IActionResult;
         }
 
-
         [HttpPost("reject_student/{courseId}")]
-        [ServiceFilter(typeof(IsCourseMentor))]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> RejectStudent(long courseId, [FromQuery] string studentId)
         {
             return await _coursesService.RejectCourseMateAsync(courseId, studentId)
@@ -99,19 +99,13 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpGet("student_courses/{studentId}")]
         public IActionResult GetStudentCourses(string studentId)
         {
-            var userId = Request.GetUserId();
-            return userId == studentId
-                ? Ok(_coursesService.GetStudentCourses(studentId))
-                : Forbid() as IActionResult;
+            return Ok(_coursesService.GetStudentCourseIds(studentId));
         }
 
         [HttpGet("mentor_courses/{mentorId}")]
         public IActionResult GetMentorCourses(string mentorId)
         {
-            var userId = Request.GetUserId();
-            return userId == mentorId
-                ? Ok(_coursesService.GetMentorCourses(mentorId))
-                : Forbid() as IActionResult;
+            return Ok(_coursesService.GetMentorCourseIds(mentorId));
         }
     }
 }
