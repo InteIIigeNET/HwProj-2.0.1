@@ -14,36 +14,36 @@ namespace HwProj.HomeworkService.API.Services
             _homeworksRepository = homeworksRepository;
         }
 
-        public Task<Homework[]> GetAllHomeworksAsync()
+        public async Task<Homework[]> GetAllHomeworksAsync()
         {
-            return _homeworksRepository.GetAllWithTasksAsync();
+            return await _homeworksRepository.GetAllWithTasksAsync();
         }
 
-        public Task<Homework> GetHomeworkAsync(long homeworkId)
+        public async Task<Homework> GetHomeworkAsync(long homeworkId)
         {
-            return _homeworksRepository.GetWithTasksAsync(homeworkId);
+            return await _homeworksRepository.GetWithTasksAsync(homeworkId);
         }
 
-        public Task<Homework[]> GetCourseHomeworksAsync(long courseId)
+        public async Task<Homework[]> GetCourseHomeworksAsync(long courseId)
         {
-            return _homeworksRepository.GetAllWithTasksByCourseAsync(courseId);
+            return await _homeworksRepository.GetAllWithTasksByCourseAsync(courseId);
         }
 
-        public Task<long> AddHomeworkAsync(long courseId, Homework homework)
+        public async Task<long> AddHomeworkAsync(long courseId, Homework homework)
         {
             homework.CourseId = courseId;
             homework.Date = DateTime.Now;
-            return _homeworksRepository.AddAsync(homework);
+            return await _homeworksRepository.AddAsync(homework);
         }
 
-        public Task DeleteHomeworkAsync(long homeworkId)
+        public async Task DeleteHomeworkAsync(long homeworkId)
         {
-            return _homeworksRepository.DeleteAsync(homeworkId);
+            await _homeworksRepository.DeleteAsync(homeworkId);
         }
 
-        public Task UpdateHomeworkAsync(long homeworkId, Homework update)
+        public async Task UpdateHomeworkAsync(long homeworkId, Homework update)
         {
-            return _homeworksRepository.UpdateAsync(homeworkId, homework => new Homework()
+            await _homeworksRepository.UpdateAsync(homeworkId, homework => new Homework()
             {
                 Title = update.Title,
                 Description = update.Description

@@ -19,25 +19,25 @@ namespace HwProj.HomeworkService.API.Services
             return _tasksRepository.GetAll().ToArray();
         }
 
-        public Task<HomeworkTask> GetTaskAsync(long taskId)
+        public async Task<HomeworkTask> GetTaskAsync(long taskId)
         {
-            return _tasksRepository.GetAsync(taskId);
+            return await _tasksRepository.GetAsync(taskId);
         }
 
-        public Task<long> AddTaskAsync(long homeworkId, HomeworkTask task)
+        public async Task<long> AddTaskAsync(long homeworkId, HomeworkTask task)
         {
             task.HomeworkId = homeworkId;
-            return _tasksRepository.AddAsync(task);
+            return await _tasksRepository.AddAsync(task);
         }
 
-        public Task DeleteTaskAsync(long taskId)
+        public async Task DeleteTaskAsync(long taskId)
         {
-            return _tasksRepository.DeleteAsync(taskId);
+            await _tasksRepository.DeleteAsync(taskId);
         }
 
-        public Task UpdateTaskAsync(long taskId, HomeworkTask update)
+        public async Task UpdateTaskAsync(long taskId, HomeworkTask update)
         {
-            return _tasksRepository.UpdateAsync(taskId, task => new HomeworkTask()
+            await _tasksRepository.UpdateAsync(taskId, task => new HomeworkTask()
             {
                 Title = update.Title,
                 Description = update.Description
