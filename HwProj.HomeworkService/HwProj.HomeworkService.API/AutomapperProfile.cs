@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using AutoMapper;
+﻿using AutoMapper;
 using HwProj.HomeworkService.API.Models;
 
 namespace HwProj.HomeworkService.API

@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using HwProj.HomeworkService.API.Models;
-using HwProj.HomeworkService.API.Models.Repositories;
+using HwProj.HomeworkService.API.Repositories;
+using HwProj.HomeworkService.API.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace HwProj.HomeworkService.API
@@ -32,8 +26,10 @@ namespace HwProj.HomeworkService.API
         {
             var connectionString = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<HomeworkContext>(options => options.UseSqlServer(connectionString));
-            services.AddScoped<IHomeworkRepository, HomeworkRepository>();
-            services.AddScoped<ITaskRepository, TaskRepository>();
+            services.AddScoped<IHomeworksRepository, HomeworksRepository>();
+            services.AddScoped<ITasksRepository, TasksRepository>();
+            services.AddScoped<IHomeworksService, HomeworksService>();
+            services.AddScoped<ITasksService, TasksService>();
             services.AddAutoMapper();
             services.AddSwaggerGen(c =>
             {

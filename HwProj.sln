@@ -3,18 +3,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.2042
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.Repositories", "HwProj.Repositories\HwProj.Repositories.csproj", "{4E5191DC-EC8B-44C8-BD85-198D2C0C16F7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HwProj.Repositories", "HwProj.Repositories\HwProj.Repositories.csproj", "{4E5191DC-EC8B-44C8-BD85-198D2C0C16F7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HwProj.HomeworkService", "HwProj.HomeworkService", "{D13BC804-6A52-412C-92D3-34F18C9964E3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.HomeworkService.API", "HwProj.HomeworkService\HwProj.HomeworkService.API\HwProj.HomeworkService.API.csproj", "{C9C4D702-24CD-452B-8704-544FB55902A6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HwProj.HomeworkService.API", "HwProj.HomeworkService\HwProj.HomeworkService.API\HwProj.HomeworkService.API.csproj", "{C9C4D702-24CD-452B-8704-544FB55902A6}"
 EndProject
 Global
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {C03BF138-4A5B-4261-9495-6D3AC6CE9779}
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{4E5191DC-EC8B-44C8-BD85-198D2C0C16F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -26,11 +24,13 @@ Global
 		{C9C4D702-24CD-452B-8704-544FB55902A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C9C4D702-24CD-452B-8704-544FB55902A6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
-	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
-		Release|Any CPU = Release|Any CPU
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{C9C4D702-24CD-452B-8704-544FB55902A6} = {D13BC804-6A52-412C-92D3-34F18C9964E3}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C03BF138-4A5B-4261-9495-6D3AC6CE9779}
 	EndGlobalSection
 EndGlobal
