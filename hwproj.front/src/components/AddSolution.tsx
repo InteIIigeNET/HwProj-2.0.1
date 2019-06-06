@@ -11,6 +11,7 @@ interface IAddSolutionProps {
 }
 
 export default class AddSolution extends React.Component<IAddSolutionProps, SolutionViewModel> {
+    solutionsClient = new SolutionsApi();
     constructor(props : IAddSolutionProps) {
         super(props);
         this.state = {
@@ -21,8 +22,7 @@ export default class AddSolution extends React.Component<IAddSolutionProps, Solu
     }
 
     public handleSubmit(e: any) {
-        let api = new SolutionsApi();
-        api.postSolution(this.props.taskId, this.state)
+        this.solutionsClient.postSolution(this.props.taskId, this.state)
             .then(id => this.props.onAdding());
     }
 
