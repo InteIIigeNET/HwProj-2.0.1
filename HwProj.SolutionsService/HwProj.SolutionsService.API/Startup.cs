@@ -24,6 +24,15 @@ namespace HwProj.SolutionsService.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy",
+                    builder => builder
+                        .SetIsOriginAllowed((host) => true)
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials());
+            });
             var connectionString = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<SolutionContext>(options => options.UseSqlServer(connectionString));
             services.AddSwaggerGen(c =>
@@ -48,6 +57,8 @@ namespace HwProj.SolutionsService.API
                 app.UseHsts();
             }
 
+            app.UseCors("CorsPolicy");
+
             app.UseSwagger();
             
             app.UseSwaggerUI(c =>
@@ -55,7 +66,6 @@ namespace HwProj.SolutionsService.API
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
             });
 
-            app.UseHttpsRedirection();
             app.UseMvc();
         }
     }
