@@ -36,21 +36,11 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task DeleteAsync(long id)
         {
-            var course = await _courseRepository.GetAsync(id);
-            if (course != null)
-            {
-                await _courseRepository.DeleteAsync(id);
-            }
+            await _courseRepository.DeleteAsync(id);
         }
 
         public async Task UpdateAsync(long courseId, Course updated)
         {
-            var course = await _courseRepository.GetAsync(courseId);
-            if (course == null)
-            {
-                return;
-            }
-            
             await _courseRepository.UpdateAsync(courseId, c => new Course()
             {
                 Name = updated.Name,
