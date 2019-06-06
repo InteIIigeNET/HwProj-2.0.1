@@ -17,6 +17,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.HomeworkService.Tests", "HwProj.HomeworkService\HwProj.HomeworkService.Tests\HwProj.HomeworkService.Tests.csproj", "{EED0D477-1A55-473C-AEE1-10C783A1C4F3}"
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HwProj.CoursesService.API", "HwProj.CoursesService\HwProj.CoursesService.API\HwProj.CoursesService.API.csproj", "{0F329B39-7AFD-430B-B6C8-0E5F9DC8A977}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.CoursesService.Tests", "HwProj.CoursesService.Tests\HwProj.CoursesService.Tests.csproj", "{520F2CEA-D386-42C3-9CAD-BECDAA764AD9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +49,10 @@ Global
 		{0F329B39-7AFD-430B-B6C8-0E5F9DC8A977}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0F329B39-7AFD-430B-B6C8-0E5F9DC8A977}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0F329B39-7AFD-430B-B6C8-0E5F9DC8A977}.Release|Any CPU.Build.0 = Release|Any CPU
+		{520F2CEA-D386-42C3-9CAD-BECDAA764AD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{520F2CEA-D386-42C3-9CAD-BECDAA764AD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{520F2CEA-D386-42C3-9CAD-BECDAA764AD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{520F2CEA-D386-42C3-9CAD-BECDAA764AD9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
