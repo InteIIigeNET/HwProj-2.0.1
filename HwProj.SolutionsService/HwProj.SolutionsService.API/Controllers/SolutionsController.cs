@@ -1,9 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.SolutionsService.API.Models;
-using HwProj.SolutionsService.API.Models.Repositories;
+using HwProj.SolutionsService.API.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.SolutionsService.API.Controllers
@@ -12,55 +10,61 @@ namespace HwProj.SolutionsService.API.Controllers
     [ApiController]
     public class SolutionsController : Controller
     {
-        private readonly ISolutionRepository _solutionRepository;
+        private readonly ISolutionsService _solutionsService;
         private readonly IMapper _mapper;
 
-        public SolutionsController(ISolutionRepository solutionRepository, IMapper mapper)
+        public SolutionsController(ISolutionsService solutionsService, IMapper mapper)
         {
-            _solutionRepository = solutionRepository;
+            _solutionsService = solutionsService;
             _mapper = mapper;
         }
 
         [HttpGet]
-        public List<Solution> GetAllSolutions()
-            => _solutionRepository.GetAll().ToList();    
-        
+        public Solution[] GetAllSolutions()
+        {
+            return _solutionsService.GetAllSolutions();
+        }
+
         [HttpGet("{solutionId}")]
         public async Task<IActionResult> GetSolution(long solutionId)
         {
-            var solution = await _solutionRepository.GetAsync(solutionId);
+            var solution = await _solutionsService.GetSolutionAsync(solutionId);
             return solution == null
                 ? NotFound()
                 : Ok(solution) as IActionResult;
         }
 
         [HttpGet("task_solutions/{taskId}/{studentId}")]
-        public List<Solution> GetTaskSolutionsFromStudent(long taskId, string studentId)
-            => _solutionRepository
-                .FindAll(solution => solution.TaskId == taskId && solution.StudentId == studentId)
-                .ToList();
+        public Solution[] GetTaskSolutionsFromStudent(long taskId, string studentId)
+        {
+            return _solutionsService.GetTaskSolutionsFromStudent(taskId, studentId);
+        }
 
         [HttpPost("{taskId}")]
         public async Task<long> PostSolution(long taskId,
             [FromBody] SolutionViewModel solutionViewModel)
         {
             var solution = _mapper.Map<Solution>(solutionViewModel);
-            solution.TaskId = taskId;
-            await _solutionRepository.AddAsync(solution);
-
-            return solution.Id;
+            var solutionId = await _solutionsService.AddSolutionAsync(taskId, solution);
+            return solutionId;
         }
-        
+
         [HttpPost("accept_solution/{solutionId}")]
         public async Task AcceptSolution(long solutionId)
-            => await _solutionRepository.UpdateSolutionStateAsync(solutionId, SolutionState.Accepted);
+        {
+            await _solutionsService.AcceptSolutionAsync(solutionId);
+        }
 
         [HttpPost("reject_solution/{solutionId}")]
         public async Task RejectSolution(long solutionId)
-            => await _solutionRepository.UpdateSolutionStateAsync(solutionId, SolutionState.Rejected);
-        
+        {
+            await _solutionsService.RejectSolutionAsync(solutionId);
+        }
+
         [HttpDelete("{solutionId}")]
         public async Task DeleteSolution(long solutionId)
-            => await _solutionRepository.DeleteAsync(solutionId);
+        {
+            await _solutionsService.DeleteSolutionAsync(solutionId);
+        }
     }
 }
