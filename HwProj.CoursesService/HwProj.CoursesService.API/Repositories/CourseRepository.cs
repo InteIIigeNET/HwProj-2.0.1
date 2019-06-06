@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using HwProj.CoursesService.API.Models.ViewModels;
+using HwProj.CoursesService.API.Models;
 using HwProj.Repositories;
 using Microsoft.EntityFrameworkCore;
 
-namespace HwProj.CoursesService.API.Models.Repositories
+namespace HwProj.CoursesService.API.Repositories
 {
     public class CourseRepository : CrudRepository<Course>, ICourseRepository
     {

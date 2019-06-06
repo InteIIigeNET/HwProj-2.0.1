@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.API.Models;
-using HwProj.CoursesService.API.Models.Repositories;
+using HwProj.CoursesService.API.Repositories;
 using HwProj.CoursesService.API.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

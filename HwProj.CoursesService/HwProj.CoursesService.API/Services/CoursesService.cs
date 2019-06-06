@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
-using HwProj.CoursesService.API.Models.Repositories;
-using Microsoft.EntityFrameworkCore.Internal;
+using HwProj.CoursesService.API.Repositories;
 
 namespace HwProj.CoursesService.API.Services
 {

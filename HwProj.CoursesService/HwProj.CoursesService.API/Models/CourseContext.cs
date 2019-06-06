@@ -2,7 +2,7 @@
 
 namespace HwProj.CoursesService.API.Models
 {
-    public class CourseContext : DbContext
+    public sealed class CourseContext : DbContext
     {
         public DbSet<Course> Courses { get; set; }
         public DbSet<CourseMate> CourseMates { get; set; }
