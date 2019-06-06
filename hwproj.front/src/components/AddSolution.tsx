@@ -22,6 +22,7 @@ export default class AddSolution extends React.Component<IAddSolutionProps, Solu
     }
 
     public handleSubmit(e: any) {
+        e.preventDefault();
         this.solutionsClient.postSolution(this.props.taskId, this.state)
             .then(id => this.props.onAdding());
     }
