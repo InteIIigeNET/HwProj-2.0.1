@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using HwProj.CoursesService.API.Extensions;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Models.ViewModels;
 using HwProj.CoursesService.API.Services;
@@ -40,7 +40,7 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpPost]
         public async Task<IActionResult> AddCourse([FromBody] CreateCourseViewModel courseViewModel)
         {
-            var mentorId = Request.Query.First(x => x.Key == "_id").Value.ToString();
+            var mentorId = Request.GetUserId();
             var course = _mapper.Map<Course>(courseViewModel);
             return Ok(await _coursesService.AddAsync(course, mentorId));
         }
@@ -54,7 +54,7 @@ namespace HwProj.CoursesService.API.Controllers
                 return Ok();
             }
 
-            var userId = Request.Query.First(x => x.Key == "_id").Value.ToString();
+            var userId = Request.GetUserId();
             if (userId != course.MentorId)
             {
                 return Forbid();
@@ -73,7 +73,7 @@ namespace HwProj.CoursesService.API.Controllers
                 return Ok();
             }
 
-            var userId = Request.Query.First(x => x.Key == "_id").Value.ToString();
+            var userId = Request.GetUserId();
             if (userId != course.MentorId)
             {
                 return Forbid();
@@ -93,7 +93,7 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpPost("sign_in_course/{courseId}")]
         public async Task<IActionResult> SignInCourse(long courseId)
         {
-            var studentId = Request.Query.First(x => x.Key == "_id").Value.ToString();
+            var studentId = Request.GetUserId();
             return await _coursesService.AddStudentAsync(courseId, studentId)
                 ? Ok()
                 : NotFound() as IActionResult;
@@ -108,7 +108,7 @@ namespace HwProj.CoursesService.API.Controllers
                 return Ok();
             }
 
-            var userId = Request.Query.First(x => x.Key == "_id").Value.ToString();
+            var userId = Request.GetUserId();
             if (userId != course.MentorId)
             {
                 return Forbid();
@@ -129,7 +129,7 @@ namespace HwProj.CoursesService.API.Controllers
                 return Ok();
             }
 
-            var userId = Request.Query.First(x => x.Key == "_id").Value.ToString();
+            var userId = Request.GetUserId();
             if (userId != course.MentorId)
             {
                 return Forbid();
@@ -143,7 +143,7 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpGet("student_courses/{studentId}")]
         public IActionResult GetStudentCourses(string studentId)
         {
-            var userId = Request.Query.First(x => x.Key == "_id").Value.ToString();
+            var userId = Request.GetUserId();
             return userId == studentId
                 ? Ok(_coursesService.GetStudentCourses(studentId))
                 : Forbid() as IActionResult;
@@ -152,7 +152,7 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpGet("mentor_courses/{mentorId}")]
         public IActionResult GetMentorCourses(string mentorId)
         {
-            var userId = Request.Query.First(x => x.Key == "_id").Value.ToString();
+            var userId = Request.GetUserId();
             return userId == mentorId
                 ? Ok(_coursesService.GetMentorCourses(mentorId))
                 : Forbid() as IActionResult;
