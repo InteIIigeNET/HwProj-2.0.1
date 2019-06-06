@@ -2,7 +2,7 @@
 
 namespace HwProj.SolutionsService.API.Models
 {
-    public class SolutionContext : DbContext
+    public sealed class SolutionContext : DbContext
     {
         public DbSet<Solution> Solutions { get; set; }
 

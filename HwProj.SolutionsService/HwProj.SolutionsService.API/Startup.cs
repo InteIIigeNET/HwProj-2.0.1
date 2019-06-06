@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using HwProj.SolutionsService.API.Models;
-using HwProj.SolutionsService.API.Models.Repositories;
+using HwProj.SolutionsService.API.Repositories;
+using HwProj.SolutionsService.API.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace HwProj.SolutionsService.API
 {
@@ -31,7 +26,12 @@ namespace HwProj.SolutionsService.API
         {
             var connectionString = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<SolutionContext>(options => options.UseSqlServer(connectionString));
-            services.AddScoped<ISolutionRepository, SolutionRepository>();
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info { Title = "Solutions API", Version = "v1" });
+            });
+            services.AddScoped<ISolutionsRepository, SolutionsRepository>();
+            services.AddScoped<ISolutionsService, Services.SolutionsService>();
             services.AddAutoMapper();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
@@ -47,6 +47,13 @@ namespace HwProj.SolutionsService.API
             {
                 app.UseHsts();
             }
+
+            app.UseSwagger();
+            
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+            });
 
             app.UseHttpsRedirection();
             app.UseMvc();

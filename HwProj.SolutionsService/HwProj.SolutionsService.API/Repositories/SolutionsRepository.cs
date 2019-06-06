@@ -1,11 +1,13 @@
 ﻿using System.Threading.Tasks;
 using HwProj.Repositories;
+using HwProj.SolutionsService.API.Models;
+using Microsoft.EntityFrameworkCore;
 
-namespace HwProj.SolutionsService.API.Models.Repositories
+namespace HwProj.SolutionsService.API.Repositories
 {
-    public class SolutionRepository : CrudRepository<Solution>, ISolutionRepository
+    public class SolutionsRepository : CrudRepository<Solution>, ISolutionsRepository
     {
-        public SolutionRepository(SolutionContext context)
+        public SolutionsRepository(SolutionContext context)
             : base(context)
         {
         }
