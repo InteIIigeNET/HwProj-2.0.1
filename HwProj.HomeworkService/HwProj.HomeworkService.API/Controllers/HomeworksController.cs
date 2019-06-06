@@ -41,7 +41,7 @@ namespace HwProj.HomeworkService.API.Controllers
         [HttpGet("course_homeworks/{courseId}")]
         public async Task<HomeworkViewModel[]> GetCourseHomeworks(long courseId)
         {
-            var homeworks = await _homeworksService.GetAllHomeworksAsync();
+            var homeworks = await _homeworksService.GetCourseHomeworksAsync(courseId);
             return _mapper.Map<HomeworkViewModel[]>(homeworks);
         }
 

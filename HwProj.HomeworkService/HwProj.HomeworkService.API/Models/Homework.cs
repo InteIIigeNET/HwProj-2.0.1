@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using HwProj.Repositories;
 
 namespace HwProj.HomeworkService.API.Models
@@ -15,6 +16,6 @@ namespace HwProj.HomeworkService.API.Models
         
         public long CourseId { get; set; }
         
-        public HomeworkTask[] Tasks { get; set; }
+        public List<HomeworkTask> Tasks { get; set; }
     }
 }

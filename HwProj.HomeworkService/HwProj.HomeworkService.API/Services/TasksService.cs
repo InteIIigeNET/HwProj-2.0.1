@@ -37,7 +37,11 @@ namespace HwProj.HomeworkService.API.Services
 
         public Task UpdateTaskAsync(long taskId, HomeworkTask update)
         {
-            return _tasksRepository.UpdateAsync(taskId, task => update);
+            return _tasksRepository.UpdateAsync(taskId, task => new HomeworkTask()
+            {
+                Title = update.Title,
+                Description = update.Description
+            });
         }
     }
 }
