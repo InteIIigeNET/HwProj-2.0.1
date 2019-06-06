@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {Solution, SolutionsApi} from '../api/solutions/api'
-import CheckCircle from '@material-ui/icons/CheckCircle'
+import Button from '@material-ui/core/Button'
 import HighlightOff from '@material-ui/icons/HighlightOff'
 import IconButton from '@material-ui/core/IconButton'
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
@@ -46,17 +46,13 @@ export default class SolutionComponent extends React.Component<ISolutionProps, I
                     Статус решения: {solution.state}
                     {this.props.forMentor &&
                         <div>
-                            <br />
-                            <MuiThemeProvider theme={greenTheme}>
-                                <IconButton color="primary" onClick={() => this.acceptSolution()}>
-                                    <CheckCircle />
-                                </IconButton>
-                            </MuiThemeProvider>
-                            <MuiThemeProvider theme={redTheme}>
-                                <IconButton color="primary" onClick={() => this.rejectSolution()}>
-                                    <HighlightOff />
-                                </IconButton>
-                            </MuiThemeProvider>
+                            <Button onClick={() => this.acceptSolution()} size="small" color="primary" variant="contained">
+                                Принять
+                            </Button>
+                            &nbsp;
+                            <Button onClick={() => this.rejectSolution()} size="small" color="primary" variant="contained">
+                                Отклонить
+                            </Button>
                         </div>
                     }
                 </div>
