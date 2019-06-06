@@ -5,6 +5,7 @@ import CheckCircle from '@material-ui/icons/CheckCircle'
 import HighlightOff from '@material-ui/icons/HighlightOff'
 import IconButton from '@material-ui/core/IconButton'
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
+import Button from '@material-ui/core/Button'
 import { red, green } from '@material-ui/core/colors'
 import Link from '@material-ui/core/Link'
 
@@ -37,16 +38,13 @@ export default class NewCourseStudents extends React.Component<INewCourseStudent
                             <div>
                                 {this.props.studentNames[index]}
                                 <br />
-                                <MuiThemeProvider theme={greenTheme}>
-                                    <IconButton color="primary" onClick={() => this.acceptStudent(cm.studentId!)}>
-                                        <CheckCircle />
-                                    </IconButton>
-                                </MuiThemeProvider>
-                                <MuiThemeProvider theme={redTheme}>
-                                    <IconButton color="primary" onClick={() => this.rejectStudent(cm.studentId!)}>
-                                        <HighlightOff />
-                                    </IconButton>
-                                </MuiThemeProvider>
+                                <Button onClick={() => this.acceptStudent(cm.studentId!)} color="primary" variant="contained" size="small">
+                                    Принять
+                                </Button>
+                                &nbsp;
+                                <Button onClick={() => this.rejectStudent(cm.studentId!)} color="primary" variant="contained" size="small">
+                                    Отклонить
+                                </Button>
                             </div>
                         </li>
                         ))
