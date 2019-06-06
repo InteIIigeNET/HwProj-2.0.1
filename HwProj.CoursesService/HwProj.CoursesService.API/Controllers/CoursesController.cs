@@ -29,9 +29,9 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpGet("{courseId}")]
-        public async Task<IActionResult> Get(long id)
+        public async Task<IActionResult> Get(long courseId)
         {
-            var course = await _coursesService.GetAsync(id);
+            var course = await _coursesService.GetAsync(courseId);
             return course == null
                 ? NotFound()
                 : Ok(_mapper.Map<CourseViewModel>(course)) as IActionResult;
@@ -49,12 +49,6 @@ namespace HwProj.CoursesService.API.Controllers
         [ServiceFilter(typeof(IsCourseMentor))]
         public async Task<IActionResult> DeleteCourse(long courseId)
         {
-            var course = await _coursesService.GetAsync(courseId);
-            if (course == null)
-            {
-                return Ok();
-            }
-            
             await _coursesService.DeleteAsync(courseId);
             return Ok();
         }
@@ -63,12 +57,6 @@ namespace HwProj.CoursesService.API.Controllers
         [ServiceFilter(typeof(IsCourseMentor))]
         public async Task<IActionResult> UpdateCourse(long courseId, [FromBody] UpdateCourseViewModel courseViewModel)
         {
-            var course = await _coursesService.GetAsync(courseId);
-            if (course == null)
-            {
-                return Ok();
-            }
-            
             await _coursesService.UpdateAsync(courseId, new Course()
             {
                 Name = courseViewModel.Name,
@@ -93,12 +81,6 @@ namespace HwProj.CoursesService.API.Controllers
         [ServiceFilter(typeof(IsCourseMentor))]
         public async Task<IActionResult> AcceptStudent(long courseId, [FromQuery] string studentId)
         {
-            var course = await _coursesService.GetAsync(courseId);
-            if (course == null)
-            {
-                return Ok();
-            }
-            
             return await _coursesService.AcceptCourseMateAsync(courseId, studentId)
                 ? Ok()
                 : NotFound() as IActionResult;
@@ -109,12 +91,6 @@ namespace HwProj.CoursesService.API.Controllers
         [ServiceFilter(typeof(IsCourseMentor))]
         public async Task<IActionResult> RejectStudent(long courseId, [FromQuery] string studentId)
         {
-            var course = await _coursesService.GetAsync(courseId);
-            if (course == null)
-            {
-                return Ok();
-            }
-            
             return await _coursesService.RejectCourseMateAsync(courseId, studentId)
                 ? Ok()
                 : NotFound() as IActionResult;

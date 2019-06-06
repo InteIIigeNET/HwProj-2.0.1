@@ -34,14 +34,24 @@ namespace HwProj.CoursesService.API.Services
             return _courseRepository.AddAsync(course);
         }
 
-        public Task DeleteAsync(long id)
+        public async Task DeleteAsync(long id)
         {
-            return _courseRepository.DeleteAsync(id);
+            var course = await _courseRepository.GetAsync(id);
+            if (course != null)
+            {
+                await _courseRepository.DeleteAsync(id);
+            }
         }
 
-        public Task UpdateAsync(long courseId, Course updated)
+        public async Task UpdateAsync(long courseId, Course updated)
         {
-            return _courseRepository.UpdateAsync(courseId, course => new Course()
+            var course = await _courseRepository.GetAsync(courseId);
+            if (course == null)
+            {
+                return;
+            }
+            
+            await _courseRepository.UpdateAsync(courseId, c => new Course()
             {
                 Name = updated.Name,
                 GroupName = updated.GroupName,
@@ -77,9 +87,14 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<bool> AcceptCourseMateAsync(long courseId, string studentId)
         {
+            var course = await _courseRepository.GetAsync(courseId);
+            if (course == null)
+            {
+                return false;
+            }
+            
             var courseMate = await _courseMateRepository
                 .FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
-
             if (courseMate == null)
             {
                 return false;
@@ -91,9 +106,14 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<bool> RejectCourseMateAsync(long courseId, string studentId)
         {
+            var course = await _courseRepository.GetAsync(courseId);
+            if (course == null)
+            {
+                return false;
+            }
+            
             var courseMate = await _courseMateRepository
                 .FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
-
             if (courseMate == null)
             {
                 return false;
