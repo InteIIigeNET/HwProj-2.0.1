@@ -13,6 +13,6 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="4.0.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="/src/HwProj.Repositories/HwProj.Repositories.csproj" />
+    <ProjectReference Include="..\..\HwProj.Repositories/HwProj.Repositories.csproj" />
   </ItemGroup>
 </Project>
