@@ -1,6 +1,4 @@
 import * as React from 'react';
-import {SolutionsApi} from '../api/solutions/api'
-import SolutionComponent from './Solution'
 import {RouteComponentProps, Link} from "react-router-dom"
 import Task from './Task'
 import Typography from '@material-ui/core/Typography'

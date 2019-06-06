@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { HomeworksApi, HomeworkTaskViewModel} from "../api/homeworks/api";
+import { HomeworksApi, HomeworkTaskViewModel } from "../api/homeworks/api";
 import Task from './Task'
 
 interface IHomeworkTasksProps {

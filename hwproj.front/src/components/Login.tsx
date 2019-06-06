@@ -1,11 +1,8 @@
 import * as React from 'react';
 import TextField from '@material-ui/core/TextField';
-import Checkbox from '@material-ui/core/Checkbox'
 import Button from '@material-ui/core/Button'
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Typography from '@material-ui/core/Typography'
 import { Redirect } from 'react-router-dom';
-import { CoursesApi } from "../api/courses/api";
 import AuthService from '../services/AuthService';
 
 interface ILoginState {

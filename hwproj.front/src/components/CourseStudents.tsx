@@ -5,7 +5,7 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
-import { CoursesApi, CourseViewModel } from '../api/courses/api'
+import { CourseViewModel } from '../api/courses/api'
 import { HomeworksApi, TasksApi, HomeworkViewModel } from '../api/homeworks/api'
 import { Paper, createStyles, Theme, withStyles } from '@material-ui/core';
 import TaskStudentCell from './TaskStudentCell'

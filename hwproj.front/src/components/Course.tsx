@@ -6,7 +6,6 @@ import CourseHomework from "./CourseHomework"
 import {RouteComponentProps, Route} from "react-router-dom"
 import { Typography } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
-import IconButton from '@material-ui/core/IconButton'
 import EditIcon from '@material-ui/icons/Edit'
 import AddHomework from './AddHomework';
 import CourseStudents from './CourseStudents';

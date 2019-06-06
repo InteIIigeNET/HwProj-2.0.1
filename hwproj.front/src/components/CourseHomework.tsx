@@ -2,7 +2,7 @@ import * as React from 'react';
 import ListItem from '@material-ui/core/ListItem';
 import List from '@material-ui/core/List';
 import { Typography } from '@material-ui/core';
-import { HomeworksApi, HomeworkViewModel } from "../api/homeworks/api";
+import { HomeworkViewModel } from "../api/homeworks/api";
 import Homework from './Homework';
 
 interface ICourseHomeworkProps {

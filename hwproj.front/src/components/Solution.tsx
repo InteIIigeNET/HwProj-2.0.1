@@ -1,14 +1,7 @@
 import * as React from 'react';
 import {Solution, SolutionsApi} from '../api/solutions/api'
 import Button from '@material-ui/core/Button'
-import HighlightOff from '@material-ui/icons/HighlightOff'
-import IconButton from '@material-ui/core/IconButton'
-import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
-import { red, green } from '@material-ui/core/colors'
 import Link from '@material-ui/core/Link'
-
-const redTheme = createMuiTheme({ palette: { primary: red } })
-const greenTheme = createMuiTheme({ palette: { primary: green } })
 
 interface ISolutionProps {
     id: number,

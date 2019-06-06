@@ -1,11 +1,8 @@
 import * as React from 'react';
-import Link from '@material-ui/core/Link';
-import Typography from '@material-ui/core/Typography';
 import { CourseViewModel, CoursesApi } from "../api/courses/api";
 import { Link as RouterLink} from 'react-router-dom'
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import Paper from '@material-ui/core/Paper';
 
 interface ICoursesState {
     isLoaded: boolean,

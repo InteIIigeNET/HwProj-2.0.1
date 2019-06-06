@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { SolutionsApi, StateEnum } from '../api/solutions/api'
 import TableCell from '@material-ui/core/TableCell'
-import { Link, Redirect } from 'react-router-dom'
+import { Redirect } from 'react-router-dom'
 
 interface ITaskStudentCellProps {
     studentId: string,
