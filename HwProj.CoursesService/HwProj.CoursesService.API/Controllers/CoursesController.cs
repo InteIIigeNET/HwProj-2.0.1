@@ -23,8 +23,10 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpGet]
-        public async Task<List<CourseViewModel>> GetAll()
-            => _mapper.Map<List<CourseViewModel>>(await _coursesService.GetAllAsync());
+        public async Task<CourseViewModel[]> GetAll()
+        {
+            return _mapper.Map<CourseViewModel[]>(await _coursesService.GetAllAsync());
+        }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(long id)
@@ -40,9 +42,7 @@ namespace HwProj.CoursesService.API.Controllers
         {
             var mentorId = Request.Query.First(x => x.Key == "_id").Value.ToString();
             var course = _mapper.Map<Course>(courseViewModel);
-            course.MentorId = mentorId;
-            
-            return Ok(await _coursesService.AddAsync(course));
+            return Ok(await _coursesService.AddAsync(course, mentorId));
         }
 
         [HttpDelete("{id}")]
@@ -79,7 +79,7 @@ namespace HwProj.CoursesService.API.Controllers
                 return Forbid();
             }
             
-            await _coursesService.UpdateAsync(courseId, c => new Course()
+            await _coursesService.UpdateAsync(courseId, new Course()
             {
                 Name = courseViewModel.Name,
                 GroupName = courseViewModel.GroupName,

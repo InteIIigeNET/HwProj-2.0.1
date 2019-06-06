@@ -8,6 +8,6 @@ namespace HwProj.CoursesService.API.Repositories
     public interface ICourseRepository : ICrudRepository<Course>
     {
         Task<Course> GetWithCourseMatesAsync(long id);
-        Task<List<Course>> GetAllWithCourseMatesAsync();
+        Task<Course[]> GetAllWithCourseMatesAsync();
     }
 }

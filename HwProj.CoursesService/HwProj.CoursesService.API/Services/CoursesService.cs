@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -19,20 +18,37 @@ namespace HwProj.CoursesService.API.Services
             _courseMateRepository = courseMateRepository;
         }
 
-        public Task<List<Course>> GetAllAsync()
-            => _courseRepository.GetAllWithCourseMatesAsync();
+        public Task<Course[]> GetAllAsync()
+        {
+            return _courseRepository.GetAllWithCourseMatesAsync();
+        }
 
         public Task<Course> GetAsync(long id)
-            => _courseRepository.GetWithCourseMatesAsync(id);
+        {
+            return _courseRepository.GetWithCourseMatesAsync(id);
+        }
 
-        public Task<long> AddAsync(Course course)
-            => _courseRepository.AddAsync(course);
+        public Task<long> AddAsync(Course course, string mentorId)
+        {
+            course.MentorId = mentorId;
+            return _courseRepository.AddAsync(course);
+        }
 
         public Task DeleteAsync(long id)
-            => _courseRepository.DeleteAsync(id);
+        {
+            return _courseRepository.DeleteAsync(id);
+        }
 
-        public Task UpdateAsync(long courseId, Expression<Func<Course, Course>> updateFactory)
-            => _courseRepository.UpdateAsync(courseId, updateFactory);
+        public Task UpdateAsync(long courseId, Course updated)
+        {
+            return _courseRepository.UpdateAsync(courseId, course => new Course()
+            {
+                Name = updated.Name,
+                GroupName = updated.GroupName,
+                IsComplete = updated.IsComplete,
+                IsOpen = updated.IsOpen
+            });
+        }
 
         public async Task<bool> AddStudentAsync(long courseId, string studentId)
         {
@@ -87,16 +103,20 @@ namespace HwProj.CoursesService.API.Services
             return true;
         }
 
-        public List<long> GetStudentCourses(string studentId)
-            => _courseMateRepository
+        public long[] GetStudentCourses(string studentId)
+        {
+            return _courseMateRepository
                 .FindAll(cm => cm.StudentId == studentId && cm.IsAccepted)
                 .Select(cm => cm.CourseId)
-                .ToList();
+                .ToArray();
+        }
 
-        public List<long> GetMentorCourses(string mentorId)
-            => _courseRepository
+        public long[] GetMentorCourses(string mentorId)
+        {
+            return _courseRepository
                 .FindAll(c => c.MentorId == mentorId)
                 .Select(c => c.Id)
-                .ToList();
+                .ToArray();
+        }
     }
 }

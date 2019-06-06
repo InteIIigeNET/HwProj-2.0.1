@@ -10,15 +10,15 @@ namespace HwProj.CoursesService.API.Services
 {
     public interface ICoursesService
     {
-        Task<List<Course>> GetAllAsync();
+        Task<Course[]> GetAllAsync();
         Task<Course> GetAsync(long id);
-        Task<long> AddAsync(Course course);
+        Task<long> AddAsync(Course course, string mentorId);
         Task DeleteAsync(long id);
-        Task UpdateAsync(long courseId, Expression<Func<Course, Course>> updateFactory);
+        Task UpdateAsync(long courseId, Course updated);
         Task<bool> AddStudentAsync(long courseId, string studentId);
         Task<bool> AcceptCourseMateAsync(long courseId, string studentId);
         Task<bool> RejectCourseMateAsync(long courseId, string studentId);
-        List<long> GetStudentCourses(string studentId);
-        List<long> GetMentorCourses(string mentorId);
+        long[] GetStudentCourses(string studentId);
+        long[] GetMentorCourses(string mentorId);
     }
 }
