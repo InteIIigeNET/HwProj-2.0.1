@@ -242,7 +242,7 @@
       "UpstreamHttpMethod": [ "GET" ]
     },
     {
-      "DownstreamPathTemplate": "/api/Courses/{id}",
+      "DownstreamPathTemplate": "/api/Courses/{courseId}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -250,7 +250,7 @@
           "Port": 8083
         }
       ],
-      "UpstreamPathTemplate": "/api/Courses/{id}/",
+      "UpstreamPathTemplate": "/api/Courses/{courseId}/",
       "UpstreamHttpMethod": [ "DELETE" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
