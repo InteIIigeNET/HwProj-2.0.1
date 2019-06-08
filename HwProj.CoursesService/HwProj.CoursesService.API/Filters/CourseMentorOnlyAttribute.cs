@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using HwProj.CoursesService.API.Repositories;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Routing;
@@ -27,7 +28,7 @@ namespace HwProj.CoursesService.API.Filters
                 var course = _courseRepository.Get(long.Parse(courseId.ToString()));
                 if (course?.MentorId != userId)
                 {
-                    context.Result = new ForbidResult();
+                    context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
                 }
             }
         }
