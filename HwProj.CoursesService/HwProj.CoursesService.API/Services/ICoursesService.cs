@@ -13,7 +13,7 @@ namespace HwProj.CoursesService.API.Services
         Task<bool> AddStudentAsync(long courseId, string studentId);
         Task<bool> AcceptCourseMateAsync(long courseId, string studentId);
         Task<bool> RejectCourseMateAsync(long courseId, string studentId);
-        long[] GetStudentCourseIds(string studentId);
-        long[] GetMentorCourseIds(string mentorId);
+        Task<long[]> GetStudentCourseIdsAsync(string studentId);
+       Task<long[]> GetMentorCourseIdsAsync(string mentorId);
     }
 }

@@ -8,6 +8,7 @@ namespace HwProj.NotificationsService.API.Models
         [Key]
         public long Id { get; set; }
         public string From { get; set; }
+        //навесить индекс
         public string Owner { get; set; }
         public string Category { get; set; }
         public string Body { get; set; }

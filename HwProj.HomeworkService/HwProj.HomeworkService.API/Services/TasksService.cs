@@ -14,9 +14,9 @@ namespace HwProj.HomeworkService.API.Services
             _tasksRepository = tasksRepository;
         }
 
-        public HomeworkTask[] GetAllTasks()
+        public async Task<HomeworkTask[]> GetAllTasksAsync()
         {
-            return _tasksRepository.GetAll().ToArray();
+            return await _tasksRepository.GetAllAsync();
         }
 
         public async Task<HomeworkTask> GetTaskAsync(long taskId)

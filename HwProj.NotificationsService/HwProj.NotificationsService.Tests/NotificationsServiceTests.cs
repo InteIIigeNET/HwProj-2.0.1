@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-namespace HwProj.SolutionsService.Tests
+namespace HwProj.NotificationsService.Tests
 {
     [TestFixture]
     public class SolutionsServiceTests

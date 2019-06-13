@@ -13,13 +13,18 @@ namespace HwProj.CoursesService.API.Repositories
         {
         }
 
-        public Task<Course> GetWithCourseMatesAsync(long id)
-            => _context.Set<Course>().Include(c => c.CourseMates).FirstOrDefaultAsync(c => c.Id == id);
+        public async Task<Course> GetWithCourseMatesAsync(long id)
+        {
+            return await Context.Set<Course>().Include(c => c.CourseMates)
+                .FirstOrDefaultAsync(c => c.Id == id);
+        }
 
-        public Task<Course[]> GetAllWithCourseMatesAsync()
-            => _context.Set<Course>()
+        public async Task<Course[]> GetAllWithCourseMatesAsync()
+        {
+            return await Context.Set<Course>()
                 .Include(c => c.CourseMates)
                 .AsNoTracking()
                 .ToArrayAsync();
+        }
     }
 }

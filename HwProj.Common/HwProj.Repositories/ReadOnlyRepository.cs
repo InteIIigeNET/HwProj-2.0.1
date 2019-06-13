@@ -10,29 +10,31 @@ namespace HwProj.Repositories
     public class ReadOnlyRepository<TEntity> : IReadOnlyRepository<TEntity>
         where TEntity : class, IEntity, new()
     {
-        protected readonly DbContext _context;
+        protected readonly DbContext Context;
 
         public ReadOnlyRepository(DbContext context)
         {
-            _context = context;
+            Context = context;
         }
-        
-        public TEntity Get(long id)
-            => _context.Find<TEntity>(id);
 
-        public IReadOnlyCollection<TEntity> GetAll()
-            => _context.Set<TEntity>().AsNoTracking().ToArray();
+        public async Task<TEntity[]> GetAllAsync()
+        {
+            return await Context.Set<TEntity>().AsNoTracking().ToArrayAsync();
+        }
 
-        public TEntity Find(Func<TEntity, bool> predicate)
-            => _context.Set<TEntity>().FirstOrDefault(predicate);
+        public async Task<TEntity[]> FindAllAsync(Expression<Func<TEntity, bool>> predicate)
+        {
+            return await Context.Set<TEntity>().Where(predicate).AsNoTracking().ToArrayAsync();
+        }
 
-        public IReadOnlyCollection<TEntity> FindAll(Expression<Func<TEntity, bool>> predicate)
-            => _context.Set<TEntity>().Where(predicate).AsNoTracking().ToArray();
+        public async Task<TEntity> GetAsync(long id)
+        {
+            return await Context.FindAsync<TEntity>(id);
+        }
 
-        public Task<TEntity> GetAsync(long id)
-            => _context.FindAsync<TEntity>(id);
-
-        public Task<TEntity> FindAsync(Expression<Func<TEntity, bool>> predicate)
-            => _context.Set<TEntity>().FirstOrDefaultAsync(predicate);
+        public async Task<TEntity> FindAsync(Expression<Func<TEntity, bool>> predicate)
+        {
+            return await Context.Set<TEntity>().FirstOrDefaultAsync(predicate);
+        }
     }
 }
