@@ -1,14 +1,15 @@
-﻿using HwProj.HomeworkService.API.Models;
-using HwProj.HomeworkService.API.Repositories;
-using HwProj.HomeworkService.API.Services;
+﻿using HwProj.NotificationsService.API.Models;
+using HwProj.NotificationsService.API.Repositories;
+using HwProj.NotificationsService.API.Services;
 using HwProj.Utils.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace HwProj.HomeworkService.API
+namespace HwProj.NotificationsService.API
 {
     public class Startup
     {
@@ -22,11 +23,9 @@ namespace HwProj.HomeworkService.API
         public void ConfigureServices(IServiceCollection services)
         {
             var connectionString = Configuration.GetConnectionString("DefaultConnection");
-            services.AddDbContext<HomeworkContext>(options => options.UseSqlServer(connectionString));
-            services.AddScoped<IHomeworksRepository, HomeworksRepository>();
-            services.AddScoped<ITasksRepository, TasksRepository>();
-            services.AddScoped<IHomeworksService, HomeworksService>();
-            services.AddScoped<ITasksService, TasksService>();
+            services.AddDbContext<NotificationsContext>(options => options.UseSqlServer(connectionString));
+            services.AddScoped<INotificationsRepository, NotificationsRepository>();
+            services.AddScoped<INotificationsService, Services.NotificationsService>();
             services.ConfigureHwProjServices("Courses API");
         }
 
