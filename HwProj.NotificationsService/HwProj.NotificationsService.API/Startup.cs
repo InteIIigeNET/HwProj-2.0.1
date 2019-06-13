@@ -25,12 +25,12 @@ namespace HwProj.NotificationsService.API
             services.AddDbContext<NotificationsContext>(options => options.UseSqlServer(connectionString));
             services.AddScoped<INotificationsRepository, NotificationsRepository>();
             services.AddScoped<INotificationsService, Services.NotificationsService>();
-            services.ConfigureHwProjServices("Courses API");
+            services.ConfigureHwProjServices("Notifications API");
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.ConfigureHwProj(env, "Courses API");
+            app.ConfigureHwProj(env, "Notifications API");
         }
     }
 }

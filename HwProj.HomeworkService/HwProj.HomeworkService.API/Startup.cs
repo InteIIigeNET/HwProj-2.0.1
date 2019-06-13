@@ -27,12 +27,12 @@ namespace HwProj.HomeworkService.API
             services.AddScoped<ITasksRepository, TasksRepository>();
             services.AddScoped<IHomeworksService, HomeworksService>();
             services.AddScoped<ITasksService, TasksService>();
-            services.ConfigureHwProjServices("Courses API");
+            services.ConfigureHwProjServices("Homeworks API");
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.ConfigureHwProj(env, "Courses API");
+            app.ConfigureHwProj(env, "Homeworks API");
         }
     }
 }

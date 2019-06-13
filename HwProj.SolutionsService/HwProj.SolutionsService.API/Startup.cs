@@ -25,12 +25,12 @@ namespace HwProj.SolutionsService.API
             services.AddDbContext<SolutionContext>(options => options.UseSqlServer(connectionString));
             services.AddScoped<ISolutionsRepository, SolutionsRepository>();
             services.AddScoped<ISolutionsService, Services.SolutionsService>();
-            services.ConfigureHwProjServices("Courses API");
+            services.ConfigureHwProjServices("Solutions API");
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.ConfigureHwProj(env, "Courses API");
+            app.ConfigureHwProj(env, "Solutions API");
         }
     }
 }
