@@ -14,31 +14,22 @@ namespace HwProj.Repositories
             : base(context)
         {
         }
-        
-        public long Add(TEntity item)
-        {
-            _context.Add(item);
-            _context.SaveChanges();
-            return item.Id;
-        }
-
-        public void Delete(long id)
-            => _context.Set<TEntity>().Where(entity => entity.Id == id).Delete();
-
-        public void Update(long id, Expression<Func<TEntity, TEntity>> updateFactory)
-            => _context.Set<TEntity>().Where(entity => entity.Id == id).Update(updateFactory);
 
         public async Task<long> AddAsync(TEntity item)
         {
-            await _context.AddAsync(item);
-            await _context.SaveChangesAsync();
+            await Context.AddAsync(item);
+            await Context.SaveChangesAsync();
             return item.Id;
         }
 
-        public Task DeleteAsync(long id)
-            => _context.Set<TEntity>().Where(entity => entity.Id == id).DeleteAsync();
+        public async Task DeleteAsync(long id)
+        {
+            await Context.Set<TEntity>().Where(entity => entity.Id == id).DeleteAsync();
+        }
 
-        public Task UpdateAsync(long id, Expression<Func<TEntity, TEntity>> updateFactory)
-            => _context.Set<TEntity>().Where(entity => entity.Id == id).UpdateAsync(updateFactory);
+        public async Task UpdateAsync(long id, Expression<Func<TEntity, TEntity>> updateFactory)
+        {
+            await Context.Set<TEntity>().Where(entity => entity.Id == id).UpdateAsync(updateFactory);
+        }
     }
 }
