@@ -1,16 +1,13 @@
-﻿using AutoMapper;
-using HwProj.CoursesService.API.Filters;
+﻿using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.CoursesService.API.Services;
+using HwProj.Utils.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using Swashbuckle.AspNetCore.Swagger;
 
 namespace HwProj.CoursesService.API
 {
@@ -23,7 +20,6 @@ namespace HwProj.CoursesService.API
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             var connection = Configuration.GetConnectionString("DefaultConnection");
@@ -32,34 +28,12 @@ namespace HwProj.CoursesService.API
             services.AddScoped<ICourseMateRepository, CourseMateRepository>();
             services.AddScoped<ICoursesService, Services.CoursesService>();
             services.AddScoped<CourseMentorOnlyAttribute>();
-            services.AddAutoMapper();
-            services.AddMvc().AddJsonOptions(options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore)
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new Info { Title = "Courses API", Version = "v1" });
-            });
+            services.ConfigureHwProjServices("Courses API");
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseHsts();
-            }
-
-            app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Courses API V1");
-            });
-            app.UseHttpsRedirection();
-            app.UseMvc();
+            app.ConfigureHwProj(env, "Courses API");
         }
     }
 }
