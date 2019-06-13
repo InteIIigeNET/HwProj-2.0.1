@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using HwProj.HomeworkService.API.Models;
 using HwProj.Repositories;
 
