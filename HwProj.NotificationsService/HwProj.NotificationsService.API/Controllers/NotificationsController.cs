@@ -26,7 +26,7 @@ namespace HwProj.NotificationsService.API.Controllers
             return Ok();
         }
 
-        [HttpPost("markasseen")] //предвижу гору шуток
+        [HttpPost("mark_as_seen")]
         public async Task<IActionResult> MarkAsSeen([FromBody] long[] notificationIds)
         {
             var userId = Request.GetUserId();
