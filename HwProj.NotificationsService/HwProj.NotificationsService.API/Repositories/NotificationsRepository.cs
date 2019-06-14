@@ -23,9 +23,14 @@ namespace HwProj.NotificationsService.API.Repositories
                 .UpdateAsync(updateFactory);
         }
 
-        public async Task<Notification[]> GetAllByFilterAsync(string userId, NotificationFilter filter)
+        public async Task<Notification[]> GetAllByUserAsync(string userId, NotificationFilter filter = null)
         {
             var result = Context.Set<Notification>().Where(t => t.Owner == userId);
+
+            if(filter == null)
+            {
+                return await result.OrderByDescending(t => t.Date).ToArrayAsync();
+            }
 
             if (filter.HasSeen != null)
             {

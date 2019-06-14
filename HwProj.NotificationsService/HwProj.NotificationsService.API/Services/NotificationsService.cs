@@ -26,7 +26,7 @@ namespace HwProj.NotificationsService.API.Services
             {
                 MaxCount = 50, 
             };
-            return await _repository.GetAllByFilterAsync(userId, filter);
+            return await _repository.GetAllByUserAsync(userId, filter);
         }
 
         public async Task MarkAsSeenAsync(string userId, long[] notificationIds)
