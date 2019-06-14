@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq.Expressions;
+using System.Threading.Tasks;
 using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Repositories;
 
@@ -19,9 +20,19 @@ namespace HwProj.NotificationsService.API.Services
             return id;
         }
 
-        public async Task<Notification[]> GetAllByUser(string userId)
+        public async Task<Notification[]> GetAllByUserAsync(string userId, NotificationFilter filter = null)
         {
-            return await _repository.FindAllAsync(t => t.Owner == userId);
+            filter = filter ?? new NotificationFilter
+            {
+                MaxCount = 50, 
+            };
+            return await _repository.GetAllByFilterAsync(userId, filter);
+        }
+
+        public async Task MarkAsSeenAsync(string userId, long[] notificationIds)
+        {
+            await _repository.UpdateBatchAsync(userId, notificationIds,
+                t => new Notification {HasSeen = true});
         }
     }
 }
