@@ -6,6 +6,7 @@ namespace HwProj.NotificationsService.API.Services
     public interface INotificationsService
     {
         Task<long> AddNotificationAsync(Notification notification);
-        Task<Notification[]> GetAllByUser(string userId);
+        Task<Notification[]> GetAllByUserAsync(string userId, NotificationFilter filter = null);
+        Task MarkAsSeenAsync(string userId, long[] notificationIds);
     }
 }
