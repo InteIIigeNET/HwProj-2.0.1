@@ -18,7 +18,9 @@ namespace HwProj.NotificationsService.API.Repositories
 
         public async Task UpdateBatchAsync(string userId, long[] ids, Expression<Func<Notification, Notification>> updateFactory)
         { 
-            await Context.Set<Notification>().Where(t => ids.Contains(t.Id)).UpdateAsync(updateFactory);
+            await Context.Set<Notification>()
+                .Where(t => t.Owner == userId && ids.Contains(t.Id))
+                .UpdateAsync(updateFactory);
         }
 
         public async Task<Notification[]> GetAllByFilterAsync(string userId, NotificationFilter filter)
