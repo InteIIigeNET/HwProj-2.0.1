@@ -16,6 +16,11 @@ namespace HwProj.AuthService.API.Services
         Task<Dictionary<string, string>> GetUserDataById(string userId);
 
         /// <summary>
+        /// Регистрация пользователя  через аккаунт github
+        /// </summary>
+        Task<string> RegisterGitHub(RegisterGitHubViewModel model, HttpContext httpContext, IUrlHelper url);
+
+        /// <summary>
         /// Регистрация пользователя 
         /// </summary>
         Task Register(RegisterViewModel model, HttpContext httpContext, IUrlHelper url);

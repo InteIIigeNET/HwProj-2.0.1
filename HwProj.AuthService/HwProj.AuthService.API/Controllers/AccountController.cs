@@ -16,6 +16,14 @@ namespace HwProj.AuthService.API.Controllers
 
         public AccountController(IUserService userService) => this.userService = userService;
 
+        [HttpPost, Route("registergithub")]
+        [ExceptionFilter]
+        public async Task<IActionResult> RegisterGitHub(RegisterGitHubViewModel model)
+        {
+            var res = await userService.RegisterGitHub(model, HttpContext, Url);
+            return Ok(res);
+        }
+
         [HttpGet, Route("getuserdatabyid")]
         [ExceptionFilter]
         public async Task<IActionResult> GetUserDataById(string userId)
@@ -24,10 +32,43 @@ namespace HwProj.AuthService.API.Controllers
 
             var response = new
             {
-                name = userData["name"],
-                surname = userData["surname"],
-                email = userData["email"],
-                role = userData["role"]
+                name = userData[0].ToString(),
+                surname = userData[1].ToString(),
+                email = userData[2].ToString(),
+                role = userData[3].ToString()
+            };
+
+            return Ok(response);
+        }
+
+        [HttpGet, Route("logingithub")]
+        [ExceptionFilter]
+        public IActionResult LoginGitHub()
+        {
+            var signInUri = userService.GetSignInUriGithub();
+            return Ok(signInUri);
+        }
+
+        [HttpGet, Route("issignin")]
+        [ExceptionFilter]
+        public IActionResult IsSignIn()
+            => Ok(userService.IsSignIn(User));
+
+        [HttpGet, Route("callbackgithub")]
+        [ExceptionFilter]
+        public async Task<IActionResult> CallbackGitHub()
+        {
+            var result = await userService.LogInGitHub(User, Request);
+
+            if (result[0].ToString() == "id")
+            {
+                return Ok(result[1]);
+            }
+
+            var response = new
+            {
+                accessToken = result[0].ToString(),
+                expiresIn = (int)result[1]
             };
 
             return Ok(response);

@@ -26,5 +26,16 @@ namespace HwProj.AuthService.API.Models
                 Email = model.Email
             };
         }
+
+        public static explicit operator User(RegisterGitHubViewModel model)
+        {
+            return new User()
+            {
+                UserName = model.Email,
+                Name = model.Name,
+                Surname = model.Surname,
+                Email = model.Email
+            };
+        }
     }
 }

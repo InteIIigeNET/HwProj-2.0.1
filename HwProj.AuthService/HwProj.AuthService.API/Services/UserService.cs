@@ -29,7 +29,7 @@ namespace HwProj.AuthService.API.Services
         /// <summary>
         /// Возвращает данные о пользователе 
         /// </summary>
-        public async Task<Dictionary<string, string>> GetUserDataById(string userId)
+        public async Task<List<object>> GetUserDataById(string userId)
         {
             if ((await userManager.FindByIdAsync(userId)) == null)
             {
@@ -39,15 +39,87 @@ namespace HwProj.AuthService.API.Services
             var user = await userManager.FindByIdAsync(userId);
             var userRole = (await userManager.GetRolesAsync(user))[0];
 
-            var userData = new Dictionary<string, string>
-            {
-                { "name", user.Name },
-                { "surname", user.Surname },
-                { "email", user.Email },
-                { "role", userRole }
-            };
+            return new List<object>() { user.Name, user.Surname, user.Email, userRole};
+        }
 
-            return userData;
+        /// <summary>
+        /// True, если пользователь аутентифицирован
+        /// </summary>
+        public bool IsSignIn(ClaimsPrincipal User)
+            => signInManager.IsSignedIn(User);
+
+        /// <summary>
+        /// Получение Uri для перехода к аутентификации на стороне github
+        /// </summary>
+        public Uri GetSignInUriGithub()
+            => providerService.GetSignInUriGithub();
+
+        /// <summary>
+        /// Аутентификация через аккаунт github
+        /// </summary>
+        public async Task<List<object>> LogInGitHub(ClaimsPrincipal User, HttpRequest request)
+        {
+            if (!request.Query.TryGetValue("code", out StringValues code))
+            {
+                throw new FailedExecutionException();
+            }
+
+            var userCode = code.ToString();
+            var userIdGitHub = await providerService.GetUserIdGitHub(userCode);
+
+            // Привязать аккаунт github, если пользователь в системе
+            if (signInManager.IsSignedIn(User))
+            {
+                var user = await userManager.FindByNameAsync(User.Identity.Name);
+                await providerService.BindGitHub(user, userIdGitHub);
+                return await tokenService.GetToken(user);
+            }
+
+            var userGitHub = await providerService.GetUserGitHub(userIdGitHub);
+
+            // Предложить пользователю зарегистрироваться через github
+            if (userGitHub == null)
+            {
+                return new List<object> { "id", userIdGitHub };
+            }
+            
+            // Если пользователь зареган через github, но не подтвердил почту
+            if (!await userManager.IsEmailConfirmedAsync(userGitHub))
+            {
+                throw new InvalidEmailException("Email не был подтвержден");
+            }
+
+            await signInManager.SignInAsync(userGitHub, false, "LogInGitHub");
+            return await tokenService.GetToken(userGitHub);
+        }
+
+        /// <summary>
+        /// Регистрация пользователя  через аккаунт github
+        /// </summary>
+        public async Task<string> RegisterGitHub(RegisterGitHubViewModel model,
+            HttpContext httpContext,
+            IUrlHelper url)
+        {
+            if ((await userManager.FindByEmailAsync(model.Email)) != null)
+            {
+                throw new InvalidEmailException("Пользователь с таким email уже зарегистрирован");
+            }
+
+            var user = (User)model;
+            var result = await userManager.CreateAsync(user);
+
+            if (!result.Succeeded)
+            {
+                throw new FailedExecutionException(result.Errors);
+            }
+
+            await userManager.AddToRoleAsync(user, "student");
+            await userManager.AddClaimAsync(user, new Claim("IdGitHub", model.IdGitHub));
+
+            return await GetCallbackUrlForEmailConfirmation(user, httpContext, url);
+            //await emailService.SendEmailForConfirmation(
+            //    model.Email,
+            //    await GetCallbackUrlForEmailConfirmation(user, httpContext, url));
         }
 
         /// <summary>
