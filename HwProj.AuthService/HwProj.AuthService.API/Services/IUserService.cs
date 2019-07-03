@@ -13,22 +13,7 @@ namespace HwProj.AuthService.API.Services
         /// <summary>
         /// Возвращает данные о пользователе 
         /// </summary>
-        Task<List<object>> GetUserDataById(string userId);
-
-        /// <summary>
-        /// True, если пользователь аутентифицирован
-        /// </summary>
-        bool IsSignIn(ClaimsPrincipal User);
-
-        /// <summary>
-        /// Получение Uri для перехода к аутентификации на стороне github
-        /// </summary>
-        Uri GetSignInUriGithub();
-
-        /// <summary>
-        /// Аутентификация через аккаунт github
-        /// </summary>
-        Task<List<object>> LogInGitHub(ClaimsPrincipal User, HttpRequest request);
+        Task<Dictionary<string, string>> GetUserDataById(string userId);
 
         /// <summary>
         /// Регистрация пользователя  через аккаунт github
@@ -38,7 +23,7 @@ namespace HwProj.AuthService.API.Services
         /// <summary>
         /// Регистрация пользователя 
         /// </summary>
-        Task<string> Register(RegisterViewModel model, HttpContext httpContext, IUrlHelper url);
+        Task Register(RegisterViewModel model, HttpContext httpContext, IUrlHelper url);
 
         /// <summary>
         /// Изменение профиля
@@ -46,33 +31,9 @@ namespace HwProj.AuthService.API.Services
         Task Edit(EditViewModel model, ClaimsPrincipal User);
 
         /// <summary>
-        /// Подтвержения почты в системе
-        /// </summary>
-        Task ConfirmEmail(string userId, string code);
-
-        /// <summary>
         /// Аутентификация пользователя
         /// </summary>
         Task<List<object>> Login(LoginViewModel model);
-
-        /// <summary>
-        /// Обновление токена 
-        /// </summary>
-        Task<List<object>> RefreshToken(ClaimsPrincipal User);
-
-        /// <summary>
-        /// Выполнение запроса на изменение почты 
-        /// </summary>
-        Task RequestToChangeEmail(
-            ChangeEmailViewModel model,
-            ClaimsPrincipal User,
-            HttpContext httpContext,
-            IUrlHelper url);
-
-        /// <summary>
-        /// Подтверждение в системе почты после ее изменения
-        /// </summary>
-        Task ConfirmChangeEmail(string userId, string email, string code);
 
         /// <summary>
         /// Удаление пользователя 
@@ -88,10 +49,5 @@ namespace HwProj.AuthService.API.Services
         /// Изменение роли на преподавателя для пользователя из InviteLecturerViewModel
         /// </summary>
         Task InviteNewLecturer(InviteLecturerViewModel model, ClaimsPrincipal User);
-
-        /// <summary>
-        /// Выход из системы
-        /// </summary>
-        Task LogOff();
     }
 }

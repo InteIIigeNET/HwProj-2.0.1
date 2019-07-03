@@ -8,8 +8,6 @@ using HwProj.AuthService.API.Exceptions;
 using System.Security.Claims;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
-using System;
-using Microsoft.Extensions.Primitives;
 
 namespace HwProj.AuthService.API.Services
 {
@@ -18,8 +16,6 @@ namespace HwProj.AuthService.API.Services
         private readonly UserManager<User> userManager;
         private readonly SignInManager<User> signInManager;
         private readonly TokenService tokenService;
-        private readonly EmailService emailService;
-        private readonly ThirdPartyProviderService providerService;
 
         public UserService(UserManager<User> userManager,
             SignInManager<User> signInManager,
@@ -28,8 +24,6 @@ namespace HwProj.AuthService.API.Services
             this.userManager = userManager;
             this.signInManager = signInManager;
             tokenService = new TokenService(userManager, appSettings);
-            emailService = new EmailService(appSettings);
-            providerService = new ThirdPartyProviderService(userManager, appSettings);
         }
 
         /// <summary>
@@ -133,33 +127,10 @@ namespace HwProj.AuthService.API.Services
         /// </summary>
         public async Task Edit(EditViewModel model, ClaimsPrincipal User)
         {
-            if (!signInManager.IsSignedIn(User))
-            {
-                throw new UserNotSignInException();
-            }
-            
-            var user = await userManager.FindByNameAsync(User.Identity.Name);
+            var id = User.FindFirst("_id").Value;
+
+            var user = await userManager.FindByIdAsync(id);
             var result = await ChangeUserData(user, model);
-
-            if (!result.Succeeded)
-            {
-                throw new FailedExecutionException(result.Errors);
-            }
-        }
-
-        /// <summary>
-        /// Подтвержения почты в системе
-        /// </summary>
-        public async Task ConfirmEmail(string userId, string code)
-        {
-            var user = await userManager.FindByIdAsync(userId);
-
-            if (user == null)
-            {
-                throw new UserNotFoundException();
-            }
-
-            var result = await userManager.ConfirmEmailAsync(user, code);
 
             if (!result.Succeeded)
             {
@@ -199,24 +170,9 @@ namespace HwProj.AuthService.API.Services
         }
 
         /// <summary>
-        /// Обновление токена 
-        /// </summary>
-        public async Task<List<object>> RefreshToken(ClaimsPrincipal User)
-        {
-            if (!signInManager.IsSignedIn(User))
-            {
-                throw new UserNotSignInException();
-            }
-
-            var user = await userManager.FindByNameAsync(User.Identity.Name);
-
-            return await tokenService.GetToken(user);
-        }
-
-        /// <summary>
         /// Регистрация пользователя 
         /// </summary>
-        public async Task<string> Register(RegisterViewModel model, HttpContext httpContext, IUrlHelper url)
+        public async Task Register(RegisterViewModel model, HttpContext httpContext, IUrlHelper url)
         {
             if ((await userManager.FindByEmailAsync(model.Email)) != null)
             {
@@ -233,56 +189,9 @@ namespace HwProj.AuthService.API.Services
 
             await userManager.AddToRoleAsync(user, "student");
 
-            return await GetCallbackUrlForEmailConfirmation(user, httpContext, url);
-            //await emailService.SendEmailForConfirmation(
-            //    model.Email,
-            //    await GetCallbackUrlForEmailConfirmation(user, httpContext, url));
-        }
-
-        /// <summary>
-        /// Выполнение запроса на изменение почты 
-        /// </summary>
-        public async Task RequestToChangeEmail(
-            ChangeEmailViewModel model,
-            ClaimsPrincipal User,
-            HttpContext httpContext,
-            IUrlHelper url)
-        {
-            if (!signInManager.IsSignedIn(User))
-            {
-                throw new UserNotSignInException();
-            }
-
-            if ((await userManager.FindByEmailAsync(model.NewEmail)) != null)
-            {
-                throw new InvalidEmailException("Пользователь с таким Email уже зарегистрирован");
-            }
-
-            var user = await userManager.FindByNameAsync(User.Identity.Name);
-
-            await emailService.SendEmailForConfirmation(
-                model.NewEmail,
-                await GetCallbackUrlForChangeEmail(user, model.NewEmail, httpContext, url));
-        }
-
-        /// <summary>
-        /// Подтверждение в системе почты после ее изменения
-        /// </summary>
-        public async Task ConfirmChangeEmail(string userId, string email, string code)
-        {
-            var user = await userManager.FindByIdAsync(userId);
-
-            if (user == null)
-            {
-                throw new UserNotFoundException();
-            }
-
-            var result = await ChangeEmailAfterConfirm(user, email, code);
-
-            if (!result.Succeeded)
-            {
-                throw new FailedExecutionException(result.Errors);
-            }
+            // для подтверждения почты письмом вернуть emailService.SendEmailForConfirmation
+            user.EmailConfirmed = true;
+            await userManager.UpdateAsync(user);
         }
 
         /// <summary>
@@ -290,12 +199,8 @@ namespace HwProj.AuthService.API.Services
         /// </summary>
         public async Task Delete(DeleteViewModel model, ClaimsPrincipal User)
         {
-            if (!signInManager.IsSignedIn(User))
-            {
-                throw new UserNotSignInException();
-            }
-
-            var user = await userManager.FindByNameAsync(User.Identity.Name);
+            var id = User.FindFirst("_role").Value;
+            var user = await userManager.FindByIdAsync(id);
 
             if (!await userManager.CheckPasswordAsync(user, model.Password))
             {
@@ -306,6 +211,8 @@ namespace HwProj.AuthService.API.Services
             {
                 throw new FailedExecutionException();
             }
+
+            await signInManager.SignOutAsync();
         }
 
         /// <summary>
@@ -316,12 +223,8 @@ namespace HwProj.AuthService.API.Services
             ClaimsPrincipal User,
             HttpContext httpContext)
         {
-            if (!signInManager.IsSignedIn(User))
-            {
-                throw new UserNotSignInException();
-            }
-
-            var user = await userManager.FindByNameAsync(User.Identity.Name);
+            var id = User.FindFirst("_role").Value;
+            var user = await userManager.FindByIdAsync(id);
 
             if (!await userManager.CheckPasswordAsync(user, model.Password))
             {
@@ -341,9 +244,9 @@ namespace HwProj.AuthService.API.Services
         /// </summary>
         public async Task InviteNewLecturer(InviteLecturerViewModel model, ClaimsPrincipal User)
         {
-            if (!signInManager.IsSignedIn(User))
+            if (User.FindFirst("_role").Value != "lecturer")
             {
-                throw new UserNotSignInException();
+                throw new FailedExecutionException();
             }
 
             var invitedUser = await userManager.FindByEmailAsync(model.EmailOfInvitedPerson);
@@ -356,11 +259,6 @@ namespace HwProj.AuthService.API.Services
             await userManager.AddToRoleAsync(invitedUser, "lecturer");
             await userManager.RemoveFromRoleAsync(invitedUser, "student");
         }
-
-        /// <summary>
-        /// Выход из системы
-        /// </summary>
-        public async Task LogOff() => await signInManager.SignOutAsync();
 
         private async Task<IdentityResult> ChangeUserPassword(
             User user,
@@ -383,52 +281,12 @@ namespace HwProj.AuthService.API.Services
             return result;
         }
 
-        private async Task<IdentityResult> ChangeEmailAfterConfirm(User user, string newEmai, string code)
-        {
-            var result = await userManager.ChangeEmailAsync(user, newEmai, code);
-
-            if (result.Succeeded)
-            {
-                user.UserName = newEmai;
-                await userManager.UpdateAsync(user);
-            }
-
-            return result;
-        }
-
         private async Task<IdentityResult> ChangeUserData(User user, EditViewModel model)
         {
             user.Name = model.NewName ?? user.Name;
             user.Surname = model.NewSurname ?? user.Surname;
 
             return await userManager.UpdateAsync(user);
-        }
-
-        private async Task<string> GetCallbackUrlForEmailConfirmation(
-            User user,
-            HttpContext httpContext,
-            IUrlHelper url)
-        {
-            var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
-            return url.Action(
-                "confirmemail",
-                "Account",
-                new { userId = user.Id, code = token },
-                protocol: httpContext.Request.Scheme);
-        }
-
-        private async Task<string> GetCallbackUrlForChangeEmail(
-            User user,
-            string newEmail,
-            HttpContext httpContext,
-            IUrlHelper url)
-        {
-            var token = await userManager.GenerateChangeEmailTokenAsync(user, newEmail);
-            return url.Action(
-                "confirmchangeemail",
-                "Account",
-                new { userId = user.Id, email = newEmail, code = token },
-                protocol: httpContext.Request.Scheme);
         }
     }
 }

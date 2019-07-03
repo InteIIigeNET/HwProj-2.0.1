@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using HwProj.AuthService.API.Filters;
 using HwProj.AuthService.API.Services;
 using HwProj.AuthService.API.ViewModels;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace HwProj.AuthService.API.Controllers
 {
@@ -77,20 +78,7 @@ namespace HwProj.AuthService.API.Controllers
         [ExceptionFilter]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            var res = await userService.Register(model, HttpContext, Url);
-            return Ok(res);
-        }
-
-        [HttpGet, Route("confirmemail")]
-        [ExceptionFilter]
-        public async Task<IActionResult> ConfirmEmail(string userId, string code)
-        {
-            if (userId == null || code == null)
-            {
-                return BadRequest("Некорректные параметры запроса");
-            }
-
-            await userService.ConfirmEmail(userId, code);
+            await userService.Register(model, HttpContext, Url);
             return Ok();
         }
 
@@ -109,61 +97,18 @@ namespace HwProj.AuthService.API.Controllers
             return Ok(response);
         }
 
-        [HttpGet, Route("refresh")]
-        [ExceptionFilter]
-        public async Task<IActionResult> RefreshToken()
-        {
-            var tokenAndMetadata = await userService.RefreshToken(User);
-
-            var response = new
-            {
-                accessToken = tokenAndMetadata[0].ToString(),
-                expiresIn = (int)tokenAndMetadata[1]
-            };
-
-            return Ok(response);
-        }
-
-        [HttpPost, Route("logoff")]
-        public async void LogOff() => await userService.LogOff();
-
         [HttpPost, Route("edit")]
         [ExceptionFilter]
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Edit(EditViewModel model)
         {
             await userService.Edit(model, User);
             return Ok();
         }
 
-        [HttpPost, Route("changeemail")]
-        [ExceptionFilter]
-        [Authorize]
-        public async Task<IActionResult> ChangeEmail(ChangeEmailViewModel model)
-        {
-            await userService.RequestToChangeEmail(model, User, HttpContext, Url);
-            return Ok();
-        }
-
-        [HttpGet, Route("confirmchangeemail")]
-        [ExceptionFilter]
-        public async Task<IActionResult> ConfirmChangeEmail(
-            string userId,
-            string email,
-            string code)
-        {
-            if (userId == null || code == null || email == null)
-            {
-                return BadRequest("Некорректные параметры запроса");
-            }
-
-            await userService.ConfirmChangeEmail(userId, email, code);
-            return Ok();
-        }
-
         [HttpDelete, Route("delete")]
         [ExceptionFilter]
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Delete(DeleteViewModel model)
         {
             await userService.Delete(model, User);
@@ -172,7 +117,7 @@ namespace HwProj.AuthService.API.Controllers
 
         [HttpPost, Route("changepassword")]
         [ExceptionFilter]
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {
             await userService.ChangePassword(model, User, HttpContext);
@@ -181,7 +126,7 @@ namespace HwProj.AuthService.API.Controllers
 
         [HttpPost, Route("invitenewlecturer")]
         [ExceptionFilter]
-        [Authorize(Roles = "lecturer")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> InviteNewLecturer(InviteLecturerViewModel model)
         {
             await userService.InviteNewLecturer(model, User);

@@ -27,7 +27,7 @@ namespace HwProj.AuthService.API.Services
         /// </summary>
         public async Task<List<object>> GetToken(User user)
         {
-            const int expireInForToken = 40;
+            const int expireInForToken = 300;
             const int expireInForResponse = 30;
 
             var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(appSettings.SecurityKey));

@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Swagger;
 using HwProj.AuthService.API.Services;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace HwProj.AuthService.API
 {
@@ -18,8 +21,40 @@ namespace HwProj.AuthService.API
 
         public void ConfigureServices(IServiceCollection services)
         {  
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy",
+                    builder => builder
+                        .SetIsOriginAllowed((host) => true)
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials());
+            });
+            
             var appSettingsSection = Configuration.GetSection("AppSettings");
             services.Configure<AppSettings>(appSettingsSection);
+
+            var securityKey =
+                new SymmetricSecurityKey(Encoding.ASCII.GetBytes("U8_.wpvk93fPWG<f2$Op[vwegmQGF25_fNG2V0ijnm2e0igv24g"));
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(x =>
+                {
+                    x.RequireHttpsMetadata = false;
+                    x.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidIssuer = "AuthService",
+                        ValidateIssuer = true,
+
+                        ValidateAudience = false,
+
+                        ValidateLifetime = true,
+
+                        IssuerSigningKey = securityKey,
+
+                        ValidateIssuerSigningKey = true
+                    };
+                });
 
             services.AddDbContext<IdentityContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
@@ -65,7 +100,7 @@ namespace HwProj.AuthService.API
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+            app.UseCors("CorsPolicy");
 
             app.UseAuthentication();
 
