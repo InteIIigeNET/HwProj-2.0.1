@@ -14,9 +14,9 @@ namespace HwProj.SolutionsService.API.Services
             _solutionsRepository = solutionsRepository;
         }
 
-        public Solution[] GetAllSolutions()
+        public async Task<Solution[]> GetAllSolutionsAsync()
         {
-            return _solutionsRepository.GetAll().ToArray();
+            return await _solutionsRepository.GetAllAsync();
         }
 
         public Task<Solution> GetSolutionAsync(long solutionId)
@@ -24,11 +24,10 @@ namespace HwProj.SolutionsService.API.Services
             return _solutionsRepository.GetAsync(solutionId);
         }
 
-        public Solution[] GetTaskSolutionsFromStudent(long taskId, string studentId)
+        public async Task<Solution[]> GetTaskSolutionsFromStudentAsync(long taskId, string studentId)
         {
-            return _solutionsRepository
-                .FindAll(solution => solution.TaskId == taskId && solution.StudentId == studentId)
-                .ToArray();
+            return await _solutionsRepository
+                .FindAllAsync(solution => solution.TaskId == taskId && solution.StudentId == studentId);
         }
 
         public Task<long> AddSolutionAsync(long taskId, Solution solution)

@@ -12,16 +12,23 @@ namespace HwProj.HomeworkService.API.Repositories
             : base(context)
         {
         }
-        
-        public Task<Homework[]> GetAllWithTasksAsync()
-            => _context.Set<Homework>().Include(h => h.Tasks).ToArrayAsync();
 
-        public Task<Homework[]> GetAllWithTasksByCourseAsync(long courseId)
-            => _context.Set<Homework>().Include(h => h.Tasks)
-                                       .Where(h => h.CourseId == courseId)
-                                       .ToArrayAsync();
+        public async Task<Homework[]> GetAllWithTasksAsync()
+        {
+            return await Context.Set<Homework>().Include(h => h.Tasks).ToArrayAsync();
+        }
 
-        public Task<Homework> GetWithTasksAsync(long id)
-            => _context.Set<Homework>().Include(h => h.Tasks).FirstOrDefaultAsync(h => h.Id == id);
+        public async Task<Homework[]> GetAllWithTasksByCourseAsync(long courseId)
+        {
+            return await Context.Set<Homework>().Include(h => h.Tasks)
+                .Where(h => h.CourseId == courseId)
+                .ToArrayAsync();
+        }
+
+        public async Task<Homework> GetWithTasksAsync(long id)
+        {
+            return await Context.Set<Homework>().Include(h => h.Tasks)
+                .FirstOrDefaultAsync(h => h.Id == id);
+        }
     }
 }

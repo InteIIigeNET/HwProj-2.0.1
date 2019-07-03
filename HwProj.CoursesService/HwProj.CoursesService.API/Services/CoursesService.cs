@@ -110,18 +110,18 @@ namespace HwProj.CoursesService.API.Services
             return true;
         }
 
-        public long[] GetStudentCourseIds(string studentId)
+        public async Task<long[]> GetStudentCourseIdsAsync(string studentId)
         {
-            return _courseMateRepository
-                .FindAll(cm => cm.StudentId == studentId && cm.IsAccepted == true)
+            return (await _courseMateRepository
+                .FindAllAsync(cm => cm.StudentId == studentId && cm.IsAccepted == true))
                 .Select(cm => cm.CourseId)
                 .ToArray();
         }
 
-        public long[] GetMentorCourseIds(string mentorId)
+        public async Task<long[]> GetMentorCourseIdsAsync(string mentorId)
         {
-            return _courseRepository
-                .FindAll(c => c.MentorId == mentorId)
+            return (await _courseRepository
+                .FindAllAsync(c => c.MentorId == mentorId))
                 .Select(c => c.Id)
                 .ToArray();
         }
