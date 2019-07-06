@@ -5,15 +5,15 @@ using Microsoft.Extensions.DependencyInjection;
 using HwProj.AuthService.API.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Swashbuckle.AspNetCore.Swagger;
 using HwProj.AuthService.API.Services;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using HwProj.Utils.Configuration;
 
 namespace HwProj.AuthService.API
 {
-    public class Startup
+	public class Startup
     {
         public Startup(IConfiguration configuration) => Configuration = configuration;
 
@@ -71,10 +71,7 @@ namespace HwProj.AuthService.API
                 .AddEntityFrameworkStores<IdentityContext>()
                 .AddDefaultTokenProviders();
 
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new Info { Title = "My API", Version = "v1" });
-            });
+			services.ConfigureHwProjServices("Auth API");
 
             services.AddMvc();
 
@@ -83,24 +80,18 @@ namespace HwProj.AuthService.API
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.UseSwagger();
+			if (env.IsDevelopment())
+			{
+				app.UseDeveloperExceptionPage()
+					.UseSwagger()
+					.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "Auth API"); });
+			}
+			else
+			{
+				app.UseHsts();
+			}
 
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-                c.RoutePrefix = string.Empty;
-            });
-
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseHsts();
-            }
-
-            app.UseCors("CorsPolicy");
+			app.UseCors("CorsPolicy");
 
             app.UseAuthentication();
 
