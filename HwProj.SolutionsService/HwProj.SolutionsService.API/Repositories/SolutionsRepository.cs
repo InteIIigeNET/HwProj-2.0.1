@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 using HwProj.Repositories;
 using HwProj.SolutionsService.API.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.SolutionsService.API.Repositories
 {
@@ -12,7 +11,9 @@ namespace HwProj.SolutionsService.API.Repositories
         {
         }
 
-        public Task UpdateSolutionStateAsync(long solutionId, SolutionState newState)
-            => UpdateAsync(solutionId, solution => new Solution() {State = newState});
+        public async Task UpdateSolutionStateAsync(long solutionId, SolutionState newState)
+        {
+            await UpdateAsync(solutionId, solution => new Solution {State = newState});
+        }
     }
 }

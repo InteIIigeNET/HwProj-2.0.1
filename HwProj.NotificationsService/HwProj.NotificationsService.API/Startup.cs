@@ -1,6 +1,6 @@
-﻿using HwProj.SolutionsService.API.Models;
-using HwProj.SolutionsService.API.Repositories;
-using HwProj.SolutionsService.API.Services;
+﻿using HwProj.NotificationsService.API.Models;
+using HwProj.NotificationsService.API.Repositories;
+using HwProj.NotificationsService.API.Services;
 using HwProj.Utils.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace HwProj.SolutionsService.API
+namespace HwProj.NotificationsService.API
 {
     public class Startup
     {
@@ -22,15 +22,15 @@ namespace HwProj.SolutionsService.API
         public void ConfigureServices(IServiceCollection services)
         {
             var connectionString = Configuration.GetConnectionString("DefaultConnection");
-            services.AddDbContext<SolutionContext>(options => options.UseSqlServer(connectionString));
-            services.AddScoped<ISolutionsRepository, SolutionsRepository>();
-            services.AddScoped<ISolutionsService, Services.SolutionsService>();
-            services.ConfigureHwProjServices("Solutions API");
+            services.AddDbContext<NotificationsContext>(options => options.UseSqlServer(connectionString));
+            services.AddScoped<INotificationsRepository, NotificationsRepository>();
+            services.AddScoped<INotificationsService, Services.NotificationsService>();
+            services.ConfigureHwProjServices("Notifications API");
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.ConfigureHwProj(env, "Solutions API");
+            app.ConfigureHwProj(env, "Notifications API");
         }
     }
 }

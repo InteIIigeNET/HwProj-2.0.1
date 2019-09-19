@@ -5,11 +5,11 @@ namespace HwProj.SolutionsService.API.Services
 {
     public interface ISolutionsService
     {
-        Solution[] GetAllSolutions();
+        Task<Solution[]> GetAllSolutionsAsync();
 
         Task<Solution> GetSolutionAsync(long solutionId);
 
-        Solution[] GetTaskSolutionsFromStudent(long taskId, string studentId);
+        Task<Solution[]> GetTaskSolutionsFromStudentAsync(long taskId, string studentId);
 
         Task<long> AddSolutionAsync(long taskId, Solution solution);
 
