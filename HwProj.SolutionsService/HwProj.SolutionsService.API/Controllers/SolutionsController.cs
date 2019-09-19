@@ -41,8 +41,7 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpPost("{taskId}")]
-        public async Task<long> PostSolution(long taskId,
-            [FromBody] SolutionViewModel solutionViewModel)
+        public async Task<long> PostSolution(long taskId, [FromBody] SolutionViewModel solutionViewModel)
         {
             var solution = _mapper.Map<Solution>(solutionViewModel);
             var solutionId = await _solutionsService.AddSolutionAsync(taskId, solution);

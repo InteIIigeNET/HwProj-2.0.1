@@ -20,7 +20,7 @@ namespace HwProj.NotificationsService.API.Services
             return id;
         }
 
-        public async Task<Notification[]> GetAllByUserAsync(string userId, NotificationFilter filter = null)
+        public async Task<Notification[]> GetAsync(string userId, NotificationFilter filter = null)
         {
             filter = filter ?? new NotificationFilter
             {

@@ -18,16 +18,16 @@ namespace HwProj.NotificationsService.API.Controllers
             _notificationsService = notificationsService;
         }
 
-        [HttpPost]
+        [HttpGet]
         public async Task<IActionResult> Get([FromBody] NotificationFilter filter)
         {
             var userId = Request.GetUserId();
-            await _notificationsService.GetAllByUserAsync(userId, filter);
+            await _notificationsService.GetAsync(userId, filter);
             return Ok();
         }
 
-        [HttpPost("mark_as_seen")]
-        public async Task<IActionResult> MarkAsSeen([FromBody] long[] notificationIds)
+        [HttpPut("mark_as_seen")]
+        public async Task<IActionResult> MarkNotifications([FromBody] long[] notificationIds)
         {
             var userId = Request.GetUserId();
             await _notificationsService.MarkAsSeenAsync(userId, notificationIds);

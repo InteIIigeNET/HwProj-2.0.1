@@ -35,6 +35,7 @@ namespace HwProj.HomeworkService.API.Controllers
             {
                 return NotFound();
             }
+
             return Ok(_mapper.Map<HomeworkViewModel>(homework));
         }
 
@@ -46,8 +47,7 @@ namespace HwProj.HomeworkService.API.Controllers
         }
 
         [HttpPost("{courseId}")]
-        public async Task<long> AddHomework(long courseId,
-            [FromBody] CreateHomeworkViewModel homeworkViewModel)
+        public async Task<long> AddHomework(long courseId, [FromBody] CreateHomeworkViewModel homeworkViewModel)
         {
             var homework = _mapper.Map<Homework>(homeworkViewModel);
             var homeworkId = await _homeworksService.AddHomeworkAsync(courseId, homework);
@@ -60,11 +60,11 @@ namespace HwProj.HomeworkService.API.Controllers
             await _homeworksService.DeleteHomeworkAsync(homeworkId);
         }
 
-        [HttpPost("update/{homeworkId}")]
+        [HttpPut("update/{homeworkId}")]
         public async Task UpdateHomework(long homeworkId,
             [FromBody] CreateHomeworkViewModel homeworkViewModel)
         {
-            await _homeworksService.UpdateHomeworkAsync(homeworkId, new Homework()
+            await _homeworksService.UpdateHomeworkAsync(homeworkId, new Homework
             {
                 Title = homeworkViewModel.Title,
                 Description = homeworkViewModel.Description
