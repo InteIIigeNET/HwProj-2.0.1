@@ -17,7 +17,7 @@ namespace HwProj.CoursesService.API.Filters
             _courseRepository = courseRepository;
         }
         
-        public void OnAuthorization(AuthorizationFilterContext context)
+        public async void OnAuthorization(AuthorizationFilterContext context)
         {
             var routeData = context.HttpContext.GetRouteData();
             var query = context.HttpContext.Request.Query;
@@ -25,7 +25,7 @@ namespace HwProj.CoursesService.API.Filters
             if (routeData.Values.TryGetValue("courseId", out var courseId))
             {
                 var userId = query.SingleOrDefault(x => x.Key == "_id").Value;
-                var course = _courseRepository.Get(long.Parse(courseId.ToString()));
+                var course = await _courseRepository.GetAsync(long.Parse(courseId.ToString()));
                 if (course?.MentorId != userId)
                 {
                     context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);

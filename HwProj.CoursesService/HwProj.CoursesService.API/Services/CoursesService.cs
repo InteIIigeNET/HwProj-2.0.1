@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -59,6 +60,7 @@ namespace HwProj.CoursesService.API.Services
             {
                 return false;
             }
+
             if (getCourseMateTask.Result != null)
             {
                 return true;
@@ -110,20 +112,20 @@ namespace HwProj.CoursesService.API.Services
             return true;
         }
 
-        public long[] GetStudentCourseIds(string studentId)
+        public async Task<long[]> GetStudentCourseIdsAsync(string studentId)
         {
-            return _courseMateRepository
+            return await _courseMateRepository
                 .FindAll(cm => cm.StudentId == studentId && cm.IsAccepted == true)
                 .Select(cm => cm.CourseId)
-                .ToArray();
+                .ToArrayAsync();
         }
 
-        public long[] GetMentorCourseIds(string mentorId)
+        public async Task<long[]> GetMentorCourseIdsAsync(string mentorId)
         {
-            return _courseRepository
+            return await _courseRepository
                 .FindAll(c => c.MentorId == mentorId)
                 .Select(c => c.Id)
-                .ToArray();
+                .ToArrayAsync();
         }
     }
 }

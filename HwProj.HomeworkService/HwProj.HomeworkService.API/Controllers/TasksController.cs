@@ -21,9 +21,9 @@ namespace HwProj.HomeworkService.API.Controllers
         }
 
         [HttpGet]
-        public HomeworkTaskViewModel[] GetAllTasks()
+        public async Task<HomeworkTaskViewModel[]> GetAllTasks()
         {
-            var tasks = _tasksService.GetAllTasks();
+            var tasks = await _tasksService.GetAllTasksAsync();
             return _mapper.Map<HomeworkTaskViewModel[]>(tasks);
         }
         

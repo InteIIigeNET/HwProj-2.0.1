@@ -20,9 +20,9 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpGet]
-        public Solution[] GetAllSolutions()
+        public async Task<Solution[]> GetAllSolutions()
         {
-            return _solutionsService.GetAllSolutions();
+            return await _solutionsService.GetAllSolutionsAsync();
         }
 
         [HttpGet("{solutionId}")]
@@ -35,9 +35,9 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpGet("task_solutions/{taskId}/{studentId}")]
-        public Solution[] GetTaskSolutionsFromStudent(long taskId, string studentId)
+        public async Task<Solution[]> GetTaskSolutionsFromStudent(long taskId, string studentId)
         {
-            return _solutionsService.GetTaskSolutionsFromStudent(taskId, studentId);
+            return await _solutionsService.GetTaskSolutionsFromStudentAsync(taskId, studentId);
         }
 
         [HttpPost("{taskId}")]

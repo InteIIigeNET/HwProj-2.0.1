@@ -1,10 +1,10 @@
 ﻿using System.Threading.Tasks;
 using AutoMapper;
-using HwProj.CoursesService.API.Extensions;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Models.ViewModels;
 using HwProj.CoursesService.API.Services;
+using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.CoursesService.API.Controllers
@@ -43,7 +43,8 @@ namespace HwProj.CoursesService.API.Controllers
         {
             var mentorId = Request.GetUserId();
             var course = _mapper.Map<Course>(courseViewModel);
-            return Ok(await _coursesService.AddAsync(course, mentorId));
+            var id = await _coursesService.AddAsync(course, mentorId);
+            return Ok(id);
         }
 
         [HttpDelete("{courseId}")]
@@ -97,15 +98,17 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpGet("student_courses/{studentId}")]
-        public IActionResult GetStudentCourses(string studentId)
+        public async Task<IActionResult> GetStudentCourses(string studentId)
         {
-            return Ok(_coursesService.GetStudentCourseIds(studentId));
+            var result = await _coursesService.GetStudentCourseIdsAsync(studentId);
+            return Ok(result);
         }
 
         [HttpGet("mentor_courses/{mentorId}")]
-        public IActionResult GetMentorCourses(string mentorId)
+        public async Task<IActionResult> GetMentorCourses(string mentorId)
         {
-            return Ok(_coursesService.GetMentorCourseIds(mentorId));
+            var result = await _coursesService.GetMentorCourseIdsAsync(mentorId);
+            return Ok(result);
         }
     }
 }

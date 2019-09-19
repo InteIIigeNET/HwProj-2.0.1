@@ -5,7 +5,7 @@ namespace HwProj.HomeworkService.API.Services
 {
     public interface ITasksService
     {
-        HomeworkTask[] GetAllTasks();
+        Task<HomeworkTask[]> GetAllTasksAsync();
         Task<HomeworkTask> GetTaskAsync(long taskId);
         Task<long> AddTaskAsync(long homeworkId, HomeworkTask task);
         Task DeleteTaskAsync(long taskId);

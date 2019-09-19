@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using HwProj.HomeworkService.API.Models;
 using HwProj.HomeworkService.API.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.HomeworkService.API.Services
 {
@@ -14,9 +15,9 @@ namespace HwProj.HomeworkService.API.Services
             _tasksRepository = tasksRepository;
         }
 
-        public HomeworkTask[] GetAllTasks()
+        public async Task<HomeworkTask[]> GetAllTasksAsync()
         {
-            return _tasksRepository.GetAll().ToArray();
+            return await _tasksRepository.GetAll().ToArrayAsync();
         }
 
         public async Task<HomeworkTask> GetTaskAsync(long taskId)
