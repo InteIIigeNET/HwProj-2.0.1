@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\HwProj.Common\HwProj.Models\HwProj.Models.csproj" />
     <ProjectReference Include="..\..\HwProj.Common\HwProj.Utils\HwProj.Utils.csproj" />
     <ProjectReference Include="..\..\HwProj.Models\HwProj.Models.csproj" />
   </ItemGroup>

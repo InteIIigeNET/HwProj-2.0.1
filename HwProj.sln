@@ -57,7 +57,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HwProj.AuthService.Tests", 
 		{7ECE830B-68EA-4BA3-BDEC-0D1E9FACB19A} = {7ECE830B-68EA-4BA3-BDEC-0D1E9FACB19A}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.Models", "HwProj.Models\HwProj.Models.csproj", "{ECFA80DA-E0F5-4613-A15E-55FC8B9C8401}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.Models", "HwProj.Common\HwProj.Models\HwProj.Models.csproj", "{ECFA80DA-E0F5-4613-A15E-55FC8B9C8401}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
