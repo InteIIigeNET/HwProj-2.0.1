@@ -25,7 +25,7 @@ namespace HwProj.AuthService.Client
                 .Build();
 
             var response = await _httpClient.GetAsync(uri).ConfigureAwait(false);
-            var data = await response.DeserializeAsync<AccountData>();
+            var data = await response.DeserializeAsync<AccountData>().ConfigureAwait(false);
             return data;
         }
     }
