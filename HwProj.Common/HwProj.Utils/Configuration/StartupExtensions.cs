@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System;
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +13,7 @@ namespace HwProj.Utils.Configuration
     {
         public static IServiceCollection ConfigureHwProjServices(this IServiceCollection services, string serviceName)
         {
-            services.AddAutoMapper()
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies())
                 .AddMvc()
                 .AddJsonOptions(options =>
                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore)
@@ -28,7 +29,6 @@ namespace HwProj.Utils.Configuration
                             .AllowAnyHeader()
                             .AllowCredentials());
                 });
-
             return services;
         }
 
