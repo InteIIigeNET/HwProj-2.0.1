@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <ApplicationIcon />
+    <StartupObject />
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\HwProj.Common\HwProj.Utils\HwProj.Utils.csproj" />
+    <ProjectReference Include="..\HwProj.AuthService.API\HwProj.AuthService.API.csproj" />
+  </ItemGroup>
+
+</Project>
