@@ -19,7 +19,7 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<Course[]> GetAllAsync()
         {
-            return await _courseRepository.GetAllWithCourseMatesAsync();
+            return await _courseRepository.GetAllWithCourseMates().ToArrayAsync();
         }
 
         public async Task<Course> GetAsync(long id)
@@ -56,14 +56,9 @@ namespace HwProj.CoursesService.API.Services
                 _courseMateRepository.FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
             await Task.WhenAll(getCourseTask, getCourseMateTask);
 
-            if (getCourseTask.Result == null)
+            if (getCourseTask.Result == null || getCourseMateTask.Result != null)
             {
                 return false;
-            }
-
-            if (getCourseMateTask.Result != null)
-            {
-                return true;
             }
 
             var courseMate = new CourseMate
