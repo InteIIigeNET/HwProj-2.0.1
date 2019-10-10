@@ -1,5 +1,6 @@
 ﻿using System;
 using AutoMapper;
+using HwProj.Utils.Configuration.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -29,6 +30,9 @@ namespace HwProj.Utils.Configuration
                             .AllowAnyHeader()
                             .AllowCredentials());
                 });
+
+            services.AddTransient<NoApiGatewayMiddleware>();
+
             return services;
         }
 
@@ -38,7 +42,9 @@ namespace HwProj.Utils.Configuration
             {
                 app.UseDeveloperExceptionPage()
                     .UseSwagger()
-                    .UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", serviceName); });
+                    .UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", serviceName); })
+                    .UseMiddleware<NoApiGatewayMiddleware>();
+
             }
             else
             {
