@@ -17,7 +17,7 @@ namespace HwProj.Utils.Configuration.Middleware
 
             if (!request.Query.ContainsKey("_role"))
             {
-                request.QueryString = request.QueryString.Add("_id", Roles.LecturerRole);
+                request.QueryString = request.QueryString.Add("_role", Roles.LecturerRole);
             }
 
             await next.Invoke(context);
