@@ -97,18 +97,11 @@ namespace HwProj.CoursesService.API.Controllers
                 : NotFound() as IActionResult;
         }
 
-        [HttpGet("student_courses/{studentId}")]
-        public async Task<IActionResult> GetStudentCourses(string studentId)
+        [HttpGet("user_courses/{userId}")]
+        public async Task<IActionResult> GetCourses(string userId)
         {
-            var result = await _coursesService.GetStudentCourseIdsAsync(studentId);
-            return Ok(result);
-        }
-
-        [HttpGet("mentor_courses/{mentorId}")]
-        public async Task<IActionResult> GetMentorCourses(string mentorId)
-        {
-            var result = await _coursesService.GetMentorCourseIdsAsync(mentorId);
-            return Ok(result);
+            var courses = await _coursesService.GetUserCourseIdsAsync(userId);
+            return Ok(courses);
         }
     }
 }
