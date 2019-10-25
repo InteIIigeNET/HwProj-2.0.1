@@ -100,7 +100,7 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpGet("user_courses/{userId}")]
         public async Task<IActionResult> GetCourses(string userId)
         {
-            var courses = await _coursesService.GetUserCourseIdsAsync(userId);
+            var courses = await _coursesService.GetUserCoursesAsync(userId);
             return Ok(courses);
         }
     }
