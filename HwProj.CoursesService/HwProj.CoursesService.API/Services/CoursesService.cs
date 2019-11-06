@@ -125,11 +125,12 @@ namespace HwProj.CoursesService.API.Services
                 .Select(id => _coursesRepository.GetAsync(id)) // TODO: optimize 
                 .ToArray();
 
+            var studentCourses = await Task.WhenAll(getStudentCoursesTasks).ConfigureAwait(false);
+
             var getMentorCoursesTask = _coursesRepository
                 .FindAll(c => c.MentorId == userId)
                 .ToArrayAsync();
 
-            var studentCourses = await Task.WhenAll(getStudentCoursesTasks).ConfigureAwait(false);
             var mentorCourses = await getMentorCoursesTask.ConfigureAwait(false);
 
             return studentCourses

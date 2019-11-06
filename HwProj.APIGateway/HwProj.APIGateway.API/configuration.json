@@ -358,28 +358,8 @@
         }
       ],
       "UpstreamPathTemplate": "/api/Courses/user_courses/{userId}/",
-      "UpstreamHttpMethod": [ "GET" ],
-      "Key": "user-courses"
+      "UpstreamHttpMethod": [ "GET" ]
     },
-    //{
-    //  "DownstreamPathTemplate": "/api/Courses/mentor_courses/{mentorId}",
-    //  "DownstreamScheme": "http",
-    //  "DownstreamHostAndPorts": [
-    //    {
-    //      "Host": "localhost",
-    //      "Port": 8083
-    //    }
-    //  ],
-    //  "UpstreamPathTemplate": "/api/Courses/mentor_courses/{mentorId}/",
-    //  "UpstreamHttpMethod": [ "GET" ],
-    //  "AuthenticationOptions": {
-    //    "AuthenticationProviderKey": "GatewayKey",
-    //    "AllowedScopes": []
-    //  },
-    //  "AddQueriesToRequest": {
-    //    "_id": "Claims[_id] > value"
-    //  }
-    //},
     //Solutions
     {
       "DownstreamPathTemplate": "/api/Solutions",
@@ -528,19 +508,6 @@
     },
     //Authentication
     {
-      "DownStreamPathTemplate": "/api/Account/getUserData/{userId}",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 59818
-        }
-      ],
-      "UpstreamPathTemplate": "/api/Account/getUserData/{userId}/",
-      "UpstreamHttpMethod": [ "GET" ],
-      "Key": "user-data"
-    },
-    {
       "DownStreamPathTemplate": "/api/Account/register/",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
@@ -549,7 +516,7 @@
           "Port": 8082
         }
       ],
-      "UpstreamPathTemplate": "/api/Account/getUserd",
+      "UpstreamPathTemplate": "/api/Account/register/",
       "UpstreamHttpMethod": [ "POST" ]
     },
     {
@@ -563,6 +530,32 @@
       ],
       "UpstreamPathTemplate": "/api/Account/login",
       "UpstreamHttpMethod": [ "POST" ]
+    },
+    {
+      "DownStreamPathTemplate": "/api/Account/getUserData/{userId}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44338
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Account/getUserData/{userId}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "Key": "user-data"
+    },
+    {
+      "DownstreamPathTemplate": "/api/Courses/user_courses/{userId}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44399
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Courses/user_courses/{userId}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "Key": "user-courses"
     }
   ],
   "Aggregates": [
@@ -571,11 +564,11 @@
         "user-data",
         "user-courses"
       ],
-      "UpStreamPathTemplate": "/api/user-data/{userId}",
-      "Aggregator": "ProfileAggregator"
+      "UpStreamPathTemplate": "/api/user-data/{userId}"
     }
   ],
   "GlobalConfiguration": {
     "BaseUrl": "http://127.0.0.1:45825"
   }
 }
+

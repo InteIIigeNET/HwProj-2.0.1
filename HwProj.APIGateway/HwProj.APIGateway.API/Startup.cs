@@ -43,8 +43,7 @@ namespace HwProj.APIGateway.API
                     };
                 });
 
-            services.AddOcelot()
-                .AddSingletonDefinedAggregator<ProfileAggregator>();
+            services.AddOcelot();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
