@@ -124,8 +124,7 @@ namespace HwProj.EventBus
                 foreach (var handler in handlers)
                 {
                     var handlerObject = _serviceProvider.GetService(handler);
-                    //var handlerWithGeneric = handler.MakeGenericType(eventType);
-                    await Task.Run(() => handler/*WithGeneric*/.GetMethod("Handle").Invoke(handlerObject, new object[] { @event }));
+                    await Task.Run(() => handler.GetMethod("Handle").Invoke(handlerObject, new object[] { @event }));
                 }
             }
         }
