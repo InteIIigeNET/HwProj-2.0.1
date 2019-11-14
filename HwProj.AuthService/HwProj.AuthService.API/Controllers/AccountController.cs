@@ -53,8 +53,6 @@ namespace HwProj.AuthService.API.Controllers
         }
 
         [HttpPost, Route("invitenewlecturer")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [Authorize(Roles = Roles.LecturerRole)]
         public async Task<IActionResult> InviteNewLecturer(InviteLecturerViewModel model)
         {
             var result = await _accountService.InviteNewLecturer(model.EmailOfInvitedUser).ConfigureAwait(false);
