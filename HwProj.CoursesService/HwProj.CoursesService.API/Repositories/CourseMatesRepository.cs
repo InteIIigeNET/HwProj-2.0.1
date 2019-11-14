@@ -3,9 +3,9 @@ using HwProj.CoursesService.API.Models;
 
 namespace HwProj.CoursesService.API.Repositories
 {
-    public class CourseMateRepository : CrudRepository<CourseMate>, ICourseMateRepository
+    public class CourseMatesRepository : CrudRepository<CourseMate>, ICourseMatesRepository
     {
-        public CourseMateRepository(CourseContext context)
+        public CourseMatesRepository(CourseContext context)
             : base(context)
         {
         }

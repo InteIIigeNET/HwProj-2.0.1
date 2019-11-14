@@ -6,7 +6,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "100.24.63.23",
+          "Host": "localhost",
           "Port": 8081
         }
       ],
@@ -18,7 +18,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "100.24.63.23",
+          "Host": "localhost",
           "Port": 8081
         }
       ],
@@ -30,7 +30,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "100.24.63.23",
+          "Host": "localhost",
           "Port": 8081
         }
       ],
@@ -52,7 +52,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "100.24.63.23",
+          "Host": "localhost",
           "Port": 8081
         }
       ],
@@ -64,7 +64,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "100.24.63.23",
+          "Host": "localhost",
           "Port": 8081
         }
       ],
@@ -86,7 +86,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "100.24.63.23",
+          "Host": "localhost",
           "Port": 8081
         }
       ],
@@ -109,7 +109,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "100.24.63.23",
+          "Host": "localhost",
           "Port": 8081
         }
       ],
@@ -121,7 +121,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "100.24.63.23",
+          "Host": "localhost",
           "Port": 8081
         }
       ],
@@ -133,7 +133,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "100.24.63.23",
+          "Host": "localhost",
           "Port": 8081
         }
       ],
@@ -155,7 +155,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "100.24.63.23",
+          "Host": "localhost",
           "Port": 8081
         }
       ],
@@ -177,7 +177,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "100.24.63.23",
+          "Host": "localhost",
           "Port": 8081
         }
       ],
@@ -200,7 +200,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "100.24.63.23",
+          "Host": "localhost",
           "Port": 8083
         }
       ],
@@ -212,7 +212,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "100.24.63.23",
+          "Host": "localhost",
           "Port": 8083
         }
       ],
@@ -234,7 +234,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "100.24.63.23",
+          "Host": "localhost",
           "Port": 8083
         }
       ],
@@ -246,7 +246,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "100.24.63.23",
+          "Host": "localhost",
           "Port": 8083
         }
       ],
@@ -268,7 +268,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "100.24.63.23",
+          "Host": "localhost",
           "Port": 8083
         }
       ],
@@ -290,8 +290,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "100.24.63.23",
-          "Port": 8083
+          "Host": "localhost",
+          "Port": 59105
         }
       ],
       "UpstreamPathTemplate": "/api/Courses/sign_in_course/{courseId}/",
@@ -309,7 +309,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "100.24.63.23",
+          "Host": "localhost",
           "Port": 8083
         }
       ],
@@ -331,7 +331,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "100.24.63.23",
+          "Host": "localhost",
           "Port": 8083
         }
       ],
@@ -349,42 +349,16 @@
       }
     },
     {
-      "DownstreamPathTemplate": "/api/Courses/student_courses/{studentId}",
+      "DownstreamPathTemplate": "/api/Courses/user_courses/{userId}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "100.24.63.23",
-          "Port": 8083
+          "Host": "localhost",
+          "Port": 59105
         }
       ],
-      "UpstreamPathTemplate": "/api/Courses/student_courses/{studentId}/",
-      "UpstreamHttpMethod": [ "GET" ],
-      "AuthenticationOptions": {
-        "AuthenticationProviderKey": "GatewayKey",
-        "AllowedScopes": []
-      },
-      "AddQueriesToRequest": {
-        "_id": "Claims[_id] > value"
-      }
-    },
-    {
-      "DownstreamPathTemplate": "/api/Courses/mentor_courses/{mentorId}",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "100.24.63.23",
-          "Port": 8083
-        }
-      ],
-      "UpstreamPathTemplate": "/api/Courses/mentor_courses/{mentorId}/",
-      "UpstreamHttpMethod": [ "GET" ],
-      "AuthenticationOptions": {
-        "AuthenticationProviderKey": "GatewayKey",
-        "AllowedScopes": []
-      },
-      "AddQueriesToRequest": {
-        "_id": "Claims[_id] > value"
-      }
+      "UpstreamPathTemplate": "/api/Courses/user_courses/{userId}/",
+      "UpstreamHttpMethod": [ "GET" ]
     },
     //Solutions
     {
@@ -392,7 +366,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "100.24.63.23",
+          "Host": "localhost",
           "Port": 8082
         }
       ],
@@ -411,7 +385,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "100.24.63.23",
+          "Host": "localhost",
           "Port": 8082
         }
       ],
@@ -430,7 +404,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "100.24.63.23",
+          "Host": "localhost",
           "Port": 8082
         }
       ],
@@ -449,7 +423,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "100.24.63.23",
+          "Host": "localhost",
           "Port": 8082
         }
       ],
@@ -471,7 +445,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "100.24.63.23",
+          "Host": "localhost",
           "Port": 8082
         }
       ],
@@ -493,7 +467,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "100.24.63.23",
+          "Host": "localhost",
           "Port": 8082
         }
       ],
@@ -515,7 +489,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "100.24.63.23",
+          "Host": "localhost",
           "Port": 8082
         }
       ],
@@ -531,9 +505,89 @@
       "AddQueriesToRequest": {
         "_id": "Claims[_id] > value"
       }
+    },
+    //Authentication
+    {
+      "DownStreamPathTemplate": "/api/Account/register/",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44338
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Account/register/",
+      "UpstreamHttpMethod": [ "POST" ]
+    },
+    {
+      "DownStreamPathTemplate": "/api/Account/invitenewlecturer/",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44338
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Account/invitenewlecturer",
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "Lecturer"
+      },
+      "UpstreamHttpMethod": [ "POST" ]
+    },
+    {
+      "DownStreamPathTemplate": "/api/Account/login/",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44338
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Account/login",
+      "UpstreamHttpMethod": [ "POST" ]
+    },
+    {
+      "DownStreamPathTemplate": "/api/Account/getUserData/{userId}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44338
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Account/getUserData/{userId}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "Key": "user-data"
+    },
+    {
+      "DownstreamPathTemplate": "/api/Courses/user_courses/{userId}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44399
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Courses/user_courses/{userId}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "Key": "user-courses"
+    }
+  ],
+  "Aggregates": [
+    {
+      "ReRouteKeys": [
+        "user-data",
+        "user-courses"
+      ],
+      "UpStreamPathTemplate": "/api/user-data/{userId}"
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "http://3.82.112.167:8085"
+    "BaseUrl": "http://127.0.0.1:45825"
   }
 }
+

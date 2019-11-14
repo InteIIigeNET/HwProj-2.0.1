@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\HwProj.Common\HwProj.Utils\HwProj.Utils.csproj" />
     <ProjectReference Include="..\HwProj.AuthService.API\HwProj.AuthService.API.csproj" />
   </ItemGroup>
