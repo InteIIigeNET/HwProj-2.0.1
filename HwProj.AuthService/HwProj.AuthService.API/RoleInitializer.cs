@@ -38,8 +38,6 @@ namespace HwProj.AuthService.API
                     await userManager.UpdateAsync(admin);
                 }
             }
-
-            //await userManager.FindByEmailAsync(email).Result.Id;
         }
     }
 }
