@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 using System.Text;
+using Ocelot.ConfigEditor;
 
 namespace HwProj.APIGateway.API
 {
@@ -44,11 +45,14 @@ namespace HwProj.APIGateway.API
                 });
 
             services.AddOcelot();
+            services.AddOcelotConfigEditor();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            app.UseOcelotConfigEditor(new ConfigEditorOptions { Path = "ocelot" });
             app.UseOcelot().Wait();
+
             app.ConfigureHwProj(env, "API Gateway");
         }
     }

@@ -1,4 +1,4 @@
-﻿using System.IO;
+﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 
@@ -6,19 +6,16 @@ namespace HwProj.APIGateway.API
 {
     public class Program
     {
-        public static void Main()
+        public static void Main(string[] args)
         {
-            new WebHostBuilder()
-                .UseKestrel()
-                .UseContentRoot(Directory.GetCurrentDirectory())
+            WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
                     config.SetBasePath(hostingContext.HostingEnvironment.ContentRootPath)
-                        .AddJsonFile("configuration.json")
+                        .AddJsonFile("ocelot.Development.json", false, true)
                         .AddEnvironmentVariables();
                 })
-                .UseIISIntegration()
                 .Build()
                 .Run();
         }

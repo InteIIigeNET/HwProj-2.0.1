@@ -587,7 +587,7 @@
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "http://127.0.0.1:45825"
+    "BaseUrl": "http://localhost"
   }
 }
 
