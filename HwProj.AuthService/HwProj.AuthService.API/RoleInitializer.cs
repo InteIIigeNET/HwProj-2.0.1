@@ -22,11 +22,11 @@ namespace HwProj.AuthService.API
             const string email = "admin@gmail.com";
             const string password = "Admin@1234";
 
-            if (await userManager.FindByNameAsync(email) == null)
+            if (await userManager.FindByEmailAsync(email) == null)
             {
                 var admin = new User { 
                     Email = email,
-                    UserName = "Admin admin"
+                    UserName = "Admin"
                 };
 
                 var result = await userManager.CreateAsync(admin, password);
