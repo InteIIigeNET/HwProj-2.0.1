@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace HwProj.EventBus.Tests
+﻿namespace HwProj.EventBus.Tests
 {
-    public class TestEvent : IntegrationEvent
+    public class TestEvent : Event
     {
         public int OldPrice { get; set; }
 

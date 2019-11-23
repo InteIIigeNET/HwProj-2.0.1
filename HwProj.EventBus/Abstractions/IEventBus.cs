@@ -2,10 +2,10 @@
 {
     public interface IEventBus
     {
-        void Publish(IntegrationEvent @event);
+        void Publish(Event @event);
 
         void Subscribe<TEvent, THandler>()
-            where TEvent : IntegrationEvent
-            where THandler : IIntegrationEventHandler<TEvent>;
+            where TEvent : Event
+            where THandler : IEventHandler<TEvent>;
     }
 }

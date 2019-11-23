@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HwProj.EventBus.Tests
 {
-    public class OtherTestHandler : IIntegrationEventHandler<TestEvent>
+    public class OtherTestHandler : IEventHandler<TestEvent>
     {
         public int NewPrice { get; set; }
         public int OldPrice { get; set; }
@@ -18,7 +16,7 @@ namespace HwProj.EventBus.Tests
             OldPrice = 0;
         }
 
-        public Task Handle(TestEvent @event)
+        public Task HandleAsync(TestEvent @event)
         {
             NewPrice = @event.NewPrice;
             OldPrice = @event.OldPrice;
