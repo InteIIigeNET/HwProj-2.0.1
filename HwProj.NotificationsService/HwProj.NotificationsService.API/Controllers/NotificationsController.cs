@@ -22,11 +22,11 @@ namespace HwProj.NotificationsService.API.Controllers
             _mapper = mapper;
         }
 
-        [HttpDelete("delete_notification/{notificationId}")]
-        public async Task<IActionResult> DeleteNotifications(long[] notificationsId)
+        [HttpPut("make_notifications_invisible")]
+        public async Task<IActionResult> MakeInvisibleNotifications(long[] notificationsId)
         {
             var userId = Request.GetUserId();
-            await _notificationsService.DeleteNotificationsAsync(userId, notificationsId);
+            await _notificationsService.MakeInvisibleNotificationsAsync(userId, notificationsId);
             return Ok();
         }
 

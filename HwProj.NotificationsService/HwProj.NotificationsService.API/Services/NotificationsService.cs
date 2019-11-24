@@ -39,7 +39,7 @@ namespace HwProj.NotificationsService.API.Services
                 t => new Notification {HasSeen = true}).ConfigureAwait(false);
         }
 
-        public async Task DeleteNotificationsAsync(string userId, long[] notificationsId)
+        public async Task MakeInvisibleNotificationsAsync(string userId, long[] notificationsId)
         {
             await _repository.UpdateBatchAsync(userId, notificationsId,
                 t => new Notification { Visible = false }).ConfigureAwait(false);
