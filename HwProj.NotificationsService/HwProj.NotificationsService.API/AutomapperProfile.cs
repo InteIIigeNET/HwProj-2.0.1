@@ -7,6 +7,7 @@ namespace HwProj.NotificationsService.API
     {
         public AutomapperProfile()
         {
+            CreateMap<Notification, NotificationViewModel>().ReverseMap();
         }
     }
 }

@@ -9,11 +9,11 @@ namespace HwProj.NotificationsService.API.Models
         [Key]
         public long Id { get; set; }
         public string Sender { get; set; }
-        //навесить индекс
         public string Owner { get; set; }
         public string Category { get; set; }
         public string Body { get; set; }
         public bool HasSeen { get; set; }
         public DateTime Date { get; set; }
+        public bool Visible { get; set; }
     }
 }

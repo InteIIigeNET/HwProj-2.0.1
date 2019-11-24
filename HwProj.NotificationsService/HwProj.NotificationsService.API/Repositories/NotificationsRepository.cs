@@ -17,17 +17,17 @@ namespace HwProj.NotificationsService.API.Repositories
         }
 
         public async Task UpdateBatchAsync(string userId, long[] ids, Expression<Func<Notification, Notification>> updateFactory)
-        { 
+        {
             await Context.Set<Notification>()
                 .Where(t => t.Owner == userId && ids.Contains(t.Id))
-                .UpdateAsync(updateFactory);
+                .UpdateAsync(updateFactory).ConfigureAwait(false);
         }
 
-        public async Task<Notification[]> GetAllByUserAsync(string userId, NotificationFilter filter = null)
+        public async Task<Notification[]> GetAllByUserAsync(string userId, NotificationFilter filter)
         {
             var result = Context.Set<Notification>().Where(t => t.Owner == userId);
 
-            if(filter == null)
+            if (filter == null)
             {
                 return await result.OrderByDescending(t => t.Date).ToArrayAsync();
             }
@@ -35,6 +35,10 @@ namespace HwProj.NotificationsService.API.Repositories
             if (filter.HasSeen != null)
             {
                 result = result.Where(t => t.HasSeen == filter.HasSeen);
+            }
+            if (filter.Important != null)
+            {
+                result = result.Where(t => DateTime.Now.Subtract(t.Date) >= TimeSpan.FromDays(14));
             }
             if (!string.IsNullOrWhiteSpace(filter.Category))
             {
@@ -44,13 +48,9 @@ namespace HwProj.NotificationsService.API.Repositories
             {
                 result = result.Where(t => t.Sender == filter.Sender);
             }
-            if (filter.LastNotificationsId != null)
+            if (filter.PeriodOfTime != null)
             {
-                result = result.Where(t => t.Id <= filter.LastNotificationsId);
-            }
-            if (filter.LastDate != null)
-            {
-                result = result.Where(t => t.Date <= filter.LastDate);
+                result = result.Where(t => DateTime.Now.Subtract(t.Date) <= TimeSpan.FromDays((int)filter.PeriodOfTime));
             }
 
             result = result.OrderByDescending(t => t.Date);
@@ -64,7 +64,7 @@ namespace HwProj.NotificationsService.API.Repositories
                 result = result.Take(filter.MaxCount.Value);
             }
 
-            return await result.ToArrayAsync();
+            return await result.ToArrayAsync().ConfigureAwait(false);
         }
     }
 }

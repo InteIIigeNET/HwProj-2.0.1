@@ -5,8 +5,9 @@ namespace HwProj.NotificationsService.API.Services
 {
     public interface INotificationsService
     {
-        Task<long> AddNotificationAsync(Notification notification);
+        Task<long> AddNotificationAsync(string userId, Notification notification);
         Task<Notification[]> GetAsync(string userId, NotificationFilter filter = null);
         Task MarkAsSeenAsync(string userId, long[] notificationIds);
+        Task DeleteNotificationsAsync(string userId, long[] notificatonIds);
     }
 }

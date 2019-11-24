@@ -553,6 +553,26 @@
       "UpstreamPathTemplate": "/api/Courses/user_courses/{userId}",
       "UpstreamhttpsMethod": [ "GET" ],
       "Key": "user-courses"
+    },
+    //Notifications
+    {
+      "DownstreamPathTemplate": "/api/Notifications",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 0
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Notifications/",
+      "UpstreamhttpsMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
+      }
     }
   ],
   "Aggregates": [

@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Xml.Schema;
+using AutoMapper;
 using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Services;
 using HwProj.Utils.Authorization;
@@ -12,18 +14,28 @@ namespace HwProj.NotificationsService.API.Controllers
     public class NotificationsController : ControllerBase
     {
         private readonly INotificationsService _notificationsService;
+        private readonly IMapper _mapper;
 
-        public NotificationsController(INotificationsService notificationsService)
+        public NotificationsController(INotificationsService notificationsService, IMapper mapper)
         {
             _notificationsService = notificationsService;
+            _mapper = mapper;
+        }
+
+        [HttpDelete("delete_notification/{notificationId}")]
+        public async Task<IActionResult> DeleteNotifications(long[] notificationsId)
+        {
+            var userId = Request.GetUserId();
+            await _notificationsService.DeleteNotificationsAsync(userId, notificationsId);
+            return Ok();
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get([FromBody] NotificationFilter filter)
+        public async Task<IActionResult> Get([FromQuery] NotificationFilter filter)
         {
             var userId = Request.GetUserId();
-            await _notificationsService.GetAsync(userId, filter);
-            return Ok();
+            var notifications = await _notificationsService.GetAsync(userId, filter);
+            return Ok(notifications);
         }
 
         [HttpPut("mark_as_seen")]

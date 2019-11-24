@@ -1,5 +1,7 @@
-﻿using System.Linq.Expressions;
+﻿using System;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
+using AutoMapper;
 using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Repositories;
 
@@ -14,9 +16,11 @@ namespace HwProj.NotificationsService.API.Services
             _repository = repository;
         }
 
-        public async Task<long> AddNotificationAsync(Notification notification)
+        //was made only for tests
+        public async Task<long> AddNotificationAsync(string userId, Notification notification)
         {
-            var id = await _repository.AddAsync(notification);
+            notification.Owner = userId;
+            var id = await _repository.AddAsync(notification).ConfigureAwait(false);
             return id;
         }
 
@@ -26,13 +30,19 @@ namespace HwProj.NotificationsService.API.Services
             {
                 MaxCount = 50, 
             };
-            return await _repository.GetAllByUserAsync(userId, filter);
+            return await _repository.GetAllByUserAsync(userId, filter).ConfigureAwait(false);
         }
 
         public async Task MarkAsSeenAsync(string userId, long[] notificationIds)
         {
             await _repository.UpdateBatchAsync(userId, notificationIds,
-                t => new Notification {HasSeen = true});
+                t => new Notification {HasSeen = true}).ConfigureAwait(false);
+        }
+
+        public async Task DeleteNotificationsAsync(string userId, long[] notificationsId)
+        {
+            await _repository.UpdateBatchAsync(userId, notificationsId,
+                t => new Notification { Visible = false }).ConfigureAwait(false);
         }
     }
 }
