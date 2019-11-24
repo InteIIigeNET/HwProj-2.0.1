@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using HwProj.Repositories;
 
 namespace HwProj.CoursesService.API.Models
@@ -13,5 +14,7 @@ namespace HwProj.CoursesService.API.Models
         public string StudentId { get; set; }
         
         public bool IsAccepted { get; set; }
+
+        public List<long> Groups { get; set; } = new List<long>();
     }
 }
