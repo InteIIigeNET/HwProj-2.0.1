@@ -6,24 +6,21 @@ using HwProj.NotificationsService.API.Repositories;
 using NUnit.Framework;
 using Moq;
 using System.Linq;
+using HwProj.NotificationsService.API.Services;
 
 namespace HwProj.NotificationsService.Tests
 {
     [TestFixture]
     public class NotificationsServiceTests
     {
+        private INotificationsService _notificationsService;
+
         [SetUp]
         public void Setup()
         {
-            mock = new Mock<INotificationsRepository>();
+            var mock = new Mock<INotificationsRepository>();
             _notificationsService = new API.Services.NotificationsService(mock.Object);
             mock.Setup(t => t.AddAsync(It.IsAny<Notification>())).Returns<Task<long>>(t => t);
-        }
-
-        [Test]
-        public void SimpleTest()
-        {
-            Assert.AreEqual(1, 1);
         }
 
         [Test]
@@ -36,7 +33,6 @@ namespace HwProj.NotificationsService.Tests
                 Category = "Tasks",
                 Date = DateTime.Now,
                 HasSeen = false,
-                Visible = true,
                 Body = "Task1_was_added"
             };
 
@@ -45,8 +41,5 @@ namespace HwProj.NotificationsService.Tests
             var notifications = _notificationsService.GetAsync("63d729e2-1f30-45d5-a8f5-baa26603c99c", filter);
             Assert.AreEqual(1, notifications.Result.Length);
         }
-
-        private Mock<INotificationsRepository> mock;
-        private API.Services.NotificationsService _notificationsService;
     }
 }

@@ -22,14 +22,6 @@ namespace HwProj.NotificationsService.API.Controllers
             _mapper = mapper;
         }
 
-        [HttpPut("make_notifications_invisible")]
-        public async Task<IActionResult> MakeInvisibleNotifications(long[] notificationsId)
-        {
-            var userId = Request.GetUserId();
-            await _notificationsService.MakeInvisibleNotificationsAsync(userId, notificationsId);
-            return Ok();
-        }
-
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] NotificationFilter filter)
         {

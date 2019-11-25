@@ -14,6 +14,5 @@ namespace HwProj.NotificationsService.API.Models
         public string Body { get; set; }
         public bool HasSeen { get; set; }
         public DateTime Date { get; set; }
-        public bool Visible { get; set; }
     }
 }
