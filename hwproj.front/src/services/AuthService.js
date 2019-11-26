@@ -8,13 +8,11 @@ export default class AuthService {
         this.getProfile = this.getProfile.bind(this)
     }
 
-    login(username, password) {
-        return this.client.login({email: username, password: password})
-        .then(res => res.json())
-        .then(res => {
-            this.setToken(res.accessToken);
-            return Promise.resolve(res);
-        })
+    async login(username, password) {
+        const res = await this.client.login({ email: username, password: password });
+        const tokenCredentials = await res.json();
+        this.setToken(tokenCredentials.accessToken);
+        return Promise.resolve(tokenCredentials);
     }
 
     loggedIn() {
