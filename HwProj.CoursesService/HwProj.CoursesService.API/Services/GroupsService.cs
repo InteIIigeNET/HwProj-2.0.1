@@ -5,6 +5,7 @@ using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Models.DTO;
 using HwProj.CoursesService.API.Repositories;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -32,7 +33,7 @@ namespace HwProj.CoursesService.API.Services
             return await _groupsRepository.AddAsync(group);
         }
 
-        public async Task<Group> GetAsync(long courseId)
+        public async Task<Group> GetWithStudentsAsync(long courseId)
         {
             return await _groupsRepository.GetAsync(courseId);
         }
@@ -41,23 +42,74 @@ namespace HwProj.CoursesService.API.Services
         {
             var getGroupTask = _groupsRepository.GetAsync(groupId);
             await getGroupTask;
+
             var courseId = getGroupTask.Result.GroupId;
             var getCourseMateTask =
                 _courseMatesRepository.FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
-            await getCourseMateTask;
+            await getCourseMateTask.ConfigureAwait(false);
 
-            if (getGroupTask.Result == null || getCourseMateTask.Result == null)
+            if (getGroupTask.Result == null)
             {
                 return false;
             }
 
-            if (getGroupTask.Result.GroupMates.Contains(getCourseMateTask.Result))
+            if (getCourseMateTask.Result.Groups.Contains(getGroupTask.Result.Id))
             {
                 return false;
             }
 
-            getGroupTask.Result.GroupMates.Add(getCourseMateTask.Result);
+            if (getCourseMateTask.Result == null)
+            {
+                var courseMate = new CourseMate
+                {
+                    CourseId = courseId,
+                    StudentId = studentId,
+                    IsAccepted = true
+                };
+
+                await _courseMatesRepository.AddAsync(courseMate);
+
+            }
+
+            getCourseMateTask.Result.Groups.Add(getGroupTask.Result.Id);
             return true;
+        }
+
+        public Task<Group[]> GetAllAsync()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task<Group> GetAsync(long courseId)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public async Task DeleteAsync(long id)
+        {
+            await _groupsRepository.DeleteAsync(id);
+        }
+
+        public Task UpdateAsync(long courseId, Course updated)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task<bool> DeleteCourseMateFromGroupAsync(long groupId, string studentId)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public async Task<UserGroupDescription[]> GetCourseMateGroupsAsync(long courseId, string studentId)
+        {
+            var getCourseMateTask =
+                _courseMatesRepository.FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
+            await getCourseMateTask.ConfigureAwait(false);
+
+            var groups = new List<Group>();
+            getCourseMateTask.Result.Groups.ForEach(async cm => groups.Add(await _groupsRepository.GetAsync(cm)));
+
+            throw new System.NotImplementedException();
         }
     }
 }

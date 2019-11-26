@@ -7,10 +7,10 @@ using HwProj.CoursesService.API.Services;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-// For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace HwProj.CoursesService.API.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]")]
     public class GroupsController : Controller
     {
         private readonly ICoursesService _coursesService;
@@ -24,17 +24,33 @@ namespace HwProj.CoursesService.API.Controllers
             _groupsService = groupsService;
         }
 
+        [HttpGet("GetAll/{courseId}")]
+        public async Task<GroupViewModel[]> GetAll(long courseId)
+        {
+            var groups = await _groupsService.GetAllAsync();
+            return _mapper.Map<GroupViewModel[]>(groups);
+        }
 
-        [HttpPost("create_new_group/{coursId}")]
+        [HttpGet("{groupId}")]
+        public async Task<IActionResult> Get(long groupId)
+        {
+            var group = await _groupsService.GetAsync(groupId);
+            return group == null
+                ? NotFound()
+                : Ok(_mapper.Map<GroupViewModel>(group)) as IActionResult;
+        }
+
+        [HttpPost("{courseId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> CreateGroup(long courseId, [FromBody] CreateGroupViewModel groupViewModel)
         {
             var group = _mapper.Map<Group>(groupViewModel);
             var id = await _groupsService.AddAsync(group, courseId);
+            groupViewModel.GroupMates.ForEach(async cm => await AddStudentInGroup(id, cm.StudentId));
             return Ok(id);
         }
 
-        [HttpPost("add_student_in_group")]
+        [HttpPost("add_student_in_group/{groupId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> AddStudentInGroup(long groupId, string studentId)
         {
