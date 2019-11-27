@@ -57,7 +57,7 @@ namespace HwProj.CourseWorkService.API
             return Ok();
         }
 
-        [HttpPost]
+        [HttpPost] // студент тоже должен иметь возможность добавлять тему
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> AddCourseWork([FromBody] CreateCourseWorkViewModel courseWorkViewModel)
         {
