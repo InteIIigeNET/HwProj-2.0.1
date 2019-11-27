@@ -13,8 +13,6 @@ namespace HwProj.CoursesService.API.Models
 
         public string Name { get; set; }
 
-        public long GroupId { get; set; }
-
         public List<CourseMate> GroupMates { get; set; } = new List<CourseMate>();
     }
 }

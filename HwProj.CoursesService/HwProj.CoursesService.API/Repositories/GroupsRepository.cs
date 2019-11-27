@@ -2,6 +2,7 @@
 using HwProj.CoursesService.API.Models;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace HwProj.CoursesService.API.Repositories
 {
@@ -17,6 +18,14 @@ namespace HwProj.CoursesService.API.Repositories
             return await Context.Set<Group>().Include(c => c.GroupMates)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.Id == id);
+        }
+
+        public IQueryable<Group> GetAllWithCourseMates(long courseId)
+        {
+            return Context.Set<Group>()
+                .Where(c => c.CourseId == courseId)
+                .Include(c => c.GroupMates)
+                .AsNoTracking();
         }
     }
 }

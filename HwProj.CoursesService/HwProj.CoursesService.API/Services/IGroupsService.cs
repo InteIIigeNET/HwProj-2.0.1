@@ -9,11 +9,11 @@ namespace HwProj.CoursesService.API.Services
 {
     public interface IGroupsService
     {
-        Task<Group[]> GetAllAsync();
-        Task<Group> GetAsync(long courseId);
-        Task<long> AddAsync(Group group, long courseId);
-        Task DeleteAsync(long id);
-        Task UpdateAsync(long courseId, Course updated);
+        Task<Group[]> GetAllAsync(long courseId);
+        Task<Group> GetGroupAsync(long groupId);
+        Task<long> AddGroupAsync(Group group, long courseId);
+        Task DeleteGroupAsync(long id);
+        Task UpdateAsync(long courseId, Group updated);
         Task<bool> AddCourseMateInGroupAsync(long groupId, string studentId);
         Task<bool> DeleteCourseMateFromGroupAsync(long groupId, string studentId);
         Task<UserGroupDescription[]> GetCourseMateGroupsAsync(long courseId, string studentId);

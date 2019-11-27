@@ -27,14 +27,14 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpGet("GetAll/{courseId}")]
         public async Task<GroupViewModel[]> GetAll(long courseId)
         {
-            var groups = await _groupsService.GetAllAsync();
+            var groups = await _groupsService.GetAllAsync(courseId);
             return _mapper.Map<GroupViewModel[]>(groups);
         }
 
         [HttpGet("{groupId}")]
         public async Task<IActionResult> Get(long groupId)
         {
-            var group = await _groupsService.GetAsync(groupId);
+            var group = await _groupsService.GetGroupAsync(groupId);
             return group == null
                 ? NotFound()
                 : Ok(_mapper.Map<GroupViewModel>(group)) as IActionResult;
@@ -45,9 +45,29 @@ namespace HwProj.CoursesService.API.Controllers
         public async Task<IActionResult> CreateGroup(long courseId, [FromBody] CreateGroupViewModel groupViewModel)
         {
             var group = _mapper.Map<Group>(groupViewModel);
-            var id = await _groupsService.AddAsync(group, courseId);
+            var id = await _groupsService.AddGroupAsync(group, courseId);
             groupViewModel.GroupMates.ForEach(async cm => await AddStudentInGroup(id, cm.StudentId));
             return Ok(id);
+        }
+
+        [HttpDelete("{groupId}")]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        public async Task<IActionResult> DeleteGroup(long groupId)
+        {
+            await _groupsService.DeleteGroupAsync(groupId);
+            return Ok();
+        }
+
+        [HttpPost("update/{groupId}")]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        public async Task<IActionResult> UpdateGroup(long groupId, [FromBody] UpdateGroupViewModel groupViewModel)
+        {
+            await _groupsService.UpdateAsync(groupId, new Group()
+            {
+                Name = groupViewModel.Name
+            });
+
+            return Ok();
         }
 
         [HttpPost("add_student_in_group/{groupId}")]
@@ -55,6 +75,15 @@ namespace HwProj.CoursesService.API.Controllers
         public async Task<IActionResult> AddStudentInGroup(long groupId, string studentId)
         {
             return await _groupsService.AddCourseMateInGroupAsync(groupId, studentId)
+                ? Ok()
+                : NotFound() as IActionResult;
+        }
+
+        [HttpPost("remove_student_from_group/{groupId}")]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        public async Task<IActionResult> RemoveStudentFromGroup(long groupId, string studentId)
+        {
+            return await _groupsService.DeleteCourseMateFromGroupAsync(groupId, studentId)
                 ? Ok()
                 : NotFound() as IActionResult;
         }
