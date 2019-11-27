@@ -4,7 +4,6 @@ using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Models.ViewModels;
 using HwProj.CoursesService.API.Services;
-using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.CoursesService.API.Controllers
@@ -13,13 +12,11 @@ namespace HwProj.CoursesService.API.Controllers
     [Route("api/[controller]")]
     public class GroupsController : Controller
     {
-        private readonly ICoursesService _coursesService;
         private readonly IGroupsService _groupsService;
         private readonly IMapper _mapper;
 
-        public GroupsController(ICoursesService coursesService, IMapper mapper, IGroupsService groupsService)
+        public GroupsController(IMapper mapper, IGroupsService groupsService)
         {
-            _coursesService = coursesService;
             _mapper = mapper;
             _groupsService = groupsService;
         }

@@ -4,7 +4,6 @@ using AutoMapper;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Models.DTO;
 using HwProj.CoursesService.API.Repositories;
-using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,17 +12,14 @@ namespace HwProj.CoursesService.API.Services
     public class GroupsService : IGroupsService
     {
         private readonly IGroupsRepository _groupsRepository;
-        private readonly ICoursesRepository _coursesRepository;
         private readonly ICourseMatesRepository _courseMatesRepository;
         private readonly IMapper _mapper;
 
         public GroupsService(IGroupsRepository groupsRepository,
-            ICoursesRepository coursesRepository,
             ICourseMatesRepository courseMatesRepository,
             IMapper mapper)
         {
             _groupsRepository = groupsRepository;
-            _coursesRepository = coursesRepository;
             _courseMatesRepository = courseMatesRepository;
             _mapper = mapper;
         }
