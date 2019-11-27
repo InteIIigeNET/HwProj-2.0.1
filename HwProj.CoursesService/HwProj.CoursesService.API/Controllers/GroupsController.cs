@@ -43,7 +43,7 @@ namespace HwProj.CoursesService.API.Controllers
         {
             var group = _mapper.Map<Group>(groupViewModel);
             var id = await _groupsService.AddGroupAsync(group, courseId);
-            groupViewModel.GroupMates.ForEach(async cm => await AddStudentInGroup(id, cm.StudentId));
+            groupViewModel.GroupMates.ForEach(async cm => await AddStudentInGroup(id, cm.StudentId).ConfigureAwait(false));
             return Ok(id);
         }
 
@@ -51,7 +51,7 @@ namespace HwProj.CoursesService.API.Controllers
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> DeleteGroup(long groupId)
         {
-            await _groupsService.DeleteGroupAsync(groupId);
+            await _groupsService.DeleteGroupAsync(groupId).ConfigureAwait(false);
             return Ok();
         }
 
@@ -59,10 +59,10 @@ namespace HwProj.CoursesService.API.Controllers
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> UpdateGroup(long groupId, [FromBody] UpdateGroupViewModel groupViewModel)
         {
-            await _groupsService.UpdateAsync(groupId, new Group()
+            await _groupsService.UpdateAsync(groupId, new Group
             {
                 Name = groupViewModel.Name
-            });
+            }).ConfigureAwait(false);
 
             return Ok();
         }

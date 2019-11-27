@@ -78,7 +78,7 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task DeleteGroupAsync(long id)
         {
-            var removeFromCourseMatesTask = _courseMatesRepository.FindAll(cm => cm.Groups.Contains(id))
+            _courseMatesRepository.FindAll(cm => cm.Groups.Contains(id))
                 .Select(cm => cm.Groups.Remove(id));
             await _groupsRepository.DeleteAsync(id).ConfigureAwait(false);
         }
