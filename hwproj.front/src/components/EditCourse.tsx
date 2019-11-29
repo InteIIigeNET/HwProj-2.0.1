@@ -71,7 +71,7 @@ export default class EditCourse extends React.Component<RouteComponentProps<IEdi
                 return <Redirect to='/' />
             }
 
-            if (!this.authService.loggedIn() || this.authService.getProfile()._id !== this.state.mentorId) {
+            if (!this.authService.isLoggedIn() || this.authService.getProfile()._id !== this.state.mentorId) {
                 return <Typography variant='h6' gutterBottom>Только преподаватель может редактировать курс</Typography>
             }
 

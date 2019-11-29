@@ -11,10 +11,10 @@ interface IRegisterState {
     logged: boolean;
 }
 
-export default class Register extends React.Component<{}, IRegisterState> {
+export class Register extends React.Component<{}, IRegisterState> {
     authService = new AuthService();
-    authApi = new AccountApi();
-    
+    accountApi = new AccountApi();
+
     constructor(props: {}) {
         super(props);
         this.authService = new AuthService();
@@ -26,11 +26,11 @@ export default class Register extends React.Component<{}, IRegisterState> {
                 password: "",
                 passwordConfirm: "",
             },
-            logged: this.authService.loggedIn()
+            logged: this.authService.isLoggedIn()
         };
     }
 
-    render() {
+    public render(): JSX.Element {
         const {registerData, logged} = this.state;
 
         if (logged) {
@@ -40,7 +40,7 @@ export default class Register extends React.Component<{}, IRegisterState> {
         return (
             <div className="container">
                 <Typography variant="h6" gutterBottom>Регистрация</Typography>
-                <form onSubmit={_ => this.handleSubmit()}>
+                <form onSubmit={this.handleSubmit}>
                     <TextField
                         required
                         label="Имя"
@@ -95,10 +95,10 @@ export default class Register extends React.Component<{}, IRegisterState> {
         );
     }
 
-    private async handleSubmit() {
+    private async handleSubmit(): Promise<void> {
         const {email, password} = this.state.registerData;
 
-        await this.authApi.register(this.state.registerData);
+        await this.accountApi.register(this.state.registerData);
         await this.authService.login(email, password);
 
         window.location.assign("/");

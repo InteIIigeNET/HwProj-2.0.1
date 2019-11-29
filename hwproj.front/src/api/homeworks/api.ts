@@ -222,7 +222,7 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
             const localVarQueryParameter = {} as any;
 
             let authService = new AuthService();
-            if (authService.loggedIn()) {
+            if (authService.isLoggedIn()) {
                 localVarHeaderParameter['Authorization'] = 'Bearer ' + authService.getToken()
             }
 
@@ -259,7 +259,7 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
             const localVarQueryParameter = {} as any;
 
             let authService = new AuthService();
-            if (authService.loggedIn()) {
+            if (authService.isLoggedIn()) {
                 localVarHeaderParameter['Authorization'] = 'Bearer ' + authService.getToken()
             }
 
@@ -286,7 +286,7 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
             const localVarQueryParameter = {} as any;
 
             let authService = new AuthService();
-            if (authService.loggedIn()) {
+            if (authService.isLoggedIn()) {
                 localVarHeaderParameter['Authorization'] = 'Bearer ' + authService.getToken()
             }
 
@@ -319,7 +319,7 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
             const localVarQueryParameter = {} as any;
 
             let authService = new AuthService();
-            if (authService.loggedIn()) {
+            if (authService.isLoggedIn()) {
                 localVarHeaderParameter['Authorization'] = 'Bearer ' + authService.getToken()
             }
 
@@ -352,7 +352,7 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
             const localVarQueryParameter = {} as any;
 
             let authService = new AuthService();
-            if (authService.loggedIn()) {
+            if (authService.isLoggedIn()) {
                 localVarHeaderParameter['Authorization'] = 'Bearer ' + authService.getToken()
             }
 
@@ -386,7 +386,7 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
             const localVarQueryParameter = {} as any;
 
             let authService = new AuthService();
-            if (authService.loggedIn()) {
+            if (authService.isLoggedIn()) {
                 localVarHeaderParameter['Authorization'] = 'Bearer ' + authService.getToken()
             }
 
@@ -691,7 +691,7 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
             const localVarQueryParameter = {} as any;
 
             let authService = new AuthService();
-            if (authService.loggedIn()) {
+            if (authService.isLoggedIn()) {
                 localVarHeaderParameter['Authorization'] = 'Bearer ' + authService.getToken()
             }
 
@@ -728,7 +728,7 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
             const localVarQueryParameter = {} as any;
 
             let authService = new AuthService();
-            if (authService.loggedIn()) {
+            if (authService.isLoggedIn()) {
                 localVarHeaderParameter['Authorization'] = 'Bearer ' + authService.getToken()
             }
 
@@ -755,7 +755,7 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
             const localVarQueryParameter = {} as any;
 
             let authService = new AuthService();
-            if (authService.loggedIn()) {
+            if (authService.isLoggedIn()) {
                 localVarHeaderParameter['Authorization'] = 'Bearer ' + authService.getToken()
             }
 
@@ -788,7 +788,7 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
             const localVarQueryParameter = {} as any;
 
             let authService = new AuthService();
-            if (authService.loggedIn()) {
+            if (authService.isLoggedIn()) {
                 localVarHeaderParameter['Authorization'] = 'Bearer ' + authService.getToken()
             }
 
@@ -822,7 +822,7 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
             const localVarQueryParameter = {} as any;
 
             let authService = new AuthService();
-            if (authService.loggedIn()) {
+            if (authService.isLoggedIn()) {
                 localVarHeaderParameter['Authorization'] = 'Bearer ' + authService.getToken()
             }
 

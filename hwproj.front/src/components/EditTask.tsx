@@ -57,7 +57,7 @@ export default class EditTask extends React.Component<RouteComponentProps<IEditT
         }
 
         if (this.state.isLoaded) {
-            if (!this.authService.loggedIn() || this.authService.getProfile()._id !== this.state.courseMentorId) {
+            if (!this.authService.isLoggedIn() || this.authService.getProfile()._id !== this.state.courseMentorId) {
                 return <Typography variant='h6' gutterBottom>Только преподаваталь может редактировать задачу</Typography>
             }
             return (

@@ -15,7 +15,7 @@ export default class AuthService {
         return Promise.resolve(tokenCredentials);
     }
 
-    loggedIn() {
+    isLoggedIn() {
         const token = this.getToken();
         return !!token && !this.isTokenExpired(token);
     }

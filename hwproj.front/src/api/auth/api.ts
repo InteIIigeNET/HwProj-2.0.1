@@ -890,7 +890,7 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
 
             let authService = new AuthService();
-            if (authService.loggedIn()) {
+            if (authService.isLoggedIn()) {
                 localVarHeaderParameter['Authorization'] = 'Bearer ' + authService.getToken()
             }
 
@@ -922,7 +922,7 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
 
             let authService = new AuthService();
-            if (authService.loggedIn()) {
+            if (authService.isLoggedIn()) {
                 localVarHeaderParameter['Authorization'] = 'Bearer ' + authService.getToken()
             }
 
@@ -954,7 +954,7 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
 
             let authService = new AuthService();
-            if (authService.loggedIn()) {
+            if (authService.isLoggedIn()) {
                 localVarHeaderParameter['Authorization'] = 'Bearer ' + authService.getToken()
             }
 
@@ -988,7 +988,7 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             }
 
             let authService = new AuthService();
-            if (authService.loggedIn()) {
+            if (authService.isLoggedIn()) {
                 localVarHeaderParameter['Authorization'] = 'Bearer ' + authService.getToken()
             }
 
@@ -1018,7 +1018,7 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
 
             let authService = new AuthService();
-            if (authService.loggedIn()) {
+            if (authService.isLoggedIn()) {
                 localVarHeaderParameter['Authorization'] = 'Bearer ' + authService.getToken()
             }
 
@@ -1047,7 +1047,7 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             const localVarQueryParameter = {} as any;
 
             let authService = new AuthService();
-            if (authService.loggedIn()) {
+            if (authService.isLoggedIn()) {
                 localVarHeaderParameter['Authorization'] = 'Bearer ' + authService.getToken()
             }
 
@@ -1074,7 +1074,7 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             const localVarQueryParameter = {} as any;
 
             let authService = new AuthService();
-            if (authService.loggedIn()) {
+            if (authService.isLoggedIn()) {
                 localVarHeaderParameter['Authorization'] = 'Bearer ' + authService.getToken()
             }
 
@@ -1102,7 +1102,7 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             const localVarQueryParameter = {} as any;
 
             let authService = new AuthService();
-            if (authService.loggedIn()) {
+            if (authService.isLoggedIn()) {
                 localVarHeaderParameter['Authorization'] = 'Bearer ' + authService.getToken()
             }
 
@@ -1133,7 +1133,7 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             const localVarQueryParameter = {} as any;
 
             let authService = new AuthService();
-            if (authService.loggedIn()) {
+            if (authService.isLoggedIn()) {
                 localVarHeaderParameter['Authorization'] = 'Bearer ' + authService.getToken()
             }
 

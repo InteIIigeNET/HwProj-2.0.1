@@ -34,7 +34,7 @@ export default class InviteNewLecturer extends React.Component<{}, IEditTaskStat
             return <Redirect to={'/'} />
         }
 
-        if (!this.authService.loggedIn() || this.authService.getProfile()._role !== "lecturer") {
+        if (!this.authService.isLoggedIn() || this.authService.getProfile()._role !== "lecturer") {
             return <Typography variant='h6' gutterBottom>Страница не найдена</Typography>
         }
 
