@@ -21,6 +21,7 @@ namespace HwProj.AuthService.API
 
             const string email = "admin@gmail.com";
             const string password = "Admin@1234";
+            var Task = await userManager.FindByEmailAsync(email).ConfigureAwait(false);
 
             if (await userManager.FindByEmailAsync(email) == null)
             {

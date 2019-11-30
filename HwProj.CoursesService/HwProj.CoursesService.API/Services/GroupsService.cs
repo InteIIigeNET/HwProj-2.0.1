@@ -13,12 +13,15 @@ namespace HwProj.CoursesService.API.Services
     {
         private readonly IGroupsRepository _groupsRepository;
         private readonly ICourseMatesRepository _courseMatesRepository;
+        private readonly IGroupMatesRepository _groupMatesRepository;
         private readonly IMapper _mapper;
 
         public GroupsService(IGroupsRepository groupsRepository,
             ICourseMatesRepository courseMatesRepository,
+            IGroupMatesRepository groupMatesRepository,
             IMapper mapper)
         {
+            _groupMatesRepository = groupMatesRepository;
             _groupsRepository = groupsRepository;
             _courseMatesRepository = courseMatesRepository;
             _mapper = mapper;
@@ -43,44 +46,36 @@ namespace HwProj.CoursesService.API.Services
         public async Task<bool> AddCourseMateInGroupAsync(long groupId, string studentId)
         {
             var getGroupTask = _groupsRepository.GetAsync(groupId);
-            await getGroupTask.ConfigureAwait(false);
-            if (getGroupTask.Result == null)
+            var getGroupMateTask =
+                _groupMatesRepository.FindAsync(cm => cm.GroupId == groupId && cm.StudentId == studentId);
+            await Task.WhenAll(getGroupTask, getGroupMateTask).ConfigureAwait(false);
+
+            if (getGroupTask.Result == null || getGroupMateTask.Result != null)
             {
                 return false;
             }
 
-            var courseId = getGroupTask.Result.CourseId;
-            var getCourseMateTask =
-                _courseMatesRepository.FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
-            await getCourseMateTask.ConfigureAwait(false);
+            var getCourseMateTask = await _courseMatesRepository.FindAsync(cm => cm.CourseId == getGroupTask.Result.CourseId 
+                && cm.StudentId == studentId).ConfigureAwait(false);
 
-
-            if (getCourseMateTask.Result == null)
+            var groupMate = new GroupMate
             {
-                var courseMate = new CourseMate
-                {
-                    CourseId = courseId,
-                    StudentId = studentId,
-                    IsAccepted = true
-                };
+                GroupId = groupId,
+                StudentId = studentId,
+                IsAccepted = getCourseMateTask != null,
+            };
 
-                await _courseMatesRepository.AddAsync(courseMate);
-            }
+            await _groupMatesRepository.AddAsync(groupMate).ConfigureAwait(false);
 
-            if (getCourseMateTask.Result.Groups.Contains(getGroupTask.Result.Id))
-            {
-                return false;
-            }
-
-            getCourseMateTask.Result.Groups.Add(getGroupTask.Result.Id);
             return true;
         }
 
-        public async Task DeleteGroupAsync(long id)
+        public async Task DeleteGroupAsync(long groupId)
         {
-            _courseMatesRepository.FindAll(cm => cm.Groups.Contains(id))
-                .Select(cm => cm.Groups.Remove(id));
-            await _groupsRepository.DeleteAsync(id).ConfigureAwait(false);
+            var getGroupTask = await _groupsRepository.GetAsync(groupId).ConfigureAwait(false);
+            getGroupTask.GroupMates.ForEach(async cm => await _groupMatesRepository.DeleteAsync(cm.Id).ConfigureAwait(false));
+
+            await _groupsRepository.DeleteAsync(groupId).ConfigureAwait(false);
         }
 
         public async Task UpdateAsync(long groupId, Group updated)
@@ -93,41 +88,43 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<bool> DeleteCourseMateFromGroupAsync(long groupId, string studentId)
         {
-            var getGroupTask = _groupsRepository.GetAsync(groupId);
-            await getGroupTask.ConfigureAwait(false);
-            if (getGroupTask.Result == null)
+            var getGroupTask = await _groupsRepository.GetAsync(groupId).ConfigureAwait(false);
+            if (getGroupTask == null)
             {
                 return false;
             }
 
-            var courseId = getGroupTask.Result.CourseId;
-            var getCourseMateTask =
-                _courseMatesRepository.FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
-            await getCourseMateTask.ConfigureAwait(false);
-            if (!getCourseMateTask.Result.Groups.Contains(getGroupTask.Result.Id))
+            var getGroupMateTask =
+                await _groupMatesRepository.FindAsync(cm => cm.GroupId == groupId && cm.StudentId == studentId).ConfigureAwait(false);
+
+            if (getGroupMateTask == null)
             {
                 return false;
             }
 
 
-            getCourseMateTask.Result.Groups.Remove(groupId);
+            await _groupMatesRepository.DeleteAsync(getGroupMateTask.Id);
             return true;
         }
 
         public async Task<UserGroupDescription[]> GetCourseMateGroupsAsync(long courseId, string studentId)
         {
-            var getCourseMateTask =
-                _courseMatesRepository.FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
-            await getCourseMateTask.ConfigureAwait(false);
+            var studentGroupsIds = await _groupMatesRepository
+                .FindAll(cm => cm.StudentId == studentId)
+                .Select(cm => cm.GroupId)
+                .ToArrayAsync()
+                .ConfigureAwait(false);
 
-            var groups = new List<UserGroupDescription>();
-            getCourseMateTask.Result.Groups.ForEach(async cm =>
+            var getStudentGroupsTask = studentGroupsIds
+                .Select(async id => await _groupsRepository.GetAsync(id).ConfigureAwait(false))
+                .Where(cm => cm.Result.CourseId == courseId)
+                .ToArray();
+
+            return getStudentGroupsTask.Select(c =>
             {
-                var group = await _groupsRepository.GetAsync(cm);
-                groups.Add(_mapper.Map<UserGroupDescription>(group));
-            });
-
-            return groups.ToArray();
+                var userGroupDescription = _mapper.Map<UserGroupDescription>(c);
+                return userGroupDescription;
+            }).ToArray();
         }
     }
 }
