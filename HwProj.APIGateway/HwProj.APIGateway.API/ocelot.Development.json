@@ -205,7 +205,14 @@
         }
       ],
       "UpstreamPathTemplate": "/api/Courses/",
-      "UpstreamhttpsMethod": [ "GET" ]
+      "UpstreamhttpsMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
+      }
     },
     {
       "DownstreamPathTemplate": "/api/Courses/{id}",

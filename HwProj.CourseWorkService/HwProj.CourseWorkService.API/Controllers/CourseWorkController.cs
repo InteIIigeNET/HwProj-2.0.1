@@ -25,14 +25,15 @@ namespace HwProj.CourseWorkService.API
         [HttpGet("available_course_works")]
         public async Task<CourseWorkOverviewModel[]> GetAvailableCourseWorks()
         {
-            var courseWorks = await _courseWorkService.GetFilteredCourseWorksAsync(/*filter IsAvailable*/);
+            var courseWorks = await _courseWorkService.GetFilteredCourseWorksAsync(new Filter() { IsAvailable = true });
             return _mapper.Map<CourseWorkOverviewModel[]>(courseWorks);
         }
 
         [HttpGet("available_course_works/{supervisorId}")]
         public async Task<CourseWorkOverviewModel[]> GetSupervisorAvailableCourseWorksAsync(string supervisorId)
         {
-            var courseWorks = await _courseWorkService.GetFilteredCourseWorksAsync(/*filters IsAvailable & SupervisorId*/);
+            var courseWorks = await _courseWorkService
+                .GetFilteredCourseWorksAsync(new Filter() { SupervisorId = supervisorId, IsAvailable = true });
             return _mapper.Map<CourseWorkOverviewModel[]>(courseWorks);
         }
 
@@ -57,13 +58,13 @@ namespace HwProj.CourseWorkService.API
             return Ok();
         }
 
-        [HttpPost] // студент тоже должен иметь возможность добавлять тему
-        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        [HttpPost]
         public async Task<IActionResult> AddCourseWork([FromBody] CreateCourseWorkViewModel courseWorkViewModel)
-        {
-            var supervisorId = Request.GetUserId();
+        { 
+            var creatorId = Request.GetUserId();
             var courseWork = _mapper.Map<CourseWork>(courseWorkViewModel);
-            var id = await _courseWorkService.AddCourseWorkBySupervisorAsync(courseWork, supervisorId);
+            var wasCreatedBySupervisor = AuthExtensions.IsLecturer(Request.GetUserRole());
+            var id = await _courseWorkService.AddCourseWorkAsync(courseWork, creatorId, wasCreatedBySupervisor);
             return Ok(id);
         }
 

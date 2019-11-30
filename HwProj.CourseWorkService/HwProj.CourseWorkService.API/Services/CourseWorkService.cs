@@ -2,6 +2,7 @@
 using HwProj.CourseWorkService.API.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace HwProj.CourseWorkService.API.Services
@@ -32,26 +33,41 @@ namespace HwProj.CourseWorkService.API.Services
             return await _courseWorkRepository.GetAll().ToArrayAsync();
         }
 
-        public Task<CourseWork[]> GetFilteredCourseWorksAsync(/*?filter?*/)
+        public async Task<CourseWork[]> GetFilteredCourseWorksAsync(Filter filter)
         {
-            throw new NotImplementedException();
+            IQueryable<CourseWork> courseWorks = _courseWorkRepository.GetAll();
+            if (filter.StudentId != null)
+            {
+                courseWorks.Select(cw => cw.StudentId == filter.StudentId);
+            }
+            if (filter.SupervisorId != null)
+            {
+                courseWorks.Select(cw => cw.SupervisorId == filter.SupervisorId);
+            }
+            if (filter.ReviewerId != null)
+            {
+                courseWorks.Select(cw => cw.ReviewerId == filter.ReviewerId);
+            }
+            if (filter.IsAvailable != null)
+            {
+                courseWorks.Select(cw => cw.IsAvailable == filter.IsAvailable);
+            }
+            return await courseWorks.ToArrayAsync();
         }
 
-        // нужно как-то объединить два следующих метода в один
-        public async Task<long> AddCourseWorkBySupervisorAsync(CourseWork courseWork, string supervisorId)
+        public async Task<long> AddCourseWorkAsync(CourseWork courseWork, string creatorId, bool wasCreatedBySupervisor)
         {
             courseWork.CreationTime = DateTime.Now;
-            courseWork.SupervisorId = supervisorId;
+            if (wasCreatedBySupervisor)
+            {
+                courseWork.SupervisorId = creatorId;
+            }
+            else
+            {
+                courseWork.StudentId = creatorId;
+            }
             return await _courseWorkRepository.AddAsync(courseWork);
         }
-
-        public async Task<long> AddCourseWorkByStudentAsync(CourseWork courseWork, string studentId)
-        {
-            courseWork.CreationTime = DateTime.Now;
-            courseWork.StudentId = studentId;
-            return await _courseWorkRepository.AddAsync(courseWork);
-        }
-        //////////////////
         
         public async Task DeleteCourseWorkAsync(long courseWorkId)
         {

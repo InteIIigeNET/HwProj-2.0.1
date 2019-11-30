@@ -44,7 +44,8 @@ namespace HwProj.CourseWorkService.API.Services
 
         public async Task<Application[]> GetAllSupervisorApplicationsAsync(string supervisorId)
         {
-            var courseWorks = await _courseWorkService.GetFilteredCourseWorksAsync(/*filter - IsAvailable*/);
+            var courseWorks = await _courseWorkService
+                .GetFilteredCourseWorksAsync(new Filter() { IsAvailable = true, SupervisorId = supervisorId });
             var allSupervisorApplications = new List<Application>();
             foreach (var courseWork in courseWorks)
             {
