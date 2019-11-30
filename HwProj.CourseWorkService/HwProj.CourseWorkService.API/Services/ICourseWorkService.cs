@@ -7,10 +7,9 @@ namespace HwProj.CourseWorkService.API.Services
     {
         Task<CourseWork> GetCourseWorkAsync(long courseWorkId);
         Task<CourseWork> GetStudentCourseWorkAsync(string studentId);
-        Task<CourseWork[]> GetFilteredCourseWorksAsync(/*?filter?*/); 
+        Task<CourseWork[]> GetFilteredCourseWorksAsync(Filter filter); 
 
-        Task<long> AddCourseWorkBySupervisorAsync(CourseWork courseWork, string supervisorId); // нужно как-то объединить
-        Task<long> AddCourseWorkByStudentAsync(CourseWork courseWork, string studentId); // в один метод
+        Task<long> AddCourseWorkAsync(CourseWork courseWork, string supervisorId, bool wasCreatedBySupervisor);
         Task DeleteCourseWorkAsync(long courseWorkId);
         Task UpdateCourseWorkAsync(long courseWorkId, CourseWork update);
 
