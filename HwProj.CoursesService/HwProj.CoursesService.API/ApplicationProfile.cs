@@ -14,6 +14,12 @@ namespace HwProj.CoursesService.API
             CreateMap<Course, CreateCourseViewModel>().ReverseMap();
             CreateMap<Course, UpdateCourseViewModel>().ReverseMap();
 
+            CreateMap<Group, UserGroupDescription>();
+            CreateMap<Group, GroupViewModel>();
+            CreateMap<Group, CreateGroupViewModel>();
+
+            CreateMap<GroupMate, CourseMateViewModel>();
+
             CreateMap<CourseMate, CourseMateViewModel>();
         }
     }

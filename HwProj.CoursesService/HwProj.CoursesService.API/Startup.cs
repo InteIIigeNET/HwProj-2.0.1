@@ -26,7 +26,10 @@ namespace HwProj.CoursesService.API
             services.AddDbContext<CourseContext>(options => options.UseSqlServer(connection));
             services.AddScoped<ICoursesRepository, CoursesRepository>();
             services.AddScoped<ICourseMatesRepository, CourseMatesRepository>();
+            services.AddScoped<IGroupsRepository, GroupsRepository>();
+            services.AddScoped<IGroupMatesRepository, GroupMatesRepository>();
             services.AddScoped<ICoursesService, Services.CoursesService>();
+            services.AddScoped<IGroupsService, GroupsService>();
             services.AddScoped<CourseMentorOnlyAttribute>();
             services.ConfigureHwProjServices("Courses API");
         }

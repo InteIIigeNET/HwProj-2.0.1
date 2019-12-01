@@ -25,7 +25,7 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpGet]
         public async Task<CourseViewModel[]> GetAll()
         {
-            var courses = await _coursesService.GetAllAsync();
+            var courses = await _coursesService.GetAllAsync().ConfigureAwait(false);
             return _mapper.Map<CourseViewModel[]>(courses);
         }
 
