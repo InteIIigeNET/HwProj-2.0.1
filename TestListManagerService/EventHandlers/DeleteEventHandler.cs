@@ -9,18 +9,18 @@ namespace FirstTestUserService.EventHandlers
 {
     public class DeleteEventHandler : IEventHandler<DeleteEvent>
     {
-        private UsersContext db;
+        private readonly UsersContext _db;
 
         public DeleteEventHandler(UsersContext context)
         {
-            db = context;
+            _db = context;
         }
 
         public Task HandleAsync(DeleteEvent @event)
         {
-            var user = db.Users.FirstOrDefault(x => x.Id == @event.DeletedId);
-            db.Users.Remove(user ?? throw new InvalidOperationException());
-            db.SaveChanges();
+            var user = _db.Users.FirstOrDefault(x => x.Id == @event.DeletedId);
+            _db.Users.Remove(user ?? throw new InvalidOperationException());
+            _db.SaveChanges();
             return Task.CompletedTask;
         }
     }

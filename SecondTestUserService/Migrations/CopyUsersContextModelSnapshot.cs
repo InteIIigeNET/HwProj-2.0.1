@@ -8,7 +8,7 @@ using SecondTestUserService.Models;
 namespace SecondTestUserService.Migrations
 {
     [DbContext(typeof(CopyUsersContext))]
-    partial class CopyUsersContextModelSnapshot : ModelSnapshot
+    class CopyUsersContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {

@@ -18,7 +18,10 @@ namespace SecondTestUserService.Controllers
         {
             _eventBus = eventBus;
             _db = context;
-            if (_db.CopyUsers.Any()) return;
+            if (_db.CopyUsers.Any())
+            {
+                return;
+            }
             _db.CopyUsers.Add(new CopyUser { Name = "Tom" });
             _db.CopyUsers.Add(new CopyUser { Name = "Alice" });
             _db.SaveChanges();
@@ -34,8 +37,11 @@ namespace SecondTestUserService.Controllers
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
-            CopyUser user = _db.CopyUsers.FirstOrDefault(x => x.Id == id);
-            if (user == null) return NotFound();
+            var user = _db.CopyUsers.FirstOrDefault(x => x.Id == id);
+            if (user == null)
+            {
+                return NotFound();
+            }
             return new ObjectResult(user);
         }
 
@@ -83,7 +89,7 @@ namespace SecondTestUserService.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            CopyUser user = _db.CopyUsers.FirstOrDefault(x => x.Id == id);
+            var user = _db.CopyUsers.FirstOrDefault(x => x.Id == id);
             if (user == null)
             {
                 return NotFound();

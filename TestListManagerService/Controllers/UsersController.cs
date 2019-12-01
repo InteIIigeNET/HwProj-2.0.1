@@ -14,7 +14,10 @@ namespace FirstTestUserService.Controllers
         public UsersController(UsersContext context)
         {
             _db = context;
-            if (_db.Users.Any()) return;
+            if (_db.Users.Any())
+            {
+                return;
+            }
             _db.Users.Add(new User { Name = "Tom"});
             _db.Users.Add(new User { Name = "Alice"});
             _db.SaveChanges();
@@ -31,7 +34,10 @@ namespace FirstTestUserService.Controllers
         public IActionResult Get(int id)
         {
             var user = _db.Users.FirstOrDefault(x => x.Id == id);
-            if (user == null) return NotFound();
+            if (user == null)
+            {
+                return NotFound();
+            }
             return new ObjectResult(user);
         }
 
@@ -39,7 +45,10 @@ namespace FirstTestUserService.Controllers
         [HttpPost]
         public IActionResult Post([FromBody]User user)
         {
-            if (user == null) return BadRequest();
+            if (user == null)
+            {
+                return BadRequest();
+            }
 
             _db.Users.Add(user);
             _db.SaveChanges();

@@ -7,17 +7,17 @@ namespace FirstTestUserService.EventHandlers
 {
     public class UpdateEventHandler : IEventHandler<UpdateEvent>
     {
-        private UsersContext db;
+        private readonly UsersContext _db;
 
         public UpdateEventHandler(UsersContext context)
         {
-            db = context;
+            _db = context;
         }
 
         public Task HandleAsync(UpdateEvent @event)
         {
-            db.Users.Update(new User() { Id = @event.UpdatedId, Name = @event.UpdatedName });
-            db.SaveChanges();
+            _db.Users.Update(new User { Id = @event.UpdatedId, Name = @event.UpdatedName });
+            _db.SaveChanges();
             return Task.CompletedTask;
         }
     }
