@@ -25,12 +25,12 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<Course[]> GetAllAsync()
         { 
-            return await _coursesRepository.GetAllWithCourseMates().ToArrayAsync();
+            return await _coursesRepository.GetAllWithCourseMates().ToArrayAsync().ConfigureAwait(false);
         }
 
         public async Task<Course> GetAsync(long id)
         {
-            return await _coursesRepository.GetWithCourseMatesAsync(id);
+            return await _coursesRepository.GetWithCourseMatesAsync(id).ConfigureAwait(false);
         }
 
         public async Task<long> AddAsync(Course course, string mentorId)
