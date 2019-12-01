@@ -27,6 +27,7 @@ namespace HwProj.CoursesService.API
             services.AddScoped<ICoursesRepository, CoursesRepository>();
             services.AddScoped<ICourseMatesRepository, CourseMatesRepository>();
             services.AddScoped<IGroupsRepository, GroupsRepository>();
+            services.AddScoped<IGroupMatesRepository, GroupMatesRepository>();
             services.AddScoped<ICoursesService, Services.CoursesService>();
             services.AddScoped<IGroupsService, GroupsService>();
             services.AddScoped<CourseMentorOnlyAttribute>();

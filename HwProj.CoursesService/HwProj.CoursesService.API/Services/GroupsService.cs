@@ -21,8 +21,8 @@ namespace HwProj.CoursesService.API.Services
             IGroupMatesRepository groupMatesRepository,
             IMapper mapper)
         {
-            _groupMatesRepository = groupMatesRepository;
             _groupsRepository = groupsRepository;
+            _groupMatesRepository = groupMatesRepository;
             _courseMatesRepository = courseMatesRepository;
             _mapper = mapper;
         }
