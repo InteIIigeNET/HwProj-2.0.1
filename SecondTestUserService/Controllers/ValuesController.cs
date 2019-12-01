@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using FirstTestUserService.Events;
-using HwProj.EventBus;
+using HwProj.EventBus.Abstractions;
 using Microsoft.AspNetCore.Mvc;
+using SecondTestUserService.Events;
+using SecondTestUserService.Models;
 
 namespace SecondTestUserService.Controllers
 {

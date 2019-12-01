@@ -1,20 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using FirstTestUserService.EventHandlers;
+﻿using FirstTestUserService.EventHandlers;
 using FirstTestUserService.Events;
-using HwProj.EventBus;
+using FirstTestUserService.Models;
+using HwProj.EventBus.Abstractions;
 using HwProj.Utils.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace FirstTestUserService
 {
@@ -33,9 +27,6 @@ namespace FirstTestUserService
             services.AddDbContext<UsersContext>(options => options.UseSqlServer(con));
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddEventBus(Configuration);
-            services.AddTransient<AddEventHandler>();
-            services.AddTransient<UpdateEventHandler>();
-            services.AddTransient<DeleteEventHandler>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IEventBus eventBus)

@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using HwProj.EventBus;
-using Microsoft.AspNetCore.Http;
+using FirstTestUserService.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FirstTestUserService.Controllers

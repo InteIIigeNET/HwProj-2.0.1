@@ -1,7 +1,7 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
+using Newtonsoft.Json;
 
-namespace HwProj.EventBus
+namespace HwProj.EventBus.Event
 {
     public class Event
     {

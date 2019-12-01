@@ -1,6 +1,7 @@
 ﻿using FirstTestUserService.Events;
-using HwProj.EventBus;
 using System.Threading.Tasks;
+using FirstTestUserService.Models;
+using HwProj.EventBus.Abstractions;
 
 namespace FirstTestUserService.EventHandlers
 {

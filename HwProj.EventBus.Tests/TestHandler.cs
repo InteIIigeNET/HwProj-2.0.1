@@ -1,8 +1,9 @@
 ﻿using System.Threading.Tasks;
+using HwProj.EventBus.Abstractions;
 
 namespace HwProj.EventBus.Tests
 {
-    public class TestHandler : IEventHandler<Event>
+    public class TestHandler : IEventHandler<Event.Event>
     { 
         public bool IsHandled { get; set; }
 
@@ -11,7 +12,7 @@ namespace HwProj.EventBus.Tests
             IsHandled = false;
         }
 
-        public Task HandleAsync(Event @event)
+        public Task HandleAsync(Event.Event @event)
         {
             IsHandled = true;
 

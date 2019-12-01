@@ -1,4 +1,4 @@
-﻿using HwProj.EventBus;
+﻿using HwProj.EventBus.Event;
 
 namespace FirstTestUserService.Events
 {

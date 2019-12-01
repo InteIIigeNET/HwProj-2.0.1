@@ -2,21 +2,21 @@
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using HwProj.EventBus.Abstractions;
+using Microsoft.AspNetCore.DataProtection;
 using Polly.Retry;
-using Microsoft.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace HwProj.EventBus
 {
-    public class EventBusRabbitMQ : IEventBus, IDisposable
+    public class EventBusRabbitMq : IEventBus, IDisposable
     {
         private const string BrokerName = "hwproj_event_bus";
 
         private readonly IDefaultConnection _connection;
-        private readonly ISubscriptionsManager _subsManager;
         private readonly IServiceProvider _serviceProvider;
 
         private readonly string _queueName;
@@ -24,18 +24,16 @@ namespace HwProj.EventBus
 
         private  IModel _consumerChannel;
 
-        public EventBusRabbitMQ(IDefaultConnection connection, ISubscriptionsManager subsManager,
-                        IServiceProvider serviceProvider, string queueName, RetryPolicy policy)
+        public EventBusRabbitMq(IDefaultConnection connection, IServiceProvider serviceProvider, RetryPolicy policy)
         {
             _connection = connection;
             _serviceProvider = serviceProvider;
-            _subsManager = subsManager;
-            _queueName = queueName;
+            _queueName = _serviceProvider.GetApplicationUniqueIdentifier().Split('\\').Last();
             _policy = policy;
             _consumerChannel = CreateConsumerChannel();
         }
 
-        public void Publish(Event @event)
+        public void Publish(Event.Event @event)
         {
             using (var channel = _connection.CreateModel())
             {
@@ -60,16 +58,14 @@ namespace HwProj.EventBus
         }
 
         public void Subscribe<TEvent, THandler>()
-            where TEvent : Event
+            where TEvent : Event.Event
             where THandler : IEventHandler<TEvent>
         {
             using (var channel = _connection.CreateModel())
             {
-                var eventName = _subsManager.GetEventName<TEvent>();
+                var eventName = GetEventName<TEvent>();
                 channel.QueueBind(queue: _queueName, exchange: BrokerName, routingKey: eventName);
             }
-
-            _subsManager.AddSubscription<TEvent, THandler>();
             StartBasicConsume();
         }
 
@@ -113,17 +109,19 @@ namespace HwProj.EventBus
 
         private async Task ProcessEvent(string eventName, string message)
         {
-            var handlers = _subsManager.GetHandlersForEvent(eventName);
-            var eventType = _subsManager.GetEventTypeByName(eventName);
-            var @event = JsonConvert.DeserializeObject(message, eventType) as Event;
+            var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes()).ToList();
+            var eventType = types.First(x => x.Name == eventName);
+            var @event = JsonConvert.DeserializeObject(message, eventType) as Event.Event;
+            var fullTypeInterface = typeof(IEventHandler<>).MakeGenericType(eventType);
+            var handlers = types.Where(x => fullTypeInterface.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
 
             using (var scope = _serviceProvider.CreateScope())
             {
                 foreach (var handler in handlers)
                 {
+                    //var handlerObject = _serviceProvider.GetService(handler); Это для теста
                     var handlerObject = scope.ServiceProvider.GetRequiredService(handler);
-                    //var handlerObject = _serviceProvider.GetService(handler); Это для тестов
-                    await Task.Run(() => handler.GetMethod("HandleAsync").Invoke(handlerObject, new object[] { @event }));
+                    await Task.Run(() => handler.GetMethod("HandleAsync")?.Invoke(handlerObject, new object[] { @event }));
                 }
             }
         }
@@ -132,6 +130,11 @@ namespace HwProj.EventBus
         {
             _consumerChannel.Close();
             _connection.Dispose();
+        }
+
+        private string GetEventName<TEvent>()
+        {
+            return typeof(TEvent).Name;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Polly.Retry;
+﻿using HwProj.EventBus.Abstractions;
+using Polly.Retry;
 using RabbitMQ.Client;
 using System;
 

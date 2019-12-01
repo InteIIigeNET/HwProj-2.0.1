@@ -1,7 +1,9 @@
-﻿using FirstTestUserService.Events;
-using HwProj.EventBus;
+﻿using System;
+using FirstTestUserService.Events;
 using System.Linq;
 using System.Threading.Tasks;
+using FirstTestUserService.Models;
+using HwProj.EventBus.Abstractions;
 
 namespace FirstTestUserService.EventHandlers
 {
@@ -17,7 +19,7 @@ namespace FirstTestUserService.EventHandlers
         public Task HandleAsync(DeleteEvent @event)
         {
             var user = db.Users.FirstOrDefault(x => x.Id == @event.DeletedId);
-            db.Users.Remove(user);
+            db.Users.Remove(user ?? throw new InvalidOperationException());
             db.SaveChanges();
             return Task.CompletedTask;
         }

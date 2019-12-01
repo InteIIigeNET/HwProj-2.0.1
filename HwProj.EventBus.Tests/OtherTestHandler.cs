@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using HwProj.EventBus.Abstractions;
 
 namespace HwProj.EventBus.Tests
 {

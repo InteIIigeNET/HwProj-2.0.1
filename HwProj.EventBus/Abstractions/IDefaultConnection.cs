@@ -1,7 +1,7 @@
-﻿using RabbitMQ.Client;
-using System;
+﻿using System;
+using RabbitMQ.Client;
 
-namespace HwProj.EventBus
+namespace HwProj.EventBus.Abstractions
 {
     public interface IDefaultConnection : IDisposable
     {     

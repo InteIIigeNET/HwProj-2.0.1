@@ -31,15 +31,14 @@ namespace HwProj.EventBus.Tests
 
             var factory = new ConnectionFactory() { HostName = Hostname };
 
-            var eventBus = new EventBusRabbitMQ(new DefaultConnection(policy, factory),
-                                                new SubscriptionsManager(),
+            var eventBus = new EventBusRabbitMq(new DefaultConnection(policy, factory),
+                                                //new SubscriptionsManager(),
                                                 serviceProvider.Object,
-                                                queueName: "test",
                                                 policy);
 
-            eventBus.Subscribe<Event, TestHandler>();
+            eventBus.Subscribe<Event.Event, TestHandler>();
             eventBus.Subscribe<TestEvent, OtherTestHandler>();
-            eventBus.Publish(new Event());
+            eventBus.Publish(new Event.Event());
             eventBus.Publish(testEvent);
 
             Thread.Sleep(1000);

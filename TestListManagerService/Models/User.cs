@@ -1,4 +1,4 @@
-﻿namespace FirstTestUserService
+﻿namespace FirstTestUserService.Models
 {
     public class User
     {

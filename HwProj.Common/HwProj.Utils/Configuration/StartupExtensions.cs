@@ -1,8 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Net.Sockets;
+using System.Reflection;
 using AutoMapper;
 using HwProj.EventBus;
+using HwProj.EventBus.Abstractions;
+using HwProj.EventBus.Event;
 using HwProj.Utils.Configuration.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -51,38 +54,33 @@ namespace HwProj.Utils.Configuration
                 retryCount = int.Parse(configuration["EventBusRetryCount"]);
             }
 
-            var policy = Policy.Handle<SocketException>()
-                   .Or<BrokerUnreachableException>()
-                   .WaitAndRetry(retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
+            services.AddSingleton(sp => Policy.Handle<SocketException>()
+                .Or<BrokerUnreachableException>()
+                .WaitAndRetry(retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))));
 
-            services.AddSingleton<ISubscriptionsManager, SubscriptionsManager>();
-
-            services.AddSingleton<IDefaultConnection, DefaultConnection>(sp =>
+            services.AddSingleton<IConnectionFactory, ConnectionFactory>(sp => new ConnectionFactory
             {
-                var factory = new ConnectionFactory()
-                {
-                    HostName = configuration["EventBusHostName"],
-                    UserName = configuration["EventBusUserName"],
-                    Password = configuration["EventBusPassword"],
-                    VirtualHost = configuration["EventBusVirtualHost"]
-                };
-
-                return new DefaultConnection(policy, factory);
+                HostName = configuration["EventBusHostName"],
+                UserName = configuration["EventBusUserName"],
+                Password = configuration["EventBusPassword"],
+                VirtualHost = configuration["EventBusVirtualHost"]
             });
 
-            services.AddSingleton<IEventBus, EventBusRabbitMQ>(sp =>
-            {
-                var defaultConnection = sp.GetRequiredService<IDefaultConnection>();
-                var subcriptionsManager = sp.GetRequiredService<ISubscriptionsManager>();
+            services.AddSingleton<IDefaultConnection, DefaultConnection>();
+            services.AddSingleton<IEventBus, EventBusRabbitMq>();
 
-                var queueName = "HwProj";
-                if (!string.IsNullOrEmpty(configuration["EventBusQueueName"]))
+            var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes()).ToList();
+            var eventTypes = types.Where(x => typeof(Event).IsAssignableFrom(x));
+            foreach (var eventType in eventTypes)
+            {
+                var fullTypeInterface = typeof(IEventHandler<>).MakeGenericType(eventType);
+                var handlersTypes = types.Where(x => fullTypeInterface.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
+
+                foreach (var handlerType in handlersTypes)
                 {
-                    queueName = configuration["EventBusQueueName"];
+                    services.AddTransient(handlerType);
                 }
-
-                return new EventBusRabbitMQ(defaultConnection, subcriptionsManager, sp, queueName, policy);
-            });
+            }
 
             return services;
         }

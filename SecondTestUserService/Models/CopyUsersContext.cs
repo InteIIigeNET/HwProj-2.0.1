@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace SecondTestUserService
+namespace SecondTestUserService.Models
 {
     public class CopyUsersContext : DbContext
     {

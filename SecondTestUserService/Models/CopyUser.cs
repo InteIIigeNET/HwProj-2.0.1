@@ -1,4 +1,4 @@
-﻿namespace SecondTestUserService
+﻿namespace SecondTestUserService.Models
 {
     public class CopyUser
     {

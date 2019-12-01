@@ -1,6 +1,6 @@
-﻿using HwProj.EventBus;
+﻿using HwProj.EventBus.Event;
 
-namespace FirstTestUserService.Events
+namespace SecondTestUserService.Events
 {
     public class UpdateEvent : Event
     {
