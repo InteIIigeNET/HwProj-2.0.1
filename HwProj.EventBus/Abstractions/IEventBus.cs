@@ -4,8 +4,7 @@
     {
         void Publish(Event.Event @event);
 
-        void Subscribe<TEvent, THandler>()
-            where TEvent : Event.Event
-            where THandler : IEventHandler<TEvent>;
+        void Subscribe<TEvent>()
+            where TEvent : Event.Event;
     }
 }

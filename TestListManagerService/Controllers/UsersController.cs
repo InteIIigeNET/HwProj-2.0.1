@@ -9,32 +9,29 @@ namespace FirstTestUserService.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        UsersContext db;
+        private readonly UsersContext _db;
 
         public UsersController(UsersContext context)
         {
-            db = context;
-            if (!db.Users.Any())
-            {
-                db.Users.Add(new User { Name = "Tom"});
-                db.Users.Add(new User { Name = "Alice"});
-                db.SaveChanges();
-            }
+            _db = context;
+            if (_db.Users.Any()) return;
+            _db.Users.Add(new User { Name = "Tom"});
+            _db.Users.Add(new User { Name = "Alice"});
+            _db.SaveChanges();
         }
 
         [HttpGet]
         public IEnumerable<User> Get()
         {
-            return db.Users.ToList();
+            return _db.Users.ToList();
         }
 
         // GET api/users/5
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
-            User user = db.Users.FirstOrDefault(x => x.Id == id);
-            if (user == null)
-                return NotFound();
+            var user = _db.Users.FirstOrDefault(x => x.Id == id);
+            if (user == null) return NotFound();
             return new ObjectResult(user);
         }
 
@@ -42,13 +39,10 @@ namespace FirstTestUserService.Controllers
         [HttpPost]
         public IActionResult Post([FromBody]User user)
         {
-            if (user == null)
-            {
-                return BadRequest();
-            }
+            if (user == null) return BadRequest();
 
-            db.Users.Add(user);
-            db.SaveChanges();
+            _db.Users.Add(user);
+            _db.SaveChanges();
             return Ok(user);
         }
 
@@ -60,13 +54,13 @@ namespace FirstTestUserService.Controllers
             {
                 return BadRequest();
             }
-            if (!db.Users.Any(x => x.Id == user.Id))
+            if (!_db.Users.Any(x => x.Id == user.Id))
             {
                 return NotFound();
             }
 
-            db.Update(user);
-            db.SaveChanges();
+            _db.Update(user);
+            _db.SaveChanges();
             return Ok(user);
         }
 
@@ -74,13 +68,13 @@ namespace FirstTestUserService.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            User user = db.Users.FirstOrDefault(x => x.Id == id);
+            var user = _db.Users.FirstOrDefault(x => x.Id == id);
             if (user == null)
             {
                 return NotFound();
             }
-            db.Users.Remove(user);
-            db.SaveChanges();
+            _db.Users.Remove(user);
+            _db.SaveChanges();
             return Ok(user);
         }
     }

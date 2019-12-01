@@ -29,15 +29,15 @@ namespace HwProj.EventBus.Tests
                        .Or<BrokerUnreachableException>()
                        .WaitAndRetry(retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
 
-            var factory = new ConnectionFactory() { HostName = Hostname };
+            var factory = new ConnectionFactory { HostName = Hostname };
 
             var eventBus = new EventBusRabbitMq(new DefaultConnection(policy, factory),
                                                 //new SubscriptionsManager(),
                                                 serviceProvider.Object,
                                                 policy);
 
-            eventBus.Subscribe<Event.Event, TestHandler>();
-            eventBus.Subscribe<TestEvent, OtherTestHandler>();
+            eventBus.Subscribe<Event.Event>();
+            eventBus.Subscribe<TestEvent>();
             eventBus.Publish(new Event.Event());
             eventBus.Publish(testEvent);
 

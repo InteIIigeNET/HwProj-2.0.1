@@ -11,34 +11,31 @@ namespace SecondTestUserService.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
-        CopyUsersContext db;
-        IEventBus _eventBus;
+        private readonly CopyUsersContext _db;
+        private readonly IEventBus _eventBus;
 
         public ValuesController(CopyUsersContext context, IEventBus eventBus)
         {
             _eventBus = eventBus;
-            db = context;
-            if (!db.CopyUsers.Any())
-            {
-                db.CopyUsers.Add(new CopyUser { Name = "Tom" });
-                db.CopyUsers.Add(new CopyUser { Name = "Alice" });
-                db.SaveChanges();
-            }
+            _db = context;
+            if (_db.CopyUsers.Any()) return;
+            _db.CopyUsers.Add(new CopyUser { Name = "Tom" });
+            _db.CopyUsers.Add(new CopyUser { Name = "Alice" });
+            _db.SaveChanges();
         }
 
         [HttpGet]
         public IEnumerable<CopyUser> Get()
         {
-            return db.CopyUsers.ToList();
+            return _db.CopyUsers.ToList();
         }
 
         // GET api/users/5
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
-            CopyUser user = db.CopyUsers.FirstOrDefault(x => x.Id == id);
-            if (user == null)
-                return NotFound();
+            CopyUser user = _db.CopyUsers.FirstOrDefault(x => x.Id == id);
+            if (user == null) return NotFound();
             return new ObjectResult(user);
         }
 
@@ -51,8 +48,8 @@ namespace SecondTestUserService.Controllers
                 return BadRequest();
             }
 
-            db.CopyUsers.Add(user);
-            db.SaveChanges();
+            _db.CopyUsers.Add(user);
+            _db.SaveChanges();
 
             var @event = new AddEvent(user.Name);
             _eventBus.Publish(@event);
@@ -68,13 +65,13 @@ namespace SecondTestUserService.Controllers
             {
                 return BadRequest();
             }
-            if (!db.CopyUsers.Any(x => x.Id == user.Id))
+            if (!_db.CopyUsers.Any(x => x.Id == user.Id))
             {
                 return NotFound();
             }
 
-            db.Update(user);
-            db.SaveChanges();
+            _db.Update(user);
+            _db.SaveChanges();
 
             var @event = new UpdateEvent(user.Name, user.Id);
             _eventBus.Publish(@event);
@@ -86,13 +83,13 @@ namespace SecondTestUserService.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            CopyUser user = db.CopyUsers.FirstOrDefault(x => x.Id == id);
+            CopyUser user = _db.CopyUsers.FirstOrDefault(x => x.Id == id);
             if (user == null)
             {
                 return NotFound();
             }
-            db.CopyUsers.Remove(user);
-            db.SaveChanges();
+            _db.CopyUsers.Remove(user);
+            _db.SaveChanges();
 
             var @event = new DeleteEvent(id);
             _eventBus.Publish(@event);

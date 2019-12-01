@@ -57,9 +57,8 @@ namespace HwProj.EventBus
             }
         }
 
-        public void Subscribe<TEvent, THandler>()
+        public void Subscribe<TEvent>()
             where TEvent : Event.Event
-            where THandler : IEventHandler<TEvent>
         {
             using (var channel = _connection.CreateModel())
             {
@@ -121,7 +120,9 @@ namespace HwProj.EventBus
                 {
                     //var handlerObject = _serviceProvider.GetService(handler); Это для теста
                     var handlerObject = scope.ServiceProvider.GetRequiredService(handler);
-                    await Task.Run(() => handler.GetMethod("HandleAsync")?.Invoke(handlerObject, new object[] { @event }));
+                    await Task.Run(() => handler.GetMethod("HandleAsync")?
+                            .Invoke(handlerObject, new object[] { @event }))
+                            .ConfigureAwait(false);
                 }
             }
         }
@@ -132,7 +133,7 @@ namespace HwProj.EventBus
             _connection.Dispose();
         }
 
-        private string GetEventName<TEvent>()
+        private static string GetEventName<TEvent>()
         {
             return typeof(TEvent).Name;
         }

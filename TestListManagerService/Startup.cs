@@ -43,9 +43,9 @@ namespace FirstTestUserService
             app.UseHttpsRedirection();
             app.UseMvc();
 
-            eventBus.Subscribe<AddEvent, AddEventHandler>();
-            eventBus.Subscribe<UpdateEvent, UpdateEventHandler>();
-            eventBus.Subscribe<DeleteEvent, DeleteEventHandler>();
+            eventBus.Subscribe<AddEvent>();
+            eventBus.Subscribe<UpdateEvent>();
+            eventBus.Subscribe<DeleteEvent>();
 
         }
     }
