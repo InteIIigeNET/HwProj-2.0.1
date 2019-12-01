@@ -4,7 +4,6 @@ using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Models.ViewModels;
 using HwProj.CoursesService.API.Services;
-using HwProj.Models.Roles;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -42,8 +41,6 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpPost]
         public async Task<IActionResult> AddCourse([FromBody] CreateCourseViewModel courseViewModel)
         {
-            Request.QueryString = Request.QueryString.Add("_id", "hwprojDevUser");
-            Request.QueryString = Request.QueryString.Add("_role", Roles.LecturerRole);
             var mentorId = Request.GetUserId();
             var course = _mapper.Map<Course>(courseViewModel);
             var id = await _coursesService.AddAsync(course, mentorId);

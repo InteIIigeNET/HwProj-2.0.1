@@ -4,7 +4,6 @@ using AutoMapper;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Models.DTO;
 using HwProj.CoursesService.API.Repositories;
-using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.CoursesService.API.Services
@@ -29,18 +28,18 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<Group[]> GetAllAsync(long courseId)
         {
-            return await _groupsRepository.GetAllWithCourseMates(courseId).ToArrayAsync();
+            return await _groupsRepository.GetAllWithCourseMates(courseId).ToArrayAsync().ConfigureAwait(false);
         }
 
         public async Task<Group> GetGroupAsync(long groupId)
         {
-            return await _groupsRepository.GetGroupWithCourseMatesAsync(groupId);
+            return await _groupsRepository.GetGroupWithCourseMatesAsync(groupId).ConfigureAwait(false);
         }
 
         public async Task<long> AddGroupAsync(Group group, long courseId)
         {
             group.CourseId = courseId;
-            return await _groupsRepository.AddAsync(group);
+            return await _groupsRepository.AddAsync(group).ConfigureAwait(false);
         }
 
         public async Task<bool> AddCourseMateInGroupAsync(long groupId, string studentId)
@@ -83,7 +82,7 @@ namespace HwProj.CoursesService.API.Services
             await _groupsRepository.UpdateAsync(groupId, c => new Group
             {
                 Name = updated.Name
-            });
+            }).ConfigureAwait(false);
         }
 
         public async Task<bool> DeleteCourseMateFromGroupAsync(long groupId, string studentId)
@@ -103,7 +102,7 @@ namespace HwProj.CoursesService.API.Services
             }
 
 
-            await _groupMatesRepository.DeleteAsync(getGroupMateTask.Id);
+            await _groupMatesRepository.DeleteAsync(getGroupMateTask.Id).ConfigureAwait(false);
             return true;
         }
 
