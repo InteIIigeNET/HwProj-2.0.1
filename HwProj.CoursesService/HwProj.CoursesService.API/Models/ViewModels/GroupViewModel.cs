@@ -5,7 +5,9 @@ namespace HwProj.CoursesService.API.Models.ViewModels
 {
     public class GroupViewModel
     {
-        public long GroupId { get; set; }
+        public long Id { get; set; }
+
+        public long CourseId { get; set; }
 
         public string Name { get; set; }
 

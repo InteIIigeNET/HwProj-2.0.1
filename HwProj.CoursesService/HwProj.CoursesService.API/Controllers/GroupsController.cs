@@ -24,7 +24,7 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpGet("GetAll/{courseId}")]
         public async Task<GroupViewModel[]> GetAll(long courseId)
         {
-            var groups = await _groupsService.GetAllAsync(courseId);
+            var groups = await _groupsService.GetAllAsync(courseId).ConfigureAwait(false);
             return _mapper.Map<GroupViewModel[]>(groups);
         }
 

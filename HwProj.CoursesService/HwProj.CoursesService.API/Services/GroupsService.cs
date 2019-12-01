@@ -28,12 +28,12 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<Group[]> GetAllAsync(long courseId)
         {
-            return await _groupsRepository.GetAllWithCourseMates(courseId).ToArrayAsync().ConfigureAwait(false);
+            return await _groupsRepository.GetAll().ToArrayAsync().ConfigureAwait(false);
         }
 
         public async Task<Group> GetGroupAsync(long groupId)
         {
-            return await _groupsRepository.GetGroupWithCourseMatesAsync(groupId).ConfigureAwait(false);
+            return await _groupsRepository.GetAsync(groupId).ConfigureAwait(false);
         }
 
         public async Task<long> AddGroupAsync(Group group, long courseId)
