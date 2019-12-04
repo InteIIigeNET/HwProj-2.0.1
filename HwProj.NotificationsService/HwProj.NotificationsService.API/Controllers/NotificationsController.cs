@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Xml.Schema;
 using AutoMapper;
 using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Services;
@@ -22,7 +21,16 @@ namespace HwProj.NotificationsService.API.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet]
+        [HttpPost]
+        public async Task<IActionResult> Add([FromQuery] NotificationViewModel notificationViewModel)
+        {
+            var id = Request.GetUserId();
+            var notification = _mapper.Map<Notification>(notificationViewModel);
+            await _notificationsService.AddNotificationAsync(id, notification);
+            return Ok(notification);
+        }
+
+        [HttpGet("get_notifications")]
         public async Task<IActionResult> Get([FromQuery] NotificationFilter filter)
         {
             var userId = Request.GetUserId();

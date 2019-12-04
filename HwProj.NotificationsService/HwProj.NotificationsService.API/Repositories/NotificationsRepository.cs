@@ -6,6 +6,7 @@ using HwProj.NotificationsService.API.Models;
 using HwProj.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Z.EntityFramework.Plus;
+using System.Data.SqlClient;
 
 namespace HwProj.NotificationsService.API.Repositories
 {
@@ -29,7 +30,7 @@ namespace HwProj.NotificationsService.API.Repositories
 
             if (filter == null)
             {
-                return await result.OrderByDescending(t => t.Date).ToArrayAsync();
+                return await result.OrderBy(t => t.Date).ToArrayAsync();
             }
 
             if (filter.HasSeen != null)

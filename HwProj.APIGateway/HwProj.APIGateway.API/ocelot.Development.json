@@ -205,7 +205,14 @@
         }
       ],
       "UpstreamPathTemplate": "/api/Courses/",
-      "UpstreamhttpsMethod": [ "GET" ]
+      "UpstreamhttpsMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
+      }
     },
     {
       "DownstreamPathTemplate": "/api/Courses/{id}",
@@ -217,7 +224,14 @@
         }
       ],
       "UpstreamPathTemplate": "/api/Courses/{id}/",
-      "UpstreamhttpsMethod": [ "GET" ]
+      "UpstreamhttpsMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
+      }
     },
     {
       "DownstreamPathTemplate": "/api/Courses/{courseId}",
@@ -556,15 +570,34 @@
     },
     //Notifications
     {
-      "DownstreamPathTemplate": "/api/Notifications",
+      "DownstreamPathTemplate": "/api/Notifications/",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 0
+          "Port": 44388
         }
       ],
-      "UpstreamPathTemplate": "/api/Notifications/",
+      "UpstreamPathTemplate": "/api/Notifications",
+      "UpstreamhttpsMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/Notifications/get_notifications/",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44388
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Notifications/get_notifications",
       "UpstreamhttpsMethod": [ "GET" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using HwProj.Repositories;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace HwProj.NotificationsService.API.Models
 {

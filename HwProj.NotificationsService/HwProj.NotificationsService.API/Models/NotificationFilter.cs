@@ -1,5 +1,4 @@
 ﻿using System;
-using Microsoft.AspNetCore.Connections.Features;
 
 namespace HwProj.NotificationsService.API.Models
 {
@@ -12,5 +11,6 @@ namespace HwProj.NotificationsService.API.Models
         public bool? HasSeen { get; set; }
         public bool? Important { get; set; }
         public int? PeriodOfTime { get; set; }
+        public DateTime Date { get; set; }
     }
 }

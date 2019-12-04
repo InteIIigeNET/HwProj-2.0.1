@@ -41,5 +41,7 @@ namespace HwProj.NotificationsService.Tests
             var notifications = _notificationsService.GetAsync("63d729e2-1f30-45d5-a8f5-baa26603c99c", filter);
             Assert.AreEqual(1, notifications.Result.Length);
         }
+
+        [Test]
     }
 }

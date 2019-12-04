@@ -4,6 +4,9 @@ using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Repositories;
+using System.Collections.Generic;
+using System.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.NotificationsService.API.Services
 {
@@ -16,10 +19,11 @@ namespace HwProj.NotificationsService.API.Services
             _repository = repository;
         }
 
-        //was made only for tests
         public async Task<long> AddNotificationAsync(string userId, Notification notification)
         {
+            notification.Date = DateTime.Now;
             notification.Owner = userId;
+            
             var id = await _repository.AddAsync(notification).ConfigureAwait(false);
             return id;
         }
