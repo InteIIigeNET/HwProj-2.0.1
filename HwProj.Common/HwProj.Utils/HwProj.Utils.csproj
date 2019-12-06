@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\HwProj.EventBus\HwProj.EventBus.csproj" />
     <ProjectReference Include="..\HwProj.Models\HwProj.Models.csproj" />
   </ItemGroup>
 
