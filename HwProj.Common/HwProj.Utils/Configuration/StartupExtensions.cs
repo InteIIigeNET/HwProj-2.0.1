@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Linq;
 using System.Net.Sockets;
-using System.Reflection;
 using AutoMapper;
-using HwProj.EventBus;
-using HwProj.EventBus.Abstractions;
-using HwProj.EventBus.Event;
+using HwProj.EventBus.Client;
+using HwProj.EventBus.Client.Implementations;
+using HwProj.EventBus.Client.Interfaces;
 using HwProj.Utils.Configuration.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

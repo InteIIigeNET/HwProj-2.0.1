@@ -1,7 +1,7 @@
 ﻿using System;
 using RabbitMQ.Client;
 
-namespace HwProj.EventBus.Abstractions
+namespace HwProj.EventBus.Client.Interfaces
 {
     public interface IDefaultConnection : IDisposable
     {     

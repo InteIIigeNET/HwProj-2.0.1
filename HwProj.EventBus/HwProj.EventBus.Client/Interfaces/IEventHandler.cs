@@ -1,9 +1,9 @@
 ﻿using System.Threading.Tasks;
 
-namespace HwProj.EventBus.Abstractions
+namespace HwProj.EventBus.Client.Interfaces
 {
     public interface IEventHandler<in TEvent> 
-        where TEvent : Event.Event
+        where TEvent : Event
     {
         Task HandleAsync(TEvent @event);
     }

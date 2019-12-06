@@ -5,6 +5,8 @@ using RabbitMQ.Client.Exceptions;
 using System;
 using System.Net.Sockets;
 using System.Threading;
+using HwProj.EventBus.Client;
+using HwProj.EventBus.Client.Implementations;
 using Xunit;
 
 namespace HwProj.EventBus.Tests
@@ -36,9 +38,9 @@ namespace HwProj.EventBus.Tests
                                                 serviceProvider.Object,
                                                 policy);
 
-            eventBus.Subscribe<Event.Event>();
+            eventBus.Subscribe<Event>();
             eventBus.Subscribe<TestEvent>();
-            eventBus.Publish(new Event.Event());
+            eventBus.Publish(new Event());
             eventBus.Publish(testEvent);
 
             Thread.Sleep(1000);

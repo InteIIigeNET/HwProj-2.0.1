@@ -5,6 +5,8 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <ApplicationIcon />
     <StartupObject />
+    <AssemblyName>HwProj.EventBus.Client</AssemblyName>
+    <RootNamespace>HwProj.EventBus.Client</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json"/>
+    <Reference Include="Newtonsoft.Json" />
   </ItemGroup>
 
 </Project>

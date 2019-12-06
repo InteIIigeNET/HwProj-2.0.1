@@ -1,9 +1,9 @@
-﻿using HwProj.EventBus.Abstractions;
+﻿using System;
+using HwProj.EventBus.Client.Interfaces;
 using Polly.Retry;
 using RabbitMQ.Client;
-using System;
 
-namespace HwProj.EventBus
+namespace HwProj.EventBus.Client.Implementations
 {
     public class DefaultConnection : IDefaultConnection
     {

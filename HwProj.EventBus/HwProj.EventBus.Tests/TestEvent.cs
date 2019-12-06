@@ -1,6 +1,8 @@
-﻿namespace HwProj.EventBus.Tests
+﻿using HwProj.EventBus.Client;
+
+namespace HwProj.EventBus.Tests
 {
-    public class TestEvent : Event.Event
+    public class TestEvent : Event
     {
         public int OldPrice { get; set; }
 

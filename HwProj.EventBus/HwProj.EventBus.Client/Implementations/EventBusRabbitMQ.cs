@@ -1,16 +1,16 @@
-﻿using Newtonsoft.Json;
-using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
-using System;
+﻿using System;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using HwProj.EventBus.Abstractions;
+using HwProj.EventBus.Client.Interfaces;
 using Microsoft.AspNetCore.DataProtection;
-using Polly.Retry;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
+using Polly.Retry;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 
-namespace HwProj.EventBus
+namespace HwProj.EventBus.Client.Implementations
 {
     public class EventBusRabbitMq : IEventBus, IDisposable
     {
@@ -33,7 +33,7 @@ namespace HwProj.EventBus
             _consumerChannel = CreateConsumerChannel();
         }
 
-        public void Publish(Event.Event @event)
+        public void Publish(Event @event)
         {
             using (var channel = _connection.CreateModel())
             {
@@ -58,7 +58,7 @@ namespace HwProj.EventBus
         }
 
         public void Subscribe<TEvent>()
-            where TEvent : Event.Event
+            where TEvent : Event
         {
             using (var channel = _connection.CreateModel())
             {
@@ -110,7 +110,7 @@ namespace HwProj.EventBus
         {
             var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes()).ToList();
             var eventType = types.First(x => x.Name == eventName);
-            var @event = JsonConvert.DeserializeObject(message, eventType) as Event.Event;
+            var @event = JsonConvert.DeserializeObject(message, eventType) as Event;
             var fullTypeInterface = typeof(IEventHandler<>).MakeGenericType(eventType);
             var handlers = types.Where(x => fullTypeInterface.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
 
