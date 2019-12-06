@@ -34,10 +34,10 @@ export default class StudentSolutionsPage extends React.Component<RouteComponent
 
     public render() {
         const { isLoaded } = this.state;
-        let userId = this.authService.loggedIn() ? this.authService.getProfile()._id : undefined;
+        let userId = this.authService.isLoggedIn() ? this.authService.getProfile()._id : undefined;
 
         if (isLoaded) {
-            if (!this.authService.loggedIn() ||
+            if (!this.authService.isLoggedIn() ||
                 userId !== this.state.course.mentorId!) {
                 return <Typography variant='h6'>Страница не найдена</Typography>
             }

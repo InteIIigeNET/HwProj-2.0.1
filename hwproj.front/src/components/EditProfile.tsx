@@ -44,7 +44,7 @@ export default class EditProfile extends React.Component<{}, IEditProfileState> 
         }
 
         if (this.state.isLoaded) {
-            if (!this.authService.loggedIn()) {
+            if (!this.authService.isLoggedIn()) {
                 return <Typography variant='h6' gutterBottom>Страница не найдена</Typography>
             }
 
@@ -82,7 +82,7 @@ export default class EditProfile extends React.Component<{}, IEditProfileState> 
     }
 
     componentDidMount() {
-        if (this.authService.loggedIn()) {
+        if (this.authService.isLoggedIn()) {
             this.authApi.getUserDataById(this.authService.getProfile()._id)
             .then(res => res.json())
             .then(user => this.setState({

@@ -45,7 +45,7 @@ namespace HwProj.HomeworkService.API.Controllers
             return taskId;
         }
         
-        [HttpDelete("{taskId}")]
+        [HttpDelete("delete/{taskId}")] //bug with rights
         public async Task DeleteTask(long taskId)
         {
             await _tasksService.DeleteTaskAsync(taskId);

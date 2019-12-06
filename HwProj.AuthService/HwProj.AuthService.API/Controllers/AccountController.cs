@@ -20,7 +20,7 @@ namespace HwProj.AuthService.API.Controllers
             _accountService = accountService;
         }
 
-        [HttpGet, Route("getUserData")]
+        [HttpGet, Route("getUserData/{userId}")]
         public async Task<IActionResult> GetUserDataById(string userId)
         {
             var accountData = await _accountService.GetAccountDataAsync(userId).ConfigureAwait(false);
@@ -53,8 +53,6 @@ namespace HwProj.AuthService.API.Controllers
         }
 
         [HttpPost, Route("invitenewlecturer")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [Authorize(Roles = Roles.LecturerRole)]
         public async Task<IActionResult> InviteNewLecturer(InviteLecturerViewModel model)
         {
             var result = await _accountService.InviteNewLecturer(model.EmailOfInvitedUser).ConfigureAwait(false);

@@ -1,46 +1,36 @@
-import * as React from 'react';
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button'
-import Typography from '@material-ui/core/Typography'
-import { Redirect } from 'react-router-dom';
-import AuthService from '../services/AuthService';
+import * as React from "react";
+import TextField from "@material-ui/core/TextField";
+import Button from "@material-ui/core/Button";
+import Typography from "@material-ui/core/Typography";
+import { Redirect } from "react-router-dom";
+import AuthService from "../../services/AuthService";
 
 interface ILoginState {
-    email: string,
-    password: string,
-    logged: boolean,
+    email: string;
+    password: string;
+    logged: boolean;
 }
 
 export default class Login extends React.Component<{}, ILoginState> {
-    auth = new AuthService();
+    authService = new AuthService();
+
     constructor(props: {}) {
         super(props);
-        this.auth = new AuthService();
         this.state = {
             email: "",
             password: "",
-            logged: this.auth.loggedIn()
-        };  
+            logged: this.authService.isLoggedIn()
+        };
     }
 
-    public handleSubmit(e: any) {
-        e.preventDefault();
-      
-        this.auth.login(this.state.email, this.state.password)
-            .then((res : any) => window.location.assign('/'))
-            .catch((err : any) =>{
-                alert(err);
-            })
-    }
-
-    public render() {
+    render(): JSX.Element {
         if (this.state.logged) {
-            return <Redirect to={'/'} />
+            return <Redirect to={"/"} />;
         }
         return (
             <div className="container">
-                <Typography variant='h6' gutterBottom>Войти</Typography>
-                <form onSubmit={e => this.handleSubmit(e)}>
+                <Typography variant="h6" gutterBottom>Войти</Typography>
+                <form onSubmit={this.handleSubmit}>
                     <TextField
                         required
                         type="email"
@@ -65,5 +55,12 @@ export default class Login extends React.Component<{}, ILoginState> {
                 </form>
             </div>
         );
+    }
+
+    private handleSubmit = async () => {
+        const {email, password} = this.state;
+
+        await this.authService.login(email, password);
+        window.location.assign("/");
     }
 }

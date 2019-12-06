@@ -91,8 +91,7 @@ namespace HwProj.Utils.Configuration
             {
                 app.UseDeveloperExceptionPage()
                     .UseSwagger()
-                    .UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", serviceName); })
-                    .UseMiddleware<NoApiGatewayMiddleware>();
+                    .UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", serviceName); });
             }
             else
             {

@@ -60,7 +60,7 @@ namespace HwProj.SolutionsService.API.Controllers
             await _solutionsService.RejectSolutionAsync(solutionId);
         }
 
-        [HttpDelete("{solutionId}")]
+        [HttpDelete("delete/{solutionId}")]
         public async Task DeleteSolution(long solutionId)
         {
             await _solutionsService.DeleteSolutionAsync(solutionId);

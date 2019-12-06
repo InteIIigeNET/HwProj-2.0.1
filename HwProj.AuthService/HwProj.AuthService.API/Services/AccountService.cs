@@ -7,6 +7,7 @@ using AutoMapper;
 using HwProj.AuthService.API.Extensions;
 using HwProj.AuthService.API.Models.DTO;
 using HwProj.Models.Roles;
+using System;
 
 namespace HwProj.AuthService.API.Services
 {

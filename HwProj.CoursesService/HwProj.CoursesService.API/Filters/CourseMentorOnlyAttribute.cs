@@ -10,11 +10,11 @@ namespace HwProj.CoursesService.API.Filters
 {
     public class CourseMentorOnlyAttribute : Attribute, IAuthorizationFilter
     {
-        private readonly ICourseRepository _courseRepository;
+        private readonly ICoursesRepository _coursesRepository;
         
-        public CourseMentorOnlyAttribute(ICourseRepository courseRepository)
+        public CourseMentorOnlyAttribute(ICoursesRepository coursesRepository)
         {
-            _courseRepository = courseRepository;
+            _coursesRepository = coursesRepository;
         }
         
         public async void OnAuthorization(AuthorizationFilterContext context)
@@ -25,7 +25,7 @@ namespace HwProj.CoursesService.API.Filters
             if (routeData.Values.TryGetValue("courseId", out var courseId))
             {
                 var userId = query.SingleOrDefault(x => x.Key == "_id").Value;
-                var course = await _courseRepository.GetAsync(long.Parse(courseId.ToString()));
+                var course = await _coursesRepository.GetAsync(long.Parse(courseId.ToString()));
                 if (course?.MentorId != userId)
                 {
                     context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);

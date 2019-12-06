@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
+using HwProj.CoursesService.API.Models.DTO;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -13,7 +14,6 @@ namespace HwProj.CoursesService.API.Services
         Task<bool> AddStudentAsync(long courseId, string studentId);
         Task<bool> AcceptCourseMateAsync(long courseId, string studentId);
         Task<bool> RejectCourseMateAsync(long courseId, string studentId);
-        Task<long[]> GetStudentCourseIdsAsync(string studentId);
-       Task<long[]> GetMentorCourseIdsAsync(string mentorId);
+        Task<UserCourseDescription[]> GetUserCoursesAsync(string userId);
     }
 }

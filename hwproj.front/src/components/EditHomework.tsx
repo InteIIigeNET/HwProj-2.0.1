@@ -55,7 +55,7 @@ export default class EditHomework extends React.Component<RouteComponentProps<IE
         }
 
         if (this.state.isLoaded) {
-            if (!this.authService.loggedIn() || this.authService.getProfile()._id !== this.state.courseMentorId) {
+            if (!this.authService.isLoggedIn() || this.authService.getProfile()._id !== this.state.courseMentorId) {
                 return <Typography variant='h6' gutterBottom>Только преподаватель может редактировать домашку</Typography>
             }
             return (

@@ -63,7 +63,7 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
         const { isLoaded, isFound, course, createHomework, mentor } = this.state;
         if (isLoaded) {
             if (isFound) {
-                let isLogged = this.authService.loggedIn();
+                let isLogged = this.authService.isLoggedIn();
                 let userId = isLogged ? this.authService.getProfile()._id : undefined
                 let isMentor = isLogged && userId === course.mentorId;
                 let isSignedInCourse = isLogged && course.courseMates!.some(cm => cm.studentId === userId)
