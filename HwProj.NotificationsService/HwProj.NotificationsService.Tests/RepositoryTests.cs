@@ -4,8 +4,6 @@ using HwProj.NotificationsService.API.Services;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HwProj.NotificationsService.Tests
@@ -13,10 +11,9 @@ namespace HwProj.NotificationsService.Tests
     [TestFixture]
     public class RepositoryTests
     {
-        
         private NotificationsContext _notificationContext;
         private NotificationsRepository _notificationRepository;
-        private INotificationService _notificationService;
+        private INotificationsService _notificationService;
 
         [SetUp]
         public void Setup()
@@ -26,7 +23,7 @@ namespace HwProj.NotificationsService.Tests
             var options = builder.UseSqlServer(connectionString).Options;
             _notificationContext = new NotificationsContext(options);
             _notificationRepository = new NotificationsRepository(_notificationContext);
-            _notificationService = new NotificationService(_notificationRepository);
+            _notificationService = new API.Services.NotificationsService(_notificationRepository);
         }
 
         [Test]
@@ -58,7 +55,6 @@ namespace HwProj.NotificationsService.Tests
                     new NotificationFilter
                     {
                         MaxCount = 10,
-                        PeriodOfTime = 5,
                         HasSeen = true
                     }) ;
 

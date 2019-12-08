@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# IDE0052: Удалить непрочитанные закрытые члены
+dotnet_diagnostic.IDE0052.severity = suggestion

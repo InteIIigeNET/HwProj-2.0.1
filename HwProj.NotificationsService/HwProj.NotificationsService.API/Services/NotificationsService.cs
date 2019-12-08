@@ -23,7 +23,6 @@ namespace HwProj.NotificationsService.API.Services
         {
             notification.Date = DateTime.Now;
             notification.Owner = userId;
-            
             var id = await _repository.AddAsync(notification).ConfigureAwait(false);
             return id;
         }
@@ -34,7 +33,9 @@ namespace HwProj.NotificationsService.API.Services
             {
                 MaxCount = 50, 
             };
-            return await _repository.GetAllByUserAsync(userId, filter).ConfigureAwait(false);
+            var mapperOfSpecification = new MapperOfSpecification();
+            var specification = mapperOfSpecification.GetSpecification(filter);
+            return await _repository.GetAllByUserAsync(userId, specification).ConfigureAwait(false);
         }
 
         public async Task MarkAsSeenAsync(string userId, long[] notificationIds)

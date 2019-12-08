@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using HwProj.Repositories;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace HwProj.NotificationsService.API.Models
 {
@@ -15,5 +14,6 @@ namespace HwProj.NotificationsService.API.Models
         public string Body { get; set; }
         public bool HasSeen { get; set; }
         public DateTime Date { get; set; }
+        public bool Important { get; set; }
     }
 }
