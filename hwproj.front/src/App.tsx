@@ -12,7 +12,7 @@ import Login from "./components/Auth/Login";
 import EditCourse from "./components/EditCourse";
 import EditTask from "./components/EditTask";
 import EditHomework from "./components/EditHomework";
-import Register from "./components/Auth/Register";
+import {Register} from "./components/Auth/Register";
 import StudentSolutionsPage from "./components/StudentSolutionsPage";
 import EditProfile from "./components/EditProfile";
 import InviteNewLecturer from "./components/InviteNewLecturer";
