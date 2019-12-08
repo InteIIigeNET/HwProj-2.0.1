@@ -24,7 +24,7 @@ namespace HwProj.CoursesService.API.Services
         }
 
         public async Task<Course[]> GetAllAsync()
-        { 
+        {
             return await _coursesRepository.GetAllWithCourseMates().ToArrayAsync().ConfigureAwait(false);
         }
 

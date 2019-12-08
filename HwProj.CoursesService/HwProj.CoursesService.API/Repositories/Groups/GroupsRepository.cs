@@ -13,14 +13,14 @@ namespace HwProj.CoursesService.API.Repositories
         {
         }
 
-        public async Task<Group> GetGroupWithCourseMatesAsync(long id)
+        public async Task<Group> GetGroupWithGroupMatesAsync(long id)
         {
             return await Context.Set<Group>().Include(c => c.GroupMates)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
 
-        public IQueryable<Group> GetAllWithCourseMates(long courseId)
+        public IQueryable<Group> GetAllInCourseWithGroupMates(long courseId)
         {
             return Context.Set<Group>()
                 .Where(c => c.CourseId == courseId)

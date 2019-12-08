@@ -61,7 +61,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HwProj.Models", "HwProj.Com
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HwProj.AuthService.Client", "HwProj.AuthService\HwProj.AuthService.Client\HwProj.AuthService.Client.csproj", "{8F56C068-4827-412F-A29A-419B8AC5BECD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.CoursesService.Client", "HwProj.CoursesService\HwProj.CoursesService.Client\HwProj.CoursesService.Client.csproj", "{0A9B7E03-680B-4BAC-9599-87AB5219D376}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HwProj.CoursesService.Client", "HwProj.CoursesService\HwProj.CoursesService.Client\HwProj.CoursesService.Client.csproj", "{0A9B7E03-680B-4BAC-9599-87AB5219D376}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

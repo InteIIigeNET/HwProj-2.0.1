@@ -16,6 +16,8 @@ namespace HwProj.SolutionsService.API.Models
         public SolutionState State { get; set; }
         
         public string StudentId { get; set; }
+
+        public long? GroupId { get; set; }
         
         public long TaskId { get; set; }
     }
