@@ -11,18 +11,15 @@ namespace HwProj.CoursesService.API.Services
     public class GroupsService : IGroupsService
     {
         private readonly IGroupsRepository _groupsRepository;
-        private readonly ICourseMatesRepository _courseMatesRepository;
         private readonly IGroupMatesRepository _groupMatesRepository;
         private readonly IMapper _mapper;
 
         public GroupsService(IGroupsRepository groupsRepository,
-            ICourseMatesRepository courseMatesRepository,
             IGroupMatesRepository groupMatesRepository,
             IMapper mapper)
         {
             _groupsRepository = groupsRepository;
             _groupMatesRepository = groupMatesRepository;
-            _courseMatesRepository = courseMatesRepository;
             _mapper = mapper;
         }
 
@@ -54,14 +51,12 @@ namespace HwProj.CoursesService.API.Services
                 return false;
             }
 
-            var getCourseMateTask = await _courseMatesRepository.FindAsync(cm => cm.CourseId == getGroupTask.Result.CourseId 
-                && cm.StudentId == studentId).ConfigureAwait(false);
 
             var groupMate = new GroupMate
             {
                 GroupId = groupId,
                 StudentId = studentId,
-                IsAccepted = getCourseMateTask == null
+                IsAccepted = true
             };
 
             await _groupMatesRepository.AddAsync(groupMate).ConfigureAwait(false);

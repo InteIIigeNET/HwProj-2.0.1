@@ -4,77 +4,49 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using HwProj.CoursesService.API.Services;
 using HwProj.CoursesService.API.Repositories;
+using HwProj.CoursesService.API;
+using AutoMapper;
+using System.Threading.Tasks;
 
 namespace HwProj.CoursesService.Tests
 {
     [TestFixture]
     public class GroupsServiceTests
     {
-        GroupsService service;
+        private CourseContext _courseContext;
+        private GroupsRepository _groupsRepository;
+        private GroupMatesRepository _groupMatesRepository;
+        private GroupsService _service;
 
-        GroupsServiceTests()
+        [SetUp]
+        public void Setup()
         {
-            var options = new DbContextOptionsBuilder();
-            CourseContext context = new CourseContext(options.Options);
-
-            var groupRepo = new GroupsRepository(context);
-            var coursesRepo = new CoursesRepository(context);
-            var courseMatesRepo = new CourseMatesRepository(context);
-            var groupMatesRepo = new GroupMatesRepository(context);
-
-
-            var courses = new List<Course>
-            {
-                new Course{Id = 1, GroupName = "244", IsComplete = false, IsOpen = true,
-                    MentorId = "test", CourseMates = new List<CourseMate>(), Name = "course1" },
-                new Course{Id = 2, GroupName = "144", IsComplete = false, IsOpen = true,
-                    MentorId = "test", CourseMates = new List<CourseMate>(), Name = "course2" },
-                new Course{Id = 3, GroupName = "4444", IsComplete = false, IsOpen = true,
-                    MentorId = "test", CourseMates = new List<CourseMate>(), Name = "course3" },
-            };
-
-            courses.ForEach(c => context.Courses.Add(c));
-            context.SaveChanges();
-
-            var students = new List<CourseMate>
-            {
-                new CourseMate{Id = 1, CourseId = 1, IsAccepted = true, StudentId = "st1"},
-                new CourseMate{Id = 2, CourseId = 1, IsAccepted = true, StudentId = "st2"},
-                new CourseMate{Id = 3, CourseId = 2, IsAccepted = true, StudentId = "st3"},
-                new CourseMate{Id = 4, CourseId = 3, IsAccepted = true, StudentId = "st4"},
-            };
-
-            students.ForEach(c => context.CourseMates.Add(c));
-            context.SaveChanges();
-
-            var groups = new List<Group>
-            {
-                new Group{Id = 1, CourseId = 1, GroupMates = new List<GroupMate>(), Name = "0_o"},
-                new Group{Id = 2, CourseId = 1, GroupMates = new List<GroupMate>(), Name = "-_-"},
-                new Group{Id = 3, CourseId = 1, GroupMates = new List<GroupMate>(), Name = "=_="}
-            };
-
-            groups.ForEach(c => context.Groups.Add(c));
-            context.SaveChanges();
-
-            var groupMates = new List<GroupMate>
-            {
-                new GroupMate{Id = 1, GroupId = 1, IsAccepted = true, StudentId = "st1"},
-                new GroupMate{Id = 2, GroupId = 1, IsAccepted = true, StudentId = "st2"},
-                new GroupMate{Id = 3, GroupId = 1, IsAccepted = true, StudentId = "st44"},
-                new GroupMate{Id = 4, GroupId = 2, IsAccepted = true, StudentId = "st2"},
-            };
-
-            groupMates.ForEach(c => context.GroupMates.Add(c));
-            context.SaveChanges();
-
-            //service = new GroupsService(groupRepo, courseMatesRepo, groupMatesRepo, //google how to make autoMapper//);
+            var connectionString = "Server=(localdb)\\mssqllocaldb;Database=GroupsServiceDB;Trusted_Connection=True;";
+            var builder = new DbContextOptionsBuilder();
+            var options = builder.UseSqlServer(connectionString).Options;
+            _courseContext = new CourseContext(options);
+            _groupsRepository = new GroupsRepository(_courseContext);
+            _groupMatesRepository = new GroupMatesRepository(_courseContext);
+            var config = new MapperConfiguration(cfg => new ApplicationProfile());
+            IMapper iMapper = config.CreateMapper();
+            _service = new GroupsService(_groupsRepository, _groupMatesRepository, iMapper);
         }
 
         [Test]
-        public void GetGroupTest()
+        public async Task GetGroupTest()
         {
-            
+            var gr = new Group {CourseId = 1, GroupMates = new List<GroupMate>(), Name = "0_o"};
+            await _groupsRepository.AddAsync(gr);
+            Group ans = await _service.GetGroupAsync(1);
+            Assert.AreEqual(gr.CourseId, ans.CourseId);
+            Assert.AreEqual(gr.GroupMates, ans.GroupMates);
+            Assert.AreEqual(gr.Name, ans.Name);
+        }
+
+        [TearDown]
+        public void CleanUp()
+        {
+            _courseContext.Dispose();
         }
     }
 }
