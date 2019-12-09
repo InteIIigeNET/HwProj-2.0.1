@@ -3,6 +3,7 @@ import { CourseViewModel, CoursesApi } from "../../api/courses/api";
 import { Link as RouterLink} from "react-router-dom";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
+import {CoursesList} from "./CoursesList"
 
 interface ICoursesState {
     isLoaded: boolean;
@@ -24,23 +25,9 @@ export default class Courses extends React.Component<{}, ICoursesState> {
         const { isLoaded, courses, tabValue } = this.state;
 
         if (isLoaded) {
-            let activeCourses = courses.filter(course => !course.isComplete).map(course =>
-                    <li key={course.id}>
-                            <RouterLink to={"/courses/" + course.id!.toString()}>
-                                {course.name}
-                            </RouterLink>
-                            <br />
-                            {course.groupName}
-                    </li>).reverse();
+            let activeCourses = courses.filter(course => !course.isComplete);
 
-            let completedCourses = courses.filter(course => course.isComplete).map(course =>
-                <li key={course.id}>
-                        <RouterLink to={"/courses/" + course.id!.toString()}>
-                            {course.name}
-                        </RouterLink>
-                        <br />
-                        {course.groupName}
-                </li>).reverse();
+            let completedCourses = courses.filter(course => course.isComplete);
 
             return (
                 <div className="container">
@@ -49,8 +36,8 @@ export default class Courses extends React.Component<{}, ICoursesState> {
                         <Tab label="Завершенные курсы" />
                     </Tabs>
                     <br />
-                        {tabValue === 0 && <ul>{activeCourses}</ul>}
-                        {tabValue === 1 && <ul>{completedCourses}</ul>}
+                        {tabValue === 0 && <CoursesList courses={activeCourses} />}
+                        {tabValue === 1 && <CoursesList courses={completedCourses} />}
                 </div>
             );
         }
