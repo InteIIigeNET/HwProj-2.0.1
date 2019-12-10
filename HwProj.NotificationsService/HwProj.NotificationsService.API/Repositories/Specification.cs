@@ -35,11 +35,10 @@ namespace HwProj.NotificationsService.API.Repositories
         }
     }
 
-    public class AndSpecification : Specification
+    public class Specification : Specification
     {
         private readonly Specification _left;
         private readonly Specification _right;
-
 
         public AndSpecification(Specification left, Specification right)
         {
@@ -47,18 +46,40 @@ namespace HwProj.NotificationsService.API.Repositories
             _left = left;
         }
 
+        public override Expression<Func<Notification, bool>> ToExpression()
+        {
+            Expression<Func<Notification, bool>> leftExpression = _left.ToExpression();
+            Expression<Func<Notification, bool>> rightExpression = _right.ToExpression();
+            var paramExpression = Expression.Parameter(typeof(Notification));
+            var expressionBody = Expression.AndAlso(leftExpression.Body, rightExpression.Body);
+            expressionBody = (BinaryExpression)new ParameterReplacer(paramExpression).Visit(expressionBody);
+            var finalExpression = Expression.Lambda<Func<Notification, bool>>(expressionBody, paramExpression);
+
+            return finalExpression;
+        }
+    }
+
+    public class AndSpecification : Specification
+    {
+        private readonly Specification _left;
+        private readonly Specification _right;
+
+        public AndSpecification(Specification left, Specification right)
+        {
+            _right = right;
+            _left = left;
+        }
 
         public override Expression<Func<Notification, bool>> ToExpression()
         {
             Expression<Func<Notification, bool>> leftExpression = _left.ToExpression();
             Expression<Func<Notification, bool>> rightExpression = _right.ToExpression();
+            var paramExpression = Expression.Parameter(typeof(Notification));
+            var expressionBody = Expression.AndAlso(leftExpression.Body, rightExpression.Body);
+            expressionBody = (BinaryExpression)new ParameterReplacer(paramExpression).Visit(expressionBody);
+            var finalExpression = Expression.Lambda<Func<Notification, bool>>(expressionBody, paramExpression);
 
-            var paramExpr = Expression.Parameter(typeof(Notification));
-            var exprBody = Expression.AndAlso(leftExpression.Body, rightExpression.Body);
-            exprBody = (BinaryExpression)new ParameterReplacer(paramExpr).Visit(exprBody);
-            var finalExpr = Expression.Lambda<Func<Notification, bool>>(exprBody, paramExpr);
-
-            return finalExpr;
+            return finalExpression;
         }
     }
 
@@ -68,24 +89,22 @@ namespace HwProj.NotificationsService.API.Repositories
         private readonly Specification _left;
         private readonly Specification _right;
 
-
         public OrSpecification(Specification left, Specification right)
         {
             _right = right;
             _left = left;
         }
 
-
         public override Expression<Func<Notification, bool>> ToExpression()
         {
             var leftExpression = _left.ToExpression();
             var rightExpression = _right.ToExpression();
-            var paramExpr = Expression.Parameter(typeof(Notification));
-            var exprBody = Expression.OrElse(leftExpression.Body, rightExpression.Body);
-            exprBody = (BinaryExpression)new ParameterReplacer(paramExpr).Visit(exprBody);
-            var finalExpr = Expression.Lambda<Func<Notification, bool>>(exprBody, paramExpr);
+            var paramExpression = Expression.Parameter(typeof(Notification));
+            var expressionBody = Expression.OrElse(leftExpression.Body, rightExpression.Body);
+            expressionBody = (BinaryExpression)new ParameterReplacer(paramExpression).Visit(expressionBody);
+            var finalExpression = Expression.Lambda<Func<Notification, bool>>(expressionBody, paramExpression);
 
-            return finalExpr;
+            return finalExpression;
         }
     }
 }

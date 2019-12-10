@@ -8,10 +8,14 @@ namespace HwProj.NotificationsService.API.Repositories
         {
             if (filter.HasSeen != null && filter.Important != null)
             {
-                return new AndSpecification(new HasSeenNotificationSpecification(), new ImprotanceOfNotificationSpecification());
+                if (filter.HasSeen != false && filter.Important != false)
+                {
+                    return new AndSpecification(new HasSeenNotificationSpecification(), new ImprotanceOfNotificationSpecification());
+                }
+
+                return new OrSpecification(new HasSeenNotificationSpecification(), new ImprotanceOfNotificationSpecification());
             }
 
-            return new OrSpecification(new HasSeenNotificationSpecification(), new ImprotanceOfNotificationSpecification());
         }
     }
 }

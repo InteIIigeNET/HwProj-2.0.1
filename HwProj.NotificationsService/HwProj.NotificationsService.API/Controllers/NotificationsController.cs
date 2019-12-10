@@ -39,11 +39,14 @@ namespace HwProj.NotificationsService.API.Controllers
         }
 
         [HttpPut("mark_as_seen")]
-        public async Task<IActionResult> MarkNotifications([FromBody] long[] notificationIds)
+        public async Task<IActionResult> MakrNotificationsAsSeen([FromBody] long[] notificationIds)
         {
             var userId = Request.GetUserId();
             await _notificationsService.MarkAsSeenAsync(userId, notificationIds);
             return Ok();
         }
+
+        [HttpPut("mark_as_improtant")]
+        public async Task<IActionResult> 
     }
 }

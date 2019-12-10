@@ -15,5 +15,6 @@ namespace HwProj.NotificationsService.API.Models
         public bool HasSeen { get; set; }
         public DateTime Date { get; set; }
         public bool Important { get; set; }
+        public bool HasFilter { get; set; }
     }
 }

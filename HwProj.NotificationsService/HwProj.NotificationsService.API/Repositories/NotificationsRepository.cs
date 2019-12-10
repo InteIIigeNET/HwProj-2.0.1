@@ -24,10 +24,12 @@ namespace HwProj.NotificationsService.API.Repositories
                 .UpdateAsync(updateFactory).ConfigureAwait(false);
         }
 
-        public async Task<Notification[]> GetAllByUserAsync(string userId, Specification specification)
+        public async Task<Notification[]> GetAllByUserAsync(string userId, int offSet, int maxCount, Specification specification)
         {
             var result = Context.Set<Notification>().Where(notification => notification.Owner == userId)
-                                                    .Where(specification.ToExpression());
+                                                    .Where(specification.ToExpression())
+                                                    .Skip(offSet)
+                                                    .Take(maxCount);
 
             return await result.ToArrayAsync();
         }

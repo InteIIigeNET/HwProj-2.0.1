@@ -35,7 +35,7 @@ namespace HwProj.NotificationsService.API.Services
             };
             var mapperOfSpecification = new MapperOfSpecification();
             var specification = mapperOfSpecification.GetSpecification(filter);
-            return await _repository.GetAllByUserAsync(userId, specification).ConfigureAwait(false);
+            return await _repository.GetAllByUserAsync(userId, filter.Offset, filter.MaxCount, specification).ConfigureAwait(false);
         }
 
         public async Task MarkAsSeenAsync(string userId, long[] notificationIds)
