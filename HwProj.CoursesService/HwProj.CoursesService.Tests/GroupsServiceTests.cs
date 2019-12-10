@@ -7,6 +7,7 @@ using HwProj.CoursesService.API.Repositories;
 using HwProj.CoursesService.API;
 using AutoMapper;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace HwProj.CoursesService.Tests
 {
@@ -36,16 +37,47 @@ namespace HwProj.CoursesService.Tests
         public async Task GetGroupTest()
         {
             var gr = new Group {CourseId = 1, GroupMates = new List<GroupMate>(), Name = "0_o"};
-            await _groupsRepository.AddAsync(gr);
-            Group ans = await _service.GetGroupAsync(1);
+            var id = await _groupsRepository.AddAsync(gr);
+            Group ans = await _service.GetGroupAsync(id);
             Assert.AreEqual(gr.CourseId, ans.CourseId);
             Assert.AreEqual(gr.GroupMates, ans.GroupMates);
             Assert.AreEqual(gr.Name, ans.Name);
+            await _groupsRepository.DeleteAsync(id);
+        }
+
+        [Test]
+        public async Task GetGroupWithMatesTest()
+        {
+            var gr = new Group { CourseId = 1, GroupMates = new List<GroupMate>(), Name = "0_o" };
+            var id = await _groupsRepository.AddAsync(gr);
+
+            var mates = new List<GroupMate>
+            {
+                new GroupMate{GroupId = id, StudentId = "st1"},
+                new GroupMate{GroupId = id, StudentId = "st2"},
+                new GroupMate{GroupId = id, StudentId = "st3"}
+            };
+
+            _courseContext.AddRange(mates);
+            _courseContext.SaveChanges();
+
+            Group ans = await _service.GetGroupAsync(id);
+            Assert.AreEqual(gr.CourseId, ans.CourseId);
+            Assert.AreEqual(gr.Name, ans.Name);
+            mates.ForEach(cm => Assert.IsNotNull(ans.GroupMates.Find(c => c.StudentId == cm.StudentId)));
+
+            _courseContext.RemoveRange(mates);
+            _courseContext.SaveChanges();
         }
 
         [TearDown]
         public void CleanUp()
         {
+            foreach (var entity in _courseContext.GroupMates)
+                _courseContext.GroupMates.Remove(entity);
+            foreach (var entity in _courseContext.Groups)
+                _courseContext.Groups.Remove(entity);
+            _courseContext.SaveChanges();
             _courseContext.Dispose();
         }
     }

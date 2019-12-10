@@ -11,7 +11,7 @@ namespace HwProj.CoursesService.API.Services
         Task<long> AddGroupAsync(Group group, long courseId);
         Task DeleteGroupAsync(long id);
         Task UpdateAsync(long courseId, Group updated);
-        Task<bool> AddCourseMateInGroupAsync(long groupId, string studentId);
+        Task<bool> AddGroupMateAsync(long groupId, string studentId);
         Task<bool> DeleteCourseMateFromGroupAsync(long groupId, string studentId);
         Task<UserGroupDescription[]> GetCourseMateGroupsAsync(long courseId, string studentId);
     }

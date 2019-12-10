@@ -69,7 +69,7 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpPost("add_student_in_group/{groupId}")]
         public async Task<IActionResult> AddStudentInGroup(long groupId, [FromBody] string studentId)
         {
-            return await _groupsService.AddCourseMateInGroupAsync(groupId, studentId)
+            return await _groupsService.AddGroupMateAsync(groupId, studentId)
                 ? Ok()
                 : NotFound() as IActionResult;
         }

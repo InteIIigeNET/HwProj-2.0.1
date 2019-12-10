@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using HwProj.Repositories;
 
 namespace HwProj.CoursesService.API.Models
@@ -11,7 +12,5 @@ namespace HwProj.CoursesService.API.Models
         public long GroupId { get; set; }
 
         public string StudentId { get; set; }
-
-        public bool IsAccepted { get; set; }
     }
 }
