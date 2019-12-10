@@ -8,5 +8,6 @@ namespace HwProj.NotificationsService.API.Services
         Task<long> AddNotificationAsync(string userId, Notification notification);
         Task<Notification[]> GetAsync(string userId, NotificationFilter filter = null);
         Task MarkAsSeenAsync(string userId, long[] notificationIds);
+        Task MarkAsImprotant(string userId, long[] notificationsIds);
     }
 }

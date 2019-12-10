@@ -1,11 +1,9 @@
 using System;
-using System.Data;
 using System.Threading.Tasks;
 using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Repositories;
 using NUnit.Framework;
 using Moq;
-using System.Linq;
 using HwProj.NotificationsService.API.Services;
 
 namespace HwProj.NotificationsService.Tests
@@ -15,12 +13,26 @@ namespace HwProj.NotificationsService.Tests
     {
         private INotificationsService _notificationsService;
 
+        private void CreateNotifications()
+        {
+            var notification = new Notification
+            {
+                Sender = "HomeworkService",
+                Owner = "Student",
+                Category = "Tasks",
+                Date = DateTime.Now,
+                HasSeen = false,
+                Body = "Task1_was_added"
+            };
+        }
+
         [SetUp]
         public void Setup()
         {
             var mock = new Mock<INotificationsRepository>();
             _notificationsService = new API.Services.NotificationsService(mock.Object);
             mock.Setup(t => t.AddAsync(It.IsAny<Notification>())).Returns<Task<long>>(t => t);
+            mock.Setup(t => t.GetAllByUserAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<Specification>())).Returns<Task<Notification[]>>(t => t);
         }
 
         [Test]

@@ -29,10 +29,10 @@ namespace HwProj.NotificationsService.API.Services
 
         public async Task<Notification[]> GetAsync(string userId, NotificationFilter filter = null)
         {
-            filter = filter ?? new NotificationFilter
+            if (filter == null)
             {
-                MaxCount = 50, 
-            };
+                return await _repository.GetAllByUserAsync(userId);
+            }
             var mapperOfSpecification = new MapperOfSpecification();
             var specification = mapperOfSpecification.GetSpecification(filter);
             return await _repository.GetAllByUserAsync(userId, filter.Offset, filter.MaxCount, specification).ConfigureAwait(false);
@@ -42,6 +42,17 @@ namespace HwProj.NotificationsService.API.Services
         {
             await _repository.UpdateBatchAsync(userId, notificationIds,
                 t => new Notification {HasSeen = true}).ConfigureAwait(false);
+        }
+
+        public async Task MarkAsImprotant(string userId, long[] notificationIds)
+        {
+            await _repository.UpdateBatchAsync(userId, notificationIds,
+                t => new Notification { Important = true }).ConfigureAwait(false);
+        }
+
+        public async Task GetInTimeAsync(string userId, int maxCount)
+        {
+
         }
     }
 }

@@ -35,30 +35,6 @@ namespace HwProj.NotificationsService.API.Repositories
         }
     }
 
-    public class Specification : Specification
-    {
-        private readonly Specification _left;
-        private readonly Specification _right;
-
-        public AndSpecification(Specification left, Specification right)
-        {
-            _right = right;
-            _left = left;
-        }
-
-        public override Expression<Func<Notification, bool>> ToExpression()
-        {
-            Expression<Func<Notification, bool>> leftExpression = _left.ToExpression();
-            Expression<Func<Notification, bool>> rightExpression = _right.ToExpression();
-            var paramExpression = Expression.Parameter(typeof(Notification));
-            var expressionBody = Expression.AndAlso(leftExpression.Body, rightExpression.Body);
-            expressionBody = (BinaryExpression)new ParameterReplacer(paramExpression).Visit(expressionBody);
-            var finalExpression = Expression.Lambda<Func<Notification, bool>>(expressionBody, paramExpression);
-
-            return finalExpression;
-        }
-    }
-
     public class AndSpecification : Specification
     {
         private readonly Specification _left;

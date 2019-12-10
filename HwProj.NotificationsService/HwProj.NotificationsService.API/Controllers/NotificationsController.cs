@@ -39,7 +39,7 @@ namespace HwProj.NotificationsService.API.Controllers
         }
 
         [HttpPut("mark_as_seen")]
-        public async Task<IActionResult> MakrNotificationsAsSeen([FromBody] long[] notificationIds)
+        public async Task<IActionResult> MarkNotificationsAsSeen([FromBody] long[] notificationIds)
         {
             var userId = Request.GetUserId();
             await _notificationsService.MarkAsSeenAsync(userId, notificationIds);
@@ -47,6 +47,19 @@ namespace HwProj.NotificationsService.API.Controllers
         }
 
         [HttpPut("mark_as_improtant")]
-        public async Task<IActionResult> 
+        public async Task<IActionResult> MarkNotificationsAsImportant([FromBody] long[] notificationsIds)
+        {
+            var userId = Request.GetUserId();
+            await _notificationsService.MarkAsImprotant(userId, notificationsIds);
+            return Ok();
+        }
+
+        [HttpPut("get_ntofications_in_time")]
+        public async Task<IActionResult]> GetInTime([FromQuery] int maxCount)
+        {
+            var userId = Request.GetUserId();
+            await _notificationsService.GetInTimeAsync(userId, maxCount);
+            return Ok();
+        }
     }
 }
