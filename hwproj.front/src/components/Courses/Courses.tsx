@@ -1,6 +1,5 @@
 import * as React from "react";
 import { CourseViewModel, CoursesApi } from "../../api/courses/api";
-import { Link as RouterLink} from "react-router-dom";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import {CoursesList} from "./CoursesList"
