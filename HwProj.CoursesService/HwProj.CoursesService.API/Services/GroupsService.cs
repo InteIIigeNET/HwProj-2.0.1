@@ -13,11 +13,14 @@ namespace HwProj.CoursesService.API.Services
         private readonly IGroupsRepository _groupsRepository;
         private readonly IGroupMatesRepository _groupMatesRepository;
         private readonly IMapper _mapper;
+        private CourseContext _courseContext;
 
         public GroupsService(IGroupsRepository groupsRepository,
             IGroupMatesRepository groupMatesRepository,
+            CourseContext courseContext,
             IMapper mapper)
         {
+            _courseContext = courseContext;
             _groupsRepository = groupsRepository;
             _groupMatesRepository = groupMatesRepository;
             _mapper = mapper;
@@ -36,7 +39,15 @@ namespace HwProj.CoursesService.API.Services
         public async Task<long> AddGroupAsync(Group group, long courseId)
         {
             group.CourseId = courseId;
-            return await _groupsRepository.AddAsync(group).ConfigureAwait(false);
+            var mates = group.GroupMates;
+            group.GroupMates = null;
+            var groupId = await _groupsRepository.AddAsync(group).ConfigureAwait(false);
+
+            mates.ForEach(cm => cm.GroupId = groupId);
+            _courseContext.AddRange(mates);
+            _courseContext.SaveChanges();
+
+            return groupId;
         }
 
         public async Task<bool> AddGroupMateAsync(long groupId, string studentId)
@@ -64,11 +75,7 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task DeleteGroupAsync(long groupId)
         {
-            var getGroupTask = await _groupsRepository.GetAsync(groupId).ConfigureAwait(false);
-            var deleteTask = getGroupTask.GroupMates.ToArray().Select(cm => _groupMatesRepository.DeleteAsync(cm.Id)).ToArray();
-            await Task.WhenAll(deleteTask).ConfigureAwait(false);
-
-            await _groupsRepository.DeleteAsync(groupId).ConfigureAwait(false);
+            await _groupsRepository.DeleteAsync(groupId);
         }
 
         public async Task UpdateAsync(long groupId, Group updated)

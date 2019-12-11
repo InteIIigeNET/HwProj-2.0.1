@@ -28,46 +28,122 @@ namespace HwProj.CoursesService.Tests
             _courseContext = new CourseContext(options);
             _groupsRepository = new GroupsRepository(_courseContext);
             _groupMatesRepository = new GroupMatesRepository(_courseContext);
+
             var config = new MapperConfiguration(cfg => new ApplicationProfile());
             IMapper iMapper = config.CreateMapper();
-            _service = new GroupsService(_groupsRepository, _groupMatesRepository, iMapper);
+
+            _service = new GroupsService(_groupsRepository, _groupMatesRepository, _courseContext, iMapper);
         }
 
         [Test]
         public async Task GetGroupTest()
         {
-            var gr = new Group {CourseId = 1, GroupMates = new List<GroupMate>(), Name = "0_o"};
-            var id = await _groupsRepository.AddAsync(gr);
-            Group ans = await _service.GetGroupAsync(id);
-            Assert.AreEqual(gr.CourseId, ans.CourseId);
-            Assert.AreEqual(gr.GroupMates, ans.GroupMates);
-            Assert.AreEqual(gr.Name, ans.Name);
-            await _groupsRepository.DeleteAsync(id);
+            #region init data
+            var group = new Group {CourseId = 1, GroupMates = new List<GroupMate>(), Name = "0_o"};
+            var addedGroupId = await _groupsRepository.AddAsync(group);
+            var addedGroup = await _service.GetGroupAsync(addedGroupId).ConfigureAwait(false);
+            #endregion
+
+            Assert.AreEqual(group.CourseId, addedGroup.CourseId);
+            Assert.AreEqual(group.GroupMates, addedGroup.GroupMates);
+            Assert.AreEqual(group.Name, addedGroup.Name);
+
+            await _groupsRepository.DeleteAsync(addedGroupId);
         }
 
-        [Test]
+        [Test, Description("Test if group returns with group mates")]
         public async Task GetGroupWithMatesTest()
         {
-            var gr = new Group { CourseId = 1, GroupMates = new List<GroupMate>(), Name = "0_o" };
-            var id = await _groupsRepository.AddAsync(gr);
+            #region init data
+            var group = new Group { CourseId = 1, GroupMates = new List<GroupMate>(), Name = "0_o" };
+            var addedGroupId = await _groupsRepository.AddAsync(group);
 
             var mates = new List<GroupMate>
             {
-                new GroupMate{GroupId = id, StudentId = "st1"},
-                new GroupMate{GroupId = id, StudentId = "st2"},
-                new GroupMate{GroupId = id, StudentId = "st3"}
+                new GroupMate{GroupId = addedGroupId, StudentId = "st1"},
+                new GroupMate{GroupId = addedGroupId, StudentId = "st2"},
+                new GroupMate{GroupId = addedGroupId, StudentId = "st3"}
             };
 
             _courseContext.AddRange(mates);
             _courseContext.SaveChanges();
+            #endregion
 
-            Group ans = await _service.GetGroupAsync(id);
-            Assert.AreEqual(gr.CourseId, ans.CourseId);
-            Assert.AreEqual(gr.Name, ans.Name);
-            mates.ForEach(cm => Assert.IsNotNull(ans.GroupMates.Find(c => c.StudentId == cm.StudentId)));
+            Group addedGroup = await _service.GetGroupAsync(addedGroupId);
+            Assert.AreEqual(group.CourseId, addedGroup.CourseId);
+            Assert.AreEqual(group.Name, addedGroup.Name);
+            mates.ForEach(mate => 
+                Assert.IsNotNull(addedGroup.GroupMates.Find(c => c.StudentId == mate.StudentId)));
 
-            _courseContext.RemoveRange(mates);
-            _courseContext.SaveChanges();
+            await _groupsRepository.DeleteAsync(addedGroupId);
+        }
+
+        [Test]
+        public async Task AddGroupTest()
+        {
+            #region init data
+            var group = new Group { CourseId = 1, GroupMates = new List<GroupMate>(), Name = "0_o" };
+            var addedGroupId = await _service.AddGroupAsync(group, 1).ConfigureAwait(false);
+            #endregion
+
+            var answer = _courseContext.Groups.Find(addedGroupId);
+            Assert.IsNotNull(answer);
+
+            await _groupsRepository.DeleteAsync(addedGroupId);
+        }
+
+        [Test]
+        public async Task AddGroupWithMatesTest()
+        {
+            #region init data
+            var mates = new List<GroupMate>();
+            mates.Add(new GroupMate { StudentId = "st1"});
+            mates.Add(new GroupMate { StudentId = "st2" });
+
+            var group = new Group { CourseId = 1, GroupMates = mates, Name = "0_o" };
+            var addedGroupId = await _service.AddGroupAsync(group, 1).ConfigureAwait(false);
+            #endregion
+
+            var answer = _courseContext.Groups.Find(addedGroupId);
+            Assert.IsNotNull(answer);
+
+            var studentIds = answer.GroupMates.ToArray().Select(cm => cm.Id).ToList();
+
+            studentIds.ForEach(c => Assert.IsNotNull(_courseContext.GroupMates.Find(c)));
+
+            await _groupsRepository.DeleteAsync(addedGroupId);
+        }
+
+        [Test]
+        public async Task DeleteGroupTask()
+        {
+            #region init data
+            var mates = new List<GroupMate>();
+            mates.Add(new GroupMate { StudentId = "st1" });
+            mates.Add(new GroupMate { StudentId = "st2" });
+
+            var group = new Group { CourseId = 1, GroupMates = mates, Name = "0_o" };
+            var addedGroupId = await _service.AddGroupAsync(group, 1).ConfigureAwait(false);
+            #endregion
+
+            var answer = _courseContext.Groups.Find(addedGroupId);
+            var matesIds = _courseContext.GroupMates.ToArray().Select(cm => cm.Id).ToList();
+            await _service.DeleteGroupAsync(addedGroupId);
+
+            foreach (var x in _courseContext.Set<Group>().Local.ToList())
+            {
+                _courseContext.Entry(x).State = EntityState.Detached;
+            }
+            _courseContext.Set<Group>().Load();
+
+            foreach (var x in _courseContext.Set<GroupMate>().Local.ToList())
+            {
+                _courseContext.Entry(x).State = EntityState.Detached;
+            }
+            _courseContext.Set<GroupMate>().Load();
+
+            Assert.IsNull(await _groupsRepository.GetAsync(addedGroupId));
+            matesIds.ForEach(async cm => Assert.IsNull(await _groupMatesRepository.GetAsync(cm)));
         }
 
         [TearDown]
