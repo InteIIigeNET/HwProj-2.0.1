@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { HomeworksApi, HomeworkTaskViewModel } from "../api/homeworks/api";
+import { HomeworkTaskViewModel } from "../api/homeworks/api";
 import Task from './Task'
 
 interface IHomeworkTasksProps {
@@ -19,7 +19,7 @@ export default class HomeworkTasks extends React.Component<IHomeworkTasksProps, 
             <li key={task.id}>
                 <Task task={task} forStudent={this.props.forStudent} forMentor={this.props.forMentor} onDeleteClick={() => this.props.onDelete()} />
             </li>);
-        
+
         return (
             <div>
                 <ol>

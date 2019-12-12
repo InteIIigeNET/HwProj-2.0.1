@@ -6,7 +6,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import { CourseViewModel } from '../api/courses/api'
-import { HomeworksApi, TasksApi, HomeworkViewModel } from '../api/homeworks/api'
+import { HomeworkViewModel } from '../api/homeworks/api'
 import { Paper, createStyles, Theme, withStyles } from '@material-ui/core';
 import TaskStudentCell from './TaskStudentCell'
 
@@ -27,8 +27,6 @@ const styles = (theme : Theme) => createStyles({
    });
 
 class CourseStudents extends React.Component<ICourseStudentsProps, {}> {
-    homeworksApi = new HomeworksApi();
-    tasksApi = new TasksApi();
     constructor(props: ICourseStudentsProps) {
         super(props);
     }

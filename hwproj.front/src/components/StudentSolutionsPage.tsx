@@ -1,11 +1,11 @@
 import * as React from 'react';
 import {RouteComponentProps, Link} from "react-router-dom";
-import AuthService from '../services/AuthService';
-import { CourseViewModel, CoursesApi } from '../api/courses/api'
-import { TasksApi, HomeworksApi, HomeworkTaskViewModel } from '../api/homeworks/api'
+import { CourseViewModel } from '../api/courses/api'
+import { HomeworkTaskViewModel } from '../api/homeworks/api'
 import Typography from '@material-ui/core/Typography'
 import Task from './Task'
 import TaskSolutions from './TaskSolutions'
+import ApiSinglton from "../api/ApiSinglton";
 
 interface IStudentSolutionsPageProps {
     taskId: string,
@@ -19,10 +19,6 @@ interface IStudentSolutionsPageState {
 }
 
 export default class StudentSolutionsPage extends React.Component<RouteComponentProps<IStudentSolutionsPageProps>, IStudentSolutionsPageState> {
-    authService = new AuthService();
-    coursesApi = new CoursesApi();
-    tasksApi = new TasksApi();
-    homeworksApi = new HomeworksApi();
     constructor(props : RouteComponentProps<IStudentSolutionsPageProps>) {
         super(props);
         this.state = {
@@ -34,10 +30,10 @@ export default class StudentSolutionsPage extends React.Component<RouteComponent
 
     public render() {
         const { isLoaded } = this.state;
-        let userId = this.authService.isLoggedIn() ? this.authService.getProfile()._id : undefined;
+        let userId = ApiSinglton.authService.isLoggedIn() ? ApiSinglton.authService.getProfile()._id : undefined;
 
         if (isLoaded) {
-            if (!this.authService.isLoggedIn() ||
+            if (!ApiSinglton.authService.isLoggedIn() ||
                 userId !== this.state.course.mentorId!) {
                 return <Typography variant='h6'>Страница не найдена</Typography>
             }
@@ -59,11 +55,11 @@ export default class StudentSolutionsPage extends React.Component<RouteComponent
     }
 
     componentDidMount() {
-        this.tasksApi.getTask(+this.props.match.params.taskId)
+        ApiSinglton.tasksApi.getTask(+this.props.match.params.taskId)
             .then(res => res.json())
-            .then(task => this.homeworksApi.getHomework(task.homeworkId)
+            .then(task => ApiSinglton.homeworksApi.getHomework(task.homeworkId)
                 .then(res => res.json())
-                .then(homework => this.coursesApi.get(homework.courseId)
+                .then(homework => ApiSinglton.coursesApi.get(homework.courseId)
                     .then(res => res.json())
                     .then(course => this.setState({
                         task: task,

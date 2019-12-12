@@ -5,9 +5,9 @@ import Typography from '@material-ui/core/Typography'
 import AddSolution from './AddSolution'
 import Button from '@material-ui/core/Button'
 import TaskSolutions from './TaskSolutions'
-import { TasksApi, HomeworksApi, HomeworkTaskViewModel } from '../api/homeworks';
-import { CoursesApi, CourseViewModel } from '../api/courses'
-import AuthService from '../services/AuthService'
+import { HomeworkTaskViewModel } from '../api/homeworks';
+import { CourseViewModel } from '../api/courses'
+import ApiSinglton from "../api/ApiSinglton";
 
 interface ITaskSolutionsProps {
     taskId: string
@@ -21,10 +21,6 @@ interface ITaskSolutionsState {
 }
 
 export default class TaskSolutionsPage extends React.Component<RouteComponentProps<ITaskSolutionsProps>, ITaskSolutionsState> {
-    authService = new AuthService();
-    coursesApi = new CoursesApi();
-    tasksApi = new TasksApi();
-    homeworksApi = new HomeworksApi();
     constructor(props: RouteComponentProps<ITaskSolutionsProps>) {
         super(props);
         this.state = {
@@ -76,7 +72,6 @@ export default class TaskSolutionsPage extends React.Component<RouteComponentPro
                             </div>
                         }
                         <br />
-                        
                     </div>
                 </div>
             )
