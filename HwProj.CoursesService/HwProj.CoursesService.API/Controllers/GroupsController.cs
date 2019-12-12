@@ -78,7 +78,7 @@ namespace HwProj.CoursesService.API.Controllers
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> RemoveStudentFromGroup(long groupId, string studentId)
         {
-            return await _groupsService.DeleteCourseMateFromGroupAsync(groupId, studentId)
+            return await _groupsService.DeleteGroupMateAsync(groupId, studentId)
                 ? Ok()
                 : NotFound() as IActionResult;
         }

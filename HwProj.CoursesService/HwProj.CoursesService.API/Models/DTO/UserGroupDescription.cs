@@ -7,9 +7,9 @@ namespace HwProj.CoursesService.API.Models.DTO
 {
     public class UserGroupDescription
     {
-        public long GroupId { get; set; }
-
         public long Id { get; set; }
+
+        public long CourseId { get; set; }
 
         public string Name { get; set; }
     }

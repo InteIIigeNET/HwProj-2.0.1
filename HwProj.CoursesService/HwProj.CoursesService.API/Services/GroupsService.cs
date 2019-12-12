@@ -82,11 +82,12 @@ namespace HwProj.CoursesService.API.Services
         {
             await _groupsRepository.UpdateAsync(groupId, c => new Group
             {
+
                 Name = updated.Name
             }).ConfigureAwait(false);
         }
 
-        public async Task<bool> DeleteCourseMateFromGroupAsync(long groupId, string studentId)
+        public async Task<bool> DeleteGroupMateAsync(long groupId, string studentId)
         {
             var getGroupTask = await _groupsRepository.GetAsync(groupId).ConfigureAwait(false);
             if (getGroupTask == null)
@@ -107,7 +108,7 @@ namespace HwProj.CoursesService.API.Services
             return true;
         }
 
-        public async Task<UserGroupDescription[]> GetCourseMateGroupsAsync(long courseId, string studentId)
+        public async Task<UserGroupDescription[]> GetStudentsGroupsAsync(long courseId, string studentId)
         {
             var studentGroupsIds = await _groupMatesRepository
                 .FindAll(cm => cm.StudentId == studentId)
@@ -119,8 +120,9 @@ namespace HwProj.CoursesService.API.Services
                 .Select(async id => await _groupsRepository.GetAsync(id).ConfigureAwait(false))
                 .Where(cm => cm.Result.CourseId == courseId)
                 .ToArray();
+            var studentGroups = await Task.WhenAll(getStudentGroupsTask).ConfigureAwait(false);
 
-            return getStudentGroupsTask.Select(c =>
+            return studentGroups.Select(c =>
             {
                 var userGroupDescription = _mapper.Map<UserGroupDescription>(c);
                 return userGroupDescription;
