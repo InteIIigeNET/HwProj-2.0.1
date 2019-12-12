@@ -8,7 +8,6 @@ using HwProj.CoursesService.API;
 using AutoMapper;
 using System.Threading.Tasks;
 using System.Linq;
-using HwProj.CoursesService.API.Models.DTO;
 //Flue
 
 
@@ -124,7 +123,6 @@ namespace HwProj.CoursesService.Tests
             var addedGroupId = await _service.AddGroupAsync(group, 1).ConfigureAwait(false);
             #endregion
 
-            var answer = _courseContext.Groups.Find(addedGroupId);
             var matesIds = _courseContext.GroupMates.ToArray().Select(cm => cm.Id).ToList();
             await _service.DeleteGroupAsync(addedGroupId);
 
@@ -233,7 +231,6 @@ namespace HwProj.CoursesService.Tests
             var addedGroup1Id = await _groupsRepository.AddAsync(new Group { CourseId = 1, GroupMates = new List<GroupMate>(), Name = "gr1" });
             var addedGroup2Id = await _groupsRepository.AddAsync(new Group { CourseId = 1, GroupMates = new List<GroupMate>(), Name = "gr2" });
             var addedGroup3Id = await _groupsRepository.AddAsync(new Group { CourseId = 2, GroupMates = new List<GroupMate>(), Name = "gr3" });
-            var addedGroup4Id = await _groupsRepository.AddAsync(new Group { CourseId = 3, GroupMates = new List<GroupMate>(), Name = "gr4" });
             await _service.AddGroupMateAsync(addedGroup1Id, "st");
             await _service.AddGroupMateAsync(addedGroup2Id, "st");
             await _service.AddGroupMateAsync(addedGroup3Id, "st");
@@ -250,9 +247,13 @@ namespace HwProj.CoursesService.Tests
         public void CleanUp()
         {
             foreach (var entity in _courseContext.GroupMates)
+            {
                 _courseContext.GroupMates.Remove(entity);
+            }
             foreach (var entity in _courseContext.Groups)
+            {
                 _courseContext.Groups.Remove(entity);
+            }
             _courseContext.SaveChanges();
             _courseContext.Dispose();
         }
