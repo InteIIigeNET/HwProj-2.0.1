@@ -38,6 +38,7 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost("{courseId}")]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> CreateGroup(long courseId, [FromBody] CreateGroupViewModel groupViewModel)
         {
             var group = _mapper.Map<Group>(groupViewModel);
@@ -67,6 +68,7 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost("add_student_in_group/{groupId}")]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> AddStudentInGroup(long groupId, [FromBody] string studentId)
         {
             return await _groupsService.AddGroupMateAsync(groupId, studentId)
@@ -81,6 +83,13 @@ namespace HwProj.CoursesService.API.Controllers
             return await _groupsService.DeleteGroupMateAsync(groupId, studentId)
                 ? Ok()
                 : NotFound() as IActionResult;
+        }
+
+        [HttpGet("user_Groups/{courseId}/{userId}")]
+        public async Task<IActionResult> GetCourses(long courseId, string userId)
+        {
+            var groups = await _groupsService.GetStudentsGroupsAsync(courseId, userId);
+            return Ok(groups);
         }
     }
 }

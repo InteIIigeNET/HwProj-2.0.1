@@ -95,9 +95,11 @@ namespace HwProj.CoursesService.Tests
         public async Task AddGroupWithMatesTest()
         {
             #region init data
-            var mates = new List<GroupMate>();
-            mates.Add(new GroupMate { StudentId = "st1"});
-            mates.Add(new GroupMate { StudentId = "st2" });
+            var mates = new List<GroupMate>
+            {
+                new GroupMate { StudentId = "st1" },
+                new GroupMate { StudentId = "st2" }
+            };
 
             var group = new Group { CourseId = 1, GroupMates = mates, Name = "0_o" };
             var addedGroupId = await _service.AddGroupAsync(group, 1).ConfigureAwait(false);
@@ -115,9 +117,11 @@ namespace HwProj.CoursesService.Tests
         public async Task DeleteGroupTest()
         {
             #region init data
-            var mates = new List<GroupMate>();
-            mates.Add(new GroupMate { StudentId = "st1" });
-            mates.Add(new GroupMate { StudentId = "st2" });
+            var mates = new List<GroupMate>
+            {
+                new GroupMate { StudentId = "st1" },
+                new GroupMate { StudentId = "st2" }
+            };
 
             var group = new Group { CourseId = 1, GroupMates = mates, Name = "0_o" };
             var addedGroupId = await _service.AddGroupAsync(group, 1).ConfigureAwait(false);
