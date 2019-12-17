@@ -3,7 +3,7 @@ import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import { Redirect } from "react-router-dom";
-import ApiSinglton from "../../api/ApiSinglton";
+import ApiSingleton from "../../api/ApiSingleton";
 import { RegisterViewModel } from "../../api/auth/api";
 
 interface IRegisterState {
@@ -22,7 +22,7 @@ export class Register extends React.Component<{}, IRegisterState> {
                 password: "",
                 passwordConfirm: "",
             },
-            logged: ApiSinglton.authService.isLoggedIn()
+            logged: ApiSingleton.authService.isLoggedIn()
         };
     }
 
@@ -94,8 +94,8 @@ export class Register extends React.Component<{}, IRegisterState> {
     private async handleSubmit(): Promise<void> {
         const {email, password} = this.state.registerData;
 
-        await ApiSinglton.accountApi.register(this.state.registerData);
-        await ApiSinglton.authService.login(email, password);
+        await ApiSingleton.accountApi.register(this.state.registerData);
+        await ApiSingleton.authService.login(email, password);
 
         window.location.assign("/");
     }

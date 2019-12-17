@@ -5,7 +5,7 @@ import Button from '@material-ui/core/Button'
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Typography from '@material-ui/core/Typography'
 import { Redirect } from 'react-router-dom';
-import ApiSinglton from "../api/ApiSinglton";
+import ApiSingleton from "../api/ApiSingleton";
 
 interface ICreateCourseState {
     name: string,
@@ -33,7 +33,7 @@ export default class CreateCourse extends React.Component<{}, ICreateCourseState
             isOpen: this.state.isOpen
         };
 
-        ApiSinglton.coursesApi.addCourse(courseViewModel, 1)
+        ApiSingleton.coursesApi.addCourse(courseViewModel, 1)
             .then(res => res.json())
             .then(id => this.setState({
                 created: true,

@@ -6,7 +6,7 @@ import EditIcon from '@material-ui/icons/Edit'
 import ReactMarkdown from 'react-markdown'
 import { HomeworkTaskViewModel } from "../api/homeworks/api";
 import {Link as RouterLink} from 'react-router-dom'
-import ApiSinglton from "../api/ApiSinglton";
+import ApiSingleton from "../api/ApiSingleton";
 
 interface ITaskProp {
     task: HomeworkTaskViewModel,
@@ -50,7 +50,7 @@ export default class Task extends React.Component<ITaskProp, {}> {
     }
 
     deleteTask(): void {
-        ApiSinglton.tasksApi.deleteTask(this.props.task.id!)
+        ApiSingleton.tasksApi.deleteTask(this.props.task.id!)
             .then(res => this.props.onDeleteClick())
     }
 }

@@ -7,7 +7,7 @@ import Button from '@material-ui/core/Button'
 import TaskSolutions from './TaskSolutions'
 import { HomeworkTaskViewModel } from '../api/homeworks';
 import { CourseViewModel } from '../api/courses'
-import ApiSinglton from "../api/ApiSinglton";
+import ApiSingleton from "../api/ApiSingleton";
 
 interface ITaskSolutionsProps {
     taskId: string
@@ -33,10 +33,10 @@ export default class TaskSolutionsPage extends React.Component<RouteComponentPro
 
     public render() {
         const { isLoaded } = this.state;
-        let userId = this.authService.isLoggedIn() ? this.authService.getProfile()._id : undefined;
+        let userId = ApiSingleton.authService.isLoggedIn() ? ApiSingleton.authService.getProfile()._id : undefined;
 
         if (isLoaded) {
-            if (!this.authService.isLoggedIn() ||
+            if (!ApiSingleton.authService.isLoggedIn() ||
                 userId === this.state.course.mentorId ||
                 !this.state.course.courseMates!.some(cm => cm.isAccepted! && cm.studentId === userId)) {
                 return <Typography variant='h6'>Страница не найдена</Typography>
@@ -81,11 +81,11 @@ export default class TaskSolutionsPage extends React.Component<RouteComponentPro
     }
 
     componentDidMount() {
-        this.tasksApi.getTask(+this.props.match.params.taskId)
+        ApiSingleton.tasksApi.getTask(+this.props.match.params.taskId)
             .then(res => res.json())
-            .then(task => this.homeworksApi.getHomework(task.homeworkId)
+            .then(task => ApiSingleton.homeworksApi.getHomework(task.homeworkId)
                 .then(res => res.json())
-                .then(homework => this.coursesApi.get(homework.courseId)
+                .then(homework => ApiSingleton.coursesApi.get(homework.courseId)
                     .then(res => res.json())
                     .then(course => this.setState({
                         isLoaded: true,

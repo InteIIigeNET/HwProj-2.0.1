@@ -6,7 +6,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Typography from '@material-ui/core/Typography'
 import { Redirect } from 'react-router-dom';
 import {RouteComponentProps, Link} from "react-router-dom"
-import ApiSinglton from "../api/ApiSinglton";
+import ApiSingleton from "../api/ApiSingleton";
 
 interface IEditCourseState {
     isLoaded: boolean,
@@ -48,12 +48,12 @@ export default class EditCourse extends React.Component<RouteComponentProps<IEdi
             isComplete: this.state.isComplete
         };
 
-        ApiSinglton.coursesApi.updateCourse(+this.props.match.params.courseId, courseViewModel)
+        ApiSingleton.coursesApi.updateCourse(+this.props.match.params.courseId, courseViewModel)
             .then(res => this.setState({edited: true}))
     }
 
     public onDelete() {
-        ApiSinglton.coursesApi.deleteCourse(+this.props.match.params.courseId)
+        ApiSingleton.coursesApi.deleteCourse(+this.props.match.params.courseId)
             .then(res => this.setState({deleted: true}));
     }
 
@@ -67,7 +67,7 @@ export default class EditCourse extends React.Component<RouteComponentProps<IEdi
                 return <Redirect to='/' />
             }
 
-            if (!ApiSinglton.authService.isLoggedIn() || ApiSinglton.authService.getProfile()._id !== this.state.mentorId) {
+            if (!ApiSingleton.authService.isLoggedIn() || ApiSingleton.authService.getProfile()._id !== this.state.mentorId) {
                 return <Typography variant='h6' gutterBottom>Только преподаватель может редактировать курс</Typography>
             }
 
@@ -134,7 +134,7 @@ export default class EditCourse extends React.Component<RouteComponentProps<IEdi
     }
 
     componentDidMount() {
-        ApiSinglton.coursesApi.get(+this.props.match.params.courseId)
+        ApiSingleton.coursesApi.get(+this.props.match.params.courseId)
             .then(res => res.json())
             .then(course => this.setState({
                 isLoaded: true,

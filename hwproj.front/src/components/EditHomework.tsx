@@ -4,7 +4,7 @@ import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
 import { Redirect, Link } from 'react-router-dom';
 import {RouteComponentProps} from "react-router-dom"
-import ApiSinglton from "../api/ApiSinglton";
+import ApiSingleton from "../api/ApiSingleton";
 
 interface IEditHomeworkState {
     isLoaded: boolean,
@@ -40,7 +40,7 @@ export default class EditHomework extends React.Component<RouteComponentProps<IE
             description: this.state.description
         };
 
-        ApiSinglton.homeworksApi.updateHomework(+this.props.match.params.homeworkId, homeworkViewModel)
+        ApiSingleton.homeworksApi.updateHomework(+this.props.match.params.homeworkId, homeworkViewModel)
             .then(res => this.setState({edited: true}))
     }
 
@@ -50,7 +50,7 @@ export default class EditHomework extends React.Component<RouteComponentProps<IE
         }
 
         if (this.state.isLoaded) {
-            if (!ApiSinglton.authService.isLoggedIn() || ApiSinglton.authService.getProfile()._id !== this.state.courseMentorId) {
+            if (!ApiSingleton.authService.isLoggedIn() || ApiSingleton.authService.getProfile()._id !== this.state.courseMentorId) {
                 return <Typography variant='h6' gutterBottom>Только преподаватель может редактировать домашку</Typography>
             }
             return (
@@ -93,9 +93,9 @@ export default class EditHomework extends React.Component<RouteComponentProps<IE
     }
 
     componentDidMount() {
-        ApiSinglton.homeworksApi.getHomework(+this.props.match.params.homeworkId)
+        ApiSingleton.homeworksApi.getHomework(+this.props.match.params.homeworkId)
             .then(res => res.json())
-            .then(homework => ApiSinglton.coursesApi.get(homework.courseId)
+            .then(homework => ApiSingleton.coursesApi.get(homework.courseId)
                 .then(res => res.json())
                 .then(course => this.setState({
                     isLoaded: true,

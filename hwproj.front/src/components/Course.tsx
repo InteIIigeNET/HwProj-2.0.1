@@ -8,7 +8,7 @@ import Button from '@material-ui/core/Button';
 import EditIcon from '@material-ui/icons/Edit'
 import AddHomework from './AddHomework';
 import CourseStudents from './CourseStudents';
-import ApiSinglton from "../api/ApiSinglton";
+import ApiSingleton from "../api/ApiSingleton";
 import { Link as RouterLink } from 'react-router-dom'
 import NewCourseStudents from './NewCourseStudents'
 
@@ -58,8 +58,8 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
         const { isLoaded, isFound, course, createHomework, mentor } = this.state;
         if (isLoaded) {
             if (isFound) {
-                let isLogged = ApiSinglton.authService.isLoggedIn();
-                let userId = isLogged ? ApiSinglton.authService.getProfile()._id : undefined
+                let isLogged = ApiSingleton.authService.isLoggedIn();
+                let userId = isLogged ? ApiSingleton.authService.getProfile()._id : undefined
                 let isMentor = isLogged && userId === course.mentorId;
                 let isSignedInCourse = isLogged && course.courseMates!.some(cm => cm.studentId === userId)
                 let isAcceptedStudent = isLogged && course.courseMates!.some(cm => cm.studentId === userId && cm.isAccepted!)
@@ -148,18 +148,18 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
     }
 
     joinCourse() {
-        ApiSinglton.coursesApi.signInCourse(+this.props.match.params.id, 55)
+        ApiSingleton.coursesApi.signInCourse(+this.props.match.params.id, 55)
             .then(res => this.componentDidMount());
     }
 
     async componentDidMount() {
-        await ApiSinglton.coursesApi.get(+this.props.match.params.id)
+        await ApiSingleton.coursesApi.get(+this.props.match.params.id)
             .then(res => res.json())
-            .then((course : CourseViewModel) => ApiSinglton.homeworksApi.getCourseHomeworks(course.id!)
-                .then(homework => ApiSinglton.accountApi.getUserDataById(course.mentorId)
+            .then((course : CourseViewModel) => ApiSingleton.homeworksApi.getCourseHomeworks(course.id!)
+                .then(homework => ApiSingleton.accountApi.getUserDataById(course.mentorId)
                     .then(res => res.json())
                     .then(async mentor => await Promise.all(course.courseMates!.map(async cm => {
-                        let res = await ApiSinglton.accountApi.getUserDataById(cm.studentId);
+                        let res = await ApiSingleton.accountApi.getUserDataById(cm.studentId);
                         let user = await res.json();
                         return {user: user, isAccepted: cm.isAccepted}
                     })).then(courseMates => this.setState({

@@ -24,7 +24,7 @@ class Api {
 }
 
 
-let ApiSinglton : Api;
-ApiSinglton = new Api(new AccountApi, new CoursesApi, new HomeworksApi,
+let ApiSingleton : Api;
+ApiSingleton = new Api(new AccountApi, new CoursesApi, new HomeworksApi,
     new TasksApi, new SolutionsApi, new AuthService);
-export default ApiSinglton;
+export default ApiSingleton;

@@ -5,7 +5,7 @@ import { HomeworkTaskViewModel } from '../api/homeworks/api'
 import Typography from '@material-ui/core/Typography'
 import Task from './Task'
 import TaskSolutions from './TaskSolutions'
-import ApiSinglton from "../api/ApiSinglton";
+import ApiSingleton from "../api/ApiSingleton";
 
 interface IStudentSolutionsPageProps {
     taskId: string,
@@ -30,10 +30,10 @@ export default class StudentSolutionsPage extends React.Component<RouteComponent
 
     public render() {
         const { isLoaded } = this.state;
-        let userId = ApiSinglton.authService.isLoggedIn() ? ApiSinglton.authService.getProfile()._id : undefined;
+        let userId = ApiSingleton.authService.isLoggedIn() ? ApiSingleton.authService.getProfile()._id : undefined;
 
         if (isLoaded) {
-            if (!ApiSinglton.authService.isLoggedIn() ||
+            if (!ApiSingleton.authService.isLoggedIn() ||
                 userId !== this.state.course.mentorId!) {
                 return <Typography variant='h6'>Страница не найдена</Typography>
             }
@@ -55,11 +55,11 @@ export default class StudentSolutionsPage extends React.Component<RouteComponent
     }
 
     componentDidMount() {
-        ApiSinglton.tasksApi.getTask(+this.props.match.params.taskId)
+        ApiSingleton.tasksApi.getTask(+this.props.match.params.taskId)
             .then(res => res.json())
-            .then(task => ApiSinglton.homeworksApi.getHomework(task.homeworkId)
+            .then(task => ApiSingleton.homeworksApi.getHomework(task.homeworkId)
                 .then(res => res.json())
-                .then(homework => ApiSinglton.coursesApi.get(homework.courseId)
+                .then(homework => ApiSingleton.coursesApi.get(homework.courseId)
                     .then(res => res.json())
                     .then(course => this.setState({
                         task: task,

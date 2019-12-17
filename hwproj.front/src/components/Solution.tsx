@@ -2,7 +2,7 @@ import * as React from 'react';
 import {Solution} from '../api/solutions/api'
 import Button from '@material-ui/core/Button'
 import Link from '@material-ui/core/Link'
-import ApiSinglton from "../api/ApiSinglton";
+import ApiSingleton from "../api/ApiSingleton";
 
 interface ISolutionProps {
     id: number,
@@ -57,17 +57,17 @@ export default class SolutionComponent extends React.Component<ISolutionProps, I
     }
 
     acceptSolution() {
-        ApiSinglton.solutionsApi.acceptSolution(this.props.id)
+        ApiSingleton.solutionsApi.acceptSolution(this.props.id)
             .then(res => this.componentDidMount())
     }
 
     rejectSolution() {
-        ApiSinglton.solutionsApi.rejectSolution(this.props.id)
+        ApiSingleton.solutionsApi.rejectSolution(this.props.id)
             .then(res => this.componentDidMount())
     }
 
     componentDidMount() {
-        ApiSinglton.solutionsApi.getSolution(this.props.id)
+        ApiSingleton.solutionsApi.getSolution(this.props.id)
             .then(res => res.json())
             .then(solution => this.setState({
                 isLoaded: true,

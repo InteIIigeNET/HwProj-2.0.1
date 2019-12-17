@@ -3,7 +3,7 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
 import { Redirect } from 'react-router-dom';
-import ApiSinglton from "../api/ApiSinglton";
+import ApiSingleton from "../api/ApiSingleton";
 
 interface IEditTaskState {
     userEmail: string,
@@ -22,7 +22,7 @@ export default class InviteNewLecturer extends React.Component<{}, IEditTaskStat
     public handleSubmit(e: any) {
         e.preventDefault();
 
-        ApiSinglton.accountApi.inviteNewLecturer({emailOfInvitedPerson: this.state.userEmail})
+        ApiSingleton.accountApi.inviteNewLecturer({emailOfInvitedPerson: this.state.userEmail})
             .then(res => this.setState({invited: true}))
     }
 
@@ -31,7 +31,7 @@ export default class InviteNewLecturer extends React.Component<{}, IEditTaskStat
             return <Redirect to={'/'} />
         }
 
-        if (!ApiSinglton.authService.isLoggedIn() || ApiSinglton.authService.getProfile()._role !== "lecturer") {
+        if (!ApiSingleton.authService.isLoggedIn() || ApiSingleton.authService.getProfile()._role !== "lecturer") {
             return <Typography variant='h6' gutterBottom>Страница не найдена</Typography>
         }
 

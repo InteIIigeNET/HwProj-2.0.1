@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { CourseViewModel } from '../api/courses/api';
 import Button from '@material-ui/core/Button'
-import ApiSinglton from "../api/ApiSinglton";
+import ApiSingleton from "../api/ApiSingleton";
 
 interface INewCourseStudentsProps {
     course: CourseViewModel,
@@ -46,12 +46,12 @@ export default class NewCourseStudents extends React.Component<INewCourseStudent
     }
 
     acceptStudent(studentId: string) {
-        ApiSinglton.coursesApi.acceptStudent(this.props.course.id!, studentId)
+        ApiSingleton.coursesApi.acceptStudent(this.props.course.id!, studentId)
             .then(res => this.props.onUpdate());
     }
 
     rejectStudent(studentId: string) {
-        ApiSinglton.coursesApi.rejectStudent(this.props.course.id!, studentId)
+        ApiSingleton.coursesApi.rejectStudent(this.props.course.id!, studentId)
             .then(res => this.props.onUpdate());
     }
 }

@@ -2,7 +2,7 @@ import * as React from 'react';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography';
-import ApiSinglton from "../api/ApiSinglton";
+import ApiSingleton from "../api/ApiSingleton";
 import {CreateTaskViewModel} from "../api/homeworks/api";
 
 interface IAddTaskProps {
@@ -21,7 +21,7 @@ export default class AddTask extends React.Component<IAddTaskProps, CreateTaskVi
     }
 
     public handleSubmit(e: any) {
-        ApiSinglton.tasksApi.addTask(this.props.id, this.state)
+        ApiSingleton.tasksApi.addTask(this.props.id, this.state)
             .then(taskId => console.log(taskId))
             .then(this.props.onAdding);
     }

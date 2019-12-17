@@ -1,7 +1,7 @@
 import * as React from 'react';
 import TableCell from '@material-ui/core/TableCell'
 import { Redirect } from 'react-router-dom'
-import ApiSinglton from "../api/ApiSinglton";
+import ApiSingleton from "../api/ApiSingleton";
 
 interface ITaskStudentCellProps {
     studentId: string,
@@ -66,7 +66,7 @@ export default class TaskStudentCell extends React.Component<ITaskStudentCellPro
     }
 
     componentDidMount() {
-        ApiSinglton.solutionsApi.getTaskSolutionsFromStudent(this.props.taskId, this.props.studentId)
+        ApiSingleton.solutionsApi.getTaskSolutionsFromStudent(this.props.taskId, this.props.studentId)
             .then(solutions => this.setState({
                 isLoaded: true,
                 result: solutions.length > 0 

@@ -3,7 +3,7 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
 import { Redirect } from 'react-router-dom';
-import ApiSinglton from "../api/ApiSinglton";
+import ApiSingleton from "../api/ApiSingleton";
 
 interface IEditProfileState {
     isLoaded: boolean,
@@ -31,7 +31,7 @@ export default class EditProfile extends React.Component<{}, IEditProfileState> 
             newSurname: this.state.surname
         };
 
-        ApiSinglton.accountApi.edit(editViewModel)
+        ApiSingleton.accountApi.edit(editViewModel)
             .then(res => this.setState({edited: true}))
     }
 
@@ -41,7 +41,7 @@ export default class EditProfile extends React.Component<{}, IEditProfileState> 
         }
 
         if (this.state.isLoaded) {
-            if (!ApiSinglton.authService.isLoggedIn()) {
+            if (!ApiSingleton.authService.isLoggedIn()) {
                 return <Typography variant='h6' gutterBottom>Страница не найдена</Typography>
             }
 
@@ -79,8 +79,8 @@ export default class EditProfile extends React.Component<{}, IEditProfileState> 
     }
 
     componentDidMount() {
-        if (ApiSinglton.authService.isLoggedIn()) {
-            ApiSinglton.accountApi.getUserDataById(ApiSinglton.authService.getProfile()._id)
+        if (ApiSingleton.authService.isLoggedIn()) {
+            ApiSingleton.accountApi.getUserDataById(ApiSingleton.authService.getProfile()._id)
             .then(res => res.json())
             .then(user => this.setState({
                 isLoaded: true,

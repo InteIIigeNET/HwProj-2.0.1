@@ -4,7 +4,7 @@ import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
 import { Redirect, Link } from 'react-router-dom';
 import {RouteComponentProps} from "react-router-dom"
-import ApiSinglton from "../api/ApiSinglton";
+import ApiSingleton from "../api/ApiSingleton";
 
 interface IEditTaskState {
     isLoaded: boolean,
@@ -40,7 +40,7 @@ export default class EditTask extends React.Component<RouteComponentProps<IEditT
             description: this.state.description
         };
 
-        ApiSinglton.tasksApi.updateTask(+this.props.match.params.taskId, taskViewModel)
+        ApiSingleton.tasksApi.updateTask(+this.props.match.params.taskId, taskViewModel)
             .then(res => this.setState({edited: true}))
     }
 
@@ -50,7 +50,7 @@ export default class EditTask extends React.Component<RouteComponentProps<IEditT
         }
 
         if (this.state.isLoaded) {
-            if (!ApiSinglton.authService.isLoggedIn() || ApiSinglton.authService.getProfile()._id !== this.state.courseMentorId) {
+            if (!ApiSingleton.authService.isLoggedIn() || ApiSingleton.authService.getProfile()._id !== this.state.courseMentorId) {
                 return <Typography variant='h6' gutterBottom>Только преподаваталь может редактировать задачу</Typography>
             }
             return (
@@ -93,11 +93,11 @@ export default class EditTask extends React.Component<RouteComponentProps<IEditT
     }
 
     componentDidMount() {
-        ApiSinglton.tasksApi.getTask(+this.props.match.params.taskId)
+        ApiSingleton.tasksApi.getTask(+this.props.match.params.taskId)
             .then(res => res.json())
-            .then(task => ApiSinglton.homeworksApi.getHomework(task.homeworkId)
+            .then(task => ApiSingleton.homeworksApi.getHomework(task.homeworkId)
                 .then(res => res.json())
-                .then(homework => ApiSinglton.coursesApi.get(homework.courseId)
+                .then(homework => ApiSingleton.coursesApi.get(homework.courseId)
                     .then(res => res.json())
                     .then(course => this.setState({
                         isLoaded: true,
