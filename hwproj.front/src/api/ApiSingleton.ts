@@ -22,6 +22,7 @@ class Api {
         this.authService = authService;
     }
 }
+
 const basePath = "http://localhost:5000";
 
 let ApiSingleton : Api;
