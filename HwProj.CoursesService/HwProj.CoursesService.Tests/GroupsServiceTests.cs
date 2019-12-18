@@ -171,7 +171,7 @@ namespace HwProj.CoursesService.Tests
             #endregion
 
             await _service.AddGroupMateAsync(addedGroupId, "st");
-            Assert.ThrowsAsync<System.InvalidOperationException>(await _service.AddGroupMateAsync(addedGroupId, "st"));
+            Assert.ThrowsAsync<System.InvalidOperationException>(async () => await _service.AddGroupMateAsync(addedGroupId, "st"));
         }
 
         [Test]
