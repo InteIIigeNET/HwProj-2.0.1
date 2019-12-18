@@ -61,7 +61,7 @@ export class BaseAPI {
     constructor(configuration?: Configuration, protected basePath: string = BASE_PATH, protected fetch: FetchAPI = portableFetch) {
         if (configuration) {
             this.configuration = configuration;
-            this.basePath = configuration.basePath || this.basePath;
+            this.basePath = this.basePath;
         }
     }
 };
@@ -977,15 +977,11 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
          * @throws {RequiredError}
          */
         getUserDataById(userId?: string, options: any = {}): FetchArgs {
-            const localVarPath = `/api/account/getuserdatabyid`;
+            const localVarPath = `/api/account/getuserdata/${userId}`;
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
-            if (userId !== undefined) {
-                localVarQueryParameter['userId'] = userId;
-            }
 
             let authService = new AuthService();
             if (authService.isLoggedIn()) {

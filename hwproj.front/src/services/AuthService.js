@@ -11,7 +11,7 @@ export default class AuthService {
     async login(username, password) {
         const res = await this.client.login({ email: username, password: password });
         const tokenCredentials = await res.json();
-        this.setToken(tokenCredentials.accessToken);
+        this.setToken(tokenCredentials.value.accessToken);
         return Promise.resolve(tokenCredentials);
     }
 
