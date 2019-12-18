@@ -16,6 +16,6 @@ namespace HwProj.CoursesService.API.Models
 
         public List<GroupMate> GroupMates { get; set; } = new List<GroupMate>();
 
-        public List<HomeWorkModel> Tasks { get; set; } = new List<HomeWorkModel>();
+        public List<TasksModel> Tasks { get; set; } = new List<TasksModel>();
     }
 }

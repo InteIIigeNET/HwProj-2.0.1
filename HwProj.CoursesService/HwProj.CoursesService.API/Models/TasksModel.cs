@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 
 namespace HwProj.CoursesService.API.Models
 {
-    public class HomeWorkModel
+    public class TasksModel
     {
         public long id { get; set; }
 
-         public long HomeWorkId { get; set; }
+         public long TaskId { get; set; }
     }
 }

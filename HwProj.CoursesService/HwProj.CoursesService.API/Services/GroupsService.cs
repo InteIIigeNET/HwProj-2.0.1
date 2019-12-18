@@ -128,5 +128,11 @@ namespace HwProj.CoursesService.API.Services
                 return userGroupDescription;
             }).ToArray();
         }
+
+        public async Task<long[]> GetHomeWrokIds(long groupId)
+        {
+            var getGroupTask = await _groupsRepository.GetAsync(groupId);
+            return getGroupTask.Tasks.Select(cm => cm.TaskId).ToArray();
+        }
     }
 }

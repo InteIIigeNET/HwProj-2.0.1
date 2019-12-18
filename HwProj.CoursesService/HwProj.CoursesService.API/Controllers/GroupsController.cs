@@ -86,7 +86,7 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpGet("user_Groups/{courseId}/{userId}")]
-        public async Task<IActionResult> GetCourses(long courseId, string userId)
+        public async Task<IActionResult> GetCoursesGroups(long courseId, string userId)
         {
             var groups = await _groupsService.GetStudentsGroupsAsync(courseId, userId);
             return Ok(groups);
