@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using System.Threading.Tasks;
 using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Services;
 using HwProj.Utils.Authorization;
@@ -13,21 +11,10 @@ namespace HwProj.NotificationsService.API.Controllers
     public class NotificationsController : ControllerBase
     {
         private readonly INotificationsService _notificationsService;
-        private readonly IMapper _mapper;
 
-        public NotificationsController(INotificationsService notificationsService, IMapper mapper)
+        public NotificationsController(INotificationsService notificationsService)
         {
             _notificationsService = notificationsService;
-            _mapper = mapper;
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Add([FromQuery] NotificationViewModel notificationViewModel)
-        {
-            var id = Request.GetUserId();
-            var notification = _mapper.Map<Notification>(notificationViewModel);
-            await _notificationsService.AddNotificationAsync(id, notification);
-            return Ok(notification);
         }
 
         [HttpGet("get_notifications")]
@@ -50,15 +37,15 @@ namespace HwProj.NotificationsService.API.Controllers
         public async Task<IActionResult> MarkNotificationsAsImportant([FromBody] long[] notificationsIds)
         {
             var userId = Request.GetUserId();
-            await _notificationsService.MarkAsImprotant(userId, notificationsIds);
+            await _notificationsService.MarkAsImportantAsync(userId, notificationsIds);
             return Ok();
         }
 
         [HttpPut("get_ntofications_in_time")]
-        public async Task<IActionResult]> GetInTime([FromQuery] int maxCount)
+        public async Task<IActionResult> GetInTime([FromQuery] int timeSpan)
         {
             var userId = Request.GetUserId();
-            await _notificationsService.GetInTimeAsync(userId, maxCount);
+            await _notificationsService.GetInTimeAsync(userId, timeSpan);
             return Ok();
         }
     }

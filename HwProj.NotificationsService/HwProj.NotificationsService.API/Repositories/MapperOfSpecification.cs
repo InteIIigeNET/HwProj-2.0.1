@@ -4,18 +4,24 @@ namespace HwProj.NotificationsService.API.Repositories
 {
     public class MapperOfSpecification
     {
-        public Specification GetSpecification(NotificationFilter filter)
+        public Specification GetSpecification(string userId, int timeSpan = 0, NotificationFilter filter = null)
         {
-            if (filter.HasSeen != null && filter.Important != null)
+            if (filter.HasSeen != null)
             {
-                if (filter.HasSeen != false && filter.Important != false)
-                {
-                    return new AndSpecification(new HasSeenNotificationSpecification(), new ImprotanceOfNotificationSpecification());
-                }
-
-                return new OrSpecification(new HasSeenNotificationSpecification(), new ImprotanceOfNotificationSpecification());
+                return new AndSpecification(new HasSeenNotificationSpecification(), new UserNotificationSpecification(userId));
             }
-
+            else if (filter.Important != null)
+            {
+                return new AndSpecification(new ImprotanceOfNotificationSpecification(), new UserNotificationSpecification(userId));
+            }
+            else if (filter.TimeSpan != null)
+            {
+                return new AndSpecification(new GetInTimeNotificationSpecification(timeSpan), new UserNotificationSpecification(userId));
+            }
+            else
+            {
+                return new UserNotificationSpecification(userId);
+            }
         }
     }
 }

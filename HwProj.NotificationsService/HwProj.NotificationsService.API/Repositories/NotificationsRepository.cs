@@ -6,7 +6,6 @@ using HwProj.NotificationsService.API.Models;
 using HwProj.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Z.EntityFramework.Plus;
-using System.Data.SqlClient;
 
 namespace HwProj.NotificationsService.API.Repositories
 {
@@ -24,12 +23,10 @@ namespace HwProj.NotificationsService.API.Repositories
                 .UpdateAsync(updateFactory).ConfigureAwait(false);
         }
 
-        public async Task<Notification[]> GetAllByUserAsync(string userId, int offSet = 0, int maxCount = 50, Specification specification = null)
+        public async Task<Notification[]> GetAllByUserAsync(Specification specification, int offSet = 0)
         {
-            var result = Context.Set<Notification>().Where(notification => notification.Owner == userId)
-                                                    .Where(specification.ToExpression())
-                                                    .Skip(offSet)
-                                                    .Take(maxCount);
+            var result = Context.Set<Notification>().Where(specification.ToExpression())
+                                                    .Skip(offSet);
 
             return await result.ToArrayAsync();
         }

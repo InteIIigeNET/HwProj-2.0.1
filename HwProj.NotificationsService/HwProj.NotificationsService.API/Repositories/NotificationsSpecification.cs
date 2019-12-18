@@ -20,6 +20,23 @@ namespace HwProj.NotificationsService.API.Repositories
         }
     }
 
+    public class GetInTimeNotificationSpecification : Specification
+    {
+        private readonly int _days;
+
+        public GetInTimeNotificationSpecification(int days)
+        {
+
+            _days = days;
+        }
+
+        public override Expression<Func<Notification, bool>> ToExpression()
+        {
+            return notification => DateTime.Now.Subtract(notification.Date) >= TimeSpan.FromDays(_days);
+        }
+    }
+
+
     public class UserNotificationSpecification : Specification
     {
         private readonly string _userId;
@@ -34,13 +51,4 @@ namespace HwProj.NotificationsService.API.Repositories
             return notification => notification.Owner == _userId;
         }
     }
-
-    public class NoNotificationSpecification : Specification
-    {
-        public override Expression<Func<Notification, bool>> ToExpression()
-        {
-            return notification => notification.HasFilter;
-        }
-    }
-
 }

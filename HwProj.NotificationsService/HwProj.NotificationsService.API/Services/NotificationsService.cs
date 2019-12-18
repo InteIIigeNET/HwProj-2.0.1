@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
-using AutoMapper;
 using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Repositories;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.NotificationsService.API.Services
 {
@@ -29,30 +24,28 @@ namespace HwProj.NotificationsService.API.Services
 
         public async Task<Notification[]> GetAsync(string userId, NotificationFilter filter = null)
         {
-            if (filter == null)
-            {
-                return await _repository.GetAllByUserAsync(userId);
-            }
             var mapperOfSpecification = new MapperOfSpecification();
-            var specification = mapperOfSpecification.GetSpecification(filter);
-            return await _repository.GetAllByUserAsync(userId, filter.Offset, filter.MaxCount, specification).ConfigureAwait(false);
+            var specification = mapperOfSpecification.GetSpecification(userId, 0, filter);
+            return await _repository.GetAllByUserAsync(specification, filter.Offset).ConfigureAwait(false);
         }
 
         public async Task MarkAsSeenAsync(string userId, long[] notificationIds)
         {
             await _repository.UpdateBatchAsync(userId, notificationIds,
-                t => new Notification {HasSeen = true}).ConfigureAwait(false);
+                t => new Notification { HasSeen = true }).ConfigureAwait(false);
         }
 
-        public async Task MarkAsImprotant(string userId, long[] notificationIds)
+        public async Task MarkAsImportantAsync(string userId, long[] notificationIds)
         {
             await _repository.UpdateBatchAsync(userId, notificationIds,
                 t => new Notification { Important = true }).ConfigureAwait(false);
         }
 
-        public async Task GetInTimeAsync(string userId, int maxCount)
+        public async Task<Notification[]> GetInTimeAsync(string userId, int timeSpan)
         {
-
+            var mapperOfSpecification = new MapperOfSpecification();
+            var specification = mapperOfSpecification.GetSpecification(userId, timeSpan);
+            return await _repository.GetAllByUserAsync(specification).ConfigureAwait(false);
         }
     }
 }

@@ -9,6 +9,6 @@ namespace HwProj.NotificationsService.API.Repositories
     public interface INotificationsRepository : ICrudRepository<Notification>
     {
         Task UpdateBatchAsync(string userId, long[] ids, Expression<Func<Notification, Notification>> updateFactory);
-        Task<Notification[]> GetAllByUserAsync(string userId, int offSet = 0, int maxCount = 50, Specification specification = null);
+        Task<Notification[]> GetAllByUserAsync(Specification specification, int offSet = 0);
     }
 }
