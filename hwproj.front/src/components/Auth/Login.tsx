@@ -3,7 +3,7 @@ import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import { Redirect } from "react-router-dom";
-import AuthService from "../../services/AuthService";
+import ApiSingleton from "../../api/ApiSingleton";
 
 interface ILoginState {
     email: string;
@@ -12,14 +12,12 @@ interface ILoginState {
 }
 
 export default class Login extends React.Component<{}, ILoginState> {
-    authService = new AuthService();
-
     constructor(props: {}) {
         super(props);
         this.state = {
             email: "",
             password: "",
-            logged: this.authService.isLoggedIn()
+            logged: ApiSingleton.authService.isLoggedIn()
         };
     }
 
@@ -60,7 +58,7 @@ export default class Login extends React.Component<{}, ILoginState> {
     private handleSubmit = async () => {
         const {email, password} = this.state;
 
-        await this.authService.login(email, password);
+        await ApiSingleton.authService.login(email, password);
         window.location.assign("/");
     }
 }

@@ -2,7 +2,8 @@ import * as React from 'react';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography';
-import {HomeworksApi, CreateTaskViewModel, TasksApi} from "../api/homeworks/api";
+import ApiSingleton from "../api/ApiSingleton";
+import {CreateTaskViewModel} from "../api/homeworks/api";
 import { Redirect } from 'react-router-dom'
 
 interface IAddHomeworkProps {
@@ -31,11 +32,9 @@ export default class AddHomework extends React.Component<IAddHomeworkProps, IAdd
 
     public handleSubmit(e: any) {
         e.preventDefault();
-        let homeworksApi = new HomeworksApi();
-        let tasksApi = new TasksApi()
-        homeworksApi.addHomework(this.props.id, {title: this.state.title, description: this.state.description})
+        ApiSingleton.homeworksApi.addHomework(this.props.id, {title: this.state.title, description: this.state.description})
             .then(homeworkId => Promise.all(this.state.tasks.map(t =>
-                tasksApi.addTask(homeworkId, t))))
+                ApiSingleton.tasksApi.addTask(homeworkId, t))))
             .then(res => this.props.onSubmit());
     }
 

@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { SolutionsApi } from '../api/solutions/api'
 import SolutionComponent from './Solution'
 import Typography from '@material-ui/core/Typography'
+import ApiSingleton from "../api/ApiSingleton";
 
 interface ITaskSolutionsProps {
     taskId: number,
@@ -47,8 +47,7 @@ export default class TaskSolutions extends React.Component<ITaskSolutionsProps, 
     }
 
     componentDidMount() {
-        let api = new SolutionsApi();
-        api.getTaskSolutionsFromStudent(this.props.taskId, this.props.studentId)
+        ApiSingleton.solutionsApi.getTaskSolutionsFromStudent(this.props.taskId, this.props.studentId)
             .then(solutions => this.setState({
                 isLoaded: true,
                 solutions: solutions.map(s => s.id!)

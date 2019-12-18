@@ -1,7 +1,8 @@
 import * as React from 'react';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button'
-import {SolutionsApi, SolutionViewModel} from "../api/solutions/api";
+import ApiSingleton from "../api/ApiSingleton";
+import {SolutionViewModel} from "../api/solutions/api";
 
 interface IAddSolutionProps {
     taskId: number,
@@ -11,7 +12,6 @@ interface IAddSolutionProps {
 }
 
 export default class AddSolution extends React.Component<IAddSolutionProps, SolutionViewModel> {
-    solutionsClient = new SolutionsApi();
     constructor(props : IAddSolutionProps) {
         super(props);
         this.state = {
@@ -23,7 +23,7 @@ export default class AddSolution extends React.Component<IAddSolutionProps, Solu
 
     public handleSubmit(e: any) {
         e.preventDefault();
-        this.solutionsClient.postSolution(this.props.taskId, this.state)
+        ApiSingleton.solutionsApi.postSolution(this.props.taskId, this.state)
             .then(id => this.props.onAdding());
     }
 

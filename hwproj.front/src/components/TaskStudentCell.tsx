@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { SolutionsApi, StateEnum } from '../api/solutions/api'
 import TableCell from '@material-ui/core/TableCell'
 import { Redirect } from 'react-router-dom'
+import ApiSingleton from "../api/ApiSingleton";
 
 interface ITaskStudentCellProps {
     studentId: string,
@@ -18,7 +18,6 @@ interface ITaskStudentCellState {
 }
 
 export default class TaskStudentCell extends React.Component<ITaskStudentCellProps, ITaskStudentCellState> {
-    solutionsApi = new SolutionsApi();
     constructor(props: ITaskStudentCellProps) {
         super(props);
         this.state = {
@@ -43,7 +42,6 @@ export default class TaskStudentCell extends React.Component<ITaskStudentCellPro
                 : this.state.result === 1
                     ? "rejected"
                     : this.state.result === 0 ? "posted" : "td"
-            
             let onClick = this.props.forMentor
                 ? () => this.onMentorCellClick()
                 : this.props.userId == this.props.studentId
@@ -68,7 +66,7 @@ export default class TaskStudentCell extends React.Component<ITaskStudentCellPro
     }
 
     componentDidMount() {
-        this.solutionsApi.getTaskSolutionsFromStudent(this.props.taskId, this.props.studentId)
+        ApiSingleton.solutionsApi.getTaskSolutionsFromStudent(this.props.taskId, this.props.studentId)
             .then(solutions => this.setState({
                 isLoaded: true,
                 result: solutions.length > 0 

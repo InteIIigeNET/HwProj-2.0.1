@@ -4,8 +4,9 @@ import IconButton from '@material-ui/core/IconButton'
 import DeleteIcon from '@material-ui/icons/Delete'
 import EditIcon from '@material-ui/icons/Edit'
 import ReactMarkdown from 'react-markdown'
-import { HomeworkTaskViewModel, TasksApi } from "../api/homeworks/api";
+import { HomeworkTaskViewModel } from "../api/homeworks/api";
 import {Link as RouterLink} from 'react-router-dom'
+import ApiSingleton from "../api/ApiSingleton";
 
 interface ITaskProp {
     task: HomeworkTaskViewModel,
@@ -41,7 +42,6 @@ export default class Task extends React.Component<ITaskProp, {}> {
                             </RouterLink>
                     }
                 </Typography>
-                
                 <Typography variant="body1">
                     <ReactMarkdown source={task.description} />
                 </Typography>
@@ -50,8 +50,7 @@ export default class Task extends React.Component<ITaskProp, {}> {
     }
 
     deleteTask(): void {
-        let api = new TasksApi();
-        api.deleteTask(this.props.task.id!)
+        ApiSingleton.tasksApi.deleteTask(this.props.task.id!)
             .then(res => this.props.onDeleteClick())
     }
 }

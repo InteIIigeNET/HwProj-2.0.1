@@ -1,9 +1,9 @@
 import * as React from "react";
-import { CourseViewModel, CoursesApi } from "../../api/courses/api";
-import { Link as RouterLink} from "react-router-dom";
+import { CourseViewModel } from "../../api/courses/api";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import {CoursesList} from "./CoursesList"
+import ApiSingleton from "../../api/ApiSingleton";
 
 interface ICoursesState {
     isLoaded: boolean;
@@ -46,8 +46,7 @@ export default class Courses extends React.Component<{}, ICoursesState> {
     }
 
     componentDidMount(): void {
-        let api = new CoursesApi();
-        api.getAll()
+        ApiSingleton.coursesApi.getAll()
             .then(courses => this.setState({
                 isLoaded: true,
                 courses: courses

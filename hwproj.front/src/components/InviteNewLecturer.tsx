@@ -3,8 +3,7 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
 import { Redirect } from 'react-router-dom';
-import { AccountApi } from '../api/auth/api';
-import AuthService from '../services/AuthService';
+import ApiSingleton from "../api/ApiSingleton";
 
 interface IEditTaskState {
     userEmail: string,
@@ -12,7 +11,6 @@ interface IEditTaskState {
 }
 
 export default class InviteNewLecturer extends React.Component<{}, IEditTaskState> {
-    authService = new AuthService();
     constructor(props: {}) {
         super(props)
         this.state = {
@@ -20,12 +18,11 @@ export default class InviteNewLecturer extends React.Component<{}, IEditTaskStat
             invited: false
         };
     }
-            
+
     public handleSubmit(e: any) {
         e.preventDefault();
-        let api = new AccountApi();
 
-        api.inviteNewLecturer({emailOfInvitedPerson: this.state.userEmail})
+        ApiSingleton.accountApi.inviteNewLecturer({emailOfInvitedPerson: this.state.userEmail})
             .then(res => this.setState({invited: true}))
     }
 
@@ -34,7 +31,7 @@ export default class InviteNewLecturer extends React.Component<{}, IEditTaskStat
             return <Redirect to={'/'} />
         }
 
-        if (!this.authService.isLoggedIn() || this.authService.getProfile()._role !== "lecturer") {
+        if (!ApiSingleton.authService.isLoggedIn() || ApiSingleton.authService.getProfile()._role !== "lecturer") {
             return <Typography variant='h6' gutterBottom>Страница не найдена</Typography>
         }
 

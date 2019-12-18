@@ -3,10 +3,8 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
 import { Redirect, Link } from 'react-router-dom';
-import { TasksApi, HomeworksApi } from "../api/homeworks/api";
-import { CoursesApi } from "../api/courses/api"
 import {RouteComponentProps} from "react-router-dom"
-import AuthService from '../services/AuthService'
+import ApiSingleton from "../api/ApiSingleton";
 
 interface IEditTaskState {
     isLoaded: boolean,
@@ -22,10 +20,6 @@ interface IEditTaskProps {
 }
 
 export default class EditTask extends React.Component<RouteComponentProps<IEditTaskProps>, IEditTaskState> {
-    tasksClient = new TasksApi();
-    homeworksClient = new HomeworksApi();
-    coursesClient = new CoursesApi();
-    authService = new AuthService();
     constructor(props: RouteComponentProps<IEditTaskProps>) {
         super(props)
         this.state = {
@@ -37,17 +31,16 @@ export default class EditTask extends React.Component<RouteComponentProps<IEditT
             edited: false
         };
     }
-            
+
     public handleSubmit(e: any) {
         e.preventDefault();
-        let api = new TasksApi();
 
         let taskViewModel = {
             title: this.state.title,
             description: this.state.description
         };
 
-        api.updateTask(+this.props.match.params.taskId, taskViewModel)
+        ApiSingleton.tasksApi.updateTask(+this.props.match.params.taskId, taskViewModel)
             .then(res => this.setState({edited: true}))
     }
 
@@ -57,7 +50,7 @@ export default class EditTask extends React.Component<RouteComponentProps<IEditT
         }
 
         if (this.state.isLoaded) {
-            if (!this.authService.isLoggedIn() || this.authService.getProfile()._id !== this.state.courseMentorId) {
+            if (!ApiSingleton.authService.isLoggedIn() || ApiSingleton.authService.getProfile()._id !== this.state.courseMentorId) {
                 return <Typography variant='h6' gutterBottom>Только преподаваталь может редактировать задачу</Typography>
             }
             return (
@@ -100,11 +93,11 @@ export default class EditTask extends React.Component<RouteComponentProps<IEditT
     }
 
     componentDidMount() {
-        this.tasksClient.getTask(+this.props.match.params.taskId)
+        ApiSingleton.tasksApi.getTask(+this.props.match.params.taskId)
             .then(res => res.json())
-            .then(task => this.homeworksClient.getHomework(task.homeworkId)
+            .then(task => ApiSingleton.homeworksApi.getHomework(task.homeworkId)
                 .then(res => res.json())
-                .then(homework => this.coursesClient.get(homework.courseId)
+                .then(homework => ApiSingleton.coursesApi.get(homework.courseId)
                     .then(res => res.json())
                     .then(course => this.setState({
                         isLoaded: true,

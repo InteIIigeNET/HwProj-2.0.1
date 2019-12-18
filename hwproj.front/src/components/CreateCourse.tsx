@@ -5,7 +5,7 @@ import Button from '@material-ui/core/Button'
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Typography from '@material-ui/core/Typography'
 import { Redirect } from 'react-router-dom';
-import { CoursesApi } from "../api/courses/api";
+import ApiSingleton from "../api/ApiSingleton";
 
 interface ICreateCourseState {
     name: string,
@@ -22,11 +22,10 @@ export default class CreateCourse extends React.Component<{}, ICreateCourseState
         isOpen: false,
         created : false,
         courseId: ""
-    };        
+    };
 
     public handleSubmit(e: any) {
         e.preventDefault();
-        let api = new CoursesApi();
 
         let courseViewModel = {
             name: this.state.name,
@@ -34,7 +33,7 @@ export default class CreateCourse extends React.Component<{}, ICreateCourseState
             isOpen: this.state.isOpen
         };
 
-        api.addCourse(courseViewModel, 1)
+        ApiSingleton.coursesApi.addCourse(courseViewModel, 1)
             .then(res => res.json())
             .then(id => this.setState({
                 created: true,

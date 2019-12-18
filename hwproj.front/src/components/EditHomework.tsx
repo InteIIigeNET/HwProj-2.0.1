@@ -3,10 +3,8 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
 import { Redirect, Link } from 'react-router-dom';
-import { HomeworksApi } from "../api/homeworks/api";
-import { CoursesApi } from "../api/courses/api"
 import {RouteComponentProps} from "react-router-dom"
-import AuthService from '../services/AuthService'
+import ApiSingleton from "../api/ApiSingleton";
 
 interface IEditHomeworkState {
     isLoaded: boolean,
@@ -22,9 +20,6 @@ interface IEditHomeworkProps {
 }
 
 export default class EditHomework extends React.Component<RouteComponentProps<IEditHomeworkProps>, IEditHomeworkState> {
-    homeworkApi = new HomeworksApi();
-    coursesApi = new CoursesApi();
-    authService = new AuthService();
     constructor(props: RouteComponentProps<IEditHomeworkProps>) {
         super(props)
         this.state = {
@@ -36,7 +31,7 @@ export default class EditHomework extends React.Component<RouteComponentProps<IE
             edited: false
         };
     }
-            
+
     public handleSubmit(e: any) {
         e.preventDefault();
 
@@ -45,7 +40,7 @@ export default class EditHomework extends React.Component<RouteComponentProps<IE
             description: this.state.description
         };
 
-        this.homeworkApi.updateHomework(+this.props.match.params.homeworkId, homeworkViewModel)
+        ApiSingleton.homeworksApi.updateHomework(+this.props.match.params.homeworkId, homeworkViewModel)
             .then(res => this.setState({edited: true}))
     }
 
@@ -55,7 +50,7 @@ export default class EditHomework extends React.Component<RouteComponentProps<IE
         }
 
         if (this.state.isLoaded) {
-            if (!this.authService.isLoggedIn() || this.authService.getProfile()._id !== this.state.courseMentorId) {
+            if (!ApiSingleton.authService.isLoggedIn() || ApiSingleton.authService.getProfile()._id !== this.state.courseMentorId) {
                 return <Typography variant='h6' gutterBottom>Только преподаватель может редактировать домашку</Typography>
             }
             return (
@@ -98,9 +93,9 @@ export default class EditHomework extends React.Component<RouteComponentProps<IE
     }
 
     componentDidMount() {
-        this.homeworkApi.getHomework(+this.props.match.params.homeworkId)
+        ApiSingleton.homeworksApi.getHomework(+this.props.match.params.homeworkId)
             .then(res => res.json())
-            .then(homework => this.coursesApi.get(homework.courseId)
+            .then(homework => ApiSingleton.coursesApi.get(homework.courseId)
                 .then(res => res.json())
                 .then(course => this.setState({
                     isLoaded: true,
