@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using HwProj.Repositories;
 
 namespace HwProj.CoursesService.API.Models

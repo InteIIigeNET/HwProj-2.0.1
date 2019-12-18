@@ -22,6 +22,9 @@ namespace HwProj.CoursesService.API.Models.ViewModels
 
         [Required]
         public List<CourseMateViewModel> GroupMates { get; set;}
+
+        [Required]
+        public long CourseId { get; set; }
     }
 
     public class UpdateGroupViewModel

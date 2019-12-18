@@ -39,10 +39,10 @@ namespace HwProj.CoursesService.API.Controllers
 
         [HttpPost("{courseId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        public async Task<IActionResult> CreateGroup(long courseId, [FromBody] CreateGroupViewModel groupViewModel)
+        public async Task<IActionResult> CreateGroup([FromBody] CreateGroupViewModel groupViewModel)
         {
             var group = _mapper.Map<Group>(groupViewModel);
-            var id = await _groupsService.AddGroupAsync(group, courseId);
+            var id = await _groupsService.AddGroupAsync(group);
             groupViewModel.GroupMates.ForEach(async cm => await AddStudentInGroup(id, cm.StudentId).ConfigureAwait(false));
             return Ok(id);
         }
@@ -71,9 +71,8 @@ namespace HwProj.CoursesService.API.Controllers
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> AddStudentInGroup(long groupId, [FromBody] string studentId)
         {
-            return await _groupsService.AddGroupMateAsync(groupId, studentId)
-                ? Ok()
-                : NotFound() as IActionResult;
+            await _groupsService.AddGroupMateAsync(groupId, studentId);
+            return Ok() as IActionResult;
         }
 
         [HttpPost("remove_student_from_group/{groupId}")]

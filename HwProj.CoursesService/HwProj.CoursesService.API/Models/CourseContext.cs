@@ -15,5 +15,10 @@ namespace HwProj.CoursesService.API.Models
         {
             Database.EnsureCreated();
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<GroupMate>().HasAlternateKey(u => new { u.GroupId, u.StudentId });
+        }
     }
 }

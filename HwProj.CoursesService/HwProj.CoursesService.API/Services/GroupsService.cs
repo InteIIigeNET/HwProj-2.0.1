@@ -36,9 +36,8 @@ namespace HwProj.CoursesService.API.Services
             return await _groupsRepository.GetGroupWithGroupMatesAsync(groupId);
         }
 
-        public async Task<long> AddGroupAsync(Group group, long courseId)
-        {
-            group.CourseId = courseId;
+        public async Task<long> AddGroupAsync(Group group)
+        { 
             var mates = group.GroupMates;
             group.GroupMates = null;
             var groupId = await _groupsRepository.AddAsync(group).ConfigureAwait(false);
@@ -50,19 +49,8 @@ namespace HwProj.CoursesService.API.Services
             return groupId;
         }
 
-        public async Task<bool> AddGroupMateAsync(long groupId, string studentId)
+        public async Task AddGroupMateAsync(long groupId, string studentId)
         {
-            var getGroupTask = _groupsRepository.GetAsync(groupId);
-            var getGroupMateTask =
-                _groupMatesRepository.FindAsync(cm => cm.GroupId == groupId && cm.StudentId == studentId);
-            await Task.WhenAll(getGroupTask, getGroupMateTask);
-
-            if (getGroupTask.Result == null || getGroupMateTask.Result != null)
-            {
-                return false;
-            }
-
-
             var groupMate = new GroupMate
             {
                 GroupId = groupId,
@@ -70,7 +58,6 @@ namespace HwProj.CoursesService.API.Services
             };
 
             await _groupMatesRepository.AddAsync(groupMate);
-            return true;
         }
 
         public async Task DeleteGroupAsync(long groupId)

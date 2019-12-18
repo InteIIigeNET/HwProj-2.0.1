@@ -84,7 +84,7 @@ namespace HwProj.CoursesService.Tests
         {
             #region init data
             var group = new Group { CourseId = 1, GroupMates = new List<GroupMate>(), Name = "0_o" };
-            var addedGroupId = await _service.AddGroupAsync(group, 1).ConfigureAwait(false);
+            var addedGroupId = await _service.AddGroupAsync(group).ConfigureAwait(false);
             #endregion
 
             var answer = _courseContext.Groups.Find(addedGroupId);
@@ -102,7 +102,7 @@ namespace HwProj.CoursesService.Tests
             };
 
             var group = new Group { CourseId = 1, GroupMates = mates, Name = "0_o" };
-            var addedGroupId = await _service.AddGroupAsync(group, 1).ConfigureAwait(false);
+            var addedGroupId = await _service.AddGroupAsync(group).ConfigureAwait(false);
             #endregion
 
             var answer = _courseContext.Groups.Find(addedGroupId);
@@ -124,7 +124,7 @@ namespace HwProj.CoursesService.Tests
             };
 
             var group = new Group { CourseId = 1, GroupMates = mates, Name = "0_o" };
-            var addedGroupId = await _service.AddGroupAsync(group, 1).ConfigureAwait(false);
+            var addedGroupId = await _service.AddGroupAsync(group).ConfigureAwait(false);
             #endregion
 
             var matesIds = _courseContext.GroupMates.ToArray().Select(cm => cm.Id).ToList();
@@ -160,6 +160,18 @@ namespace HwProj.CoursesService.Tests
 
             var addedGroup = await _service.GetGroupAsync(addedGroupId).ConfigureAwait(false);
             Assert.IsNotNull(addedGroup.GroupMates.Select(cm => cm.StudentId == "st"));
+        }
+
+        [Test]
+        public async Task AddSameGroupMateTest()
+        {
+            #region init data
+            var group = new Group { CourseId = 1, GroupMates = new List<GroupMate>(), Name = "0_o" };
+            var addedGroupId = await _groupsRepository.AddAsync(group);
+            #endregion
+
+            await _service.AddGroupMateAsync(addedGroupId, "st");
+            Assert.ThrowsAsync<System.InvalidOperationException>(await _service.AddGroupMateAsync(addedGroupId, "st"));
         }
 
         [Test]
