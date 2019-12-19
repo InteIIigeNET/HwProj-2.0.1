@@ -34,14 +34,11 @@ namespace HwProj.CoursesService.API.Models.ViewModels
 
     public class UpdateGroupViewModel
     {
-        [Required]
         [RegularExpression(@"^\S+.*", ErrorMessage = "Name shouldn't start with white spaces.")]
         public string Name { get; set; }
 
-        [Required]
         public List<long> Tasks { get; set; } = new List<long>();
 
-        [Required]
         public List<GroupMateViewModel> GroupMates { get; set; }
     }
 }

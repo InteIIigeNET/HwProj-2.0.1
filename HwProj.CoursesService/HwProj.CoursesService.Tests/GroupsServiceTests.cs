@@ -308,19 +308,25 @@ namespace HwProj.CoursesService.Tests
         }
 
         [Test]
-        public async Task MapperTest()
+        public void MapperTest()
         {
             CreateGroupViewModel groupViewModel = new CreateGroupViewModel
-            {   CourseId = 1,
+            {   
+                CourseId = 1,
                 GroupMates = new List<GroupMateViewModel>
                 {
-                    new GroupMateViewModel {StudentId = "st1" },
-                    new GroupMateViewModel {StudentId = "st2" },
-                    new GroupMateViewModel {StudentId = "st3" },
+                    new GroupMateViewModel {StudentId = "st1" }
+                },
+                Tasks = new List<long>
+                { 
+                    42
                 }
             };
 
             var group = _mapper.Map<Group>(groupViewModel);
+
+            Assert.IsNotEmpty(group.GroupMates.Where(cm => cm.StudentId == "st1"));
+            Assert.IsNotEmpty(group.Tasks.Where(cm => cm.TaskId == 42));
         }
     }
 }

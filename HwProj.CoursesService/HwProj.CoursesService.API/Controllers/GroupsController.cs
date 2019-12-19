@@ -60,15 +60,7 @@ namespace HwProj.CoursesService.API.Controllers
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> UpdateGroup(long groupId, [FromBody] UpdateGroupViewModel groupViewModel)
         {
-            List <TasksModel> taskList = new List<TasksModel>();
-            groupViewModel.Tasks.ForEach(cm => taskList.Add(new TasksModel {TaskId = cm}));
-            await _groupsService.UpdateAsync(groupId, new Group
-            {
-                Name = groupViewModel.Name,
-                GroupMates = _mapper.Map<List<GroupMate>>(groupViewModel.GroupMates),
-                Tasks = taskList
-            }).ConfigureAwait(false);
-
+            await _groupsService.UpdateAsync(groupId, _mapper.Map<Group>(groupViewModel));
             return Ok();
         }
 

@@ -17,12 +17,17 @@ namespace HwProj.CoursesService.API
             CreateMap<Course, UpdateCourseViewModel>().ReverseMap();
 
             CreateMap<Group, UserGroupDescription>();
-            CreateMap<GroupViewModel, Group>()
+            CreateMap<GroupViewModel, Group>().ReverseMap()
+                .ForMember("Tasks", cm => cm.MapFrom(g => g.Tasks.Select(c => c.TaskId).ToList()))
+                .ForMember("GroupMates", cm => cm.MapFrom(g => g.GroupMates.Select(c => new GroupMateViewModel { StudentId = c.StudentId }).ToList()));
+            CreateMap<Group, CreateGroupViewModel>().ReverseMap()
                 .ForMember("Tasks", cm => cm.MapFrom(g => g.Tasks.Select(c => new TasksModel { TaskId = c }).ToList()))
                 .ForMember("GroupMates", cm => cm.MapFrom(g => g.GroupMates.Select(c => new GroupMate { StudentId = c.StudentId }).ToList()));
-            CreateMap<Group, CreateGroupViewModel>().ReverseMap();
+            CreateMap<UpdateGroupViewModel, Group>()
+                .ForMember("Tasks", cm => cm.MapFrom(g => g.Tasks.Select(c => new TasksModel { TaskId = c }).ToList()))
+                .ForMember("GroupMates", cm => cm.MapFrom(g => g.GroupMates.Select(c => new GroupMate { StudentId = c.StudentId }).ToList()));
 
-            CreateMap<GroupMate, CourseMateViewModel>();
+            CreateMap<GroupMate, GroupMateViewModel>();
 
             CreateMap<CourseMate, CourseMateViewModel>();
         }
