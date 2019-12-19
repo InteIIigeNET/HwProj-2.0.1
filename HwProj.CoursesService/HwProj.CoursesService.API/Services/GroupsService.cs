@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.API.Models;
@@ -39,11 +40,15 @@ namespace HwProj.CoursesService.API.Services
         public async Task<long> AddGroupAsync(Group group)
         { 
             var mates = group.GroupMates;
+            var tasks = group.Tasks;
             group.GroupMates = null;
+            group.Tasks = null;
             var groupId = await _groupsRepository.AddAsync(group).ConfigureAwait(false);
 
             mates.ForEach(cm => cm.GroupId = groupId);
+            tasks.ForEach(cm => cm.GroupId = groupId);
             _courseContext.AddRange(mates);
+            _courseContext.AddRange(tasks);
             _courseContext.SaveChanges();
 
             return groupId;
@@ -67,10 +72,17 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task UpdateAsync(long groupId, Group updated)
         {
+            var group = await _groupsRepository.GetAsync(groupId);
+            _courseContext.RemoveRange(group.GroupMates);
+            _courseContext.RemoveRange(group.Tasks);
+            updated.GroupMates.ForEach(cm => cm.GroupId = groupId);
+            updated.Tasks.ForEach(cm => cm.GroupId = groupId);
+            _courseContext.AddRange(updated.GroupMates);
+            _courseContext.AddRange(updated.Tasks);
+            _courseContext.SaveChanges();
             await _groupsRepository.UpdateAsync(groupId, c => new Group
             {
-
-                Name = updated.Name
+                Name = updated.Name,
             });
         }
 
@@ -116,7 +128,7 @@ namespace HwProj.CoursesService.API.Services
             }).ToArray();
         }
 
-        public async Task<long[]> GetHomeWrokIds(long groupId)
+        public async Task<long[]> GetTasksIds(long groupId)
         {
             var getGroupTask = await _groupsRepository.GetAsync(groupId);
             return getGroupTask.Tasks.Select(cm => cm.TaskId).ToArray();

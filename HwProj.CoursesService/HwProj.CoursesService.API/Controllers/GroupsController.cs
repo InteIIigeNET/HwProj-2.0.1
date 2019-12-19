@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
@@ -21,7 +22,7 @@ namespace HwProj.CoursesService.API.Controllers
             _groupsService = groupsService;
         }
 
-        [HttpGet("GetAll/{courseId}")]
+        [HttpGet("get_all/{courseId}")]
         public async Task<GroupViewModel[]> GetAll(long courseId)
         {
             var groups = await _groupsService.GetAllAsync(courseId).ConfigureAwait(false);
@@ -59,9 +60,13 @@ namespace HwProj.CoursesService.API.Controllers
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> UpdateGroup(long groupId, [FromBody] UpdateGroupViewModel groupViewModel)
         {
+            List <TasksModel> taskList = new List<TasksModel>();
+            groupViewModel.Tasks.ForEach(cm => taskList.Add(new TasksModel {TaskId = cm}));
             await _groupsService.UpdateAsync(groupId, new Group
             {
-                Name = groupViewModel.Name
+                Name = groupViewModel.Name,
+                GroupMates = _mapper.Map<List<GroupMate>>(groupViewModel.GroupMates),
+                Tasks = taskList
             }).ConfigureAwait(false);
 
             return Ok();
@@ -84,11 +89,18 @@ namespace HwProj.CoursesService.API.Controllers
                 : NotFound() as IActionResult;
         }
 
-        [HttpGet("user_Groups/{courseId}/{userId}")]
+        [HttpGet("user_groups/{courseId}/{userId}")]
         public async Task<IActionResult> GetCoursesGroups(long courseId, string userId)
         {
             var groups = await _groupsService.GetStudentsGroupsAsync(courseId, userId);
             return Ok(groups);
+        }
+
+        [HttpGet("get_tasks/{groupId}")]
+        public async Task<IActionResult> GetGroupTasks(long groupId)
+        {
+            var ids = await _groupsService.GetTasksIds(groupId);
+            return Ok(ids);
         }
     }
 }

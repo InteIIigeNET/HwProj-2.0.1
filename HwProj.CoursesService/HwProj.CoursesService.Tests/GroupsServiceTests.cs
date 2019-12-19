@@ -8,7 +8,8 @@ using HwProj.CoursesService.API;
 using AutoMapper;
 using System.Threading.Tasks;
 using System.Linq;
-
+using HwProj.CoursesService.API.Models.ViewModels;
+using HwProj.CoursesService.API.Repositories.Groups;
 
 namespace HwProj.CoursesService.Tests
 {
@@ -19,6 +20,7 @@ namespace HwProj.CoursesService.Tests
         private GroupsRepository _groupsRepository;
         private GroupMatesRepository _groupMatesRepository;
         private GroupsService _service;
+        private IMapper _mapper;
 
         [SetUp]
         public void Setup()
@@ -29,14 +31,16 @@ namespace HwProj.CoursesService.Tests
             _courseContext = new CourseContext(options);
             _groupsRepository = new GroupsRepository(_courseContext);
             _groupMatesRepository = new GroupMatesRepository(_courseContext);
+            var _courseMateRepository = new CourseMatesRepository(_courseContext);
+            new TasksRepository(_courseContext);
 
             var config = new MapperConfiguration(cfg =>
             {
                 cfg.AddProfile<ApplicationProfile>();
             });
-            IMapper iMapper = config.CreateMapper();
+            _mapper = config.CreateMapper();
 
-            _service = new GroupsService(_groupsRepository, _groupMatesRepository, _courseContext, iMapper);
+            _service = new GroupsService(_groupsRepository, _groupMatesRepository, _courseContext, _mapper);
         }
 
         [Test]
@@ -67,9 +71,9 @@ namespace HwProj.CoursesService.Tests
 
                 var mates = new List<GroupMate>
                 {
-                new GroupMate{GroupId = addedGroupId, StudentId = "st1"},
-                new GroupMate{GroupId = addedGroupId, StudentId = "st2"},
-                new GroupMate{GroupId = addedGroupId, StudentId = "st3"}
+                    new GroupMate{GroupId = addedGroupId, StudentId = "st1"},
+                    new GroupMate{GroupId = addedGroupId, StudentId = "st2"},
+                    new GroupMate{GroupId = addedGroupId, StudentId = "st3"}
                 };
 
                 _courseContext.AddRange(mates);
@@ -155,6 +159,12 @@ namespace HwProj.CoursesService.Tests
                     _courseContext.Entry(x).State = EntityState.Detached;
                 }
                 _courseContext.Set<GroupMate>().Load();
+
+                foreach (var x in _courseContext.Set<TasksModel>().Local.ToList())
+                {
+                    _courseContext.Entry(x).State = EntityState.Detached;
+                }
+                _courseContext.Set<TasksModel>().Load();
                 //end
 
                 Assert.IsNull(await _groupsRepository.GetAsync(addedGroupId));
@@ -260,12 +270,18 @@ namespace HwProj.CoursesService.Tests
             using (var transaction = _courseContext.Database.BeginTransaction())
             {
                 #region init data
-                var addedGroupId = await _groupsRepository.AddAsync(new Group { CourseId = 1, GroupMates = new List<GroupMate>(), Name = "0_o" });
+                var addedGroupId = await _groupsRepository.AddAsync(new Group { CourseId = 1, Name = "0_o" });
                 #endregion
 
-                await _service.UpdateAsync(addedGroupId, new Group { Name = "updated" });
+                await _service.UpdateAsync(addedGroupId, new Group { 
+                    Name = "updated", 
+                    GroupMates = new List<GroupMate> { new GroupMate { StudentId = "st" } },
+                    Tasks = new List<TasksModel> { new TasksModel { TaskId = 42} },
+                });
                 var addedGroup = await _service.GetGroupAsync(addedGroupId).ConfigureAwait(false);
                 Assert.AreEqual("updated", addedGroup.Name);
+                Assert.IsNotEmpty(addedGroup.GroupMates.Where(cm => cm.StudentId == "st"));
+                Assert.IsNotEmpty(addedGroup.Tasks.Where(cm => cm.TaskId == 42));
             }
         }
 
@@ -289,6 +305,22 @@ namespace HwProj.CoursesService.Tests
                 Assert.IsNotEmpty(groups1.Where(cm => cm.Name == "gr1"));
                 Assert.IsNotEmpty(groups1.Where(cm => cm.Name == "gr2"));
             }
+        }
+
+        [Test]
+        public async Task MapperTest()
+        {
+            CreateGroupViewModel groupViewModel = new CreateGroupViewModel
+            {   CourseId = 1,
+                GroupMates = new List<GroupMateViewModel>
+                {
+                    new GroupMateViewModel {StudentId = "st1" },
+                    new GroupMateViewModel {StudentId = "st2" },
+                    new GroupMateViewModel {StudentId = "st3" },
+                }
+            };
+
+            var group = _mapper.Map<Group>(groupViewModel);
         }
     }
 }

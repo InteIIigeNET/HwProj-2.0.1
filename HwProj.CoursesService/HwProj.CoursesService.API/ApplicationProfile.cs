@@ -2,6 +2,8 @@
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Models.DTO;
 using HwProj.CoursesService.API.Models.ViewModels;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace HwProj.CoursesService.API
 {
@@ -15,7 +17,9 @@ namespace HwProj.CoursesService.API
             CreateMap<Course, UpdateCourseViewModel>().ReverseMap();
 
             CreateMap<Group, UserGroupDescription>();
-            CreateMap<Group, GroupViewModel>().ReverseMap();
+            CreateMap<GroupViewModel, Group>()
+                .ForMember("Tasks", cm => cm.MapFrom(g => g.Tasks.Select(c => new TasksModel { TaskId = c }).ToList()))
+                .ForMember("GroupMates", cm => cm.MapFrom(g => g.GroupMates.Select(c => new GroupMate { StudentId = c.StudentId }).ToList()));
             CreateMap<Group, CreateGroupViewModel>().ReverseMap();
 
             CreateMap<GroupMate, CourseMateViewModel>();
