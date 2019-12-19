@@ -34,7 +34,7 @@ namespace HwProj.Utils.Configuration
                 {
                     options.AddPolicy("CorsPolicy",
                         builder => builder
-                            .SetIsOriginAllowed((host) => true)
+                            .AllowAnyOrigin()
                             .AllowAnyMethod()
                             .AllowAnyHeader()
                             .AllowCredentials());
@@ -97,6 +97,7 @@ namespace HwProj.Utils.Configuration
                 app.UseHsts();
             }
 
+            app.UseCors("CorsPolicy");
             app.UseHttpsRedirection()
                 .UseMvc();
         }

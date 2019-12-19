@@ -23,8 +23,13 @@ class Api {
     }
 }
 
+const basePath = "http://localhost:5000";
 
 let ApiSingleton : Api;
-ApiSingleton = new Api(new AccountApi, new CoursesApi, new HomeworksApi,
-    new TasksApi, new SolutionsApi, new AuthService);
+ApiSingleton = new Api(new AccountApi({basePath: basePath}), 
+new CoursesApi({basePath: basePath}), 
+new HomeworksApi({basePath: basePath}), 
+new TasksApi({basePath: basePath}), 
+new SolutionsApi({basePath: basePath}), 
+new AuthService);
 export default ApiSingleton;

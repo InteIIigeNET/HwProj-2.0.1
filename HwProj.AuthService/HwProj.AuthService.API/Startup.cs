@@ -79,7 +79,10 @@ namespace HwProj.AuthService.API
                 var userManager = scope.ServiceProvider.GetService(typeof(UserManager<User>)) as UserManager<User>;
                 var rolesManager = scope.ServiceProvider.GetService(typeof(RoleManager<IdentityRole>)) as RoleManager<IdentityRole>;
 
-                RoleInitializer.InitializeAsync(userManager, rolesManager).Wait();
+                if (env.IsDevelopment())
+                {
+                    RoleInitializer.InitializeAsync(userManager, rolesManager).Wait();
+                }
             }
         }
     }

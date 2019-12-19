@@ -91,7 +91,7 @@ export class Register extends React.Component<{}, IRegisterState> {
         );
     }
 
-    private async handleSubmit(): Promise<void> {
+    private handleSubmit = async () => {
         const {email, password} = this.state.registerData;
 
         await ApiSingleton.accountApi.register(this.state.registerData);
