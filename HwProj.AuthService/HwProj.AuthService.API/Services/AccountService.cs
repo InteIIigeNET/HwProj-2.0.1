@@ -117,9 +117,16 @@ namespace HwProj.AuthService.API.Services
                 .Then(() => _userManager.RemoveFromRoleAsync(invitedUser, Roles.StudentRole)).ConfigureAwait(false);
         }
 
-        private Task<IdentityResult> ChangeUserNameTask(User user, EditAccountViewModel model)
+        private Task<IdentityResult> ChangeNameTask(User user, EditAccountViewModel model)
         {
-            return !string.IsNullOrWhiteSpace(model.UserName)
+            return !string.IsNullOrWhiteSpace(model.Name)
+                ? _userManager.UpdateAsync(user)
+                : Task.FromResult(IdentityResult.Success);
+        }
+
+        private Task<IdentityResult> ChangeSurNameTask(User user, EditAccountViewModel model)
+        {
+            return !string.IsNullOrWhiteSpace(model.SurName)
                 ? _userManager.UpdateAsync(user)
                 : Task.FromResult(IdentityResult.Success);
         }

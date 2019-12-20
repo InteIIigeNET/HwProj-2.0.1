@@ -2,13 +2,15 @@
 {
     public class AccountData
     {
-        public string UserName { get; }
+        public string Name { get; }
+        public string SurName { get; }
         public string Email { get; }
         public string Role { get; }
 
-        public AccountData(string userName, string email, string role)
+        public AccountData(string name, string surName, string email, string role)
         {
-            UserName = userName;
+            Name = name;
+            SurName = surName;
             Email = email;
             Role = role;
         }
