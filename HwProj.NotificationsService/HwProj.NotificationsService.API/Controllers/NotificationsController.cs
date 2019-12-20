@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Services;
 using HwProj.Utils.Authorization;
@@ -41,8 +42,8 @@ namespace HwProj.NotificationsService.API.Controllers
             return Ok();
         }
 
-        [HttpPut("get_ntofications_in_time")]
-        public async Task<IActionResult> GetInTime([FromQuery] int timeSpan)
+        [HttpPut("get_notfications_in_time")]
+        public async Task<IActionResult> GetInTime([FromQuery] (string day, string month, string year), )
         {
             var userId = Request.GetUserId();
             await _notificationsService.GetInTimeAsync(userId, timeSpan);

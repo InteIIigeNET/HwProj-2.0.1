@@ -22,20 +22,31 @@ namespace HwProj.NotificationsService.API.Repositories
 
     public class GetInTimeNotificationSpecification : Specification
     {
-        private readonly int _days;
+        private readonly (DateTime, DateTime) _timeSpan;
 
-        public GetInTimeNotificationSpecification(int days)
+        public GetInTimeNotificationSpecification((string, string) timeSpan)
         {
-
-            _days = days;
+            _timeSpan = ConverterToDateFormat(timeSpan);
         }
 
         public override Expression<Func<Notification, bool>> ToExpression()
         {
-            return notification => DateTime.Now.Subtract(notification.Date) >= TimeSpan.FromDays(_days);
+            return notification => DateTime.Compare(notification.Date, _timeSpan.Item1) <= 0 && DateTime.Compare(notification.Date, _timeSpan.Item2) >= 0;
+        }
+
+        private (DateTime, DateTime) ConverterToDateFormat((string, string) timeSpan)
+        {
+            try
+            {
+                var _timeSpan = (Convert.ToDateTime(timeSpan.Item1), Convert.ToDateTime(timeSpan.Item2));
+                return _timeSpan;
+            }
+            catch (FormatException)
+            {
+                return default;
+            }
         }
     }
-
 
     public class UserNotificationSpecification : Specification
     {

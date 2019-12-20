@@ -16,72 +16,45 @@ namespace HwProj.NotificationsService.API.Repositories
 
     public abstract class Specification 
     {
-        public abstract Expression<Func<Notification, bool>> ToExpression();
+        public abstract Expression<Func<NotificationFilter, bool>> ToExpression();
 
-        public bool IsSatisfiedBy(Notification notification)
+        public bool IsSatisfiedBy(NotificationFilter filter)
         {
-            Func<Notification, bool> predicate = ToExpression().Compile();
-            return predicate(notification);
+            Func<NotificationFilter, bool> predicate = ToExpression().Compile();
+            return predicate(filter);
         }
 
         public Specification And(Specification specification)
         {
-            return new AndSpecification(this, specification);
-        }
-
-        public Specification Or(Specification specification)
-        {
-            return new OrSpecification(this, specification);
+            return new And(this, specification);
         }
     }
 
-    public class AndSpecification : Specification
+    public class And : Specification
     {
         private readonly Specification _left;
         private readonly Specification _right;
 
-        public AndSpecification(Specification left, Specification right)
+        public And(Specification left, Specification right)
         {
             _right = right;
             _left = left;
         }
 
-        public override Expression<Func<Notification, bool>> ToExpression()
+        public override Expression<Func<NotificationFilter, bool>> ToExpression()
         {
-            Expression<Func<Notification, bool>> leftExpression = _left.ToExpression();
-            Expression<Func<Notification, bool>> rightExpression = _right.ToExpression();
+            Expression<Func<NotificationFilter, bool>> leftExpression = _left.ToExpression();
+            Expression<Func<NotificationFilter, bool>> rightExpression = _right.ToExpression();
             var paramExpression = Expression.Parameter(typeof(Notification));
             var expressionBody = Expression.AndAlso(leftExpression.Body, rightExpression.Body);
             expressionBody = (BinaryExpression)new ParameterReplacer(paramExpression).Visit(expressionBody);
-            var finalExpression = Expression.Lambda<Func<Notification, bool>>(expressionBody, paramExpression);
+            var finalExpression = Expression.Lambda<Func<NotificationFilter, bool>>(expressionBody, paramExpression);
 
             return finalExpression;
         }
     }
 
-
-    public class OrSpecification : Specification
-    {
-        private readonly Specification _left;
-        private readonly Specification _right;
-
-        public OrSpecification(Specification left, Specification right)
-        {
-            _right = right;
-            _left = left;
-        }
-
-        public override Expression<Func<Notification, bool>> ToExpression()
-        {
-            var leftExpression = _left.ToExpression();
-            var rightExpression = _right.ToExpression();
-            var paramExpression = Expression.Parameter(typeof(Notification));
-            var expressionBody = Expression.OrElse(leftExpression.Body, rightExpression.Body);
-            expressionBody = (BinaryExpression)new ParameterReplacer(paramExpression).Visit(expressionBody);
-            var finalExpression = Expression.Lambda<Func<Notification, bool>>(expressionBody, paramExpression);
-
-            return finalExpression;
-        }
+   
     }
 }
 
