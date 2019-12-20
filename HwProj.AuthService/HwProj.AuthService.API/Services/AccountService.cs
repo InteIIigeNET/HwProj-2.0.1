@@ -94,6 +94,7 @@ namespace HwProj.AuthService.API.Services
             }
 
             var user = _mapper.Map<User>(model);
+            user.UserName = user.Email;
 
             return await _userManager.CreateAsync(user, model.Password)
                 .Then(() => _userManager.AddToRoleAsync(user, Roles.StudentRole))
