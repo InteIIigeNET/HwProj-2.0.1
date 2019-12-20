@@ -138,9 +138,28 @@ namespace HwProj.CoursesService.Tests
                 var group = new Group { CourseId = 1, GroupMates = mates, Name = "0_o" };
                 var addedGroupId = await _service.AddGroupAsync(group).ConfigureAwait(false);
                 #endregion
-
                 var matesIds = _groupMatesRepository.FindAll(cm => cm.GroupId == addedGroupId).ToList();
                 await _service.DeleteGroupAsync(addedGroupId);
+
+                //Local part of Database is not updated automaticly, so...
+                foreach (var x in _courseContext.Set<Group>().Local.ToList())
+                {
+                    _courseContext.Entry(x).State = EntityState.Detached;
+                }
+                _courseContext.Set<Group>().Load();
+
+                foreach (var x in _courseContext.Set<GroupMate>().Local.ToList())
+                {
+                    _courseContext.Entry(x).State = EntityState.Detached;
+                }
+                _courseContext.Set<GroupMate>().Load();
+
+                foreach (var x in _courseContext.Set<TaskModel>().Local.ToList())
+                {
+                    _courseContext.Entry(x).State = EntityState.Detached;
+                }
+                _courseContext.Set<TaskModel>().Load();
+                //end
 
                 var addedGroup = await _groupsRepository.GetAsync(addedGroupId).ConfigureAwait(false);
                 addedGroup.Should().Be(null);
