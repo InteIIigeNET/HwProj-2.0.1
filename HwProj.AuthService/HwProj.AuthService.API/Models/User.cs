@@ -6,7 +6,7 @@ namespace HwProj.AuthService.API.Models
     {
         public string GitHubId { get; set; }
         public string Name { get; set; }
-        public string SurName { get; set; }
+        public string Surname { get; set; }
 
         public User()
         {

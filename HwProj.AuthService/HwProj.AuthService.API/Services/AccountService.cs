@@ -124,9 +124,9 @@ namespace HwProj.AuthService.API.Services
                 : Task.FromResult(IdentityResult.Success);
         }
 
-        private Task<IdentityResult> ChangeSurNameTask(User user, EditAccountViewModel model)
+        private Task<IdentityResult> ChangeSurnameTask(User user, EditAccountViewModel model)
         {
-            return !string.IsNullOrWhiteSpace(model.SurName)
+            return !string.IsNullOrWhiteSpace(model.Surname)
                 ? _userManager.UpdateAsync(user)
                 : Task.FromResult(IdentityResult.Success);
         }
