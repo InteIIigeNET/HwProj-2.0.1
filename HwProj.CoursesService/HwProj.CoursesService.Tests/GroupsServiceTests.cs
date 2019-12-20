@@ -22,7 +22,6 @@ namespace HwProj.CoursesService.Tests
         private GroupsRepository _groupsRepository;
         private GroupMatesRepository _groupMatesRepository;
         private GroupsService _service;
-        private TaskModelsRepository _taskModelsRepository;
         private IMapper _mapper;
 
         [SetUp]
@@ -34,7 +33,7 @@ namespace HwProj.CoursesService.Tests
             _courseContext = new CourseContext(options);
             _groupsRepository = new GroupsRepository(_courseContext);
             _groupMatesRepository = new GroupMatesRepository(_courseContext);
-            _taskModelsRepository = new TaskModelsRepository(_courseContext);
+            var _taskModelsRepository = new TaskModelsRepository(_courseContext);
 
             var config = new MapperConfiguration(cfg =>
             {
@@ -143,26 +142,6 @@ namespace HwProj.CoursesService.Tests
                 var matesIds = _groupMatesRepository.FindAll(cm => cm.GroupId == addedGroupId).ToList();
                 await _service.DeleteGroupAsync(addedGroupId);
 
-                //Local part of Database is not updated automaticly, so...
-                foreach (var x in _courseContext.Set<Group>().Local.ToList())
-                {
-                    _courseContext.Entry(x).State = EntityState.Detached;
-                }
-                _courseContext.Set<Group>().Load();
-
-                foreach (var x in _courseContext.Set<GroupMate>().Local.ToList())
-                {
-                    _courseContext.Entry(x).State = EntityState.Detached;
-                }
-                _courseContext.Set<GroupMate>().Load();
-
-                foreach (var x in _courseContext.Set<TaskModel>().Local.ToList())
-                {
-                    _courseContext.Entry(x).State = EntityState.Detached;
-                }
-                _courseContext.Set<TaskModel>().Load();
-                //end
-
                 var addedGroup = await _groupsRepository.GetAsync(addedGroupId).ConfigureAwait(false);
                 addedGroup.Should().Be(null);
                 matesIds.ForEach(async cm => (await _groupMatesRepository.GetAsync(cm.Id)).Should().Be(null));
@@ -235,9 +214,9 @@ namespace HwProj.CoursesService.Tests
                     GroupMates = new List<GroupMate> { new GroupMate { StudentId = "st1" }, new GroupMate { StudentId = "st2" } } };
                 var gr2 = new Group { CourseId = 1, Name = "gr2", GroupMates = new List<GroupMate> { new GroupMate { StudentId = "st3" } } };
                 var gr3 = new Group { CourseId = 2, Name = "gr3", GroupMates = new List<GroupMate> { new GroupMate { StudentId = "st42" } } };
-                var addedGroup1Id = await _groupsRepository.AddAsync(gr1);
-                var addedGroup2Id = await _groupsRepository.AddAsync(gr2);
-                var addedGroup3Id = await _groupsRepository.AddAsync(gr3);
+                await _groupsRepository.AddAsync(gr1);
+                await _groupsRepository.AddAsync(gr2);
+                await _groupsRepository.AddAsync(gr3);
                 #endregion
 
                 var course1Groups = await _service.GetAllAsync(1).ConfigureAwait(false);
@@ -250,14 +229,10 @@ namespace HwProj.CoursesService.Tests
         }
 
         [Test]
-        public async Task UpdateGroupTest()
+        public void UpdateGroupTest()
         {
             using (var transaction = _courseContext.Database.BeginTransaction())
             {
-                #region init data
-                var addedGroupId = await _groupsRepository.AddAsync(new Group { CourseId = 1, Name = "0_o" });
-                #endregion
-
                 Assert.AreEqual(1, 1);
             }
         }
