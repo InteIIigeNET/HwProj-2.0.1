@@ -39,7 +39,7 @@ namespace HwProj.AuthService.API.Services
 
             var userRoles = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
             var userRole = userRoles.FirstOrDefault() ?? Roles.StudentRole;
-            return new AccountData(user.Name, user.SurName, user.Email, userRole);
+            return new AccountData(user.Name, user.Surname, user.Email, userRole);
         }
 
         public async Task<IdentityResult> EditAccountAsync(string id, EditAccountViewModel model)

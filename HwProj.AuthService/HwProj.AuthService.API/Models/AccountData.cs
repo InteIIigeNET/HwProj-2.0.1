@@ -10,7 +10,7 @@
         public AccountData(string name, string surname, string email, string role)
         {
             Name = name;
-            Surname = surName;
+            Surname = surname;
             Email = email;
             Role = role;
         }
