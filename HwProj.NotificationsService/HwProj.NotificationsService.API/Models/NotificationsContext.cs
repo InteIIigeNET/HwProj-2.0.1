@@ -1,4 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace HwProj.NotificationsService.API.Models
 {
@@ -10,6 +14,12 @@ namespace HwProj.NotificationsService.API.Models
             : base(options)
         {
             Database.EnsureCreated();
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Notification>()
+                .HasIndex(b => b.Date);
         }
     }
 }

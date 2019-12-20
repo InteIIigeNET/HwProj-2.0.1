@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Threading.Tasks;
 using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Services;
@@ -18,19 +18,35 @@ namespace HwProj.NotificationsService.API.Controllers
             _notificationsService = notificationsService;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Get([FromBody] NotificationFilter filter)
+        [HttpGet("get_notifications")]
+        public async Task<IActionResult> Get([FromQuery] NotificationFilter filter)
         {
             var userId = Request.GetUserId();
-            await _notificationsService.GetAsync(userId, filter);
-            return Ok();
+            var notifications = await _notificationsService.GetAsync(userId, filter);
+            return Ok(notifications);
         }
 
         [HttpPut("mark_as_seen")]
-        public async Task<IActionResult> MarkNotifications([FromBody] long[] notificationIds)
+        public async Task<IActionResult> MarkNotificationsAsSeen([FromBody] long[] notificationIds)
         {
             var userId = Request.GetUserId();
             await _notificationsService.MarkAsSeenAsync(userId, notificationIds);
+            return Ok();
+        }
+
+        [HttpPut("mark_as_improtant")]
+        public async Task<IActionResult> MarkNotificationsAsImportant([FromBody] long[] notificationsIds)
+        {
+            var userId = Request.GetUserId();
+            await _notificationsService.MarkAsImportantAsync(userId, notificationsIds);
+            return Ok();
+        }
+
+        [HttpPut("get_notfications_in_time")]
+        public async Task<IActionResult> GetInTime([FromQuery] (string day, string month, string year), )
+        {
+            var userId = Request.GetUserId();
+            await _notificationsService.GetInTimeAsync(userId, timeSpan);
             return Ok();
         }
     }
