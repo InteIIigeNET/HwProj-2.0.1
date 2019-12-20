@@ -8,7 +8,7 @@ namespace HwProj.AuthService.API.Models.ViewModels
         public string Name { get; set; }
 
         [Required]
-        public string Surname { get; set; }
+        public string SurName { get; set; }
 
         [Required]
         [DataType(DataType.EmailAddress)]

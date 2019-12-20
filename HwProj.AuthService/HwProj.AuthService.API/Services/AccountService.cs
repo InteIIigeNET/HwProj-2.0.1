@@ -39,7 +39,7 @@ namespace HwProj.AuthService.API.Services
 
             var userRoles = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
             var userRole = userRoles.FirstOrDefault() ?? Roles.StudentRole;
-            return new AccountData(user.UserName, user.Email, userRole);
+            return new AccountData(user.Name, user.SurName, user.Email, userRole);
         }
 
         public async Task<IdentityResult> EditAccountAsync(string id, EditAccountViewModel model)
@@ -55,7 +55,7 @@ namespace HwProj.AuthService.API.Services
                 return IdentityResults.WrongPassword;
             }
 
-            return await ChangeUserNameTask(user, model).Then(() => ChangePasswordAsync(user, model)).ConfigureAwait(false);
+            return await ChangeNameTask(user, model).Then(() => ChangePasswordAsync(user, model)).ConfigureAwait(false);
         }
 
         public async Task<IdentityResult<TokenCredentials>> LoginUserAsync(LoginViewModel model)
