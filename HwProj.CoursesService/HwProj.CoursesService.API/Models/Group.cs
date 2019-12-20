@@ -7,7 +7,7 @@ namespace HwProj.CoursesService.API.Models
     public class Group : IEntity
     {
         [Key]
-        public long Id { get; set;  }
+        public long Id { get; set; }
 
         public long CourseId { get; set; }
 
@@ -15,6 +15,6 @@ namespace HwProj.CoursesService.API.Models
 
         public List<GroupMate> GroupMates { get; set; } = new List<GroupMate>();
 
-        public List<TasksModel> Tasks { get; set; } = new List<TasksModel>();
+        public List<TaskModel> Tasks { get; set; } = new List<TaskModel>();
     }
 }

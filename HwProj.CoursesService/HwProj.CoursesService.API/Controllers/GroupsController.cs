@@ -60,7 +60,7 @@ namespace HwProj.CoursesService.API.Controllers
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> UpdateGroup(long groupId, [FromBody] UpdateGroupViewModel groupViewModel)
         {
-            await _groupsService.UpdateAsync(groupId, _mapper.Map<Group>(groupViewModel));
+            await _groupsService.UpdateAsync(groupId, _mapper.Map<Group>(groupViewModel)).ConfigureAwait(false);
             return Ok();
         }
 
@@ -68,7 +68,7 @@ namespace HwProj.CoursesService.API.Controllers
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> AddStudentInGroup(long groupId, [FromBody] string studentId)
         {
-            await _groupsService.AddGroupMateAsync(groupId, studentId);
+            await _groupsService.AddGroupMateAsync(groupId, studentId).ConfigureAwait(false);
             return Ok() as IActionResult;
         }
 
@@ -76,7 +76,7 @@ namespace HwProj.CoursesService.API.Controllers
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> RemoveStudentFromGroup(long groupId, string studentId)
         {
-            return await _groupsService.DeleteGroupMateAsync(groupId, studentId)
+            return await _groupsService.DeleteGroupMateAsync(groupId, studentId).ConfigureAwait(false)
                 ? Ok()
                 : NotFound() as IActionResult;
         }
@@ -84,14 +84,14 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpGet("user_groups/{courseId}/{userId}")]
         public async Task<IActionResult> GetCoursesGroups(long courseId, string userId)
         {
-            var groups = await _groupsService.GetStudentsGroupsAsync(courseId, userId);
+            var groups = await _groupsService.GetStudentGroupsAsync(courseId, userId).ConfigureAwait(false);
             return Ok(groups);
         }
 
         [HttpGet("get_tasks/{groupId}")]
         public async Task<IActionResult> GetGroupTasks(long groupId)
         {
-            var ids = await _groupsService.GetTasksIds(groupId);
+            var ids = await _groupsService.GetTasksIds(groupId).ConfigureAwait(false);
             return Ok(ids);
         }
     }

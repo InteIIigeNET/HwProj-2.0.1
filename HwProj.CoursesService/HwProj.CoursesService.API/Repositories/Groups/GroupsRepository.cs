@@ -22,7 +22,7 @@ namespace HwProj.CoursesService.API.Repositories
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
 
-        public IQueryable<Group> GetAllInCourseWithGroupMates(long courseId)
+        public IQueryable<Group> GetGroupsWithGroupMatesByCourse(long courseId)
         {
             return Context.Set<Group>()
                 .Where(c => c.CourseId == courseId)

@@ -8,6 +8,6 @@ namespace HwProj.CoursesService.API.Repositories
     public interface IGroupsRepository : ICrudRepository<Group>
     {
         Task<Group> GetGroupWithGroupMatesAsync(long id);
-        IQueryable<Group> GetAllInCourseWithGroupMates(long courseId);
+        IQueryable<Group> GetGroupsWithGroupMatesByCourse(long courseId);
     }
 }

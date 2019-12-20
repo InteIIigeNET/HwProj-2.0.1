@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace HwProj.CoursesService.API.Repositories.Groups
 {
-    public class TasksRepository : CrudRepository<TasksModel>, ITasksRepository
+    public class TaskModelsRepository : CrudRepository<TaskModel>, ITaskModelsRepository
     {
-        public TasksRepository(CourseContext context)
+        public TaskModelsRepository(CourseContext context)
             : base(context)
         {
         }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace HwProj.CoursesService.API.Repositories.Groups
 {
-    interface ITasksRepository : ICrudRepository<TasksModel>
+    public interface ITaskModelsRepository : ICrudRepository<TaskModel>
     {
     }
 }

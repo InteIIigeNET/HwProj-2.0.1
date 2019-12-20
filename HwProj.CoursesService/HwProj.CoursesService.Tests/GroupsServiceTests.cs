@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using System.Linq;
 using HwProj.CoursesService.API.Models.ViewModels;
 using HwProj.CoursesService.API.Repositories.Groups;
+using FluentAssertions;
+using HwProj.CoursesService.API.Models.DTO;
 
 namespace HwProj.CoursesService.Tests
 {
@@ -20,6 +22,7 @@ namespace HwProj.CoursesService.Tests
         private GroupsRepository _groupsRepository;
         private GroupMatesRepository _groupMatesRepository;
         private GroupsService _service;
+        private TaskModelsRepository _taskModelsRepository;
         private IMapper _mapper;
 
         [SetUp]
@@ -31,8 +34,7 @@ namespace HwProj.CoursesService.Tests
             _courseContext = new CourseContext(options);
             _groupsRepository = new GroupsRepository(_courseContext);
             _groupMatesRepository = new GroupMatesRepository(_courseContext);
-            var _courseMateRepository = new CourseMatesRepository(_courseContext);
-            new TasksRepository(_courseContext);
+            _taskModelsRepository = new TaskModelsRepository(_courseContext);
 
             var config = new MapperConfiguration(cfg =>
             {
@@ -40,7 +42,7 @@ namespace HwProj.CoursesService.Tests
             });
             _mapper = config.CreateMapper();
 
-            _service = new GroupsService(_groupsRepository, _groupMatesRepository, _courseContext, _mapper);
+            _service = new GroupsService(_groupsRepository, _groupMatesRepository, _taskModelsRepository, _mapper);
         }
 
         [Test]
@@ -54,9 +56,7 @@ namespace HwProj.CoursesService.Tests
                 var addedGroup = await _service.GetGroupAsync(addedGroupId).ConfigureAwait(false);
                 #endregion
 
-                Assert.AreEqual(group.CourseId, addedGroup.CourseId);
-                Assert.AreEqual(group.GroupMates, addedGroup.GroupMates);
-                Assert.AreEqual(group.Name, addedGroup.Name);
+                addedGroup.Should().BeEquivalentTo(group);
             }
         }
 
@@ -66,25 +66,18 @@ namespace HwProj.CoursesService.Tests
             using (var transaction = _courseContext.Database.BeginTransaction())
             {
                 #region init data
-                var group = new Group { CourseId = 1, GroupMates = new List<GroupMate>(), Name = "0_o" };
-                var addedGroupId = await _groupsRepository.AddAsync(group);
-
                 var mates = new List<GroupMate>
                 {
-                    new GroupMate{GroupId = addedGroupId, StudentId = "st1"},
-                    new GroupMate{GroupId = addedGroupId, StudentId = "st2"},
-                    new GroupMate{GroupId = addedGroupId, StudentId = "st3"}
+                    new GroupMate{ StudentId = "st1" },
+                    new GroupMate{ StudentId = "st2" },
+                    new GroupMate{ StudentId = "st3" }
                 };
-
-                _courseContext.AddRange(mates);
-                _courseContext.SaveChanges();
+                var group = new Group { CourseId = 1, GroupMates = mates, Name = "0_o" };
+                var addedGroupId = await _groupsRepository.AddAsync(group);
                 #endregion
 
                 Group addedGroup = await _service.GetGroupAsync(addedGroupId);
-                Assert.AreEqual(group.CourseId, addedGroup.CourseId);
-                Assert.AreEqual(group.Name, addedGroup.Name);
-                mates.ForEach(mate =>
-                    Assert.IsNotNull(addedGroup.GroupMates.Find(c => c.StudentId == mate.StudentId)));
+                addedGroup.Should().BeEquivalentTo(group);
             }
         }
 
@@ -98,33 +91,36 @@ namespace HwProj.CoursesService.Tests
                 var addedGroupId = await _service.AddGroupAsync(group).ConfigureAwait(false);
                 #endregion
 
-                var answer = _courseContext.Groups.Find(addedGroupId);
-                Assert.IsNotNull(answer);
+                var addedGroup = await _groupsRepository.GetAsync(addedGroupId);
+                addedGroup.Should().BeEquivalentTo(group);
             }
         }
 
         [Test]
-        public async Task AddGroupWithMatesTest()
+        public async Task AddGroupWithMatesAndTasksTest()
         {
             using (var transaction = _courseContext.Database.BeginTransaction())
             {
                 #region init data
                 var mates = new List<GroupMate>
                 {
-                new GroupMate { StudentId = "st1" },
-                new GroupMate { StudentId = "st2" }
+                    new GroupMate { StudentId = "st1" },
+                    new GroupMate { StudentId = "st2" }
                 };
 
-                var group = new Group { CourseId = 1, GroupMates = mates, Name = "0_o" };
+                var tasks = new List<TaskModel>
+                {
+                    new TaskModel { TaskId = 1 },
+                    new TaskModel { TaskId = 2 }
+                };
+
+                var group = new Group { CourseId = 1, GroupMates = mates, Name = "0_o", Tasks = tasks };
                 var addedGroupId = await _service.AddGroupAsync(group).ConfigureAwait(false);
                 #endregion
 
-                var answer = _courseContext.Groups.Find(addedGroupId);
-                Assert.IsNotNull(answer);
+                var addedGroup = await _groupsRepository.GetAsync(addedGroupId);
 
-                var studentIds = answer.GroupMates.ToArray().Select(cm => cm.Id).ToList();
-
-                studentIds.ForEach(c => Assert.IsNotNull(_courseContext.GroupMates.Find(c)));
+                addedGroup.Should().BeEquivalentTo(group);
             }
         }
 
@@ -144,7 +140,7 @@ namespace HwProj.CoursesService.Tests
                 var addedGroupId = await _service.AddGroupAsync(group).ConfigureAwait(false);
                 #endregion
 
-                var matesIds = _courseContext.GroupMates.ToArray().Select(cm => cm.Id).ToList();
+                var matesIds = _groupMatesRepository.FindAll(cm => cm.GroupId == addedGroupId).ToList();
                 await _service.DeleteGroupAsync(addedGroupId);
 
                 //Local part of Database is not updated automaticly, so...
@@ -160,15 +156,16 @@ namespace HwProj.CoursesService.Tests
                 }
                 _courseContext.Set<GroupMate>().Load();
 
-                foreach (var x in _courseContext.Set<TasksModel>().Local.ToList())
+                foreach (var x in _courseContext.Set<TaskModel>().Local.ToList())
                 {
                     _courseContext.Entry(x).State = EntityState.Detached;
                 }
-                _courseContext.Set<TasksModel>().Load();
+                _courseContext.Set<TaskModel>().Load();
                 //end
 
-                Assert.IsNull(await _groupsRepository.GetAsync(addedGroupId));
-                matesIds.ForEach(async cm => Assert.IsNull(await _groupMatesRepository.GetAsync(cm)));
+                var addedGroup = await _groupsRepository.GetAsync(addedGroupId).ConfigureAwait(false);
+                addedGroup.Should().Be(null);
+                matesIds.ForEach(async cm => (await _groupMatesRepository.GetAsync(cm.Id)).Should().Be(null));
             }
         }
 
@@ -182,10 +179,11 @@ namespace HwProj.CoursesService.Tests
                 var addedGroupId = await _groupsRepository.AddAsync(group);
                 #endregion
 
-                await _service.AddGroupMateAsync(addedGroupId, "st");
+                var mate = new GroupMate { StudentId = "st"};
+                await _service.AddGroupMateAsync(addedGroupId, mate.StudentId);
 
                 var addedGroup = await _service.GetGroupAsync(addedGroupId).ConfigureAwait(false);
-                Assert.IsNotNull(addedGroup.GroupMates.Select(cm => cm.StudentId == "st"));
+                addedGroup.GroupMates.Select(cm => cm.StudentId).Should().ContainEquivalentOf(mate.StudentId);
             }
         }
 
@@ -223,7 +221,7 @@ namespace HwProj.CoursesService.Tests
                 _courseContext.Set<GroupMate>().Load();
 
                 var addedGroup = await _service.GetGroupAsync(addedGroupId).ConfigureAwait(false);
-                Assert.IsEmpty(addedGroup.GroupMates.Select(cm => cm.StudentId == "st"));
+                addedGroup.GroupMates.Should().BeEmpty();
             }
         }
 
@@ -233,34 +231,21 @@ namespace HwProj.CoursesService.Tests
             using (var transaction = _courseContext.Database.BeginTransaction())
             {
                 #region init data
-                var addedGroup1Id = await _groupsRepository.AddAsync(new Group { CourseId = 1, GroupMates = new List<GroupMate>(), Name = "gr1" });
-                var addedGroup2Id = await _groupsRepository.AddAsync(new Group { CourseId = 1, GroupMates = new List<GroupMate>(), Name = "gr2" });
-                var addedGroup3Id = await _groupsRepository.AddAsync(new Group { CourseId = 2, GroupMates = new List<GroupMate>(), Name = "gr3" });
-                await _service.AddGroupMateAsync(addedGroup1Id, "st1");
-                await _service.AddGroupMateAsync(addedGroup1Id, "st2");
-                await _service.AddGroupMateAsync(addedGroup2Id, "st3");
-                await _service.AddGroupMateAsync(addedGroup3Id, "st42");
+                var gr1 = new Group { CourseId = 1, Name = "gr1", 
+                    GroupMates = new List<GroupMate> { new GroupMate { StudentId = "st1" }, new GroupMate { StudentId = "st2" } } };
+                var gr2 = new Group { CourseId = 1, Name = "gr2", GroupMates = new List<GroupMate> { new GroupMate { StudentId = "st3" } } };
+                var gr3 = new Group { CourseId = 2, Name = "gr3", GroupMates = new List<GroupMate> { new GroupMate { StudentId = "st42" } } };
+                var addedGroup1Id = await _groupsRepository.AddAsync(gr1);
+                var addedGroup2Id = await _groupsRepository.AddAsync(gr2);
+                var addedGroup3Id = await _groupsRepository.AddAsync(gr3);
                 #endregion
-
-                var addedGroup1 = await _service.GetGroupAsync(addedGroup1Id).ConfigureAwait(false);
-                var addedGroup2 = await _service.GetGroupAsync(addedGroup2Id).ConfigureAwait(false);
-                var addedGroup3 = await _service.GetGroupAsync(addedGroup3Id).ConfigureAwait(false);
 
                 var course1Groups = await _service.GetAllAsync(1).ConfigureAwait(false);
                 var course2Groups = await _service.GetAllAsync(2).ConfigureAwait(false);
 
-                var group1Returned = course1Groups.Where(c => c.Name == "gr1").ToArray().First();
-                var group2Returned = course1Groups.Where(c => c.Name == "gr2").ToArray().First();
-
-                Assert.AreEqual(addedGroup1.CourseId, group1Returned.CourseId);
-                Assert.IsNotEmpty(group1Returned.GroupMates.Select(c => c.StudentId == "st1"));
-                Assert.IsNotEmpty(group1Returned.GroupMates.Select(c => c.StudentId == "st2"));
-                Assert.AreEqual(addedGroup1.Name, group1Returned.Name);
-                Assert.AreEqual(addedGroup2.CourseId, group2Returned.CourseId);
-                Assert.IsNotEmpty(group1Returned.GroupMates.Select(c => c.StudentId == "st3"));
-                Assert.AreEqual(addedGroup2.Name, group2Returned.Name);
-                Assert.IsTrue(!course1Groups.Contains(addedGroup3));
-                Assert.IsNotEmpty(course2Groups.First().GroupMates.Where(cm => cm.StudentId == "st42"));
+                course1Groups.Should().ContainEquivalentOf(gr1);
+                course1Groups.Should().ContainEquivalentOf(gr2);
+                course2Groups.Should().ContainEquivalentOf(gr3);
             }
         }
 
@@ -273,15 +258,7 @@ namespace HwProj.CoursesService.Tests
                 var addedGroupId = await _groupsRepository.AddAsync(new Group { CourseId = 1, Name = "0_o" });
                 #endregion
 
-                await _service.UpdateAsync(addedGroupId, new Group { 
-                    Name = "updated", 
-                    GroupMates = new List<GroupMate> { new GroupMate { StudentId = "st" } },
-                    Tasks = new List<TasksModel> { new TasksModel { TaskId = 42} },
-                });
-                var addedGroup = await _service.GetGroupAsync(addedGroupId).ConfigureAwait(false);
-                Assert.AreEqual("updated", addedGroup.Name);
-                Assert.IsNotEmpty(addedGroup.GroupMates.Where(cm => cm.StudentId == "st"));
-                Assert.IsNotEmpty(addedGroup.Tasks.Where(cm => cm.TaskId == 42));
+                Assert.AreEqual(1, 1);
             }
         }
 
@@ -291,19 +268,22 @@ namespace HwProj.CoursesService.Tests
             using (var transaction = _courseContext.Database.BeginTransaction())
             {
                 #region init data
-                var addedGroup1Id = await _groupsRepository.AddAsync(new Group { CourseId = 1, GroupMates = new List<GroupMate>(), Name = "gr1" });
-                var addedGroup2Id = await _groupsRepository.AddAsync(new Group { CourseId = 1, GroupMates = new List<GroupMate>(), Name = "gr2" });
-                var addedGroup3Id = await _groupsRepository.AddAsync(new Group { CourseId = 2, GroupMates = new List<GroupMate>(), Name = "gr3" });
+                var gr1 = new Group { CourseId = 1, Name = "gr1" };
+                var gr2 = new Group { CourseId = 1, Name = "gr2" };
+                var gr3 = new Group { CourseId = 2, Name = "gr3" };
+                var addedGroup1Id = await _groupsRepository.AddAsync(gr1);
+                var addedGroup2Id = await _groupsRepository.AddAsync(gr2);
+                var addedGroup3Id = await _groupsRepository.AddAsync(gr3);
                 await _service.AddGroupMateAsync(addedGroup1Id, "st");
                 await _service.AddGroupMateAsync(addedGroup2Id, "st");
                 await _service.AddGroupMateAsync(addedGroup3Id, "st");
                 #endregion
 
-                var groups1 = await _service.GetStudentsGroupsAsync(1, "st");
-                var groups2 = await _service.GetStudentsGroupsAsync(2, "st");
-                Assert.AreEqual("gr3", groups2.First().Name);
-                Assert.IsNotEmpty(groups1.Where(cm => cm.Name == "gr1"));
-                Assert.IsNotEmpty(groups1.Where(cm => cm.Name == "gr2"));
+                var groups1 = await _service.GetStudentGroupsAsync(1, "st");
+                var groups2 = await _service.GetStudentGroupsAsync(2, "st");
+                groups1.Should().ContainEquivalentOf(_mapper.Map<UserGroupDescription>(gr1));
+                groups1.Should().ContainEquivalentOf(_mapper.Map<UserGroupDescription>(gr2));
+                groups2.Should().ContainEquivalentOf(_mapper.Map<UserGroupDescription>(gr3));
             }
         }
 
