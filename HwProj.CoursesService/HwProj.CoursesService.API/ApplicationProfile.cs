@@ -2,7 +2,6 @@
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Models.DTO;
 using HwProj.CoursesService.API.Models.ViewModels;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace HwProj.CoursesService.API
