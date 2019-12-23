@@ -59,5 +59,22 @@ namespace HwProj.CoursesService.API.Controllers
             var groups = await _groupsService.GetStudentGroupsAsync(courseId, userId).ConfigureAwait(false);
             return Ok(groups);
         }
+
+        [HttpPost("add_student_in_group/{groupId}")]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        public async Task<IActionResult> AddStudentInGroup(long groupId, [FromBody] string studentId)
+        {
+            await _groupsService.AddGroupMateAsync(groupId, studentId).ConfigureAwait(false);
+            return Ok() as IActionResult;
+        }
+
+        [HttpPost("remove_student_from_group/{groupId}")]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        public async Task<IActionResult> RemoveStudentFromGroup(long groupId, string studentId)
+        {
+            return await _groupsService.DeleteGroupMateAsync(groupId, studentId).ConfigureAwait(false)
+                ? Ok()
+                : NotFound() as IActionResult;
+        }
     }
 }

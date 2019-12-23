@@ -29,22 +29,6 @@ namespace HwProj.CoursesService.API.Controllers
                 : Ok(_mapper.Map<GroupViewModel>(group)) as IActionResult;
         }
 
-        [HttpPost("add_student_in_group/{groupId}")]
-        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        public async Task<IActionResult> AddStudentInGroup(long groupId, [FromBody] string studentId)
-        {
-            await _groupsService.AddGroupMateAsync(groupId, studentId).ConfigureAwait(false);
-            return Ok() as IActionResult;
-        }
-
-        [HttpPost("remove_student_from_group/{groupId}")]
-        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        public async Task<IActionResult> RemoveStudentFromGroup(long groupId, string studentId)
-        {
-            return await _groupsService.DeleteGroupMateAsync(groupId, studentId).ConfigureAwait(false)
-                ? Ok()
-                : NotFound() as IActionResult;
-        }
 
         [HttpGet("get_tasks/{groupId}")]
         public async Task<IActionResult> GetGroupTasks(long groupId)
