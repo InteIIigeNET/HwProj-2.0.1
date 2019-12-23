@@ -1,24 +1,26 @@
-using HwProj.NotificationsService.API.Models;
-using HwProj.NotificationsService.API.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using HwProj.NotificationsService.API.Models;
 
-public class MapperOfSpecification 
+namespace HwProj.NotificationsService.API.Repositories
 {
-    public Specification GetSpecification(NotificationFilter filter)
+    public class MapperOfSpecification 
     {
-        var specsList = new List<(Predicate<NotificationFilter>, Func<NotificationFilter, Specification>)>
+        public Specification GetSpecification(NotificationFilter filter)
         {
-            ((NotificationFilter idFilter) => true, (NotificationFilter idFilter) => new UserNotificationSpecification(idFilter.Owner)),
-            ((NotificationFilter hasSeenFilter) => hasSeenFilter.HasSeen != null, (NotificationFilter hasSeenFilter) => new HasSeenNotificationSpecification()),
-            ((NotificationFilter importanceFilter) => importanceFilter.Important != null, (NotificationFilter importanceFilter) => new ImprotanceOfNotificationSpecification()),
-            ((NotificationFilter getInTimeFilter) => getInTimeFilter.TimeSpan != (null, null), (NotificationFilter getInTimeFilter) => new GetInTimeNotificationSpecification(getInTimeFilter.TimeSpan))
-        };
+            var specsList = new List<(Predicate<NotificationFilter>, Func<NotificationFilter, Specification>)>
+            {
+                (idFilter => true, idFilter => new UserNotificationSpecification(idFilter.Owner)),
+                (hasSeenFilter => hasSeenFilter.HasSeen != null, hasSeenFilter => new HasSeenNotificationSpecification()),
+                (importanceFilter => importanceFilter.Important != null, importanceFilter => new ImprotanceOfNotificationSpecification()),
+                (getInTimeFilter => getInTimeFilter.TimeSpan != (null, null), getInTimeFilter => new GetInTimeNotificationSpecification(getInTimeFilter.TimeSpan))
+            };
 
-        return specsList.Aggregate(new UserNotificationSpecification(filter.Owner) as Specification, (specification, next) => next.Item1.Invoke(filter)
-                                                                                                                    ? specification.And(next.Item2.Invoke(filter))
-                                                                                                                    : new UserNotificationSpecification(filter.Owner));
+            return specsList.Aggregate(new UserNotificationSpecification(filter.Owner) as Specification, (specification, next) => next.Item1.Invoke(filter)
+                ? specification.And(next.Item2.Invoke(filter))
+                : new UserNotificationSpecification(filter.Owner));
+        }
     }
 }
 

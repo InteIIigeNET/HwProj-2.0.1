@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <ApplicationIcon />
     <Win32Resource />
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

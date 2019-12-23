@@ -1,18 +1,18 @@
+using System;
+using System.Threading.Tasks;
 using HwProj.NotificationsService.API.Controllers;
 using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Services;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
-using System;
-using System.Threading.Tasks;
 
-namespace HwProj.NotificarionsService.Tests
+namespace HwProj.NotificationsService.Tests
 {
     public class NotificationsControllerTests
     {
-        private Mock<INotificationsService> service;
-        private NotificationsController controller;
+        private Mock<INotificationsService> _service;
+        private NotificationsController _controller;
 
         private Notification[] GetTestsNotifications()
         {
@@ -35,9 +35,9 @@ namespace HwProj.NotificarionsService.Tests
         [SetUp]
         public void Setup()
         {
-            service = new Mock<INotificationsService>();
-            service.Setup(x => x.GetAsync(It.IsAny<string>(), It.IsAny<NotificationFilter>())).Returns(Task.FromResult(GetTestsNotifications()));
-            controller = new NotificationsController(service.Object);
+            _service = new Mock<INotificationsService>();
+            _service.Setup(x => x.GetAsync(It.IsAny<string>(), It.IsAny<NotificationFilter>())).Returns(Task.FromResult(GetTestsNotifications()));
+            _controller = new NotificationsController(_service.Object);
         }
 
         [Test]
@@ -50,7 +50,7 @@ namespace HwProj.NotificarionsService.Tests
                 Owner = "current_user"
             };
 
-            var result = await controller.Get(filter);
+            var result = await _controller.Get(filter);
             var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);
             Assert.AreEqual(200, okResult.StatusCode);
@@ -60,7 +60,7 @@ namespace HwProj.NotificarionsService.Tests
         public async Task MarkNotificationsAsSeenTests()
         {
             var ids = new long[] { 1, 2, 3, 4 };
-            var result = await controller.MarkNotificationsAsSeen(ids);
+            var result = await _controller.MarkNotificationsAsSeen(ids);
             var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);
             Assert.AreEqual(200, okResult.StatusCode);
