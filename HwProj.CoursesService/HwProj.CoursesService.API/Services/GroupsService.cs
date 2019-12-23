@@ -40,7 +40,7 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<long> AddGroupAsync(Group group)
         { 
-            return await _groupsRepository.AddAsync(group).ConfigureAwait(false); ;
+            return await _groupsRepository.AddAsync(group).ConfigureAwait(false);
         }
 
         public async Task AddGroupMateAsync(long groupId, string studentId)

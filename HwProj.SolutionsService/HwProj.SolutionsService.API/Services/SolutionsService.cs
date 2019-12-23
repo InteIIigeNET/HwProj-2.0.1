@@ -51,5 +51,10 @@ namespace HwProj.SolutionsService.API.Services
         {
             return _solutionsRepository.DeleteAsync(solutionId);
         }
+
+        public Task<Solution[]> GetTaskSolutionsFromGroupAsync(long taskId, long groupId)
+        {
+            return _solutionsRepository.FindAll(cm => cm.GroupId == groupId).ToArrayAsync();
+        }
     }
 }
