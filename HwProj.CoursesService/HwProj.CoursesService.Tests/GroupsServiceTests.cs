@@ -253,7 +253,30 @@ namespace HwProj.CoursesService.Tests
         {
             using (var transaction = _courseContext.Database.BeginTransaction())
             {
-                Assert.AreEqual(1, 1);
+                var group = new Group
+                {
+                    CourseId = 1,
+                    Name = "gr1",
+                    GroupMates = new List<GroupMate> { new GroupMate { StudentId = "st1" }, new GroupMate { StudentId = "st2" } },
+                    Tasks = new List<TaskModel> { new TaskModel { TaskId = 1 } }
+                };
+
+                var id = await _service.AddGroupAsync(group);
+
+                var updated = new Group
+                {
+                    CourseId = 1,
+                    Name = "gr2",
+                    GroupMates = new List<GroupMate> { },
+                    Tasks = new List<TaskModel> { new TaskModel { TaskId = 2 } }
+                };
+
+                await _service.UpdateAsync(id, updated);
+
+                var addedGroup = await _groupsRepository.GetAsync(id);
+
+                updated.Id = id;
+                addedGroup.Should().BeEquivalentTo(updated);
             }
         }
 

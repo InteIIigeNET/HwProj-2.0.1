@@ -19,7 +19,8 @@ namespace HwProj.CoursesService.API.Repositories
                 .AsNoTracking()
                 .Include(c => c.Tasks)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(c => c.Id == id);
+                .FirstOrDefaultAsync(c => c.Id == id)
+                .ConfigureAwait(false);
         }
 
         public IQueryable<Group> GetGroupsWithGroupMatesByCourse(long courseId)
