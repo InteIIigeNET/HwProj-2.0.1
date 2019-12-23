@@ -11,11 +11,11 @@
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.4" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\HwProj.Common\HwProj.Repositories\HwProj.Repositories.csproj" />
     <ProjectReference Include="..\..\HwProj.Common\HwProj.Utils\HwProj.Utils.csproj" />
-    <ProjectReference Include="..\..\HwProj.HomeworkService\HwProj.HomeworkService.API\HwProj.HomeworkService.API.csproj" />
   </ItemGroup>
   <ProjectExtensions><VisualStudio><UserProperties properties_4launchsettings_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
 </Project>

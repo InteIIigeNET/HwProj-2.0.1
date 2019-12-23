@@ -136,8 +136,9 @@ namespace HwProj.CoursesService.Tests
                 };
 
                 var group = new Group { CourseId = 1, GroupMates = mates, Name = "0_o" };
-                var addedGroupId = await _service.AddGroupAsync(group).ConfigureAwait(false);
+                var addedGroupId = await _service.AddGroupAsync(group);
                 #endregion
+
                 var matesIds = _groupMatesRepository.FindAll(cm => cm.GroupId == addedGroupId).ToList();
                 await _service.DeleteGroupAsync(addedGroupId);
 
@@ -248,7 +249,7 @@ namespace HwProj.CoursesService.Tests
         }
 
         [Test]
-        public void UpdateGroupTest()
+        public async Task UpdateGroupTest()
         {
             using (var transaction = _courseContext.Database.BeginTransaction())
             {
@@ -284,7 +285,7 @@ namespace HwProj.CoursesService.Tests
         [Test]
         public void MapperTest()
         {
-            CreateGroupViewModel groupViewModel = new CreateGroupViewModel
+            var groupViewModel = new CreateGroupViewModel
             {   
                 CourseId = 1,
                 GroupMates = new List<GroupMateViewModel>
