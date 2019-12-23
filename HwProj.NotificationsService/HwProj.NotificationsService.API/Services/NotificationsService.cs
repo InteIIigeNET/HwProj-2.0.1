@@ -17,7 +17,7 @@ namespace HwProj.NotificationsService.API.Services
         public async Task<Notification[]> GetAsync(string userId, NotificationFilter filter = null)
         {
             var mapperOfSpecification = new MapperOfSpecification();
-            var specification = mapperOfSpecification.GetSpecification(userId, 0, filter);
+            var specification = mapperOfSpecification.GetSpecification(filter);
             return await _repository.GetAllByUserAsync(specification, filter.Offset).ConfigureAwait(false);
         }
 
@@ -33,10 +33,10 @@ namespace HwProj.NotificationsService.API.Services
                 t => new Notification { Important = true }).ConfigureAwait(false);
         }
 
-        public async Task<Notification[]> GetInTimeAsync(string userId, int timeSpan)
+        public async Task<Notification[]> GetInTimeAsync(string userId, NotificationFilter filter)
         {
             var mapperOfSpecification = new MapperOfSpecification();
-            var specification = mapperOfSpecification.GetSpecification(userId, timeSpan);
+            var specification = mapperOfSpecification.GetSpecification(filter);
             return await _repository.GetAllByUserAsync(specification).ConfigureAwait(false);
         }
     }

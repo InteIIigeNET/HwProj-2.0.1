@@ -16,12 +16,12 @@ namespace HwProj.NotificationsService.API.Repositories
 
     public abstract class Specification 
     {
-        public abstract Expression<Func<NotificationFilter, bool>> ToExpression();
+        public abstract Expression<Func<Notification, bool>> ToExpression();
 
-        public bool IsSatisfiedBy(NotificationFilter filter)
+        public bool IsSatisfiedBy(Notification notification)
         {
-            Func<NotificationFilter, bool> predicate = ToExpression().Compile();
-            return predicate(filter);
+            Func<Notification, bool> predicate = ToExpression().Compile();
+            return predicate(notification);
         }
 
         public Specification And(Specification specification)
@@ -37,24 +37,21 @@ namespace HwProj.NotificationsService.API.Repositories
 
         public And(Specification left, Specification right)
         {
-            _right = right;
             _left = left;
+            _right = right;
         }
 
-        public override Expression<Func<NotificationFilter, bool>> ToExpression()
+        public override Expression<Func<Notification, bool>> ToExpression()
         {
-            Expression<Func<NotificationFilter, bool>> leftExpression = _left.ToExpression();
-            Expression<Func<NotificationFilter, bool>> rightExpression = _right.ToExpression();
+            Expression<Func<Notification, bool>> leftExpression = _left.ToExpression();
+            Expression<Func<Notification, bool>> rightExpression = _right.ToExpression();
             var paramExpression = Expression.Parameter(typeof(Notification));
             var expressionBody = Expression.AndAlso(leftExpression.Body, rightExpression.Body);
             expressionBody = (BinaryExpression)new ParameterReplacer(paramExpression).Visit(expressionBody);
-            var finalExpression = Expression.Lambda<Func<NotificationFilter, bool>>(expressionBody, paramExpression);
+            var finalExpression = Expression.Lambda<Func<Notification, bool>>(expressionBody, paramExpression);
 
             return finalExpression;
         }
-    }
-
-   
     }
 }
 

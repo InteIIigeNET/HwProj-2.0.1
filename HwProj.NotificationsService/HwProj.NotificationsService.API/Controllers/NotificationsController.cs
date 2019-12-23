@@ -43,10 +43,10 @@ namespace HwProj.NotificationsService.API.Controllers
         }
 
         [HttpPut("get_notfications_in_time")]
-        public async Task<IActionResult> GetInTime([FromQuery] (string day, string month, string year), )
+        public async Task<IActionResult> GetInTime([FromQuery] NotificationFilter filter)
         {
             var userId = Request.GetUserId();
-            await _notificationsService.GetInTimeAsync(userId, timeSpan);
+            await _notificationsService.GetInTimeAsync(userId, filter);
             return Ok();
         }
     }

@@ -13,7 +13,7 @@ public class MapperOfSpecification
             ((NotificationFilter idFilter) => true, (NotificationFilter idFilter) => new UserNotificationSpecification(idFilter.Owner)),
             ((NotificationFilter hasSeenFilter) => hasSeenFilter.HasSeen != null, (NotificationFilter hasSeenFilter) => new HasSeenNotificationSpecification()),
             ((NotificationFilter importanceFilter) => importanceFilter.Important != null, (NotificationFilter importanceFilter) => new ImprotanceOfNotificationSpecification()),
-            ((NotificationFilter getInTimeFilter) => getInTimeFilter.HasSeen != null, (NotificationFilter getInTimeFilter) => new GetInTimeNotificationSpecification(getInTimeFilter.TimeSpan))
+            ((NotificationFilter getInTimeFilter) => getInTimeFilter.TimeSpan != (null, null), (NotificationFilter getInTimeFilter) => new GetInTimeNotificationSpecification(getInTimeFilter.TimeSpan))
         };
 
         return specsList.Aggregate(new UserNotificationSpecification(filter.Owner) as Specification, (specification, next) => next.Item1.Invoke(filter)
