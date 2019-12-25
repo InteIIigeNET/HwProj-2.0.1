@@ -30,6 +30,7 @@ namespace HwProj.Repositories
         public async Task UpdateAsync(long id, Expression<Func<TEntity, TEntity>> updateFactory)
         {
             await Context.Set<TEntity>().Where(entity => entity.Id == id).UpdateAsync(updateFactory);
+            await Context.SaveChangesAsync();
         }
     }
 }

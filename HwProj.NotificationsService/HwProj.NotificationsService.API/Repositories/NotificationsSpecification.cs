@@ -4,23 +4,23 @@ using HwProj.NotificationsService.API.Models;
 
 namespace HwProj.NotificationsService.API.Repositories
 {
-    public class HasSeenNotificationSpecification : Specification
+    public class HasSeenNotificationSpecification : Specification<Notification>
     {
         public override Expression<Func<Notification, bool>> ToExpression()
         {
-            return notification => notification.HasSeen;
+            return notification => notification.HasSeen == true;
         }
     }
 
-    public class ImprotanceOfNotificationSpecification : Specification
+    public class ImprotanceOfNotificationSpecification : Specification<Notification>
     {
         public override Expression<Func<Notification, bool>> ToExpression()
         {
-            return notification => notification.Important;
+            return notification => notification.Important == true;
         }
     }
 
-    public class GetInTimeNotificationSpecification : Specification
+    public class GetInTimeNotificationSpecification : Specification<Notification>
     {
         private readonly (DateTime, DateTime) _timeSpan;
 
@@ -48,7 +48,7 @@ namespace HwProj.NotificationsService.API.Repositories
         }
     }
 
-    public class UserNotificationSpecification : Specification
+    public class UserNotificationSpecification : Specification<Notification>
     {
         private readonly string _userId;
 

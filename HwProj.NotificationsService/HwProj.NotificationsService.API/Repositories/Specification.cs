@@ -1,56 +1,87 @@
 ﻿using HwProj.NotificationsService.API.Models;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace HwProj.NotificationsService.API.Repositories
 {
-    public  class ParameterReplacer : ExpressionVisitor
+    public class ReplaceExpressionVisitor
+        : ExpressionVisitor
     {
-        private readonly ParameterExpression _parameter;
+        private readonly Expression _oldValue;
+        private readonly Expression _newValue;
 
-        protected internal ParameterReplacer(ParameterExpression parameter)
+        public ReplaceExpressionVisitor(Expression oldValue, Expression newValue)
         {
-            _parameter = parameter;
+            _oldValue = oldValue;
+            _newValue = newValue;
+        }
+
+        public override Expression Visit(Expression node)
+        {
+            if (node == _oldValue)
+                return _newValue;
+            return base.Visit(node);
         }
     }
 
-    public abstract class Specification 
+    public abstract class Specification<T>
     {
-        public abstract Expression<Func<Notification, bool>> ToExpression();
+        public abstract Expression<Func<T, bool>> ToExpression();
 
-        public bool IsSatisfiedBy(Notification notification)
+        public bool IsSatisfiedBy(T notification)
         {
-            Func<Notification, bool> predicate = ToExpression().Compile();
+            Func<T, bool> predicate = ToExpression().Compile();
             return predicate(notification);
         }
 
-        public Specification And(Specification specification)
+        public Specification<T> And(Specification<T> specification)
         {
-            return new And(this, specification);
+            return new And<T>(this, specification);
         }
     }
 
-    public class And : Specification
+    public class And<T> : Specification<T>
     {
-        private readonly Specification _left;
-        private readonly Specification _right;
+        private readonly Specification<T> _left;
+        private readonly Specification<T> _right;
 
-        public And(Specification left, Specification right)
+        public And(Specification<T> left, Specification<T> right)
         {
             _left = left;
             _right = right;
         }
 
-        public override Expression<Func<Notification, bool>> ToExpression()
+        public static Expression<Func<T, bool>> CombinePredicates(IList<Expression<Func<T, bool>>> predicateExpressions, Func<Expression, Expression, BinaryExpression> logicalFunction)
         {
-            Expression<Func<Notification, bool>> leftExpression = _left.ToExpression();
-            Expression<Func<Notification, bool>> rightExpression = _right.ToExpression();
-            var paramExpression = Expression.Parameter(typeof(Notification));
-            var expressionBody = Expression.AndAlso(leftExpression.Body, rightExpression.Body);
-            expressionBody = (BinaryExpression)new ParameterReplacer(paramExpression).Visit(expressionBody);
-            var finalExpression = Expression.Lambda<Func<Notification, bool>>(expressionBody, paramExpression);
+            Expression<Func<T, bool>> filter = null;
 
-            return finalExpression;
+            if (predicateExpressions.Count > 0)
+            {
+                var firstPredicate = predicateExpressions[0];
+                Expression body = firstPredicate.Body;
+                for (int i = 1; i < predicateExpressions.Count; i++)
+                {
+                    body = logicalFunction(body, Expression.Invoke(predicateExpressions[i], firstPredicate.Parameters));
+                }
+                filter = Expression.Lambda<Func<T, bool>>(body, firstPredicate.Parameters);
+            }
+
+            return filter;
+        }
+
+        public override Expression<Func<T, bool>> ToExpression()
+        {
+            Expression<Func<T, bool>> leftExpression = _left.ToExpression();
+            Expression<Func<T, bool>> rightExpression = _right.ToExpression();
+            var sum = Expression.AndAlso(leftExpression.Body, Expression.Invoke(rightExpression, leftExpression.Parameters[0])); // here is the magic
+            var sumExpr = Expression.Lambda(sum, leftExpression.Parameters);
+            var listOfPredicates = new List<Expression<Func<T, bool>>>();
+            listOfPredicates.Add(leftExpression);
+            listOfPredicates.Add(rightExpression);
+            var result = CombinePredicates(listOfPredicates, Expression.AndAlso);
+            return result;
         }
     }
 }

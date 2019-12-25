@@ -20,10 +20,11 @@ namespace HwProj.NotificationsService.API.Repositories
         {
             await Context.Set<Notification>()
                 .Where(t => t.Owner == userId && ids.Contains(t.Id))
+                .AsNoTracking()
                 .UpdateAsync(updateFactory).ConfigureAwait(false);
         }
 
-        public async Task<Notification[]> GetAllByUserAsync(Specification specification, int offSet = 0)
+        public async Task<Notification[]> GetAllByUserAsync(Specification<Notification> specification, int offSet)
         {
             var result = Context.Set<Notification>().Where(specification.ToExpression())
                                                     .Skip(offSet);
