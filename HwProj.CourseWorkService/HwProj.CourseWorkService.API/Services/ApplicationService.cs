@@ -3,6 +3,7 @@ using HwProj.CourseWorkService.API.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace HwProj.CourseWorkService.API.Services
@@ -10,12 +11,12 @@ namespace HwProj.CourseWorkService.API.Services
     public class ApplicationService : IApplicationService
     {
         private readonly IApplicationsRepository _applicationRepository;
-        private readonly ICourseWorkService _courseWorkService;
+        private readonly ICourseWorksRepository _courseWorkRepository;
 
-        public ApplicationService(IApplicationsRepository applicationRepository, ICourseWorkService courseWorkService)
+        public ApplicationService(IApplicationsRepository applicationRepository, ICourseWorksRepository courseWorkRepository)
         {
             _applicationRepository = applicationRepository;
-            _courseWorkService = courseWorkService;
+            _courseWorkRepository = courseWorkRepository;
     }
 
         public async Task<Application[]> GetAllApplicationsAsync()
@@ -23,50 +24,40 @@ namespace HwProj.CourseWorkService.API.Services
             return await _applicationRepository.GetAll().ToArrayAsync();
         }
 
+        public async Task<Application[]> GetFilteredApplicationsAsync(Expression<Func<Application, bool>> predicate)
+        {
+            return await _applicationRepository.FindAll(predicate).ToArrayAsync();
+        }
+
+        public async Task<Application[]> GetLecturerApplicationsAsync(long lecturerId)
+        {
+            var courseWorks = await _courseWorkRepository
+                .FindAll(a => a.LecturerId == lecturerId)
+                .ToArrayAsync().ConfigureAwait(false);
+            var applications = new List<Application>();
+
+            foreach (var course in courseWorks)
+            {
+                var apps = await _applicationRepository
+                    .FindAll(a => a.CourseWorkId == course.Id)
+                    .ToArrayAsync().ConfigureAwait(false);
+                applications.AddRange(apps);
+            }
+
+            return applications.ToArray();
+        }
+
         public async Task<Application> GetApplicationAsync(long applicationId) 
         {
             return await _applicationRepository.GetAsync(applicationId);
         }
 
-        public async Task<Application[]> GetAllStudentApplicationsAsync(string studentId)
+        public async Task<long> AddApplicationAsync(Application application)
         {
-            return await _applicationRepository
-                .FindAll(application => application.StudentId == studentId).ToArrayAsync();
-        }
-
-        public async Task<long> AddApplicationAsync(Application application, string studentId, long courseWorkId)
-        {
-            application.DateOfApplication = DateTime.Now;
-            application.StudentId = studentId;
-            application.CourseWorkId = courseWorkId;
             return await _applicationRepository.AddAsync(application);
         }
 
-        public async Task<Application[]> GetAllSupervisorApplicationsAsync(string supervisorId)
-        {
-            var courseWorks = await _courseWorkService
-                .GetFilteredCourseWorksAsync(new Filter() { IsAvailable = true, SupervisorId = supervisorId });
-            var allSupervisorApplications = new List<Application>();
-            foreach (var courseWork in courseWorks)
-            {
-                var applications = _applicationRepository.FindAll(application => application.CourseWorkId == courseWork.Id);
-                foreach(var application in applications)
-                {
-                    allSupervisorApplications.Add(application);
-                }
-            }
-            return allSupervisorApplications.ToArray();
-        }
-
-        public async Task<Application[]> GetAllCourseWorkApplicationsAsync(long courseWorkId)
-        {
-            var courseWork = _courseWorkService.GetCourseWorkAsync(courseWorkId);
-            return await _applicationRepository
-                .FindAll(application => application.CourseWorkId == courseWork.Id)
-                .ToArrayAsync();
-        }
-
-        public async Task DeleteApplicationAsync(string studentId, long courseWorkId)
+        public async Task DeleteApplicationAsync(long studentId, long courseWorkId)
         {
             var application = await _applicationRepository
                 .FindAsync(app => app.CourseWorkId == courseWorkId && app.StudentId == studentId);

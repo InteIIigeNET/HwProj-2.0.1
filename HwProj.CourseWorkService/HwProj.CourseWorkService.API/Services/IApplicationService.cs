@@ -1,4 +1,6 @@
-﻿using HwProj.CourseWorkService.API.Models;
+﻿using System;
+using System.Linq.Expressions;
+using HwProj.CourseWorkService.API.Models;
 using System.Threading.Tasks;
 
 namespace HwProj.CourseWorkService.API.Services
@@ -9,14 +11,12 @@ namespace HwProj.CourseWorkService.API.Services
 
         Task<Application[]> GetAllApplicationsAsync();
 
-        Task<Application[]> GetAllCourseWorkApplicationsAsync(long courseWorkId);
+        Task<Application[]> GetFilteredApplicationsAsync(Expression<Func<Application, bool>> predicate);
 
-        Task<Application[]> GetAllSupervisorApplicationsAsync(string supervisorId);
+        Task<Application[]> GetLecturerApplicationsAsync(long lecturerId);
 
-        Task<Application[]> GetAllStudentApplicationsAsync(string studentId); 
+        Task<long> AddApplicationAsync(Application application);
 
-        Task<long> AddApplicationAsync(Application application, string studentId, long courseWorkId);
-
-        Task DeleteApplicationAsync(string studentId, long courseWorkId); 
+        Task DeleteApplicationAsync(long studentId, long courseWorkId); 
     }
 }

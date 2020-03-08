@@ -3,6 +3,7 @@ using HwProj.CourseWorkService.API.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace HwProj.CourseWorkService.API.Services
@@ -10,12 +11,12 @@ namespace HwProj.CourseWorkService.API.Services
     public class CourseWorkService : ICourseWorkService
     {
         private readonly ICourseWorksRepository _courseWorkRepository;       
-        private readonly IApplicationsRepository _applicationRepository;
+        private readonly IApplicationService _applicationService;
 
-        public CourseWorkService(ICourseWorksRepository courseWorkRepository, IApplicationsRepository applicationRepository)
+        public CourseWorkService(ICourseWorksRepository courseWorkRepository, IApplicationService applicationService)
         {
             _courseWorkRepository = courseWorkRepository;
-            _applicationRepository = applicationRepository;
+            _applicationService = applicationService;
         }
 
         public async Task<CourseWork> GetCourseWorkAsync(long courseWorkId)
@@ -23,9 +24,14 @@ namespace HwProj.CourseWorkService.API.Services
             return await _courseWorkRepository.GetAsync(courseWorkId);
         }
 
-        public async Task<CourseWork> GetStudentCourseWorkAsync(string studentId)
+        public async Task<CourseWork> GetStudentCourseWorkAsync(long studentId)
         {
             return await _courseWorkRepository.FindAsync(cw => cw.StudentId == studentId);
+        }
+
+        public async Task<CourseWork[]> GetFilteredCourseWorksAsync(Expression<Func<CourseWork, bool>> predicate)
+        {
+            return await _courseWorkRepository.FindAll(predicate).ToArrayAsync();
         }
 
         public async Task<CourseWork[]> GetAllCourseWorksAsync()
@@ -33,42 +39,11 @@ namespace HwProj.CourseWorkService.API.Services
             return await _courseWorkRepository.GetAll().ToArrayAsync();
         }
 
-        public async Task<CourseWork[]> GetFilteredCourseWorksAsync(Filter filter)
+        public async Task<long> AddCourseWorkAsync(CourseWork courseWork)
         {
-            IQueryable<CourseWork> courseWorks = _courseWorkRepository.GetAll();
-            if (filter.StudentId != null)
-            {
-                courseWorks.Select(cw => cw.StudentId == filter.StudentId);
-            }
-            if (filter.SupervisorId != null)
-            {
-                courseWorks.Select(cw => cw.SupervisorId == filter.SupervisorId);
-            }
-            if (filter.ReviewerId != null)
-            {
-                courseWorks.Select(cw => cw.ReviewerId == filter.ReviewerId);
-            }
-            if (filter.IsAvailable != null)
-            {
-                courseWorks.Select(cw => cw.IsAvailable == filter.IsAvailable);
-            }
-            return await courseWorks.ToArrayAsync();
-        }
-
-        public async Task<long> AddCourseWorkAsync(CourseWork courseWork, string creatorId, bool wasCreatedBySupervisor)
-        {
-            courseWork.CreationTime = DateTime.Now;
-            if (wasCreatedBySupervisor)
-            {
-                courseWork.SupervisorId = creatorId;
-            }
-            else
-            {
-                courseWork.StudentId = creatorId;
-            }
             return await _courseWorkRepository.AddAsync(courseWork);
         }
-        
+
         public async Task DeleteCourseWorkAsync(long courseWorkId)
         {
             await _courseWorkRepository.DeleteAsync(courseWorkId);
@@ -76,56 +51,56 @@ namespace HwProj.CourseWorkService.API.Services
 
         public async Task UpdateCourseWorkAsync(long courseWorkId, CourseWork update)
         {
-            await _courseWorkRepository.UpdateAsync(courseWorkId, courseWork => new CourseWork()
-            {
-                Title = update.Title,
-                Description = update.Description,
-                Publicity = update.Publicity,
-                Requirements = update.Requirements,
-                Type = update.Type,
-
-                Consultant = update.Consultant,
-                ConsultantContact = update.ConsultantContact,
-                SupervisorContact = update.SupervisorContact
-            });
+            await _courseWorkRepository.UpdateAsync(courseWorkId, courseWork => update);
         }
 
-        public async Task<bool> AcceptStudentAsync(long courseWorkId, string studentId)
+        public async Task<bool> AcceptStudentAsync(long courseWorkId, long studentId)
         {
-            var getCourseWorkTask = _courseWorkRepository.GetAsync(courseWorkId);
-            var getApplicationTask = _applicationRepository
-                .FindAsync(a => a.CourseWorkId == courseWorkId && a.StudentId == studentId);
-            await Task.WhenAll(getApplicationTask, getCourseWorkTask);
+            var courseWork = await _courseWorkRepository.GetAsync(courseWorkId).ConfigureAwait(false);
+            var applications = await _applicationService
+                .GetFilteredApplicationsAsync(a => a.CourseWorkId == courseWorkId && a.StudentId == studentId)
+                .ConfigureAwait(false);
+            var application = applications.FirstOrDefault();
 
-            if (getCourseWorkTask.Result == null || getCourseWorkTask.Result.IsAvailable == false || getApplicationTask == null)
+            if (courseWork == null || courseWork.StudentId != null || application == null)
             {
                 return false;
             }
 
-            await _courseWorkRepository.UpdateAsync(
-                getCourseWorkTask.Result.Id,
-                courseWork => new CourseWork
-                {
-                    StudentId = studentId,
-                    IsAvailable = false
-                });
+            courseWork.StudentId = studentId;
+            var t1 = _courseWorkRepository.UpdateAsync(courseWorkId, c => courseWork);
+            var t2 = _applicationService.DeleteApplicationAsync(studentId, courseWorkId);
+            var otherApplicationsCourseWorkTask =
+                _applicationService.GetFilteredApplicationsAsync(a => a.CourseWorkId == courseWorkId);
+            var otherApplicationsStudentTask =
+                _applicationService.GetFilteredApplicationsAsync(a => a.StudentId == studentId);
+            await Task.WhenAll(t1, t2, otherApplicationsCourseWorkTask, otherApplicationsStudentTask).ConfigureAwait(false);
+
+            foreach (var app in otherApplicationsCourseWorkTask.Result)
+            {
+                await RejectStudentAsync(courseWorkId, app.StudentId).ConfigureAwait(false);
+            }
+            foreach (var app in otherApplicationsStudentTask.Result)
+            {
+                await _applicationService.DeleteApplicationAsync(studentId, app.CourseWorkId).ConfigureAwait(false);
+            }
 
             return true;
         }
 
-        public async Task<bool> RejectStudentAsync(long courseWorkId, string studentId)
+        public async Task<bool> RejectStudentAsync(long courseWorkId, long studentId)
         {
-            var getCourseWorkTask = _courseWorkRepository.GetAsync(courseWorkId);
-            var getApplicationTask = _applicationRepository
-                .FindAsync(application => application.CourseWorkId == courseWorkId && application.StudentId == studentId);
-            await Task.WhenAll(getCourseWorkTask, getApplicationTask);
+            var application = await _applicationService
+                .GetFilteredApplicationsAsync(a => a.CourseWorkId == courseWorkId && a.StudentId == studentId)
+                .ConfigureAwait(false);
 
-            if (getCourseWorkTask.Result == null || getApplicationTask.Result == null)
+
+            if (application == null)
             {
                 return false;
             }
 
-            await _applicationRepository.DeleteAsync(getApplicationTask.Result.Id);
+            await _applicationService.DeleteApplicationAsync(studentId, courseWorkId).ConfigureAwait(false);
 
             return true;
         }

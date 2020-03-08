@@ -1,5 +1,4 @@
-﻿using HwProj.CoursesService.API.Filters;
-using HwProj.CourseWorkService.API.Models;
+﻿using HwProj.CourseWorkService.API.Models;
 using HwProj.CourseWorkService.API.Repositories;
 using HwProj.CourseWorkService.API.Services;
 using HwProj.Utils.Configuration;
@@ -24,16 +23,24 @@ namespace HwProj.CourseWorkService.API
         {
             var connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<CourseWorkContext>(options => options.UseSqlServer(connection));
-            services.AddScoped<ICourseWorksRepository, CourseWorksRepository>();
-            services.AddScoped<IApplicationsRepository, ApplicationsRepository>();
-            services.AddScoped<ICourseWorkService, Services.CourseWorkService>();
-            services.AddScoped<IApplicationService, ApplicationService>();
-            services.AddScoped<CourseMentorOnlyAttribute>();
+
+            services.AddScoped<ICourseWorksRepository, CourseWorksRepository>()
+                .AddScoped<IApplicationsRepository, ApplicationsRepository>()
+                .AddScoped<IDeadlinesRepository, DeadlinesRepository>()
+                .AddScoped<IWorkFilesRepository, WorkFilesRepository>()
+                .AddScoped<IUsersRepository, UsersRepository>()
+                .AddScoped<IApplicationService, ApplicationService>()
+                .AddScoped<IDeadlineService, DeadlineService>()
+                .AddScoped<IWorkFilesService, WorkFilesService>()
+                .AddScoped<IUserService, UserService>()
+                .AddScoped<ICourseWorkService, Services.CourseWorkService>();
             services.ConfigureHwProjServices("CourseWorks API");
         }
 
+
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            app.UseDeveloperExceptionPage();
             app.ConfigureHwProj(env, "CourseWorks API");
         }
     }

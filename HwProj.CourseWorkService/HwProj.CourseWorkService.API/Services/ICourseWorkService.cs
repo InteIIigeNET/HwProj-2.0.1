@@ -1,4 +1,6 @@
-﻿using HwProj.CourseWorkService.API.Models;
+﻿using System;
+using System.Linq.Expressions;
+using HwProj.CourseWorkService.API.Models;
 using System.Threading.Tasks;
 
 namespace HwProj.CourseWorkService.API.Services
@@ -6,14 +8,14 @@ namespace HwProj.CourseWorkService.API.Services
     public interface ICourseWorkService
     {
         Task<CourseWork> GetCourseWorkAsync(long courseWorkId);
-        Task<CourseWork> GetStudentCourseWorkAsync(string studentId);
-        Task<CourseWork[]> GetFilteredCourseWorksAsync(Filter filter); 
+        Task<CourseWork> GetStudentCourseWorkAsync(long studentId);
+        Task<CourseWork[]> GetFilteredCourseWorksAsync(Expression<Func<CourseWork, bool>> predicate); 
 
-        Task<long> AddCourseWorkAsync(CourseWork courseWork, string supervisorId, bool wasCreatedBySupervisor);
+        Task<long> AddCourseWorkAsync(CourseWork courseWork);
         Task DeleteCourseWorkAsync(long courseWorkId);
         Task UpdateCourseWorkAsync(long courseWorkId, CourseWork update);
 
-        Task<bool> AcceptStudentAsync(long courseWorkId, string studentId);
-        Task<bool> RejectStudentAsync(long courseWorkId, string studentId);
+        Task<bool> AcceptStudentAsync(long courseWorkId, long studentId);
+        Task<bool> RejectStudentAsync(long courseWorkId, long studentId);
     }
 }

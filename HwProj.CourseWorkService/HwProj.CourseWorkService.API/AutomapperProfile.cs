@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using HwProj.CourseWorkService.API.Models;
-using HwProj.CourseWorkService.API.Models.ApplicationViewModels;
-using HwProj.CourseWorkService.API.Models.CourseWorkViewModels;
+using HwProj.CourseWorkService.API.Models.DTO;
+using HwProj.CourseWorkService.API.Models.ViewModels;
 
 namespace HwProj.CourseWorkService.API
 {
@@ -9,13 +9,16 @@ namespace HwProj.CourseWorkService.API
     {
         public AutomapperProfile()
         {
-            CreateMap<CourseWork, CourseWorkDetailsModel>();
-            CreateMap<CourseWork, CourseWorkOverviewModel>();
-            CreateMap<CourseWork, CreateCourseWorkViewModel>().ReverseMap();
+            CreateMap< CourseWork, OverviewCourseWork>();
+            CreateMap<CourseWork, DetailCourseWork>();
+            CreateMap<CourseWork, CreateCourseWork>().ReverseMap();
 
-            CreateMap<Application, SupervisorApplicationViewModel>();
-            CreateMap<Application, StudentApplicationViewModel>();
-            CreateMap<Application, CreateApplicationViewModel>().ReverseMap();
+            CreateMap<Application, StudentOverviewApplication>();
+            CreateMap<Application, LecturerOverviewApplication>();
+            CreateMap<Application, CreateApplication>().ReverseMap();
+
+            CreateMap<WorkFile, AddFileOrReference>().ReverseMap();
+            CreateMap<Deadline, AddDeadline>().ReverseMap();
         }
     }
 }
