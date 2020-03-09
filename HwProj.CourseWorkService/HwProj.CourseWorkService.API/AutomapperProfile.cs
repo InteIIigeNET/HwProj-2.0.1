@@ -19,6 +19,9 @@ namespace HwProj.CourseWorkService.API
 
             CreateMap<WorkFile, AddFileOrReference>().ReverseMap();
             CreateMap<Deadline, AddDeadline>().ReverseMap();
+
+            CreateMap<Bid, CreateBid>().ReverseMap();
+            CreateMap<User, Reviewer>();
         }
     }
 }

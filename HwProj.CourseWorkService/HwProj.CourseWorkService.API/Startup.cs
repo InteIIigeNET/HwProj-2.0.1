@@ -29,6 +29,8 @@ namespace HwProj.CourseWorkService.API
                 .AddScoped<IDeadlinesRepository, DeadlinesRepository>()
                 .AddScoped<IWorkFilesRepository, WorkFilesRepository>()
                 .AddScoped<IUsersRepository, UsersRepository>()
+                .AddScoped<IBidsRepository, BidsRepository>()
+                .AddScoped<IBiddingService, BiddingService>()
                 .AddScoped<IApplicationService, ApplicationService>()
                 .AddScoped<IDeadlineService, DeadlineService>()
                 .AddScoped<IWorkFilesService, WorkFilesService>()

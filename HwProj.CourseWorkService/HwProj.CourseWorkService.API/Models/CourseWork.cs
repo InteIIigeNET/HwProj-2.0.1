@@ -26,12 +26,14 @@ namespace HwProj.CourseWorkService.API.Models
         public ICollection<Application> Applications { get; set; }
         public ICollection<Deadline> Deadlines { get; set; }
         public ICollection<WorkFile> WorkFiles { get; set; }
+        public ICollection<Bid> Bids { get; set; }
 
         public CourseWork()
         {
             Applications = new List<Application>();
             Deadlines = new List<Deadline>();
             WorkFiles = new List<WorkFile>();
+            Bids = new List<Bid>();
         }
     }
 }

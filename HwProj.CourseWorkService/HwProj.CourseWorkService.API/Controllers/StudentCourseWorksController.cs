@@ -40,7 +40,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         public async Task<IActionResult> GetAvailableCourseWorks()
         {
             var courseWorks = await _courseWorkService
-                .GetFilteredCourseWorksAsync(c => c.StudentId == null)
+                .GetFilteredAsync(c => c.StudentId == null)
                 .ConfigureAwait(false);
             return Ok(_mapper.Map<OverviewCourseWork[]>(courseWorks));
         }
@@ -49,7 +49,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         [ProducesResponseType(typeof(DetailCourseWork), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetCourseWorkDetails(long courseWorkId)
         {
-            var courseWork = await _courseWorkService.GetCourseWorkAsync(courseWorkId)
+            var courseWork = await _courseWorkService.GetAsync(courseWorkId)
                 .ConfigureAwait(false);
             if (courseWork == null)
             {
@@ -61,30 +61,30 @@ namespace HwProj.CourseWorkService.API.Controllers
             if (id == courseWork.StudentId)
             {
                 deadlines = await _deadlineService
-                    .GetFilteredDeadlinesAsync(d => d.Type == "Work")
+                    .GetFilteredAsync(d => d.Type == "Work")
                     .ConfigureAwait(false);
             }
             else if (id == courseWork.ReviewerId)
             {
                 deadlines = await _deadlineService
-                    .GetFilteredDeadlinesAsync(d => d.Type != "Work")
+                    .GetFilteredAsync(d => d.Type != "Work")
                     .ConfigureAwait(false);
             }
             else if (id == courseWork.LecturerId)
             {
-                deadlines = await _deadlineService.GetAllDeadlinesAsync();
+                deadlines = await _deadlineService.GetAllAsync();
             }
 
             var studentName = "";
             var reviewerName = "";
             if (courseWork.StudentId != null)
             {
-                var student = await _userService.GetUserAsync((long)courseWork.StudentId).ConfigureAwait(false);
+                var student = await _userService.GetAsync((long)courseWork.StudentId).ConfigureAwait(false);
                 studentName = student.Name;
             }
             if (courseWork.ReviewerId != null)
             {
-                var reviewer = await _userService.GetUserAsync((long)courseWork.ReviewerId).ConfigureAwait(false);
+                var reviewer = await _userService.GetAsync((long)courseWork.ReviewerId).ConfigureAwait(false);
                 reviewerName = reviewer.Name;
             }
 
@@ -93,7 +93,7 @@ namespace HwProj.CourseWorkService.API.Controllers
             detailCourseWork.ReviewerName = reviewerName;
             detailCourseWork.Deadlines = deadlines;
             detailCourseWork.WorkFiles = await _workFilesService
-                .GetFilteredWorkFilesAsync(wf => wf.CourseWorkId == courseWorkId)
+                .GetFilteredAsync(wf => wf.CourseWorkId == courseWorkId)
                 .ConfigureAwait(false);
             return Ok(detailCourseWork);
         }
@@ -104,7 +104,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         {
             var studentId = await _userService.GetIdByAuthId(Request.GetUserId()).ConfigureAwait(false);
             var applications = await _applicationService
-                .GetFilteredApplicationsAsync(a => a.StudentId == studentId)
+                .GetFilteredAsync(a => a.StudentId == studentId)
                 .ConfigureAwait(false);
             return Ok(_mapper.Map<StudentOverviewApplication[]>(applications));
         }
@@ -117,10 +117,10 @@ namespace HwProj.CourseWorkService.API.Controllers
             var application = _mapper.Map<Application>(createApplication);
             application.DateOfApplication = DateTime.UtcNow;
             application.StudentId = userId;
-            application.CourseWork = await _courseWorkService.GetCourseWorkAsync(application.CourseWorkId)
+            application.CourseWork = await _courseWorkService.GetAsync(application.CourseWorkId)
                     .ConfigureAwait(false);
-            application.Student = await _userService.GetUserAsync(userId).ConfigureAwait(false);
-            var id = await _applicationService.AddApplicationAsync(application).ConfigureAwait(false);
+            application.Student = await _userService.GetAsync(userId).ConfigureAwait(false);
+            var id = await _applicationService.AddAsync(application).ConfigureAwait(false);
             return Ok(id);
         }
 
@@ -136,9 +136,15 @@ namespace HwProj.CourseWorkService.API.Controllers
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> AddFileOrReference([FromBody]AddFileOrReference addFileOrReference)
         {
-            var workFile = _mapper.Map<WorkFile>(addFileOrReference);
-            workFile.CourseWork = await _courseWorkService.GetCourseWorkAsync(workFile.CourseWorkId)
+            var id = await _userService.GetIdByAuthId(Request.GetUserId()).ConfigureAwait(false);
+            var courseWork = await _courseWorkService.GetAsync(addFileOrReference.CourseWorkId)
                 .ConfigureAwait(false);
+            if (id != courseWork.StudentId && id != courseWork.LecturerId)
+            {
+                return StatusCode(403);
+            }
+            var workFile = _mapper.Map<WorkFile>(addFileOrReference);
+            workFile.CourseWork = courseWork;
             if (workFile.IsFile)
             {
                 workFile.FileName = addFileOrReference.FData.FileName;
@@ -149,7 +155,17 @@ namespace HwProj.CourseWorkService.API.Controllers
                     workFile.Data = binaryReader.ReadBytes((int)addFileOrReference.FData.Length);
                 }
             }
-            return Ok(await _workFilesService.AddWorkFileAsync(workFile));
+            return Ok(await _workFilesService.AddAsync(workFile));
+        }
+
+        [HttpDelete("delete_file/{courseWorkId}")]
+        public async Task<IActionResult> DeleteDeadline([FromQuery] string type, long courseWorkId)
+        {
+            var workFile = await _workFilesService
+                .GetFilteredAsync(d => d.CourseWorkId == courseWorkId && d.Type == type)
+                .ConfigureAwait(false);
+            await _deadlineService.DeleteAsync(workFile.First().Id).ConfigureAwait(false);
+            return Ok();
         }
 
         [HttpGet("getFile/{courseWorkId}")]
@@ -157,10 +173,19 @@ namespace HwProj.CourseWorkService.API.Controllers
         public async Task<IActionResult> GetCourseWorkFile(long courseWorkId, [FromQuery] string type)
         {
             var workFiles = await _workFilesService
-                .GetFilteredWorkFilesAsync(wf => wf.CourseWorkId == courseWorkId && wf.Type == type)
+                .GetFilteredAsync(wf => wf.CourseWorkId == courseWorkId && wf.Type == type)
                 .ConfigureAwait(false);
             var workFile = workFiles.First();
             return File(workFile.Data, workFile.FileType, workFile.FileName);
+        }
+
+        [HttpPost("become_reviewer")]
+        public async Task<IActionResult> BecomeReviewer()
+        {
+            var user = await _userService.GetUserAuthAsync(Request.GetUserId())
+                .ConfigureAwait(false);
+            user.IsReviewer = true;
+            return Ok();
         }
     }
 }

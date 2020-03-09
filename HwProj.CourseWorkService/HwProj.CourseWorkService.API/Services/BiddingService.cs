@@ -3,9 +3,9 @@ using HwProj.CourseWorkService.API.Repositories;
 
 namespace HwProj.CourseWorkService.API.Services
 {
-    public class DeadlineService : EntityService<Deadline>, IDeadlineService
+    public class BiddingService : EntityService<Bid>, IBiddingService
     {
-        public DeadlineService(IDeadlinesRepository deadlinesRepository) : base(deadlinesRepository)
+        public BiddingService(IBidsRepository bidsRepository) : base(bidsRepository)
         {
         }
     }
