@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using HwProj.AuthService.API.Models.ViewModels;
 using HwProj.AuthService.API.Services;
-using HwProj.Models.Roles;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
@@ -44,7 +43,7 @@ namespace HwProj.AuthService.API.Controllers
             return Ok(tokenMeta);
         }
 
-        [HttpPut, Route("edit")]
+        [HttpPut, Route("edit")] 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Edit(EditAccountViewModel model)
         {

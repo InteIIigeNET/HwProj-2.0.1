@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace HwProj.CourseWorkService.API.Models.ViewModels
 {
-    public class CreateBid
+    public class CreateBidViewModel
     {
         public int BidValue { get; set; }
         public long CourseWorkId { get; set; }

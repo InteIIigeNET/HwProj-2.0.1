@@ -2,7 +2,7 @@
 
 namespace HwProj.CourseWorkService.API.Models.ViewModels
 {
-    public class AddFileOrReference
+    public class AddFileOrReferenceViewModel
     {
         public long CourseWorkId { get; set; }
         public string Type { get; set; }

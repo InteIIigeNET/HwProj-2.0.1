@@ -2,7 +2,7 @@
 
 namespace HwProj.CourseWorkService.API.Models.ViewModels
 {
-    public class AddDeadline
+    public class AddDeadlineViewModel
     {
         public string Type { get; set; }
 

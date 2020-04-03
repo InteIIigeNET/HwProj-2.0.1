@@ -6,9 +6,10 @@ namespace HwProj.CourseWorkService.API.Models
     {
         public long Id { get; set; }
 
-        public long ReviewerId { get; set; }
-
         public string BidValue { get; set; }
+
+        public long ReviewerId { get; set; }
+        public User Reviewer { get; set; }
 
         public long CourseWorkId { get; set; }
         public CourseWork CourseWork { get; set; }

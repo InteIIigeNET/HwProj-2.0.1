@@ -9,19 +9,19 @@ namespace HwProj.CourseWorkService.API
     {
         public AutomapperProfile()
         {
-            CreateMap< CourseWork, OverviewCourseWork>();
-            CreateMap<CourseWork, DetailCourseWork>();
-            CreateMap<CourseWork, CreateCourseWork>().ReverseMap();
+            CreateMap< CourseWork, OverviewCourseWorkDTO>();
+            CreateMap<CourseWork, DetailCourseWorkDTO>();
+            CreateMap<CourseWork, CreateCourseWorkViewModel>().ReverseMap();
+            CreateMap<Deadline, DeadlineDTO>();
+            CreateMap<Application, StudentApplicationDTO>();
+            CreateMap<Application, LecturerApplicationDTO>();
+            CreateMap<Application, OverviewApplicationDTO>();
+            CreateMap<Application, CreateApplicationViewModel>().ReverseMap();
 
-            CreateMap<Application, StudentOverviewApplication>();
-            CreateMap<Application, LecturerOverviewApplication>();
-            CreateMap<Application, CreateApplication>().ReverseMap();
-
-            CreateMap<WorkFile, AddFileOrReference>().ReverseMap();
-            CreateMap<Deadline, AddDeadline>().ReverseMap();
-
-            CreateMap<Bid, CreateBid>().ReverseMap();
-            CreateMap<User, Reviewer>();
+            CreateMap<WorkFile, AddFileOrReferenceViewModel>().ReverseMap();
+            CreateMap<Deadline, AddDeadlineViewModel>().ReverseMap();
+            CreateMap<Bid, CreateBidViewModel>().ReverseMap();
+            CreateMap<User, ReviewerDTO>();
         }
     }
 }

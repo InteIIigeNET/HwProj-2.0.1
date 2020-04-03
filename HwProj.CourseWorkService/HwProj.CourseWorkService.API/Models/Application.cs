@@ -8,10 +8,10 @@ namespace HwProj.CourseWorkService.API.Models
         public long Id { get; set; }
 
         public string Message { get; set; }
-        public DateTime DateOfApplication { get; set; }
+        public DateTime Date { get; set; }
 
-        public long StudentId { get; set; }
-        public User Student { get; set; }
+        public string StudentId { get; set; }
+        public Student Student { get; set; }
 
         public long CourseWorkId { get; set; }
         public CourseWork CourseWork { get; set; }

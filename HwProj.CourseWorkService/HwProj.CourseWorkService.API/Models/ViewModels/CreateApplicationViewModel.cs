@@ -1,6 +1,6 @@
 ﻿namespace HwProj.CourseWorkService.API.Models.ViewModels
 {
-    public class CreateApplication
+    public class CreateApplicationViewModel
     {
         public string Message { get; set; }
 

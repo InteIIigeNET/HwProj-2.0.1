@@ -1,6 +1,6 @@
 ﻿namespace HwProj.CourseWorkService.API.Models.DTO
 {
-    public class Reviewer
+    public class ReviewerDTO
     {
         public long Id { get; set; }
         public string Name { get; set; }

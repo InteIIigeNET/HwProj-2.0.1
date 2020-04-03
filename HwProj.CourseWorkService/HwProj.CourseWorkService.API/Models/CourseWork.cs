@@ -7,8 +7,9 @@ namespace HwProj.CourseWorkService.API.Models
     public class CourseWork : IEntity
     {
         public long Id { get; set; }
-
+        
         public string Title { get; set; }
+        public string Overview { get; set; }
         public string Description { get; set; }
         public string Type { get; set; }
         public string Requirements { get; set; }
@@ -19,21 +20,25 @@ namespace HwProj.CourseWorkService.API.Models
         public string SupervisorName { get; set; }
         public string SupervisorContact { get; set; }
 
-        public long? StudentId { get; set; }
-        public long? ReviewerId { get; set; }
-        public long LecturerId { get; set; }
+        public string StudentId { get; set; }
+        public string ReviewerId { get; set; }
+        public string LecturerId { get; set; }
+        public string CuratorId { get; set; }
+
+
+        public bool IsCompleted { get; set; }
 
         public ICollection<Application> Applications { get; set; }
         public ICollection<Deadline> Deadlines { get; set; }
-        public ICollection<WorkFile> WorkFiles { get; set; }
-        public ICollection<Bid> Bids { get; set; }
+        //public ICollection<WorkFile> WorkFiles { get; set; }
+        //public ICollection<Bid> Bids { get; set; }
 
         public CourseWork()
         {
             Applications = new List<Application>();
             Deadlines = new List<Deadline>();
-            WorkFiles = new List<WorkFile>();
-            Bids = new List<Bid>();
+            //WorkFiles = new List<WorkFile>();
+            //Bids = new List<Bid>();
         }
     }
 }

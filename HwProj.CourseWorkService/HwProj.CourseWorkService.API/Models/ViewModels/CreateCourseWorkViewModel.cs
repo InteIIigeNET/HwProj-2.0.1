@@ -1,8 +1,9 @@
 ﻿namespace HwProj.CourseWorkService.API.Models.ViewModels
 {
-    public class CreateCourseWork
+    public class CreateCourseWorkViewModel
     {
         public string Title { get; set; }
+        public string Overview { get; set; }
         public string Description { get; set; }
         public string Type { get; set; }
         public string Requirements { get; set; }

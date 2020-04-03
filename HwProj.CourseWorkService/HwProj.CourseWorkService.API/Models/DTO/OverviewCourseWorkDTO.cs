@@ -1,10 +1,11 @@
 ﻿namespace HwProj.CourseWorkService.API.Models.DTO
 {
-    public class OverviewCourseWork
+    public class OverviewCourseWorkDTO
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         public string Title { get; set; }
         public string Type { get; set; }
         public string SupervisorName { get; set; }
+        public string Overview { get; set; }
     }
 }

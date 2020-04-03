@@ -1,15 +1,10 @@
-﻿using HwProj.Repositories;
-using Microsoft.CodeAnalysis.Operations;
+﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity;
 
 namespace HwProj.CourseWorkService.API.Models
 {
-    public class User : IEntity
+    public class User : IdentityUser
     {
-        public long Id { get; set; }
-        public string AuthId { get; set; }
 
-        public string Name { get; set; }
-        public string Role { get; set; }
-        public bool IsReviewer { get; set; }
     }
 }
