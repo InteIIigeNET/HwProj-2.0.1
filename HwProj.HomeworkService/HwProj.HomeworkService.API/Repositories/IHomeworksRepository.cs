@@ -4,7 +4,7 @@ using HwProj.Repositories;
 
 namespace HwProj.HomeworkService.API.Repositories
 {
-    public interface IHomeworksRepository : ICrudRepository<Homework>
+    public interface IHomeworksRepository : ICrudRepository<Homework, long>
     {
         Task<Homework[]> GetAllWithTasksAsync();
         Task<Homework[]> GetAllWithTasksByCourseAsync(long courseId);

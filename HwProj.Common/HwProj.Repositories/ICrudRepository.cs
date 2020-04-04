@@ -4,11 +4,12 @@ using System.Threading.Tasks;
 
 namespace HwProj.Repositories
 {
-    public interface ICrudRepository<TEntity> : IReadOnlyRepository<TEntity>
-        where TEntity : IEntity
+    public interface ICrudRepository<TEntity, TKey> : IReadOnlyRepository<TEntity, TKey>
+        where TEntity : IEntity<TKey>
+        where TKey : IEquatable<TKey>
     {
-        Task<long> AddAsync(TEntity item);
-        Task DeleteAsync(long id);
-        Task UpdateAsync(long id, Expression<Func<TEntity, TEntity>> updateFactory);
+        Task<TKey> AddAsync(TEntity item);
+        Task DeleteAsync(TKey id);
+        Task UpdateAsync(TKey id, Expression<Func<TEntity, TEntity>> updateFactory);
     }
 }

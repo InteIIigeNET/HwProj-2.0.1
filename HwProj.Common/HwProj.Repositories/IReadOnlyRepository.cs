@@ -5,12 +5,13 @@ using System.Threading.Tasks;
 
 namespace HwProj.Repositories
 {
-    public interface IReadOnlyRepository<TEntity>
-        where TEntity : IEntity
+    public interface IReadOnlyRepository<TEntity, TKey>
+        where TEntity : IEntity<TKey>
+        where TKey : IEquatable<TKey>
     {
         IQueryable<TEntity> GetAll();
         IQueryable<TEntity> FindAll(Expression<Func<TEntity, bool>> predicate);
-        Task<TEntity> GetAsync(long id);
+        Task<TEntity> GetAsync(TKey id);
         Task<TEntity> FindAsync(Expression<Func<TEntity, bool>> predicate);
     }
 }

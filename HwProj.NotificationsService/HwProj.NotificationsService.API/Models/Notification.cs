@@ -4,7 +4,7 @@ using HwProj.Repositories;
 
 namespace HwProj.NotificationsService.API.Models
 {
-    public class Notification : IEntity
+    public class Notification : IEntity<long>
     {
         [Key]
         public long Id { get; set; }
