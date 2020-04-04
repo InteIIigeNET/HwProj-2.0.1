@@ -27,7 +27,7 @@ namespace HwProj.Repositories
             return Context.Set<TEntity>().AsNoTracking().Where(predicate);
         }
 
-        public async Task<TEntity> GetAsync(long id)
+        public async Task<TEntity> GetAsync(TKey id)
         {
             return await Context.FindAsync<TEntity>(id);
         }
