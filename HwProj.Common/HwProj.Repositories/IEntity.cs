@@ -2,9 +2,9 @@
 
 namespace HwProj.Repositories
 {
-    public interface IEntity<T>
-        where T : IEquatable<T>
+    public interface IEntity<TKey>
+        where TKey : IEquatable<TKey>
     {
-        T Id { get; set; }
+        TKey Id { get; set; }
     }
 }
