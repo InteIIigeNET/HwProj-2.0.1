@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.HomeworkService.API.Repositories
 {
-    public class HomeworksRepository : CrudRepository<Homework>, IHomeworksRepository
+    public class HomeworksRepository : CrudRepository<Homework, long>, IHomeworksRepository
     {
         public HomeworksRepository(HomeworkContext context)
             : base(context)

@@ -6,8 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.Repositories
 {
-    public class ReadOnlyRepository<TEntity> : IReadOnlyRepository<TEntity>
-        where TEntity : class, IEntity, new()
+    public class ReadOnlyRepository<TEntity, T> : IReadOnlyRepository<TEntity, T>
+        where TEntity : class, IEntity<T>, new()
+        where T : IEquatable<T>
     {
         protected readonly DbContext Context;
 

@@ -34,7 +34,6 @@ namespace HwProj.EventBus.Tests
             var factory = new ConnectionFactory { HostName = Hostname };
 
             var eventBus = new EventBusRabbitMq(new DefaultConnection(policy, factory),
-                                                //new SubscriptionsManager(),
                                                 serviceProvider.Object,
                                                 policy);
 

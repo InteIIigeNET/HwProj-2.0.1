@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 
 namespace HwProj.Repositories
 {
-    public interface IReadOnlyRepository<TEntity>
-        where TEntity : IEntity
+    public interface IReadOnlyRepository<TEntity, T>
+        where TEntity : IEntity<T>
+        where T : IEquatable<T>
     {
         IQueryable<TEntity> GetAll();
         IQueryable<TEntity> FindAll(Expression<Func<TEntity, bool>> predicate);
