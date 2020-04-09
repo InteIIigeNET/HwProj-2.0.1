@@ -7,4 +7,4 @@ install:
 - dotnet restore
 script:
 - dotnet build
-- for path in */*.Tests/*.Tests.csproj; do dotnet test path; done
+- for path in */*.Tests/*.Tests.csproj; do dotnet test "$path"; done
