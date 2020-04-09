@@ -15,14 +15,13 @@ namespace HwProj.AuthService.API.Services
 {
     public class AuthTokenService : IAuthTokenService
     {
-        private readonly UserManager<User> _userManager;
+        private readonly IUserManager _userManager;
         private readonly AppSettings _appSettings;
 
-        public AuthTokenService(UserManager<User> userManager,
-            IOptions<AppSettings> appSettings)
+        public AuthTokenService(IUserManager userManager, AppSettings appSettings)
         {
             _userManager = userManager;
-            _appSettings = appSettings.Value;
+            _appSettings = appSettings;
         }
 
         public async Task<TokenCredentials> GetTokenAsync(User user)

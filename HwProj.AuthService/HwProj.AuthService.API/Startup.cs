@@ -67,7 +67,8 @@ namespace HwProj.AuthService.API
                 .AddDefaultTokenProviders();
 
             services.AddScoped<IAuthTokenService, AuthTokenService>()
-                .AddScoped<IAccountService, AccountService>();
+                .AddScoped<IAccountService, AccountService>()
+                .AddScoped<IUserManager, ProxyUserManager>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -77,7 +78,8 @@ namespace HwProj.AuthService.API
             using (var scope = app.ApplicationServices.CreateScope())
             {
                 var userManager = scope.ServiceProvider.GetService(typeof(UserManager<User>)) as UserManager<User>;
-                var rolesManager = scope.ServiceProvider.GetService(typeof(RoleManager<IdentityRole>)) as RoleManager<IdentityRole>;
+                var rolesManager =
+                    scope.ServiceProvider.GetService(typeof(RoleManager<IdentityRole>)) as RoleManager<IdentityRole>;
 
                 if (env.IsDevelopment())
                 {
