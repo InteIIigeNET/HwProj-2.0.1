@@ -2,7 +2,7 @@
 
 namespace HwProj.CourseWorkService.API.Models
 {
-    public class WorkFile : IEntity
+    public class WorkFile : IEntity<long>
     {
         public long Id { get; set; }
 

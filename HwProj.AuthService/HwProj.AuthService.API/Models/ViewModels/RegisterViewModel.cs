@@ -5,10 +5,7 @@ namespace HwProj.AuthService.API.Models.ViewModels
     public class RegisterViewModel
     {
         [Required]
-        public string Name { get; set; }
-
-        [Required]
-        public string Surname { get; set; }
+        public string UserName { get; set; }
 
         [Required]
         [DataType(DataType.EmailAddress)]

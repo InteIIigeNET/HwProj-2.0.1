@@ -1,15 +1,20 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+using HwProj.Repositories;
 
 namespace HwProj.CourseWorkService.API.Models
 {
-    public class Student : User
+    public class StudentProfile : IEntity<string>
     {
+        public string Id { get; set; }
+
+        public string UserId { get; set; }
+        public User User { get; set; }
+
         public int Group { get; set; }
         public string Direction { get; set; }
         public ICollection<Application> Applications { get; set; }
 
-        public Student()
+        public StudentProfile()
         {
             Applications = new List<Application>();
         }

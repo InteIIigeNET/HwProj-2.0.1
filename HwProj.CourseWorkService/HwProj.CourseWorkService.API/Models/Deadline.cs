@@ -2,7 +2,7 @@
 using System;
 namespace HwProj.CourseWorkService.API.Models
 {
-    public class Deadline : IEntity
+    public class Deadline : IEntity<long>
     {
         public long Id { get; set; }
 

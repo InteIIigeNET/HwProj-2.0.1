@@ -34,10 +34,15 @@ namespace HwProj.CourseWorkService.API.Controllers
         [ProducesResponseType(typeof(StudentApplicationDTO), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetStudentApplication(long appId)
         {
-            var application = await _applicationsRepository.GetAsync(appId).ConfigureAwait(false);
+            var application = await _applicationsRepository.GetApplicationAsync(appId).ConfigureAwait(false);
             if (application == null)
             {
                 return NotFound();
+            }
+            var userId = Request.GetUserId();
+            if (application.StudentProfileId != userId)
+            {
+                return Forbid();
             }
 
             return Ok(_applicationsService.GetStudentApplication(application));
@@ -47,18 +52,18 @@ namespace HwProj.CourseWorkService.API.Controllers
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> ApplyToCourseWork([FromBody] CreateApplicationViewModel createApplicationViewModel, long courseWorkId)
         {
-            var courseWork = await _courseWorksRepository.GetAsync(courseWorkId).ConfigureAwait(false);
+            var courseWork = await _courseWorksRepository.GetCourseWorkAsync(courseWorkId).ConfigureAwait(false);
             if (courseWork == null)
             {
                 return NotFound();
             }
             var userId = Request.GetUserId();
-            if (courseWork.Applications.Count(app => app.StudentId == userId) > 0)
+            if (courseWork.Applications.Count(app => app.StudentProfileId == userId) > 0)
             {
                 return BadRequest();
             }
 
-            var id = await _applicationsService.AddApplication(createApplicationViewModel, userId);
+            var id = await _applicationsService.AddApplicationAsync(createApplicationViewModel, userId);
             return Ok(id);
         }
 
@@ -70,13 +75,15 @@ namespace HwProj.CourseWorkService.API.Controllers
             {
                 return NotFound();
             }
+            var userId = Request.GetUserId();
+            if (application.StudentProfileId != userId)
+            {
+                return Forbid();
+            }
 
             await _applicationsRepository.DeleteAsync(application.Id).ConfigureAwait(false);
             return Ok();
         }
-
-
-
 
 
         //[HttpPost("course_works/{courseWorkId}/add_file")]

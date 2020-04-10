@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace HwProj.CourseWorkService.API.Models
 {
-    public class CourseWork : IEntity
+    public class CourseWork : IEntity<long>
     {
         public long Id { get; set; }
         
@@ -28,8 +28,8 @@ namespace HwProj.CourseWorkService.API.Models
 
         public bool IsCompleted { get; set; }
 
-        public ICollection<Application> Applications { get; set; }
-        public ICollection<Deadline> Deadlines { get; set; }
+        public List<Application> Applications { get; set; }
+        public List<Deadline> Deadlines { get; set; }
         //public ICollection<WorkFile> WorkFiles { get; set; }
         //public ICollection<Bid> Bids { get; set; }
 

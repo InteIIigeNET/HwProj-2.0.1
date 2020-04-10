@@ -1,0 +1,268 @@
+{
+  "ReRoutes": [
+    //CourseWorks
+    {
+      "DownstreamPathTemplate": "/api/course_works/available",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/course_works/available/",
+      "UpstreamhttpsMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/course_works/{courseWorkId}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/course_works/{courseWorkId}/",
+      "UpstreamhttpsMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/course_works/my/{status}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/course_works/my/{status}/",
+      "UpstreamhttpsMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/course_works/{courseWorkId}/deadlines",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/course_works/{courseWorkId}/deadlines/",
+      "UpstreamhttpsMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/course_works/applications",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/course_works/applications/",
+      "UpstreamhttpsMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
+      }
+    },
+    //StudentCourseWorks
+    {
+      "DownstreamPathTemplate": "/api/student/applications/{appId}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/student/applications/{appId}/",
+      "UpstreamhttpsMethod": [ "GET", "DELETE" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "Student"
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value",
+        "_role": "Claims[_role] > value"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/student/course_works/{courseWorkId}/apply",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/student/course_works/{courseWorkId}/apply/",
+      "UpstreamhttpsMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "Student"
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value",
+        "_role": "Claims[_role] > value"
+      }
+    },
+    //LecturerCourseWorks
+    {
+      "DownstreamPathTemplate": "/api/lecturer/course_works/add",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/lecturer/course_works/add/",
+      "UpstreamhttpsMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "Lecturer"
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value",
+        "_role": "Claims[_role] > value"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/lecturer/course_works/{courseWorkId}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/lecturer/course_works/{courseWorkId}/",
+      "UpstreamhttpsMethod": [ "PUT", "DELETE" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "Lecturer"
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value",
+        "_role": "Claims[_role] > value"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/lecturer/applications/{appId}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/lecturer/applications/{appId}/",
+      "UpstreamhttpsMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "Lecturer"
+      },
+      "AddQueriesToRequest": {
+        "_role": "Claims[_role] > value"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/lecturer/course_works/{courseWorkId}/applications",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/lecturer/course_works/{courseWorkId}/applications/",
+      "UpstreamhttpsMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "Lecturer"
+      },
+      "AddQueriesToRequest": {
+        "_role": "Claims[_role] > value"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/lecturer/applications/{appId}/accept",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/lecturer/applications/{appId}/accept/",
+      "UpstreamhttpsMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "Lecturer"
+      },
+      "AddQueriesToRequest": {
+        "_role": "Claims[_role] > value"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/lecturer/applications/{appId}/reject",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/lecturer/applications/{appId}/reject/",
+      "UpstreamhttpsMethod": [ "DELETE" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "Lecturer"
+      },
+      "AddQueriesToRequest": {
+        "_role": "Claims[_role] > value"
+      }
+    }
+  ]
+}

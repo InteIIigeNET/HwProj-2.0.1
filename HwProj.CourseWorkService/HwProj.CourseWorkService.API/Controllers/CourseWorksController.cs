@@ -16,6 +16,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         private readonly IApplicationsService _applicationsService;
         private readonly ICourseWorksService _courseWorksService;
         private readonly ICourseWorksRepository _courseWorksRepository;
+        //private readonly CourseWorkContext _db;
 
         public CourseWorksController(IApplicationsService applicationsService, ICourseWorksService courseWorksService,
             ICourseWorksRepository courseWorksRepository)
@@ -23,14 +24,21 @@ namespace HwProj.CourseWorkService.API.Controllers
             _applicationsService = applicationsService;
             _courseWorksService = courseWorksService;
             _courseWorksRepository = courseWorksRepository;
+            //_db = db;
         }
+
+        //[HttpGet("aaa")]
+        //public async Task<User[]> GetWhat()
+        //{
+        //    return await _db.Users.Include(u => u.UserRoles).ToArrayAsync();
+        //}
 
         [HttpGet("available")]
         [ProducesResponseType(typeof(OverviewCourseWorkDTO[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetAvailableCourseWorks()
         {
             var courseWorks = await _courseWorksService
-                .GetActiveFilteredCourseWorks(courseWork => courseWork.StudentId == null)
+                .GetActiveFilteredCourseWorksAsync(courseWork => courseWork.StudentId == null)
                 .ConfigureAwait(false);
             return Ok(courseWorks);
         }
@@ -62,7 +70,7 @@ namespace HwProj.CourseWorkService.API.Controllers
 
             var userId = Request.GetUserId();
             var courseWorks = await _courseWorksService
-                .GetFilteredCourseWorksWithStatus(status,
+                .GetFilteredCourseWorksWithStatusAsync(status,
                     courseWork => courseWork.StudentId == userId || courseWork.LecturerId == userId)
                 .ConfigureAwait(false);
             return Ok(courseWorks);
@@ -73,7 +81,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         [ProducesResponseType(typeof(DeadlineDTO[]), (int) HttpStatusCode.OK)]
         public async Task<IActionResult> GetCourseWorksDeadlines(long courseWorkId)
         {
-            var courseWork = await _courseWorksRepository.GetAsync(courseWorkId).ConfigureAwait(false);
+            var courseWork = await _courseWorksRepository.GetCourseWorkAsync(courseWorkId).ConfigureAwait(false);
             if (courseWork == null)
             {
                 return NotFound();
@@ -91,7 +99,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         {
             var userId = Request.GetUserId();
             var applications = await _applicationsService
-                .GetFilteredApplications(app => app.StudentId == userId || app.CourseWork.LecturerId == userId)
+                .GetFilteredApplicationsAsync(app => app.StudentProfileId == userId || app.CourseWork.LecturerId == userId)
                 .ConfigureAwait(false);
             return Ok(applications);
         }

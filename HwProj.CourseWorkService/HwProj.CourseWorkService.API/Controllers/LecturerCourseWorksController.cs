@@ -101,7 +101,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         [ProducesResponseType(typeof(LecturerApplicationDTO), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetLecturerApplication(long appId)
         {
-            var application = await _applicationsRepository.GetAsync(appId).ConfigureAwait(false);
+            var application = await _applicationsRepository.GetApplicationAsync(appId).ConfigureAwait(false);
             if (application == null)
             {
                 return NotFound();
@@ -121,7 +121,7 @@ namespace HwProj.CourseWorkService.API.Controllers
             }
 
             var applications = await _applicationsService
-                .GetFilteredApplications(app => app.CourseWorkId == courseWorkId)
+                .GetFilteredApplicationsAsync(app => app.CourseWorkId == courseWorkId)
                 .ConfigureAwait(false);
             return Ok(applications);
         }
@@ -129,7 +129,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         [HttpPost("applications/{appId}/accept")]
         public async Task<IActionResult> AcceptStudent(long appId)
         {
-            var application = await _applicationsRepository.GetAsync(appId).ConfigureAwait(false);
+            var application = await _applicationsRepository.GetApplicationAsync(appId).ConfigureAwait(false);
             if (application == null)
             {
                 return NotFound();
@@ -140,14 +140,14 @@ namespace HwProj.CourseWorkService.API.Controllers
                 return BadRequest();
             }
 
-            await _applicationsService.AcceptStudentApplication(application);
+            await _applicationsService.AcceptStudentApplicationAsync(application);
             return Ok();
         }
 
         [HttpDelete("applications/{appId}/reject")]
         public async Task<IActionResult> RejectStudent(long appId)
         {
-            var application = await _applicationsRepository.GetAsync(appId).ConfigureAwait(false);
+            var application = await _applicationsRepository.GetApplicationAsync(appId).ConfigureAwait(false);
             if (application == null)
             {
                 return NotFound();

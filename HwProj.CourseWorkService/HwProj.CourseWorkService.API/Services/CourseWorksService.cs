@@ -21,24 +21,24 @@ namespace HwProj.CourseWorkService.API.Services
             _mapper = mapper;
         }
 
-        public async Task<OverviewCourseWorkDTO[]> GetFilteredCourseWorksWithStatus(string status, Func<CourseWork, bool> predicate)
+        public async Task<OverviewCourseWorkDTO[]> GetFilteredCourseWorksWithStatusAsync(string status, Func<CourseWork, bool> predicate)
         {
             if (status == "active")
             {
-                return await GetActiveFilteredCourseWorks(predicate).ConfigureAwait(false);
+                return await GetActiveFilteredCourseWorksAsync(predicate).ConfigureAwait(false);
             }
 
-            return await GetCompletedFilteredCourseWorks(predicate).ConfigureAwait(false);
+            return await GetCompletedFilteredCourseWorksAsync(predicate).ConfigureAwait(false);
         }
 
-        public async Task<OverviewCourseWorkDTO[]> GetActiveFilteredCourseWorks(Func<CourseWork, bool> predicate)
+        public async Task<OverviewCourseWorkDTO[]> GetActiveFilteredCourseWorksAsync(Func<CourseWork, bool> predicate)
         {
             var courseWorks = await _courseWorksRepository
                 .FindAll(courseWork => predicate(courseWork) && !courseWork.IsCompleted)
                 .ToArrayAsync().ConfigureAwait(false);
             return _mapper.Map<OverviewCourseWorkDTO[]>(courseWorks);
         }
-        public async Task<OverviewCourseWorkDTO[]> GetCompletedFilteredCourseWorks(Func<CourseWork, bool> predicate)
+        public async Task<OverviewCourseWorkDTO[]> GetCompletedFilteredCourseWorksAsync(Func<CourseWork, bool> predicate)
         {
             var courseWorks = await _courseWorksRepository
                 .FindAll(courseWork => predicate(courseWork) && courseWork.IsCompleted)
@@ -58,7 +58,7 @@ namespace HwProj.CourseWorkService.API.Services
             IEnumerable<Deadline> deadlines;
             if (userId == courseWork.StudentId)
             {
-                deadlines = courseWork.Deadlines.Where(deadline => deadline.Role == "Student");
+                deadlines = courseWork.Deadlines.Where(deadline => deadline.Role == "StudentProfile");
             }
             else if (userId == courseWork.ReviewerId)
             {

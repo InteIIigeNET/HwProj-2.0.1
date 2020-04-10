@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.CoursesService.API.Repositories
 {
-    public class CoursesRepository : CrudRepository<Course>, ICoursesRepository
+    public class CoursesRepository : CrudRepository<Course, long>, ICoursesRepository
     {
         public CoursesRepository(CourseContext context)
             : base(context)

@@ -11,10 +11,10 @@ namespace HwProj.CourseWorkService.API.Services
 {
     public interface IApplicationsService
     {
-        Task<OverviewApplicationDTO[]> GetFilteredApplications(Expression<Func<Application, bool>> predicate);
+        Task<OverviewApplicationDTO[]> GetFilteredApplicationsAsync(Expression<Func<Application, bool>> predicate);
         LecturerApplicationDTO GetLecturerApplication(Application application);
         StudentApplicationDTO GetStudentApplication(Application application);
-        Task<long> AddApplication(CreateApplicationViewModel newApplication, string userId);
-        Task AcceptStudentApplication(Application application);
+        Task<long> AddApplicationAsync(CreateApplicationViewModel newApplication, string userId);
+        Task AcceptStudentApplicationAsync(Application application);
     }
 }

@@ -3,7 +3,7 @@ using HwProj.Repositories;
 
 namespace HwProj.CourseWorkService.API.Repositories
 {
-    public interface IBidsRepository : ICrudRepository<Bid>
+    public interface IBidsRepository : ICrudRepository<Bid, long>
     {
     }
 }

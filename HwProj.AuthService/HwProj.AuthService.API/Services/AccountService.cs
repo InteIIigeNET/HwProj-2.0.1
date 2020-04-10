@@ -7,7 +7,8 @@ using AutoMapper;
 using HwProj.AuthService.API.Extensions;
 using HwProj.AuthService.API.Models.DTO;
 using HwProj.Models.Roles;
-using System;
+using HwProj.AuthService.API.Events;
+using HwProj.EventBus.Client.Interfaces;
 
 namespace HwProj.AuthService.API.Services
 {
@@ -16,16 +17,19 @@ namespace HwProj.AuthService.API.Services
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly IAuthTokenService _tokenService;
+        private readonly IEventBus _eventBus;
         private readonly IMapper _mapper;
 
         public AccountService(UserManager<User> userManager,
             SignInManager<User> signInManager,
             IAuthTokenService authTokenService,
+            IEventBus eventBus,
             IMapper mapper)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _tokenService = authTokenService;
+            _eventBus = eventBus;
             _mapper = mapper;
         }
 
@@ -95,13 +99,22 @@ namespace HwProj.AuthService.API.Services
 
             var user = _mapper.Map<User>(model);
 
-            return await _userManager.CreateAsync(user, model.Password)
+            var result = await _userManager.CreateAsync(user, model.Password)
                 .Then(() => _userManager.AddToRoleAsync(user, Roles.StudentRole))
                 .Then(() =>
                 {
                     user.EmailConfirmed = true;
                     return _userManager.UpdateAsync(user);
                 }).ConfigureAwait(false);
+
+            if (result.Succeeded)
+            {
+                var newUser = await _userManager.FindByEmailAsync(model.Email).ConfigureAwait(false);
+                var registerEvent = new RegisterEvent(newUser.Id, newUser.UserName, newUser.Email);
+                _eventBus.Publish(registerEvent);
+            }
+
+            return result;
         }
 
         public async Task<IdentityResult> InviteNewLecturer(string emailOfInvitedUser)
@@ -112,6 +125,9 @@ namespace HwProj.AuthService.API.Services
             {
                 return IdentityResults.UserNotFound;
             }
+
+            var inviteEvent = new InviteLecturerEvent(invitedUser.Id);
+            _eventBus.Publish(inviteEvent);
 
             return await _userManager.AddToRoleAsync(invitedUser, Roles.LecturerRole)
                 .Then(() => _userManager.RemoveFromRoleAsync(invitedUser, Roles.StudentRole)).ConfigureAwait(false);

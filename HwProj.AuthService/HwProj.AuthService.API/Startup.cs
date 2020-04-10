@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using HwProj.AuthService.API.Services;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using HwProj.Utils.Configuration;
+using HwProj.Utils.Authorization;
 
 namespace HwProj.AuthService.API
 {
@@ -29,11 +29,6 @@ namespace HwProj.AuthService.API
             var appSettingsSection = Configuration.GetSection("AppSettings");
             services.Configure<AppSettings>(appSettingsSection);
 
-            var securityKey =
-                new SymmetricSecurityKey(
-                    Encoding.ASCII.GetBytes(
-                        "U8_.wpvk93fPWG<f2$Op[vwegmQGF25_fNG2V0ijnm2e0igv24g")); //с этим 3.14здецом тоже нужно что-то сделать
-
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(x =>
                 {
@@ -44,7 +39,7 @@ namespace HwProj.AuthService.API
                         ValidateIssuer = true,
                         ValidateAudience = false,
                         ValidateLifetime = true,
-                        IssuerSigningKey = securityKey,
+                        IssuerSigningKey = AuthorizationKey.SecurityKey,
                         ValidateIssuerSigningKey = true
                     };
                 });
@@ -65,6 +60,8 @@ namespace HwProj.AuthService.API
                 .AddUserManager<UserManager<User>>()
                 .AddRoleManager<RoleManager<IdentityRole>>()
                 .AddDefaultTokenProviders();
+
+            services.AddEventBus(Configuration);
 
             services.AddScoped<IAuthTokenService, AuthTokenService>()
                 .AddScoped<IAccountService, AccountService>();

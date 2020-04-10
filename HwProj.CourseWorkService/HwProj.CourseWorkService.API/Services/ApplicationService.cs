@@ -6,7 +6,6 @@ using HwProj.CourseWorkService.API.Models;
 using HwProj.CourseWorkService.API.Models.DTO;
 using HwProj.CourseWorkService.API.Models.ViewModels;
 using HwProj.CourseWorkService.API.Repositories;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.CourseWorkService.API.Services
@@ -15,22 +14,22 @@ namespace HwProj.CourseWorkService.API.Services
     {
         private readonly IApplicationsRepository _applicationsRepository;
         private readonly ICourseWorksRepository _courseWorksRepository;
-        private readonly UserManager<Student> _userManager;
+        private readonly IUsersRepository _userRepository;
         private readonly IMapper _mapper;
 
         public ApplicationService(IApplicationsRepository applicationsRepository, ICourseWorksRepository courseWorksRepository,
-            UserManager<Student> userManager, IMapper mapper)
+            IUsersRepository userRepository, IMapper mapper)
         {
             _applicationsRepository = applicationsRepository;
             _courseWorksRepository = courseWorksRepository;
-            _userManager = userManager;
+            _userRepository = userRepository;
             _mapper = mapper;
         }
 
-        public async Task<OverviewApplicationDTO[]> GetFilteredApplications(Expression<Func<Application, bool>> predicate)
+        public async Task<OverviewApplicationDTO[]> GetFilteredApplicationsAsync(Expression<Func<Application, bool>> predicate)
         {
             var applications = await _applicationsRepository
-                .FindAll(predicate)
+                .FindAll(predicate).Include(a => a.CourseWork)
                 .ToArrayAsync().ConfigureAwait(false);
             var overviewApplications = _mapper.Map<OverviewApplicationDTO[]>(applications);
             for (var i = 0; i < applications.Length; i++)
@@ -47,8 +46,8 @@ namespace HwProj.CourseWorkService.API.Services
             var lecturerApplication = _mapper.Map<LecturerApplicationDTO>(application);
             lecturerApplication.CourseWorkTitle = application.CourseWork.Title;
             lecturerApplication.Date = application.Date.ToString("MM/dd/yyyy");
-            lecturerApplication.StudentName = application.Student.UserName;
-            lecturerApplication.StudentGroup = application.Student.Group;
+            lecturerApplication.StudentName = application.StudentProfile.User.UserName;
+            lecturerApplication.StudentGroup = application.StudentProfile.Group;
             return lecturerApplication;
         }
 
@@ -61,22 +60,19 @@ namespace HwProj.CourseWorkService.API.Services
             return studentApplication;
         }
 
-        public async Task<long> AddApplication(CreateApplicationViewModel newApplication, string userId)
+        public async Task<long> AddApplicationAsync(CreateApplicationViewModel newApplication, string userId)
         {
             var application = _mapper.Map<Application>(newApplication);
-            application.CourseWork =
-                await _courseWorksRepository.GetAsync(newApplication.CourseWorkId).ConfigureAwait(false);
             application.Date = DateTime.UtcNow;
-            application.StudentId = userId;
-            application.Student = await _userManager.FindByIdAsync(userId).ConfigureAwait(false);
+            application.StudentProfileId = userId;
             return await _applicationsRepository.AddAsync(application).ConfigureAwait(false);
         }
 
-        public async Task AcceptStudentApplication(Application application)
+        public async Task AcceptStudentApplicationAsync(Application application)
         {
             await _courseWorksRepository.UpdateAsync(application.CourseWorkId, cw => new CourseWork()
                 {
-                    StudentId = application.StudentId
+                    StudentId = application.StudentProfileId
                 })
                 .ConfigureAwait(false);
 
@@ -86,7 +82,7 @@ namespace HwProj.CourseWorkService.API.Services
                 await _applicationsRepository.DeleteAsync(app.Id).ConfigureAwait(false);
             }
 
-            var student = application.Student;
+            var student = application.StudentProfile;
             foreach (var app in student.Applications)
             {
                 await _applicationsRepository.DeleteAsync(app.Id).ConfigureAwait(false);

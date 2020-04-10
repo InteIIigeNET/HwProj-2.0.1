@@ -2,7 +2,7 @@
 
 namespace HwProj.CourseWorkService.API.Models
 {
-    public class Bid : IEntity
+    public class Bid : IEntity<long>
     {
         public long Id { get; set; }
 
