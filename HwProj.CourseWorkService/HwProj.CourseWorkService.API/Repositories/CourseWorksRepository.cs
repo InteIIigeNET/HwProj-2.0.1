@@ -16,6 +16,7 @@ namespace HwProj.CourseWorkService.API.Repositories
         {
             return await Context.Set<CourseWork>().Include(c => c.Applications)
                 .Include(c => c.Deadlines)
+                .Include(c => c.WorkFiles)
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
     }

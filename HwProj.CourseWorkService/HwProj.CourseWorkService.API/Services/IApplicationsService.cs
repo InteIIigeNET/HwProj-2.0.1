@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using HwProj.CourseWorkService.API.Models;
@@ -14,7 +12,7 @@ namespace HwProj.CourseWorkService.API.Services
         Task<OverviewApplicationDTO[]> GetFilteredApplicationsAsync(Expression<Func<Application, bool>> predicate);
         LecturerApplicationDTO GetLecturerApplication(Application application);
         StudentApplicationDTO GetStudentApplication(Application application);
-        Task<long> AddApplicationAsync(CreateApplicationViewModel newApplication, string userId);
+        Task<long> AddApplicationAsync(CreateApplicationViewModel newApplication, string userId, CourseWork courseWork);
         Task AcceptStudentApplicationAsync(Application application);
     }
 }

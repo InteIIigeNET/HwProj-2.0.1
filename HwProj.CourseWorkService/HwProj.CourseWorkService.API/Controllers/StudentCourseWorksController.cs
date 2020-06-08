@@ -1,7 +1,10 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using HwProj.CourseWorkService.API.Filters;
+using HwProj.CourseWorkService.API.Models;
 using Microsoft.AspNetCore.Mvc;
 using HwProj.CourseWorkService.API.Models.DTO;
 using HwProj.CourseWorkService.API.Models.ViewModels;
@@ -9,11 +12,12 @@ using HwProj.CourseWorkService.API.Repositories;
 using HwProj.CourseWorkService.API.Services;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 
 namespace HwProj.CourseWorkService.API.Controllers
 {
-    [Authorize]
-    [OnlyStudent]
+    //[Authorize]
+    //[OnlyStudent]
     [Route("api/student")]
     [ApiController]
     public class StudentCourseWorksController : Controller
@@ -63,7 +67,7 @@ namespace HwProj.CourseWorkService.API.Controllers
                 return BadRequest();
             }
 
-            var id = await _applicationsService.AddApplicationAsync(createApplicationViewModel, userId);
+            var id = await _applicationsService.AddApplicationAsync(createApplicationViewModel, userId, courseWork);
             return Ok(id);
         }
 
@@ -84,53 +88,6 @@ namespace HwProj.CourseWorkService.API.Controllers
             await _applicationsRepository.DeleteAsync(application.Id).ConfigureAwait(false);
             return Ok();
         }
-
-
-        //[HttpPost("course_works/{courseWorkId}/add_file")]
-        //[ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
-        //public async Task<IActionResult> AddFileOrReference([FromBody]AddFileOrReferenceViewModel addFileOrReferenceViewModel)
-        //{
-        //    var userId = Request.GetUserId();
-        //    var courseWork = await _courseWorksRepository.GetAsync(addFileOrReferenceViewModel.CourseWorkId)
-        //        .ConfigureAwait(false);
-        //    if (userId != courseWork.StudentId && userId != courseWork.LecturerId)
-        //    {
-        //        return StatusCode(403);
-        //    }
-        //    var workFile = _mapper.Map<WorkFile>(addFileOrReferenceViewModel);
-        //    workFile.CourseWork = courseWork;
-        //    if (workFile.IsFile)
-        //    {
-        //        workFile.FileName = addFileOrReferenceViewModel.FData.FileName;
-        //        workFile.FileType = addFileOrReferenceViewModel.FData.ContentType;
-
-        //        using (var binaryReader = new BinaryReader(addFileOrReferenceViewModel.FData.OpenReadStream()))
-        //        {
-        //            workFile.Data = binaryReader.ReadBytes((int)addFileOrReferenceViewModel.FData.Length);
-        //        }
-        //    }
-        //    return Ok(await _workFilesRepository.AddAsync(workFile));
-        //}
-
-        //[HttpDelete("course_works/{courseWorkId}/delete_file")]
-        //public async Task<IActionResult> DeleteFile([FromQuery] string type, long courseWorkId)
-        //{
-        //    var workFile = await _workFilesRepository
-        //        .FindAsync(file => file.CourseWorkId == courseWorkId && file.Type == type)
-        //        .ConfigureAwait(false);
-        //    await _workFilesRepository.DeleteAsync(workFile.Id).ConfigureAwait(false);
-        //    return Ok();
-        //}
-
-        //[HttpGet("course_works/{courseWorkId}/get_file")]
-        //[ProducesResponseType(typeof(FileContentResult), (int)HttpStatusCode.OK)]
-        //public async Task<IActionResult> GetCourseWorkFile([FromQuery] string type, long courseWorkId)
-        //{
-        //    var workFile = await _workFilesRepository
-        //        .FindAsync(file => file.CourseWorkId == courseWorkId && file.Type == type)
-        //        .ConfigureAwait(false);
-        //    return File(workFile.Data, workFile.FileType, workFile.FileName);
-        //}
 
         //[HttpPost("become_reviewer")]
         //public async Task<IActionResult> BecomeReviewer()

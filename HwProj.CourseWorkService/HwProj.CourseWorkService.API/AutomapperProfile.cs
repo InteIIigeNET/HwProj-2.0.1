@@ -12,14 +12,13 @@ namespace HwProj.CourseWorkService.API
             CreateMap< CourseWork, OverviewCourseWorkDTO>();
             CreateMap<CourseWork, DetailCourseWorkDTO>();
             CreateMap<CourseWork, CreateCourseWorkViewModel>().ReverseMap();
-            CreateMap<Deadline, DeadlineDTO>();
             CreateMap<Application, StudentApplicationDTO>();
             CreateMap<Application, LecturerApplicationDTO>();
             CreateMap<Application, OverviewApplicationDTO>();
             CreateMap<Application, CreateApplicationViewModel>().ReverseMap();
-
-            CreateMap<WorkFile, AddFileOrReferenceViewModel>().ReverseMap();
+            CreateMap<Deadline, DeadlineDTO>();
             CreateMap<Deadline, AddDeadlineViewModel>().ReverseMap();
+
             CreateMap<Bid, CreateBidViewModel>().ReverseMap();
             CreateMap<User, ReviewerDTO>();
         }

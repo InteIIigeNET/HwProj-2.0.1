@@ -6,6 +6,7 @@ using HwProj.CourseWorkService.API.Repositories;
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CourseWorkService.API.Models.DTO;
+using HwProj.CourseWorkService.API.Models.ViewModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.CourseWorkService.API.Services
@@ -13,11 +14,14 @@ namespace HwProj.CourseWorkService.API.Services
     public class CourseWorksService : ICourseWorksService
     {
         private readonly ICourseWorksRepository _courseWorksRepository;
+        private readonly IDeadlineRepository _deadlineRepository;
         private readonly IMapper _mapper;
 
-        public CourseWorksService(ICourseWorksRepository courseWorkRepository, IMapper mapper)
+        public CourseWorksService(ICourseWorksRepository courseWorkRepository,
+            IDeadlineRepository deadlineRepository, IMapper mapper)
         {
             _courseWorksRepository = courseWorkRepository;
+            _deadlineRepository = deadlineRepository;
             _mapper = mapper;
         }
 
@@ -49,7 +53,6 @@ namespace HwProj.CourseWorkService.API.Services
         public DetailCourseWorkDTO GetCourseWorkInfo(CourseWork courseWork)
         {
             var detailCourseWork = _mapper.Map<DetailCourseWorkDTO>(courseWork);
-            detailCourseWork.CreationTime = courseWork.CreationTime.ToString("MM/dd/yyyy");
             return detailCourseWork;
         }
 
@@ -58,11 +61,11 @@ namespace HwProj.CourseWorkService.API.Services
             IEnumerable<Deadline> deadlines;
             if (userId == courseWork.StudentId)
             {
-                deadlines = courseWork.Deadlines.Where(deadline => deadline.Role == "StudentProfile");
+                deadlines = courseWork.Deadlines.Where(deadline => deadline.Type == "Student");
             }
             else if (userId == courseWork.ReviewerId)
             {
-                deadlines = courseWork.Deadlines.Where(deadline => deadline.Role == "Reviewer");
+                deadlines = courseWork.Deadlines.Where(deadline => deadline.Type == "Reviewer");
             }
             else if (userId == courseWork.LecturerId || userId == courseWork.CuratorId)
             {
@@ -73,7 +76,17 @@ namespace HwProj.CourseWorkService.API.Services
                 deadlines = courseWork.Deadlines.Where(deadline => deadline.Type == "Bidding");
             }
 
-            return _mapper.Map<DeadlineDTO[]>(deadlines.ToArray());
+            var deadlinesArray = deadlines.ToArray();
+            var deadlinesDTO = _mapper.Map<DeadlineDTO[]>(deadlinesArray);
+
+            return deadlinesDTO;
+        }
+
+        public async Task<long> AddDeadlineAsync(AddDeadlineViewModel newDeadline, CourseWork courseWork)
+        {
+            var deadline = _mapper.Map<Deadline>(newDeadline);
+            deadline.CourseWorkId = courseWork.Id;
+            return await _deadlineRepository.AddAsync(deadline).ConfigureAwait(false);
         }
     }
 }

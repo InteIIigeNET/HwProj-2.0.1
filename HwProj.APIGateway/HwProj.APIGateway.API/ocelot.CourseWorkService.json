@@ -64,7 +64,7 @@
       }
     },
     {
-      "DownstreamPathTemplate": "/api/course_works/applications",
+      "DownstreamPathTemplate": "/api/course_works/applications/{status}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
@@ -72,8 +72,27 @@
           "Port": 44328
         }
       ],
-      "UpstreamPathTemplate": "/api/course_works/applications/",
+      "UpstreamPathTemplate": "/api/course_works/applications/{status}/",
       "UpstreamhttpsMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/course_works/{courseWorkId}/files/{type}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/course_works/{courseWorkId}/files/{type}/",
+      "UpstreamhttpsMethod": [ "GET", "POST", "DELETE" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -261,6 +280,29 @@
         "_role": "Lecturer"
       },
       "AddQueriesToRequest": {
+        "_role": "Claims[_role] > value"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/lecturer/course_works/{courseWorkId}/deadlines",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/lecturer/course_works/{courseWorkId}/deadlines/",
+      "UpstreamhttpsMethod": [ "POST", "PUT", "DELETE" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "Lecturer"
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value",
         "_role": "Claims[_role] > value"
       }
     }

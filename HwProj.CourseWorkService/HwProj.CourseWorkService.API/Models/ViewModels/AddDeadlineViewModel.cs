@@ -6,8 +6,6 @@ namespace HwProj.CourseWorkService.API.Models.ViewModels
     {
         public string Type { get; set; }
 
-        public long CourseWorkId { get; set; }
-
-        public DateTime DeadlineDate { get; set; }
+        public string Date { get; set; }
     }
 }

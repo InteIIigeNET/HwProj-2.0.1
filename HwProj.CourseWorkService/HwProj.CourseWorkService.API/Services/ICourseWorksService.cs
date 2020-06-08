@@ -2,6 +2,7 @@
 using HwProj.CourseWorkService.API.Models;
 using System.Threading.Tasks;
 using HwProj.CourseWorkService.API.Models.DTO;
+using HwProj.CourseWorkService.API.Models.ViewModels;
 
 namespace HwProj.CourseWorkService.API.Services
 {
@@ -12,5 +13,6 @@ namespace HwProj.CourseWorkService.API.Services
         Task<OverviewCourseWorkDTO[]> GetCompletedFilteredCourseWorksAsync(Func<CourseWork, bool> predicate);
         DetailCourseWorkDTO GetCourseWorkInfo(CourseWork courseWork);
         DeadlineDTO[] GetCourseWorkDeadlines(string userId, CourseWork courseWork);
+        Task<long> AddDeadlineAsync(AddDeadlineViewModel newDeadline, CourseWork courseWork);
     }
 }

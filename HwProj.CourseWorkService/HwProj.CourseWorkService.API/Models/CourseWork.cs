@@ -30,14 +30,14 @@ namespace HwProj.CourseWorkService.API.Models
 
         public List<Application> Applications { get; set; }
         public List<Deadline> Deadlines { get; set; }
-        //public ICollection<WorkFile> WorkFiles { get; set; }
+        public List<WorkFile> WorkFiles { get; set; }
         //public ICollection<Bid> Bids { get; set; }
 
         public CourseWork()
         {
             Applications = new List<Application>();
             Deadlines = new List<Deadline>();
-            //WorkFiles = new List<WorkFile>();
+            WorkFiles = new List<WorkFile>();
             //Bids = new List<Bid>();
         }
     }

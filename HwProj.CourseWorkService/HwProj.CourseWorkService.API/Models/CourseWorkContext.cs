@@ -10,7 +10,7 @@ namespace HwProj.CourseWorkService.API.Models
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<StudentProfile> StudentProfiles { get; set; }
-        //public DbSet<WorkFile> WorkFiles { get; set; }
+        public DbSet<WorkFile> WorkFiles { get; set; }
         //public DbSet<Bid> Bids { get; set; }
 
         public CourseWorkContext(DbContextOptions options)

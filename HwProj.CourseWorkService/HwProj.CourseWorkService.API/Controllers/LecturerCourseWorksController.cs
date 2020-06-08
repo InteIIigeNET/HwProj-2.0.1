@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -22,15 +23,20 @@ namespace HwProj.CourseWorkService.API.Controllers
     {
         private readonly IApplicationsService _applicationsService;
         private readonly IApplicationsRepository _applicationsRepository;
+        private readonly ICourseWorksService _courseWorksService;
         private readonly ICourseWorksRepository _courseWorksRepository;
+        private readonly IDeadlineRepository _deadlineRepository;
         private readonly IMapper _mapper;
 
         public LecturerCourseWorksController(IApplicationsService applicationsService, IApplicationsRepository applicationsRepository,
-            ICourseWorksRepository courseWorksRepository, IMapper mapper)
+            ICourseWorksService courseWorksService, ICourseWorksRepository courseWorksRepository,
+            IDeadlineRepository deadlineRepository, IMapper mapper)
         {
             _applicationsService = applicationsService;
             _applicationsRepository = applicationsRepository;
+            _courseWorksService = courseWorksService;
             _courseWorksRepository = courseWorksRepository;
+            _deadlineRepository = deadlineRepository;
             _mapper = mapper;
         }
 
@@ -157,41 +163,86 @@ namespace HwProj.CourseWorkService.API.Controllers
             return Ok();
         }
 
+        [HttpPost("course_works/{courseWorkId}/deadlines")]
+        [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> AddDeadline([FromBody] AddDeadlineViewModel addDeadlineViewModel, long courseWorkId)
+        {
+            var courseWork = await _courseWorksRepository.GetCourseWorkAsync(courseWorkId).ConfigureAwait(false);
+            var userId = Request.GetUserId();
+            if (courseWork == null)
+            {
+                return NotFound();
+            }
+
+            if (courseWork.Deadlines.Count(d => d.Type == addDeadlineViewModel.Type) > 0)
+            {
+                return BadRequest();
+            }
+
+            if (userId != courseWork.LecturerId)
+            {
+                return Forbid();
+            }
+
+            var id = await _courseWorksService.AddDeadlineAsync(addDeadlineViewModel, courseWork)
+                .ConfigureAwait(false);
+            return Ok(id);
+        }
+
+        [HttpPut("course_works/{courseWorkId}/deadlines")]
+        public async Task<IActionResult> UpdateDeadline([FromBody] AddDeadlineViewModel addDeadlineViewModel, long courseWorkId)
+        {
+            var courseWork = await _courseWorksRepository.GetCourseWorkAsync(courseWorkId).ConfigureAwait(false);
+            if (courseWork == null)
+            {
+                return NotFound();
+            }
+
+            var oldDeadline = courseWork.Deadlines.FirstOrDefault(d => d.Type == addDeadlineViewModel.Type);
+            var userId = Request.GetUserId();
+            if (oldDeadline == null)
+            {
+                return BadRequest();
+            }
+
+            if (userId != courseWork.LecturerId)
+            {
+                return Forbid();
+            }
 
 
+            await _deadlineRepository.UpdateAsync(oldDeadline.Id, d => new Deadline()
+            {
+                Type = addDeadlineViewModel.Type,
+                Date = DateTime.ParseExact(addDeadlineViewModel.Date, "dd/MM/yyyy", null)
+            }).ConfigureAwait(false);
+            return Ok();
+        }
 
+        [HttpDelete("course_works/{courseWorkId}/deadlines")]
+        public async Task<IActionResult> DeleteDeadline([FromQuery] string type, long courseWorkId)
+        {
+            var courseWork = await _courseWorksRepository.GetCourseWorkAsync(courseWorkId).ConfigureAwait(false);
+            if (courseWork == null)
+            {
+                return NotFound();
+            }
 
-        //    [HttpPost("course_works/{courseWorkId}/add_deadline")]
-        //    [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
-        //    public async Task<IActionResult> AddDeadline([FromBody] AddDeadlineViewModel addDeadlineViewModel)
-        //    {
-        //        var deadline = _mapper.Map<Deadline>(addDeadlineViewModel);
-        //        deadline.CourseWork = await _courseWorksRepository.GetAsync(deadline.CourseWorkId)
-        //                .ConfigureAwait(false);
-        //        var id = await _deadlinesRepository.AddAsync(deadline).ConfigureAwait(false);
-        //        return Ok(id);
-        //    }
+            var oldDeadline = courseWork.Deadlines.FirstOrDefault(d => d.Type == type);
+            var userId = Request.GetUserId();
+            if (oldDeadline == null)
+            {
+                return BadRequest();
+            }
 
-        //    [HttpPost("course_works/{courseWorkId}/update_deadline")]
-        //    public async Task<IActionResult> UpdateDeadline([FromBody] AddDeadlineViewModel addDeadlineViewModel)
-        //    {
-        //        var oldDeadline = await _deadlinesRepository
-        //            .FindAsync(d => d.CourseWorkId == addDeadlineViewModel.CourseWorkId && d.Type == addDeadlineViewModel.Type)
-        //            .ConfigureAwait(false);
-        //        var deadline = _mapper.Map(addDeadlineViewModel, oldDeadline);
-        //        await _deadlinesRepository.UpdateAsync(deadline.Id, d => deadline).ConfigureAwait(false);
-        //        return Ok();
-        //    }
+            if (userId != courseWork.LecturerId)
+            {
+                return Forbid();
+            }
 
-        //    [HttpDelete("course_works/{courseWorkId}/delete_deadline")]
-        //    public async Task<IActionResult> DeleteDeadline([FromQuery] string type, long courseWorkId)
-        //    {
-        //        var deadline = await _deadlinesRepository
-        //            .FindAsync(d => d.CourseWorkId == courseWorkId && d.Type == type)
-        //            .ConfigureAwait(false);
-        //        await _deadlinesRepository.DeleteAsync(deadline.Id).ConfigureAwait(false);
-        //        return Ok();
-        //    }
+            await _deadlineRepository.DeleteAsync(oldDeadline.Id).ConfigureAwait(false);
+            return Ok();
+        }
 
         //    [HttpGet("reviewers/{courseWorkId}")]
         //    [ProducesResponseType(typeof(ReviewerDTO[]), (int)HttpStatusCode.OK)]

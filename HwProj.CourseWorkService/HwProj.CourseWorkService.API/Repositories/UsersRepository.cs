@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using HwProj.CourseWorkService.API.Models;
 using HwProj.Repositories;
@@ -115,8 +114,7 @@ namespace HwProj.CourseWorkService.API.Repositories
                         {
                             if (action == Action.Add)
                             {
-                                user.StudentProfile = Activator.CreateInstance<StudentProfile>();
-                                user.StudentProfile.Id = userId;
+                                user.StudentProfile = new StudentProfile {Id = userId};
                             }
                             else
                             {

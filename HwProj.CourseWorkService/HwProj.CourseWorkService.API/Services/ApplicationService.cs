@@ -14,15 +14,13 @@ namespace HwProj.CourseWorkService.API.Services
     {
         private readonly IApplicationsRepository _applicationsRepository;
         private readonly ICourseWorksRepository _courseWorksRepository;
-        private readonly IUsersRepository _userRepository;
         private readonly IMapper _mapper;
 
-        public ApplicationService(IApplicationsRepository applicationsRepository, ICourseWorksRepository courseWorksRepository,
-            IUsersRepository userRepository, IMapper mapper)
+        public ApplicationService(IApplicationsRepository applicationsRepository,
+            ICourseWorksRepository courseWorksRepository, IMapper mapper)
         {
             _applicationsRepository = applicationsRepository;
             _courseWorksRepository = courseWorksRepository;
-            _userRepository = userRepository;
             _mapper = mapper;
         }
 
@@ -35,7 +33,6 @@ namespace HwProj.CourseWorkService.API.Services
             for (var i = 0; i < applications.Length; i++)
             {
                 overviewApplications[i].CourseWorkTitle = applications[i].CourseWork.Title;
-                overviewApplications[i].Date = applications[i].Date.ToString("MM/dd/yyyy");
             }
 
             return overviewApplications;
@@ -45,7 +42,6 @@ namespace HwProj.CourseWorkService.API.Services
         {
             var lecturerApplication = _mapper.Map<LecturerApplicationDTO>(application);
             lecturerApplication.CourseWorkTitle = application.CourseWork.Title;
-            lecturerApplication.Date = application.Date.ToString("MM/dd/yyyy");
             lecturerApplication.StudentName = application.StudentProfile.User.UserName;
             lecturerApplication.StudentGroup = application.StudentProfile.Group;
             return lecturerApplication;
@@ -56,15 +52,15 @@ namespace HwProj.CourseWorkService.API.Services
             var studentApplication = _mapper.Map<StudentApplicationDTO>(application);
             studentApplication.CourseWorkTitle = application.CourseWork.Title;
             studentApplication.CourseWorkSupervisorName = application.CourseWork.SupervisorName;
-            studentApplication.Date = application.Date.ToString("MM/dd/yyyy");
             return studentApplication;
         }
 
-        public async Task<long> AddApplicationAsync(CreateApplicationViewModel newApplication, string userId)
+        public async Task<long> AddApplicationAsync(CreateApplicationViewModel newApplication, string userId, CourseWork courseWork)
         {
             var application = _mapper.Map<Application>(newApplication);
             application.Date = DateTime.UtcNow;
             application.StudentProfileId = userId;
+            application.CourseWorkId = courseWork.Id;
             return await _applicationsRepository.AddAsync(application).ConfigureAwait(false);
         }
 
