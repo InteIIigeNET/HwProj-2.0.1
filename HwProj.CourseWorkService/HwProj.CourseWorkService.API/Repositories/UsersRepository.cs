@@ -17,6 +17,13 @@ namespace HwProj.CourseWorkService.API.Repositories
             _serviceScopeFactory = serviceScopeFactory;
         }
 
+        public async Task<User> GetUserAsync(string userId)
+        {
+            return await Context.Set<User>()
+                .Include(u => u.StudentProfile)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+        }
+
         public async Task<string[]> GetRoles(string id)
         {
             var user = await Context.Set<User>().Include(u => u.UserRoles)

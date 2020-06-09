@@ -13,6 +13,7 @@ namespace HwProj.CourseWorkService.API.Models
         public string Description { get; set; }
         public string Type { get; set; }
         public string Requirements { get; set; }
+        public int Course { get; set; }
         public DateTime CreationTime { get; set; }
 
         public string ConsultantName { get; set; }
@@ -27,6 +28,7 @@ namespace HwProj.CourseWorkService.API.Models
 
 
         public bool IsCompleted { get; set; }
+        public string Reference { get; set; }
 
         public List<Application> Applications { get; set; }
         public List<Deadline> Deadlines { get; set; }

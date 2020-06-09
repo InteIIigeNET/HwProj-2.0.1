@@ -12,6 +12,9 @@ namespace HwProj.CourseWorkService.API.Models.DTO
         public long CourseWorkId { get; set; }
         public string CourseWorkTitle { get; set; }
 
+        public string StudentName { get; set; }
+        public int StudentGroup { get; set; }
+
         public string Date { get; set; }
     }
 }

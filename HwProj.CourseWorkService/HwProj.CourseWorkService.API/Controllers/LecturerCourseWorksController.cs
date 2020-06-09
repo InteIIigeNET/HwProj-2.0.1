@@ -47,6 +47,7 @@ namespace HwProj.CourseWorkService.API.Controllers
             var courseWork = _mapper.Map<CourseWork>(createCourseWorkViewModel);
             courseWork.LecturerId = Request.GetUserId();
             courseWork.CreationTime = DateTime.UtcNow;
+            courseWork.IsCompleted = false;
             var id = await _courseWorksRepository.AddAsync(courseWork).ConfigureAwait(false);
             return Ok(id);
         }

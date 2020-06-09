@@ -53,7 +53,7 @@ namespace HwProj.CourseWorkService.API.Controllers
                 return NotFound();
             }
 
-            return Ok(_courseWorksService.GetCourseWorkInfo(courseWork));
+            return Ok(await _courseWorksService.GetCourseWorkInfo(courseWork).ConfigureAwait(false));
         }
 
         [Authorize]
@@ -124,7 +124,8 @@ namespace HwProj.CourseWorkService.API.Controllers
             {
                 return BadRequest();
             }
-            if (userId != courseWork.StudentId && userId != courseWork.LecturerId)
+            if (userId != courseWork.StudentId && userId != courseWork.LecturerId
+                || type == "Review" && userId != courseWork.ReviewerId)
             {
                 return Forbid();
             }
@@ -155,7 +156,7 @@ namespace HwProj.CourseWorkService.API.Controllers
             {
                 return NotFound();
             }
-            if (type != "CourseWork" && type != "Presentation" && type != "report" 
+            if (type != "CourseWork" && type != "Presentation" && type != "Report" 
             || !courseWork.WorkFiles.Select(c => c.Type).Contains(type))
             {
                 return BadRequest();
@@ -180,7 +181,7 @@ namespace HwProj.CourseWorkService.API.Controllers
             {
                 return NotFound();
             }
-            if (type != "CourseWork" && type != "Presentation" && type != "report"
+            if (type != "CourseWork" && type != "Presentation" && type != "Report"
                 || !courseWork.WorkFiles.Select(c => c.Type).Contains(type))
             {
                 return BadRequest();
@@ -188,6 +189,47 @@ namespace HwProj.CourseWorkService.API.Controllers
 
             var workFile = courseWork.WorkFiles.Find(file => file.Type == type);
             return File(workFile.Data, workFile.FileType, workFile.FileName);
+        }
+
+        [HttpGet("{courseWorkId}/files")]
+        [ProducesResponseType(typeof(WorkFileDTO[]), (int) HttpStatusCode.OK)]
+        public async Task<IActionResult> GetFilesInfo(long courseWorkId)
+        {
+            var courseWork = await _courseWorksRepository.GetCourseWorkAsync(courseWorkId)
+                .ConfigureAwait(false);
+            if (courseWork == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(_courseWorksService.GetWorkFilesDTO(courseWork.WorkFiles.ToArray()));
+        }
+
+        [Authorize]
+        [HttpPost("{courseWorkId}/reference")]
+        public async Task<IActionResult> AddReference([FromQuery]string reference, long courseWorkId)
+        {
+            var courseWork = await _courseWorksRepository.GetAsync(courseWorkId)
+                .ConfigureAwait(false);
+            if (courseWork == null)
+            {
+                return NotFound();
+            }
+            courseWork.Reference = reference;
+            return Ok();
+        }
+
+        [HttpDelete("{courseWorkId}/reference")]
+        public async Task<IActionResult> DeleteReference(long courseWorkId)
+        {
+            var courseWork = await _courseWorksRepository.GetAsync(courseWorkId)
+                .ConfigureAwait(false);
+            if (courseWork == null)
+            {
+                return NotFound();
+            }
+            courseWork.Reference = null;
+            return Ok();
         }
     }
 }

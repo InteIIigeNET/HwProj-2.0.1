@@ -11,8 +11,9 @@ namespace HwProj.CourseWorkService.API.Services
         Task<OverviewCourseWorkDTO[]> GetFilteredCourseWorksWithStatusAsync(string status, Func<CourseWork, bool> predicate);
         Task<OverviewCourseWorkDTO[]> GetActiveFilteredCourseWorksAsync(Func<CourseWork, bool> predicate);
         Task<OverviewCourseWorkDTO[]> GetCompletedFilteredCourseWorksAsync(Func<CourseWork, bool> predicate);
-        DetailCourseWorkDTO GetCourseWorkInfo(CourseWork courseWork);
+        Task<DetailCourseWorkDTO> GetCourseWorkInfo(CourseWork courseWork);
         DeadlineDTO[] GetCourseWorkDeadlines(string userId, CourseWork courseWork);
         Task<long> AddDeadlineAsync(AddDeadlineViewModel newDeadline, CourseWork courseWork);
+        WorkFileDTO[] GetWorkFilesDTO(WorkFile[] workFiles);
     }
 }

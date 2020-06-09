@@ -33,6 +33,8 @@ namespace HwProj.CourseWorkService.API.Services
             for (var i = 0; i < applications.Length; i++)
             {
                 overviewApplications[i].CourseWorkTitle = applications[i].CourseWork.Title;
+                overviewApplications[i].StudentName = applications[i].StudentProfile.User.UserName;
+                overviewApplications[i].StudentGroup = applications[i].StudentProfile.Group;
             }
 
             return overviewApplications;
@@ -42,6 +44,7 @@ namespace HwProj.CourseWorkService.API.Services
         {
             var lecturerApplication = _mapper.Map<LecturerApplicationDTO>(application);
             lecturerApplication.CourseWorkTitle = application.CourseWork.Title;
+            lecturerApplication.CourseWorkOverview = application.CourseWork.Overview;
             lecturerApplication.StudentName = application.StudentProfile.User.UserName;
             lecturerApplication.StudentGroup = application.StudentProfile.Group;
             return lecturerApplication;
@@ -51,6 +54,7 @@ namespace HwProj.CourseWorkService.API.Services
         {
             var studentApplication = _mapper.Map<StudentApplicationDTO>(application);
             studentApplication.CourseWorkTitle = application.CourseWork.Title;
+            studentApplication.CourseWorkOverview = application.CourseWork.Overview;
             studentApplication.CourseWorkSupervisorName = application.CourseWork.SupervisorName;
             return studentApplication;
         }

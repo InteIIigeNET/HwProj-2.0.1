@@ -15,13 +15,15 @@ namespace HwProj.CourseWorkService.API.Services
     {
         private readonly ICourseWorksRepository _courseWorksRepository;
         private readonly IDeadlineRepository _deadlineRepository;
+        private readonly IUsersRepository _usersRepository;
         private readonly IMapper _mapper;
 
         public CourseWorksService(ICourseWorksRepository courseWorkRepository,
-            IDeadlineRepository deadlineRepository, IMapper mapper)
+            IDeadlineRepository deadlineRepository, IUsersRepository usersRepository, IMapper mapper)
         {
             _courseWorksRepository = courseWorkRepository;
             _deadlineRepository = deadlineRepository;
+            _usersRepository = usersRepository;
             _mapper = mapper;
         }
 
@@ -40,19 +42,36 @@ namespace HwProj.CourseWorkService.API.Services
             var courseWorks = await _courseWorksRepository
                 .FindAll(courseWork => predicate(courseWork) && !courseWork.IsCompleted)
                 .ToArrayAsync().ConfigureAwait(false);
-            return _mapper.Map<OverviewCourseWorkDTO[]>(courseWorks);
+            return await GetCourseWorksDTO(courseWorks).ConfigureAwait(false);
         }
         public async Task<OverviewCourseWorkDTO[]> GetCompletedFilteredCourseWorksAsync(Func<CourseWork, bool> predicate)
         {
             var courseWorks = await _courseWorksRepository
                 .FindAll(courseWork => predicate(courseWork) && courseWork.IsCompleted)
                 .ToArrayAsync().ConfigureAwait(false);
-            return _mapper.Map<OverviewCourseWorkDTO[]>(courseWorks);
+            return await GetCourseWorksDTO(courseWorks).ConfigureAwait(false);
         }
 
-        public DetailCourseWorkDTO GetCourseWorkInfo(CourseWork courseWork)
+        private async Task<OverviewCourseWorkDTO[]> GetCourseWorksDTO(CourseWork[] courseWorks)
+        {
+            var courseWorksDTO = _mapper.Map<OverviewCourseWorkDTO[]>(courseWorks);
+            for (int i = 0; i < courseWorks.Length; i++)
+            {
+                var student = await _usersRepository.GetAsync(courseWorks[i].StudentId).ConfigureAwait(false);
+                courseWorksDTO[i].StudentName = student.UserName;
+            }
+
+            return courseWorksDTO;
+        }
+
+        public async Task<DetailCourseWorkDTO> GetCourseWorkInfo(CourseWork courseWork)
         {
             var detailCourseWork = _mapper.Map<DetailCourseWorkDTO>(courseWork);
+            var reviewer = await _usersRepository.GetAsync(courseWork.ReviewerId).ConfigureAwait(false);
+            detailCourseWork.ReviewerName = reviewer.UserName;
+            var student = await _usersRepository.GetUserAsync(courseWork.StudentId).ConfigureAwait(false);
+            detailCourseWork.StudentName = student.UserName;
+            detailCourseWork.StudentCourse = student.StudentProfile.Course;
             return detailCourseWork;
         }
 
@@ -87,6 +106,12 @@ namespace HwProj.CourseWorkService.API.Services
             var deadline = _mapper.Map<Deadline>(newDeadline);
             deadline.CourseWorkId = courseWork.Id;
             return await _deadlineRepository.AddAsync(deadline).ConfigureAwait(false);
+        }
+
+        public WorkFileDTO[] GetWorkFilesDTO(WorkFile[] workFiles)
+        {
+            var workFilesDTO = _mapper.Map<WorkFileDTO[]>(workFiles);
+            return workFilesDTO;
         }
     }
 }

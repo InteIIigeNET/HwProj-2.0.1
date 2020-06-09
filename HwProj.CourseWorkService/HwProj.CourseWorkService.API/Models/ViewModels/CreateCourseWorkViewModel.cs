@@ -7,6 +7,7 @@
         public string Description { get; set; }
         public string Type { get; set; }
         public string Requirements { get; set; }
+        public int Course { get; set; }
 
         public string ConsultantName { get; set; }
         public string ConsultantContact { get; set; }

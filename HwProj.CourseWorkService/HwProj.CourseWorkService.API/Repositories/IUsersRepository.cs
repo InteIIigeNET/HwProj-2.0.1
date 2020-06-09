@@ -6,6 +6,7 @@ namespace HwProj.CourseWorkService.API.Repositories
 {
     public interface IUsersRepository : ICrudRepository<User, string>
     {
+        Task<User> GetUserAsync(string userId);
         Task<string[]> GetRoles(string id);
         Task AddNewUserAsync(User user);
         Task AddRoleAsync(string userId, string role);

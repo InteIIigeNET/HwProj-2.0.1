@@ -11,6 +11,7 @@ namespace HwProj.CourseWorkService.API.Models
         public User User { get; set; }
 
         public int Group { get; set; }
+        public int Course { get; set; }
         public string Direction { get; set; }
         public ICollection<Application> Applications { get; set; }
 

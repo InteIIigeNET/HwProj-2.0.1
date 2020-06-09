@@ -1,10 +1,7 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using HwProj.CourseWorkService.API.Filters;
-using HwProj.CourseWorkService.API.Models;
 using Microsoft.AspNetCore.Mvc;
 using HwProj.CourseWorkService.API.Models.DTO;
 using HwProj.CourseWorkService.API.Models.ViewModels;
@@ -12,12 +9,11 @@ using HwProj.CourseWorkService.API.Repositories;
 using HwProj.CourseWorkService.API.Services;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 
 namespace HwProj.CourseWorkService.API.Controllers
 {
-    //[Authorize]
-    //[OnlyStudent]
+    [Authorize]
+    [OnlyStudent]
     [Route("api/student")]
     [ApiController]
     public class StudentCourseWorksController : Controller

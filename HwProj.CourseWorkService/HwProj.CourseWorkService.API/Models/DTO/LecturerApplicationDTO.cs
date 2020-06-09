@@ -6,6 +6,7 @@
 
         public long CourseWorkId { get; set; }
         public string CourseWorkTitle { get; set; }
+        public string CourseWorkOverview { get; set; }
 
         public string StudentName { get; set; }
         public int StudentGroup { get; set; }
