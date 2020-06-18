@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace HwProj.CourseWorkService.API.Models.ViewModels
+﻿namespace HwProj.CourseWorkService.API.Models.ViewModels
 {
     public class AddDeadlineViewModel
     {

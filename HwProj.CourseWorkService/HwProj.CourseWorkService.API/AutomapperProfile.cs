@@ -19,9 +19,6 @@ namespace HwProj.CourseWorkService.API
             CreateMap<Deadline, DeadlineDTO>();
             CreateMap<Deadline, AddDeadlineViewModel>().ReverseMap();
             CreateMap<WorkFile, WorkFileDTO>();
-
-            CreateMap<Bid, CreateBidViewModel>().ReverseMap();
-            CreateMap<User, ReviewerDTO>();
         }
     }
 }

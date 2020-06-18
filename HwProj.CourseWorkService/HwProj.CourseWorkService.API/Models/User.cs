@@ -10,6 +10,7 @@ namespace HwProj.CourseWorkService.API.Models
         public string Email { get; set; }
 
         public StudentProfile StudentProfile { get; set; }
+        public LecturerProfile LecturerProfile { get; set; }
         public List<UserRole> UserRoles { get; set; }
 
         public User()

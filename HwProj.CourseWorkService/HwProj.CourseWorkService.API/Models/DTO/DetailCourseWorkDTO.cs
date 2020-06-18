@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace HwProj.CourseWorkService.API.Models.DTO
+﻿namespace HwProj.CourseWorkService.API.Models.DTO
 {
     public class DetailCourseWorkDTO
     {

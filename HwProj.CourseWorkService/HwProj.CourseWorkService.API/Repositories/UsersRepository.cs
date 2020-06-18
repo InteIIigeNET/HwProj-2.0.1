@@ -109,7 +109,14 @@ namespace HwProj.CourseWorkService.API.Repositories
                         }
                         case "Lecturer":
                         {
-                            //LecturerProfile
+                            if (action == Action.Add)
+                            {
+                                user.LecturerProfile = new LecturerProfile() {Id = userId};
+                            }
+                            else
+                            {
+                                context.LecturerProfiles.Remove(user.LecturerProfile);
+                            }
                             break;
                         }
                         case "Curator":

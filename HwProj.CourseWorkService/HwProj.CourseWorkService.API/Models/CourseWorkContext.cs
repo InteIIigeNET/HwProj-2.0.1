@@ -7,11 +7,11 @@ namespace HwProj.CourseWorkService.API.Models
         public DbSet<CourseWork> CourseWorks { get; set; }
         public DbSet<Application> Applications { get; set; }
         public DbSet<Deadline> Deadlines { get; set; }
+        public DbSet<WorkFile> WorkFiles { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<StudentProfile> StudentProfiles { get; set; }
-        public DbSet<WorkFile> WorkFiles { get; set; }
-        //public DbSet<Bid> Bids { get; set; }
+        public DbSet<LecturerProfile> LecturerProfiles { get; set; }
 
         public CourseWorkContext(DbContextOptions options)
             : base(options)

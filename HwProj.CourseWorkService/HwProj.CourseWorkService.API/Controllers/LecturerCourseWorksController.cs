@@ -244,58 +244,5 @@ namespace HwProj.CourseWorkService.API.Controllers
             await _deadlineRepository.DeleteAsync(oldDeadline.Id).ConfigureAwait(false);
             return Ok();
         }
-
-        //    [HttpGet("reviewers/{courseWorkId}")]
-        //    [ProducesResponseType(typeof(ReviewerDTO[]), (int)HttpStatusCode.OK)]
-        //    public async Task<IActionResult> GetReviewers(long courseWorkId)
-        //    {
-        //        return Ok(await GetPriorityReviewers(courseWorkId));
-        //    }
-
-        //    [HttpPost("auto_set_reviewer/{courseWorkId}")]
-        //    public async Task<IActionResult> AutoSetReviewer(long courseWorkId)
-        //    {
-        //        var reviewers = await GetPriorityReviewers(courseWorkId).ConfigureAwait(false);
-        //        var courseWork = await _courseWorkService.GetAsync(courseWorkId).ConfigureAwait(false);
-        //        courseWork.ReviewerId = reviewers.First().Id;
-        //        return Ok();
-        //    }
-
-        //    [HttpPost("set_reviewer/{courseWorkId}")]
-        //    public async Task<IActionResult> SetReviewer(long courseWorkId, [FromQuery]long reviewerId)
-        //    {
-        //        var courseWork = await _courseWorkService.GetAsync(courseWorkId).ConfigureAwait(false);
-        //        courseWork.ReviewerId = reviewerId;
-        //        return Ok();
-        //    }
-
-        //    private async Task<ReviewerDTO[]> GetPriorityReviewers(long courseWorkId)
-        //    {
-        //        var courseWork = await _courseWorkService.GetAsync(courseWorkId).ConfigureAwait(false);
-        //        var users = await _userService
-        //            .GetFilteredAsync(u => u.IsReviewer && u.Id != courseWork.StudentId && u.Id != courseWork.LecturerId)
-        //            .ConfigureAwait(false);
-        //        var reviewers = _mapper.Map<ReviewerDTO[]>(users);
-        //        foreach (var reviewer in reviewers)
-        //        {
-        //            var bids = await _biddingService.GetFilteredAsync(b => b.ReviewerId == reviewer.Id)
-        //                .ConfigureAwait(false);
-        //            reviewer.BidSum = bids.Count(b => b.BidValue == "yes") + 
-        //                                bids.Count(b => b.BidValue == "maybe") * 0.5;
-        //            var bid = bids.First(b => b.CourseWorkId == courseWorkId);
-        //            reviewer.BidValue = bid != null ? bid.BidValue : "nothing";
-        //        }
-
-        //        var enumBidValues = new[] {"yes", "maybe", "nothing", "no"};
-        //        var sortedReviewers = new List<ReviewerDTO>();
-
-        //        foreach (var value in enumBidValues)
-        //        {
-        //            var revs = reviewers.Where(r => r.BidValue == value).ToArray();
-        //            Array.Sort(revs, ((reviewer1, reviewer2) => reviewer2.BidSum.CompareTo(reviewer1.BidSum)));
-        //            sortedReviewers.AddRange(revs);
-        //        }
-        //        return sortedReviewers.ToArray();
-        //    }
     }
 }

@@ -84,14 +84,5 @@ namespace HwProj.CourseWorkService.API.Controllers
             await _applicationsRepository.DeleteAsync(application.Id).ConfigureAwait(false);
             return Ok();
         }
-
-        //[HttpPost("become_reviewer")]
-        //public async Task<IActionResult> BecomeReviewer()
-        //{
-        //    var user = await _usersRepository.GetAsync(Request.GetUserId())
-        //        .ConfigureAwait(false);
-        //    user.Roles[1] = "Reviewer";
-        //    return Ok();
-        //}
     }
 }
