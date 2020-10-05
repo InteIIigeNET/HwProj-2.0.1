@@ -11,6 +11,11 @@ namespace HwProj.Utils.Authorization
             return request.Query.First(x => x.Key == "_id").Value.ToString();
         }
 
+        public static string GetUserName(this HttpRequest request)
+        {
+            return request.Query.First(x => x.Key == "_userName").Value.ToString();
+        }
+
         public static string GetUserRole(this HttpRequest request)
         {
             return request.Query.First(x => x.Key == "_role").Value.ToString();

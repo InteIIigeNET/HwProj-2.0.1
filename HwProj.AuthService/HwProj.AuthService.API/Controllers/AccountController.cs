@@ -1,9 +1,10 @@
 ﻿using System.Threading.Tasks;
+using HwProj.AuthService.API.Events;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using HwProj.AuthService.API.Models.ViewModels;
 using HwProj.AuthService.API.Services;
-using HwProj.Models.Roles;
+using HwProj.EventBus.Client.Interfaces;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
@@ -34,6 +35,7 @@ namespace HwProj.AuthService.API.Controllers
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
             var result = await _accountService.RegisterUserAsync(model).ConfigureAwait(false);
+
             return Ok(result);
         }
 
@@ -44,7 +46,7 @@ namespace HwProj.AuthService.API.Controllers
             return Ok(tokenMeta);
         }
 
-        [HttpPut, Route("edit")]
+        [HttpPut, Route("edit")] 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Edit(EditAccountViewModel model)
         {
