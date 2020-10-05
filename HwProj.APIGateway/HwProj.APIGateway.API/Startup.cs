@@ -8,6 +8,7 @@ using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 using Ocelot.ConfigEditor;
 using HwProj.Utils.Authorization;
+using Microsoft.AspNetCore.Diagnostics;
 
 namespace HwProj.APIGateway.API
 {
@@ -42,14 +43,11 @@ namespace HwProj.APIGateway.API
                 });
 
             services.AddOcelot();
-            services.AddOcelotConfigEditor();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.UseOcelotConfigEditor(new ConfigEditorOptions { Path = "ocelot" });
             app.UseOcelot().Wait();
-
             app.ConfigureHwProj(env, "API Gateway");
         }
     }

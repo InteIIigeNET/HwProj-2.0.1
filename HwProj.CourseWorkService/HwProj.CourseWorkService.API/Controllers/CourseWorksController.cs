@@ -17,19 +17,32 @@ namespace HwProj.CourseWorkService.API.Controllers
     [ApiController]
     public class CourseWorksController : ControllerBase
     {
+        #region Fields: Private
+
         private readonly IApplicationsService _applicationsService;
         private readonly ICourseWorksService _courseWorksService;
         private readonly ICourseWorksRepository _courseWorksRepository;
         private readonly IWorkFilesRepository _workFilesRepository;
+        private readonly IUsersRepository _usersRepository;
+
+        #endregion
+
+        #region Constructors: Public
 
         public CourseWorksController(IApplicationsService applicationsService, ICourseWorksService courseWorksService,
-            ICourseWorksRepository courseWorksRepository, IWorkFilesRepository workFilesRepository)
+            ICourseWorksRepository courseWorksRepository, IWorkFilesRepository workFilesRepository,
+            IUsersRepository usersRepository)
         {
             _applicationsService = applicationsService;
             _courseWorksService = courseWorksService;
             _courseWorksRepository = courseWorksRepository;
             _workFilesRepository = workFilesRepository;
+            _usersRepository = usersRepository;
         }
+
+        #endregion
+
+        #region Methods: Public
 
         [HttpGet("available")]
         [ProducesResponseType(typeof(OverviewCourseWorkDTO[]), (int)HttpStatusCode.OK)]
@@ -209,27 +222,56 @@ namespace HwProj.CourseWorkService.API.Controllers
         [HttpPost("{courseWorkId}/reference")]
         public async Task<IActionResult> AddReference([FromQuery]string reference, long courseWorkId)
         {
+            var userId = Request.GetUserId();
             var courseWork = await _courseWorksRepository.GetAsync(courseWorkId)
                 .ConfigureAwait(false);
             if (courseWork == null)
             {
                 return NotFound();
             }
+            if (userId != courseWork.StudentId && userId != courseWork.LecturerId)
+            {
+                return Forbid();
+            }
+
             courseWork.Reference = reference;
             return Ok();
         }
 
+        [Authorize]
         [HttpDelete("{courseWorkId}/reference")]
         public async Task<IActionResult> DeleteReference(long courseWorkId)
         {
+            var userId = Request.GetUserId();
             var courseWork = await _courseWorksRepository.GetAsync(courseWorkId)
                 .ConfigureAwait(false);
             if (courseWork == null)
             {
                 return NotFound();
             }
+            if (userId != courseWork.StudentId && userId != courseWork.LecturerId)
+            {
+                return Forbid();
+            }
+
             courseWork.Reference = null;
             return Ok();
         }
+
+        [Authorize]
+        [HttpPost("reviewers/new")]
+        public async Task<IActionResult> BecomeReviewer()
+        {
+            var userId = Request.GetUserId();
+            var roles = await _usersRepository.GetRoles(userId).ConfigureAwait(false);
+            if (!roles.Contains(RoleNames.Reviewer))
+            {
+                await _usersRepository.AddRoleAsync(userId, RoleNames.Reviewer).ConfigureAwait(false);
+            }
+
+            return Ok();
+        }
+
+        #endregion
     }
 }

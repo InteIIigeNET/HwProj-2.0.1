@@ -12,6 +12,7 @@ namespace HwProj.CourseWorkService.API.Models
         public DbSet<Role> Roles { get; set; }
         public DbSet<StudentProfile> StudentProfiles { get; set; }
         public DbSet<LecturerProfile> LecturerProfiles { get; set; }
+        public DbSet<ReviewerProfile> ReviewerProfiles { get; set; }
 
         public CourseWorkContext(DbContextOptions options)
             : base(options)
@@ -21,10 +22,10 @@ namespace HwProj.CourseWorkService.API.Models
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Role>().HasData(
-                new Role { Id = 1, RoleName = "Student" },
-                new Role { Id = 2, RoleName = "Lecturer" }, 
-                new Role { Id = 3, RoleName = "Reviewer" },
-                new Role { Id = 4, RoleName = "Curator" });
+                new Role { Id = 1, RoleName = RoleNames.Student },
+                new Role { Id = 2, RoleName = RoleNames.Lecturer }, 
+                new Role { Id = 3, RoleName = RoleNames.Reviewer },
+                new Role { Id = 4, RoleName = RoleNames.Curator });
 
             modelBuilder.Entity<UserRole>()
                 .HasKey(ur => new { ur.UserId, ur.RoleId });
