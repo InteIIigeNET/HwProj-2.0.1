@@ -58,7 +58,7 @@ namespace HwProj.CourseWorkService.API.Services
             for (int i = 0; i < courseWorks.Length; i++)
             {
                 var student = await _usersRepository.GetAsync(courseWorks[i].StudentId).ConfigureAwait(false);
-                courseWorksDTO[i].StudentName = student.UserName;
+                courseWorksDTO[i].StudentName = student?.UserName ?? "";
             }
 
             return courseWorksDTO;
@@ -68,10 +68,10 @@ namespace HwProj.CourseWorkService.API.Services
         {
             var detailCourseWork = _mapper.Map<DetailCourseWorkDTO>(courseWork);
             var reviewer = await _usersRepository.GetAsync(courseWork.ReviewerId).ConfigureAwait(false);
-            detailCourseWork.ReviewerName = reviewer.UserName;
+            detailCourseWork.ReviewerName = reviewer?.UserName ?? "";
             var student = await _usersRepository.GetUserAsync(courseWork.StudentId).ConfigureAwait(false);
-            detailCourseWork.StudentName = student.UserName;
-            detailCourseWork.StudentCourse = student.StudentProfile.Course;
+            detailCourseWork.StudentName = student?.UserName ?? "";
+            detailCourseWork.StudentCourse = student?.StudentProfile.Course ?? 0;
             return detailCourseWork;
         }
 

@@ -102,6 +102,41 @@
       }
     },
     {
+      "DownstreamPathTemplate": "/api/course_works/{courseWorkId}/files",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/course_works/{courseWorkId}/files/",
+      "UpstreamhttpsMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/course_works/{courseWorkId}/reference",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/course_works/{courseWorkId}/reference/",
+      "UpstreamhttpsMethod": [ "POST", "DELETE" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
+      }
+    },
+    {
       "DownstreamPathTemplate": "/api/course_works/reviewers/new",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
@@ -111,7 +146,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/reviewers/new/",
-      "UpstreamhttpsMethod": [ "POST"],
+      "UpstreamhttpsMethod": [ "POST" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []

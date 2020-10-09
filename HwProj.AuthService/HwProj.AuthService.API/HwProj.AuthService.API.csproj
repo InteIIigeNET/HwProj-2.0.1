@@ -18,7 +18,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\HwProj.Common\HwProj.Models\HwProj.Models.csproj" />
     <ProjectReference Include="..\..\HwProj.Common\HwProj.Utils\HwProj.Utils.csproj" />
-    <ProjectReference Include="..\..\HwProj.CourseWorkService\HwProj.CourseWorkService.API\HwProj.CourseWorkService.API.csproj" />
     <ProjectReference Include="..\..\HwProj.EventBus\HwProj.EventBus.Client\HwProj.EventBus.Client.csproj" />
   </ItemGroup>
 

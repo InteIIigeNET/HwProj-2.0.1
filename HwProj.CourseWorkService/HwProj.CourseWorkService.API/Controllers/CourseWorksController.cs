@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
 using System.Net;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using HwProj.CourseWorkService.API.Models;
 using HwProj.CourseWorkService.API.Models.DTO;
@@ -220,7 +221,7 @@ namespace HwProj.CourseWorkService.API.Controllers
 
         [Authorize]
         [HttpPost("{courseWorkId}/reference")]
-        public async Task<IActionResult> AddReference([FromQuery]string reference, long courseWorkId)
+        public async Task<IActionResult> AddReference([FromBody]string reference, long courseWorkId)
         {
             var userId = Request.GetUserId();
             var courseWork = await _courseWorksRepository.GetAsync(courseWorkId)
@@ -234,7 +235,12 @@ namespace HwProj.CourseWorkService.API.Controllers
                 return Forbid();
             }
 
-            courseWork.Reference = reference;
+            await _courseWorksRepository.UpdateAsync(courseWorkId,
+                x => new CourseWork()
+                {
+                    Reference = reference
+                }).ConfigureAwait(false);
+
             return Ok();
         }
 
@@ -254,7 +260,12 @@ namespace HwProj.CourseWorkService.API.Controllers
                 return Forbid();
             }
 
-            courseWork.Reference = null;
+            await _courseWorksRepository.UpdateAsync(courseWorkId,
+                x => new CourseWork()
+                {
+                    Reference = null
+                }).ConfigureAwait(false);
+
             return Ok();
         }
 

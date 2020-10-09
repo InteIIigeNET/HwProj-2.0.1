@@ -27,7 +27,10 @@ namespace HwProj.CourseWorkService.API.Services
         public async Task<OverviewApplicationDTO[]> GetFilteredApplicationsAsync(Expression<Func<Application, bool>> predicate)
         {
             var applications = await _applicationsRepository
-                .FindAll(predicate).Include(a => a.CourseWork)
+                .FindAll(predicate)
+                .Include(a => a.CourseWork)
+                .Include(a => a.StudentProfile)
+                .ThenInclude(sp => sp.User)
                 .ToArrayAsync().ConfigureAwait(false);
             var overviewApplications = _mapper.Map<OverviewApplicationDTO[]>(applications);
             for (var i = 0; i < applications.Length; i++)
