@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using HwProj.CourseWorkService.API.Models;
 using HwProj.CourseWorkService.API.Repositories;
 using System.Threading.Tasks;
 using AutoMapper;
+using HwProj.CourseWorkService.API.Exceptions;
 using HwProj.CourseWorkService.API.Models.DTO;
 using HwProj.CourseWorkService.API.Models.ViewModels;
 using Microsoft.EntityFrameworkCore;
@@ -13,10 +15,16 @@ namespace HwProj.CourseWorkService.API.Services
 {
     public class CourseWorksService : ICourseWorksService
     {
+        #region Fields: Private
+
         private readonly ICourseWorksRepository _courseWorksRepository;
         private readonly IDeadlineRepository _deadlineRepository;
         private readonly IUsersRepository _usersRepository;
         private readonly IMapper _mapper;
+
+        #endregion
+
+        #region Constructors: Public
 
         public CourseWorksService(ICourseWorksRepository courseWorkRepository,
             IDeadlineRepository deadlineRepository, IUsersRepository usersRepository, IMapper mapper)
@@ -27,53 +35,117 @@ namespace HwProj.CourseWorkService.API.Services
             _mapper = mapper;
         }
 
-        public async Task<OverviewCourseWorkDTO[]> GetFilteredCourseWorksWithStatusAsync(string status, Func<CourseWork, bool> predicate)
-        {
-            if (status == "active")
-            {
-                return await GetActiveFilteredCourseWorksAsync(predicate).ConfigureAwait(false);
-            }
+        #endregion
 
-            return await GetCompletedFilteredCourseWorksAsync(predicate).ConfigureAwait(false);
+        #region Methods: Private
+
+        private async Task<CourseWork> GetCourseWorkByIdAsync(long courseWorkId)
+        {
+            var courseWork = await _courseWorksRepository.GetCourseWorkAsync(courseWorkId).ConfigureAwait(false);
+            return courseWork ??
+                   throw new ObjectDisposedException($"Course work with id {courseWorkId}");
         }
 
-        public async Task<OverviewCourseWorkDTO[]> GetActiveFilteredCourseWorksAsync(Func<CourseWork, bool> predicate)
+        [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local")]
+        private static void CheckCourseWorkLecturer(CourseWork courseWork, string userId)
         {
-            var courseWorks = await _courseWorksRepository
-                .FindAll(courseWork => predicate(courseWork) && !courseWork.IsCompleted)
-                .ToArrayAsync().ConfigureAwait(false);
-            return await GetCourseWorksDTO(courseWorks).ConfigureAwait(false);
-        }
-        public async Task<OverviewCourseWorkDTO[]> GetCompletedFilteredCourseWorksAsync(Func<CourseWork, bool> predicate)
-        {
-            var courseWorks = await _courseWorksRepository
-                .FindAll(courseWork => predicate(courseWork) && courseWork.IsCompleted)
-                .ToArrayAsync().ConfigureAwait(false);
-            return await GetCourseWorksDTO(courseWorks).ConfigureAwait(false);
+            if (courseWork.LecturerId != userId) throw new ForbidException("Only an owner of the course work can delete it");
         }
 
-        private async Task<OverviewCourseWorkDTO[]> GetCourseWorksDTO(CourseWork[] courseWorks)
+        private async Task<OverviewCourseWorkDTO> GetCourseWorkOverviewDTO(CourseWork courseWork)
         {
-            var courseWorksDTO = _mapper.Map<OverviewCourseWorkDTO[]>(courseWorks);
-            for (int i = 0; i < courseWorks.Length; i++)
-            {
-                var student = await _usersRepository.GetAsync(courseWorks[i].StudentId).ConfigureAwait(false);
-                courseWorksDTO[i].StudentName = student?.UserName ?? "";
-            }
+            var courseWorkDTO = _mapper.Map<OverviewCourseWorkDTO>(courseWork);
 
-            return courseWorksDTO;
+            var student = await _usersRepository.GetAsync(courseWork.StudentId).ConfigureAwait(false);
+            courseWorkDTO.StudentName = student?.UserName ?? "";
+
+            return courseWorkDTO;
         }
 
-        public async Task<DetailCourseWorkDTO> GetCourseWorkInfo(CourseWork courseWork)
+        private async Task<DetailCourseWorkDTO> GetCourseWorkDetailDTO(CourseWork courseWork)
         {
-            var detailCourseWork = _mapper.Map<DetailCourseWorkDTO>(courseWork);
+            var detailCourseWorkDTO = _mapper.Map<DetailCourseWorkDTO>(courseWork);
             var reviewer = await _usersRepository.GetAsync(courseWork.ReviewerId).ConfigureAwait(false);
-            detailCourseWork.ReviewerName = reviewer?.UserName ?? "";
             var student = await _usersRepository.GetUserAsync(courseWork.StudentId).ConfigureAwait(false);
-            detailCourseWork.StudentName = student?.UserName ?? "";
-            detailCourseWork.StudentCourse = student?.StudentProfile.Course ?? 0;
-            return detailCourseWork;
+
+            detailCourseWorkDTO.ReviewerName = reviewer?.UserName ?? "";
+            detailCourseWorkDTO.StudentName = student?.UserName ?? "";
+            detailCourseWorkDTO.StudentCourse = student?.StudentProfile.Course ?? 0;
+            return detailCourseWorkDTO;
         }
+
+        #endregion
+
+        #region Methods: Public
+
+        public async Task<OverviewCourseWorkDTO[]> GetFilteredCourseWorksAsync(Func<CourseWork, bool> predicate)
+        {
+            var courseWorks = await _courseWorksRepository
+                .FindAll(courseWork => predicate(courseWork))
+                .ToArrayAsync()
+                .ConfigureAwait(false);
+
+            return await Task.WhenAll(courseWorks
+                .Select(async courseWork => await GetCourseWorkOverviewDTO(courseWork).ConfigureAwait(false))
+                .ToArray());
+        }
+
+        public async Task<DetailCourseWorkDTO> GetCourseWorkInfoAsync(long courseWorkId)
+        {
+            var courseWork = await GetCourseWorkByIdAsync(courseWorkId).ConfigureAwait(false);
+            return await GetCourseWorkDetailDTO(courseWork).ConfigureAwait(false);
+        }
+
+        public async Task<long> AddCourseWorkAsync(CreateCourseWorkViewModel createCourseWorkViewModel, 
+            string userId, bool createdByCurator)
+        {
+            var courseWork = _mapper.Map<CourseWork>(createCourseWorkViewModel);
+            if (createdByCurator)
+            {
+                courseWork.CreatedByCurator = true;
+            }
+            else
+            {
+                var user = await _usersRepository.GetUserAsync(userId).ConfigureAwait(false);
+                courseWork.SupervisorName = user.UserName;
+                courseWork.SupervisorContact = courseWork.SupervisorContact ?? user.LecturerProfile.Contact;
+            }
+
+            courseWork.CreationTime = DateTime.UtcNow;
+            courseWork.LecturerId = userId;
+
+            return await _courseWorksRepository.AddAsync(courseWork).ConfigureAwait(false);
+        }
+
+        public async Task DeleteCourseWorkAsync(long courseWorkId, string userId)
+        {
+            var courseWork = await GetCourseWorkByIdAsync(courseWorkId).ConfigureAwait(false);
+            CheckCourseWorkLecturer(courseWork, userId);
+
+            await _courseWorksRepository.DeleteAsync(courseWorkId).ConfigureAwait(false);
+        }
+
+        public async Task UpdateCourseWorkAsync(long courseWorkId, string userId,
+            CreateCourseWorkViewModel createCourseWorkViewModel)
+        {
+            var courseWork = await GetCourseWorkByIdAsync(courseWorkId).ConfigureAwait(false);
+            CheckCourseWorkLecturer(courseWork, userId);
+
+            await _courseWorksRepository.UpdateAsync(courseWorkId, cw => new CourseWork()
+                {
+                    Title = createCourseWorkViewModel.Title,
+                    Overview = createCourseWorkViewModel.Overview,
+                    Description = createCourseWorkViewModel.Description,
+                    Type = createCourseWorkViewModel.Type,
+                    Requirements = createCourseWorkViewModel.Requirements,
+                    ConsultantName = createCourseWorkViewModel.ConsultantName,
+                    ConsultantContact = createCourseWorkViewModel.ConsultantContact,
+                    SupervisorContact = createCourseWorkViewModel.SupervisorContact
+                })
+                .ConfigureAwait(false);
+        }
+
+        #endregion
 
         public DeadlineDTO[] GetCourseWorkDeadlines(string userId, CourseWork courseWork)
         {

@@ -1,8 +1,9 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Net;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
+using HwProj.CourseWorkService.API.Filters;
 using HwProj.CourseWorkService.API.Models;
 using HwProj.CourseWorkService.API.Models.DTO;
 using HwProj.CourseWorkService.API.Repositories;
@@ -15,6 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HwProj.CourseWorkService.API.Controllers
 {
     [Route("api/course_works")]
+    [NotFoundExceptionFilter]
     [ApiController]
     public class CourseWorksController : ControllerBase
     {
@@ -50,44 +52,41 @@ namespace HwProj.CourseWorkService.API.Controllers
         public async Task<IActionResult> GetAvailableCourseWorks()
         {
             var courseWorks = await _courseWorksService
-                .GetActiveFilteredCourseWorksAsync(courseWork => courseWork.StudentId == null)
+                .GetFilteredCourseWorksAsync(courseWork => courseWork.StudentId == null && !courseWork.IsCompleted)
                 .ConfigureAwait(false);
             return Ok(courseWorks);
         }
 
-        [HttpGet("{courseWorkId}")]
-        [ProducesResponseType(typeof(DetailCourseWorkDTO), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetCourseWorkDetails(long courseWorkId)
-        {
-            var courseWork = await _courseWorksRepository.GetAsync(courseWorkId)
-                .ConfigureAwait(false);
-
-            if (courseWork == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(await _courseWorksService.GetCourseWorkInfo(courseWork).ConfigureAwait(false));
-        }
-
         [Authorize]
-        [HttpGet("my/{status}")]
-        [ProducesResponseType(typeof(OverviewCourseWorkDTO[]), (int) HttpStatusCode.OK)]
-        public async Task<IActionResult> GetMyActiveCourseWork(string status)
+        [HttpGet("{role}/my/{status}")]
+        [ProducesResponseType(typeof(OverviewCourseWorkDTO[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetMyActiveCourseWork(string role, string status)
         {
-            if (status != "active" && status != "completed")
+            if (status != "active" && status != "completed" || !Enum.TryParse<RoleNames>(role, out var roleName))
             {
                 return NotFound();
             }
 
             var userId = Request.GetUserId();
             var courseWorks = await _courseWorksService
-                .GetFilteredCourseWorksWithStatusAsync(status,
-                    courseWork => courseWork.StudentId == userId || courseWork.LecturerId == userId)
+                .GetFilteredCourseWorksAsync(courseWork => courseWork.IsCompleted == (status == "completed") && 
+                    roleName == RoleNames.Student ? courseWork.StudentId == userId :
+                    roleName == RoleNames.Lecturer ? courseWork.LecturerId == userId :
+                    roleName == RoleNames.Reviewer ? courseWork.ReviewerId == userId :
+                    courseWork.CuratorId == userId)
                 .ConfigureAwait(false);
             return Ok(courseWorks);
         }
 
+
+        [HttpGet("{courseWorkId}")]
+        [ProducesResponseType(typeof(DetailCourseWorkDTO), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetCourseWorkDetails(long courseWorkId)
+        {
+            return Ok(await _courseWorksService.GetCourseWorkInfoAsync(courseWorkId).ConfigureAwait(false));
+        }
+
+        //TODO
         [Authorize]
         [HttpGet("{courseWorkId}/deadlines")]
         [ProducesResponseType(typeof(DeadlineDTO[]), (int) HttpStatusCode.OK)]

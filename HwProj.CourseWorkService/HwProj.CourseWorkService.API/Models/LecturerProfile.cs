@@ -10,5 +10,6 @@ namespace HwProj.CourseWorkService.API.Models
         public User User { get; set; }
 
         public string Department { get; set; }
+        public string Contact { get; set; }
     }
 }

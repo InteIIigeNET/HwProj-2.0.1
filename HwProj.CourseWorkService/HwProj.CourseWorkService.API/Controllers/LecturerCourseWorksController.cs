@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using AutoMapper;
 using HwProj.CourseWorkService.API.Filters;
 using HwProj.CourseWorkService.API.Models;
 using HwProj.CourseWorkService.API.Models.DTO;
@@ -16,93 +15,67 @@ using Microsoft.AspNetCore.Mvc;
 namespace HwProj.CourseWorkService.API.Controllers
 {
     [Authorize]
-    [OnlyLecturer]
     [Route("api/lecturer")]
+    [OnlyLecturer]
+    [NotFoundExceptionFilter]
+    [ForbidExceptionFilter]
     [ApiController]
-    public class LecturerCourseWorksController : Controller
+    public class LecturerCourseWorksController : ControllerBase
     {
+        #region Fields: Private
+
         private readonly IApplicationsService _applicationsService;
         private readonly IApplicationsRepository _applicationsRepository;
         private readonly ICourseWorksService _courseWorksService;
         private readonly ICourseWorksRepository _courseWorksRepository;
         private readonly IDeadlineRepository _deadlineRepository;
-        private readonly IMapper _mapper;
+
+        #endregion
+
+        #region Constructors: Public
 
         public LecturerCourseWorksController(IApplicationsService applicationsService, IApplicationsRepository applicationsRepository,
             ICourseWorksService courseWorksService, ICourseWorksRepository courseWorksRepository,
-            IDeadlineRepository deadlineRepository, IMapper mapper)
+            IDeadlineRepository deadlineRepository)
         {
             _applicationsService = applicationsService;
             _applicationsRepository = applicationsRepository;
             _courseWorksService = courseWorksService;
             _courseWorksRepository = courseWorksRepository;
             _deadlineRepository = deadlineRepository;
-            _mapper = mapper;
         }
+
+        #endregion
+
+        #region Methods: Public
 
         [HttpPost("course_works/add")]
         [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> AddCourseWork([FromBody] CreateCourseWorkViewModel createCourseWorkViewModel)
+        public async Task<IActionResult> AddCourseWorkAsync([FromBody] CreateCourseWorkViewModel createCourseWorkViewModel)
         {
-            var courseWork = _mapper.Map<CourseWork>(createCourseWorkViewModel);
-            courseWork.LecturerId = Request.GetUserId();
-            courseWork.CreationTime = DateTime.UtcNow;
-            courseWork.IsCompleted = false;
-            var id = await _courseWorksRepository.AddAsync(courseWork).ConfigureAwait(false);
+            var userId = Request.GetUserId();
+            var id = await _courseWorksService.AddCourseWorkAsync(createCourseWorkViewModel, userId, false);
             return Ok(id);
         }
 
-        [HttpDelete("course_works/{courseWorkId}/delete")]
-        public async Task<IActionResult> DeleteCourseWork(long courseWorkId)
+        [HttpDelete("course_works/{courseWorkId}")]
+        public async Task<IActionResult> DeleteCourseWorkAsync(long courseWorkId)
         {
-            var courseWork = await _courseWorksRepository.GetAsync(courseWorkId).ConfigureAwait(false);
             var userId = Request.GetUserId();
-            if (courseWork == null)
-            {
-                return NotFound();
-            }
-
-            if (userId != courseWork.LecturerId)
-            {
-                return Forbid();
-            }
-            await _courseWorksRepository.DeleteAsync(courseWorkId).ConfigureAwait(false);
+            await _courseWorksService.DeleteCourseWorkAsync(courseWorkId, userId);
             return Ok();
         }
 
-
-        [HttpPut("course_works/{courseWorkId}/update")]
+        [HttpPut("course_works/{courseWorkId}")]
         public async Task<IActionResult> UpdateCourseWorkAsync([FromBody] CreateCourseWorkViewModel createCourseWorkViewModel, long courseWorkId)
         {
-            var oldCourseWork = await _courseWorksRepository.GetAsync(courseWorkId)
-                .ConfigureAwait(false);
             var userId = Request.GetUserId();
-
-            if (oldCourseWork == null)
-            {
-                return NotFound();
-            }
-
-            if (userId != oldCourseWork.LecturerId)
-            {
-                return Forbid();
-            }
-
-            await _courseWorksRepository.UpdateAsync(courseWorkId, cw => new CourseWork()
-                {
-                    Title = createCourseWorkViewModel.Title,
-                    Overview = createCourseWorkViewModel.Overview,
-                    Description = createCourseWorkViewModel.Description,
-                    Type = createCourseWorkViewModel.Type,
-                    Requirements = createCourseWorkViewModel.Requirements,
-                    ConsultantName = createCourseWorkViewModel.ConsultantName,
-                    ConsultantContact = createCourseWorkViewModel.ConsultantContact,
-                    SupervisorName = createCourseWorkViewModel.SupervisorName,
-                    SupervisorContact = createCourseWorkViewModel.SupervisorContact
-                })
+            await _courseWorksService.UpdateCourseWorkAsync(courseWorkId, userId, createCourseWorkViewModel)
                 .ConfigureAwait(false);
             return Ok();
         }
+
+        #endregion
 
         [HttpGet("applications/{appId}")]
         [ProducesResponseType(typeof(LecturerApplicationDTO), (int)HttpStatusCode.OK)]

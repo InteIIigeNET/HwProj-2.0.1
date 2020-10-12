@@ -16,19 +16,32 @@ namespace HwProj.CourseWorkService.API.Controllers
     [OnlyStudent]
     [Route("api/student")]
     [ApiController]
-    public class StudentCourseWorksController : Controller
+    public class StudentCourseWorksController : ControllerBase
     {
+        #region Fields: Private
+
         private readonly IApplicationsService _applicationsService;
         private readonly IApplicationsRepository _applicationsRepository;
         private readonly ICourseWorksRepository _courseWorksRepository;
 
-        public StudentCourseWorksController(IApplicationsService applicationsService,
-            IApplicationsRepository applicationsRepository, ICourseWorksRepository courseWorksRepository)
+        #endregion
+
+        #region Constructors: Public
+
+        public StudentCourseWorksController(IApplicationsService applicationsService, IApplicationsRepository applicationsRepository,
+            ICourseWorksRepository courseWorksRepository)
         {
             _applicationsService = applicationsService;
             _applicationsRepository = applicationsRepository;
             _courseWorksRepository = courseWorksRepository;
         }
+
+        #endregion
+
+        #region Methods: Public
+
+
+        #endregion
 
         [HttpGet("applications/{appId}")]
         [ProducesResponseType(typeof(StudentApplicationDTO), (int)HttpStatusCode.OK)]

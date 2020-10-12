@@ -14,6 +14,25 @@
       "UpstreamhttpsMethod": [ "GET" ]
     },
     {
+      "DownstreamPathTemplate": "/api/course_works/{role}/my/{status}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/course_works/{role}/my/{status}/",
+      "UpstreamhttpsMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
+      }
+    },
+    {
       "DownstreamPathTemplate": "/api/course_works/{courseWorkId}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
@@ -24,25 +43,6 @@
       ],
       "UpstreamPathTemplate": "/api/course_works/{courseWorkId}/",
       "UpstreamhttpsMethod": [ "GET" ]
-    },
-    {
-      "DownstreamPathTemplate": "/api/course_works/my/{status}",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 44328
-        }
-      ],
-      "UpstreamPathTemplate": "/api/course_works/my/{status}/",
-      "UpstreamhttpsMethod": [ "GET" ],
-      "AuthenticationOptions": {
-        "AuthenticationProviderKey": "GatewayKey",
-        "AllowedScopes": []
-      },
-      "AddQueriesToRequest": {
-        "_id": "Claims[_id] > value"
-      }
     },
     {
       "DownstreamPathTemplate": "/api/course_works/{courseWorkId}/deadlines",

@@ -28,6 +28,7 @@ namespace HwProj.CourseWorkService.API.Models
 
 
         public bool IsCompleted { get; set; }
+        public bool CreatedByCurator { get; set; }
         public string Reference { get; set; }
 
         public List<Application> Applications { get; set; }

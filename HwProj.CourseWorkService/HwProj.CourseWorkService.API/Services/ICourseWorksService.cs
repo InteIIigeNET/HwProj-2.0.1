@@ -8,10 +8,12 @@ namespace HwProj.CourseWorkService.API.Services
 {
     public interface ICourseWorksService
     {
-        Task<OverviewCourseWorkDTO[]> GetFilteredCourseWorksWithStatusAsync(string status, Func<CourseWork, bool> predicate);
-        Task<OverviewCourseWorkDTO[]> GetActiveFilteredCourseWorksAsync(Func<CourseWork, bool> predicate);
-        Task<OverviewCourseWorkDTO[]> GetCompletedFilteredCourseWorksAsync(Func<CourseWork, bool> predicate);
-        Task<DetailCourseWorkDTO> GetCourseWorkInfo(CourseWork courseWork);
+        Task<OverviewCourseWorkDTO[]> GetFilteredCourseWorksAsync(Func<CourseWork, bool> predicate);
+        Task<DetailCourseWorkDTO> GetCourseWorkInfoAsync(long courseWorkId);
+        Task<long> AddCourseWorkAsync(CreateCourseWorkViewModel courseWorkViewModel, string userId, bool createdByCurator);
+        Task DeleteCourseWorkAsync(long courseWorkId, string userId);
+        Task UpdateCourseWorkAsync(long courseWorkId, string userId,
+            CreateCourseWorkViewModel createCourseWorkViewModel);
         DeadlineDTO[] GetCourseWorkDeadlines(string userId, CourseWork courseWork);
         Task<long> AddDeadlineAsync(AddDeadlineViewModel newDeadline, CourseWork courseWork);
         WorkFileDTO[] GetWorkFilesDTO(WorkFile[] workFiles);
