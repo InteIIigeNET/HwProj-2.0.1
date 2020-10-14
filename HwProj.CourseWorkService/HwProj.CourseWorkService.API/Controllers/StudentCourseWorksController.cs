@@ -2,6 +2,7 @@
 using System.Net;
 using System.Threading.Tasks;
 using HwProj.CourseWorkService.API.Filters;
+using HwProj.CourseWorkService.API.Models;
 using Microsoft.AspNetCore.Mvc;
 using HwProj.CourseWorkService.API.Models.DTO;
 using HwProj.CourseWorkService.API.Models.ViewModels;
@@ -13,7 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace HwProj.CourseWorkService.API.Controllers
 {
     [Authorize]
-    [OnlyStudent]
+    [TypeFilter(typeof(OnlySelectRoleAttribute), Arguments = new object[] { RoleNames.Student })]
     [Route("api/student")]
     [ApiController]
     public class StudentCourseWorksController : ControllerBase

@@ -48,6 +48,7 @@ namespace HwProj.CourseWorkService.API.Repositories
                     .Include(u => u.StudentProfile)
                     .Include(u => u.LecturerProfile)
                     .Include(u => u.ReviewerProfile)
+                    .Include(u => u.CuratorProfile)
                     .FirstOrDefaultAsync(u => u.Id == userId);
 
                 if (action == Action.Add)
@@ -71,7 +72,7 @@ namespace HwProj.CourseWorkService.API.Repositories
                             }
                         case RoleNames.Curator:
                             {
-                                //user.CuratorProfile = new CuratorProfile() { Id = userId };
+                                user.CuratorProfile = new CuratorProfile() { Id = userId };
                                 break;
                             }
                     }
@@ -97,7 +98,7 @@ namespace HwProj.CourseWorkService.API.Repositories
                             }
                         case RoleNames.Curator:
                             {
-                                //context.CuratorProfiles.Remove(user.CuratorProfile);
+                                context.CuratorProfiles.Remove(user.CuratorProfile);
                                 break;
                             }
                     }

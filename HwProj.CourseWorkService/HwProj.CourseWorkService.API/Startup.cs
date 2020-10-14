@@ -43,6 +43,7 @@ namespace HwProj.CourseWorkService.API
         {
             eventBus.Subscribe<RegisterEvent>();
             eventBus.Subscribe<InviteLecturerEvent>();
+            eventBus.Subscribe<CreateAdminEvent>();
 
             app.UseDeveloperExceptionPage();
             app.ConfigureHwProj(env, "CourseWorks API");

@@ -13,6 +13,7 @@ namespace HwProj.CourseWorkService.API.Models
         public DbSet<StudentProfile> StudentProfiles { get; set; }
         public DbSet<LecturerProfile> LecturerProfiles { get; set; }
         public DbSet<ReviewerProfile> ReviewerProfiles { get; set; }
+        public DbSet<CuratorProfile> CuratorProfiles { get; set; }
 
         public CourseWorkContext(DbContextOptions options)
             : base(options)

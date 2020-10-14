@@ -6,6 +6,7 @@ using HwProj.AuthService.API.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using HwProj.AuthService.API.Services;
+using HwProj.EventBus.Client.Interfaces;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using HwProj.Utils.Configuration;
@@ -75,10 +76,11 @@ namespace HwProj.AuthService.API
             {
                 var userManager = scope.ServiceProvider.GetService(typeof(UserManager<User>)) as UserManager<User>;
                 var rolesManager = scope.ServiceProvider.GetService(typeof(RoleManager<IdentityRole>)) as RoleManager<IdentityRole>;
+                var eventBus = scope.ServiceProvider.GetService<IEventBus>();
 
                 if (env.IsDevelopment())
                 {
-                    RoleInitializer.InitializeAsync(userManager, rolesManager).Wait();
+                    RoleInitializer.InitializeAsync(userManager, rolesManager, eventBus).Wait();
                 }
             }
         }

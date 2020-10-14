@@ -16,7 +16,7 @@ namespace HwProj.CourseWorkService.API.Controllers
 {
     [Authorize]
     [Route("api/lecturer")]
-    [OnlyLecturer]
+    [TypeFilter(typeof(OnlySelectRoleAttribute), Arguments = new object[] { RoleNames.Lecturer })]
     [NotFoundExceptionFilter]
     [ForbidExceptionFilter]
     [ApiController]

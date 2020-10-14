@@ -12,6 +12,7 @@ namespace HwProj.CourseWorkService.API.Models
         public StudentProfile StudentProfile { get; set; }
         public LecturerProfile LecturerProfile { get; set; }
         public ReviewerProfile ReviewerProfile { get; set; }
+        public CuratorProfile CuratorProfile { get; set; }
         public List<UserRole> UserRoles { get; set; }
 
         public User()
