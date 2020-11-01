@@ -5,7 +5,9 @@ using HwProj.CourseWorkService.API.Filters;
 using HwProj.CourseWorkService.API.Models;
 using HwProj.CourseWorkService.API.Models.ViewModels;
 using HwProj.CourseWorkService.API.Repositories;
+using HwProj.CourseWorkService.API.Repositories.Interfaces;
 using HwProj.CourseWorkService.API.Services;
+using HwProj.CourseWorkService.API.Services.Interfaces;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,15 +23,18 @@ namespace HwProj.CourseWorkService.API.Controllers
         #region Fields: Private
 
         private readonly ICourseWorksService _courseWorksService;
+        private readonly IUserService _userService;
         private readonly IUsersRepository _usersRepository;
 
         #endregion
 
         #region Constructors: Public
 
-        public CuratorCourseWorksController(ICourseWorksService courseWorksService, IUsersRepository usersRepository)
+        public CuratorCourseWorksController(ICourseWorksService courseWorksService, IUsersRepository usersRepository,
+            IUserService userService)
         {
             _courseWorksService = courseWorksService;
+            _userService = userService;
             _usersRepository = usersRepository;
         }
 
@@ -58,6 +63,20 @@ namespace HwProj.CourseWorkService.API.Controllers
                 await _usersRepository.AddRoleAsync(user.Id, RoleNames.Curator);
             }
 
+            return Ok();
+        }
+
+        [HttpPost("directions")]
+        public async Task<IActionResult> AddDirectionAsync([FromBody] AddDirectionViewModel directionViewModel)
+        {
+            await _userService.AddDirectionAsync(directionViewModel).ConfigureAwait(false);
+            return Ok();
+        }
+
+        [HttpDelete("directions/{directionId}")]
+        public async Task<IActionResult> DeleteDirectionAsync(long directionId)
+        {
+            await _userService.DeleteDirectionAsync(directionId).ConfigureAwait(false);
             return Ok();
         }
 

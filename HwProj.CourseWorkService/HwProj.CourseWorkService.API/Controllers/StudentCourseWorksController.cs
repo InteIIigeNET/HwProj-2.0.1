@@ -7,7 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 using HwProj.CourseWorkService.API.Models.DTO;
 using HwProj.CourseWorkService.API.Models.ViewModels;
 using HwProj.CourseWorkService.API.Repositories;
+using HwProj.CourseWorkService.API.Repositories.Interfaces;
 using HwProj.CourseWorkService.API.Services;
+using HwProj.CourseWorkService.API.Services.Interfaces;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Authorization;
 
@@ -41,26 +43,14 @@ namespace HwProj.CourseWorkService.API.Controllers
 
         #region Methods: Public
 
+        //[HttpPut("profile")]
+        //public async Task<IActionResult> UpdateProfileAsync(StudentProfileViewModel studentProfileViewModel)
+        //{
+        //    var userId = Request.GetUserId();
+
+        //}
 
         #endregion
-
-        [HttpGet("applications/{appId}")]
-        [ProducesResponseType(typeof(StudentApplicationDTO), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetStudentApplication(long appId)
-        {
-            var application = await _applicationsRepository.GetApplicationAsync(appId).ConfigureAwait(false);
-            if (application == null)
-            {
-                return NotFound();
-            }
-            var userId = Request.GetUserId();
-            if (application.StudentProfileId != userId)
-            {
-                return Forbid();
-            }
-
-            return Ok(_applicationsService.GetStudentApplication(application));
-        }
 
         [HttpPost("course_works/{courseWorkId}/apply")]
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
@@ -79,6 +69,24 @@ namespace HwProj.CourseWorkService.API.Controllers
 
             var id = await _applicationsService.AddApplicationAsync(createApplicationViewModel, userId, courseWork);
             return Ok(id);
+        }
+
+        [HttpGet("applications/{appId}")]
+        [ProducesResponseType(typeof(StudentApplicationDTO), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetStudentApplication(long appId)
+        {
+            var application = await _applicationsRepository.GetApplicationAsync(appId).ConfigureAwait(false);
+            if (application == null)
+            {
+                return NotFound();
+            }
+            var userId = Request.GetUserId();
+            if (application.StudentProfileId != userId)
+            {
+                return Forbid();
+            }
+
+            return Ok(_applicationsService.GetStudentApplication(application));
         }
 
         [HttpDelete("applications/{appId}")]

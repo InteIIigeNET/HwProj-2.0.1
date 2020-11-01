@@ -15,6 +15,7 @@ namespace HwProj.CourseWorkService.API.Models
         public string StudentProfileId { get; set; }
         public StudentProfile StudentProfile { get; set; }
 
+        [Required]
         public long CourseWorkId { get; set; }
         public CourseWork CourseWork { get; set; }
     }

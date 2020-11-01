@@ -1,7 +1,10 @@
 ﻿using HwProj.CourseWorkService.API.Events;
 using HwProj.CourseWorkService.API.Models;
 using HwProj.CourseWorkService.API.Repositories;
-using HwProj.CourseWorkService.API.Services;
+using HwProj.CourseWorkService.API.Repositories.Implementations;
+using HwProj.CourseWorkService.API.Repositories.Interfaces;
+using HwProj.CourseWorkService.API.Services.Implementations;
+using HwProj.CourseWorkService.API.Services.Interfaces;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Utils.Configuration;
 using Microsoft.AspNetCore.Builder;
@@ -31,8 +34,10 @@ namespace HwProj.CourseWorkService.API
                 .AddScoped<IDeadlineRepository, DeadlineRepository>()
                 .AddScoped<IUsersRepository, UsersRepository>()
                 .AddScoped<IWorkFilesRepository, WorkFilesRepository>()
+                .AddScoped<IDirectionRepository, DirectionRepository>()
                 .AddScoped<IApplicationsService, ApplicationService>()
-                .AddScoped<ICourseWorksService, CourseWorksService>();
+                .AddScoped<ICourseWorksService, CourseWorksService>()
+                .AddScoped<IUserService, UserService>();
 
             services.AddEventBus(Configuration);
 

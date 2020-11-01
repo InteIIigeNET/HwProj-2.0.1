@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using HwProj.CourseWorkService.API.Filters;
 using HwProj.CourseWorkService.API.Models;
 using HwProj.CourseWorkService.API.Models.DTO;
-using HwProj.CourseWorkService.API.Repositories;
-using HwProj.CourseWorkService.API.Services;
+using HwProj.CourseWorkService.API.Repositories.Interfaces;
+using HwProj.CourseWorkService.API.Services.Interfaces;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -24,6 +24,7 @@ namespace HwProj.CourseWorkService.API.Controllers
 
         private readonly IApplicationsService _applicationsService;
         private readonly ICourseWorksService _courseWorksService;
+        private readonly IUserService _userService;
         private readonly ICourseWorksRepository _courseWorksRepository;
         private readonly IWorkFilesRepository _workFilesRepository;
         private readonly IUsersRepository _usersRepository;
@@ -34,16 +35,33 @@ namespace HwProj.CourseWorkService.API.Controllers
 
         public CourseWorksController(IApplicationsService applicationsService, ICourseWorksService courseWorksService,
             ICourseWorksRepository courseWorksRepository, IWorkFilesRepository workFilesRepository,
-            IUsersRepository usersRepository)
+            IUsersRepository usersRepository, IUserService userService)
         {
             _applicationsService = applicationsService;
             _courseWorksService = courseWorksService;
+            _userService = userService;
             _courseWorksRepository = courseWorksRepository;
             _workFilesRepository = workFilesRepository;
             _usersRepository = usersRepository;
         }
 
         #endregion
+
+        [HttpPost("test")]
+        public async Task<IActionResult> SetAction()
+        {
+            var user = new User()
+            {
+                Id = "fb952574-de89-4365-9a76-424e6489b558",
+                UserName = "Test",
+                Email = "wef@Test"
+            };
+
+            await _usersRepository.AddAsync(user).ConfigureAwait(false);
+            await _usersRepository.AddRoleAsync(user.Id, RoleNames.Lecturer).ConfigureAwait(false);
+            await _usersRepository.AddRoleAsync(user.Id, RoleNames.Curator).ConfigureAwait(false);
+            return Ok();
+        }
 
         #region Methods: Public
 
@@ -84,6 +102,14 @@ namespace HwProj.CourseWorkService.API.Controllers
         public async Task<IActionResult> GetCourseWorkDetails(long courseWorkId)
         {
             return Ok(await _courseWorksService.GetCourseWorkInfoAsync(courseWorkId).ConfigureAwait(false));
+        }
+
+        [HttpGet("directions")]
+        [ProducesResponseType(typeof(DirectionDTO[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetDirectionsAsync()
+        {
+            var directionsDTO = await _userService.GetDirectionsAsync().ConfigureAwait(false);
+            return Ok(directionsDTO);
         }
 
         //TODO

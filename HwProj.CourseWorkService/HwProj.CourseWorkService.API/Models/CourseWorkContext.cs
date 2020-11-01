@@ -9,13 +9,16 @@ namespace HwProj.CourseWorkService.API.Models
         public DbSet<Deadline> Deadlines { get; set; }
         public DbSet<WorkFile> WorkFiles { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<UserRole> UserRoles { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<StudentProfile> StudentProfiles { get; set; }
         public DbSet<LecturerProfile> LecturerProfiles { get; set; }
         public DbSet<ReviewerProfile> ReviewerProfiles { get; set; }
         public DbSet<CuratorProfile> CuratorProfiles { get; set; }
+        public DbSet<Department> Departments { get; set; }
+        public DbSet<Direction> Directions { get; set; }
 
-        public CourseWorkContext(DbContextOptions options)
+        public CourseWorkContext(DbContextOptions<CourseWorkContext> options)
             : base(options)
         {
             Database.EnsureCreated();

@@ -2,16 +2,17 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using HwProj.CourseWorkService.API.Models;
-using HwProj.CourseWorkService.API.Repositories;
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CourseWorkService.API.Exceptions;
+using HwProj.CourseWorkService.API.Models;
 using HwProj.CourseWorkService.API.Models.DTO;
 using HwProj.CourseWorkService.API.Models.ViewModels;
+using HwProj.CourseWorkService.API.Repositories.Interfaces;
+using HwProj.CourseWorkService.API.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace HwProj.CourseWorkService.API.Services
+namespace HwProj.CourseWorkService.API.Services.Implementations
 {
     public class CourseWorksService : ICourseWorksService
     {
@@ -43,7 +44,7 @@ namespace HwProj.CourseWorkService.API.Services
         {
             var courseWork = await _courseWorksRepository.GetCourseWorkAsync(courseWorkId).ConfigureAwait(false);
             return courseWork ??
-                   throw new ObjectDisposedException($"Course work with id {courseWorkId}");
+                   throw new ObjectNotFoundException($"Course work with id {courseWorkId}");
         }
 
         [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local")]

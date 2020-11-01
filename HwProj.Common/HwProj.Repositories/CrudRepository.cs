@@ -19,7 +19,7 @@ namespace HwProj.Repositories
         public async Task<TKey> AddAsync(TEntity item)
         {
             await Context.AddAsync(item);
-            await Context.SaveChangesAsync();
+            Context.SaveChanges();
             return item.Id;
         }
 

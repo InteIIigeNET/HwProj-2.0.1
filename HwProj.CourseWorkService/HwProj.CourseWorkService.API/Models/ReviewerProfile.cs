@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using HwProj.Repositories;
 
 namespace HwProj.CourseWorkService.API.Models
@@ -7,6 +8,7 @@ namespace HwProj.CourseWorkService.API.Models
     {
         public string Id { get; set; }
 
+        [Required]
         public string UserId { get; set; }
         public User User { get; set; }
 

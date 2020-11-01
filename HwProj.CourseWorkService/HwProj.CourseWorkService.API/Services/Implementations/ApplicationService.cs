@@ -5,10 +5,11 @@ using AutoMapper;
 using HwProj.CourseWorkService.API.Models;
 using HwProj.CourseWorkService.API.Models.DTO;
 using HwProj.CourseWorkService.API.Models.ViewModels;
-using HwProj.CourseWorkService.API.Repositories;
+using HwProj.CourseWorkService.API.Repositories.Interfaces;
+using HwProj.CourseWorkService.API.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace HwProj.CourseWorkService.API.Services
+namespace HwProj.CourseWorkService.API.Services.Implementations
 {
     public class ApplicationService : IApplicationsService
     {

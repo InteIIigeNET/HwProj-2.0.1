@@ -5,7 +5,7 @@ using HwProj.CourseWorkService.API.Models;
 using HwProj.CourseWorkService.API.Models.DTO;
 using HwProj.CourseWorkService.API.Models.ViewModels;
 
-namespace HwProj.CourseWorkService.API.Services
+namespace HwProj.CourseWorkService.API.Services.Interfaces
 {
     public interface IApplicationsService
     {

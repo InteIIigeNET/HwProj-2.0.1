@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using HwProj.CourseWorkService.API.Models;
 using HwProj.CourseWorkService.API.Repositories;
+using HwProj.CourseWorkService.API.Repositories.Interfaces;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;

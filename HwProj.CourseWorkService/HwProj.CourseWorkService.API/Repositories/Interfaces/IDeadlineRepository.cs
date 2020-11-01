@@ -2,7 +2,7 @@
 using HwProj.CourseWorkService.API.Models;
 using HwProj.Repositories;
 
-namespace HwProj.CourseWorkService.API.Repositories
+namespace HwProj.CourseWorkService.API.Repositories.Interfaces
 {
     public interface IDeadlineRepository : ICrudRepository<Deadline, long>
     {

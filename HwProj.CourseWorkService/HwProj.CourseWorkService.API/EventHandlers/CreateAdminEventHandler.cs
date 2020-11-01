@@ -2,6 +2,7 @@
 using HwProj.CourseWorkService.API.Events;
 using HwProj.CourseWorkService.API.Models;
 using HwProj.CourseWorkService.API.Repositories;
+using HwProj.CourseWorkService.API.Repositories.Interfaces;
 using HwProj.EventBus.Client.Interfaces;
 
 namespace HwProj.CourseWorkService.API.EventHandlers
@@ -24,8 +25,7 @@ namespace HwProj.CourseWorkService.API.EventHandlers
                 Email = @event.Email
             };
 
-            await _usersRepository.AddNewUserAsync(user).ConfigureAwait(false);
-            await _usersRepository.RemoveRoleAsync(@event.UserId, RoleNames.Student).ConfigureAwait(false);
+            await _usersRepository.AddAsync(user).ConfigureAwait(false);
             await _usersRepository.AddRoleAsync(@event.UserId, RoleNames.Lecturer).ConfigureAwait(false);
             await _usersRepository.AddRoleAsync(@event.UserId, RoleNames.Curator).ConfigureAwait(false);
         }
