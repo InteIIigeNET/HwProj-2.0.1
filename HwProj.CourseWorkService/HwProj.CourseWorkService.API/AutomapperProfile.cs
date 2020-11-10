@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using HwProj.CourseWorkService.API.Models;
 using HwProj.CourseWorkService.API.Models.DTO;
+using HwProj.CourseWorkService.API.Models.UserInfo;
 using HwProj.CourseWorkService.API.Models.ViewModels;
 
 namespace HwProj.CourseWorkService.API
@@ -21,6 +22,8 @@ namespace HwProj.CourseWorkService.API
             CreateMap<WorkFile, WorkFileDTO>();
             CreateMap<Direction, DirectionDTO>();
             CreateMap<Direction, AddDirectionViewModel>().ReverseMap();
+            CreateMap<StudentProfile, StudentProfileViewModel>().ReverseMap();
+            CreateMap<User, UserDTO>();
         }
     }
 }

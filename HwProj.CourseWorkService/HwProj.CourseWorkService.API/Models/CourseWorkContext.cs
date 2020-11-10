@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using HwProj.CourseWorkService.API.Models.UserInfo;
+using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.CourseWorkService.API.Models
 {
@@ -26,10 +27,10 @@ namespace HwProj.CourseWorkService.API.Models
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Role>().HasData(
-                new Role { Id = 1, RoleName = RoleNames.Student },
-                new Role { Id = 2, RoleName = RoleNames.Lecturer }, 
-                new Role { Id = 3, RoleName = RoleNames.Reviewer },
-                new Role { Id = 4, RoleName = RoleNames.Curator });
+                new Role { Id = 1, RoleType = RoleTypes.Student, RoleName = "Student" },
+                new Role { Id = 2, RoleType = RoleTypes.Lecturer, RoleName = "Lecturer" }, 
+                new Role { Id = 3, RoleType = RoleTypes.Reviewer, RoleName = "Reviewer" },
+                new Role { Id = 4, RoleType = RoleTypes.Curator, RoleName = "Curator" });
 
             modelBuilder.Entity<UserRole>()
                 .HasKey(ur => new { ur.UserId, ur.RoleId });

@@ -1,13 +1,17 @@
-﻿using HwProj.Repositories;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using HwProj.Repositories;
 
-namespace HwProj.CourseWorkService.API.Models
+namespace HwProj.CourseWorkService.API.Models.UserInfo
 {
     public class User : IEntity<string>
     {
         public string Id { get; set; }
-        public string UserName { get; set; }
+        public string Name { get; set; }
+        public string Surname { get; set; }
+        public string MiddleName { get; set; }
         public string Email { get; set; }
+
+        public string UserName => Surname + " " + Name + " " + MiddleName;
 
         public StudentProfile StudentProfile { get; set; }
         public LecturerProfile LecturerProfile { get; set; }

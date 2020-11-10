@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using HwProj.CourseWorkService.API.Models;
-using HwProj.CourseWorkService.API.Repositories;
+using HwProj.CourseWorkService.API.Models.UserInfo;
 using HwProj.CourseWorkService.API.Repositories.Interfaces;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,10 +11,10 @@ namespace HwProj.CourseWorkService.API.Filters
 {
     public class OnlySelectRoleAttribute : Attribute, IAsyncAuthorizationFilter
     {
-        private readonly RoleNames _role;
+        private readonly RoleTypes _role;
         private readonly IUsersRepository _usersRepository;
 
-        public OnlySelectRoleAttribute(RoleNames role, IUsersRepository usersRepository)
+        public OnlySelectRoleAttribute(RoleTypes role, IUsersRepository usersRepository)
         {
             _role = role;
             _usersRepository = usersRepository;
@@ -24,7 +23,7 @@ namespace HwProj.CourseWorkService.API.Filters
         public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
             var userId = context.HttpContext.Request.GetUserId();
-            var userRoles = await _usersRepository.GetRoles(userId).ConfigureAwait(false);
+            var userRoles = await _usersRepository.GetRolesAsync(userId).ConfigureAwait(false);
             if (!userRoles.Contains(_role))
             {
                 context.Result = new ForbidResult();

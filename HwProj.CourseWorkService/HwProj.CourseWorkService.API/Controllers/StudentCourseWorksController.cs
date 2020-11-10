@@ -2,13 +2,11 @@
 using System.Net;
 using System.Threading.Tasks;
 using HwProj.CourseWorkService.API.Filters;
-using HwProj.CourseWorkService.API.Models;
 using Microsoft.AspNetCore.Mvc;
 using HwProj.CourseWorkService.API.Models.DTO;
+using HwProj.CourseWorkService.API.Models.UserInfo;
 using HwProj.CourseWorkService.API.Models.ViewModels;
-using HwProj.CourseWorkService.API.Repositories;
 using HwProj.CourseWorkService.API.Repositories.Interfaces;
-using HwProj.CourseWorkService.API.Services;
 using HwProj.CourseWorkService.API.Services.Interfaces;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Authorization;
@@ -16,7 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace HwProj.CourseWorkService.API.Controllers
 {
     [Authorize]
-    [TypeFilter(typeof(OnlySelectRoleAttribute), Arguments = new object[] { RoleNames.Student })]
+    [TypeFilter(typeof(OnlySelectRoleAttribute), Arguments = new object[] { RoleTypes.Student })]
     [Route("api/student")]
     [ApiController]
     public class StudentCourseWorksController : ControllerBase
@@ -24,6 +22,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         #region Fields: Private
 
         private readonly IApplicationsService _applicationsService;
+        private readonly IUserService _userService;
         private readonly IApplicationsRepository _applicationsRepository;
         private readonly ICourseWorksRepository _courseWorksRepository;
 
@@ -31,10 +30,11 @@ namespace HwProj.CourseWorkService.API.Controllers
 
         #region Constructors: Public
 
-        public StudentCourseWorksController(IApplicationsService applicationsService, IApplicationsRepository applicationsRepository,
-            ICourseWorksRepository courseWorksRepository)
+        public StudentCourseWorksController(IApplicationsService applicationsService, IUserService userService,
+            IApplicationsRepository applicationsRepository, ICourseWorksRepository courseWorksRepository)
         {
             _applicationsService = applicationsService;
+            _userService = userService;
             _applicationsRepository = applicationsRepository;
             _courseWorksRepository = courseWorksRepository;
         }
@@ -43,12 +43,13 @@ namespace HwProj.CourseWorkService.API.Controllers
 
         #region Methods: Public
 
-        //[HttpPut("profile")]
-        //public async Task<IActionResult> UpdateProfileAsync(StudentProfileViewModel studentProfileViewModel)
-        //{
-        //    var userId = Request.GetUserId();
-
-        //}
+        [HttpPut("profile")]
+        public async Task<IActionResult> UpdateProfileAsync([FromBody]StudentProfileViewModel studentProfileViewModel)
+        {
+            var userId = Request.GetUserId();
+            await _userService.UpdateStudentProfile(userId, studentProfileViewModel).ConfigureAwait(false);
+            return Ok();
+        }
 
         #endregion
 

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using HwProj.CourseWorkService.API.Filters;
 using HwProj.CourseWorkService.API.Models;
 using HwProj.CourseWorkService.API.Models.DTO;
+using HwProj.CourseWorkService.API.Models.UserInfo;
 using HwProj.CourseWorkService.API.Repositories.Interfaces;
 using HwProj.CourseWorkService.API.Services.Interfaces;
 using HwProj.Utils.Authorization;
@@ -24,6 +25,7 @@ namespace HwProj.CourseWorkService.API.Controllers
 
         private readonly IApplicationsService _applicationsService;
         private readonly ICourseWorksService _courseWorksService;
+        private readonly IUniversityService _universityService;
         private readonly IUserService _userService;
         private readonly ICourseWorksRepository _courseWorksRepository;
         private readonly IWorkFilesRepository _workFilesRepository;
@@ -35,10 +37,11 @@ namespace HwProj.CourseWorkService.API.Controllers
 
         public CourseWorksController(IApplicationsService applicationsService, ICourseWorksService courseWorksService,
             ICourseWorksRepository courseWorksRepository, IWorkFilesRepository workFilesRepository,
-            IUsersRepository usersRepository, IUserService userService)
+            IUsersRepository usersRepository, IUniversityService universityService, IUserService userService)
         {
             _applicationsService = applicationsService;
             _courseWorksService = courseWorksService;
+            _universityService = universityService;
             _userService = userService;
             _courseWorksRepository = courseWorksRepository;
             _workFilesRepository = workFilesRepository;
@@ -46,22 +49,6 @@ namespace HwProj.CourseWorkService.API.Controllers
         }
 
         #endregion
-
-        [HttpPost("test")]
-        public async Task<IActionResult> SetAction()
-        {
-            var user = new User()
-            {
-                Id = "fb952574-de89-4365-9a76-424e6489b558",
-                UserName = "Test",
-                Email = "wef@Test"
-            };
-
-            await _usersRepository.AddAsync(user).ConfigureAwait(false);
-            await _usersRepository.AddRoleAsync(user.Id, RoleNames.Lecturer).ConfigureAwait(false);
-            await _usersRepository.AddRoleAsync(user.Id, RoleNames.Curator).ConfigureAwait(false);
-            return Ok();
-        }
 
         #region Methods: Public
 
@@ -80,7 +67,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         [ProducesResponseType(typeof(OverviewCourseWorkDTO[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetMyActiveCourseWork(string role, string status)
         {
-            if (status != "active" && status != "completed" || !Enum.TryParse<RoleNames>(role, out var roleName))
+            if (status != "active" && status != "completed" || !Enum.TryParse<RoleTypes>(role, out var roleTypes))
             {
                 return NotFound();
             }
@@ -88,9 +75,9 @@ namespace HwProj.CourseWorkService.API.Controllers
             var userId = Request.GetUserId();
             var courseWorks = await _courseWorksService
                 .GetFilteredCourseWorksAsync(courseWork => courseWork.IsCompleted == (status == "completed") && 
-                    roleName == RoleNames.Student ? courseWork.StudentId == userId :
-                    roleName == RoleNames.Lecturer ? courseWork.LecturerId == userId :
-                    roleName == RoleNames.Reviewer ? courseWork.ReviewerId == userId :
+                    roleTypes == RoleTypes.Student ? courseWork.StudentId == userId :
+                    roleTypes == RoleTypes.Lecturer ? courseWork.LecturerId == userId :
+                    roleTypes == RoleTypes.Reviewer ? courseWork.ReviewerId == userId :
                     courseWork.CuratorId == userId)
                 .ConfigureAwait(false);
             return Ok(courseWorks);
@@ -108,8 +95,16 @@ namespace HwProj.CourseWorkService.API.Controllers
         [ProducesResponseType(typeof(DirectionDTO[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetDirectionsAsync()
         {
-            var directionsDTO = await _userService.GetDirectionsAsync().ConfigureAwait(false);
+            var directionsDTO = await _universityService.GetDirectionsAsync().ConfigureAwait(false);
             return Ok(directionsDTO);
+        }
+
+        [HttpGet("curators")]
+        [ProducesResponseType(typeof(UserDTO[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetCuratorsAsync()
+        {
+            var usersDTO = await _userService.GetUsersByRoleAsync(RoleTypes.Curator).ConfigureAwait(false);
+            return Ok(usersDTO);
         }
 
         //TODO
@@ -299,10 +294,10 @@ namespace HwProj.CourseWorkService.API.Controllers
         public async Task<IActionResult> BecomeReviewer()
         {
             var userId = Request.GetUserId();
-            var roles = await _usersRepository.GetRoles(userId).ConfigureAwait(false);
-            if (!roles.Contains(RoleNames.Reviewer))
+            var roles = await _usersRepository.GetRolesAsync(userId).ConfigureAwait(false);
+            if (!roles.Contains(RoleTypes.Reviewer))
             {
-                await _usersRepository.AddRoleAsync(userId, RoleNames.Reviewer).ConfigureAwait(false);
+                await _usersRepository.AddRoleToUserAsync(userId, RoleTypes.Reviewer).ConfigureAwait(false);
             }
 
             return Ok();

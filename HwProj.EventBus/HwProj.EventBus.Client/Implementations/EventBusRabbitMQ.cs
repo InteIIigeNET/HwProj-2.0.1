@@ -110,20 +110,27 @@ namespace HwProj.EventBus.Client.Implementations
         private async Task ProcessEvent(string eventName, string message)
         {
             var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes()).ToList();
-            var eventType = types.First(x => x.Name == eventName);
-            var @event = JsonConvert.DeserializeObject(message, eventType) as Event;
-            var fullTypeInterface = typeof(IEventHandler<>).MakeGenericType(eventType);
-            var handlers = types.Where(x => fullTypeInterface.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
-
-            using (var scope = _scopeFactory.CreateScope())
+            var eventType = types.FirstOrDefault(x => x.Name == eventName);
+            if (eventType != null)
             {
-                foreach (var handler in handlers)
+                var @event = JsonConvert.DeserializeObject(message, eventType) as Event;
+                var fullTypeInterface = typeof(IEventHandler<>).MakeGenericType(eventType);
+                var handlers =
+                    types.Where(x => fullTypeInterface.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
+
+                using (var scope = _scopeFactory.CreateScope())
                 {
-                    var handlerObject = scope.ServiceProvider.GetRequiredService(handler);
-                    await Task.Run(() => handler.GetMethod("HandleAsync")?
-                            .Invoke(handlerObject, new object[] { @event }))
-                            .ConfigureAwait(false);
+                    foreach (var handler in handlers)
+                    {
+                        var handlerObject = scope.ServiceProvider.GetRequiredService(handler);
+                        // ReSharper disable once PossibleNullReferenceException
+                        ((Task) handler.GetMethod("HandleAsync")?.Invoke(handlerObject, new object[] {@event})).Wait();
+                    }
                 }
+            }
+            else
+            {
+                await Task.CompletedTask;
             }
         }
 

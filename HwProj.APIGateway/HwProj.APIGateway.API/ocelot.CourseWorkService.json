@@ -57,6 +57,18 @@
       "UpstreamhttpsMethod": [ "GET" ]
     },
     {
+      "DownstreamPathTemplate": "/api/course_works/curators",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/course_works/curators/",
+      "UpstreamhttpsMethod": [ "GET" ]
+    },
+    {
       "DownstreamPathTemplate": "/api/course_works/{courseWorkId}/deadlines",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
@@ -169,6 +181,29 @@
     },
     //StudentCourseWorks
     {
+      "DownstreamPathTemplate": "/api/student/profile",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/student/profile/",
+      "UpstreamhttpsMethod": [ "PUT" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "Student"
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value",
+        "_role": "Claims[_role] > value"
+      }
+    },
+    {
       "DownstreamPathTemplate": "/api/student/applications/{appId}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
@@ -280,6 +315,7 @@
         "_role": "Lecturer"
       },
       "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value",
         "_role": "Claims[_role] > value"
       }
     },
@@ -302,6 +338,7 @@
         "_role": "Lecturer"
       },
       "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value",
         "_role": "Claims[_role] > value"
       }
     },
@@ -324,6 +361,7 @@
         "_role": "Lecturer"
       },
       "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value",
         "_role": "Claims[_role] > value"
       }
     },
@@ -346,6 +384,7 @@
         "_role": "Lecturer"
       },
       "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value",
         "_role": "Claims[_role] > value"
       }
     },
@@ -372,6 +411,30 @@
         "_role": "Claims[_role] > value"
       }
     },
+    //Curator
+    {
+      "DownstreamPathTemplate": "/api/curator/course_works/add",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/curator/course_works/add/",
+      "UpstreamhttpsMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "Lecturer"
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value",
+        "_role": "Claims[_role] > value"
+      }
+    },
     {
       "DownstreamPathTemplate": "/api/curator/invite",
       "DownstreamScheme": "https",
@@ -383,6 +446,52 @@
       ],
       "UpstreamPathTemplate": "/api/curator/invite/",
       "UpstreamhttpsMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "Lecturer"
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value",
+        "_role": "Claims[_role] > value"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/curator/directions",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/curator/directions/",
+      "UpstreamhttpsMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "Lecturer"
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value",
+        "_role": "Claims[_role] > value"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/curator/directions/{directionId}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/curator/directions/{directionId}/",
+      "UpstreamhttpsMethod": [ "DELETE" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []

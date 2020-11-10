@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace HwProj.CourseWorkService.API.Models
+namespace HwProj.CourseWorkService.API.Models.UserInfo
 {
     [Table("UserRoles")]
     public class UserRole

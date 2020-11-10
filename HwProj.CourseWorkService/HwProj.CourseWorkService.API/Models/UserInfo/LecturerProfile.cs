@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using HwProj.Repositories;
 
-namespace HwProj.CourseWorkService.API.Models
+namespace HwProj.CourseWorkService.API.Models.UserInfo
 {
-    public class LecturerProfile : IEntity<string>
+    public class LecturerProfile : IProfile
     {
         public string Id { get; set; }
 

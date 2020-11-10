@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+using HwProj.CourseWorkService.API.Models.UserInfo;
 using HwProj.Repositories;
 
 namespace HwProj.CourseWorkService.API.Models

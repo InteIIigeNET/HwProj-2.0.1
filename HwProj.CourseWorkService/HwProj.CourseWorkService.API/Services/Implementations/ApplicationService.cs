@@ -38,7 +38,7 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
             {
                 overviewApplications[i].CourseWorkTitle = applications[i].CourseWork.Title;
                 overviewApplications[i].StudentName = applications[i].StudentProfile.User.UserName;
-                overviewApplications[i].StudentGroup = applications[i].StudentProfile.Group;
+                overviewApplications[i].StudentGroup = applications[i].StudentProfile.Group ?? default;
             }
 
             return overviewApplications;
@@ -50,7 +50,7 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
             lecturerApplication.CourseWorkTitle = application.CourseWork.Title;
             lecturerApplication.CourseWorkOverview = application.CourseWork.Overview;
             lecturerApplication.StudentName = application.StudentProfile.User.UserName;
-            lecturerApplication.StudentGroup = application.StudentProfile.Group;
+            lecturerApplication.StudentGroup = application.StudentProfile.Group ?? default;
             return lecturerApplication;
         }
 

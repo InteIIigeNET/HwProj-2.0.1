@@ -1,12 +1,11 @@
-﻿using System.Threading.Tasks;
-using HwProj.AuthService.API.Events;
+﻿using System.Net;
+using System.Threading.Tasks;
+using HwProj.AuthService.API.Models.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using HwProj.AuthService.API.Models.ViewModels;
 using HwProj.AuthService.API.Services;
-using HwProj.EventBus.Client.Interfaces;
 using HwProj.Utils.Authorization;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace HwProj.AuthService.API.Controllers
 {
@@ -22,6 +21,7 @@ namespace HwProj.AuthService.API.Controllers
         }
 
         [HttpGet, Route("getUserData/{userId}")]
+        [ProducesResponseType(typeof(AccountDataDTO), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetUserDataById(string userId)
         {
             var accountData = await _accountService.GetAccountDataAsync(userId).ConfigureAwait(false);
@@ -29,6 +29,14 @@ namespace HwProj.AuthService.API.Controllers
             return accountData != null
                 ? Ok(accountData)
                 : NotFound() as IActionResult;
+        }
+
+        [Authorize]
+        [HttpGet("getCurrentUserData")]
+        public IActionResult GetCurrentUserData()
+        {
+            var userId = Request.GetUserId();
+            return RedirectToAction("GetUserDataById", new { userId });
         }
 
         [HttpPost, Route("register")]
@@ -46,18 +54,19 @@ namespace HwProj.AuthService.API.Controllers
             return Ok(tokenMeta);
         }
 
-        [HttpPut, Route("edit")] 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize]
+        [HttpPut, Route("edit")]
         public async Task<IActionResult> Edit(EditAccountViewModel model)
         {
             var result = await _accountService.EditAccountAsync(Request.GetUserId(), model).ConfigureAwait(false);
             return Ok(result);
         }
 
+        [Authorize]
         [HttpPost, Route("invitenewlecturer")]
         public async Task<IActionResult> InviteNewLecturer(InviteLecturerViewModel model)
         {
-            var result = await _accountService.InviteNewLecturer(model.EmailOfInvitedUser).ConfigureAwait(false);
+            var result = await _accountService.InviteNewLecturer(model.Email).ConfigureAwait(false);
             return Ok(result);
         }
     }

@@ -5,10 +5,9 @@ using System.Threading.Tasks;
 using HwProj.CourseWorkService.API.Filters;
 using HwProj.CourseWorkService.API.Models;
 using HwProj.CourseWorkService.API.Models.DTO;
+using HwProj.CourseWorkService.API.Models.UserInfo;
 using HwProj.CourseWorkService.API.Models.ViewModels;
-using HwProj.CourseWorkService.API.Repositories;
 using HwProj.CourseWorkService.API.Repositories.Interfaces;
-using HwProj.CourseWorkService.API.Services;
 using HwProj.CourseWorkService.API.Services.Interfaces;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Authorization;
@@ -18,7 +17,7 @@ namespace HwProj.CourseWorkService.API.Controllers
 {
     [Authorize]
     [Route("api/lecturer")]
-    [TypeFilter(typeof(OnlySelectRoleAttribute), Arguments = new object[] { RoleNames.Lecturer })]
+    [TypeFilter(typeof(OnlySelectRoleAttribute), Arguments = new object[] { RoleTypes.Lecturer })]
     [NotFoundExceptionFilter]
     [ForbidExceptionFilter]
     [ApiController]

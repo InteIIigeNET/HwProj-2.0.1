@@ -6,9 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
-using Ocelot.ConfigEditor;
 using HwProj.Utils.Authorization;
-using Microsoft.AspNetCore.Diagnostics;
 
 namespace HwProj.APIGateway.API
 {

@@ -2,9 +2,9 @@
 using System.ComponentModel.DataAnnotations;
 using HwProj.Repositories;
 
-namespace HwProj.CourseWorkService.API.Models
+namespace HwProj.CourseWorkService.API.Models.UserInfo
 {
-    public class CuratorProfile : IEntity<string>
+    public class CuratorProfile : IProfile
     {
         public string Id { get; set; }
             

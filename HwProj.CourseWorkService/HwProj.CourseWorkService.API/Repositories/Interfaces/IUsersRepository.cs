@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using HwProj.CourseWorkService.API.Models;
+using HwProj.CourseWorkService.API.Models.UserInfo;
 using HwProj.Repositories;
 
 namespace HwProj.CourseWorkService.API.Repositories.Interfaces
@@ -7,8 +7,10 @@ namespace HwProj.CourseWorkService.API.Repositories.Interfaces
     public interface IUsersRepository : ICrudRepository<User, string>
     {
         Task<User> GetUserAsync(string userId);
-        Task<RoleNames[]> GetRoles(string userId);
-        Task AddRoleAsync(string userId, RoleNames role);
-        Task RemoveRoleAsync(string userId, RoleNames role);
+        Task<RoleTypes[]> GetRolesAsync(string userId);
+        Task<User[]> GetUsersByRoleAsync(RoleTypes role);
+        Task AddRoleToUserAsync(string userId, RoleTypes role);
+        Task RemoveRoleFromUserAsync(string userId, RoleTypes role);
+        Task UpdateUserRoleProfileAsync<TProfile>(string userId, TProfile roleProfile) where TProfile : class, IProfile;
     }
 }

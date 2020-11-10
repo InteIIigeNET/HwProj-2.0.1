@@ -109,7 +109,7 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
             {
                 var user = await _usersRepository.GetUserAsync(userId).ConfigureAwait(false);
                 courseWork.SupervisorName = user.UserName;
-                courseWork.SupervisorContact = courseWork.SupervisorContact ?? user.LecturerProfile.Contact;
+                courseWork.SupervisorContact = courseWork.SupervisorContact ?? user.LecturerProfile?.Contact;
             }
 
             courseWork.CreationTime = DateTime.UtcNow;

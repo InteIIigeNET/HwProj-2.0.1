@@ -28,6 +28,7 @@ namespace HwProj.AuthService.API
             {
                 var admin = new User { 
                     Email = email,
+                    Name = "Admin",
                     UserName = "Admin"
                 };
 
@@ -38,7 +39,7 @@ namespace HwProj.AuthService.API
                     await userManager.AddToRoleAsync(admin, Roles.LecturerRole); //TODO: dangerous
                     admin.EmailConfirmed = true;
                     await userManager.UpdateAsync(admin);
-                    var @event = new CreateAdminEvent(admin.Id, admin.UserName, admin.Email);
+                    var @event = new AdminRegisterEvent(admin.Id, admin.Email, admin.Name);
                     eventBus.Publish(@event);
                 }
             }

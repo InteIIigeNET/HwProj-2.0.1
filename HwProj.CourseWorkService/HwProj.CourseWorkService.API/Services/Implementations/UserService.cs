@@ -1,8 +1,8 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using HwProj.CourseWorkService.API.Models;
 using HwProj.CourseWorkService.API.Models.DTO;
+using HwProj.CourseWorkService.API.Models.UserInfo;
 using HwProj.CourseWorkService.API.Models.ViewModels;
 using HwProj.CourseWorkService.API.Repositories.Interfaces;
 using HwProj.CourseWorkService.API.Services.Interfaces;
@@ -13,7 +13,6 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
     {
         #region Fields: Private
 
-        private readonly IDirectionRepository _directionRepository;
         private readonly IUsersRepository _usersRepository;
         private readonly IMapper _mapper;
 
@@ -21,9 +20,8 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 
         #region Constructors: Public
 
-        public UserService(IDirectionRepository directionRepository, IUsersRepository usersRepository, IMapper mapper)
+        public UserService(IUsersRepository usersRepository, IMapper mapper)
         {
-            _directionRepository = directionRepository;
             _usersRepository = usersRepository;
             _mapper = mapper;
         }
@@ -32,42 +30,27 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 
         #region Methods: Private
 
-        private DirectionDTO GetDirectionDTO(Direction direction)
+        private UserDTO GetUserDTO(User user)
         {
-            var directionDTO = _mapper.Map<DirectionDTO>(direction);
-            directionDTO.CuratorName = direction.CuratorProfile.User.UserName;
-            return directionDTO;
-        }
-
-        private Direction GetDirectionFromViewModel(AddDirectionViewModel directionViewModel)
-        {
-            var direction = _mapper.Map<Direction>(directionViewModel);
-            direction.CuratorProfileId = directionViewModel.CuratorId;
-            return direction;
+            return _mapper.Map<UserDTO>(user);
         }
 
         #endregion
 
         #region Methods: Public
 
-        public async Task<DirectionDTO[]> GetDirectionsAsync()
+        public async Task<UserDTO[]> GetUsersByRoleAsync(RoleTypes role)
         {
-            var directions = await _directionRepository.GetDirectionsAsync().ConfigureAwait(false);
-            return directions.Select(GetDirectionDTO).ToArray();
-        }
-        public async Task AddDirectionAsync(AddDirectionViewModel directionViewModel)
-        {
-            var direction = GetDirectionFromViewModel(directionViewModel);
-            await _directionRepository.AddAsync(direction).ConfigureAwait(false);
-        }
-        public async Task DeleteDirectionAsync(long directionId)
-        {
-            await _directionRepository.DeleteAsync(directionId).ConfigureAwait(false);
+            var users = await _usersRepository.GetUsersByRoleAsync(role).ConfigureAwait(false);
+
+            return users.Select(GetUserDTO).ToArray();
         }
 
         public async Task UpdateStudentProfile(string userId, StudentProfileViewModel studentProfileViewModel)
         {
-            var user = await _usersRepository.GetUserAsync(userId).ConfigureAwait(false);
+            var profile = _mapper.Map<StudentProfile>(studentProfileViewModel);
+            profile.Id = userId;
+            await _usersRepository.UpdateUserRoleProfileAsync(userId, profile);
         }
 
         #endregion

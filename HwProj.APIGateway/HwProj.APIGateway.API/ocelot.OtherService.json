@@ -491,63 +491,7 @@
         "_id": "Claims[_id] > value"
       }
     },
-    //Authentication
-    {
-      "DownStreamPathTemplate": "/api/Account/register/",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 44338
-        }
-      ],
-      "UpstreamPathTemplate": "/api/Account/register/",
-      "UpstreamhttpsMethod": [ "POST" ]
-    },
-    {
-      "DownStreamPathTemplate": "/api/Account/invitenewlecturer/",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 44338
-        }
-      ],
-      "UpstreamPathTemplate": "/api/Account/invitenewlecturer",
-      "AuthenticationOptions": {
-        "AuthenticationProviderKey": "GatewayKey",
-        "AllowedScopes": []
-      },
-      "RouteClaimsRequirement": {
-        "_role": "Lecturer"
-      },
-      "UpstreamhttpsMethod": [ "POST" ]
-    },
-    {
-      "DownStreamPathTemplate": "/api/Account/login/",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 44338
-        }
-      ],
-      "UpstreamPathTemplate": "/api/Account/login",
-      "UpstreamhttpsMethod": [ "POST" ]
-    },
-    {
-      "DownStreamPathTemplate": "/api/Account/getUserData/{userId}",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 44338
-        }
-      ],
-      "UpstreamPathTemplate": "/api/Account/getUserData/{userId}",
-      "UpstreamhttpsMethod": [ "GET" ],
-      "Key": "user-data"
-    },
+    //Courses
     {
       "DownstreamPathTemplate": "/api/Courses/user_courses/{userId}",
       "DownstreamScheme": "https",
@@ -561,15 +505,15 @@
       "UpstreamhttpsMethod": [ "GET" ],
       "Key": "user-courses"
     }
-  ],
-  "Aggregates": [
-    {
-      "ReRouteKeys": [
-        "user-data",
-        "user-courses"
-      ],
-      "UpStreamPathTemplate": "/api/user-data/{userId}"
-    }
-  ]
+  ]//,
+  //"Aggregates": [
+  //  {
+  //    "ReRouteKeys": [
+  //      "user-data",
+  //      "user-courses"
+  //    ],
+  //    "UpStreamPathTemplate": "/api/user-data/{userId}"
+  //  }
+  //]
 }
 

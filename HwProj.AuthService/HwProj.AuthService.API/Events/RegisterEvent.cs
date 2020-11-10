@@ -2,16 +2,20 @@
 
 namespace HwProj.AuthService.API.Events
 {
-    public class RegisterEvent : Event
+    public abstract class RegisterEvent : Event
     {
         public string UserId { get; set; }
-        public string UserName { get; set; }
+        public string Name { get; set; }
+        public string Surname { get; set; }
+        public string MiddleName { get; set; }
         public string Email { get; set; }
 
-        public RegisterEvent(string userId, string userName, string email)
+        protected RegisterEvent(string userId, string email, string name, string surname = "", string middleName = "")
         {
             UserId = userId;
-            UserName = userName;
+            Name = name;
+            Surname = surname;
+            MiddleName = middleName;
             Email = email;
         }
     }

@@ -4,7 +4,7 @@ using HwProj.CourseWorkService.API.Repositories.Interfaces;
 using HwProj.Repositories;
 using Microsoft.EntityFrameworkCore;
 
-namespace HwProj.CourseWorkService.API.Repositories
+namespace HwProj.CourseWorkService.API.Repositories.Implementations
 {
     public class ApplicationsRepository : CrudRepository<Application, long>, IApplicationsRepository
     {
