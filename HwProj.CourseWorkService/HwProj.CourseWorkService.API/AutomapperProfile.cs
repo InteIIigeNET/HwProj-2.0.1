@@ -22,8 +22,14 @@ namespace HwProj.CourseWorkService.API
             CreateMap<WorkFile, WorkFileDTO>();
             CreateMap<Direction, DirectionDTO>();
             CreateMap<Direction, AddDirectionViewModel>().ReverseMap();
+            CreateMap<Department, DepartmentDTO>();
+            CreateMap<Department, AddDepartmentViewModel>().ReverseMap();
             CreateMap<StudentProfile, StudentProfileViewModel>().ReverseMap();
+            CreateMap<LecturerProfile, LecturerProfileViewModel>().ReverseMap();
+            CreateMap<CuratorProfile, CuratorProfileViewModel>().ReverseMap();
             CreateMap<User, UserDTO>();
+            CreateMap<User, UserFullInfoDTO>();
+            CreateMap<Role, RoleDTO>();
         }
     }
 }

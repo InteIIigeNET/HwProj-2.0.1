@@ -1,10 +1,9 @@
-﻿using System.Linq;
-using System.Net;
+﻿using System.Net;
 using System.Threading.Tasks;
+using HwProj.CourseWorkService.API.Exceptions;
 using HwProj.CourseWorkService.API.Filters;
 using HwProj.CourseWorkService.API.Models.UserInfo;
 using HwProj.CourseWorkService.API.Models.ViewModels;
-using HwProj.CourseWorkService.API.Repositories.Interfaces;
 using HwProj.CourseWorkService.API.Services.Interfaces;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Authorization;
@@ -15,6 +14,8 @@ namespace HwProj.CourseWorkService.API.Controllers
     [Authorize]
     [Route("api/curator")]
     [TypeFilter(typeof(OnlySelectRoleAttribute), Arguments = new object[] { RoleTypes.Curator })]
+    [TypeFilter(typeof(CommonExceptionFilterAttribute),
+        Arguments = new object[] { new[] { typeof(ObjectNotFoundException) } })]
     [ApiController]
     public class CuratorCourseWorksController : ControllerBase
     {
@@ -22,18 +23,18 @@ namespace HwProj.CourseWorkService.API.Controllers
 
         private readonly ICourseWorksService _courseWorksService;
         private readonly IUniversityService _universityService;
-        private readonly IUsersRepository _usersRepository;
+        private readonly IUserService _userService;
 
         #endregion
 
         #region Constructors: Public
 
-        public CuratorCourseWorksController(ICourseWorksService courseWorksService, IUsersRepository usersRepository,
-            IUniversityService universityService)
+        public CuratorCourseWorksController(ICourseWorksService courseWorksService,
+            IUniversityService universityService, IUserService userService)
         {
             _courseWorksService = courseWorksService;
             _universityService = universityService;
-            _usersRepository = usersRepository;
+            _userService = userService;
         }
 
         #endregion
@@ -49,19 +50,19 @@ namespace HwProj.CourseWorkService.API.Controllers
             return Ok(id);
         }
 
-        //TODO
+        [HttpPut("profile")]
+        public async Task<IActionResult> UpdateProfileAsync([FromBody] CuratorProfileViewModel curatorProfileViewModel)
+        {
+            var userId = Request.GetUserId();
+            await _userService.UpdateUserRoleProfile<CuratorProfile, CuratorProfileViewModel>(userId, curatorProfileViewModel)
+                .ConfigureAwait(false);
+            return Ok();
+        }
+
         [HttpPost("invite")]
         public async Task<IActionResult> InviteCuratorAsync([FromBody] InviteCuratorViewModel model)
         {
-            var user = await _usersRepository.FindAsync(u => u.Email == model.Email).ConfigureAwait(false);
-            if (user == null) return NotFound();
-
-            var userRoles = await _usersRepository.GetRolesAsync(user.Id).ConfigureAwait(false);
-            if (!userRoles.Contains(RoleTypes.Curator) && userRoles.Contains(RoleTypes.Lecturer))
-            {
-                await _usersRepository.AddRoleToUserAsync(user.Id, RoleTypes.Curator);
-            }
-
+            await _userService.InviteCuratorAsync(model.Email);
             return Ok();
         }
 
@@ -76,6 +77,20 @@ namespace HwProj.CourseWorkService.API.Controllers
         public async Task<IActionResult> DeleteDirectionAsync(long directionId)
         {
             await _universityService.DeleteDirectionAsync(directionId).ConfigureAwait(false);
+            return Ok();
+        }
+
+        [HttpPost("departments")]
+        public async Task<IActionResult> AddDepartmentAsync([FromBody] AddDepartmentViewModel departmentViewModel)
+        {
+            await _universityService.AddDepartmentAsync(departmentViewModel).ConfigureAwait(false);
+            return Ok();
+        }
+
+        [HttpDelete("departments/{departmentId}")]
+        public async Task<IActionResult> DeleteDepartmentAsync(long departmentId)
+        {
+            await _universityService.DeleteDepartmentAsync(departmentId).ConfigureAwait(false);
             return Ok();
         }
 

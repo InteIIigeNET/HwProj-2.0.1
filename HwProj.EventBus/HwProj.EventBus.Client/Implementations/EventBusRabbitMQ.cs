@@ -124,7 +124,9 @@ namespace HwProj.EventBus.Client.Implementations
                     {
                         var handlerObject = scope.ServiceProvider.GetRequiredService(handler);
                         // ReSharper disable once PossibleNullReferenceException
-                        ((Task) handler.GetMethod("HandleAsync")?.Invoke(handlerObject, new object[] {@event})).Wait();
+                        await ((Task)handler.GetMethod("HandleAsync")
+                            ?.Invoke(handlerObject, new object[] { @event }))
+                            .ConfigureAwait(false);
                     }
                 }
             }

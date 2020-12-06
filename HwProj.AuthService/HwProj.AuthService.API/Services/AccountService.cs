@@ -59,7 +59,18 @@ namespace HwProj.AuthService.API.Services
                 return IdentityResults.WrongPassword;
             }
 
-            return await ChangeUserNameTask(user, model).Then(() => ChangePasswordAsync(user, model)).ConfigureAwait(false);
+            var result = await ChangeUserNameTask(user, model)
+                .Then(() => ChangePasswordAsync(user, model))
+                .ConfigureAwait(false);
+
+            if (result.Succeeded)
+            {
+                var editEvent = new EditEvent(id, model.Name,
+                    model.Surname, model.MiddleName);
+                _eventBus.Publish(editEvent);
+            }
+
+            return result;
         }
 
         public async Task<IdentityResult<TokenCredentials>> LoginUserAsync(LoginViewModel model)
@@ -128,11 +139,16 @@ namespace HwProj.AuthService.API.Services
                 return IdentityResults.UserNotFound;
             }
 
-            var inviteEvent = new InviteLecturerEvent(invitedUser.Id);
-            _eventBus.Publish(inviteEvent);
-
-            return await _userManager.AddToRoleAsync(invitedUser, Roles.LecturerRole)
+            var result = await _userManager.AddToRoleAsync(invitedUser, Roles.LecturerRole)
                 .Then(() => _userManager.RemoveFromRoleAsync(invitedUser, Roles.StudentRole)).ConfigureAwait(false);
+
+            if (result.Succeeded)
+            {
+                var inviteEvent = new InviteLecturerEvent(invitedUser.Id);
+                _eventBus.Publish(inviteEvent);
+            }
+
+            return result;
         }
 
         private Task<IdentityResult> ChangeUserNameTask(User user, EditAccountViewModel model)

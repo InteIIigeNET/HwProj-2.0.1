@@ -9,5 +9,8 @@ namespace HwProj.CourseWorkService.API.Services.Interfaces
         Task<DirectionDTO[]> GetDirectionsAsync();
         Task AddDirectionAsync(AddDirectionViewModel directionViewModel);
         Task DeleteDirectionAsync(long directionId);
+        Task<DepartmentDTO[]> GetDepartmentsAsync();
+        Task AddDepartmentAsync(AddDepartmentViewModel departmentViewModel);
+        Task DeleteDepartmentAsync(long departmentId);
     }
 }

@@ -26,17 +26,15 @@ namespace HwProj.CourseWorkService.API
         public void ConfigureServices(IServiceCollection services)
         {
             var connection = Configuration.GetConnectionString("DefaultConnection");
-            services.AddDbContext<CourseWorkContext>(
-                options => options
-                    .UseSqlServer(connection)
-                    );
+            services.AddDbContext<CourseWorkContext>(options => options.UseSqlServer(connection));
 
-            services.AddScoped<ICourseWorksRepository, CourseWorksRepository>()
-                .AddScoped<IApplicationsRepository, ApplicationsRepository>()
+            services.AddScoped<IApplicationsRepository, ApplicationsRepository>()
+                .AddScoped<ICourseWorksRepository, CourseWorksRepository>()
                 .AddScoped<IDeadlineRepository, DeadlineRepository>()
+                .AddScoped<IDepartmentRepository, DepartmentRepository>()
+                .AddScoped<IDirectionRepository, DirectionRepository>()
                 .AddScoped<IUsersRepository, UsersRepository>()
                 .AddScoped<IWorkFilesRepository, WorkFilesRepository>()
-                .AddScoped<IDirectionRepository, DirectionRepository>()
                 .AddScoped<IApplicationsService, ApplicationService>()
                 .AddScoped<ICourseWorksService, CourseWorksService>()
                 .AddScoped<IUniversityService, UniversityService>()
@@ -52,6 +50,7 @@ namespace HwProj.CourseWorkService.API
             eventBus.Subscribe<StudentRegisterEvent>();
             eventBus.Subscribe<InviteLecturerEvent>();
             eventBus.Subscribe<AdminRegisterEvent>();
+            eventBus.Subscribe<EditEvent>();
 
             app.UseDeveloperExceptionPage();
             app.ConfigureHwProj(env, "CourseWorks API");

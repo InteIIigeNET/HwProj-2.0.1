@@ -57,6 +57,18 @@
       "UpstreamhttpsMethod": [ "GET" ]
     },
     {
+      "DownstreamPathTemplate": "/api/course_works/departments",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/course_works/departments/",
+      "UpstreamhttpsMethod": [ "GET" ]
+    },
+    {
       "DownstreamPathTemplate": "/api/course_works/curators",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
@@ -67,6 +79,44 @@
       ],
       "UpstreamPathTemplate": "/api/course_works/curators/",
       "UpstreamhttpsMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/course_works/user/roles",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/course_works/user/roles/",
+      "UpstreamhttpsMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/course_works/user/fullInfo",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/course_works/user/fullInfo/",
+      "UpstreamhttpsMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
+      }
     },
     {
       "DownstreamPathTemplate": "/api/course_works/{courseWorkId}/deadlines",
@@ -297,6 +347,52 @@
       }
     },
     {
+      "DownstreamPathTemplate": "/api/lecturer/course_works/{courseWorksId}/exclude",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/lecturer/course_works/{courseWorksId}/exclude/",
+      "UpstreamhttpsMethod": [ "DELETE" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "Lecturer"
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value",
+        "_role": "Claims[_role] > value"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/lecturer/profile",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/lecturer/profile/",
+      "UpstreamhttpsMethod": [ "PUT" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "Lecturer"
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value",
+        "_role": "Claims[_role] > value"
+      }
+    },
+    {
       "DownstreamPathTemplate": "/api/lecturer/applications/{appId}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
@@ -436,6 +532,29 @@
       }
     },
     {
+      "DownstreamPathTemplate": "/api/curator/profile",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/curator/profile/",
+      "UpstreamhttpsMethod": [ "PUT" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "Lecturer"
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value",
+        "_role": "Claims[_role] > value"
+      }
+    },
+    {
       "DownstreamPathTemplate": "/api/curator/invite",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
@@ -491,6 +610,52 @@
         }
       ],
       "UpstreamPathTemplate": "/api/curator/directions/{directionId}/",
+      "UpstreamhttpsMethod": [ "DELETE" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "Lecturer"
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value",
+        "_role": "Claims[_role] > value"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/curator/departments",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/curator/departments/",
+      "UpstreamhttpsMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "Lecturer"
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value",
+        "_role": "Claims[_role] > value"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/curator/departments/{departmentId}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/curator/departments/{departmentId}/",
       "UpstreamhttpsMethod": [ "DELETE" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",

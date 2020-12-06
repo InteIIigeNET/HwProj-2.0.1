@@ -29,25 +29,34 @@ namespace HwProj.CourseWorkService.API.Repositories.Implementations
                 .Include(u => u.LecturerProfile)
                 .Include(u => u.ReviewerProfile)
                 .Include(u => u.CuratorProfile)
+                .ThenInclude(cp => cp.Directions)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(u => u.Id == userId)
                 .ConfigureAwait(false);
         }
 
-        public async Task<RoleTypes[]> GetRolesAsync(string userId)
+        public async Task<RoleTypes[]> GetRolesTypesAsync(string userId)
+        {
+            var roles = await GetRolesAsync(userId).ConfigureAwait(false);
+            return roles.Select(role => role.RoleType).ToArray();
+        }
+
+        public async Task<Role[]> GetRolesAsync(string userId)
         {
             var user = await Context.Set<User>().Include(u => u.UserRoles)
                 .ThenInclude(ur => ur.Role)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(u => u.Id == userId)
                 .ConfigureAwait(false);
-            return user.UserRoles.Select(ur => ur.Role.RoleType).ToArray();
+            return user.UserRoles.Select(ur => ur.Role).ToArray();
         }
 
         public async Task<User[]> GetUsersByRoleAsync(RoleTypes role)
         {
             return await Context.Set<User>().Include(u => u.UserRoles)
                 .ThenInclude(ur => ur.Role)
+                .Include(u => u.CuratorProfile)
+                .ThenInclude(cp => cp.Directions)
                 .AsNoTracking()
                 .Where(u => u.UserRoles.Select(ur => ur.Role.RoleType).Contains(role))
                 .ToArrayAsync()

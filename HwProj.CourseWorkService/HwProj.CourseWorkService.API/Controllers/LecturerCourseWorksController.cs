@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using HwProj.CourseWorkService.API.Exceptions;
 using HwProj.CourseWorkService.API.Filters;
 using HwProj.CourseWorkService.API.Models;
 using HwProj.CourseWorkService.API.Models.DTO;
@@ -18,32 +19,32 @@ namespace HwProj.CourseWorkService.API.Controllers
     [Authorize]
     [Route("api/lecturer")]
     [TypeFilter(typeof(OnlySelectRoleAttribute), Arguments = new object[] { RoleTypes.Lecturer })]
-    [NotFoundExceptionFilter]
-    [ForbidExceptionFilter]
+    [TypeFilter(typeof(CommonExceptionFilterAttribute), 
+        Arguments = new object[] { new [] { typeof(ForbidException), typeof(ObjectNotFoundException), typeof(BadRequestException) }})]
     [ApiController]
     public class LecturerCourseWorksController : ControllerBase
     {
         #region Fields: Private
 
         private readonly IApplicationsService _applicationsService;
-        private readonly IApplicationsRepository _applicationsRepository;
         private readonly ICourseWorksService _courseWorksService;
         private readonly ICourseWorksRepository _courseWorksRepository;
         private readonly IDeadlineRepository _deadlineRepository;
+        private readonly IUserService _userService;
 
         #endregion
 
         #region Constructors: Public
 
-        public LecturerCourseWorksController(IApplicationsService applicationsService, IApplicationsRepository applicationsRepository,
+        public LecturerCourseWorksController(IApplicationsService applicationsService,
             ICourseWorksService courseWorksService, ICourseWorksRepository courseWorksRepository,
-            IDeadlineRepository deadlineRepository)
+            IDeadlineRepository deadlineRepository, IUserService userService)
         {
             _applicationsService = applicationsService;
-            _applicationsRepository = applicationsRepository;
             _courseWorksService = courseWorksService;
             _courseWorksRepository = courseWorksRepository;
             _deadlineRepository = deadlineRepository;
+            _userService = userService;
         }
 
         #endregion
@@ -76,30 +77,34 @@ namespace HwProj.CourseWorkService.API.Controllers
             return Ok();
         }
 
-        #endregion
+        [HttpPut("profile")]
+        public async Task<IActionResult> UpdateProfileAsync([FromBody] LecturerProfileViewModel lecturerProfileViewModel)
+        {
+            var userId = Request.GetUserId();
+            await _userService.UpdateUserRoleProfile<LecturerProfile, LecturerProfileViewModel>(userId, lecturerProfileViewModel)
+                .ConfigureAwait(false);
+            return Ok();
+        }
 
         [HttpGet("applications/{appId}")]
         [ProducesResponseType(typeof(LecturerApplicationDTO), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetLecturerApplication(long appId)
         {
-            var application = await _applicationsRepository.GetApplicationAsync(appId).ConfigureAwait(false);
-            if (application == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(_applicationsService.GetLecturerApplication(application));
+            var userId = Request.GetUserId();
+            var lecturerApplicationDTO = await _applicationsService.GetApplicationForLecturerAsync(userId, appId)
+                .ConfigureAwait(false);
+            return Ok(lecturerApplicationDTO);
         }
 
         [HttpGet("course_works/{courseWorkId}/applications")]
         [ProducesResponseType(typeof(OverviewApplicationDTO[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetCourseWorkApplications(long courseWorkId)
         {
-            var courseWork = await _courseWorksRepository.GetAsync(courseWorkId).ConfigureAwait(false);
-            if (courseWork == null)
-            {
-                return NotFound();
-            }
+            //var courseWork = await _courseWorksRepository.GetAsync(courseWorkId).ConfigureAwait(false);
+            //if (courseWork == null)
+            //{
+            //    return NotFound();
+            //}
 
             var applications = await _applicationsService
                 .GetFilteredApplicationsAsync(app => app.CourseWorkId == courseWorkId)
@@ -110,33 +115,28 @@ namespace HwProj.CourseWorkService.API.Controllers
         [HttpPost("applications/{appId}/accept")]
         public async Task<IActionResult> AcceptStudent(long appId)
         {
-            var application = await _applicationsRepository.GetApplicationAsync(appId).ConfigureAwait(false);
-            if (application == null)
-            {
-                return NotFound();
-            }
-
-            if (application.CourseWork.StudentId != null)
-            {
-                return BadRequest();
-            }
-
-            await _applicationsService.AcceptStudentApplicationAsync(application);
+            var userId = Request.GetUserId();
+            await _applicationsService.AcceptStudentApplicationAsync(userId, appId);
             return Ok();
         }
 
         [HttpDelete("applications/{appId}/reject")]
         public async Task<IActionResult> RejectStudent(long appId)
         {
-            var application = await _applicationsRepository.GetApplicationAsync(appId).ConfigureAwait(false);
-            if (application == null)
-            {
-                return NotFound();
-            }
-
-            await _applicationsRepository.DeleteAsync(application.Id).ConfigureAwait(false);
+            var userId = Request.GetUserId();
+            await _applicationsService.RejectApplicationAsync(userId, appId);
             return Ok();
         }
+
+        [HttpDelete("course_works/{courseWorkId}/exclude")]
+        public async Task<IActionResult> ExcludeStudent(long courseWorkId)
+        {
+            var userId = Request.GetUserId();
+            await _courseWorksService.ExcludeStudentAsync(userId, courseWorkId);
+            return Ok();
+        }
+
+        #endregion
 
         [HttpPost("course_works/{courseWorkId}/deadlines")]
         [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]

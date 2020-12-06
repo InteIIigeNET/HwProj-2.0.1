@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using HwProj.CourseWorkService.API.Exceptions;
 using HwProj.CourseWorkService.API.Filters;
 using HwProj.CourseWorkService.API.Models;
 using HwProj.CourseWorkService.API.Models.DTO;
@@ -17,7 +18,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace HwProj.CourseWorkService.API.Controllers
 {
     [Route("api/course_works")]
-    [NotFoundExceptionFilter]
+    [TypeFilter(typeof(CommonExceptionFilterAttribute),
+        Arguments = new object[] { new [] { typeof(ObjectNotFoundException) }})]
     [ApiController]
     public class CourseWorksController : ControllerBase
     {
@@ -83,7 +85,6 @@ namespace HwProj.CourseWorkService.API.Controllers
             return Ok(courseWorks);
         }
 
-
         [HttpGet("{courseWorkId}")]
         [ProducesResponseType(typeof(DetailCourseWorkDTO), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetCourseWorkDetails(long courseWorkId)
@@ -99,12 +100,57 @@ namespace HwProj.CourseWorkService.API.Controllers
             return Ok(directionsDTO);
         }
 
+        [HttpGet("departments")]
+        [ProducesResponseType(typeof(DepartmentDTO[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetDepartmentsAsync()
+        {
+            var departmentsDTO = await _universityService.GetDepartmentsAsync().ConfigureAwait(false);
+            return Ok(departmentsDTO);
+        }
+
         [HttpGet("curators")]
         [ProducesResponseType(typeof(UserDTO[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetCuratorsAsync()
         {
             var usersDTO = await _userService.GetUsersByRoleAsync(RoleTypes.Curator).ConfigureAwait(false);
             return Ok(usersDTO);
+        }
+
+        [Authorize]
+        [HttpGet("user/roles")]
+        [ProducesResponseType(typeof(RoleDTO[]), (int) HttpStatusCode.OK)]
+        public async Task<IActionResult> GetUserRoles()
+        {
+            var userId = Request.GetUserId();
+            var rolesDTO = await _userService.GetUserRoles(userId).ConfigureAwait(false);
+            return Ok(rolesDTO);
+        }
+
+        [Authorize]
+        [HttpGet("user/fullInfo")]
+        [ProducesResponseType(typeof(UserFullInfoDTO), (int) HttpStatusCode.OK)]
+        public async Task<IActionResult> GetUserFullInfo()
+        {
+            var userId = Request.GetUserId();
+            var userFullInfoDTO = await _userService.GetUserFullInfo(userId).ConfigureAwait(false);
+            return Ok(userFullInfoDTO);
+        }
+
+        [Authorize]
+        [HttpGet("applications/{status}")]
+        [ProducesResponseType(typeof(OverviewApplicationDTO[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetApplications(string status)
+        {
+            if (status != "active")
+            {
+                return NotFound();
+            }
+
+            var userId = Request.GetUserId();
+            var applications = await _applicationsService
+                .GetFilteredApplicationsAsync(app => app.StudentProfileId == userId || app.CourseWork.LecturerId == userId)
+                .ConfigureAwait(false);
+            return Ok(applications);
         }
 
         //TODO
@@ -122,23 +168,6 @@ namespace HwProj.CourseWorkService.API.Controllers
             var userId = Request.GetUserId();
 
             return Ok(_courseWorksService.GetCourseWorkDeadlines(userId, courseWork));
-        }
-
-        [Authorize]
-        [HttpGet("applications/{status}")]
-        [ProducesResponseType(typeof(OverviewApplicationDTO[]), (int) HttpStatusCode.OK)]
-        public async Task<IActionResult> GetApplications(string status)
-        {
-            if (status != "active")
-            {
-                return NotFound();
-            }
-
-            var userId = Request.GetUserId();
-            var applications = await _applicationsService
-                .GetFilteredApplicationsAsync(app => app.StudentProfileId == userId || app.CourseWork.LecturerId == userId)
-                .ConfigureAwait(false);
-            return Ok(applications);
         }
 
         [Authorize]
@@ -294,7 +323,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         public async Task<IActionResult> BecomeReviewer()
         {
             var userId = Request.GetUserId();
-            var roles = await _usersRepository.GetRolesAsync(userId).ConfigureAwait(false);
+            var roles = await _usersRepository.GetRolesTypesAsync(userId).ConfigureAwait(false);
             if (!roles.Contains(RoleTypes.Reviewer))
             {
                 await _usersRepository.AddRoleToUserAsync(userId, RoleTypes.Reviewer).ConfigureAwait(false);

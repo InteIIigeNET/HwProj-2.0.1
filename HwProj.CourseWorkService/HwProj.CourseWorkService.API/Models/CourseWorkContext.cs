@@ -27,10 +27,10 @@ namespace HwProj.CourseWorkService.API.Models
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Role>().HasData(
-                new Role { Id = 1, RoleType = RoleTypes.Student, RoleName = "Student" },
-                new Role { Id = 2, RoleType = RoleTypes.Lecturer, RoleName = "Lecturer" }, 
-                new Role { Id = 3, RoleType = RoleTypes.Reviewer, RoleName = "Reviewer" },
-                new Role { Id = 4, RoleType = RoleTypes.Curator, RoleName = "Curator" });
+                new Role { Id = 1, RoleType = RoleTypes.Student, DisplayName = "Student" },
+                new Role { Id = 2, RoleType = RoleTypes.Lecturer, DisplayName = "Lecturer" }, 
+                new Role { Id = 3, RoleType = RoleTypes.Reviewer, DisplayName = "Reviewer" },
+                new Role { Id = 4, RoleType = RoleTypes.Curator, DisplayName = "Curator" });
 
             modelBuilder.Entity<UserRole>()
                 .HasKey(ur => new { ur.UserId, ur.RoleId });

@@ -15,10 +15,14 @@ namespace HwProj.CourseWorkService.API.Repositories.Implementations
 
         public async Task<Application> GetApplicationAsync(long id)
         {
-            return await Context.Set<Application>().Include(a => a.CourseWork)
-               .Include(a => a.StudentProfile)
-               .ThenInclude(sp => sp.User)
-              .FirstOrDefaultAsync(a => a.Id == id);
+            return await Context.Set<Application>()
+                .Include(a => a.CourseWork)
+                .ThenInclude(cw => cw.Applications)
+                .Include(a => a.StudentProfile)
+                .ThenInclude(sp => sp.User)
+                .Include(a => a.StudentProfile)
+                .ThenInclude(sp => sp.Applications)
+                .FirstOrDefaultAsync(a => a.Id == id);
         }
     }
 }

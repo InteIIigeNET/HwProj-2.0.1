@@ -14,6 +14,10 @@ namespace HwProj.CourseWorkService.API.Services.Interfaces
         Task DeleteCourseWorkAsync(long courseWorkId, string userId);
         Task UpdateCourseWorkAsync(long courseWorkId, string userId,
             CreateCourseWorkViewModel createCourseWorkViewModel);
+        Task<long> ApplyToCourseWorkAsync(string userId, long courseWorkId,
+            CreateApplicationViewModel createApplicationViewModel);
+        Task ExcludeStudentAsync(string userId, long courseWorkId);
+
         DeadlineDTO[] GetCourseWorkDeadlines(string userId, CourseWork courseWork);
         Task<long> AddDeadlineAsync(AddDeadlineViewModel newDeadline, CourseWork courseWork);
         WorkFileDTO[] GetWorkFilesDTO(WorkFile[] workFiles);
