@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using HwProj.CourseWorkService.API.Models;
 using HwProj.CourseWorkService.API.Models.DTO;
 using HwProj.CourseWorkService.API.Models.ViewModels;
+using Microsoft.AspNetCore.Http;
 
 namespace HwProj.CourseWorkService.API.Services.Interfaces
 {
@@ -17,9 +18,13 @@ namespace HwProj.CourseWorkService.API.Services.Interfaces
         Task<long> ApplyToCourseWorkAsync(string userId, long courseWorkId,
             CreateApplicationViewModel createApplicationViewModel);
         Task ExcludeStudentAsync(string userId, long courseWorkId);
+        Task UpdateReferenceInCourseWorkAsync(string userId, long courseWorkId, string reference = null, bool remove = false);
+        Task<long> AddWorkFileToCourseWorkAsync(string userId, long courseWorkId, FileTypes fileType, IFormFile file);
+        Task RemoveWorkFileAsync(string userId, long courseWorkId, long fileId);
+        Task<WorkFile> GetWorkFileAsync(long courseWorkId, long fileId);
+        Task<WorkFileDTO[]> GetCourseWorkFilesAsync(long courseWorkId);
 
         DeadlineDTO[] GetCourseWorkDeadlines(string userId, CourseWork courseWork);
         Task<long> AddDeadlineAsync(AddDeadlineViewModel newDeadline, CourseWork courseWork);
-        WorkFileDTO[] GetWorkFilesDTO(WorkFile[] workFiles);
     }
 }

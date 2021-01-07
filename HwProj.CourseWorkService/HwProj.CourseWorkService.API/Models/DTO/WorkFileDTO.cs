@@ -2,7 +2,9 @@
 {
     public class WorkFileDTO
     {
-        public string Type { get; set; }
+        public long Id { get; set; }
+        public long FileTypeId { get; set; }
         public string FileName { get; set; }
+        public string ContentType { get; set; }
     }
 }

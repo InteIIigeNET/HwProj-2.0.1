@@ -68,7 +68,7 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 
         #region Methods: Public
 
-        public async Task<UserDTO[]> GetUsersByRoleAsync(RoleTypes role)
+        public async Task<UserDTO[]> GetUsersByRoleAsync(Roles role)
         {
             var users = await _usersRepository.GetUsersByRoleAsync(role).ConfigureAwait(false);
 
@@ -92,9 +92,13 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
             }
 
             var userRoles = await _usersRepository.GetRolesTypesAsync(user.Id).ConfigureAwait(false);
-            if (!userRoles.Contains(RoleTypes.Curator) && userRoles.Contains(RoleTypes.Lecturer))
+            if (!userRoles.Contains(Roles.Curator) && userRoles.Contains(Roles.Lecturer))
             {
-                await _usersRepository.AddRoleToUserAsync(user.Id, RoleTypes.Curator);
+                await _usersRepository.AddRoleToUserAsync(user.Id, Roles.Curator);
+            }
+            else
+            {
+	            throw new ObjectNotFoundException($"User with email {email} and necessary roles");
             }
         }
 

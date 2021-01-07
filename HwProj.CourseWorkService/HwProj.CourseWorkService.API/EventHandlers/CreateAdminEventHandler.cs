@@ -27,8 +27,8 @@ namespace HwProj.CourseWorkService.API.EventHandlers
             };
 
             await _usersRepository.AddAsync(user).ConfigureAwait(false);
-            await _usersRepository.AddRoleToUserAsync(@event.UserId, RoleTypes.Lecturer).ConfigureAwait(false);
-            await _usersRepository.AddRoleToUserAsync(@event.UserId, RoleTypes.Curator).ConfigureAwait(false);
+            await _usersRepository.AddRoleToUserAsync(@event.UserId, Roles.Lecturer).ConfigureAwait(false);
+            await _usersRepository.AddRoleToUserAsync(@event.UserId, Roles.Curator).ConfigureAwait(false);
         }
     }
 }

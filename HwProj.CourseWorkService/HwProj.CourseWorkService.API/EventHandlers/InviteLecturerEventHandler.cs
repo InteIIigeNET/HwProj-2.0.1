@@ -17,8 +17,8 @@ namespace HwProj.CourseWorkService.API.EventHandlers
 
         public async Task HandleAsync(InviteLecturerEvent @event)
         {
-            await _usersRepository.AddRoleToUserAsync(@event.UserId, RoleTypes.Lecturer).ConfigureAwait(false);
-            await _usersRepository.RemoveRoleFromUserAsync(@event.UserId, RoleTypes.Student).ConfigureAwait(false);
+            await _usersRepository.AddRoleToUserAsync(@event.UserId, Roles.Lecturer).ConfigureAwait(false);
+            await _usersRepository.RemoveRoleFromUserAsync(@event.UserId, Roles.Student).ConfigureAwait(false);
         }
     }
 }

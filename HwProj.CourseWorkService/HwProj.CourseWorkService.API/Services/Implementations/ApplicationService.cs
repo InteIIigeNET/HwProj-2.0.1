@@ -109,7 +109,7 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
         private async Task AssignCuratorToCourseWork(CourseWork courseWork, long? directionId)
         {
             var lecturer = await _usersRepository.GetUserAsync(courseWork.LecturerId).ConfigureAwait(false);
-            var curators = await _usersRepository.GetUsersByRoleAsync(RoleTypes.Curator).ConfigureAwait(false);
+            var curators = await _usersRepository.GetUsersByRoleAsync(Roles.Curator).ConfigureAwait(false);
             curators = curators.Where(c => c.CuratorProfile.DepartmentId == lecturer.LecturerProfile.DepartmentId).ToArray();
             if (curators.Length == 1)
             {

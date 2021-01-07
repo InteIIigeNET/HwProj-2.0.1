@@ -11,10 +11,10 @@ namespace HwProj.CourseWorkService.API.Filters
 {
     public class OnlySelectRoleAttribute : Attribute, IAsyncAuthorizationFilter
     {
-        private readonly RoleTypes _role;
+        private readonly Roles _role;
         private readonly IUsersRepository _usersRepository;
 
-        public OnlySelectRoleAttribute(RoleTypes role, IUsersRepository usersRepository)
+        public OnlySelectRoleAttribute(Roles role, IUsersRepository usersRepository)
         {
             _role = role;
             _usersRepository = usersRepository;

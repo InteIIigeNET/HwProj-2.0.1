@@ -35,10 +35,10 @@ namespace HwProj.CourseWorkService.API.Repositories.Implementations
                 .ConfigureAwait(false);
         }
 
-        public async Task<RoleTypes[]> GetRolesTypesAsync(string userId)
+        public async Task<Roles[]> GetRolesTypesAsync(string userId)
         {
             var roles = await GetRolesAsync(userId).ConfigureAwait(false);
-            return roles.Select(role => role.RoleType).ToArray();
+            return roles.Select(role => (Roles)role.Id).ToArray();
         }
 
         public async Task<Role[]> GetRolesAsync(string userId)
@@ -51,19 +51,19 @@ namespace HwProj.CourseWorkService.API.Repositories.Implementations
             return user.UserRoles.Select(ur => ur.Role).ToArray();
         }
 
-        public async Task<User[]> GetUsersByRoleAsync(RoleTypes role)
+        public async Task<User[]> GetUsersByRoleAsync(Roles role)
         {
             return await Context.Set<User>().Include(u => u.UserRoles)
                 .ThenInclude(ur => ur.Role)
                 .Include(u => u.CuratorProfile)
                 .ThenInclude(cp => cp.Directions)
                 .AsNoTracking()
-                .Where(u => u.UserRoles.Select(ur => ur.Role.RoleType).Contains(role))
+                .Where(u => u.UserRoles.Select(ur => (Roles)ur.Role.Id).Contains(role))
                 .ToArrayAsync()
                 .ConfigureAwait(false);
         }
 
-        public async Task AddRoleToUserAsync(string userId, RoleTypes role)
+        public async Task AddRoleToUserAsync(string userId, Roles role)
         {
             var user = await Context.Set<User>()
                 .Include(u => u.UserRoles)
@@ -73,28 +73,26 @@ namespace HwProj.CourseWorkService.API.Repositories.Implementations
                 .Include(u => u.CuratorProfile)
                 .FirstOrDefaultAsync(u => u.Id == userId);
 
-            var foundRole = await Context.Set<Role>().AsNoTracking().FirstOrDefaultAsync(r => r.RoleType == role)
-                            ?? throw new ArgumentException(nameof(role));
-            user.UserRoles.Add(new UserRole() { UserId = user.Id, RoleId = foundRole.Id });
+            user.UserRoles.Add(new UserRole() { UserId = user.Id, RoleId = (long)role });
 
             switch (role)
             {
-                case RoleTypes.Student:
+                case Roles.Student:
                 {
                     user.StudentProfile = new StudentProfile { Id = userId };
                     break;
                 }
-                case RoleTypes.Lecturer:
+                case Roles.Lecturer:
                 {
                     user.LecturerProfile = new LecturerProfile() { Id = userId };
                     break;
                 }
-                case RoleTypes.Reviewer:
+                case Roles.Reviewer:
                 {
                     user.ReviewerProfile = new ReviewerProfile() { Id = userId };
                     break;
                 }
-                case RoleTypes.Curator:
+                case Roles.Curator:
                 {
                     user.CuratorProfile = new CuratorProfile() { Id = userId };
                     break;
@@ -104,7 +102,7 @@ namespace HwProj.CourseWorkService.API.Repositories.Implementations
             await Context.SaveChangesAsync();
         }
 
-        public async Task RemoveRoleFromUserAsync(string userId, RoleTypes role)
+        public async Task RemoveRoleFromUserAsync(string userId, Roles role)
         {
             var user = await Context.Set<User>()
                 .Include(u => u.UserRoles)
@@ -115,28 +113,28 @@ namespace HwProj.CourseWorkService.API.Repositories.Implementations
                 .Include(u => u.CuratorProfile)
                 .FirstOrDefaultAsync(u => u.Id == userId);
 
-            var foundRole = user.UserRoles.FirstOrDefault(ur => ur.Role.RoleType == role)
+            var foundRole = user.UserRoles.FirstOrDefault(ur => ur.RoleId == (long)role)
                             ?? throw new ArgumentException(nameof(role));
             user.UserRoles.Remove(foundRole);
 
             switch (role)
             {
-                case RoleTypes.Student:
+                case Roles.Student:
                 {
                     Context.Set<StudentProfile>().Remove(user.StudentProfile);
                     break;
                 }
-                case RoleTypes.Lecturer:
+                case Roles.Lecturer:
                 {
                     Context.Set<LecturerProfile>().Remove(user.LecturerProfile);
                     break;
                 }
-                case RoleTypes.Reviewer:
+                case Roles.Reviewer:
                 {
                     Context.Set<ReviewerProfile>().Remove(user.ReviewerProfile);
                     break;
                 }
-                case RoleTypes.Curator:
+                case Roles.Curator:
                 {
                     Context.Set<CuratorProfile>().Remove(user.CuratorProfile);
                     break;

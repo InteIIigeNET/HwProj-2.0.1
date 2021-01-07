@@ -13,7 +13,7 @@ namespace HwProj.CourseWorkService.API.Controllers
 {
     [Authorize]
     [Route("api/curator")]
-    [TypeFilter(typeof(OnlySelectRoleAttribute), Arguments = new object[] { RoleTypes.Curator })]
+    [TypeFilter(typeof(OnlySelectRoleAttribute), Arguments = new object[] { Roles.Curator })]
     [TypeFilter(typeof(CommonExceptionFilterAttribute),
         Arguments = new object[] { new[] { typeof(ObjectNotFoundException) } })]
     [ApiController]

@@ -27,7 +27,7 @@ namespace HwProj.CourseWorkService.API.EventHandlers
             };
 
             var userId = await _usersRepository.AddAsync(user).ConfigureAwait(false);
-            await _usersRepository.AddRoleToUserAsync(userId, RoleTypes.Student).ConfigureAwait(false);
+            await _usersRepository.AddRoleToUserAsync(userId, Roles.Student).ConfigureAwait(false);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -10,6 +11,7 @@ using HwProj.CourseWorkService.API.Models.DTO;
 using HwProj.CourseWorkService.API.Models.ViewModels;
 using HwProj.CourseWorkService.API.Repositories.Interfaces;
 using HwProj.CourseWorkService.API.Services.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.CourseWorkService.API.Services.Implementations
@@ -22,6 +24,7 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
         private readonly ICourseWorksRepository _courseWorksRepository;
         private readonly IDeadlineRepository _deadlineRepository;
         private readonly IUsersRepository _usersRepository;
+        private readonly IWorkFilesRepository _workFilesRepository;
         private readonly IMapper _mapper;
 
         #endregion
@@ -29,12 +32,14 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
         #region Constructors: Public
 
         public CourseWorksService(IApplicationsService applicationsService, ICourseWorksRepository courseWorkRepository,
-            IDeadlineRepository deadlineRepository, IUsersRepository usersRepository, IMapper mapper)
+            IDeadlineRepository deadlineRepository, IUsersRepository usersRepository,
+            IWorkFilesRepository workFilesRepository, IMapper mapper)
         {
             _applicationsService = applicationsService;
             _courseWorksRepository = courseWorkRepository;
             _deadlineRepository = deadlineRepository;
             _usersRepository = usersRepository;
+            _workFilesRepository = workFilesRepository;
             _mapper = mapper;
         }
 
@@ -52,7 +57,14 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
         [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local")]
         private static void CheckCourseWorkLecturer(CourseWork courseWork, string userId)
         {
-            if (courseWork.LecturerId != userId) throw new ForbidException("Only an owner of the course work have rights to this action");
+            if (courseWork.LecturerId != userId) throw new ForbidException("Only an owner of the course work have rights to this action!");
+        }
+
+        [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local")]
+        private static void CheckCourseWorkLecturerOrStudent(CourseWork courseWork, string userId)
+        {
+            if (courseWork.StudentId != userId && courseWork.LecturerId != userId) 
+	            throw new ForbidException("Only a student and lecturer ot the course work have rights to this action!");
         }
 
         private async Task<OverviewCourseWorkDTO> GetCourseWorkOverviewDTO(CourseWork courseWork)
@@ -75,6 +87,11 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
             detailCourseWorkDTO.StudentName = student?.UserName ?? "";
             detailCourseWorkDTO.StudentCourse = student?.StudentProfile.Course ?? 0;
             return detailCourseWorkDTO;
+        }
+
+        private WorkFileDTO GetWorkFileDTO(WorkFile workFile)
+        {
+            return _mapper.Map<WorkFileDTO>(workFile);
         }
 
         private async Task<CourseWork> GetCourseWorkFromViewModel(CreateCourseWorkViewModel createCourseWorkViewModel,
@@ -179,6 +196,95 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
             }).ConfigureAwait(false);
         }
 
+        public async Task UpdateReferenceInCourseWorkAsync(string userId, long courseWorkId, string reference = null, bool remove = false)
+        {
+	        var courseWork = await GetCourseWorkByIdAsync(courseWorkId).ConfigureAwait(false);
+            CheckCourseWorkLecturerOrStudent(courseWork, userId);
+
+	        await _courseWorksRepository.UpdateAsync(courseWorkId,
+		        x => new CourseWork()
+		        {
+			        Reference = remove ? null : reference
+		        }).ConfigureAwait(false);
+        }
+
+        public async Task<long> AddWorkFileToCourseWorkAsync(string userId, long courseWorkId, FileTypes fileType, IFormFile file)
+        {
+	        var courseWork = await GetCourseWorkByIdAsync(courseWorkId).ConfigureAwait(false);
+	        if (fileType != FileTypes.Review)
+	        {
+                CheckCourseWorkLecturerOrStudent(courseWork, userId);
+	        }
+	        else if (courseWork.ReviewerId != userId)
+	        {
+		        throw new ForbidException("Only a reviewer of the course work have rights to this action!");
+	        }
+
+	        if (fileType != FileTypes.Other)
+	        {
+		        var existWorkFile = courseWork.WorkFiles.FirstOrDefault(wf => wf.FileTypeId == (long) fileType);
+		        if (existWorkFile != null)
+		        {
+			        await RemoveWorkFileAsync(userId, courseWorkId, existWorkFile.Id).ConfigureAwait(false);
+		        }
+	        }
+
+	        var workFile = new WorkFile
+	        {
+		        FileName = file.FileName,
+		        ContentType = file.ContentType,
+		        CourseWork = courseWork,
+		        FileTypeId = (long)fileType
+	        };
+
+	        using (var binaryReader = new BinaryReader(file.OpenReadStream()))
+	        {
+		        workFile.Data = binaryReader.ReadBytes((int)file.Length);
+	        }
+
+	        return await _workFilesRepository.AddAsync(workFile).ConfigureAwait(false);
+        }
+
+        public async Task RemoveWorkFileAsync(string userId, long courseWorkId, long fileId)
+        {
+	        var courseWork = await GetCourseWorkByIdAsync(courseWorkId).ConfigureAwait(false);
+	        var workFile = courseWork.WorkFiles.FirstOrDefault(wf => wf.Id == fileId);
+	        if (workFile == null)
+	        {
+                throw new ObjectNotFoundException($"File with Id {fileId}");
+	        }
+
+	        if (workFile.FileTypeId != (long)FileTypes.Review)
+	        {
+		        CheckCourseWorkLecturerOrStudent(courseWork, userId);
+	        }
+	        else if (courseWork.ReviewerId != userId)
+	        {
+		        throw new ForbidException("Only a reviewer of the course work have rights to this action!");
+	        }
+
+            await _workFilesRepository.DeleteAsync(workFile.Id).ConfigureAwait(false);
+        }
+
+        public async Task<WorkFile> GetWorkFileAsync(long courseWorkId, long fileId)
+        {
+	        var courseWork = await GetCourseWorkByIdAsync(courseWorkId).ConfigureAwait(false);
+	        var workFile = courseWork.WorkFiles.FirstOrDefault(wf => wf.Id == fileId);
+	        if (workFile == null)
+	        {
+		        throw new ObjectNotFoundException($"File with Id {fileId}");
+	        }
+
+	        return workFile;
+        }
+
+        public async Task<WorkFileDTO[]> GetCourseWorkFilesAsync(long courseWorkId)
+        {
+	        var courseWork = await GetCourseWorkByIdAsync(courseWorkId).ConfigureAwait(false);
+	        var workFilesDTO = courseWork.WorkFiles.Select(GetWorkFileDTO);
+	        return workFilesDTO.ToArray();
+        }
+
         #endregion
 
         public DeadlineDTO[] GetCourseWorkDeadlines(string userId, CourseWork courseWork)
@@ -212,12 +318,6 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
             var deadline = _mapper.Map<Deadline>(newDeadline);
             deadline.CourseWorkId = courseWork.Id;
             return await _deadlineRepository.AddAsync(deadline).ConfigureAwait(false);
-        }
-
-        public WorkFileDTO[] GetWorkFilesDTO(WorkFile[] workFiles)
-        {
-            var workFilesDTO = _mapper.Map<WorkFileDTO[]>(workFiles);
-            return workFilesDTO;
         }
     }
 }

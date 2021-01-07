@@ -7,7 +7,7 @@ namespace HwProj.CourseWorkService.API.Controllers
 {
     [Authorize]
     [Route("api/reviewer")]
-    [TypeFilter(typeof(OnlySelectRoleAttribute), Arguments = new object[] { RoleTypes.Reviewer })]
+    [TypeFilter(typeof(OnlySelectRoleAttribute), Arguments = new object[] { Roles.Reviewer })]
     [ApiController]
     public class ReviewerCourseWorksController : ControllerBase
     {

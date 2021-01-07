@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace HwProj.CourseWorkService.API.Controllers
 {
     [Authorize]
-    [TypeFilter(typeof(OnlySelectRoleAttribute), Arguments = new object[] { RoleTypes.Student })]
+    [TypeFilter(typeof(OnlySelectRoleAttribute), Arguments = new object[] { Roles.Student })]
     [TypeFilter(typeof(CommonExceptionFilterAttribute),
         Arguments = new object[] { new[] { typeof(ObjectNotFoundException), typeof(ForbidException), typeof(BadRequestException) } })]
     [Route("api/student")]

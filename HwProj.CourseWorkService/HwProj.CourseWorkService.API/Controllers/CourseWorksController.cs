@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -8,6 +7,7 @@ using HwProj.CourseWorkService.API.Filters;
 using HwProj.CourseWorkService.API.Models;
 using HwProj.CourseWorkService.API.Models.DTO;
 using HwProj.CourseWorkService.API.Models.UserInfo;
+using HwProj.CourseWorkService.API.Models.ViewModels;
 using HwProj.CourseWorkService.API.Repositories.Interfaces;
 using HwProj.CourseWorkService.API.Services.Interfaces;
 using HwProj.Utils.Authorization;
@@ -19,7 +19,7 @@ namespace HwProj.CourseWorkService.API.Controllers
 {
     [Route("api/course_works")]
     [TypeFilter(typeof(CommonExceptionFilterAttribute),
-        Arguments = new object[] { new [] { typeof(ObjectNotFoundException) }})]
+        Arguments = new object[] { new [] { typeof(ObjectNotFoundException), typeof(ForbidException) }})]
     [ApiController]
     public class CourseWorksController : ControllerBase
     {
@@ -30,7 +30,6 @@ namespace HwProj.CourseWorkService.API.Controllers
         private readonly IUniversityService _universityService;
         private readonly IUserService _userService;
         private readonly ICourseWorksRepository _courseWorksRepository;
-        private readonly IWorkFilesRepository _workFilesRepository;
         private readonly IUsersRepository _usersRepository;
 
         #endregion
@@ -38,7 +37,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         #region Constructors: Public
 
         public CourseWorksController(IApplicationsService applicationsService, ICourseWorksService courseWorksService,
-            ICourseWorksRepository courseWorksRepository, IWorkFilesRepository workFilesRepository,
+            ICourseWorksRepository courseWorksRepository,
             IUsersRepository usersRepository, IUniversityService universityService, IUserService userService)
         {
             _applicationsService = applicationsService;
@@ -46,7 +45,6 @@ namespace HwProj.CourseWorkService.API.Controllers
             _universityService = universityService;
             _userService = userService;
             _courseWorksRepository = courseWorksRepository;
-            _workFilesRepository = workFilesRepository;
             _usersRepository = usersRepository;
         }
 
@@ -65,11 +63,11 @@ namespace HwProj.CourseWorkService.API.Controllers
         }
 
         [Authorize]
-        [HttpGet("{role}/my/{status}")]
+        [HttpGet("{roleString}/my/{status}")]
         [ProducesResponseType(typeof(OverviewCourseWorkDTO[]), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetMyActiveCourseWork(string role, string status)
+        public async Task<IActionResult> GetMyActiveCourseWork(string roleString, string status)
         {
-            if (status != "active" && status != "completed" || !Enum.TryParse<RoleTypes>(role, out var roleTypes))
+            if (status != "active" && status != "completed" || !Enum.TryParse<Roles>(roleString, out var role))
             {
                 return NotFound();
             }
@@ -77,9 +75,9 @@ namespace HwProj.CourseWorkService.API.Controllers
             var userId = Request.GetUserId();
             var courseWorks = await _courseWorksService
                 .GetFilteredCourseWorksAsync(courseWork => courseWork.IsCompleted == (status == "completed") && 
-                    roleTypes == RoleTypes.Student ? courseWork.StudentId == userId :
-                    roleTypes == RoleTypes.Lecturer ? courseWork.LecturerId == userId :
-                    roleTypes == RoleTypes.Reviewer ? courseWork.ReviewerId == userId :
+                    role == Roles.Student ? courseWork.StudentId == userId :
+                    role == Roles.Lecturer ? courseWork.LecturerId == userId :
+                    role == Roles.Reviewer ? courseWork.ReviewerId == userId :
                     courseWork.CuratorId == userId)
                 .ConfigureAwait(false);
             return Ok(courseWorks);
@@ -112,7 +110,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         [ProducesResponseType(typeof(UserDTO[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetCuratorsAsync()
         {
-            var usersDTO = await _userService.GetUsersByRoleAsync(RoleTypes.Curator).ConfigureAwait(false);
+            var usersDTO = await _userService.GetUsersByRoleAsync(Roles.Curator).ConfigureAwait(false);
             return Ok(usersDTO);
         }
 
@@ -153,21 +151,24 @@ namespace HwProj.CourseWorkService.API.Controllers
             return Ok(applications);
         }
 
-        //TODO
         [Authorize]
-        [HttpGet("{courseWorkId}/deadlines")]
-        [ProducesResponseType(typeof(DeadlineDTO[]), (int) HttpStatusCode.OK)]
-        public async Task<IActionResult> GetCourseWorksDeadlines(long courseWorkId)
+        [HttpPost("{courseWorkId}/reference")]
+        public async Task<IActionResult> AddReference([FromBody] UpdateReferenceViewModel referenceViewModel, long courseWorkId)
         {
-            var courseWork = await _courseWorksRepository.GetCourseWorkAsync(courseWorkId).ConfigureAwait(false);
-            if (courseWork == null)
-            {
-                return NotFound();
-            }
+	        var userId = Request.GetUserId();
+	        await _courseWorksService.UpdateReferenceInCourseWorkAsync(userId, courseWorkId, referenceViewModel.Reference)
+		        .ConfigureAwait(false);
+	        return Ok();
+        }
 
-            var userId = Request.GetUserId();
+        [Authorize]
+        [HttpDelete("{courseWorkId}/reference")]
+        public async Task<IActionResult> DeleteReference(long courseWorkId)
+        {
+	        var userId = Request.GetUserId();
+	        await _courseWorksService.UpdateReferenceInCourseWorkAsync(userId, courseWorkId, remove: true);
 
-            return Ok(_courseWorksService.GetCourseWorkDeadlines(userId, courseWork));
+	        return Ok();
         }
 
         [Authorize]
@@ -175,162 +176,77 @@ namespace HwProj.CourseWorkService.API.Controllers
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> AddFile(IFormFile file, string type, long courseWorkId)
         {
-            var userId = Request.GetUserId();
-            var courseWork = await _courseWorksRepository.GetCourseWorkAsync(courseWorkId)
-                .ConfigureAwait(false);
-            if (courseWork == null)
-            {
-                return NotFound();
-            }
-            if (type != "CourseWork" && type != "Presentation" && type != "Report" 
-                || courseWork.WorkFiles.Select(c => c.Type).Contains(type))
-            {
-                return BadRequest();
-            }
-            if (userId != courseWork.StudentId && userId != courseWork.LecturerId
-                || type == "Review" && userId != courseWork.ReviewerId)
-            {
-                return Forbid();
-            }
-            var workFile = new WorkFile
-            {
-                FileName = file.FileName,
-                FileType = file.ContentType,
-                CourseWork = courseWork,
-                Type = type
-            };
+	        if (!Enum.TryParse<FileTypes>(type, out var fileType))
+	        {
+		        return NotFound();
+	        }
 
-            using (var binaryReader = new BinaryReader(file.OpenReadStream()))
-            {
-                workFile.Data = binaryReader.ReadBytes((int)file.Length);
-            }
+	        if (file == null)
+	        {
+		        return BadRequest();
+	        }
 
-            return Ok(await _workFilesRepository.AddAsync(workFile));
+	        var userId = Request.GetUserId();
+	        var id = await _courseWorksService.AddWorkFileToCourseWorkAsync(userId, courseWorkId, fileType, file);
+
+	        return Ok(id);
         }
 
         [Authorize]
-        [HttpDelete("{courseWorkId}/files/{type}")]
-        public async Task<IActionResult> DeleteFile(string type, long courseWorkId)
+        [HttpDelete("{courseWorkId}/files/{fileId}")]
+        public async Task<IActionResult> DeleteFile(long fileId, long courseWorkId)
         {
-            var userId = Request.GetUserId();
-            var courseWork = await _courseWorksRepository.GetCourseWorkAsync(courseWorkId)
-                .ConfigureAwait(false);
-            if (courseWork == null)
-            {
-                return NotFound();
-            }
-            if (type != "CourseWork" && type != "Presentation" && type != "Report" 
-            || !courseWork.WorkFiles.Select(c => c.Type).Contains(type))
-            {
-                return BadRequest();
-            }
-            if (userId != courseWork.StudentId && userId != courseWork.LecturerId)
-            {
-                return Forbid();
-            }
-
-            var workFile = courseWork.WorkFiles.Find(file => file.Type == type);
-            await _workFilesRepository.DeleteAsync(workFile.Id).ConfigureAwait(false);
-            return Ok();
+	        var userId = Request.GetUserId();
+	        await _courseWorksService.RemoveWorkFileAsync(userId, courseWorkId, fileId).ConfigureAwait(false);
+	        return Ok();
         }
 
-        [HttpGet("{courseWorkId}/files/{type}")]
+        [HttpGet("{courseWorkId}/files/{fileId}")]
         [ProducesResponseType(typeof(FileContentResult), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetCourseWorkFile(string type, long courseWorkId)
+        public async Task<IActionResult> DownloadCourseWorkFile(long fileId, long courseWorkId)
         {
-            var courseWork = await _courseWorksRepository.GetCourseWorkAsync(courseWorkId)
-                .ConfigureAwait(false);
-            if (courseWork == null)
-            {
-                return NotFound();
-            }
-            if (type != "CourseWork" && type != "Presentation" && type != "Report"
-                || !courseWork.WorkFiles.Select(c => c.Type).Contains(type))
-            {
-                return BadRequest();
-            }
-
-            var workFile = courseWork.WorkFiles.Find(file => file.Type == type);
-            return File(workFile.Data, workFile.FileType, workFile.FileName);
+	        var workFile = await _courseWorksService.GetWorkFileAsync(courseWorkId, fileId).ConfigureAwait(false);
+	        return File(workFile.Data, workFile.ContentType, workFile.FileName);
         }
 
         [HttpGet("{courseWorkId}/files")]
-        [ProducesResponseType(typeof(WorkFileDTO[]), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(WorkFileDTO[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetFilesInfo(long courseWorkId)
         {
-            var courseWork = await _courseWorksRepository.GetCourseWorkAsync(courseWorkId)
-                .ConfigureAwait(false);
-            if (courseWork == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(_courseWorksService.GetWorkFilesDTO(courseWork.WorkFiles.ToArray()));
+	        var workFilesDTO = await _courseWorksService.GetCourseWorkFilesAsync(courseWorkId).ConfigureAwait(false);
+	        return Ok(workFilesDTO);
         }
 
-        [Authorize]
-        [HttpPost("{courseWorkId}/reference")]
-        public async Task<IActionResult> AddReference([FromBody]string reference, long courseWorkId)
-        {
-            var userId = Request.GetUserId();
-            var courseWork = await _courseWorksRepository.GetAsync(courseWorkId)
-                .ConfigureAwait(false);
-            if (courseWork == null)
-            {
-                return NotFound();
-            }
-            if (userId != courseWork.StudentId && userId != courseWork.LecturerId)
-            {
-                return Forbid();
-            }
+        ////TODO
+        //[Authorize]
+        //[HttpGet("{courseWorkId}/deadlines")]
+        //[ProducesResponseType(typeof(DeadlineDTO[]), (int) HttpStatusCode.OK)]
+        //public async Task<IActionResult> GetCourseWorksDeadlines(long courseWorkId)
+        //{
+        //    var courseWork = await _courseWorksRepository.GetCourseWorkAsync(courseWorkId).ConfigureAwait(false);
+        //    if (courseWork == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            await _courseWorksRepository.UpdateAsync(courseWorkId,
-                x => new CourseWork()
-                {
-                    Reference = reference
-                }).ConfigureAwait(false);
+        //    var userId = Request.GetUserId();
 
-            return Ok();
-        }
+        //    return Ok(_courseWorksService.GetCourseWorkDeadlines(userId, courseWork));
+        //}
 
-        [Authorize]
-        [HttpDelete("{courseWorkId}/reference")]
-        public async Task<IActionResult> DeleteReference(long courseWorkId)
-        {
-            var userId = Request.GetUserId();
-            var courseWork = await _courseWorksRepository.GetAsync(courseWorkId)
-                .ConfigureAwait(false);
-            if (courseWork == null)
-            {
-                return NotFound();
-            }
-            if (userId != courseWork.StudentId && userId != courseWork.LecturerId)
-            {
-                return Forbid();
-            }
+        //[Authorize]
+        //[HttpPost("reviewers/new")]
+        //public async Task<IActionResult> BecomeReviewer()
+        //{
+        //    var userId = Request.GetUserId();
+        //    var roles = await _usersRepository.GetRolesTypesAsync(userId).ConfigureAwait(false);
+        //    if (!roles.Contains(Roles.Reviewer))
+        //    {
+        //        await _usersRepository.AddRoleToUserAsync(userId, Roles.Reviewer).ConfigureAwait(false);
+        //    }
 
-            await _courseWorksRepository.UpdateAsync(courseWorkId,
-                x => new CourseWork()
-                {
-                    Reference = null
-                }).ConfigureAwait(false);
-
-            return Ok();
-        }
-
-        [Authorize]
-        [HttpPost("reviewers/new")]
-        public async Task<IActionResult> BecomeReviewer()
-        {
-            var userId = Request.GetUserId();
-            var roles = await _usersRepository.GetRolesTypesAsync(userId).ConfigureAwait(false);
-            if (!roles.Contains(RoleTypes.Reviewer))
-            {
-                await _usersRepository.AddRoleToUserAsync(userId, RoleTypes.Reviewer).ConfigureAwait(false);
-            }
-
-            return Ok();
-        }
+        //    return Ok();
+        //}
 
         #endregion
     }

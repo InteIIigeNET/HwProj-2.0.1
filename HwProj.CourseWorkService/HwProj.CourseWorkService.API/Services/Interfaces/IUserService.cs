@@ -6,7 +6,7 @@ namespace HwProj.CourseWorkService.API.Services.Interfaces
 {
     public interface IUserService
     {
-        Task<UserDTO[]> GetUsersByRoleAsync(RoleTypes role);
+        Task<UserDTO[]> GetUsersByRoleAsync(Roles role);
         Task UpdateUserRoleProfile<TProfile, TProfileViewModel>(string userId, TProfileViewModel viewModel) 
             where TProfile : class, IProfile;
         Task InviteCuratorAsync(string email);

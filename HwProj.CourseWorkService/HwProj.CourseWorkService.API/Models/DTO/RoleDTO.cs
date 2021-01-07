@@ -4,7 +4,7 @@ namespace HwProj.CourseWorkService.API.Models.DTO
 {
     public class RoleDTO
     {
-        public RoleTypes RoleType { get; set; }
-        public string DisplayName { get; set; }
+        public long Id { get; set; }
+        public string DisplayValue { get; set; }
     }
 }

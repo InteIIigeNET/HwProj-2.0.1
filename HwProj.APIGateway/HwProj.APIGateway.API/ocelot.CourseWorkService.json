@@ -166,7 +166,26 @@
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/{courseWorkId}/files/{type}/",
-      "UpstreamhttpsMethod": [ "GET", "POST", "DELETE" ],
+      "UpstreamhttpsMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/course_works/{courseWorkId}/files/{fileId}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/course_works/{courseWorkId}/files/{fileId}/",
+      "UpstreamhttpsMethod": [ "GET", "DELETE" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
