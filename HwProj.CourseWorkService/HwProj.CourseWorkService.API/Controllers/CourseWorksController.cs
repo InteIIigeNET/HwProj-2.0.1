@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using HwProj.CourseWorkService.API.Exceptions;
@@ -8,7 +7,6 @@ using HwProj.CourseWorkService.API.Models;
 using HwProj.CourseWorkService.API.Models.DTO;
 using HwProj.CourseWorkService.API.Models.UserInfo;
 using HwProj.CourseWorkService.API.Models.ViewModels;
-using HwProj.CourseWorkService.API.Repositories.Interfaces;
 using HwProj.CourseWorkService.API.Services.Interfaces;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Authorization;
@@ -29,23 +27,18 @@ namespace HwProj.CourseWorkService.API.Controllers
         private readonly ICourseWorksService _courseWorksService;
         private readonly IUniversityService _universityService;
         private readonly IUserService _userService;
-        private readonly ICourseWorksRepository _courseWorksRepository;
-        private readonly IUsersRepository _usersRepository;
 
         #endregion
 
         #region Constructors: Public
 
         public CourseWorksController(IApplicationsService applicationsService, ICourseWorksService courseWorksService,
-            ICourseWorksRepository courseWorksRepository,
-            IUsersRepository usersRepository, IUniversityService universityService, IUserService userService)
+            IUniversityService universityService, IUserService userService)
         {
             _applicationsService = applicationsService;
             _courseWorksService = courseWorksService;
             _universityService = universityService;
             _userService = userService;
-            _courseWorksRepository = courseWorksRepository;
-            _usersRepository = usersRepository;
         }
 
         #endregion
@@ -76,7 +69,7 @@ namespace HwProj.CourseWorkService.API.Controllers
             var courseWorks = await _courseWorksService
                 .GetFilteredCourseWorksAsync(courseWork => courseWork.IsCompleted == (status == "completed") && 
                     role == Roles.Student ? courseWork.StudentId == userId :
-                    role == Roles.Lecturer ? courseWork.LecturerId == userId :
+                    role == Roles.Lecturer ? courseWork.LecturerId == userId && !courseWork.CreatedByCurator :
                     role == Roles.Reviewer ? courseWork.ReviewerId == userId :
                     courseWork.CuratorId == userId)
                 .ConfigureAwait(false);
@@ -217,37 +210,34 @@ namespace HwProj.CourseWorkService.API.Controllers
 	        return Ok(workFilesDTO);
         }
 
-        ////TODO
-        //[Authorize]
-        //[HttpGet("{courseWorkId}/deadlines")]
-        //[ProducesResponseType(typeof(DeadlineDTO[]), (int) HttpStatusCode.OK)]
-        //public async Task<IActionResult> GetCourseWorksDeadlines(long courseWorkId)
-        //{
-        //    var courseWork = await _courseWorksRepository.GetCourseWorkAsync(courseWorkId).ConfigureAwait(false);
-        //    if (courseWork == null)
-        //    {
-        //        return NotFound();
-        //    }
+        [HttpGet("{courseWorkId}/deadlines")]
+        [ProducesResponseType(typeof(DeadlineDTO[]), (int) HttpStatusCode.OK)]
+        public async Task<IActionResult> GetCourseWorkDeadlines(long courseWorkId)
+        {
+	        var userId = Request.GetUserId();
+	        var deadlinesDTO = await _universityService.GetCourseWorkDeadlinesAsync(userId, courseWorkId)
+		        .ConfigureAwait(false);
+	        return Ok(deadlinesDTO);
+        }
 
-        //    var userId = Request.GetUserId();
+		[Authorize]
+		[HttpPost("reviewers/new")]
+		public async Task<IActionResult> BecomeReviewer()
+		{
+			var userId = Request.GetUserId();
+			await _userService.AddReviewerRoleToUser(userId).ConfigureAwait(false);
+			return Ok();
+		}
 
-        //    return Ok(_courseWorksService.GetCourseWorkDeadlines(userId, courseWork));
-        //}
+		[Authorize]
+		[HttpDelete("reviewers/remove")]
+		public async Task<IActionResult> RemoveReviewerRole()
+		{
+			var userId = Request.GetUserId();
+			await _userService.RemoveReviewerRole(userId).ConfigureAwait(false);
+			return Ok();
+		}
 
-        //[Authorize]
-        //[HttpPost("reviewers/new")]
-        //public async Task<IActionResult> BecomeReviewer()
-        //{
-        //    var userId = Request.GetUserId();
-        //    var roles = await _usersRepository.GetRolesTypesAsync(userId).ConfigureAwait(false);
-        //    if (!roles.Contains(Roles.Reviewer))
-        //    {
-        //        await _usersRepository.AddRoleToUserAsync(userId, Roles.Reviewer).ConfigureAwait(false);
-        //    }
-
-        //    return Ok();
-        //}
-
-        #endregion
-    }
+		#endregion
+	}
 }

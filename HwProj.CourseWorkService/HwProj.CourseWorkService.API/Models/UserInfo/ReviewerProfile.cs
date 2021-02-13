@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using HwProj.Repositories;
 
 namespace HwProj.CourseWorkService.API.Models.UserInfo
 {
@@ -12,11 +11,13 @@ namespace HwProj.CourseWorkService.API.Models.UserInfo
         public string UserId { get; set; }
         public User User { get; set; }
 
-        public ICollection<CourseWork> CourseWorks { get; set; }
+        public List<CourseWork> CourseWorks { get; set; }
+        public List<ReviewersInCuratorsBidding> ReviewersInCuratorsBidding { get; set; }
 
         public ReviewerProfile()
         {
             CourseWorks = new List<CourseWork>();
+            ReviewersInCuratorsBidding = new List<ReviewersInCuratorsBidding>();
         }
     }
 }

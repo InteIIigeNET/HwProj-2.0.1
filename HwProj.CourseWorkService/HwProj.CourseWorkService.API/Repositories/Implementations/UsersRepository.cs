@@ -29,7 +29,9 @@ namespace HwProj.CourseWorkService.API.Repositories.Implementations
                 .Include(u => u.LecturerProfile)
                 .Include(u => u.ReviewerProfile)
                 .Include(u => u.CuratorProfile)
-                .ThenInclude(cp => cp.Directions)
+					.ThenInclude(cp => cp.Directions)
+                .Include(u => u.CuratorProfile)
+					.ThenInclude(cp => cp.Deadlines)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(u => u.Id == userId)
                 .ConfigureAwait(false);
@@ -179,6 +181,24 @@ namespace HwProj.CourseWorkService.API.Repositories.Implementations
                         DepartmentId = curatorProfile.DepartmentId
                     }).ConfigureAwait(false);
             }
+        }
+
+        public async Task SetReviewersToCuratorBidding(string curatorId, string[] reviewersId)
+        {
+	        var curator = await Context.Set<CuratorProfile>()
+		        .Include(cp => cp.ReviewersInCuratorsBidding)
+		        .FirstOrDefaultAsync(cp => cp.Id == curatorId)
+		        .ConfigureAwait(false);
+
+	        curator.ReviewersInCuratorsBidding.Clear();
+            curator.ReviewersInCuratorsBidding.AddRange(reviewersId
+	            .Select(reviewerId => new ReviewersInCuratorsBidding()
+	            {
+                    CuratorProfileId = curatorId,
+                    ReviewerProfileId = reviewerId
+	            }));
+
+            await Context.SaveChangesAsync().ConfigureAwait(false);
         }
         #endregion
     }

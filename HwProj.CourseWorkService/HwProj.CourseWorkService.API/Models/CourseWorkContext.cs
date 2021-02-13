@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Linq;
 using HwProj.CourseWorkService.API.Models.UserInfo;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,9 +12,10 @@ namespace HwProj.CourseWorkService.API.Models
         public DbSet<CourseWork> CourseWorks { get; set; }
         public DbSet<Application> Applications { get; set; }
         public DbSet<Deadline> Deadlines { get; set; }
-		public DbSet<FileType> FileTypes { get; set; }
+		public DbSet<DeadlineType> DeadlineTypes { get; set; }
         public DbSet<WorkFile> WorkFiles { get; set; }
-        public DbSet<User> Users { get; set; }
+        public DbSet<FileType> FileTypes { get; set; }
+		public DbSet<User> Users { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<StudentProfile> StudentProfiles { get; set; }
@@ -23,6 +24,7 @@ namespace HwProj.CourseWorkService.API.Models
         public DbSet<CuratorProfile> CuratorProfiles { get; set; }
         public DbSet<Department> Departments { get; set; }
         public DbSet<Direction> Directions { get; set; }
+		public DbSet<ReviewersInCuratorsBidding> ReviewersInCuratorsBidding { get; set; }
 
         #endregion
 
@@ -31,7 +33,7 @@ namespace HwProj.CourseWorkService.API.Models
         public CourseWorkContext(DbContextOptions<CourseWorkContext> options)
 	        : base(options)
         {
-	        Database.EnsureCreated();
+	        //Database.EnsureCreated();
         }
 
         #endregion
@@ -40,90 +42,37 @@ namespace HwProj.CourseWorkService.API.Models
 
         private static Role[] GetInitRoles()
         {
-            var roles = new List<Role>();
-
-	        foreach (Roles role in Enum.GetValues(typeof(Roles)))
-	        {
-		        string displayName;
-
-		        switch (role)
-		        {
-			        case UserInfo.Roles.Student:
+	        return Enum.GetValues(typeof(Roles)).OfType<Roles>()
+		        .Select(role =>
+			        new Role
 			        {
-				        displayName = "Student";
-				        break;
-			        }
-			        case UserInfo.Roles.Lecturer:
-			        {
-				        displayName = "Lecturer";
-				        break;
-			        }
-			        case UserInfo.Roles.Reviewer:
-			        {
-				        displayName = "Reviewer";
-				        break;
-			        }
-			        case UserInfo.Roles.Curator:
-			        {
-				        displayName = "Curator";
-				        break;
-			        }
-			        default:
-			        {
-						continue;
-			        }
-				}
-                roles.Add(new Role() { Id = (long)role, DisplayValue = displayName});
-	        }
-
-	        return roles.ToArray();
+				        Id = (long) role, DisplayValue = Enum.GetName(typeof(Roles), role)
+			        })
+		        .ToArray();
         }
 
         private static FileType[] GetInitFileTypes()
         {
-	        var fileTypes = new List<FileType>();
-
-	        foreach (FileTypes fileType in Enum.GetValues(typeof(FileTypes)))
-	        {
-		        string displayName;
-
-		        switch (fileType)
-		        {
-			        case Models.FileTypes.CourseWorkText:
+	        return Enum.GetValues(typeof(FileTypes)).OfType<FileTypes>()
+		        .Select(fileType => 
+			        new FileType
 			        {
-				        displayName = "CourseWorkText";
-				        break;
-			        }
-					case Models.FileTypes.Presentation:
+				        Id = (long) fileType, DisplayValue = Enum.GetName(typeof(FileTypes), fileType)
+			        })
+		        .ToArray();
+        }
+
+        private static DeadlineType[] GetInitDeadlineTypes()
+        {
+	        return Enum.GetValues(typeof(DeadlineTypes)).OfType<DeadlineTypes>()
+		        .Select(deadlineType =>
+			        new DeadlineType
 					{
-						displayName = "Presentation";
-						break;
-					}
-			        case Models.FileTypes.Review:
-			        {
-				        displayName = "Review";
-				        break;
-			        }
-			        case Models.FileTypes.LecturerComment:
-			        {
-				        displayName = "LecturerComment";
-				        break;
-			        }
-			        case Models.FileTypes.Other:
-			        {
-				        displayName = "Other";
-				        break;
-			        }
-					default:
-			        {
-				        continue;
-			        }
-		        }
-		        fileTypes.Add(new FileType() { Id = (long)fileType, DisplayValue = displayName });
-	        }
-
-	        return fileTypes.ToArray();
-		}
+				        Id = (long)deadlineType,
+				        DisplayValue = Enum.GetName(typeof(DeadlineTypes), deadlineType)
+			        })
+		        .ToArray();
+        }
 
 		#endregion
 
@@ -133,10 +82,10 @@ namespace HwProj.CourseWorkService.API.Models
         {
 
 	        modelBuilder.Entity<Role>().HasData(GetInitRoles());
-
 	        modelBuilder.Entity<FileType>().HasData(GetInitFileTypes());
+	        modelBuilder.Entity<DeadlineType>().HasData(GetInitDeadlineTypes());
 
-	        modelBuilder.Entity<UserRole>()
+			modelBuilder.Entity<UserRole>()
 		        .HasKey(ur => new { ur.UserId, ur.RoleId });
 
 	        modelBuilder.Entity<UserRole>()

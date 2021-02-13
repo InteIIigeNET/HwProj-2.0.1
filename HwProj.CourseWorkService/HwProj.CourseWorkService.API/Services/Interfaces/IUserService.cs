@@ -12,5 +12,7 @@ namespace HwProj.CourseWorkService.API.Services.Interfaces
         Task InviteCuratorAsync(string email);
         Task<RoleDTO[]> GetUserRoles(string userId);
         Task<UserFullInfoDTO> GetUserFullInfo(string userId);
+        Task AddReviewerRoleToUser(string userId);
+        Task RemoveReviewerRole(string userId);
     }
 }

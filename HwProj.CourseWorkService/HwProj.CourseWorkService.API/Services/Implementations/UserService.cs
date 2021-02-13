@@ -114,6 +114,24 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
             return await GetUserFullInfoDTO(user).ConfigureAwait(false);
         }
 
+        public async Task AddReviewerRoleToUser(string userId)
+        {
+	        var roles = await _usersRepository.GetRolesTypesAsync(userId).ConfigureAwait(false);
+	        if (!roles.Contains(Roles.Reviewer))
+	        {
+		        await _usersRepository.AddRoleToUserAsync(userId, Roles.Reviewer).ConfigureAwait(false);
+	        }
+        }
+
+        public async Task RemoveReviewerRole(string userId)
+        {
+	        var roles = await _usersRepository.GetRolesTypesAsync(userId).ConfigureAwait(false);
+	        if (roles.Contains(Roles.Reviewer))
+	        {
+		        await _usersRepository.RemoveRoleFromUserAsync(userId, Roles.Reviewer).ConfigureAwait(false);
+	        }
+        }
+
         #endregion
     }
 }

@@ -2,11 +2,14 @@
 using System.Threading.Tasks;
 using HwProj.CourseWorkService.API.Exceptions;
 using HwProj.CourseWorkService.API.Filters;
+using HwProj.CourseWorkService.API.Models;
+using HwProj.CourseWorkService.API.Models.DTO;
 using HwProj.CourseWorkService.API.Models.UserInfo;
 using HwProj.CourseWorkService.API.Models.ViewModels;
 using HwProj.CourseWorkService.API.Services.Interfaces;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.CourseWorkService.API.Controllers
@@ -22,6 +25,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         #region Fields: Private
 
         private readonly ICourseWorksService _courseWorksService;
+        private readonly IReviewService _reviewService;
         private readonly IUniversityService _universityService;
         private readonly IUserService _userService;
 
@@ -29,10 +33,11 @@ namespace HwProj.CourseWorkService.API.Controllers
 
         #region Constructors: Public
 
-        public CuratorCourseWorksController(ICourseWorksService courseWorksService,
+        public CuratorCourseWorksController(ICourseWorksService courseWorksService, IReviewService reviewService,
             IUniversityService universityService, IUserService userService)
         {
             _courseWorksService = courseWorksService;
+            _reviewService = reviewService;
             _universityService = universityService;
             _userService = userService;
         }
@@ -48,6 +53,25 @@ namespace HwProj.CourseWorkService.API.Controllers
             var userId = Request.GetUserId();
             var id = await _courseWorksService.AddCourseWorkAsync(createCourseWorkViewModel, userId, true);
             return Ok(id);
+        }
+
+        [HttpGet("course_works/created_by_curator/{status}")]
+        [ProducesResponseType(typeof(OverviewCourseWorkDTO[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetMyCourseWork(string status)
+        {
+	        if (status != "active" && status != "completed")
+	        {
+		        return NotFound();
+	        }
+
+	        var userId = Request.GetUserId();
+	        var courseWorks = await _courseWorksService
+		        .GetFilteredCourseWorksAsync(courseWork =>
+			        courseWork.IsCompleted == (status == "completed") &&
+			        courseWork.LecturerId == userId &&
+			        courseWork.CreatedByCurator)
+		        .ConfigureAwait(false);
+	        return Ok(courseWorks);
         }
 
         [HttpPut("profile")]
@@ -67,10 +91,11 @@ namespace HwProj.CourseWorkService.API.Controllers
         }
 
         [HttpPost("directions")]
+        [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> AddDirectionAsync([FromBody] AddDirectionViewModel directionViewModel)
         {
-            await _universityService.AddDirectionAsync(directionViewModel).ConfigureAwait(false);
-            return Ok();
+            var id = await _universityService.AddDirectionAsync(directionViewModel).ConfigureAwait(false);
+            return Ok(id);
         }
 
         [HttpDelete("directions/{directionId}")]
@@ -81,10 +106,11 @@ namespace HwProj.CourseWorkService.API.Controllers
         }
 
         [HttpPost("departments")]
+        [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> AddDepartmentAsync([FromBody] AddDepartmentViewModel departmentViewModel)
         {
-            await _universityService.AddDepartmentAsync(departmentViewModel).ConfigureAwait(false);
-            return Ok();
+            var id = await _universityService.AddDepartmentAsync(departmentViewModel).ConfigureAwait(false);
+            return Ok(id);
         }
 
         [HttpDelete("departments/{departmentId}")]
@@ -94,6 +120,65 @@ namespace HwProj.CourseWorkService.API.Controllers
             return Ok();
         }
 
-        #endregion
-    }
+        [HttpGet("deadlines")]
+		[ProducesResponseType(typeof(DeadlineDTO[]), (int)HttpStatusCode.OK)]
+		public async Task<IActionResult> GetDeadlinesAsync()
+		{
+			var userId = Request.GetUserId();
+			var deadlinesDTO = await _universityService.GetCuratorDeadlines(userId).ConfigureAwait(false);
+			return Ok(deadlinesDTO);
+		}
+
+		[HttpPost("deadlines")]
+        [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> AddDeadlineAsync([FromBody] AddDeadlineViewModel addDeadlineViewModel)
+		{
+			if (addDeadlineViewModel.DeadlineTypeId == (long) DeadlineTypes.ChoiceTheme
+			    && (addDeadlineViewModel.DirectionId == null 
+			        || addDeadlineViewModel.Course == null 
+			        || addDeadlineViewModel.CourseWorkId != null))
+			{
+				return BadRequest();
+			}
+
+			var userId = Request.GetUserId();
+			var id = await _universityService.AddDeadlineAsync(userId, addDeadlineViewModel).ConfigureAwait(false);
+			return Ok(id);
+		}
+
+		[HttpDelete("deadlines/{deadlineId}")]
+		public async Task<IActionResult> DeleteDeadlineAsync(long deadlineId)
+		{
+			var userId = Request.GetUserId();
+			await _universityService.DeleteDeadlineAsync(userId, deadlineId).ConfigureAwait(false);
+			return Ok();
+		}
+
+		[HttpPut("course_works/{courseWorkId}/clear_updated_parameter")]
+		public async Task<IActionResult> ClearIsUpdatedInCourseWorkAsync(long courseWorkId)
+		{
+			await _courseWorksService.SetIsUpdatedInCourseWork(courseWorkId).ConfigureAwait(false);
+			return Ok();
+		}
+
+		[HttpGet("reviewers")]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserDTO[]))]
+		public async Task<IActionResult> GetAllReviewersAsync()
+		{
+			var usersDTO = await _userService.GetUsersByRoleAsync(Roles.Reviewer)
+				.ConfigureAwait(false);
+			return Ok(usersDTO);
+        }
+
+		[HttpPost("reviewers/set_to_bidding")]
+		public async Task<IActionResult> SetReviewersToBidding([FromBody] ReviewersForBiddingListViewModel reviewersListViewModel)
+		{
+			var userId = Request.GetUserId();
+			await _reviewService.SetReviewersToBidding(userId, reviewersListViewModel.ReviewersId)
+				.ConfigureAwait(false);
+			return Ok();
+		}
+
+		#endregion
+	}
 }

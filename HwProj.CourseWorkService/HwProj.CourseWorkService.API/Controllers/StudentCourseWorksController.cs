@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using HwProj.CourseWorkService.API.Exceptions;
 using HwProj.CourseWorkService.API.Filters;
@@ -24,6 +25,7 @@ namespace HwProj.CourseWorkService.API.Controllers
 
         private readonly IApplicationsService _applicationsService;
         private readonly ICourseWorksService _courseWorksService;
+        private readonly IUniversityService _universityService;
         private readonly IUserService _userService;
 
         #endregion
@@ -31,10 +33,11 @@ namespace HwProj.CourseWorkService.API.Controllers
         #region Constructors: Public
 
         public StudentCourseWorksController(IApplicationsService applicationsService, 
-            ICourseWorksService courseWorksService, IUserService userService)
+            ICourseWorksService courseWorksService, IUniversityService universityService, IUserService userService)
         {
             _applicationsService = applicationsService;
             _courseWorksService = courseWorksService;
+            _universityService = universityService;
             _userService = userService;
         }
 
@@ -49,17 +52,6 @@ namespace HwProj.CourseWorkService.API.Controllers
             await _userService.UpdateUserRoleProfile<StudentProfile, StudentProfileViewModel>(userId, studentProfileViewModel)
                 .ConfigureAwait(false);
             return Ok();
-        }
-
-        [HttpPost("course_works/{courseWorkId}/apply")]
-        [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> ApplyToCourseWork([FromBody] CreateApplicationViewModel createApplicationViewModel, long courseWorkId)
-        {
-            var userId = Request.GetUserId();
-            var id = await _courseWorksService
-                .ApplyToCourseWorkAsync(userId, courseWorkId, createApplicationViewModel)
-                .ConfigureAwait(false);
-            return Ok(id);
         }
 
         [HttpGet("applications/{appId}")]
@@ -78,6 +70,39 @@ namespace HwProj.CourseWorkService.API.Controllers
             var userId = Request.GetUserId();
             await _applicationsService.CancelApplicationAsync(userId, appId);
             return Ok();
+        }
+
+        [HttpPost("course_works/{courseWorkId}/apply")]
+        [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> ApplyToCourseWork([FromBody] CreateApplicationViewModel createApplicationViewModel, long courseWorkId)
+        {
+	        var userId = Request.GetUserId();
+	        var id = await _courseWorksService
+		        .ApplyToCourseWorkAsync(userId, courseWorkId, createApplicationViewModel)
+		        .ConfigureAwait(false);
+	        return Ok(id);
+        }
+
+        [HttpGet("choice_theme_deadline")]
+        [ProducesResponseType(typeof(DeadlineDTO[]), (int) HttpStatusCode.OK)]
+        public async Task<IActionResult> GetChoiceThemeDeadlineAsync()
+        {
+	        var userId = Request.GetUserId();
+	        var deadlineDTO = await _universityService.GetChoiceThemeDeadlineAsync(userId).ConfigureAwait(false);
+	        var result = new List<DeadlineDTO>();
+	        if (deadlineDTO != null)
+	        {
+                result.Add(deadlineDTO);
+	        }
+
+	        return Ok(result);
+        }
+
+        [HttpPut("course_works/{courseWorkId}/set_updated_parameter")]
+        public async Task<IActionResult> SetIsUpdatedInCourseWork(long courseWorkId)
+        {
+	        await _courseWorksService.SetIsUpdatedInCourseWork(courseWorkId, true).ConfigureAwait(false);
+	        return Ok();
         }
 
         #endregion

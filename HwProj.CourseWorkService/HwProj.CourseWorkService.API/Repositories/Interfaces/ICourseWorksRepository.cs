@@ -7,5 +7,6 @@ namespace HwProj.CourseWorkService.API.Repositories.Interfaces
     public interface ICourseWorksRepository : ICrudRepository<CourseWork, long>
     {
         Task<CourseWork> GetCourseWorkAsync(long id);
+        Task ClearIsUpdatedInCourseWorksByCuratorAsync(string userId);
     }
 }

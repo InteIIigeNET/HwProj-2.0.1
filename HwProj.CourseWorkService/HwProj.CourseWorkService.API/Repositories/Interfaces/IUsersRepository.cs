@@ -13,5 +13,6 @@ namespace HwProj.CourseWorkService.API.Repositories.Interfaces
         Task AddRoleToUserAsync(string userId, Roles role);
         Task RemoveRoleFromUserAsync(string userId, Roles role);
         Task UpdateUserRoleProfileAsync<TProfile>(string userId, TProfile roleProfile) where TProfile : class, IProfile;
+        Task SetReviewersToCuratorBidding(string curatorId, string[] reviewersId);
     }
 }

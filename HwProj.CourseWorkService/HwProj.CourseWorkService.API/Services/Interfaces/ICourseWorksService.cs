@@ -23,8 +23,6 @@ namespace HwProj.CourseWorkService.API.Services.Interfaces
         Task RemoveWorkFileAsync(string userId, long courseWorkId, long fileId);
         Task<WorkFile> GetWorkFileAsync(long courseWorkId, long fileId);
         Task<WorkFileDTO[]> GetCourseWorkFilesAsync(long courseWorkId);
-
-        DeadlineDTO[] GetCourseWorkDeadlines(string userId, CourseWork courseWork);
-        Task<long> AddDeadlineAsync(AddDeadlineViewModel newDeadline, CourseWork courseWork);
+        Task SetIsUpdatedInCourseWork(long courseWorkId, bool value = false);
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -22,7 +21,6 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 
         private readonly IApplicationsService _applicationsService;
         private readonly ICourseWorksRepository _courseWorksRepository;
-        private readonly IDeadlineRepository _deadlineRepository;
         private readonly IUsersRepository _usersRepository;
         private readonly IWorkFilesRepository _workFilesRepository;
         private readonly IMapper _mapper;
@@ -32,12 +30,10 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
         #region Constructors: Public
 
         public CourseWorksService(IApplicationsService applicationsService, ICourseWorksRepository courseWorkRepository,
-            IDeadlineRepository deadlineRepository, IUsersRepository usersRepository,
-            IWorkFilesRepository workFilesRepository, IMapper mapper)
+            IUsersRepository usersRepository, IWorkFilesRepository workFilesRepository, IMapper mapper)
         {
             _applicationsService = applicationsService;
             _courseWorksRepository = courseWorkRepository;
-            _deadlineRepository = deadlineRepository;
             _usersRepository = usersRepository;
             _workFilesRepository = workFilesRepository;
             _mapper = mapper;
@@ -91,7 +87,9 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 
         private WorkFileDTO GetWorkFileDTO(WorkFile workFile)
         {
-            return _mapper.Map<WorkFileDTO>(workFile);
+            var workFileDTO = _mapper.Map<WorkFileDTO>(workFile);
+            workFileDTO.FileTypeName = workFile.FileType.DisplayValue;
+            return workFileDTO;
         }
 
         private async Task<CourseWork> GetCourseWorkFromViewModel(CreateCourseWorkViewModel createCourseWorkViewModel,
@@ -242,7 +240,12 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 		        workFile.Data = binaryReader.ReadBytes((int)file.Length);
 	        }
 
-	        return await _workFilesRepository.AddAsync(workFile).ConfigureAwait(false);
+	        var id = await _workFilesRepository.AddAsync(workFile).ConfigureAwait(false);
+	        if (fileType == FileTypes.CourseWorkText)
+	        {
+		        await SetIsUpdatedInCourseWork(courseWorkId, true).ConfigureAwait(false);
+	        }
+	        return id;
         }
 
         public async Task RemoveWorkFileAsync(string userId, long courseWorkId, long fileId)
@@ -285,39 +288,14 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 	        return workFilesDTO.ToArray();
         }
 
+        public async Task SetIsUpdatedInCourseWork(long courseWorkId, bool value = false)
+        {
+	        await _courseWorksRepository.UpdateAsync(courseWorkId, cw => new CourseWork()
+	        {
+		        IsUpdated = value
+	        }).ConfigureAwait(false);
+        }
+
         #endregion
-
-        public DeadlineDTO[] GetCourseWorkDeadlines(string userId, CourseWork courseWork)
-        {
-            IEnumerable<Deadline> deadlines;
-            if (userId == courseWork.StudentId)
-            {
-                deadlines = courseWork.Deadlines.Where(deadline => deadline.Type == "Student");
-            }
-            else if (userId == courseWork.ReviewerId)
-            {
-                deadlines = courseWork.Deadlines.Where(deadline => deadline.Type == "Reviewer");
-            }
-            else if (userId == courseWork.LecturerId || userId == courseWork.CuratorId)
-            {
-                deadlines = courseWork.Deadlines;
-            }
-            else
-            {
-                deadlines = courseWork.Deadlines.Where(deadline => deadline.Type == "Bidding");
-            }
-
-            var deadlinesArray = deadlines.ToArray();
-            var deadlinesDTO = _mapper.Map<DeadlineDTO[]>(deadlinesArray);
-
-            return deadlinesDTO;
-        }
-
-        public async Task<long> AddDeadlineAsync(AddDeadlineViewModel newDeadline, CourseWork courseWork)
-        {
-            var deadline = _mapper.Map<Deadline>(newDeadline);
-            deadline.CourseWorkId = courseWork.Id;
-            return await _deadlineRepository.AddAsync(deadline).ConfigureAwait(false);
-        }
     }
 }
