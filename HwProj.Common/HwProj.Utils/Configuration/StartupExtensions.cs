@@ -33,15 +33,7 @@ namespace HwProj.Utils.Configuration
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new Info {Title = serviceName, Version = "v1"}); })
-                .AddCors(options =>
-                {
-                    options.AddPolicy("CorsPolicy",
-                        builder => builder
-                            .AllowAnyOrigin()
-                            .AllowAnyMethod()
-                            .AllowAnyHeader()
-                            .AllowCredentials());
-                });
+                .AddCors();
 
             if (serviceName != "AuthService API")
             {
@@ -126,7 +118,12 @@ namespace HwProj.Utils.Configuration
 
             app.UseAuthentication();
 
-            app.UseCors("CorsPolicy");
+            app.UseCors(x => x
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(origin => true)
+                .AllowCredentials());
+
             app.UseHttpsRedirection()
                 .UseMvc();
         }
