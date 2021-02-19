@@ -16,10 +16,10 @@ namespace HwProj.AuthService.API.Services
 {
     public class AuthTokenService : IAuthTokenService
     {
-        private readonly IUserManager _userManager;
+        private readonly UserManager<User> _userManager;
         private readonly IConfigurationSection _configuration;
 
-        public AuthTokenService(IUserManager userManager, IConfiguration configuration)
+        public AuthTokenService(UserManager<User> userManager, IConfiguration configuration)
         {
             _userManager = userManager;
             _configuration = configuration.GetSection("AppSettings");
