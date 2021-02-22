@@ -1,16 +1,19 @@
 ﻿using System;
 using System.Linq;
 using System.Net.Sockets;
+using System.Text;
 using AutoMapper;
 using HwProj.EventBus.Client;
 using HwProj.EventBus.Client.Implementations;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Utils.Configuration.Middleware;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Polly;
 using RabbitMQ.Client;
@@ -39,6 +42,33 @@ namespace HwProj.Utils.Configuration
                             .AllowAnyHeader()
                             .AllowCredentials());
                 });
+
+            var securityKey =
+                new SymmetricSecurityKey(
+                    Encoding.ASCII.GetBytes(
+                        "U8_.wpvk93fPWG<f2$Op[vwegmQGF25_fNG2V0ijnm2e0igv24g")); //с этим 3.14здецом тоже нужно что-то сделать
+
+            if (serviceName != "AuthService API")
+            {
+                services.AddAuthentication(options =>
+                    {
+                        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                    })
+                    .AddJwtBearer(x =>
+                    {
+                        x.RequireHttpsMetadata = false; //TODO: dev env setting
+                        x.TokenValidationParameters = new TokenValidationParameters
+                        {
+                            ValidIssuer = "AuthService",
+                            ValidateIssuer = true,
+                            ValidateAudience = false,
+                            ValidateLifetime = true,
+                            IssuerSigningKey = securityKey,
+                            ValidateIssuerSigningKey = true
+                        };
+                    });
+            }
 
             services.AddTransient<NoApiGatewayMiddleware>();
 
@@ -96,6 +126,8 @@ namespace HwProj.Utils.Configuration
             {
                 app.UseHsts();
             }
+
+            app.UseAuthentication();
 
             app.UseCors("CorsPolicy");
             app.UseHttpsRedirection()
