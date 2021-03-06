@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using HwProj.Repositories;
 
 namespace HwProj.CourseWorkService.API.Models.UserInfo
 {
-	public class ReviewersInCuratorsBidding
+	public class ReviewersInCuratorsBidding : IEntity<long>
 	{
+		public long Id { get; set; }
+
 		public CuratorProfile CuratorProfile { get; set; }
 		public string CuratorProfileId { get; set; }
 

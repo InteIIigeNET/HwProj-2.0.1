@@ -1,6 +1,7 @@
 ﻿using HwProj.Repositories;
 using System;
 using System.Collections.Generic;
+using HwProj.CourseWorkService.API.Models.UserInfo;
 
 namespace HwProj.CourseWorkService.API.Models
 {
@@ -21,10 +22,17 @@ namespace HwProj.CourseWorkService.API.Models
         public string SupervisorName { get; set; }
         public string SupervisorContact { get; set; }
 
-        public string StudentId { get; set; }
-        public string ReviewerId { get; set; }
-        public string LecturerId { get; set; }
-        public string CuratorId { get; set; }
+        public string StudentProfileId { get; set; }
+        public StudentProfile StudentProfile { get; set; }
+
+        public string ReviewerProfileId { get; set; }
+        public ReviewerProfile ReviewerProfile { get; set; }
+
+        public string LecturerProfileId { get; set; }
+        public LecturerProfile LecturerProfile { get; set; }
+
+        public string CuratorProfileId { get; set; }
+        public CuratorProfile CuratorProfile { get; set; }
 
 
         public bool IsCompleted { get; set; }
@@ -35,14 +43,14 @@ namespace HwProj.CourseWorkService.API.Models
         public List<Application> Applications { get; set; }
         public List<Deadline> Deadlines { get; set; }
         public List<WorkFile> WorkFiles { get; set; }
-        //public ICollection<Bid> Bids { get; set; }
+        public List<Bid> Bids { get; set; }
 
         public CourseWork()
         {
             Applications = new List<Application>();
             Deadlines = new List<Deadline>();
             WorkFiles = new List<WorkFile>();
-            //Bids = new List<Bid>();
+            Bids = new List<Bid>();
         }
     }
 }

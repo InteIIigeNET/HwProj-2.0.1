@@ -3,7 +3,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using AutoMapper;
 using HwProj.CourseWorkService.API.Exceptions;
 using HwProj.CourseWorkService.API.Models;
 using HwProj.CourseWorkService.API.Models.DTO;
@@ -20,23 +19,21 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
         #region Fields: Private
 
         private readonly IApplicationsService _applicationsService;
+        private readonly IViewModelService _viewModelService;
         private readonly ICourseWorksRepository _courseWorksRepository;
-        private readonly IUsersRepository _usersRepository;
         private readonly IWorkFilesRepository _workFilesRepository;
-        private readonly IMapper _mapper;
 
         #endregion
 
         #region Constructors: Public
 
         public CourseWorksService(IApplicationsService applicationsService, ICourseWorksRepository courseWorkRepository,
-            IUsersRepository usersRepository, IWorkFilesRepository workFilesRepository, IMapper mapper)
+            IViewModelService viewModelService, IWorkFilesRepository workFilesRepository)
         {
             _applicationsService = applicationsService;
             _courseWorksRepository = courseWorkRepository;
-            _usersRepository = usersRepository;
+            _viewModelService = viewModelService;
             _workFilesRepository = workFilesRepository;
-            _mapper = mapper;
         }
 
         #endregion
@@ -53,63 +50,14 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
         [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local")]
         private static void CheckCourseWorkLecturer(CourseWork courseWork, string userId)
         {
-            if (courseWork.LecturerId != userId) throw new ForbidException("Only an owner of the course work have rights to this action!");
+            if (courseWork.LecturerProfileId != userId) throw new ForbidException("Only an owner of the course work have rights to this action!");
         }
 
         [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local")]
         private static void CheckCourseWorkLecturerOrStudent(CourseWork courseWork, string userId)
         {
-            if (courseWork.StudentId != userId && courseWork.LecturerId != userId) 
+            if (courseWork.StudentProfileId != userId && courseWork.LecturerProfileId != userId) 
 	            throw new ForbidException("Only a student and lecturer ot the course work have rights to this action!");
-        }
-
-        private async Task<OverviewCourseWorkDTO> GetCourseWorkOverviewDTO(CourseWork courseWork)
-        {
-            var courseWorkDTO = _mapper.Map<OverviewCourseWorkDTO>(courseWork);
-
-            var student = await _usersRepository.GetAsync(courseWork.StudentId).ConfigureAwait(false);
-            courseWorkDTO.StudentName = student?.UserName ?? "";
-
-            return courseWorkDTO;
-        }
-
-        private async Task<DetailCourseWorkDTO> GetCourseWorkDetailDTO(CourseWork courseWork)
-        {
-            var detailCourseWorkDTO = _mapper.Map<DetailCourseWorkDTO>(courseWork);
-            var reviewer = await _usersRepository.GetAsync(courseWork.ReviewerId).ConfigureAwait(false);
-            var student = await _usersRepository.GetUserAsync(courseWork.StudentId).ConfigureAwait(false);
-
-            detailCourseWorkDTO.ReviewerName = reviewer?.UserName ?? "";
-            detailCourseWorkDTO.StudentName = student?.UserName ?? "";
-            detailCourseWorkDTO.StudentCourse = student?.StudentProfile.Course ?? 0;
-            return detailCourseWorkDTO;
-        }
-
-        private WorkFileDTO GetWorkFileDTO(WorkFile workFile)
-        {
-            var workFileDTO = _mapper.Map<WorkFileDTO>(workFile);
-            workFileDTO.FileTypeName = workFile.FileType.DisplayValue;
-            return workFileDTO;
-        }
-
-        private async Task<CourseWork> GetCourseWorkFromViewModel(CreateCourseWorkViewModel createCourseWorkViewModel,
-            string userId, bool createdByCurator)
-        {
-            var courseWork = _mapper.Map<CourseWork>(createCourseWorkViewModel);
-            if (createdByCurator)
-            {
-                courseWork.CreatedByCurator = true;
-            }
-            else
-            {
-                var user = await _usersRepository.GetUserAsync(userId).ConfigureAwait(false);
-                courseWork.SupervisorName = user.UserName;
-                courseWork.SupervisorContact = courseWork.SupervisorContact ?? user.LecturerProfile?.Contact;
-            }
-
-            courseWork.CreationTime = DateTime.UtcNow;
-            courseWork.LecturerId = userId;
-            return courseWork;
         }
 
         #endregion
@@ -124,20 +72,20 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
                 .ConfigureAwait(false);
 
             return await Task.WhenAll(courseWorks
-                .Select(async courseWork => await GetCourseWorkOverviewDTO(courseWork).ConfigureAwait(false))
+                .Select(async courseWork => await _viewModelService.GetCourseWorkOverviewDTO(courseWork).ConfigureAwait(false))
                 .ToArray());
         }
 
         public async Task<DetailCourseWorkDTO> GetCourseWorkInfoAsync(long courseWorkId)
         {
             var courseWork = await GetCourseWorkByIdAsync(courseWorkId).ConfigureAwait(false);
-            return await GetCourseWorkDetailDTO(courseWork).ConfigureAwait(false);
+            return await _viewModelService.GetCourseWorkDetailDTO(courseWork).ConfigureAwait(false);
         }
 
         public async Task<long> AddCourseWorkAsync(CreateCourseWorkViewModel createCourseWorkViewModel, 
             string userId, bool createdByCurator)
         {
-            var courseWork = await GetCourseWorkFromViewModel(createCourseWorkViewModel, userId, createdByCurator)
+            var courseWork = await _viewModelService.GetCourseWorkFromViewModel(createCourseWorkViewModel, userId, createdByCurator)
                 .ConfigureAwait(false);
             return await _courseWorksRepository.AddAsync(courseWork).ConfigureAwait(false);
         }
@@ -189,8 +137,8 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 
             await _courseWorksRepository.UpdateAsync(courseWork.Id, cw => new CourseWork()
             {
-                CuratorId = null,
-                StudentId = null
+                CuratorProfileId = null,
+                StudentProfileId = null
             }).ConfigureAwait(false);
         }
 
@@ -213,7 +161,7 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 	        {
                 CheckCourseWorkLecturerOrStudent(courseWork, userId);
 	        }
-	        else if (courseWork.ReviewerId != userId)
+	        else if (courseWork.ReviewerProfileId != userId)
 	        {
 		        throw new ForbidException("Only a reviewer of the course work have rights to this action!");
 	        }
@@ -261,7 +209,7 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 	        {
 		        CheckCourseWorkLecturerOrStudent(courseWork, userId);
 	        }
-	        else if (courseWork.ReviewerId != userId)
+	        else if (courseWork.ReviewerProfileId != userId)
 	        {
 		        throw new ForbidException("Only a reviewer of the course work have rights to this action!");
 	        }
@@ -284,7 +232,7 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
         public async Task<WorkFileDTO[]> GetCourseWorkFilesAsync(long courseWorkId)
         {
 	        var courseWork = await GetCourseWorkByIdAsync(courseWorkId).ConfigureAwait(false);
-	        var workFilesDTO = courseWork.WorkFiles.Select(GetWorkFileDTO);
+	        var workFilesDTO = courseWork.WorkFiles.Select(_viewModelService.GetWorkFileDTO);
 	        return workFilesDTO.ToArray();
         }
 

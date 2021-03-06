@@ -13,8 +13,7 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
     {
         #region Fields: Private
 
-        private readonly IDepartmentRepository _departmentRepository;
-        private readonly IDirectionRepository _directionRepository;
+        private readonly IViewModelService _viewModelService;
         private readonly IUsersRepository _usersRepository;
         private readonly IMapper _mapper;
 
@@ -22,48 +21,14 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 
         #region Constructors: Public
 
-        public UserService(IDepartmentRepository departmentRepository, IDirectionRepository directionRepository,
+        public UserService(IViewModelService viewModelService,
             IUsersRepository usersRepository, IMapper mapper)
         {
-            _departmentRepository = departmentRepository;
-            _directionRepository = directionRepository;
+	        _viewModelService = viewModelService;
             _usersRepository = usersRepository;
             _mapper = mapper;
         }
 
-        #endregion
-
-        #region Methods: Private
-
-        private UserDTO GetUserDTO(User user)
-        {
-            return _mapper.Map<UserDTO>(user);
-        }
-
-        private RoleDTO GetRoleDTO(Role role)
-        {
-            return _mapper.Map<RoleDTO>(role);
-        }
-
-        private async Task<UserFullInfoDTO> GetUserFullInfoDTO(User user)
-        {
-            var userFullInfoDTO = _mapper.Map<UserFullInfoDTO>(user);
-            userFullInfoDTO.Roles = await GetUserRoles(user.Id).ConfigureAwait(false);
-            userFullInfoDTO.DirectionId = user.StudentProfile?.DirectionId;
-            var direction = userFullInfoDTO.DirectionId == null
-                ? null
-                : await _directionRepository.GetAsync((long) userFullInfoDTO.DirectionId).ConfigureAwait(false);
-            userFullInfoDTO.DirectionName = direction == null ? "" : direction.Name;
-            userFullInfoDTO.Course = user.StudentProfile?.Course;
-            userFullInfoDTO.Group = user.StudentProfile?.Group;
-            userFullInfoDTO.DepartmentId = user.LecturerProfile?.DepartmentId;
-            var department = userFullInfoDTO.DepartmentId == null
-                ? null
-                : await _departmentRepository.GetAsync((long) userFullInfoDTO.DepartmentId).ConfigureAwait(false);
-            userFullInfoDTO.DepartmentName = department == null ? "" : department.Name;
-            userFullInfoDTO.Contact = user.LecturerProfile?.Contact;
-            return userFullInfoDTO;
-        }
         #endregion
 
         #region Methods: Public
@@ -72,7 +37,7 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
         {
             var users = await _usersRepository.GetUsersByRoleAsync(role).ConfigureAwait(false);
 
-            return users.Select(GetUserDTO).ToArray();
+            return users.Select(_viewModelService.GetUserDTO).ToArray();
         }
 
         public async Task UpdateUserRoleProfile<TProfile, TProfileViewModel>(string userId, TProfileViewModel viewModel)
@@ -105,13 +70,13 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
         public async Task<RoleDTO[]> GetUserRoles(string userId)
         {
             var roles = await _usersRepository.GetRolesAsync(userId).ConfigureAwait(false);
-            return roles.Select(GetRoleDTO).ToArray();
+            return roles.Select(_viewModelService.GetRoleDTO).ToArray();
         }
 
         public async Task<UserFullInfoDTO> GetUserFullInfo(string userId)
         {
             var user = await _usersRepository.GetUserAsync(userId).ConfigureAwait(false);
-            return await GetUserFullInfoDTO(user).ConfigureAwait(false);
+            return await _viewModelService.GetUserFullInfoDTO(user).ConfigureAwait(false);
         }
 
         public async Task AddReviewerRoleToUser(string userId)

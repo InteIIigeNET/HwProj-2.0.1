@@ -11,6 +11,7 @@ namespace HwProj.CourseWorkService.API
         public AutomapperProfile()
         {
             CreateMap< CourseWork, OverviewCourseWorkDTO>();
+            CreateMap<OverviewCourseWorkDTO, ReviewerOverviewCourseWorkDTO>();
             CreateMap<CourseWork, DetailCourseWorkDTO>();
             CreateMap<CourseWork, CreateCourseWorkViewModel>().ReverseMap();
             CreateMap<Application, StudentApplicationDTO>();

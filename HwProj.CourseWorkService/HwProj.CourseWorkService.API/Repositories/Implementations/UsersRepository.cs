@@ -32,6 +32,10 @@ namespace HwProj.CourseWorkService.API.Repositories.Implementations
 					.ThenInclude(cp => cp.Directions)
                 .Include(u => u.CuratorProfile)
 					.ThenInclude(cp => cp.Deadlines)
+                .Include(u => u.ReviewerProfile)
+					.ThenInclude(rp => rp.ReviewersInCuratorsBidding)
+                .Include(u => u.ReviewerProfile)
+					.ThenInclude(rp => rp.CourseWorks)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(u => u.Id == userId)
                 .ConfigureAwait(false);
@@ -55,10 +59,13 @@ namespace HwProj.CourseWorkService.API.Repositories.Implementations
 
         public async Task<User[]> GetUsersByRoleAsync(Roles role)
         {
-            return await Context.Set<User>().Include(u => u.UserRoles)
-                .ThenInclude(ur => ur.Role)
+            return await Context.Set<User>()
+	            .Include(u => u.UserRoles)
+					.ThenInclude(ur => ur.Role)
                 .Include(u => u.CuratorProfile)
-                .ThenInclude(cp => cp.Directions)
+					.ThenInclude(cp => cp.Directions)
+	            .Include(u => u.ReviewerProfile)
+					.ThenInclude(rp => rp.ReviewersInCuratorsBidding)
                 .AsNoTracking()
                 .Where(u => u.UserRoles.Select(ur => (Roles)ur.Role.Id).Contains(role))
                 .ToArrayAsync()
@@ -192,7 +199,7 @@ namespace HwProj.CourseWorkService.API.Repositories.Implementations
 
 	        curator.ReviewersInCuratorsBidding.Clear();
             curator.ReviewersInCuratorsBidding.AddRange(reviewersId
-	            .Select(reviewerId => new ReviewersInCuratorsBidding()
+	            .Select(reviewerId => new ReviewersInCuratorsBidding
 	            {
                     CuratorProfileId = curatorId,
                     ReviewerProfileId = reviewerId

@@ -8,5 +8,6 @@ namespace HwProj.CourseWorkService.API.Repositories.Interfaces
     {
         Task<CourseWork> GetCourseWorkAsync(long id);
         Task ClearIsUpdatedInCourseWorksByCuratorAsync(string userId);
+        Task AddBidInCourseWork(long courseWorkId, string reviewerId, BiddingValues value);
     }
 }

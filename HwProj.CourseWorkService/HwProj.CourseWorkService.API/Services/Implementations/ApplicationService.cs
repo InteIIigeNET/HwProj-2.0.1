@@ -4,7 +4,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using AutoMapper;
 using HwProj.CourseWorkService.API.Exceptions;
 using HwProj.CourseWorkService.API.Models;
 using HwProj.CourseWorkService.API.Models.DTO;
@@ -22,42 +21,32 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
     {
         #region Fields: Private
 
+        private readonly IViewModelService _viewModelService;
         private readonly IApplicationsRepository _applicationsRepository;
         private readonly ICourseWorksRepository _courseWorksRepository;
         private readonly IUsersRepository _usersRepository;
-        private readonly IMapper _mapper;
 
         #endregion
 
         #region Constructors: Public
 
         public ApplicationService(IApplicationsRepository applicationsRepository, ICourseWorksRepository courseWorksRepository,
-            IUsersRepository usersRepository, IMapper mapper)
+            IUsersRepository usersRepository, IViewModelService viewModelService)
         {
             _applicationsRepository = applicationsRepository;
             _courseWorksRepository = courseWorksRepository;
             _usersRepository = usersRepository;
-            _mapper = mapper;
+            _viewModelService = viewModelService;
         }
 
         #endregion
 
         #region Methods: Private
 
-        private Application GetApplicationFromViewModel(string userId, long courseWorkId,
-            CreateApplicationViewModel createApplicationViewModel)
-        {
-            var application = _mapper.Map<Application>(createApplicationViewModel);
-            application.Date = DateTime.UtcNow;
-            application.StudentProfileId = userId;
-            application.CourseWorkId = courseWorkId;
-            return application;
-        }
-
         private async Task<Application> GetApplicationByIdAsync(long appId)
         {
-            var application = await _applicationsRepository.GetApplicationAsync(appId).ConfigureAwait(false);
-            return application ?? throw new ObjectNotFoundException($"Course work with id {appId}");
+	        var application = await _applicationsRepository.GetApplicationAsync(appId).ConfigureAwait(false);
+	        return application ?? throw new ObjectNotFoundException($"Course work with id {appId}");
         }
 
         [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local")]
@@ -69,53 +58,25 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
         [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local")]
         private static void CheckApplicationLecturer(Application application, string userId)
         {
-            if (application.CourseWork.LecturerId != userId) throw new ForbidException("Not enough rights");
+            if (application.CourseWork.LecturerProfileId != userId) throw new ForbidException("Not enough rights");
         }
 
         [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local")]
         private static void CheckStudentNotExist(Application application)
         {
-            if (application.CourseWork.StudentId != null) throw  new BadRequestException("Student already exist");
-        }
-
-        private StudentApplicationDTO GetStudentApplicationDTO(Application application)
-        {
-            var studentApplication = _mapper.Map<StudentApplicationDTO>(application);
-            studentApplication.CourseWorkTitle = application.CourseWork.Title;
-            studentApplication.CourseWorkOverview = application.CourseWork.Overview;
-            studentApplication.CourseWorkSupervisorName = application.CourseWork.SupervisorName;
-            return studentApplication;
-        }
-
-        private LecturerApplicationDTO GetLecturerApplicationDTO(Application application)
-        {
-            var lecturerApplication = _mapper.Map<LecturerApplicationDTO>(application);
-            lecturerApplication.CourseWorkTitle = application.CourseWork.Title;
-            lecturerApplication.CourseWorkOverview = application.CourseWork.Overview;
-            lecturerApplication.StudentName = application.StudentProfile.User.UserName;
-            lecturerApplication.StudentGroup = application.StudentProfile.Group ?? default;
-            return lecturerApplication;
-        }
-
-        private OverviewApplicationDTO GetOverviewApplicationDTO(Application application)
-        {
-            var overviewApplication = _mapper.Map<OverviewApplicationDTO>(application);
-            overviewApplication.CourseWorkTitle = application.CourseWork.Title;
-            overviewApplication.StudentName = application.StudentProfile.User.UserName;
-            overviewApplication.StudentGroup = application.StudentProfile.Group ?? default;
-            return overviewApplication;
+            if (application.CourseWork.StudentProfileId != null) throw  new BadRequestException("Student already exist");
         }
 
         private async Task AssignCuratorToCourseWork(CourseWork courseWork, long? directionId)
         {
-            var lecturer = await _usersRepository.GetUserAsync(courseWork.LecturerId).ConfigureAwait(false);
+            var lecturer = await _usersRepository.GetUserAsync(courseWork.LecturerProfileId).ConfigureAwait(false);
             var curators = await _usersRepository.GetUsersByRoleAsync(Roles.Curator).ConfigureAwait(false);
             curators = curators.Where(c => c.CuratorProfile.DepartmentId == lecturer.LecturerProfile.DepartmentId).ToArray();
             if (curators.Length == 1)
             {
                 await _courseWorksRepository.UpdateAsync(courseWork.Id, cw => new CourseWork()
                 {
-                    CuratorId = curators[0].Id
+                    CuratorProfileId = curators[0].Id
                 }).ConfigureAwait(false);
                 return;
             }
@@ -125,7 +86,7 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
             {
                 await _courseWorksRepository.UpdateAsync(courseWork.Id, cw => new CourseWork()
                 {
-                    CuratorId = curators.First(c
+                    CuratorProfileId = curators.First(c
                         => c.CuratorProfile.Directions.Select(d => d.Id).ToList().Contains((long)directionId)).Id
                 }).ConfigureAwait(false);
             }
@@ -138,7 +99,7 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
         public async Task<long> AddApplicationAsync(string userId, long courseWorkId,
             CreateApplicationViewModel createApplicationViewModel)
         {
-            var application = GetApplicationFromViewModel(userId, courseWorkId, createApplicationViewModel);
+            var application = _viewModelService.GetApplicationFromViewModel(userId, courseWorkId, createApplicationViewModel);
             return await _applicationsRepository.AddAsync(application).ConfigureAwait(false);
         }
 
@@ -153,7 +114,7 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
             var overviewApplications = new List<OverviewApplicationDTO>();
             foreach (var app in applications)
             {
-                overviewApplications.Add(GetOverviewApplicationDTO(app));
+                overviewApplications.Add(_viewModelService.GetOverviewApplicationDTO(app));
             }
 
             return overviewApplications.ToArray();
@@ -164,7 +125,7 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
             var application = await GetApplicationByIdAsync(appId);
             CheckApplicationStudent(application, userId);
 
-            return GetStudentApplicationDTO(application);
+            return _viewModelService.GetStudentApplicationDTO(application);
         }
 
         public async Task<LecturerApplicationDTO> GetApplicationForLecturerAsync(string userId, long appId)
@@ -172,7 +133,7 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
             var application = await GetApplicationByIdAsync(appId);
             CheckApplicationLecturer(application, userId);
 
-            return GetLecturerApplicationDTO(application);
+            return _viewModelService.GetLecturerApplicationDTO(application);
         }
 
         public async Task CancelApplicationAsync(string userId, long appId)
@@ -197,7 +158,7 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 
             await _courseWorksRepository.UpdateAsync(application.CourseWorkId, cw => new CourseWork()
             {
-                StudentId = application.StudentProfileId
+                StudentProfileId = application.StudentProfileId
             }).ConfigureAwait(false);
 
             foreach (var app in application.CourseWork.Applications)

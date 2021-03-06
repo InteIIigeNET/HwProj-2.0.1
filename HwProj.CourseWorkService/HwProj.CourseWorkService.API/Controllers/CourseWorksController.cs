@@ -50,7 +50,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         public async Task<IActionResult> GetAvailableCourseWorks()
         {
             var courseWorks = await _courseWorksService
-                .GetFilteredCourseWorksAsync(courseWork => courseWork.StudentId == null && !courseWork.IsCompleted)
+                .GetFilteredCourseWorksAsync(courseWork => courseWork.StudentProfileId == null && !courseWork.IsCompleted)
                 .ConfigureAwait(false);
             return Ok(courseWorks);
         }
@@ -68,10 +68,10 @@ namespace HwProj.CourseWorkService.API.Controllers
             var userId = Request.GetUserId();
             var courseWorks = await _courseWorksService
                 .GetFilteredCourseWorksAsync(courseWork => courseWork.IsCompleted == (status == "completed") && 
-                    role == Roles.Student ? courseWork.StudentId == userId :
-                    role == Roles.Lecturer ? courseWork.LecturerId == userId && !courseWork.CreatedByCurator :
-                    role == Roles.Reviewer ? courseWork.ReviewerId == userId :
-                    courseWork.CuratorId == userId)
+                    role == Roles.Student ? courseWork.StudentProfileId == userId :
+                    role == Roles.Lecturer ? courseWork.LecturerProfileId == userId && !courseWork.CreatedByCurator :
+                    role == Roles.Reviewer ? courseWork.ReviewerProfileId == userId :
+                    courseWork.CuratorProfileId == userId)
                 .ConfigureAwait(false);
             return Ok(courseWorks);
         }
@@ -139,7 +139,7 @@ namespace HwProj.CourseWorkService.API.Controllers
 
             var userId = Request.GetUserId();
             var applications = await _applicationsService
-                .GetFilteredApplicationsAsync(app => app.StudentProfileId == userId || app.CourseWork.LecturerId == userId)
+                .GetFilteredApplicationsAsync(app => app.StudentProfileId == userId || app.CourseWork.LecturerProfileId == userId)
                 .ConfigureAwait(false);
             return Ok(applications);
         }

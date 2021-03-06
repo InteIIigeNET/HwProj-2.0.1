@@ -25,6 +25,7 @@ namespace HwProj.CourseWorkService.API.Models
         public DbSet<Department> Departments { get; set; }
         public DbSet<Direction> Directions { get; set; }
 		public DbSet<ReviewersInCuratorsBidding> ReviewersInCuratorsBidding { get; set; }
+		public DbSet<Bid> Bids { get; set; }
 
         #endregion
 
@@ -33,7 +34,7 @@ namespace HwProj.CourseWorkService.API.Models
         public CourseWorkContext(DbContextOptions<CourseWorkContext> options)
 	        : base(options)
         {
-	        //Database.EnsureCreated();
+	        Database.EnsureCreated();
         }
 
         #endregion

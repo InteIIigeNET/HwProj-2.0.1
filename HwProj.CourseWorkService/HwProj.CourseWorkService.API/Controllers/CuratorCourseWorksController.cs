@@ -68,7 +68,7 @@ namespace HwProj.CourseWorkService.API.Controllers
 	        var courseWorks = await _courseWorksService
 		        .GetFilteredCourseWorksAsync(courseWork =>
 			        courseWork.IsCompleted == (status == "completed") &&
-			        courseWork.LecturerId == userId &&
+			        courseWork.LecturerProfileId == userId &&
 			        courseWork.CreatedByCurator)
 		        .ConfigureAwait(false);
 	        return Ok(courseWorks);
@@ -170,7 +170,16 @@ namespace HwProj.CourseWorkService.API.Controllers
 			return Ok(usersDTO);
         }
 
-		[HttpPost("reviewers/set_to_bidding")]
+        [HttpGet("reviewers/bidding")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserDTO[]))]
+        public async Task<IActionResult> GetReviewersInBidding()
+        {
+            var userId = Request.GetUserId();
+            var usersDTO = await _reviewService.GetReviewersInBidding(userId).ConfigureAwait(false);
+	        return Ok(usersDTO);
+        }
+
+        [HttpPost("reviewers/set_to_bidding")]
 		public async Task<IActionResult> SetReviewersToBidding([FromBody] ReviewersForBiddingListViewModel reviewersListViewModel)
 		{
 			var userId = Request.GetUserId();
@@ -178,6 +187,8 @@ namespace HwProj.CourseWorkService.API.Controllers
 				.ConfigureAwait(false);
 			return Ok();
 		}
+
+
 
 		#endregion
 	}

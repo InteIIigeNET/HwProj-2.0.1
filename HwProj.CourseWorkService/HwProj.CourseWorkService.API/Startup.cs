@@ -39,7 +39,8 @@ namespace HwProj.CourseWorkService.API
                 .AddScoped<ICourseWorksService, CourseWorksService>()
                 .AddScoped<IReviewService, ReviewService>()
                 .AddScoped<IUniversityService, UniversityService>()
-                .AddScoped<IUserService, UserService>();
+                .AddScoped<IUserService, UserService>()
+                .AddScoped<IViewModelService, ViewModelService>();
 
             services.AddEventBus(Configuration);
 

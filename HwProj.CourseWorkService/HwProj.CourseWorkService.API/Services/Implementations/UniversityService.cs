@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AutoMapper;
 using HwProj.CourseWorkService.API.Exceptions;
 using HwProj.CourseWorkService.API.Models;
 using HwProj.CourseWorkService.API.Models.DTO;
@@ -17,12 +16,12 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
     {
         #region Fields: Private
 
+        private readonly IViewModelService _viewModelService;
         private readonly ICourseWorksRepository _courseWorksRepository;
         private readonly IDeadlineRepository _deadlineRepository;
         private readonly IDepartmentRepository _departmentRepository;
         private readonly IDirectionRepository _directionRepository;
         private readonly IUsersRepository _usersRepository;
-        private readonly IMapper _mapper;
 
         #endregion
 
@@ -30,56 +29,19 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 
         public UniversityService(ICourseWorksRepository courseWorksRepository, IDeadlineRepository deadlineRepository,
 	        IDepartmentRepository departmentRepository, IDirectionRepository directionRepository,
-	        IUsersRepository usersRepository, IMapper mapper)
+	        IUsersRepository usersRepository, IViewModelService viewModelService)
         {
 	        _courseWorksRepository = courseWorksRepository;
 	        _deadlineRepository = deadlineRepository;
             _departmentRepository = departmentRepository;
             _directionRepository = directionRepository;
             _usersRepository = usersRepository;
-            _mapper = mapper;
+            _viewModelService = viewModelService;
         }
 
         #endregion
 
         #region Methods: Private
-
-        private DirectionDTO GetDirectionDTO(Direction direction)
-        {
-            var directionDTO = _mapper.Map<DirectionDTO>(direction);
-            directionDTO.CuratorName = direction.CuratorProfile.User.UserName;
-            return directionDTO;
-        }
-        private DepartmentDTO GetDepartmentDTO(Department department)
-        {
-            var departmentDTO = _mapper.Map<DepartmentDTO>(department);
-            return departmentDTO;
-        }
-        private DeadlineDTO GetDeadlineDTO(Deadline deadline)
-        {
-	        var deadlineDTO = _mapper.Map<DeadlineDTO>(deadline);
-	        deadlineDTO.DeadlineTypeName = deadline.DeadlineType.DisplayValue;
-	        deadlineDTO.DirectionName = deadline.Direction.Name;
-	        return deadlineDTO;
-        }
-
-        private Direction GetDirectionFromViewModel(AddDirectionViewModel directionViewModel)
-        {
-            var direction = _mapper.Map<Direction>(directionViewModel);
-            direction.CuratorProfileId = directionViewModel.CuratorId;
-            return direction;
-        }
-        private Department GetDepartmentFromViewModel(AddDepartmentViewModel departmentViewModel)
-        {
-            var department = _mapper.Map<Department>(departmentViewModel);
-            return department;
-        }
-        private Deadline GetDeadlineFromViewModel(AddDeadlineViewModel deadlineViewModel, string userId)
-        {
-	        var deadline = _mapper.Map<Deadline>(deadlineViewModel);
-	        deadline.CuratorProfileId = userId;
-	        return deadline;
-        }
 
         private async Task RemoveExistDeadlineAsync(Deadline deadline)
         {
@@ -118,31 +80,18 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
         private async Task<bool> CheckCourseWorkAsync(string userId)
         {
 	        var courseWorks = await _courseWorksRepository
-		        .FindAll(cw => cw.StudentId == userId && cw.IsCompleted == false)
+		        .FindAll(cw => cw.StudentProfileId == userId && cw.IsCompleted == false)
 		        .ToArrayAsync()
 		        .ConfigureAwait(false);
 	        return courseWorks.Length > 0;
         }
 
-        private async Task<Deadline[]> GetStudentCourseWorkDeadlinesAsync(CourseWork courseWork)
+        private async Task<Deadline[]> GetCustomCourseWorkDeadlinesAsync(CourseWork courseWork, DeadlineTypes[] types)
         {
-	        var allDeadlines = await GetAllVisibleCourseWorkDeadlinesAsync(courseWork).ConfigureAwait(false);
-	        return allDeadlines
-		        .Where(d =>
-			        d.DeadlineTypeId == (long) DeadlineTypes.CourseWorkText
-			        || d.DeadlineTypeId == (long) DeadlineTypes.Corrections
-			        || d.DeadlineTypeId == (long) DeadlineTypes.Protection)
-		        .ToArray();
-        }
-
-        private async Task<Deadline[]> GetReviewerCourseWorkDeadlinesAsync(CourseWork courseWork)
-        {
-	        var allDeadlines = await GetAllVisibleCourseWorkDeadlinesAsync(courseWork).ConfigureAwait(false);
-	        return allDeadlines
-		        .Where(d =>
-			        d.DeadlineTypeId == (long)DeadlineTypes.Bidding
-			        || d.DeadlineTypeId == (long)DeadlineTypes.Reviewing)
-		        .ToArray();
+            var allDeadlines = await GetAllVisibleCourseWorkDeadlinesAsync(courseWork).ConfigureAwait(false);
+            return allDeadlines
+	            .Where(d => types.Contains((DeadlineTypes)d.DeadlineTypeId))
+	            .ToArray();
         }
 
         private async Task<Deadline[]> GetAllVisibleCourseWorkDeadlinesAsync(CourseWork courseWork)
@@ -165,7 +114,7 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
         {
             return await _deadlineRepository
 	            .FindAllDeadlines(d =>
-		            d.CuratorProfileId == courseWork.CuratorId
+		            d.CuratorProfileId == courseWork.CuratorProfileId
 		            && (d.CourseWorkId == courseWork.Id || d.CourseWorkId == null))
 	            .ConfigureAwait(false);
         }
@@ -192,11 +141,11 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
         public async Task<DirectionDTO[]> GetDirectionsAsync()
         {
             var directions = await _directionRepository.GetDirectionsAsync().ConfigureAwait(false);
-            return directions.Select(GetDirectionDTO).ToArray();
+            return directions.Select(_viewModelService.GetDirectionDTO).ToArray();
         }
         public async Task<long> AddDirectionAsync(AddDirectionViewModel directionViewModel)
         {
-            var direction = GetDirectionFromViewModel(directionViewModel);
+            var direction = _viewModelService.GetDirectionFromViewModel(directionViewModel);
             return await _directionRepository.AddAsync(direction).ConfigureAwait(false);
         }
         public async Task DeleteDirectionAsync(long directionId)
@@ -207,11 +156,11 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
         public async Task<DepartmentDTO[]> GetDepartmentsAsync()
         {
             var departments = await _departmentRepository.GetAll().ToArrayAsync().ConfigureAwait(false);
-            return departments.Select(GetDepartmentDTO).ToArray();
+            return departments.Select(_viewModelService.GetDepartmentDTO).ToArray();
         }
         public async Task<long> AddDepartmentAsync(AddDepartmentViewModel departmentViewModel)
         {
-            var department = GetDepartmentFromViewModel(departmentViewModel);
+            var department = _viewModelService.GetDepartmentFromViewModel(departmentViewModel);
             return await _departmentRepository.AddAsync(department).ConfigureAwait(false);
         }
         public async Task DeleteDepartmentAsync(long departmentId)
@@ -224,7 +173,7 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 	        var deadlines = await _deadlineRepository
 		        .FindAllDeadlines(d => d.CuratorProfileId == userId)
 		        .ConfigureAwait(false);
-	        return deadlines.Select(GetDeadlineDTO).ToArray();
+	        return deadlines.Select(_viewModelService.GetDeadlineDTO).ToArray();
         }
         public async Task<DeadlineDTO> GetChoiceThemeDeadlineAsync(string userId)
         {
@@ -237,7 +186,7 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 		        .ConfigureAwait(false);
 	        var deadline = deadlines.FirstOrDefault();
 	        var chosenCourseWork = await CheckCourseWorkAsync(userId);
-	        return deadline == null || chosenCourseWork ? null : GetDeadlineDTO(deadline);
+	        return deadline == null || chosenCourseWork ? null : _viewModelService.GetDeadlineDTO(deadline);
         }
         public async Task<DeadlineDTO[]> GetCourseWorkDeadlinesAsync(string userId, long courseWorkId)
         {
@@ -245,27 +194,44 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
             if (courseWork == null) throw new ObjectNotFoundException($"Course work with id {courseWorkId} not found!");
 
             var deadlines = new List<Deadline>();
-            if (courseWork.StudentId == userId)
+            if (courseWork.StudentProfileId == userId)
             {
-	            var studentDeadlines = await GetStudentCourseWorkDeadlinesAsync(courseWork).ConfigureAwait(false);
+	            var studentDeadlines = await GetCustomCourseWorkDeadlinesAsync(courseWork, new []
+	            {
+		            DeadlineTypes.CourseWorkText,
+		            DeadlineTypes.Corrections, 
+		            DeadlineTypes.Protection
+	            }).ConfigureAwait(false);
                 deadlines.AddRange(studentDeadlines);
             }
-            else if (courseWork.ReviewerId == userId)
+            else if (courseWork.ReviewerProfileId == userId)
             {
-	            var reviewerDeadlines = await GetReviewerCourseWorkDeadlinesAsync(courseWork).ConfigureAwait(false);
+	            var reviewerDeadlines = await GetCustomCourseWorkDeadlinesAsync(courseWork, new[]
+	            {
+		            DeadlineTypes.Reviewing
+	            }).ConfigureAwait(false);
+                deadlines.AddRange(reviewerDeadlines);
+            }
+            else if (courseWork.CuratorProfile?.ReviewersInCuratorsBidding
+	            .Any(e => e.ReviewerProfileId == userId) ?? false)
+            {
+	            var reviewerDeadlines = await GetCustomCourseWorkDeadlinesAsync(courseWork, new[]
+	            {
+		            DeadlineTypes.Bidding
+	            }).ConfigureAwait(false);
 	            deadlines.AddRange(reviewerDeadlines);
             }
-            else if (courseWork.LecturerId == userId || courseWork.CuratorId == userId)
+            else if (courseWork.LecturerProfileId == userId || courseWork.CuratorProfileId == userId)
             {
 	            var curatorDeadlines = await GetAllCourseWorkDeadlineForCurator(courseWork).ConfigureAwait(false);
 	            deadlines.AddRange(curatorDeadlines);
             }
 
-            return deadlines.Select(GetDeadlineDTO).ToArray();
+            return deadlines.Select(_viewModelService.GetDeadlineDTO).ToArray();
         }
         public async Task<long> AddDeadlineAsync(string userId, AddDeadlineViewModel addDeadlineViewModel)
         {
-	        var deadline = GetDeadlineFromViewModel(addDeadlineViewModel, userId);
+	        var deadline = _viewModelService.GetDeadlineFromViewModel(addDeadlineViewModel, userId);
 	        await RemoveExistDeadlineAsync(deadline).ConfigureAwait(false);
 	        if (deadline.DeadlineTypeId == (long) DeadlineTypes.CourseWorkText ||
 	            deadline.DeadlineTypeId == (long) DeadlineTypes.Corrections)
