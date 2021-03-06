@@ -59,11 +59,11 @@ namespace HwProj.CoursesService.API.Controllers
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> UpdateCourse(long courseId, [FromBody] UpdateCourseViewModel courseViewModel)
         {
-            await _coursesService.UpdateAsync(courseId, new Course()
+            await _coursesService.UpdateAsync(courseId, new Course
             {
                 Name = courseViewModel.Name,
                 GroupName = courseViewModel.GroupName,
-                IsComplete = courseViewModel.IsComplete,
+                IsCompleted = courseViewModel.IsComplete,
                 IsOpen = courseViewModel.IsOpen
             });
 
