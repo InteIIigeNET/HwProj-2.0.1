@@ -39,7 +39,7 @@ namespace HwProj.AuthService.API.Services
 
             var userRoles = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
             var userRole = userRoles.FirstOrDefault() ?? Roles.StudentRole;
-            return new AccountData(user.UserName, user.Email, userRole);
+            return new AccountData(user.Name, user.Surname, user.Email, userRole);
         }
 
         public async Task<IdentityResult> EditAccountAsync(string id, EditAccountViewModel model)
@@ -55,7 +55,7 @@ namespace HwProj.AuthService.API.Services
                 return IdentityResults.WrongPassword;
             }
 
-            return await ChangeUserNameTask(user, model).Then(() => ChangePasswordAsync(user, model)).ConfigureAwait(false);
+            return await ChangeNameTask(user, model).Then(() => ChangePasswordAsync(user, model)).ConfigureAwait(false);
         }
 
         public async Task<IdentityResult<TokenCredentials>> LoginUserAsync(LoginViewModel model)
@@ -94,6 +94,7 @@ namespace HwProj.AuthService.API.Services
             }
 
             var user = _mapper.Map<User>(model);
+            user.UserName = user.Email;
 
             return await _userManager.CreateAsync(user, model.Password)
                 .Then(() => _userManager.AddToRoleAsync(user, Roles.StudentRole))
@@ -117,9 +118,16 @@ namespace HwProj.AuthService.API.Services
                 .Then(() => _userManager.RemoveFromRoleAsync(invitedUser, Roles.StudentRole)).ConfigureAwait(false);
         }
 
-        private Task<IdentityResult> ChangeUserNameTask(User user, EditAccountViewModel model)
+        private Task<IdentityResult> ChangeNameTask(User user, EditAccountViewModel model)
         {
-            return !string.IsNullOrWhiteSpace(model.UserName)
+            return !string.IsNullOrWhiteSpace(model.Name)
+                ? _userManager.UpdateAsync(user)
+                : Task.FromResult(IdentityResult.Success);
+        }
+
+        private Task<IdentityResult> ChangeSurnameTask(User user, EditAccountViewModel model)
+        {
+            return !string.IsNullOrWhiteSpace(model.Surname)
                 ? _userManager.UpdateAsync(user)
                 : Task.FromResult(IdentityResult.Success);
         }
