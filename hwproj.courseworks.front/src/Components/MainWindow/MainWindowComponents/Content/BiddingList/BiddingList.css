@@ -1,0 +1,15 @@
+.biddingItem{
+    margin-left: 2vw;
+    margin-bottom: 1vh;
+    margin-top: 2vh;
+    padding-bottom: 0.5vh;    
+    border-bottom: rgb(199, 180, 180) 1px solid;
+}
+
+.biddingTitle{
+    min-width: 8vw;
+}
+
+.biddingCritic{
+    min-width: 15vw;
+}

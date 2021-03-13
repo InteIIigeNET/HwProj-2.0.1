@@ -1,0 +1,14 @@
+.mt{
+    margin-top: 3vh;
+}
+
+.workItem{
+    margin-bottom:4vh;
+    /* box-shadow: 10px 10px 5px -7px rgba(0,0,0,0.75); */
+    background : #f1f1f1;
+    border-radius : 6px;
+    margin-left: 1vw;
+    margin-right: 4vw;
+    border: rgb(199, 180, 180) 1px solid;
+    
+}
