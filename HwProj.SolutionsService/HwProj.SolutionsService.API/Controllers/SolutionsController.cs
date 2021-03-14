@@ -53,6 +53,12 @@ namespace HwProj.SolutionsService.API.Controllers
         {
             await _solutionsService.RateSolutionAsync(solutionId, newRating);
         }
+        
+        [HttpPost("mark_solution_final/{solutionId}")]
+        public async Task MarkSolutionFinal(long solutionId)
+        {
+            await _solutionsService.MarkSolutionFinal(solutionId);
+        }
 
         [HttpDelete("delete/{solutionId}")]
         public async Task DeleteSolution(long solutionId)

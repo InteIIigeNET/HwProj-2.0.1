@@ -16,5 +16,7 @@ namespace HwProj.SolutionsService.API.Services
         Task RateSolutionAsync(long solutionId, int newRating);
 
         Task DeleteSolutionAsync(long solutionId);
+        
+        Task MarkSolutionFinal(long solutionId);
     }
 }

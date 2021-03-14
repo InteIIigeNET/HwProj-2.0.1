@@ -59,5 +59,10 @@ namespace HwProj.SolutionsService.API.Services
         {
             return _solutionsRepository.DeleteAsync(solutionId);
         }
+        
+        public async Task MarkSolutionFinal(long solutionId)
+        {
+            await _solutionsRepository.UpdateSolutionState(solutionId, SolutionState.Final);
+        }
     }
 }

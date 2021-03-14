@@ -56,5 +56,10 @@ namespace HwProj.SolutionsService.API.Repositories
             
             await Context.SaveChangesAsync().ConfigureAwait(false);
         }
+        
+        public async Task UpdateSolutionState(long solutionId, SolutionState newState)
+        {
+            await UpdateAsync(solutionId, solution => new Solution {State = newState}).ConfigureAwait(false);
+        }
     }
 }

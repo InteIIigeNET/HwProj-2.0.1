@@ -441,6 +441,28 @@
       }
     },
     {
+      "DownstreamPathTemplate": "/api/Solutions/mark_solution_final/{solutionId}/",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44300
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Solutions/mark_solution_final/{solutionId}/",
+      "UpstreamhttpsMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "Lecturer"
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
+      }
+    },
+    {
       "DownstreamPathTemplate": "/api/Solutions/delete/{solutionId}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [

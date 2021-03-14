@@ -11,5 +11,7 @@ namespace HwProj.SolutionsService.API.Repositories
         Task ChangeTaskSolutionsMaxRatingAsync(long solutionId, int newMaxRating);
 
         Task ChangeSolutionMaxRatingAsync(long solutionId, int newMaxRating);
+
+        Task UpdateSolutionState(long solutionId, SolutionState newState);
     }
 }
