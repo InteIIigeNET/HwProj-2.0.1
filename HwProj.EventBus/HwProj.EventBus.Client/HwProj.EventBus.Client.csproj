@@ -10,6 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Autofac" Version="6.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.2.0" />
     <PackageReference Include="Polly.Extensions.Http" Version="3.0.0" />
     <PackageReference Include="RabbitMQ.Client" Version="5.1.2" />

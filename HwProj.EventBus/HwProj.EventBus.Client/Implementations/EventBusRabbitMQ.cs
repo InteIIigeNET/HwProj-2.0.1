@@ -17,18 +17,19 @@ namespace HwProj.EventBus.Client.Implementations
         private const string BrokerName = "hwproj_event_bus";
 
         private readonly IDefaultConnection _connection;
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IServiceScopeFactory _scopeFactory;
 
         private readonly string _queueName;
         private readonly RetryPolicy _policy;
 
         private  IModel _consumerChannel;
 
-        public EventBusRabbitMq(IDefaultConnection connection, IServiceProvider serviceProvider, RetryPolicy policy)
+        public EventBusRabbitMq(IDefaultConnection connection, IServiceProvider serviceProvider,
+            IServiceScopeFactory scopeFactory, RetryPolicy policy)
         {
             _connection = connection;
-            _serviceProvider = serviceProvider;
-            _queueName = _serviceProvider.GetApplicationUniqueIdentifier().Split('\\').Last();
+            _scopeFactory = scopeFactory;
+            _queueName = serviceProvider.GetApplicationUniqueIdentifier().Split('\\').Last();
             _policy = policy;
             _consumerChannel = CreateConsumerChannel();
         }
@@ -109,21 +110,29 @@ namespace HwProj.EventBus.Client.Implementations
         private async Task ProcessEvent(string eventName, string message)
         {
             var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes()).ToList();
-            var eventType = types.First(x => x.Name == eventName);
-            var @event = JsonConvert.DeserializeObject(message, eventType) as Event;
-            var fullTypeInterface = typeof(IEventHandler<>).MakeGenericType(eventType);
-            var handlers = types.Where(x => fullTypeInterface.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
-
-            using (var scope = _serviceProvider.CreateScope())
+            var eventType = types.FirstOrDefault(x => x.Name == eventName);
+            if (eventType != null)
             {
-                foreach (var handler in handlers)
+                var @event = JsonConvert.DeserializeObject(message, eventType) as Event;
+                var fullTypeInterface = typeof(IEventHandler<>).MakeGenericType(eventType);
+                var handlers =
+                    types.Where(x => fullTypeInterface.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
+
+                using (var scope = _scopeFactory.CreateScope())
                 {
-                    //var handlerObject = _serviceProvider.GetService(handler); Это для теста
-                    var handlerObject = scope.ServiceProvider.GetRequiredService(handler);
-                    await Task.Run(() => handler.GetMethod("HandleAsync")?
-                            .Invoke(handlerObject, new object[] { @event }))
+                    foreach (var handler in handlers)
+                    {
+                        var handlerObject = scope.ServiceProvider.GetRequiredService(handler);
+                        // ReSharper disable once PossibleNullReferenceException
+                        await ((Task)handler.GetMethod("HandleAsync")
+                            ?.Invoke(handlerObject, new object[] { @event }))
                             .ConfigureAwait(false);
+                    }
                 }
+            }
+            else
+            {
+                await Task.CompletedTask;
             }
         }
 

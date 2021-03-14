@@ -39,6 +39,7 @@ namespace HwProj.Utils.Configuration
                             .AllowAnyHeader()
                             .AllowCredentials());
                 });
+            
 
             services.AddTransient<NoApiGatewayMiddleware>();
 
@@ -47,10 +48,11 @@ namespace HwProj.Utils.Configuration
 
         public static IServiceCollection AddEventBus(this IServiceCollection services, IConfiguration configuration)
         {
+            var eventBusSection = configuration.GetSection("EventBus");
             var retryCount = 5;
-            if (!string.IsNullOrEmpty(configuration["EventBusRetryCount"]))
+            if (!string.IsNullOrEmpty(eventBusSection["EventBusRetryCount"]))
             {
-                retryCount = int.Parse(configuration["EventBusRetryCount"]);
+                retryCount = int.Parse(eventBusSection["EventBusRetryCount"]);
             }
 
             services.AddSingleton(sp => Policy.Handle<SocketException>()
@@ -59,10 +61,10 @@ namespace HwProj.Utils.Configuration
 
             services.AddSingleton<IConnectionFactory, ConnectionFactory>(sp => new ConnectionFactory
             {
-                HostName = configuration["EventBusHostName"],
-                UserName = configuration["EventBusUserName"],
-                Password = configuration["EventBusPassword"],
-                VirtualHost = configuration["EventBusVirtualHost"]
+                HostName = eventBusSection["EventBusHostName"],
+                UserName = eventBusSection["EventBusUserName"],
+                Password = eventBusSection["EventBusPassword"],
+                VirtualHost = eventBusSection["EventBusVirtualHost"]
             });
 
             services.AddSingleton<IDefaultConnection, DefaultConnection>();

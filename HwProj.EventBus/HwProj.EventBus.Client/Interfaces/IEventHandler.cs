@@ -2,8 +2,7 @@
 
 namespace HwProj.EventBus.Client.Interfaces
 {
-    public interface IEventHandler<in TEvent> 
-        where TEvent : Event
+    public interface IEventHandler<in TEvent>
     {
         Task HandleAsync(TEvent @event);
     }
