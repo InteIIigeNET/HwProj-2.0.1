@@ -4,7 +4,7 @@ using Newtonsoft.Json.Converters;
 
 namespace HwProj.SolutionsService.API.Models
 {
-    public class Solution : IEntity
+    public class Solution : IEntity<long>
     {
         public long Id { get; set; }
 

@@ -1,10 +1,10 @@
 ﻿using System.Threading.Tasks;
-using HwProj.AuthService.API.Models;
+using HwProj.AuthService.API.Models.DTO;
 
 namespace HwProj.AuthService.Client
 {
     public interface IAuthServiceClient
     {
-        Task<AccountData> GetAccountData(string accountId);
+        Task<AccountDataDTO> GetAccountData(string accountId);
     }
 }

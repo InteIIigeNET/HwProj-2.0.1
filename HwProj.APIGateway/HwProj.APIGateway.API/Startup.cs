@@ -6,8 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
-using System.Text;
-using Ocelot.ConfigEditor;
+using HwProj.Utils.Authorization;
 
 namespace HwProj.APIGateway.API
 {
@@ -24,9 +23,6 @@ namespace HwProj.APIGateway.API
         {
             services.ConfigureHwProjServices("API Gateway");
 
-            var securityKey =
-                new SymmetricSecurityKey(
-                    Encoding.ASCII.GetBytes("U8_.wpvk93fPWG<f2$Op[vwegmQGF25_fNG2V0ijnm2e0igv24g"));
             var authenticationProviderKey = "GatewayKey";
 
             services.AddAuthentication()
@@ -39,20 +35,17 @@ namespace HwProj.APIGateway.API
                         ValidateIssuer = true,
                         ValidateAudience = false,
                         ValidateLifetime = true,
-                        IssuerSigningKey = securityKey,
+                        IssuerSigningKey = AuthorizationKey.SecurityKey,
                         ValidateIssuerSigningKey = true
                     };
                 });
 
             services.AddOcelot();
-            services.AddOcelotConfigEditor();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.UseOcelotConfigEditor(new ConfigEditorOptions { Path = "ocelot" });
             app.UseOcelot().Wait();
-
             app.ConfigureHwProj(env, "API Gateway");
         }
     }

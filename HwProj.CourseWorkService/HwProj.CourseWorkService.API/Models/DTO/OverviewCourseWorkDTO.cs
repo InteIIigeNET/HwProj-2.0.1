@@ -7,5 +7,7 @@
         public string Type { get; set; }
         public string SupervisorName { get; set; }
         public string Overview { get; set; }
+        public int Course { get; set; }
+        public string StudentName { get; set; }
     }
 }

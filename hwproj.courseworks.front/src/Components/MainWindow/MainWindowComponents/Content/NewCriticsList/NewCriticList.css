@@ -1,0 +1,11 @@
+.newCriticList{
+    margin-left: 30px;
+    width: auto;
+    min-width: 300px;
+}
+
+.newCriticListItem{
+    margin-bottom: 15px;  
+    border-bottom: 0.5px gainsboro solid;  
+    padding-bottom: 5px;
+}

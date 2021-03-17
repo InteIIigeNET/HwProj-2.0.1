@@ -3,7 +3,7 @@ using HwProj.Repositories;
 
 namespace HwProj.HomeworkService.API.Repositories
 {
-    public interface ITasksRepository : ICrudRepository<HomeworkTask>
+    public interface ITasksRepository : ICrudRepository<HomeworkTask, long>
     {
     }
 }

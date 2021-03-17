@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Linq;
 using System.Net.Sockets;
-using System.Text;
 using AutoMapper;
 using HwProj.EventBus.Client;
 using HwProj.EventBus.Client.Implementations;
 using HwProj.EventBus.Client.Interfaces;
+using HwProj.Utils.Authorization;
 using HwProj.Utils.Configuration.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -33,20 +33,7 @@ namespace HwProj.Utils.Configuration
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new Info {Title = serviceName, Version = "v1"}); })
-                .AddCors(options =>
-                {
-                    options.AddPolicy("CorsPolicy",
-                        builder => builder
-                            .AllowAnyOrigin()
-                            .AllowAnyMethod()
-                            .AllowAnyHeader()
-                            .AllowCredentials());
-                });
-
-            var securityKey =
-                new SymmetricSecurityKey(
-                    Encoding.ASCII.GetBytes(
-                        "U8_.wpvk93fPWG<f2$Op[vwegmQGF25_fNG2V0ijnm2e0igv24g")); //с этим 3.14здецом тоже нужно что-то сделать
+                .AddCors();
 
             if (serviceName != "AuthService API")
             {
@@ -64,7 +51,7 @@ namespace HwProj.Utils.Configuration
                             ValidateIssuer = true,
                             ValidateAudience = false,
                             ValidateLifetime = true,
-                            IssuerSigningKey = securityKey,
+                            IssuerSigningKey = AuthorizationKey.SecurityKey,
                             ValidateIssuerSigningKey = true
                         };
                     });
@@ -77,10 +64,12 @@ namespace HwProj.Utils.Configuration
 
         public static IServiceCollection AddEventBus(this IServiceCollection services, IConfiguration configuration)
         {
+            var eventBusSection = configuration.GetSection("EventBus");
+
             var retryCount = 5;
-            if (!string.IsNullOrEmpty(configuration["EventBusRetryCount"]))
+            if (!string.IsNullOrEmpty(eventBusSection["EventBusRetryCount"]))
             {
-                retryCount = int.Parse(configuration["EventBusRetryCount"]);
+                retryCount = int.Parse(eventBusSection["EventBusRetryCount"]);
             }
 
             services.AddSingleton(sp => Policy.Handle<SocketException>()
@@ -89,10 +78,10 @@ namespace HwProj.Utils.Configuration
 
             services.AddSingleton<IConnectionFactory, ConnectionFactory>(sp => new ConnectionFactory
             {
-                HostName = configuration["EventBusHostName"],
-                UserName = configuration["EventBusUserName"],
-                Password = configuration["EventBusPassword"],
-                VirtualHost = configuration["EventBusVirtualHost"]
+                HostName = eventBusSection["EventBusHostName"],
+                UserName = eventBusSection["EventBusUserName"],
+                Password = eventBusSection["EventBusPassword"],
+                VirtualHost = eventBusSection["EventBusVirtualHost"]
             });
 
             services.AddSingleton<IDefaultConnection, DefaultConnection>();
@@ -129,7 +118,12 @@ namespace HwProj.Utils.Configuration
 
             app.UseAuthentication();
 
-            app.UseCors("CorsPolicy");
+            app.UseCors(x => x
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(origin => true)
+                .AllowCredentials());
+
             app.UseHttpsRedirection()
                 .UseMvc();
         }

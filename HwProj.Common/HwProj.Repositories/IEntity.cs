@@ -1,7 +1,10 @@
-﻿namespace HwProj.Repositories
+﻿using System;
+
+namespace HwProj.Repositories
 {
-    public interface IEntity
+    public interface IEntity<TKey>
+        where TKey : IEquatable<TKey>
     {
-        long Id { get; set; }
+        TKey Id { get; set; }
     }
 }

@@ -1,0 +1,36 @@
+.sideTitle{
+    margin-top:50px;
+    background : #E9E9E9;
+
+}
+
+.topicTitle{
+    margin-top: 2vh;
+    margin-bottom: 0px;
+    margin-right: 0px;
+    width: auto;
+    height: 100%;
+}
+
+.topicDescription{
+    margin-top: 0px;
+    position: relative;
+    width: auto;
+    
+}
+
+.textArea{
+    margin-top: 1vh;
+}
+
+.course{
+    margin-bottom: 10px;
+}
+
+.minW10{
+    min-width: 10vw;
+}
+
+hr{
+    width: 100%;
+}

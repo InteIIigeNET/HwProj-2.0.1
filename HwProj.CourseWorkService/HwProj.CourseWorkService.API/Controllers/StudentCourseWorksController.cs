@@ -1,137 +1,110 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using HwProj.CourseWorkService.API.Exceptions;
 using HwProj.CourseWorkService.API.Filters;
 using Microsoft.AspNetCore.Mvc;
 using HwProj.CourseWorkService.API.Models.DTO;
+using HwProj.CourseWorkService.API.Models.UserInfo;
 using HwProj.CourseWorkService.API.Models.ViewModels;
-using HwProj.CourseWorkService.API.Repositories;
-using HwProj.CourseWorkService.API.Services;
+using HwProj.CourseWorkService.API.Services.Interfaces;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Authorization;
 
 namespace HwProj.CourseWorkService.API.Controllers
 {
     [Authorize]
-    [OnlyStudent]
+    [TypeFilter(typeof(OnlySelectRoleAttribute), Arguments = new object[] { Roles.Student })]
+    [TypeFilter(typeof(CommonExceptionFilterAttribute),
+        Arguments = new object[] { new[] { typeof(ObjectNotFoundException), typeof(ForbidException), typeof(BadRequestException) } })]
     [Route("api/student")]
     [ApiController]
-    public class StudentCourseWorksController : Controller
+    public class StudentCourseWorksController : ControllerBase
     {
-        private readonly IApplicationsService _applicationsService;
-        private readonly IApplicationsRepository _applicationsRepository;
-        private readonly ICourseWorksRepository _courseWorksRepository;
+        #region Fields: Private
 
-        public StudentCourseWorksController(IApplicationsService applicationsService,
-            IApplicationsRepository applicationsRepository, ICourseWorksRepository courseWorksRepository)
+        private readonly IApplicationsService _applicationsService;
+        private readonly ICourseWorksService _courseWorksService;
+        private readonly IUniversityService _universityService;
+        private readonly IUserService _userService;
+
+        #endregion
+
+        #region Constructors: Public
+
+        public StudentCourseWorksController(IApplicationsService applicationsService, 
+            ICourseWorksService courseWorksService, IUniversityService universityService, IUserService userService)
         {
             _applicationsService = applicationsService;
-            _applicationsRepository = applicationsRepository;
-            _courseWorksRepository = courseWorksRepository;
+            _courseWorksService = courseWorksService;
+            _universityService = universityService;
+            _userService = userService;
+        }
+
+        #endregion
+
+        #region Methods: Public
+
+        [HttpPut("profile")]
+        public async Task<IActionResult> UpdateProfileAsync([FromBody]StudentProfileViewModel studentProfileViewModel)
+        {
+            var userId = Request.GetUserId();
+            await _userService.UpdateUserRoleProfile<StudentProfile, StudentProfileViewModel>(userId, studentProfileViewModel)
+                .ConfigureAwait(false);
+            return Ok();
         }
 
         [HttpGet("applications/{appId}")]
         [ProducesResponseType(typeof(StudentApplicationDTO), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetStudentApplication(long appId)
         {
-            var application = await _applicationsRepository.GetAsync(appId).ConfigureAwait(false);
-            if (application == null)
-            {
-                return NotFound();
-            }
+            var userId = Request.GetUserId();
+            var studentApplicationDTO = await _applicationsService.GetApplicationForStudentAsync(userId, appId)
+                .ConfigureAwait(false);
+            return Ok(studentApplicationDTO);
+        }
 
-            return Ok(_applicationsService.GetStudentApplication(application));
+        [HttpDelete("applications/{appId}")]
+        public async Task<IActionResult> CancelApplicationToCourseWork(long appId)
+        {
+            var userId = Request.GetUserId();
+            await _applicationsService.CancelApplicationAsync(userId, appId);
+            return Ok();
         }
 
         [HttpPost("course_works/{courseWorkId}/apply")]
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> ApplyToCourseWork([FromBody] CreateApplicationViewModel createApplicationViewModel, long courseWorkId)
         {
-            var courseWork = await _courseWorksRepository.GetAsync(courseWorkId).ConfigureAwait(false);
-            if (courseWork == null)
-            {
-                return NotFound();
-            }
-            var userId = Request.GetUserId();
-            if (courseWork.Applications.Count(app => app.StudentId == userId) > 0)
-            {
-                return BadRequest();
-            }
-
-            var id = await _applicationsService.AddApplication(createApplicationViewModel, userId);
-            return Ok(id);
+	        var userId = Request.GetUserId();
+	        var id = await _courseWorksService
+		        .ApplyToCourseWorkAsync(userId, courseWorkId, createApplicationViewModel)
+		        .ConfigureAwait(false);
+	        return Ok(id);
         }
 
-        [HttpDelete("applications/{appId}")]
-        public async Task<IActionResult> CancelApplicationToCourseWork(long appId)
+        [HttpGet("choice_theme_deadline")]
+        [ProducesResponseType(typeof(DeadlineDTO[]), (int) HttpStatusCode.OK)]
+        public async Task<IActionResult> GetChoiceThemeDeadlineAsync()
         {
-            var application = await _applicationsRepository.GetAsync(appId).ConfigureAwait(false);
-            if (application == null)
-            {
-                return NotFound();
-            }
+	        var userId = Request.GetUserId();
+	        var deadlineDTO = await _universityService.GetChoiceThemeDeadlineAsync(userId).ConfigureAwait(false);
+	        var result = new List<DeadlineDTO>();
+	        if (deadlineDTO != null)
+	        {
+                result.Add(deadlineDTO);
+	        }
 
-            await _applicationsRepository.DeleteAsync(application.Id).ConfigureAwait(false);
-            return Ok();
+	        return Ok(result);
         }
 
+        [HttpPut("course_works/{courseWorkId}/set_updated_parameter")]
+        public async Task<IActionResult> SetIsUpdatedInCourseWork(long courseWorkId)
+        {
+	        await _courseWorksService.SetIsUpdatedInCourseWork(courseWorkId, true).ConfigureAwait(false);
+	        return Ok();
+        }
 
-
-
-
-        //[HttpPost("course_works/{courseWorkId}/add_file")]
-        //[ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
-        //public async Task<IActionResult> AddFileOrReference([FromBody]AddFileOrReferenceViewModel addFileOrReferenceViewModel)
-        //{
-        //    var userId = Request.GetUserId();
-        //    var courseWork = await _courseWorksRepository.GetAsync(addFileOrReferenceViewModel.CourseWorkId)
-        //        .ConfigureAwait(false);
-        //    if (userId != courseWork.StudentId && userId != courseWork.LecturerId)
-        //    {
-        //        return StatusCode(403);
-        //    }
-        //    var workFile = _mapper.Map<WorkFile>(addFileOrReferenceViewModel);
-        //    workFile.CourseWork = courseWork;
-        //    if (workFile.IsFile)
-        //    {
-        //        workFile.FileName = addFileOrReferenceViewModel.FData.FileName;
-        //        workFile.FileType = addFileOrReferenceViewModel.FData.ContentType;
-
-        //        using (var binaryReader = new BinaryReader(addFileOrReferenceViewModel.FData.OpenReadStream()))
-        //        {
-        //            workFile.Data = binaryReader.ReadBytes((int)addFileOrReferenceViewModel.FData.Length);
-        //        }
-        //    }
-        //    return Ok(await _workFilesRepository.AddAsync(workFile));
-        //}
-
-        //[HttpDelete("course_works/{courseWorkId}/delete_file")]
-        //public async Task<IActionResult> DeleteFile([FromQuery] string type, long courseWorkId)
-        //{
-        //    var workFile = await _workFilesRepository
-        //        .FindAsync(file => file.CourseWorkId == courseWorkId && file.Type == type)
-        //        .ConfigureAwait(false);
-        //    await _workFilesRepository.DeleteAsync(workFile.Id).ConfigureAwait(false);
-        //    return Ok();
-        //}
-
-        //[HttpGet("course_works/{courseWorkId}/get_file")]
-        //[ProducesResponseType(typeof(FileContentResult), (int)HttpStatusCode.OK)]
-        //public async Task<IActionResult> GetCourseWorkFile([FromQuery] string type, long courseWorkId)
-        //{
-        //    var workFile = await _workFilesRepository
-        //        .FindAsync(file => file.CourseWorkId == courseWorkId && file.Type == type)
-        //        .ConfigureAwait(false);
-        //    return File(workFile.Data, workFile.FileType, workFile.FileName);
-        //}
-
-        //[HttpPost("become_reviewer")]
-        //public async Task<IActionResult> BecomeReviewer()
-        //{
-        //    var user = await _usersRepository.GetAsync(Request.GetUserId())
-        //        .ConfigureAwait(false);
-        //    user.Roles[1] = "Reviewer";
-        //    return Ok();
-        //}
+        #endregion
     }
 }

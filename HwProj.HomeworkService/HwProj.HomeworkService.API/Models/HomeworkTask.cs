@@ -2,7 +2,7 @@
 
 namespace HwProj.HomeworkService.API.Models
 {
-    public class HomeworkTask : IEntity
+    public class HomeworkTask : IEntity<long>
     {
         public long Id { get; set; }
         

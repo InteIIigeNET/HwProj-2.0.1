@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using HwProj.AuthService.API.Models;
+using HwProj.AuthService.API.Models.DTO;
 using HwProj.Utils.HttpUtils;
 
 namespace HwProj.AuthService.Client
@@ -17,7 +17,7 @@ namespace HwProj.AuthService.Client
             _authServiceUri = authServiceUri;
         }
 
-        public async Task<AccountData> GetAccountData(string userId)
+        public async Task<AccountDataDTO> GetAccountData(string userId)
         {
             var uri = new RequestUrlBuilder(_authServiceUri)
                 .AppendToPath("getUserData")
@@ -25,7 +25,7 @@ namespace HwProj.AuthService.Client
                 .Build();
 
             var response = await _httpClient.GetAsync(uri).ConfigureAwait(false);
-            var data = await response.DeserializeAsync<AccountData>().ConfigureAwait(false);
+            var data = await response.DeserializeAsync<AccountDataDTO>().ConfigureAwait(false);
             return data;
         }
     }

@@ -4,7 +4,7 @@ using HwProj.Repositories;
 
 namespace HwProj.HomeworkService.API.Models
 {
-    public class Homework : IEntity
+    public class Homework : IEntity<long>
     {
         public long Id { get; set; }
         

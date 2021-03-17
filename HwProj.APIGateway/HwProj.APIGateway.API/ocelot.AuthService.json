@@ -1,0 +1,98 @@
+{
+  "ReRoutes": [
+    {
+      "DownStreamPathTemplate": "/api/Account/getCurrentUserData",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44338
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Account/getCurrentUserData/",
+      "UpstreamhttpsMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
+      }
+    },
+    {
+      "DownStreamPathTemplate": "/api/Account/getUserData/{userId}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44338
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Account/getUserData/{userId}/",
+      "UpstreamhttpsMethod": [ "GET" ] //,
+      //"Key": "user-data"
+    },
+    {
+      "DownStreamPathTemplate": "/api/Account/register",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44338
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Account/register/",
+      "UpstreamhttpsMethod": [ "POST" ]
+    },
+    {
+      "DownStreamPathTemplate": "/api/Account/login",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44338
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Account/login/",
+      "UpstreamhttpsMethod": [ "POST" ]
+    },
+    {
+      "DownStreamPathTemplate": "/api/Account/edit",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44338
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Account/edit/",
+      "UpstreamhttpsMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
+      }
+    },
+    {
+      "DownStreamPathTemplate": "/api/Account/invitenewlecturer/",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44338
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Account/invitenewlecturer",
+      "UpstreamhttpsMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "Lecturer"
+      }
+    }
+  ]
+}
