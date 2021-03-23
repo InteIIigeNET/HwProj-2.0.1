@@ -10,6 +10,8 @@ namespace HwProj.HomeworkService.API.Models
         
         public string Description { get; set; }
         
+        public int MaxRating { get; set; }
+        
         public long HomeworkId { get; set; }
         
         public Homework Homework { get; set; }

@@ -48,16 +48,16 @@ namespace HwProj.SolutionsService.API.Controllers
             return solutionId;
         }
 
-        [HttpPost("accept_solution/{solutionId}")]
-        public async Task AcceptSolution(long solutionId)
+        [HttpPost("rate_solution/{solutionId}")]
+        public async Task RateSolution(long solutionId, int newRating)
         {
-            await _solutionsService.AcceptSolutionAsync(solutionId);
+            await _solutionsService.RateSolutionAsync(solutionId, newRating);
         }
-
-        [HttpPost("reject_solution/{solutionId}")]
-        public async Task RejectSolution(long solutionId)
+        
+        [HttpPost("mark_solution_final/{solutionId}")]
+        public async Task MarkSolutionFinal(long solutionId)
         {
-            await _solutionsService.RejectSolutionAsync(solutionId);
+            await _solutionsService.MarkSolutionFinal(solutionId);
         }
 
         [HttpDelete("delete/{solutionId}")]

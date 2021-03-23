@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.HomeworkService.API.Models;
-using HwProj.HomeworkService.API.Repositories;
 using HwProj.HomeworkService.API.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -58,7 +57,8 @@ namespace HwProj.HomeworkService.API.Controllers
             await _tasksService.UpdateTaskAsync(taskId, new HomeworkTask()
             {
                 Title = taskViewModel.Title,
-                Description = taskViewModel.Description
+                Description = taskViewModel.Description,
+                MaxRating = taskViewModel.MaxRating
             });
         }
     }

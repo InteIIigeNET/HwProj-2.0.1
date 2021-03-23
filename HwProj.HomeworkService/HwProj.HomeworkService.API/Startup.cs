@@ -1,4 +1,6 @@
-﻿using HwProj.HomeworkService.API.Models;
+﻿using HwProj.EventBus.Client.Interfaces;
+using HwProj.HomeworkService.API.Events;
+using HwProj.HomeworkService.API.Models;
 using HwProj.HomeworkService.API.Repositories;
 using HwProj.HomeworkService.API.Services;
 using HwProj.Utils.Configuration;
@@ -27,11 +29,15 @@ namespace HwProj.HomeworkService.API
             services.AddScoped<ITasksRepository, TasksRepository>();
             services.AddScoped<IHomeworksService, HomeworksService>();
             services.AddScoped<ITasksService, TasksService>();
+
+            services.AddEventBus(Configuration);
+            
             services.ConfigureHwProjServices("Homeworks API");
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IEventBus eventBus)
         {
+            eventBus.Subscribe<RequestMaxRatingEvent>();
             app.ConfigureHwProj(env, "Homeworks API");
         }
     }

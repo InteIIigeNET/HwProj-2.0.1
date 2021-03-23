@@ -1,4 +1,6 @@
-﻿using HwProj.SolutionsService.API.Models;
+﻿using HwProj.EventBus.Client.Interfaces;
+using HwProj.SolutionsService.API.Events;
+using HwProj.SolutionsService.API.Models;
 using HwProj.SolutionsService.API.Repositories;
 using HwProj.SolutionsService.API.Services;
 using HwProj.Utils.Configuration;
@@ -25,11 +27,16 @@ namespace HwProj.SolutionsService.API
             services.AddDbContext<SolutionContext>(options => options.UseSqlServer(connectionString));
             services.AddScoped<ISolutionsRepository, SolutionsRepository>();
             services.AddScoped<ISolutionsService, Services.SolutionsService>();
+
+            services.AddEventBus(Configuration);
+
             services.ConfigureHwProjServices("Solutions API");
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IEventBus eventBus)
         {
+            eventBus.Subscribe<UpdateTaskMaxRatingEvent>();
+            eventBus.Subscribe<UpdateSolutionMaxRatingEvent>();
             app.ConfigureHwProj(env, "Solutions API");
         }
     }
