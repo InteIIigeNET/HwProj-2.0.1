@@ -11,7 +11,7 @@ import ApiSingleton from "Api/ApiSingleton";
 import Header from "parts/Header";
 
 interface Props extends RouteComponentProps {
-  auth(user: IUser, token: string): void;
+  auth(token: string): void;
 }
 
 interface IState {
@@ -80,7 +80,7 @@ export default class Login extends React.Component<Props, IState> {
     ApiSingleton.authService.setToken(token);
 
     const user: IUser = ApiSingleton.authService.getProfile();
-    this.props.auth(user, token);
+    this.props.auth(token);
     this.props.history.push("/profile");
   };
 

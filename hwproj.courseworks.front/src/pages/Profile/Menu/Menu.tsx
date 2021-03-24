@@ -19,7 +19,6 @@ interface State {
 class Menu extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    console.log({ role: this.props.role });
     switch (this.props.role.toLowerCase()) {
       case "student":
         this.state = { items: studentMenu };

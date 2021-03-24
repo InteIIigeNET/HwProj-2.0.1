@@ -2,10 +2,10 @@ import React, { Component } from "react";
 import { Logotype, Toast, TopBar } from "@skbkontur/react-ui";
 import { User } from "@skbkontur/react-icons";
 import styles from "./TopBar.module.css";
+import { IUser } from "types";
 
 interface Props {
-  firstName?: string;
-  lastName?: string;
+  user: IUser;
   logout(): void;
 }
 
@@ -16,7 +16,6 @@ interface State {
 export default class ServiceTopBar extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-
     this.state = { isAccountTitleHovered: false };
   }
 
@@ -30,7 +29,17 @@ export default class ServiceTopBar extends Component<Props, State> {
       <TopBar>
         <TopBar.Start>
           <TopBar.ItemStatic>
-            <div style={{ fontSize: 25 }}>
+            <div
+              style={{
+                display: "flex",
+                fontSize: 25,
+                position: "absolute",
+                left: "1rem",
+              }}
+            >
+              <span style={{ fontSize: 12.5, marginRight: "1rem" }}>
+                {this.props.user.role.toUpperCase()}
+              </span>
               <Logotype
                 suffix="курсач"
                 locale={{ prefix: "hwpr", suffix: "j" }}
@@ -50,7 +59,7 @@ export default class ServiceTopBar extends Component<Props, State> {
               _onClick={this.onAccountTitleClick}
             >
               <User color="#666" />
-              &nbsp;{this.props.firstName} {this.props.lastName}
+              &nbsp;{this.props.user.firstName} {this.props.user.lastName}
             </TopBar.ItemStatic>
           </div>
           <TopBar.Divider />

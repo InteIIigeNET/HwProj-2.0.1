@@ -23,7 +23,7 @@ export default class AuthService {
         return !!token && !this.isTokenExpired(token);
     }
 
-    isTokenExpired(token) {
+    static isTokenExpired(token) {
         try {
             let decoded = decode(token);
             return decoded.exp + 300 < Date.now() / 1000;

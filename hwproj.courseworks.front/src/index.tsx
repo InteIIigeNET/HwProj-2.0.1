@@ -4,7 +4,6 @@ import { BrowserRouter } from "react-router-dom";
 
 import "./index.css";
 import App from "./App";
-import ModalRoot from "./ModalRoot";
 import * as serviceWorker from "./serviceWorker";
 
 ReactDOM.render(

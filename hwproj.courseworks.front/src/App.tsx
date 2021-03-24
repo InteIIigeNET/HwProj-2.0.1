@@ -1,11 +1,18 @@
 import React, { Component } from "react";
-import { Switch, Route, Redirect } from "react-router-dom";
+import {
+  Switch,
+  Route,
+  Redirect,
+  RouteComponentProps,
+  withRouter,
+} from "react-router-dom";
 import axios from "axios";
 import decode from "jwt-decode";
-import { Toast, Button } from "@skbkontur/react-ui";
+import { Button } from "@skbkontur/react-ui";
 
 import { IUser, Role } from "types";
 import { API_ROOT } from "config";
+import AuthService from "services/AuthService";
 
 import Profile from "pages/Profile";
 import Login from "pages/Login";
@@ -14,7 +21,7 @@ import Register from "pages/Register";
 import ModalRoot from "./ModalRoot";
 import Footer from "parts/Footer";
 
-type Props = {};
+type Props = RouteComponentProps;
 
 interface ModalState {
   type: "INVITE_LECTURER" | "COURSE_WORK_CREATE" | "";
@@ -23,7 +30,6 @@ interface ModalState {
 
 interface State {
   user: IUser;
-  page?: string;
   logged?: boolean;
   token: string;
   modal: ModalState;
@@ -42,63 +48,20 @@ export const ModalContext = React.createContext<IModalContext>(
 class App extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-
     this.state = {
-      page: "Главная",
       user: {} as IUser,
       logged: false,
       token: localStorage.getItem("id_token") ?? "",
       modal: { type: "", props: {} },
     };
 
+    this.login = this.login.bind(this);
+    this.logout = this.logout.bind(this);
+    this.decodeUserFromToken = this.decodeUserFromToken.bind(this);
     this.fetchUserData = this.fetchUserData.bind(this);
   }
 
-  changePage = (event: React.MouseEvent<HTMLButtonElement>) => {
-    const newPage = event.currentTarget.value;
-    switch (this.state.user.role) {
-      case Role.Student:
-        if (newPage === "Мои курсовые") {
-          this.setState({ page: "Активные" });
-        }
-        break;
-      case Role.Lecturer:
-        if (newPage === "Мои курсовые") {
-          this.setState({ page: "Занятые" });
-        }
-        break;
-      case Role.Curator:
-        if (newPage === "Рецензенты") {
-          this.setState({ page: "Новые рецензенты" });
-        } else if (newPage === "Курсовые") {
-          this.setState({ page: "Занятые темы" });
-        }
-        break;
-    }
-    this.setState({ page: newPage });
-  };
-
-  private newChangePage = (newPage: string) => {
-    return this.setState({ page: newPage });
-  };
-
-  handleCritic = () => {
-    //-----------------------------------------------
-    // Запрос на становление рецензентом или наоборот
-    //-----------------------------------------------
-
-    //-----------------------------------------
-    let newUserData = this.state.user;
-    newUserData.isCritic = !newUserData.isCritic;
-    this.setState({ user: newUserData });
-    //------------------------------------------
-
-    this.state.user.isCritic
-      ? Toast.push("Теперь Вы - рецензент")
-      : Toast.push("Вы больше не рецензент");
-  };
-
-  decodeUserFromToken = (token: string) => {
+  decodeUserFromToken(token: string) {
     const user: IUser = decode(token);
     return {
       userId: (user as any)._id as number,
@@ -107,27 +70,30 @@ class App extends Component<Props, State> {
       lastName: "",
       isCritic: false,
     };
-  };
+  }
 
-  auth = (user: IUser, token: string) => {
+  login(token: string) {
     this.setState({
       user: this.decodeUserFromToken(token),
       logged: true,
       token: token,
     });
-  };
+  }
 
-  logout = () => {
+  logout() {
     this.setState({ user: {} as IUser, logged: false, token: "" });
     localStorage.removeItem("id_token");
-  };
+    this.props.history.push("/login");
+  }
 
   componentDidMount() {
     if (this.state.token) {
-      this.setState({
-        user: this.decodeUserFromToken(this.state.token),
-        logged: true,
-      });
+      if (AuthService.isTokenExpired(this.state.token)) {
+        this.logout();
+      } else {
+        this.login(this.state.token);
+        this.props.history.push("/profile");
+      }
     }
   }
 
@@ -139,7 +105,7 @@ class App extends Component<Props, State> {
     }
   }
 
-  private async fetchUserData() {
+  async fetchUserData() {
     try {
       const res = await axios.get(
         `${API_ROOT}/account/getUserData/${this.state.user.userId}`
@@ -180,6 +146,10 @@ class App extends Component<Props, State> {
       closeModal: () => this.setState({ modal: { type: "", props: {} } }),
     };
 
+    if (this.state.token && !this.state.logged) {
+      return null;
+    }
+
     return (
       <div className="page">
         <ModalContext.Provider value={modalContextValue}>
@@ -187,7 +157,7 @@ class App extends Component<Props, State> {
             <Route path="/register" component={Register} />
             <Route
               path="/login"
-              render={(props) => <Login {...props} auth={this.auth} />}
+              render={(props) => <Login {...props} auth={this.login} />}
             />
             <Route
               path="/profile"
@@ -196,10 +166,6 @@ class App extends Component<Props, State> {
                   {...props}
                   user={this.state.user}
                   token={this.state.token}
-                  page={this.state.page ?? ""}
-                  changePage={this.changePage}
-                  newChangePage={this.newChangePage}
-                  handleCritic={this.handleCritic}
                   logout={this.logout}
                 />
               )}
@@ -227,4 +193,4 @@ class App extends Component<Props, State> {
   }
 }
 
-export default App;
+export default withRouter(App);

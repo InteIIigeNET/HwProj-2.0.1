@@ -1,5 +1,6 @@
 import decode from 'jwt-decode';
-import { AccountApi } from '../api/auth/api'
+
+import { AccountApi } from '../api/auth'
 
 export default class AuthService {
     client = new AccountApi();
