@@ -29,6 +29,8 @@ namespace HwProj.Repositories
                 .Where(entity => entity.Id.Equals(id))
                 .DeleteAsync()
                 .ConfigureAwait(false);
+				
+            await Context.Set<TEntity>().Where(entity => entity.Id.Equals(id)).DeleteAsync();
         }
 
         public async Task UpdateAsync(TKey id, Expression<Func<TEntity, TEntity>> updateFactory)
@@ -37,6 +39,8 @@ namespace HwProj.Repositories
                 .Where(entity => entity.Id.Equals(id))
                 .UpdateAsync(updateFactory)
                 .ConfigureAwait(false);
+
+            await Context.Set<TEntity>().Where(entity => entity.Id.Equals(id)).UpdateAsync(updateFactory);
         }
     }
 }

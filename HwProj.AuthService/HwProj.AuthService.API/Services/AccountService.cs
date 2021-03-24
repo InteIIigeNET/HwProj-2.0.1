@@ -14,13 +14,13 @@ namespace HwProj.AuthService.API.Services
 {
     public class AccountService : IAccountService
     {
-        private readonly UserManager<User> _userManager;
+        private readonly IUserManager _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly IAuthTokenService _tokenService;
         private readonly IEventBus _eventBus;
         private readonly IMapper _mapper;
 
-        public AccountService(UserManager<User> userManager,
+        public AccountService(IUserManager userManager,
             SignInManager<User> signInManager,
             IAuthTokenService authTokenService,
             IEventBus eventBus,

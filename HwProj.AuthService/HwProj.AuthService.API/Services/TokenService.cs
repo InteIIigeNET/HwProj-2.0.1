@@ -23,7 +23,18 @@ namespace HwProj.AuthService.API.Services
         {
             _userManager = userManager;
             _configuration = configuration.GetSection("AppSettings");
+
+		// было в master
+        /*
+		private readonly IUserManager _userManager;
+        private readonly AppSettings _appSettings;
+
+        public AuthTokenService(IUserManager userManager, AppSettings appSettings)
+        {
+            _userManager = userManager;
+            _appSettings = appSettings;
         }
+		*/
 
         public async Task<TokenCredentials> GetTokenAsync(User user)
         {

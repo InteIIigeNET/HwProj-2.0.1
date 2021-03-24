@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.API.Models;
@@ -36,6 +37,7 @@ namespace HwProj.CoursesService.API.Services
         public async Task<long> AddAsync(Course course, string mentorId)
         {
             course.MentorId = mentorId;
+            course.InviteCode = Guid.NewGuid().ToString();
             return await _coursesRepository.AddAsync(course);
         }
 
@@ -50,7 +52,7 @@ namespace HwProj.CoursesService.API.Services
             {
                 Name = updated.Name,
                 GroupName = updated.GroupName,
-                IsComplete = updated.IsComplete,
+                IsCompleted = updated.IsCompleted,
                 IsOpen = updated.IsOpen
             });
         }
