@@ -1,6 +1,5 @@
 ﻿using HwProj.AuthService.API.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.IdentityModel.Tokens.Jwt;
@@ -23,18 +22,7 @@ namespace HwProj.AuthService.API.Services
         {
             _userManager = userManager;
             _configuration = configuration.GetSection("AppSettings");
-
-		// было в master
-        /*
-		private readonly IUserManager _userManager;
-        private readonly AppSettings _appSettings;
-
-        public AuthTokenService(IUserManager userManager, AppSettings appSettings)
-        {
-            _userManager = userManager;
-            _appSettings = appSettings;
         }
-		*/
 
         public async Task<TokenCredentials> GetTokenAsync(User user)
         {

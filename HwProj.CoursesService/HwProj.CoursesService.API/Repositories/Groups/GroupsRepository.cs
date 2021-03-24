@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace HwProj.CoursesService.API.Repositories
 {
-    public class GroupsRepository : CrudRepository<Group>, IGroupsRepository
+    public class GroupsRepository : CrudRepository<Group, long>, IGroupsRepository
     {
         public GroupsRepository(CourseContext context)
             : base(context)

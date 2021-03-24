@@ -15,6 +15,7 @@ using HwProj.CoursesService.API.Models.DTO;
 
 namespace HwProj.CoursesService.Tests
 {
+    /*
     [TestFixture]
     public class GroupsServiceTests
     {
@@ -327,4 +328,5 @@ namespace HwProj.CoursesService.Tests
             Assert.IsNotEmpty(group.Tasks.Where(cm => cm.TaskId == 42));
         }
     }
+    */
 }

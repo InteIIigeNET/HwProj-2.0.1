@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace HwProj.CoursesService.API.Models
 {
-    public class TaskModel : IEntity
+    public class TaskModel : IEntity<long>
     {
         [Key]
         public long Id { get; set; }

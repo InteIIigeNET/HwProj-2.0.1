@@ -3,7 +3,7 @@ using HwProj.Repositories;
 
 namespace HwProj.CoursesService.API.Repositories.Groups
 {
-    public interface ITaskModelsRepository : ICrudRepository<TaskModel>
+    public interface ITaskModelsRepository : ICrudRepository<TaskModel, long>
     {
     }
 }

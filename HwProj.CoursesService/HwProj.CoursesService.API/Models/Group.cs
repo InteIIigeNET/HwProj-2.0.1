@@ -4,7 +4,7 @@ using HwProj.Repositories;
 
 namespace HwProj.CoursesService.API.Models
 {
-    public class Group : IEntity
+    public class Group : IEntity<long>
     {
         [Key]
         public long Id { get; set; }

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace HwProj.CoursesService.API.Repositories
 {
-    public interface IGroupsRepository : ICrudRepository<Group>
+    public interface IGroupsRepository : ICrudRepository<Group, long>
     {
         Task<Group> GetGroupWithGroupMatesAsync(long id);
         IQueryable<Group> GetGroupsWithGroupMatesByCourse(long courseId);

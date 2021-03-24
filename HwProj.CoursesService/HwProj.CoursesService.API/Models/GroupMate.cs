@@ -3,7 +3,7 @@ using HwProj.Repositories;
 
 namespace HwProj.CoursesService.API.Models
 {
-    public class GroupMate : IEntity
+    public class GroupMate : IEntity<long>
     {
         [Key]
         public long Id { get; set; }
