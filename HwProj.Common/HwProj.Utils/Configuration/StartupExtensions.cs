@@ -33,6 +33,8 @@ namespace HwProj.Utils.Configuration
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new Info {Title = serviceName, Version = "v1"}); })
+
+			// begin: этого не было в EventBusFix
                 .AddCors();
 
             if (serviceName != "AuthService API")
@@ -56,6 +58,16 @@ namespace HwProj.Utils.Configuration
                         };
                     });
             }
+			// end
+                .AddCors(options =>
+                {
+                    options.AddPolicy("CorsPolicy",
+                        builder => builder
+                            .AllowAnyOrigin()
+                            .AllowAnyMethod()
+                            .AllowAnyHeader()
+                            .AllowCredentials());
+                });
 
             services.AddTransient<NoApiGatewayMiddleware>();
 

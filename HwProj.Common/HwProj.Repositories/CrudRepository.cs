@@ -29,8 +29,10 @@ namespace HwProj.Repositories
                 .Where(entity => entity.Id.Equals(id))
                 .DeleteAsync()
                 .ConfigureAwait(false);
-				
+
+			// begin: этого не было в EventBusFix
             await Context.Set<TEntity>().Where(entity => entity.Id.Equals(id)).DeleteAsync();
+			// end
         }
 
         public async Task UpdateAsync(TKey id, Expression<Func<TEntity, TEntity>> updateFactory)
@@ -40,7 +42,9 @@ namespace HwProj.Repositories
                 .UpdateAsync(updateFactory)
                 .ConfigureAwait(false);
 
+			// begin: этого не было в EventBusFix
             await Context.Set<TEntity>().Where(entity => entity.Id.Equals(id)).UpdateAsync(updateFactory);
+			// end
         }
     }
 }
