@@ -63,6 +63,10 @@ namespace HwProj.SolutionsService.API.Services
         public async Task MarkSolutionFinal(long solutionId)
         {
             await _solutionsRepository.UpdateSolutionState(solutionId, SolutionState.Final);
+
+        public Task<Solution[]> GetTaskSolutionsFromGroupAsync(long taskId, long groupId)
+        {
+            return _solutionsRepository.FindAll(cm => cm.GroupId == groupId).ToArrayAsync();
         }
     }
 }
