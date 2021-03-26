@@ -46,12 +46,12 @@ export default class NewCourseStudents extends React.Component<INewCourseStudent
     }
 
     acceptStudent(studentId: string) {
-        ApiSingleton.coursesApi.acceptStudent(this.props.course.id!, studentId)
+        ApiSingleton.coursesApi.apiCoursesAcceptStudentByCourseIdPost(this.props.course.id!, studentId)
             .then(res => this.props.onUpdate());
     }
 
     rejectStudent(studentId: string) {
-        ApiSingleton.coursesApi.rejectStudent(this.props.course.id!, studentId)
+        ApiSingleton.coursesApi.apiCoursesRejectStudentByCourseIdPost(this.props.course.id!, studentId)
             .then(res => this.props.onUpdate());
     }
 }

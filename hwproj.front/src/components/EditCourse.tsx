@@ -48,12 +48,12 @@ export default class EditCourse extends React.Component<RouteComponentProps<IEdi
             isComplete: this.state.isComplete
         };
 
-        ApiSingleton.coursesApi.updateCourse(+this.props.match.params.courseId, courseViewModel)
+        ApiSingleton.coursesApi.apiCoursesUpdateByCourseIdPost(+this.props.match.params.courseId, courseViewModel)
             .then(res => this.setState({edited: true}))
     }
 
     public onDelete() {
-        ApiSingleton.coursesApi.deleteCourse(+this.props.match.params.courseId)
+        ApiSingleton.coursesApi.apiCoursesByCourseIdDelete(+this.props.match.params.courseId)
             .then(res => this.setState({deleted: true}));
     }
 
@@ -134,7 +134,7 @@ export default class EditCourse extends React.Component<RouteComponentProps<IEdi
     }
 
     componentDidMount() {
-        ApiSingleton.coursesApi.get(+this.props.match.params.courseId)
+        ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+this.props.match.params.courseId)
             .then(res => res.json())
             .then(course => this.setState({
                 isLoaded: true,

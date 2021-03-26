@@ -44,7 +44,7 @@ export default class TaskStudentCell extends React.Component<ITaskStudentCellPro
                     : this.state.result === 0 ? "posted" : "td"
             let onClick = this.props.forMentor
                 ? () => this.onMentorCellClick()
-                : this.props.userId == this.props.studentId
+                : this.props.userId === this.props.studentId
                     ? () => this.onStudentCellClick()
                     : () => 0
 

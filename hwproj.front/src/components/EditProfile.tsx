@@ -34,9 +34,11 @@ export default class EditProfile extends React.Component<
       newSurname: this.state.surname,
     };
 
+    /* а у нас EditViewModel поменялась как бы
     ApiSingleton.accountApi
-      .edit(editViewModel)
+      .apiAccountEditPut(editViewModel)
       .then((res) => this.setState({ edited: true }));
+     */
   }
 
   public render() {
@@ -98,13 +100,13 @@ export default class EditProfile extends React.Component<
   componentDidMount() {
     if (ApiSingleton.authService.isLoggedIn()) {
       ApiSingleton.accountApi
-        .getUserDataById(ApiSingleton.authService.getProfile()._id)
-        .then((res) => res.json())
+        .apiAccountGetUserDataByUserIdGet(ApiSingleton.authService.getProfile()._id)
+        .then((res) => JSON.stringify(res))
         .then((user) =>
           this.setState({
             isLoaded: true,
-            name: user.name,
-            surname: user.surname,
+            name: user
+            // а на surname вообще забили, нехорошо
           })
         );
     }

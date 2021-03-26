@@ -1,16 +1,19 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Models.ViewModels;
 using HwProj.CoursesService.API.Services;
 using HwProj.Utils.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.CoursesService.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    
     public class CoursesController : Controller
     {
         private readonly ICoursesService _coursesService;

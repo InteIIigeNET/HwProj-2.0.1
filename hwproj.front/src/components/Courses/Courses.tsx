@@ -1,8 +1,9 @@
 import * as React from "react";
-import { CourseViewModel } from "../../api/courses";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
+
 import { CoursesList } from "./CoursesList";
+import { CourseViewModel } from "../../api/courses";
 import ApiSingleton from "../../api/ApiSingleton";
 
 interface ICoursesState {
@@ -25,9 +26,9 @@ export default class Courses extends React.Component<{}, ICoursesState> {
     const { isLoaded, courses, tabValue } = this.state;
 
     if (isLoaded) {
-      let activeCourses = courses.filter((course) => !course.isComplete);
+      let activeCourses = courses.filter((course) => !course.isCompleted);
 
-      let completedCourses = courses.filter((course) => course.isComplete);
+      let completedCourses = courses.filter((course) => course.isCompleted);
 
       return (
         <div className="container">
@@ -51,7 +52,7 @@ export default class Courses extends React.Component<{}, ICoursesState> {
   }
 
   componentDidMount(): void {
-    ApiSingleton.coursesApi.getAll().then((courses) =>
+    ApiSingleton.coursesApi.apiCoursesGet().then((courses) =>
       this.setState({
         isLoaded: true,
         courses: courses,

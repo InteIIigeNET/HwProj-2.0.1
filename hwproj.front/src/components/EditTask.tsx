@@ -125,7 +125,7 @@ export default class EditTask extends React.Component<
           .then((res) => res.json())
           .then((homework) =>
             ApiSingleton.coursesApi
-              .get(homework.courseId)
+              .apiCoursesByCourseIdGet(homework.courseId)
               .then((res) => res.json())
               .then((course) =>
                 this.setState({

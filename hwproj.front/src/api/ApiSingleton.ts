@@ -29,12 +29,23 @@ class Api {
   }
 }
 
+/*
+import * as Api from '../../api/src';
+const configParameters: Api.ConfigurationParameters = {
+  headers: {
+    'Authorization': 'Bearer ' + myToken,
+  },
+};
+const configuration = new Api.Configuration(configParameters);
+const myService = new Api.MyApi(configuration);
+ */
+
 const basePath = "http://localhost:5000";
 
 let ApiSingleton: Api;
 ApiSingleton = new Api(
-  new AccountApi({ basePath: basePath }),
-  new CoursesApi({ basePath: "http://localhost:5003" }),
+  new AccountApi({ basePath: "https://localhost:5001" }),
+  new CoursesApi({ basePath: "https://localhost:5002" }),
   new HomeworksApi({ basePath: basePath }),
   new TasksApi({ basePath: basePath }),
   new SolutionsApi({ basePath: basePath }),

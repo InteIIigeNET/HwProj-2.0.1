@@ -26,7 +26,7 @@ export default class InviteNewLecturer extends React.Component<
     e.preventDefault();
 
     ApiSingleton.accountApi
-      .inviteNewLecturer({ emailOfInvitedPerson: this.state.userEmail })
+      .apiAccountInvitenewlecturerPost({ email: this.state.userEmail })
       .then((res) => this.setState({ invited: true }));
   }
 

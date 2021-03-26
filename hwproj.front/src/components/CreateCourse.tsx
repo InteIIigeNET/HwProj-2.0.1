@@ -1,10 +1,13 @@
 import * as React from "react";
-import TextField from "@material-ui/core/TextField";
-import Checkbox from "@material-ui/core/Checkbox";
-import Button from "@material-ui/core/Button";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Typography from "@material-ui/core/Typography";
+import {
+  TextField,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  Typography,
+} from "@material-ui/core";
 import { Redirect } from "react-router-dom";
+
 import ApiSingleton from "../api/ApiSingleton";
 
 interface ICreateCourseState {
@@ -37,7 +40,7 @@ export default class CreateCourse extends React.Component<
     };
 
     ApiSingleton.coursesApi
-      .addCourse(courseViewModel, 1)
+      .apiCoursesPost(courseViewModel)
       .then((res) => res.json())
       .then((id) =>
         this.setState({

@@ -95,7 +95,7 @@ export default class EditHomework extends React.Component<RouteComponentProps<IE
     componentDidMount() {
         ApiSingleton.homeworksApi.getHomework(+this.props.match.params.homeworkId)
             .then(res => res.json())
-            .then(homework => ApiSingleton.coursesApi.get(homework.courseId)
+            .then(homework => ApiSingleton.coursesApi.apiCoursesByCourseIdGet(homework.courseId)
                 .then(res => res.json())
                 .then(course => this.setState({
                     isLoaded: true,
