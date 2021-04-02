@@ -47,6 +47,7 @@ namespace HwProj.APIGateway.API
         {
             app.UseOcelot().Wait();
             app.ConfigureHwProj(env, "API Gateway");
+            app.UseHttpsRedirection();
         }
     }
 }

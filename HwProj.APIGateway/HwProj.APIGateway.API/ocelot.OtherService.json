@@ -201,7 +201,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44399
+          "Port": 5002
         }
       ],
       "UpstreamPathTemplate": "/api/Courses/",
@@ -220,7 +220,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44399
+          "Port": 5002
         }
       ],
       "UpstreamPathTemplate": "/api/Courses/{id}/",
@@ -232,7 +232,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44399
+          "Port": 5002
         }
       ],
       "UpstreamPathTemplate": "/api/Courses/{courseId}/",
@@ -254,7 +254,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44399
+          "Port": 5002
         }
       ],
       "UpstreamPathTemplate": "/api/Courses/update/{courseId}/",
@@ -276,7 +276,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44399
+          "Port": 5002
         }
       ],
       "UpstreamPathTemplate": "/api/Courses/sign_in_course/{courseId}/",
@@ -295,7 +295,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44399
+          "Port": 5002
         }
       ],
       "UpstreamPathTemplate": "/api/Courses/accept_student/{courseId}/",
@@ -317,7 +317,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44399
+          "Port": 5002
         }
       ],
       "UpstreamPathTemplate": "/api/Courses/reject_student/{courseId}/",
@@ -339,7 +339,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44399
+          "Port": 5002
         }
       ],
       "UpstreamPathTemplate": "/api/Courses/user_courses/{userId}/",
@@ -498,7 +498,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44399
+          "Port": 5002
         }
       ],
       "UpstreamPathTemplate": "/api/Courses/user_courses/{userId}",

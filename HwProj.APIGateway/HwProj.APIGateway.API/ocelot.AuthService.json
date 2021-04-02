@@ -6,7 +6,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44338
+          "Port": 5001
         }
       ],
       "UpstreamPathTemplate": "/api/Account/getCurrentUserData/",
@@ -25,12 +25,11 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44338
+          "Port": 5001
         }
       ],
       "UpstreamPathTemplate": "/api/Account/getUserData/{userId}/",
-      "UpstreamhttpsMethod": [ "GET" ] //,
-      //"Key": "user-data"
+      "UpstreamhttpsMethod": [ "GET" ] 
     },
     {
       "DownStreamPathTemplate": "/api/Account/register",
@@ -38,7 +37,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44338
+          "Port": 5001
         }
       ],
       "UpstreamPathTemplate": "/api/Account/register/",
@@ -50,7 +49,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44338
+          "Port": 5001
         }
       ],
       "UpstreamPathTemplate": "/api/Account/login/",
@@ -62,7 +61,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44338
+          "Port": 5001
         }
       ],
       "UpstreamPathTemplate": "/api/Account/edit/",
@@ -81,7 +80,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44338
+          "Port": 5001
         }
       ],
       "UpstreamPathTemplate": "/api/Account/invitenewlecturer",

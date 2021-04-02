@@ -1,8 +1,6 @@
 import * as React from "react";
 import { TextField, Button, Typography } from "@material-ui/core";
-import { Redirect } from "react-router-dom";
 import { FormEvent } from "react";
-import axios from "axios";
 
 import ApiSingleton from "../../api/ApiSingleton";
 
@@ -64,14 +62,6 @@ export default class Login extends React.Component<{}, ILoginState> {
   private handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const { email, password } = this.state;
-
-    /*const res = await axios.post(`${API_AUTH}/account/login`, {
-      email: email,
-      password: password,
-    });
-
-    const token = res.data.value.accessToken;
-    ApiSingleton.authService.setToken(token);*/
 
     await ApiSingleton.authService.login(email, password);
 
