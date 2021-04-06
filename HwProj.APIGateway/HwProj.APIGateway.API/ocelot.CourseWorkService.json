@@ -3,7 +3,7 @@
     //CourseWorks
     {
       "DownstreamPathTemplate": "/api/course_works/available",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -11,11 +11,11 @@
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/available/",
-      "UpstreamhttpsMethod": [ "GET" ]
+      "UpstreamhttpMethod": [ "GET" ]
     },
     {
       "DownstreamPathTemplate": "/api/course_works/{roleString}/my/{status}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -23,7 +23,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/{roleString}/my/{status}/",
-      "UpstreamhttpsMethod": [ "GET" ],
+      "UpstreamhttpMethod": [ "GET" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -34,7 +34,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/course_works/{courseWorkId}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -42,11 +42,11 @@
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/{courseWorkId}/",
-      "UpstreamhttpsMethod": [ "GET" ]
+      "UpstreamhttpMethod": [ "GET" ]
     },
     {
       "DownstreamPathTemplate": "/api/course_works/directions",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -54,11 +54,11 @@
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/directions/",
-      "UpstreamhttpsMethod": [ "GET" ]
+      "UpstreamhttpMethod": [ "GET" ]
     },
     {
       "DownstreamPathTemplate": "/api/course_works/departments",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -66,11 +66,11 @@
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/departments/",
-      "UpstreamhttpsMethod": [ "GET" ]
+      "UpstreamhttpMethod": [ "GET" ]
     },
     {
       "DownstreamPathTemplate": "/api/course_works/curators",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -78,11 +78,11 @@
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/curators/",
-      "UpstreamhttpsMethod": [ "GET" ]
+      "UpstreamhttpMethod": [ "GET" ]
     },
     {
       "DownstreamPathTemplate": "/api/course_works/user/roles",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -90,7 +90,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/user/roles/",
-      "UpstreamhttpsMethod": [ "GET" ],
+      "UpstreamhttpMethod": [ "GET" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -101,7 +101,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/course_works/user/fullInfo",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -109,7 +109,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/user/fullInfo/",
-      "UpstreamhttpsMethod": [ "GET" ],
+      "UpstreamhttpMethod": [ "GET" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -120,7 +120,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/course_works/applications/{status}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -128,7 +128,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/applications/{status}/",
-      "UpstreamhttpsMethod": [ "GET" ],
+      "UpstreamhttpMethod": [ "GET" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -139,7 +139,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/course_works/{courseWorkId}/reference",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -147,7 +147,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/{courseWorkId}/reference/",
-      "UpstreamhttpsMethod": [ "POST", "DELETE" ],
+      "UpstreamhttpMethod": [ "POST", "DELETE" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -158,7 +158,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/course_works/{courseWorkId}/files/{type}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -166,7 +166,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/{courseWorkId}/files/{type}/",
-      "UpstreamhttpsMethod": [ "POST" ],
+      "UpstreamhttpMethod": [ "POST" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -177,7 +177,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/course_works/{courseWorkId}/files/{fileId}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -185,7 +185,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/{courseWorkId}/files/{fileId}/",
-      "UpstreamhttpsMethod": [ "GET", "DELETE" ],
+      "UpstreamhttpMethod": [ "GET", "DELETE" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -196,7 +196,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/course_works/{courseWorkId}/files",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -204,7 +204,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/{courseWorkId}/files/",
-      "UpstreamhttpsMethod": [ "GET" ],
+      "UpstreamhttpMethod": [ "GET" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -212,7 +212,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/course_works/{courseWorkId}/deadlines",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -220,7 +220,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/{courseWorkId}/deadlines/",
-      "UpstreamhttpsMethod": [ "GET" ],
+      "UpstreamhttpMethod": [ "GET" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -231,7 +231,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/course_works/reviewers/new",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -239,7 +239,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/reviewers/new/",
-      "UpstreamhttpsMethod": [ "POST" ],
+      "UpstreamhttpMethod": [ "POST" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -250,7 +250,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/course_works/reviewers/remove",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -258,7 +258,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/reviewers/remove/",
-      "UpstreamhttpsMethod": [ "DELETE" ],
+      "UpstreamhttpMethod": [ "DELETE" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -270,7 +270,7 @@
     //StudentCourseWorks
     {
       "DownstreamPathTemplate": "/api/student/profile",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -278,7 +278,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/student/profile/",
-      "UpstreamhttpsMethod": [ "PUT" ],
+      "UpstreamhttpMethod": [ "PUT" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -293,7 +293,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/student/applications/{appId}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -301,7 +301,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/student/applications/{appId}/",
-      "UpstreamhttpsMethod": [ "GET", "DELETE" ],
+      "UpstreamhttpMethod": [ "GET", "DELETE" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -316,7 +316,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/student/course_works/{courseWorkId}/apply",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -324,7 +324,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/student/course_works/{courseWorkId}/apply/",
-      "UpstreamhttpsMethod": [ "POST" ],
+      "UpstreamhttpMethod": [ "POST" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -339,7 +339,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/student/choice_theme_deadline",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -347,7 +347,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/student/choice_theme_deadline/",
-      "UpstreamhttpsMethod": [ "GET" ],
+      "UpstreamhttpMethod": [ "GET" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -362,7 +362,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/student/course_works/{courseWorkId}/set_updated_parameter",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -370,7 +370,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/student/course_works/{courseWorkId}/set_updated_parameter/",
-      "UpstreamhttpsMethod": [ "PUT" ],
+      "UpstreamhttpMethod": [ "PUT" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -386,7 +386,7 @@
     //LecturerCourseWorks
     {
       "DownstreamPathTemplate": "/api/lecturer/course_works/add",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -394,7 +394,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/lecturer/course_works/add/",
-      "UpstreamhttpsMethod": [ "POST" ],
+      "UpstreamhttpMethod": [ "POST" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -409,7 +409,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/lecturer/course_works/{courseWorkId}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -417,7 +417,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/lecturer/course_works/{courseWorkId}/",
-      "UpstreamhttpsMethod": [ "PUT", "DELETE" ],
+      "UpstreamhttpMethod": [ "PUT", "DELETE" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -432,7 +432,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/lecturer/course_works/{courseWorksId}/exclude",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -440,7 +440,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/lecturer/course_works/{courseWorksId}/exclude/",
-      "UpstreamhttpsMethod": [ "DELETE" ],
+      "UpstreamhttpMethod": [ "DELETE" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -455,7 +455,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/lecturer/profile",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -463,7 +463,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/lecturer/profile/",
-      "UpstreamhttpsMethod": [ "PUT" ],
+      "UpstreamhttpMethod": [ "PUT" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -478,7 +478,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/lecturer/applications/{appId}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -486,7 +486,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/lecturer/applications/{appId}/",
-      "UpstreamhttpsMethod": [ "GET" ],
+      "UpstreamhttpMethod": [ "GET" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -501,7 +501,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/lecturer/course_works/{courseWorkId}/applications",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -509,7 +509,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/lecturer/course_works/{courseWorkId}/applications/",
-      "UpstreamhttpsMethod": [ "GET" ],
+      "UpstreamhttpMethod": [ "GET" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -524,7 +524,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/lecturer/applications/{appId}/accept",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -532,7 +532,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/lecturer/applications/{appId}/accept/",
-      "UpstreamhttpsMethod": [ "POST" ],
+      "UpstreamhttpMethod": [ "POST" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -547,7 +547,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/lecturer/applications/{appId}/reject",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -555,7 +555,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/lecturer/applications/{appId}/reject/",
-      "UpstreamhttpsMethod": [ "DELETE" ],
+      "UpstreamhttpMethod": [ "DELETE" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -571,7 +571,7 @@
     //Curator
     {
       "DownstreamPathTemplate": "/api/curator/course_works/add",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -579,7 +579,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/curator/course_works/add/",
-      "UpstreamhttpsMethod": [ "POST" ],
+      "UpstreamhttpMethod": [ "POST" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -594,7 +594,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/curator/course_works/created_by_curator/{status}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -602,7 +602,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/curator/course_works/created_by_curator/{status}/",
-      "UpstreamhttpsMethod": [ "GET" ],
+      "UpstreamhttpMethod": [ "GET" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -617,7 +617,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/curator/profile",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -625,7 +625,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/curator/profile/",
-      "UpstreamhttpsMethod": [ "PUT" ],
+      "UpstreamhttpMethod": [ "PUT" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -640,7 +640,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/curator/invite",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -648,7 +648,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/curator/invite/",
-      "UpstreamhttpsMethod": [ "POST" ],
+      "UpstreamhttpMethod": [ "POST" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -663,7 +663,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/curator/directions",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -671,7 +671,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/curator/directions/",
-      "UpstreamhttpsMethod": [ "POST" ],
+      "UpstreamhttpMethod": [ "POST" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -686,7 +686,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/curator/directions/{directionId}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -694,7 +694,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/curator/directions/{directionId}/",
-      "UpstreamhttpsMethod": [ "DELETE" ],
+      "UpstreamhttpMethod": [ "DELETE" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -709,7 +709,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/curator/departments",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -717,7 +717,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/curator/departments/",
-      "UpstreamhttpsMethod": [ "POST" ],
+      "UpstreamhttpMethod": [ "POST" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -732,7 +732,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/curator/departments/{departmentId}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -740,7 +740,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/curator/departments/{departmentId}/",
-      "UpstreamhttpsMethod": [ "DELETE" ],
+      "UpstreamhttpMethod": [ "DELETE" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -755,7 +755,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/curator/deadlines",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -763,7 +763,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/curator/deadlines/",
-      "UpstreamhttpsMethod": [ "GET", "POST" ],
+      "UpstreamhttpMethod": [ "GET", "POST" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -778,7 +778,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/curator/deadlines/{deadlineId}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -786,7 +786,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/curator/deadlines/{deadlineId}/",
-      "UpstreamhttpsMethod": [ "DELETE" ],
+      "UpstreamhttpMethod": [ "DELETE" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -801,7 +801,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/curator/course_works/{courseWorkId}/clear_updated_parameter",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -809,7 +809,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/curator/course_works/{courseWorkId}/clear_updated_parameter/",
-      "UpstreamhttpsMethod": [ "PUT" ],
+      "UpstreamhttpMethod": [ "PUT" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -824,7 +824,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/curator/reviewers",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -832,7 +832,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/curator/reviewers/",
-      "UpstreamhttpsMethod": [ "GET" ],
+      "UpstreamhttpMethod": [ "GET" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -847,7 +847,7 @@
     },
     {
       "DownstreamPathTemplate": "/api/curator/reviewers/set_to_bidding",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -855,7 +855,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/curator/reviewers/set_to_bidding/",
-      "UpstreamhttpsMethod": [ "POST" ],
+      "UpstreamhttpMethod": [ "POST" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []

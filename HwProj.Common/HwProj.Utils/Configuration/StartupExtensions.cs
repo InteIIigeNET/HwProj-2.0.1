@@ -27,13 +27,13 @@ namespace HwProj.Utils.Configuration
         public static IServiceCollection ConfigureHwProjServices(this IServiceCollection services, string serviceName)
         {
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies())
+                .AddCors()
                 .AddMvc()
                 .AddJsonOptions(options =>
                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore)
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new Info {Title = serviceName, Version = "v1"}); })
-                .AddCors();
+            services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new Info {Title = serviceName, Version = "v1"}); });
 
             if (serviceName != "AuthService API")
             {
@@ -92,7 +92,8 @@ namespace HwProj.Utils.Configuration
             foreach (var eventType in eventTypes)
             {
                 var fullTypeInterface = typeof(IEventHandler<>).MakeGenericType(eventType);
-                var handlersTypes = types.Where(x => fullTypeInterface.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
+                var handlersTypes = types.Where(x =>
+                    fullTypeInterface.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
 
                 foreach (var handlerType in handlersTypes)
                 {
@@ -103,7 +104,8 @@ namespace HwProj.Utils.Configuration
             return services;
         }
 
-        public static void ConfigureHwProj(this IApplicationBuilder app, IHostingEnvironment env, string serviceName)
+        public static IApplicationBuilder ConfigureHwProj(this IApplicationBuilder app, IHostingEnvironment env,
+            string serviceName)
         {
             if (env.IsDevelopment())
             {
@@ -117,15 +119,14 @@ namespace HwProj.Utils.Configuration
             }
 
             app.UseAuthentication();
-
             app.UseCors(x => x
                 .AllowAnyMethod()
                 .AllowAnyHeader()
                 .SetIsOriginAllowed(origin => true)
                 .AllowCredentials());
+            app.UseMvc();
 
-            app.UseHttpsRedirection()
-                .UseMvc();
+            return app;
         }
     }
 }

@@ -2,7 +2,7 @@
   "ReRoutes": [
     {
       "DownStreamPathTemplate": "/api/Account/getCurrentUserData",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -10,7 +10,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/Account/getCurrentUserData/",
-      "UpstreamhttpsMethod": [ "GET" ],
+      "UpstreamHttpMethod": [ "GET" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -21,7 +21,7 @@
     },
     {
       "DownStreamPathTemplate": "/api/Account/getUserData/{userId}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -29,11 +29,11 @@
         }
       ],
       "UpstreamPathTemplate": "/api/Account/getUserData/{userId}/",
-      "UpstreamhttpsMethod": [ "GET" ] 
+      "UpstreamHttpMethod": [ "GET" ] 
     },
     {
-      "DownStreamPathTemplate": "/api/Account/register",
-      "DownstreamScheme": "https",
+      "DownStreamPathTemplate": "/api/account/register",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -41,11 +41,11 @@
         }
       ],
       "UpstreamPathTemplate": "/api/Account/register/",
-      "UpstreamhttpsMethod": [ "POST" ]
+      "UpstreamHttpMethod": [ "POST", "OPTIONS" ]
     },
     {
       "DownStreamPathTemplate": "/api/Account/login",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -53,11 +53,11 @@
         }
       ],
       "UpstreamPathTemplate": "/api/Account/login/",
-      "UpstreamhttpsMethod": [ "POST" ]
+      "UpstreamHttpMethod": [ "POST", "OPTIONS" ]
     },
     {
       "DownStreamPathTemplate": "/api/Account/edit",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -65,7 +65,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/Account/edit/",
-      "UpstreamhttpsMethod": [ "GET" ],
+      "UpstreamHttpMethod": [ "GET" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -76,7 +76,7 @@
     },
     {
       "DownStreamPathTemplate": "/api/Account/invitenewlecturer/",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -84,7 +84,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/Account/invitenewlecturer",
-      "UpstreamhttpsMethod": [ "POST" ],
+      "UpstreamHttpMethod": [ "POST", "OPTIONS" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []

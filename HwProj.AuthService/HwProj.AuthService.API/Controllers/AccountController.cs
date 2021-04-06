@@ -20,7 +20,7 @@ namespace HwProj.AuthService.API.Controllers
             _accountService = accountService;
         }
 
-        [HttpGet, Route("getUserData/{userId}")]
+        [HttpGet("getUserData/{userId}")]
         [ProducesResponseType(typeof(AccountDataDTO), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetUserDataById(string userId)
         {
@@ -39,7 +39,7 @@ namespace HwProj.AuthService.API.Controllers
             return RedirectToAction("GetUserDataById", new { userId });
         }
 
-        [HttpPost, Route("register")]
+        [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
             var result = await _accountService.RegisterUserAsync(model).ConfigureAwait(false);
@@ -47,7 +47,7 @@ namespace HwProj.AuthService.API.Controllers
             return Ok(result);
         }
 
-        [HttpPost, Route("login")]
+        [HttpPost("login")]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             var tokenMeta = await _accountService.LoginUserAsync(model).ConfigureAwait(false);
@@ -55,7 +55,7 @@ namespace HwProj.AuthService.API.Controllers
         }
 
         [Authorize]
-        [HttpPut, Route("edit")]
+        [HttpPut("edit")]
         public async Task<IActionResult> Edit(EditAccountViewModel model)
         {
             var result = await _accountService.EditAccountAsync(Request.GetUserId(), model).ConfigureAwait(false);
@@ -63,7 +63,7 @@ namespace HwProj.AuthService.API.Controllers
         }
 
         [Authorize]
-        [HttpPost, Route("invitenewlecturer")]
+        [HttpPost("invitenewlecturer")]
         public async Task<IActionResult> InviteNewLecturer(InviteLecturerViewModel model)
         {
             var result = await _accountService.InviteNewLecturer(model.Email).ConfigureAwait(false);

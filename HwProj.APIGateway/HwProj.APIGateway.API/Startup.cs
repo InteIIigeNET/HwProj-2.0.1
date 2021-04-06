@@ -23,7 +23,7 @@ namespace HwProj.APIGateway.API
         {
             services.ConfigureHwProjServices("API Gateway");
 
-            var authenticationProviderKey = "GatewayKey";
+            const string authenticationProviderKey = "GatewayKey";
 
             services.AddAuthentication()
                 .AddJwtBearer(authenticationProviderKey, x =>
@@ -45,9 +45,8 @@ namespace HwProj.APIGateway.API
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.UseOcelot().Wait();
-            app.ConfigureHwProj(env, "API Gateway");
-            app.UseHttpsRedirection();
+            app.ConfigureHwProj(env, "API Gateway")
+                .UseOcelot();
         }
     }
 }
