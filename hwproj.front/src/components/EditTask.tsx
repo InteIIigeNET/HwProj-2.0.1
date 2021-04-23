@@ -44,7 +44,7 @@ export default class EditTask extends React.Component<
     };
 
     ApiSingleton.tasksApi
-      .updateTask(+this.props.match.params.taskId, taskViewModel)
+      .apiTasksUpdateByTaskIdPost(+this.props.match.params.taskId, taskViewModel)
       .then((res) => this.setState({ edited: true }));
   }
 
@@ -117,11 +117,11 @@ export default class EditTask extends React.Component<
 
   componentDidMount() {
     ApiSingleton.tasksApi
-      .getTask(+this.props.match.params.taskId)
+      .apiTasksGetByTaskIdGet(+this.props.match.params.taskId)
       .then((res) => res.json())
       .then((task) =>
         ApiSingleton.homeworksApi
-          .getHomework(task.homeworkId)
+          .apiHomeworksGetByHomeworkIdGet(task.homeworkId)
           .then((res) => res.json())
           .then((homework) =>
             ApiSingleton.coursesApi

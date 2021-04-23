@@ -1,6 +1,6 @@
 ﻿import React from "react";
 import { Redirect, RouteComponentProps } from "react-router-dom";
-import { Fab } from "@material-ui/core";
+
 import MainWindow from "../../Components/MainWindow/MainWindow";
 import { IUser } from "types";
 import Menu from "./Menu/Menu";
@@ -21,10 +21,10 @@ export default function Profile(props: ProfileProps) {
   }
 
   return (
-    <ModalContext.Consumer>
-      {({ openModal }) => (
+    
         <>
           <div className="topBar">
+           
             <TopBar user={user} logout={logout} />
           </div>
           <Menu
@@ -34,17 +34,7 @@ export default function Profile(props: ProfileProps) {
             isCritic={user.isCritic}
           />
           <div style={{ position: "relative", left: "17vw", top: "16vh" }}>
-            <div style={{}}>
-              <Fab
-                color="primary"
-                aria-label="add"
-                size="small"
-                style={{ fontSize: "1.75rem" }}
-                onClick={() => openModal("COURSE_WORK_CREATE")}
-              >
-                +
-              </Fab>
-            </div>
+            
             <MainWindow
               newChangePage={() => {}}
               token={token}
@@ -56,9 +46,7 @@ export default function Profile(props: ProfileProps) {
               userId={user.userId}
             />
           </div>
-          <button onClick={() => openModal("INVITE_LECTURER")}>Click me</button>
         </>
-      )}
-    </ModalContext.Consumer>
+     
   );
 }

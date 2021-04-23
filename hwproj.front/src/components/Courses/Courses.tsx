@@ -5,6 +5,7 @@ import Tab from "@material-ui/core/Tab";
 import { CoursesList } from "./CoursesList";
 import { CourseViewModel } from "../../api/courses";
 import ApiSingleton from "../../api/ApiSingleton";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 interface ICoursesState {
   isLoaded: boolean;
@@ -25,38 +26,47 @@ export default class Courses extends React.Component<{}, ICoursesState> {
   public render() {
     const { isLoaded, courses, tabValue } = this.state;
 
-    if (isLoaded) {
-      let activeCourses = courses.filter((course) => !course.isCompleted);
-
-      let completedCourses = courses.filter((course) => course.isCompleted);
-
+    if (!isLoaded) {
       return (
         <div className="container">
-          <Tabs
-            value={tabValue}
-            onChange={(event, value) => {
-              this.setState({ tabValue: value });
-            }}
-          >
-            <Tab label="Текущие курсы" />
-            <Tab label="Завершенные курсы" />
-          </Tabs>
-          <br />
-          {tabValue === 0 && <CoursesList courses={activeCourses} />}
-          {tabValue === 1 && <CoursesList courses={completedCourses} />}
+          <p>Loading courses...</p>
+          <CircularProgress />
         </div>
       );
     }
 
-    return <h1></h1>;
+    let activeCourses = courses.filter((course) => !course.isCompleted);
+    let completedCourses = courses.filter((course) => course.isCompleted);
+
+    return (
+      <div className="container">
+        <Tabs
+          value={tabValue}
+          onChange={(event, value) => {
+            this.setState({ tabValue: value });
+          }}
+        >
+          <Tab label="Текущие курсы" />
+          <Tab label="Завершенные курсы" />
+        </Tabs>
+        <br />
+        {tabValue === 0 && <CoursesList courses={activeCourses} />}
+        {tabValue === 1 && <CoursesList courses={completedCourses} />}
+      </div>
+    );
   }
 
   componentDidMount(): void {
-    ApiSingleton.coursesApi.apiCoursesGet().then((courses) =>
-      this.setState({
-        isLoaded: true,
-        courses: courses,
-      })
-    );
+    ApiSingleton.coursesApi
+      .apiCoursesGet()
+      .then((courses) =>
+        this.setState({
+          isLoaded: true,
+          courses: courses,
+        })
+      )
+      .catch((err) => {
+        this.setState({ isLoaded: true });
+      });
   }
 }

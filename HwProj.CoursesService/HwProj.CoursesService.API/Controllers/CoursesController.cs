@@ -41,7 +41,7 @@ namespace HwProj.CoursesService.API.Controllers
                 : Ok(_mapper.Map<CourseViewModel>(course)) as IActionResult;
         }
 
-        [HttpPost]
+        [HttpPost("create")]
         public async Task<IActionResult> AddCourse([FromBody] CreateCourseViewModel courseViewModel)
         {
             var mentorId = Request.GetUserId();

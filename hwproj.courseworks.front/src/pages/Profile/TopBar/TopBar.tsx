@@ -3,6 +3,8 @@ import { Logotype, Toast, TopBar } from "@skbkontur/react-ui";
 import { User } from "@skbkontur/react-icons";
 import styles from "./TopBar.module.css";
 import { IUser } from "types";
+import { Fab } from "@material-ui/core";
+import { ModalContext } from "App";
 
 interface Props {
   user: IUser;
@@ -26,6 +28,8 @@ export default class ServiceTopBar extends Component<Props, State> {
   private renderTopBar = () => {
     const { isAccountTitleHovered } = this.state;
     return (
+        <ModalContext.Consumer>
+          {({ openModal }) => (
       <TopBar>
         <TopBar.Start>
           <TopBar.ItemStatic>
@@ -49,11 +53,24 @@ export default class ServiceTopBar extends Component<Props, State> {
           </TopBar.ItemStatic>
         </TopBar.Start>
         <TopBar.End>
+          {/* Button position and size is hardcoded. Sorry :( */}
+          <div style={{ marginTop: '0.5rem', marginRight: '0.25rem'}}>
+          <Fab
+              color="primary"
+              aria-label="add"
+              size="small"
+              style={{ fontSize: "1.75rem", marginBottom: "0rem", width: '35px', height: '20px' }}
+              onClick={() => openModal("COURSE_WORK_CREATE")}
+          >
+            +
+          </Fab>
+          </div>
           <div
             onMouseEnter={() => this.setState({ isAccountTitleHovered: true })}
             onMouseLeave={() => this.setState({ isAccountTitleHovered: false })}
             className={styles.accountTitle}
           >
+           
             <TopBar.ItemStatic
               active={isAccountTitleHovered}
               _onClick={this.onAccountTitleClick}
@@ -63,6 +80,9 @@ export default class ServiceTopBar extends Component<Props, State> {
             </TopBar.ItemStatic>
           </div>
           <TopBar.Divider />
+         
+       
+        
           <TopBar.Logout
             onClick={() => {
               //-----------------------
@@ -74,6 +94,8 @@ export default class ServiceTopBar extends Component<Props, State> {
           />
         </TopBar.End>
       </TopBar>
+          )}
+        </ModalContext.Consumer>
     );
   };
 

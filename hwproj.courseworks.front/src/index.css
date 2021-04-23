@@ -15,6 +15,10 @@ code {
     monospace;
 }
 
+html, body {
+  height: 100%;
+}
+
 .topBar{
   position : fixed;
   width : 100vw;
@@ -93,17 +97,16 @@ button:hover{
 }
 
 .auth-form {
-  transform: translate(-50%, -50%);
-  position: absolute;
-  top: 50%;
-  left: 50%;
+  margin: auto;
+  margin-bottom: 1rem;
 }
 
 .auth-fieldset {
-  padding: 30px;
+  /*padding: 30px;*/
   border-radius: 5px;
 }
 
 .auth-fieldset > legend {
     padding: 0 0.5rem;
 }
+

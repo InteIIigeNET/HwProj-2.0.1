@@ -15,6 +15,7 @@
 import * as url from "url";
 import * as portableFetch from "portable-fetch";
 import { Configuration } from "./configuration";
+import AuthService from "../../services/AuthService";
 
 const BASE_PATH = "http://localhost:5000".replace(/\/+$/, "");
 
@@ -75,7 +76,7 @@ export class BaseAPI {
  * @extends {Error}
  */
 export class RequiredError extends Error {
-  // name: "RequiredError" commented this manually in order to make it compile (it was an unused expression)
+  name!: "RequiredError"
   constructor(public field: string, msg?: string) {
     super(msg);
   }
@@ -917,6 +918,12 @@ export const AccountApiFetchParamCreator = function (
 
       localVarHeaderParameter["Content-Type"] = "application/json-patch+json";
 
+      let authService = new AuthService();
+      if (authService.isLoggedIn()) {
+        localVarHeaderParameter["Authorization"] =
+            "Bearer " + authService.getToken();
+      }
+
       localVarUrlObj.query = Object.assign(
         {},
         localVarUrlObj.query,
@@ -999,6 +1006,12 @@ export const AccountApiFetchParamCreator = function (
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
+      let authService = new AuthService();
+      if (authService.isLoggedIn()) {
+        localVarHeaderParameter["Authorization"] =
+            "Bearer " + authService.getToken();
+      }
+
       localVarUrlObj.query = Object.assign(
         {},
         localVarUrlObj.query,
@@ -1035,6 +1048,12 @@ export const AccountApiFetchParamCreator = function (
       const localVarQueryParameter = {} as any;
 
       localVarHeaderParameter["Content-Type"] = "application/json-patch+json";
+
+      let authService = new AuthService();
+      if (authService.isLoggedIn()) {
+        localVarHeaderParameter["Authorization"] =
+            "Bearer " + authService.getToken();
+      }
 
       localVarUrlObj.query = Object.assign(
         {},
@@ -1074,7 +1093,7 @@ export const AccountApiFetchParamCreator = function (
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
-      localVarHeaderParameter["Content-Type"] = "application/json-patch+json";
+      localVarHeaderParameter["Content-Type"] = "application/json-patch+json";      
 
       localVarUrlObj.query = Object.assign(
         {},

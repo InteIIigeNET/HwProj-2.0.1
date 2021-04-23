@@ -40,7 +40,7 @@ export default class CreateCourse extends React.Component<
     };
 
     ApiSingleton.coursesApi
-      .apiCoursesPost(courseViewModel)
+      .apiCoursesCreatePost(courseViewModel)
       .then((res) => res.json())
       .then((id) =>
         this.setState({

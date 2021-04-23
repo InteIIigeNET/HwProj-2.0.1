@@ -36,14 +36,14 @@ export default class AddHomework extends React.Component<
   public handleSubmit(e: any) {
     e.preventDefault();
     ApiSingleton.homeworksApi
-      .addHomework(this.props.id, {
+      .apiHomeworksByCourseIdPost(this.props.id, {
         title: this.state.title,
         description: this.state.description,
       })
       .then((homeworkId) =>
         Promise.all(
           this.state.tasks.map((t) =>
-            ApiSingleton.tasksApi.addTask(homeworkId, t)
+            ApiSingleton.tasksApi.apiTasksByHomeworkIdPost(homeworkId, t)
           )
         )
       )

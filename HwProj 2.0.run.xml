@@ -1,9 +1,8 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="HwProj 2.0" type="CompoundRunConfigurationType">
     <toRun name="HwProj.APIGateway.API" type="LaunchSettings" />
-    <toRun name="HwProj.CoursesService.API" type="LaunchSettings" />
+    <toRun name="HwProj.CourseWorkService.API" type="LaunchSettings" />
     <toRun name="HwProj.AuthService.API" type="LaunchSettings" />
-    <toRun name="HwProj.HomeworkService.API" type="LaunchSettings" />
     <method v="2" />
   </configuration>
 </component>
