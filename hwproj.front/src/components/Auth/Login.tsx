@@ -1,15 +1,6 @@
-<<<<<<< HEAD
-import * as React from "react";
-import { TextField, Button, Typography, Avatar, CssBaseline, FormControlLabel,
-   Checkbox, Grid, Box } from "@material-ui/core";
-import { makeStyles } from '@material-ui/core/styles';
-import { FormEvent } from "react";
-=======
 import React, { FormEvent } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { TextField, Button, Typography } from "@material-ui/core";
-
->>>>>>> 3000d1b4b4a8df32c9bfb0dffb1835d149b16a27
 import ApiSingleton from "../../api/ApiSingleton";
 import './Styles/Login.css';
 
@@ -60,23 +51,14 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
     }
 
     return (
-<<<<<<< HEAD
       <div className="page">
         <Typography component="h1" variant="h5">
-          Войти
-        </Typography>
-        <form onSubmit={(e) => this.handleSubmit(e)} className="loginForm">
-=======
-      <div className="container vertical-center-form">
-        <Typography variant="h6" style={headerStyles}>
           Войти
         </Typography>
         {this.state.error && (
           <p style={{ color: "red", marginBottom: "0" }}>{this.state.error}</p>
         )}
-        <form onSubmit={(e) => this.handleSubmit(e)}>
-          <br />
->>>>>>> 3000d1b4b4a8df32c9bfb0dffb1835d149b16a27
+        <form onSubmit={(e) => this.handleSubmit(e)} className="loginForm">
           <TextField
             required
             type="email"
