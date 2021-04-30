@@ -9,6 +9,7 @@ import {
 import { Redirect } from "react-router-dom";
 
 import ApiSingleton from "../api/ApiSingleton";
+import './Styles/CreateCourse.css';
 
 interface ICreateCourseState {
   name: string;
@@ -55,11 +56,11 @@ export default class CreateCourse extends React.Component<
       return <Redirect to={"/courses/" + this.state.courseId} />;
     }
     return (
-      <div className="container vertical-center-form">
+      <div className="page">
         <Typography variant="h6" gutterBottom>
           Создать курс
         </Typography>
-        <form onSubmit={(e) => this.handleSubmit(e)}>
+        <form onSubmit={(e) => this.handleSubmit(e)} className="form">
           <TextField
             required
             label="Название курса"
@@ -68,7 +69,6 @@ export default class CreateCourse extends React.Component<
             name={this.state.name}
             onChange={(e) => this.setState({ name: e.target.value })}
           />
-          <br />
           <TextField
             required
             label="Номер группы"
@@ -77,7 +77,6 @@ export default class CreateCourse extends React.Component<
             value={this.state.groupName}
             onChange={(e) => this.setState({ groupName: e.target.value })}
           />
-          <br />
           <FormControlLabel
             control={
               <Checkbox
@@ -89,7 +88,6 @@ export default class CreateCourse extends React.Component<
             }
             label="Открытый курс"
           />
-          <br />
           <Button
             size="small"
             variant="contained"

@@ -1,8 +1,10 @@
 import * as React from "react";
-import { TextField, Button, Typography } from "@material-ui/core";
+import { TextField, Button, Typography, Avatar, CssBaseline, FormControlLabel,
+   Checkbox, Grid, Box } from "@material-ui/core";
+import { makeStyles } from '@material-ui/core/styles';
 import { FormEvent } from "react";
-
 import ApiSingleton from "../../api/ApiSingleton";
+import './Styles/Login.css';
 
 interface ILoginState {
   email: string;
@@ -21,22 +23,20 @@ export default class Login extends React.Component<{}, ILoginState> {
 
   render(): JSX.Element {
     return (
-      <div className="container vertical-center-form">
-        <Typography variant="h6" gutterBottom>
+      <div className="page">
+        <Typography component="h1" variant="h5">
           Войти
         </Typography>
-        <form onSubmit={(e) => this.handleSubmit(e)}>
-          <br />
+        <form onSubmit={(e) => this.handleSubmit(e)} className="loginForm">
           <TextField
             required
             type="email"
-            label="Email"
+            label="Email Address"
             variant="outlined"
             margin="normal"
             name={this.state.email}
             onChange={(e) => this.setState({ email: e.target.value })}
           />
-          <br />
           <TextField
             required
             type="password"
@@ -51,6 +51,7 @@ export default class Login extends React.Component<{}, ILoginState> {
             variant="contained"
             color="primary"
             type="submit"
+            className="loginButton"
           >
             Войти
           </Button>

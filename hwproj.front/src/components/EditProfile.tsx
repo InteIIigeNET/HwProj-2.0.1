@@ -57,11 +57,11 @@ export default class EditProfile extends React.Component<
 
       return (
         <div>
-          <div className="container vertical-center-form">
+          <div className="page">
             <Typography variant="h6" gutterBottom>
               Редактировать профиль
             </Typography>
-            <form onSubmit={(e) => this.handleSubmit(e)}>
+            <form onSubmit={(e) => this.handleSubmit(e)} className="form">
               <TextField
                 required
                 label="Имя"
@@ -70,7 +70,6 @@ export default class EditProfile extends React.Component<
                 value={this.state.name}
                 onChange={(e) => this.setState({ name: e.target.value })}
               />
-              <br />
               <TextField
                 required
                 label="Фамилия"
@@ -79,7 +78,6 @@ export default class EditProfile extends React.Component<
                 value={this.state.surname}
                 onChange={(e) => this.setState({ surname: e.target.value })}
               />
-              <br />
               <Button
                 size="small"
                 variant="contained"
