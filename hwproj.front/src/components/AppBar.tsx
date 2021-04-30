@@ -20,32 +20,35 @@ const styles = createStyles({
   },
 });
 
-export interface Props extends WithStyles<typeof styles> {}
+// export interface Props extends WithStyles<typeof styles> {}
 
 interface IAppBarState {
   loaded: boolean;
-  loggedIn: boolean;
 }
 
-class ButtonAppBar extends React.Component<Props, IAppBarState> {
+interface AppBarProps extends WithStyles<typeof styles> {
+  loggedIn: boolean;
+  onLogout: () => void;
+}
+
+class ButtonAppBar extends React.Component<AppBarProps, IAppBarState> {
   authService!: AuthService;
-  constructor(props: Props) {
+  constructor(props: AppBarProps) {
     super(props);
     this.state = {
       loaded: false,
-      loggedIn: false,
     };
     this.authService = new AuthService();
   }
 
-  public render() {
-    const { loaded, loggedIn } = this.state;
-    const { classes } = this.props;
+  render() {
+    const { loaded } = this.state;
+    const { classes, loggedIn } = this.props;
 
     if (loaded) {
       return (
         <div className={classes.root}>
-          <AppBar position="absolute">
+          <AppBar style={{ position: "relative", width: "100vw" }}>
             <Toolbar>
               <Button
                 onClick={() => window.location.assign("/")}
@@ -84,14 +87,7 @@ class ButtonAppBar extends React.Component<Props, IAppBarState> {
                   >
                     Редактировать данные
                   </Button>
-                  <Button
-                    onClick={() => {
-                      this.authService.logout();
-                      this.setState({ loaded: true, loggedIn: false });
-                      window.location.assign("/");
-                    }}
-                    color="inherit"
-                  >
+                  <Button onClick={this.props.onLogout} color="inherit">
                     Выйти
                   </Button>
                 </div>
@@ -135,14 +131,11 @@ class ButtonAppBar extends React.Component<Props, IAppBarState> {
   }
 
   componentDidMount() {
-    this.setState({
-      loaded: true,
-      loggedIn: this.authService.isLoggedIn(),
-    });
+    this.setState({ loaded: true });
   }
 }
 
-(ButtonAppBar as React.ComponentClass<Props>).propTypes = {
+(ButtonAppBar as React.ComponentClass<AppBarProps>).propTypes = {
   classes: PropTypes.object.isRequired,
 } as any;
 

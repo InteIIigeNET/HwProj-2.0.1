@@ -1,4 +1,4 @@
-import AuthService from '../services/AuthService'; // логика работы с токенами
+import AuthService from '../services/AuthService';
 import { AccountApi } from './auth';
 import { CourseWorksApi } from './courseWorks';
 

@@ -72,7 +72,7 @@ export default class Homework extends React.Component<IHomeworkProps, IHomeworkS
 
     deleteHomework(): void {
         let api = new HomeworksApi();
-        api.deleteHomework(this.props.homework.id!)
+        api.apiHomeworksDeleteByHomeworkIdDelete(this.props.homework.id!)
             .then(res => this.props.onDeleteClick());
     }
 }

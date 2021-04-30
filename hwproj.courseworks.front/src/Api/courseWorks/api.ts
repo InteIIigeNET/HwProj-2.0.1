@@ -16,8 +16,10 @@
 import * as url from "url";
 import * as portableFetch from "portable-fetch";
 import { Configuration } from "./configuration";
+import AuthService from "../../services/AuthService";
+import React from "react";
 
-const BASE_PATH = "https://localhost".replace(/\/+$/, "");
+const BASE_PATH = "http://localhost:5000".replace(/\/+$/, "");
 
 /**
  *
@@ -747,6 +749,12 @@ export const CourseWorksApiFetchParamCreator = function (configuration?: Configu
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
@@ -768,6 +776,12 @@ export const CourseWorksApiFetchParamCreator = function (configuration?: Configu
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -796,6 +810,12 @@ export const CourseWorksApiFetchParamCreator = function (configuration?: Configu
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -831,6 +851,12 @@ export const CourseWorksApiFetchParamCreator = function (configuration?: Configu
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
@@ -865,6 +891,12 @@ export const CourseWorksApiFetchParamCreator = function (configuration?: Configu
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
@@ -892,6 +924,12 @@ export const CourseWorksApiFetchParamCreator = function (configuration?: Configu
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -921,6 +959,12 @@ export const CourseWorksApiFetchParamCreator = function (configuration?: Configu
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
@@ -948,6 +992,12 @@ export const CourseWorksApiFetchParamCreator = function (configuration?: Configu
             const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -979,6 +1029,12 @@ export const CourseWorksApiFetchParamCreator = function (configuration?: Configu
             const localVarQueryParameter = {} as any;
 
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -1016,6 +1072,12 @@ export const CourseWorksApiFetchParamCreator = function (configuration?: Configu
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
@@ -1037,6 +1099,12 @@ export const CourseWorksApiFetchParamCreator = function (configuration?: Configu
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -1060,6 +1128,12 @@ export const CourseWorksApiFetchParamCreator = function (configuration?: Configu
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
@@ -1081,6 +1155,12 @@ export const CourseWorksApiFetchParamCreator = function (configuration?: Configu
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -1937,6 +2017,12 @@ export const LecturerCourseWorksApiFetchParamCreator = function (configuration?:
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
@@ -1964,6 +2050,12 @@ export const LecturerCourseWorksApiFetchParamCreator = function (configuration?:
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -1993,6 +2085,12 @@ export const LecturerCourseWorksApiFetchParamCreator = function (configuration?:
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
@@ -2017,6 +2115,12 @@ export const LecturerCourseWorksApiFetchParamCreator = function (configuration?:
             const localVarQueryParameter = {} as any;
 
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -2048,6 +2152,12 @@ export const LecturerCourseWorksApiFetchParamCreator = function (configuration?:
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
@@ -2076,6 +2186,12 @@ export const LecturerCourseWorksApiFetchParamCreator = function (configuration?:
             const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
 
             if (type !== undefined) {
                 localVarQueryParameter['type'] = type;
@@ -2112,6 +2228,12 @@ export const LecturerCourseWorksApiFetchParamCreator = function (configuration?:
 
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
 
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
@@ -2145,6 +2267,12 @@ export const LecturerCourseWorksApiFetchParamCreator = function (configuration?:
 
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
 
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
@@ -2174,6 +2302,12 @@ export const LecturerCourseWorksApiFetchParamCreator = function (configuration?:
             const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -2205,6 +2339,12 @@ export const LecturerCourseWorksApiFetchParamCreator = function (configuration?:
             const localVarQueryParameter = {} as any;
 
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -2664,6 +2804,12 @@ export const StudentCourseWorksApiFetchParamCreator = function (configuration?: 
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
@@ -2691,6 +2837,12 @@ export const StudentCourseWorksApiFetchParamCreator = function (configuration?: 
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -2722,6 +2874,12 @@ export const StudentCourseWorksApiFetchParamCreator = function (configuration?: 
             const localVarQueryParameter = {} as any;
 
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943

@@ -220,16 +220,16 @@ export default class Course extends React.Component<
       .then((res) => res.json())
       .then((course: CourseViewModel) =>
         ApiSingleton.homeworksApi
-          .getCourseHomeworks(course.id!)
+          .apiHomeworksCourseHomeworksByCourseIdGet(course.id!)
           .then((homework) =>
             ApiSingleton.accountApi
-              .apiAccountGetUserDataByUserIdGet(course.mentorId)
+              .apiAccountGetUserDataByUserIdGet(course.mentorId!)
               .then(
                 async (mentor) =>
                   await Promise.all(
                     course.courseMates!.map(async (cm) => {
                       let res = await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(
-                        cm.studentId
+                        cm.studentId!
                       );
                       let user = await JSON.stringify(res);
                       return { user: user, isAccepted: cm.isAccepted };

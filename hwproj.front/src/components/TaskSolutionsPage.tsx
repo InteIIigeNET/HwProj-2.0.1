@@ -115,11 +115,11 @@ export default class TaskSolutionsPage extends React.Component<
 
   componentDidMount() {
     ApiSingleton.tasksApi
-      .getTask(+this.props.match.params.taskId)
+      .apiTasksGetByTaskIdGet(+this.props.match.params.taskId)
       .then((res) => res.json())
       .then((task) =>
         ApiSingleton.homeworksApi
-          .getHomework(task.homeworkId)
+          .apiHomeworksGetByHomeworkIdGet(task.homeworkId)
           .then((res) => res.json())
           .then((homework) =>
             ApiSingleton.coursesApi

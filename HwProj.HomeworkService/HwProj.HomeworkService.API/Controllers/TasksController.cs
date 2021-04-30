@@ -26,7 +26,7 @@ namespace HwProj.HomeworkService.API.Controllers
             return _mapper.Map<HomeworkTaskViewModel[]>(tasks);
         }
         
-        [HttpGet("{taskId}")]
+        [HttpGet("get/{taskId}")]
         public async Task<IActionResult> GetTask(long taskId)
         {
             var task = await _tasksService.GetTaskAsync(taskId);

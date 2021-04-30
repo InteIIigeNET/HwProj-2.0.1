@@ -6,13 +6,11 @@ import {
   RouteComponentProps,
   withRouter,
 } from "react-router-dom";
-import axios from "axios";
 import decode from "jwt-decode";
 import { Button } from "@skbkontur/react-ui";
 
 import { IUser, Role } from "types";
 import { API_ROOT } from "config";
-import AuthService from "services/AuthService";
 
 import Profile from "pages/Profile";
 import Login from "pages/Login";
@@ -20,6 +18,7 @@ import Register from "pages/Register";
 
 import ModalRoot from "./ModalRoot";
 import Footer from "parts/Footer";
+import ApiSingleton from "./api/ApiSingleton";
 
 type Props = RouteComponentProps;
 
@@ -88,7 +87,7 @@ class App extends Component<Props, State> {
 
   componentDidMount() {
     if (this.state.token) {
-      if (AuthService.isTokenExpired(this.state.token)) {
+      if (ApiSingleton.authService.isTokenExpired(this.state.token)) {
         this.logout();
       } else {
         this.login(this.state.token);
@@ -107,10 +106,12 @@ class App extends Component<Props, State> {
 
   async fetchUserData() {
     try {
-      const res = await axios.get(
+      /*const res = await axios.get(
         `${API_ROOT}/account/getUserData/${this.state.user.userId}`
-      );
-      if (res.status === 200) {
+      );*/
+      
+      const res = await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(this.state.user.userId.toString());
+      /*if (res. status === 200) {
         this.setState({
           user: {
             ...this.state.user,
@@ -119,7 +120,7 @@ class App extends Component<Props, State> {
             middleName: res.data.middleName,
           },
         });
-      }
+      }*/
     } catch (err) {
       console.error(err.response);
       // if token has expired:
@@ -128,14 +129,8 @@ class App extends Component<Props, State> {
     }
   }
 
-  handleInviteLecturer = (email: string) => {
-    return axios.post(
-      `${API_ROOT}/account/invitenewlecturer`,
-      { email },
-      {
-        headers: { Authorization: `Bearer ${this.state.token}` },
-      }
-    );
+  handleInviteLecturer = (email: string) => {    
+    return ApiSingleton.accountApi.apiAccountInvitenewlecturerPost({email})
   };
 
   render() {

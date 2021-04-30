@@ -1,5 +1,10 @@
 import React, { Component } from "react";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import {
+  Route,
+  Switch,
+  withRouter,
+  RouteComponentProps,
+} from "react-router-dom";
 
 import "./App.css";
 import "./components/Course";
@@ -16,12 +21,39 @@ import { Register } from "./components/Auth/Register";
 import StudentSolutionsPage from "./components/StudentSolutionsPage";
 import EditProfile from "./components/EditProfile";
 import InviteNewLecturer from "./components/InviteNewLecturer";
+import ApiSingleton from "./api/ApiSingleton";
 
-class App extends Component {
+type AppProps = RouteComponentProps;
+
+interface AppState {
+  loggedIn: boolean;
+}
+
+class App extends Component<AppProps, AppState> {
+  constructor(props: AppProps) {
+    super(props);
+    this.state = {
+      loggedIn: false,
+    };
+    this.login = this.login.bind(this);
+    this.logout = this.logout.bind(this);
+  }
+
+  login() {
+    this.setState({ loggedIn: true });
+    this.props.history.push("/");
+  }
+
+  logout() {
+    ApiSingleton.authService.logout();
+    this.setState({ loggedIn: false });
+    this.props.history.push("/");
+  }
+
   render() {
     return (
-      <Router>
-        <AppBar />
+      <>
+        <AppBar loggedIn={this.state.loggedIn} onLogout={this.logout} />
         <Route exact path="/invite_lecturer" component={InviteNewLecturer} />
         <Route exact path="/user/edit" component={EditProfile} />
         <Route exact path="/" component={Courses} />
@@ -42,11 +74,15 @@ class App extends Component {
           />
           <Route exact path="/task/:taskId/" component={TaskSolutionsPage} />
         </Switch>
-        <Route exact path="/login" component={Login} />
+        <Route
+          exact
+          path="/login"
+          render={(props) => <Login {...props} onLogin={this.login} />}
+        />
         <Route exact path="/register" component={Register} />
-      </Router>
+      </>
     );
   }
 }
 
-export default App;
+export default withRouter(App);

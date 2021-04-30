@@ -11,22 +11,35 @@ interface TokenPayload {
   iss: string;
 }
 
+interface LoginResponseData {
+  errors: Array<{ code: string | null; description: string }> | null;
+  succeeded: boolean;
+  value: { accessToken: string; expiresIn: number } | null;
+}
+
 export default class AuthService {
   client = new AccountApi();
+
   constructor() {
     this.login = this.login.bind(this);
     this.getProfile = this.getProfile.bind(this);
   }
 
   async login(email: string, password: string) {
-    const res = await this.client.apiAccountLoginPost({
-      email: email,
-      password: password,
-    });
+    const res = await this.client.apiAccountLoginPost({ email, password });
+    const data: LoginResponseData = await res.json();
 
-    const tokenCredentials = await res.json();
-    this.setToken(tokenCredentials.value.accessToken);
-    return Promise.resolve(tokenCredentials);
+    if (data.errors && data.errors.length > 0) {
+      const firstErrorMsg = data.errors[0].description;
+      return Promise.reject(firstErrorMsg);
+    }
+
+    if (data.value) {
+      this.setToken(data.value.accessToken);
+      return Promise.resolve(data);
+    }
+
+    throw new Error("Should never happen. api has returned a 'value' of null");
   }
 
   isLoggedIn() {

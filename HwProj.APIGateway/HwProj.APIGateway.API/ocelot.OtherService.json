@@ -14,7 +14,7 @@
       "UpstreamHttpMethod": [ "GET" ]
     },
     {
-      "DownstreamPathTemplate": "/api/Homeworks/{homeworkId}",
+      "DownstreamPathTemplate": "/api/Homeworks/get/{homeworkId}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -22,7 +22,7 @@
           "Port": 5003
         }
       ],
-      "UpstreamPathTemplate": "/api/Homeworks/{homeworkId}/",
+      "UpstreamPathTemplate": "/api/Homeworks/get/{homeworkId}/",
       "UpstreamHttpMethod": [ "GET" ]
     },
     {
@@ -117,7 +117,7 @@
       "UpstreamHttpMethod": [ "GET" ]
     },
     {
-      "DownstreamPathTemplate": "/api/Tasks/{taskId}",
+      "DownstreamPathTemplate": "/api/Tasks/get/{taskId}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -125,7 +125,7 @@
           "Port": 5003
         }
       ],
-      "UpstreamPathTemplate": "/api/Tasks/{taskId}/",
+      "UpstreamPathTemplate": "/api/Tasks/get/{taskId}/",
       "UpstreamHttpMethod": [ "GET" ]
     },
     {
@@ -196,7 +196,7 @@
     },
     //Courses
     {
-      "DownstreamPathTemplate": "/api/Courses",
+      "DownstreamPathTemplate": "/api/Courses/create",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -204,7 +204,7 @@
           "Port": 5002
         }
       ],
-      "UpstreamPathTemplate": "/api/Courses/",
+      "UpstreamPathTemplate": "/api/Courses/create",
       "UpstreamhttpMethod": [ "POST", "OPTIONS" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",

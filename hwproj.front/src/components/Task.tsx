@@ -50,7 +50,7 @@ export default class Task extends React.Component<ITaskProp, {}> {
     }
 
     deleteTask(): void {
-        ApiSingleton.tasksApi.deleteTask(this.props.task.id!)
+        ApiSingleton.tasksApi.apiTasksDeleteByTaskIdDelete(this.props.task.id!)
             .then(res => this.props.onDeleteClick())
     }
 }

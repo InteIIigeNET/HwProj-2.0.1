@@ -3,11 +3,9 @@ import { Link, RouteComponentProps } from "react-router-dom";
 import { TextField, Typography } from "@material-ui/core";
 import { Button, Center } from "@skbkontur/react-ui";
 import LoginIcon from "@skbkontur/react-icons/Login";
-import axios from "axios";
 
 import { IUser, IFormField } from "types";
-import { API_ROOT } from "config";
-import ApiSingleton from "Api/ApiSingleton";
+import ApiSingleton from "api/ApiSingleton";
 import Header from "parts/Header";
 
 interface Props extends RouteComponentProps {
@@ -56,17 +54,14 @@ export default class Login extends React.Component<Props, IState> {
       return;
     }
 
-    const res = await axios.post(`${API_ROOT}/account/login`, {
-      email: email.value,
-      password: password.value,
-    });
+    const res = await ApiSingleton.authService.login(email.value, password.value);
 
-    if (res.data.errors) {
+    if (res.errors) {
       this.setState({
         email: {
           ...email,
           error: true,
-          helperText: res.data.errors[0].description,
+          helperText: res.errors[0].description,
         },
         password: {
           ...password,
@@ -76,10 +71,10 @@ export default class Login extends React.Component<Props, IState> {
       return;
     }
 
-    const token = res.data.value.accessToken;
+    const token = res.value!.accessToken;
     ApiSingleton.authService.setToken(token);
 
-    const user: IUser = ApiSingleton.authService.getProfile();
+    // const user: IUser = ApiSingleton.authService.getProfile();
     this.props.auth(token);
     this.props.history.push("/profile");
   };
@@ -89,7 +84,8 @@ export default class Login extends React.Component<Props, IState> {
     return (
       <>
         <Header />
-        <form className="auth-form" onSubmit={this.handleSubmit}>
+        <div className={'auth-form'}>
+        <form onSubmit={this.handleSubmit}>
           <fieldset className="auth-fieldset">
             <legend>
               <Typography variant="h6" gutterBottom>
@@ -142,6 +138,7 @@ export default class Login extends React.Component<Props, IState> {
             </p>
           </fieldset>
         </form>
+        </div>
       </>
     );
   }

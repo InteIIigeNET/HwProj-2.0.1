@@ -4,6 +4,7 @@ import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import { Redirect } from "react-router-dom";
 import ApiSingleton from "../api/ApiSingleton";
+import { IUser } from "types";
 
 interface IEditProfileState {
   isLoaded: boolean;
@@ -98,15 +99,19 @@ export default class EditProfile extends React.Component<
   componentDidMount() {
     if (ApiSingleton.authService.isLoggedIn()) {
       ApiSingleton.accountApi
-        .apiAccountGetUserDataByUserIdGet(ApiSingleton.authService.getProfile()._id)
+        .apiAccountGetUserDataByUserIdGet(
+          ApiSingleton.authService.getProfile()._id
+        )
         .then((res) => JSON.stringify(res))
-        .then((user) =>
+        .then((user) => {
+          const userObj = JSON.parse(user);
+          console.log({ userObj });
           this.setState({
             isLoaded: true,
-            name: user
-            // а на surname вообще забили, нехорошо
-          })
-        );
+            name: userObj.name,
+            surname: userObj.surname ?? "",
+          });
+        });
     }
   }
 }
