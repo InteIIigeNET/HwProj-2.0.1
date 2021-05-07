@@ -5,11 +5,15 @@ import Typography from "@material-ui/core/Typography";
 import { Redirect } from "react-router-dom";
 import ApiSingleton from "../api/ApiSingleton";
 import { IUser } from "types";
+import { EditAccountViewModel } from "../api/auth";
 
 interface IEditProfileState {
   isLoaded: boolean;
   name: string;
   surname: string;
+  middleName: string;
+  currentPassword: string;
+  newPassword: string;
   edited: boolean;
 }
 
@@ -23,6 +27,9 @@ export default class EditProfile extends React.Component<
       isLoaded: false,
       name: "",
       surname: "",
+      middleName: "",
+      currentPassword: "",
+      newPassword: "",
       edited: false,
     };
   }
@@ -30,16 +37,20 @@ export default class EditProfile extends React.Component<
   public handleSubmit(e: any) {
     e.preventDefault();
 
-    let editViewModel = {
-      newName: this.state.name,
-      newSurname: this.state.surname,
+    let editViewModel: EditAccountViewModel = {
+      name: this.state.name,
+      surname: this.state.surname,
+      middleName: this.state.middleName,
+      currentPassword: this.state.currentPassword,
+      newPassword: this.state.newPassword,
     };
 
-    /* а у нас EditViewModel поменялась как бы
+    /* а у нас EditAccountViewModel поменялась как бы
     ApiSingleton.accountApi
       .apiAccountEditPut(editViewModel)
       .then((res) => this.setState({ edited: true }));
      */
+    ApiSingleton.accountApi.apiAccountEditPut(editViewModel);
   }
 
   public render() {
@@ -64,6 +75,14 @@ export default class EditProfile extends React.Component<
             </Typography>
             <form onSubmit={(e) => this.handleSubmit(e)} className="form">
               <TextField
+                  required
+                  label="Фамилия"
+                  variant="outlined"
+                  margin="normal"
+                  value={this.state.surname}
+                  onChange={(e) => this.setState({ surname: e.target.value })}
+              />
+              <TextField
                 required
                 label="Имя"
                 variant="outlined"
@@ -73,11 +92,27 @@ export default class EditProfile extends React.Component<
               />
               <TextField
                 required
-                label="Фамилия"
+                label="Отчество"
                 variant="outlined"
                 margin="normal"
-                value={this.state.surname}
-                onChange={(e) => this.setState({ surname: e.target.value })}
+                value={this.state.middleName}
+                onChange={(e) => this.setState({ middleName: e.target.value })}
+              />
+              <TextField
+                  required
+                  label="Пароль"
+                  variant="outlined"
+                  margin="normal"
+                  value={this.state.currentPassword}
+                  onChange={(e) => this.setState({ currentPassword: e.target.value })}
+              />
+              <TextField
+                  required
+                  label="Новый пароль"
+                  variant="outlined"
+                  margin="normal"
+                  value={this.state.newPassword}
+                  onChange={(e) => this.setState({ newPassword: e.target.value })}
               />
               <Button
                 size="small"

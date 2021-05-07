@@ -2,10 +2,10 @@ import React, { FormEvent } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { TextField, Button, Typography } from "@material-ui/core";
 import ApiSingleton from "../../api/ApiSingleton";
-import './Styles/Login.css';
+import "./Styles/Login.css";
 
 interface LoginProps extends Partial<RouteComponentProps> {
-  onLogin?: () => void;
+  onLogin: () => void;
 }
 
 interface ILoginState {
@@ -32,7 +32,7 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
         this.state.email,
         this.state.password
       );
-      this.props?.onLogin?.();
+      this.props.onLogin?.();
     } catch (err) {
       if (typeof err === "string") {
         this.setState({ error: err });
@@ -48,6 +48,10 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
 
     if (this.state.error) {
       headerStyles.marginBottom = "-1.5rem";
+    }
+
+    if (ApiSingleton.authService.isLoggedIn()) {
+      this.props.onLogin?.()
     }
 
     return (

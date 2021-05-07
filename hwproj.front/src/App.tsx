@@ -33,8 +33,9 @@ class App extends Component<AppProps, AppState> {
   constructor(props: AppProps) {
     super(props);
     this.state = {
-      loggedIn: false,
+      loggedIn: ApiSingleton.authService.isLoggedIn(),
     };
+
     this.login = this.login.bind(this);
     this.logout = this.logout.bind(this);
   }

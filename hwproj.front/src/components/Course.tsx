@@ -16,7 +16,7 @@ import { AccountDataDTO } from "../api/auth";
 interface User extends AccountDataDTO {
   name?: string;
   surname?: string;
-  middlename?: string;
+  middleName?: string;
   email?: string;
   role?: string;
 }

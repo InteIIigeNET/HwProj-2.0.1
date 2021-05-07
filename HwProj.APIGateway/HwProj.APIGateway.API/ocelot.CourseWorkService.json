@@ -7,7 +7,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/available/",
@@ -19,7 +19,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/{roleString}/my/{status}/",
@@ -38,7 +38,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/{courseWorkId}/",
@@ -50,7 +50,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/directions/",
@@ -62,7 +62,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/departments/",
@@ -74,7 +74,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/curators/",
@@ -86,7 +86,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/user/roles/",
@@ -105,7 +105,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/user/fullInfo/",
@@ -124,7 +124,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/applications/{status}/",
@@ -143,7 +143,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/{courseWorkId}/reference/",
@@ -162,7 +162,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/{courseWorkId}/files/{type}/",
@@ -181,7 +181,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/{courseWorkId}/files/{fileId}/",
@@ -200,7 +200,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/{courseWorkId}/files/",
@@ -216,7 +216,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/{courseWorkId}/deadlines/",
@@ -235,7 +235,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/reviewers/new/",
@@ -254,7 +254,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/reviewers/remove/",
@@ -274,7 +274,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/student/profile/",
@@ -297,7 +297,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/student/applications/{appId}/",
@@ -320,7 +320,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/student/course_works/{courseWorkId}/apply/",
@@ -343,7 +343,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/student/choice_theme_deadline/",
@@ -366,7 +366,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/student/course_works/{courseWorkId}/set_updated_parameter/",
@@ -390,7 +390,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/lecturer/course_works/add/",
@@ -413,7 +413,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/lecturer/course_works/{courseWorkId}/",
@@ -436,7 +436,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/lecturer/course_works/{courseWorksId}/exclude/",
@@ -459,7 +459,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/lecturer/profile/",
@@ -482,7 +482,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/lecturer/applications/{appId}/",
@@ -505,7 +505,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/lecturer/course_works/{courseWorkId}/applications/",
@@ -528,7 +528,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/lecturer/applications/{appId}/accept/",
@@ -551,7 +551,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/lecturer/applications/{appId}/reject/",
@@ -575,7 +575,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/curator/course_works/add/",
@@ -598,7 +598,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/curator/course_works/created_by_curator/{status}/",
@@ -621,7 +621,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/curator/profile/",
@@ -644,7 +644,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/curator/invite/",
@@ -667,7 +667,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/curator/directions/",
@@ -690,7 +690,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/curator/directions/{directionId}/",
@@ -713,7 +713,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/curator/departments/",
@@ -736,7 +736,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/curator/departments/{departmentId}/",
@@ -759,7 +759,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/curator/deadlines/",
@@ -782,7 +782,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/curator/deadlines/{deadlineId}/",
@@ -805,7 +805,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/curator/course_works/{courseWorkId}/clear_updated_parameter/",
@@ -828,7 +828,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/curator/reviewers/",
@@ -851,7 +851,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44328
+          "Port": 5010
         }
       ],
       "UpstreamPathTemplate": "/api/curator/reviewers/set_to_bidding/",

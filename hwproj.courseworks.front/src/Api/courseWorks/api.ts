@@ -17,9 +17,8 @@ import * as url from "url";
 import * as portableFetch from "portable-fetch";
 import { Configuration } from "./configuration";
 import AuthService from "../../services/AuthService";
-import React from "react";
 
-const BASE_PATH = "http://localhost:5000".replace(/\/+$/, "");
+const BASE_PATH = "https://localhost".replace(/\/+$/, "");
 
 /**
  *
@@ -91,13 +90,45 @@ export interface AddDeadlineViewModel {
      * @type {string}
      * @memberof AddDeadlineViewModel
      */
-    type?: string;
+    date?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof AddDeadlineViewModel
+     */
+    course?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof AddDeadlineViewModel
+     */
+    directionId?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof AddDeadlineViewModel
+     */
+    deadlineTypeId?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof AddDeadlineViewModel
+     */
+    courseWorkId?: number;
+}
+
+/**
+ * 
+ * @export
+ * @interface AddDepartmentViewModel
+ */
+export interface AddDepartmentViewModel {
     /**
      * 
      * @type {string}
-     * @memberof AddDeadlineViewModel
+     * @memberof AddDepartmentViewModel
      */
-    date?: string;
+    name?: string;
 }
 
 /**
@@ -205,21 +236,85 @@ export interface CreateCourseWorkViewModel {
 /**
  * 
  * @export
+ * @interface CuratorProfileViewModel
+ */
+export interface CuratorProfileViewModel {
+    /**
+     * 
+     * @type {number}
+     * @memberof CuratorProfileViewModel
+     */
+    departmentId?: number;
+}
+
+/**
+ * 
+ * @export
  * @interface DeadlineDTO
  */
 export interface DeadlineDTO {
     /**
      * 
-     * @type {string}
+     * @type {number}
      * @memberof DeadlineDTO
      */
-    type?: string;
+    id?: number;
     /**
      * 
      * @type {string}
      * @memberof DeadlineDTO
      */
     date?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof DeadlineDTO
+     */
+    course?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof DeadlineDTO
+     */
+    directionId?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof DeadlineDTO
+     */
+    directionName?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof DeadlineDTO
+     */
+    deadlineTypeId?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof DeadlineDTO
+     */
+    deadlineTypeName?: string;
+}
+
+/**
+ * 
+ * @export
+ * @interface DepartmentDTO
+ */
+export interface DepartmentDTO {
+    /**
+     * 
+     * @type {number}
+     * @memberof DepartmentDTO
+     */
+    id?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof DepartmentDTO
+     */
+    name?: string;
 }
 
 /**
@@ -355,6 +450,12 @@ export interface DirectionDTO {
      * @type {string}
      * @memberof DirectionDTO
      */
+    curatorProfileId?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof DirectionDTO
+     */
     curatorName?: string;
 }
 
@@ -469,6 +570,20 @@ export interface IFormFile {
 /**
  * 
  * @export
+ * @interface InviteCuratorViewModel
+ */
+export interface InviteCuratorViewModel {
+    /**
+     * 
+     * @type {string}
+     * @memberof InviteCuratorViewModel
+     */
+    email?: string;
+}
+
+/**
+ * 
+ * @export
  * @interface LecturerApplicationDTO
  */
 export interface LecturerApplicationDTO {
@@ -520,6 +635,26 @@ export interface LecturerApplicationDTO {
      * @memberof LecturerApplicationDTO
      */
     date?: string;
+}
+
+/**
+ * 
+ * @export
+ * @interface LecturerProfileViewModel
+ */
+export interface LecturerProfileViewModel {
+    /**
+     * 
+     * @type {string}
+     * @memberof LecturerProfileViewModel
+     */
+    contact?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof LecturerProfileViewModel
+     */
+    departmentId?: number;
 }
 
 /**
@@ -619,6 +754,96 @@ export interface OverviewCourseWorkDTO {
 /**
  * 
  * @export
+ * @interface ReviewerOverviewCourseWorkDTO
+ */
+export interface ReviewerOverviewCourseWorkDTO {
+    /**
+     * 
+     * @type {number}
+     * @memberof ReviewerOverviewCourseWorkDTO
+     */
+    id?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof ReviewerOverviewCourseWorkDTO
+     */
+    title?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ReviewerOverviewCourseWorkDTO
+     */
+    type?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ReviewerOverviewCourseWorkDTO
+     */
+    supervisorName?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ReviewerOverviewCourseWorkDTO
+     */
+    overview?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof ReviewerOverviewCourseWorkDTO
+     */
+    course?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof ReviewerOverviewCourseWorkDTO
+     */
+    studentName?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ReviewerOverviewCourseWorkDTO
+     */
+    biddingDeadline?: string;
+}
+
+/**
+ * 
+ * @export
+ * @interface ReviewersForBiddingListViewModel
+ */
+export interface ReviewersForBiddingListViewModel {
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof ReviewersForBiddingListViewModel
+     */
+    reviewersId?: Array<string>;
+}
+
+/**
+ * 
+ * @export
+ * @interface RoleDTO
+ */
+export interface RoleDTO {
+    /**
+     * 
+     * @type {number}
+     * @memberof RoleDTO
+     */
+    id?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof RoleDTO
+     */
+    displayValue?: string;
+}
+
+/**
+ * 
+ * @export
  * @interface StringSegment
  */
 export interface StringSegment {
@@ -707,21 +932,191 @@ export interface StudentApplicationDTO {
 /**
  * 
  * @export
+ * @interface StudentProfileViewModel
+ */
+export interface StudentProfileViewModel {
+    /**
+     * 
+     * @type {number}
+     * @memberof StudentProfileViewModel
+     */
+    course?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof StudentProfileViewModel
+     */
+    group?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof StudentProfileViewModel
+     */
+    directionId?: number;
+}
+
+/**
+ * 
+ * @export
+ * @interface UpdateReferenceViewModel
+ */
+export interface UpdateReferenceViewModel {
+    /**
+     * 
+     * @type {string}
+     * @memberof UpdateReferenceViewModel
+     */
+    reference?: string;
+}
+
+/**
+ * 
+ * @export
+ * @interface UserDTO
+ */
+export interface UserDTO {
+    /**
+     * 
+     * @type {string}
+     * @memberof UserDTO
+     */
+    id?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserDTO
+     */
+    userName?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserDTO
+     */
+    email?: string;
+}
+
+/**
+ * 
+ * @export
+ * @interface UserFullInfoDTO
+ */
+export interface UserFullInfoDTO {
+    /**
+     * 
+     * @type {string}
+     * @memberof UserFullInfoDTO
+     */
+    id?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserFullInfoDTO
+     */
+    name?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserFullInfoDTO
+     */
+    surname?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserFullInfoDTO
+     */
+    middleName?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserFullInfoDTO
+     */
+    email?: string;
+    /**
+     * 
+     * @type {Array<RoleDTO>}
+     * @memberof UserFullInfoDTO
+     */
+    roles?: Array<RoleDTO>;
+    /**
+     * 
+     * @type {number}
+     * @memberof UserFullInfoDTO
+     */
+    directionId?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserFullInfoDTO
+     */
+    directionName?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof UserFullInfoDTO
+     */
+    group?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof UserFullInfoDTO
+     */
+    course?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof UserFullInfoDTO
+     */
+    departmentId?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserFullInfoDTO
+     */
+    departmentName?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserFullInfoDTO
+     */
+    contact?: string;
+}
+
+/**
+ * 
+ * @export
  * @interface WorkFileDTO
  */
 export interface WorkFileDTO {
     /**
      * 
+     * @type {number}
+     * @memberof WorkFileDTO
+     */
+    id?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof WorkFileDTO
+     */
+    fileTypeId?: number;
+    /**
+     * 
      * @type {string}
      * @memberof WorkFileDTO
      */
-    type?: string;
+    fileTypeName?: string;
     /**
      * 
      * @type {string}
      * @memberof WorkFileDTO
      */
     fileName?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof WorkFileDTO
+     */
+    contentType?: string;
 }
 
 
@@ -829,22 +1224,22 @@ export const CourseWorksApiFetchParamCreator = function (configuration?: Configu
         },
         /**
          * 
-         * @param {string} type 
+         * @param {number} fileId 
          * @param {number} courseWorkId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCourseWorksByCourseWorkIdFilesByTypeDelete(type: string, courseWorkId: number, options: any = {}): FetchArgs {
-            // verify required parameter 'type' is not null or undefined
-            if (type === null || type === undefined) {
-                throw new RequiredError('type','Required parameter type was null or undefined when calling apiCourseWorksByCourseWorkIdFilesByTypeDelete.');
+        apiCourseWorksByCourseWorkIdFilesByFileIdDelete(fileId: number, courseWorkId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'fileId' is not null or undefined
+            if (fileId === null || fileId === undefined) {
+                throw new RequiredError('fileId','Required parameter fileId was null or undefined when calling apiCourseWorksByCourseWorkIdFilesByFileIdDelete.');
             }
             // verify required parameter 'courseWorkId' is not null or undefined
             if (courseWorkId === null || courseWorkId === undefined) {
-                throw new RequiredError('courseWorkId','Required parameter courseWorkId was null or undefined when calling apiCourseWorksByCourseWorkIdFilesByTypeDelete.');
+                throw new RequiredError('courseWorkId','Required parameter courseWorkId was null or undefined when calling apiCourseWorksByCourseWorkIdFilesByFileIdDelete.');
             }
-            const localVarPath = `/api/course_works/{courseWorkId}/files/{type}`
-                .replace(`{${"type"}}`, encodeURIComponent(String(type)))
+            const localVarPath = `/api/course_works/{courseWorkId}/files/{fileId}`
+                .replace(`{${"fileId"}}`, encodeURIComponent(String(fileId)))
                 .replace(`{${"courseWorkId"}}`, encodeURIComponent(String(courseWorkId)));
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
@@ -869,22 +1264,22 @@ export const CourseWorksApiFetchParamCreator = function (configuration?: Configu
         },
         /**
          * 
-         * @param {string} type 
+         * @param {number} fileId 
          * @param {number} courseWorkId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCourseWorksByCourseWorkIdFilesByTypeGet(type: string, courseWorkId: number, options: any = {}): FetchArgs {
-            // verify required parameter 'type' is not null or undefined
-            if (type === null || type === undefined) {
-                throw new RequiredError('type','Required parameter type was null or undefined when calling apiCourseWorksByCourseWorkIdFilesByTypeGet.');
+        apiCourseWorksByCourseWorkIdFilesByFileIdGet(fileId: number, courseWorkId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'fileId' is not null or undefined
+            if (fileId === null || fileId === undefined) {
+                throw new RequiredError('fileId','Required parameter fileId was null or undefined when calling apiCourseWorksByCourseWorkIdFilesByFileIdGet.');
             }
             // verify required parameter 'courseWorkId' is not null or undefined
             if (courseWorkId === null || courseWorkId === undefined) {
-                throw new RequiredError('courseWorkId','Required parameter courseWorkId was null or undefined when calling apiCourseWorksByCourseWorkIdFilesByTypeGet.');
+                throw new RequiredError('courseWorkId','Required parameter courseWorkId was null or undefined when calling apiCourseWorksByCourseWorkIdFilesByFileIdGet.');
             }
-            const localVarPath = `/api/course_works/{courseWorkId}/files/{type}`
-                .replace(`{${"type"}}`, encodeURIComponent(String(type)))
+            const localVarPath = `/api/course_works/{courseWorkId}/files/{fileId}`
+                .replace(`{${"fileId"}}`, encodeURIComponent(String(fileId)))
                 .replace(`{${"courseWorkId"}}`, encodeURIComponent(String(courseWorkId)));
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
@@ -895,6 +1290,51 @@ export const CourseWorksApiFetchParamCreator = function (configuration?: Configu
             if (authService.isLoggedIn()) {
                 localVarHeaderParameter["Authorization"] =
                     "Bearer " + authService.getToken();
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} type 
+         * @param {number} courseWorkId 
+         * @param {{ [key: string]: string; }} [file] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseWorksByCourseWorkIdFilesByTypePost(type: string, courseWorkId: number, file?: { [key: string]: string; }, options: any = {}): FetchArgs {
+            // verify required parameter 'type' is not null or undefined
+            if (type === null || type === undefined) {
+                throw new RequiredError('type','Required parameter type was null or undefined when calling apiCourseWorksByCourseWorkIdFilesByTypePost.');
+            }
+            // verify required parameter 'courseWorkId' is not null or undefined
+            if (courseWorkId === null || courseWorkId === undefined) {
+                throw new RequiredError('courseWorkId','Required parameter courseWorkId was null or undefined when calling apiCourseWorksByCourseWorkIdFilesByTypePost.');
+            }
+            const localVarPath = `/api/course_works/{courseWorkId}/files/{type}`
+                .replace(`{${"type"}}`, encodeURIComponent(String(type)))
+                .replace(`{${"courseWorkId"}}`, encodeURIComponent(String(courseWorkId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
+
+            if (file !== undefined) {
+                localVarQueryParameter['file'] = file;
             }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
@@ -1012,11 +1452,11 @@ export const CourseWorksApiFetchParamCreator = function (configuration?: Configu
         /**
          * 
          * @param {number} courseWorkId 
-         * @param {string} [reference] 
+         * @param {UpdateReferenceViewModel} [referenceViewModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCourseWorksByCourseWorkIdReferencePost(courseWorkId: number, reference?: string, options: any = {}): FetchArgs {
+        apiCourseWorksByCourseWorkIdReferencePost(courseWorkId: number, referenceViewModel?: UpdateReferenceViewModel, options: any = {}): FetchArgs {
             // verify required parameter 'courseWorkId' is not null or undefined
             if (courseWorkId === null || courseWorkId === undefined) {
                 throw new RequiredError('courseWorkId','Required parameter courseWorkId was null or undefined when calling apiCourseWorksByCourseWorkIdReferencePost.');
@@ -1028,7 +1468,49 @@ export const CourseWorksApiFetchParamCreator = function (configuration?: Configu
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
+
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"UpdateReferenceViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(referenceViewModel || {}) : (referenceViewModel || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} roleString 
+         * @param {string} status 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseWorksByRoleStringMyByStatusGet(roleString: string, status: string, options: any = {}): FetchArgs {
+            // verify required parameter 'roleString' is not null or undefined
+            if (roleString === null || roleString === undefined) {
+                throw new RequiredError('roleString','Required parameter roleString was null or undefined when calling apiCourseWorksByRoleStringMyByStatusGet.');
+            }
+            // verify required parameter 'status' is not null or undefined
+            if (status === null || status === undefined) {
+                throw new RequiredError('status','Required parameter status was null or undefined when calling apiCourseWorksByRoleStringMyByStatusGet.');
+            }
+            const localVarPath = `/api/course_works/{roleString}/my/{status}`
+                .replace(`{${"roleString"}}`, encodeURIComponent(String(roleString)))
+                .replace(`{${"status"}}`, encodeURIComponent(String(status)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
 
             let authService = new AuthService();
             if (authService.isLoggedIn()) {
@@ -1040,8 +1522,6 @@ export const CourseWorksApiFetchParamCreator = function (configuration?: Configu
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-            const needsSerialization = (<any>"string" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(reference || {}) : (reference || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -1050,23 +1530,39 @@ export const CourseWorksApiFetchParamCreator = function (configuration?: Configu
         },
         /**
          * 
-         * @param {string} role 
-         * @param {string} status 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCourseWorksByRoleMyByStatusGet(role: string, status: string, options: any = {}): FetchArgs {
-            // verify required parameter 'role' is not null or undefined
-            if (role === null || role === undefined) {
-                throw new RequiredError('role','Required parameter role was null or undefined when calling apiCourseWorksByRoleMyByStatusGet.');
+        apiCourseWorksCuratorsGet(options: any = {}): FetchArgs {
+            const localVarPath = `/api/course_works/curators`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
             }
-            // verify required parameter 'status' is not null or undefined
-            if (status === null || status === undefined) {
-                throw new RequiredError('status','Required parameter status was null or undefined when calling apiCourseWorksByRoleMyByStatusGet.');
-            }
-            const localVarPath = `/api/course_works/{role}/my/{status}`
-                .replace(`{${"role"}}`, encodeURIComponent(String(role)))
-                .replace(`{${"status"}}`, encodeURIComponent(String(status)));
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseWorksDepartmentsGet(options: any = {}): FetchArgs {
+            const localVarPath = `/api/course_works/departments`;
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
@@ -1149,10 +1645,66 @@ export const CourseWorksApiFetchParamCreator = function (configuration?: Configu
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCourseWorksTestPost(options: any = {}): FetchArgs {
-            const localVarPath = `/api/course_works/test`;
+        apiCourseWorksReviewersRemoveDelete(options: any = {}): FetchArgs {
+            const localVarPath = `/api/course_works/reviewers/remove`;
             const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseWorksUserFullInfoGet(options: any = {}): FetchArgs {
+            const localVarPath = `/api/course_works/user/fullInfo`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseWorksUserRolesGet(options: any = {}): FetchArgs {
+            const localVarPath = `/api/course_works/user/roles`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
@@ -1236,13 +1788,13 @@ export const CourseWorksApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @param {string} type 
+         * @param {number} fileId 
          * @param {number} courseWorkId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCourseWorksByCourseWorkIdFilesByTypeDelete(type: string, courseWorkId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = CourseWorksApiFetchParamCreator(configuration).apiCourseWorksByCourseWorkIdFilesByTypeDelete(type, courseWorkId, options);
+        apiCourseWorksByCourseWorkIdFilesByFileIdDelete(fileId: number, courseWorkId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = CourseWorksApiFetchParamCreator(configuration).apiCourseWorksByCourseWorkIdFilesByFileIdDelete(fileId, courseWorkId, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -1255,13 +1807,33 @@ export const CourseWorksApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @param {string} type 
+         * @param {number} fileId 
          * @param {number} courseWorkId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCourseWorksByCourseWorkIdFilesByTypeGet(type: string, courseWorkId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<FileContentResult> {
-            const localVarFetchArgs = CourseWorksApiFetchParamCreator(configuration).apiCourseWorksByCourseWorkIdFilesByTypeGet(type, courseWorkId, options);
+        apiCourseWorksByCourseWorkIdFilesByFileIdGet(fileId: number, courseWorkId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<FileContentResult> {
+            const localVarFetchArgs = CourseWorksApiFetchParamCreator(configuration).apiCourseWorksByCourseWorkIdFilesByFileIdGet(fileId, courseWorkId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {string} type 
+         * @param {number} courseWorkId 
+         * @param {{ [key: string]: string; }} [file] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseWorksByCourseWorkIdFilesByTypePost(type: string, courseWorkId: number, file?: { [key: string]: string; }, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
+            const localVarFetchArgs = CourseWorksApiFetchParamCreator(configuration).apiCourseWorksByCourseWorkIdFilesByTypePost(type, courseWorkId, file, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -1329,12 +1901,12 @@ export const CourseWorksApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @param {number} courseWorkId 
-         * @param {string} [reference] 
+         * @param {UpdateReferenceViewModel} [referenceViewModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCourseWorksByCourseWorkIdReferencePost(courseWorkId: number, reference?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = CourseWorksApiFetchParamCreator(configuration).apiCourseWorksByCourseWorkIdReferencePost(courseWorkId, reference, options);
+        apiCourseWorksByCourseWorkIdReferencePost(courseWorkId: number, referenceViewModel?: UpdateReferenceViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = CourseWorksApiFetchParamCreator(configuration).apiCourseWorksByCourseWorkIdReferencePost(courseWorkId, referenceViewModel, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -1347,13 +1919,47 @@ export const CourseWorksApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @param {string} role 
+         * @param {string} roleString 
          * @param {string} status 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCourseWorksByRoleMyByStatusGet(role: string, status: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<OverviewCourseWorkDTO>> {
-            const localVarFetchArgs = CourseWorksApiFetchParamCreator(configuration).apiCourseWorksByRoleMyByStatusGet(role, status, options);
+        apiCourseWorksByRoleStringMyByStatusGet(roleString: string, status: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<OverviewCourseWorkDTO>> {
+            const localVarFetchArgs = CourseWorksApiFetchParamCreator(configuration).apiCourseWorksByRoleStringMyByStatusGet(roleString, status, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseWorksCuratorsGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<UserDTO>> {
+            const localVarFetchArgs = CourseWorksApiFetchParamCreator(configuration).apiCourseWorksCuratorsGet(options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseWorksDepartmentsGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<DepartmentDTO>> {
+            const localVarFetchArgs = CourseWorksApiFetchParamCreator(configuration).apiCourseWorksDepartmentsGet(options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -1403,12 +2009,46 @@ export const CourseWorksApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCourseWorksTestPost(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = CourseWorksApiFetchParamCreator(configuration).apiCourseWorksTestPost(options);
+        apiCourseWorksReviewersRemoveDelete(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = CourseWorksApiFetchParamCreator(configuration).apiCourseWorksReviewersRemoveDelete(options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
                         return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseWorksUserFullInfoGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<UserFullInfoDTO> {
+            const localVarFetchArgs = CourseWorksApiFetchParamCreator(configuration).apiCourseWorksUserFullInfoGet(options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseWorksUserRolesGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<RoleDTO>> {
+            const localVarFetchArgs = CourseWorksApiFetchParamCreator(configuration).apiCourseWorksUserRolesGet(options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
                     } else {
                         throw response;
                     }
@@ -1452,23 +2092,34 @@ export const CourseWorksApiFactory = function (configuration?: Configuration, fe
         },
         /**
          * 
-         * @param {string} type 
+         * @param {number} fileId 
          * @param {number} courseWorkId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCourseWorksByCourseWorkIdFilesByTypeDelete(type: string, courseWorkId: number, options?: any) {
-            return CourseWorksApiFp(configuration).apiCourseWorksByCourseWorkIdFilesByTypeDelete(type, courseWorkId, options)(fetch, basePath);
+        apiCourseWorksByCourseWorkIdFilesByFileIdDelete(fileId: number, courseWorkId: number, options?: any) {
+            return CourseWorksApiFp(configuration).apiCourseWorksByCourseWorkIdFilesByFileIdDelete(fileId, courseWorkId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} fileId 
+         * @param {number} courseWorkId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseWorksByCourseWorkIdFilesByFileIdGet(fileId: number, courseWorkId: number, options?: any) {
+            return CourseWorksApiFp(configuration).apiCourseWorksByCourseWorkIdFilesByFileIdGet(fileId, courseWorkId, options)(fetch, basePath);
         },
         /**
          * 
          * @param {string} type 
          * @param {number} courseWorkId 
+         * @param {{ [key: string]: string; }} [file] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCourseWorksByCourseWorkIdFilesByTypeGet(type: string, courseWorkId: number, options?: any) {
-            return CourseWorksApiFp(configuration).apiCourseWorksByCourseWorkIdFilesByTypeGet(type, courseWorkId, options)(fetch, basePath);
+        apiCourseWorksByCourseWorkIdFilesByTypePost(type: string, courseWorkId: number, file?: { [key: string]: string; }, options?: any) {
+            return CourseWorksApiFp(configuration).apiCourseWorksByCourseWorkIdFilesByTypePost(type, courseWorkId, file, options)(fetch, basePath);
         },
         /**
          * 
@@ -1500,22 +2151,38 @@ export const CourseWorksApiFactory = function (configuration?: Configuration, fe
         /**
          * 
          * @param {number} courseWorkId 
-         * @param {string} [reference] 
+         * @param {UpdateReferenceViewModel} [referenceViewModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCourseWorksByCourseWorkIdReferencePost(courseWorkId: number, reference?: string, options?: any) {
-            return CourseWorksApiFp(configuration).apiCourseWorksByCourseWorkIdReferencePost(courseWorkId, reference, options)(fetch, basePath);
+        apiCourseWorksByCourseWorkIdReferencePost(courseWorkId: number, referenceViewModel?: UpdateReferenceViewModel, options?: any) {
+            return CourseWorksApiFp(configuration).apiCourseWorksByCourseWorkIdReferencePost(courseWorkId, referenceViewModel, options)(fetch, basePath);
         },
         /**
          * 
-         * @param {string} role 
+         * @param {string} roleString 
          * @param {string} status 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCourseWorksByRoleMyByStatusGet(role: string, status: string, options?: any) {
-            return CourseWorksApiFp(configuration).apiCourseWorksByRoleMyByStatusGet(role, status, options)(fetch, basePath);
+        apiCourseWorksByRoleStringMyByStatusGet(roleString: string, status: string, options?: any) {
+            return CourseWorksApiFp(configuration).apiCourseWorksByRoleStringMyByStatusGet(roleString, status, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseWorksCuratorsGet(options?: any) {
+            return CourseWorksApiFp(configuration).apiCourseWorksCuratorsGet(options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseWorksDepartmentsGet(options?: any) {
+            return CourseWorksApiFp(configuration).apiCourseWorksDepartmentsGet(options)(fetch, basePath);
         },
         /**
          * 
@@ -1538,8 +2205,24 @@ export const CourseWorksApiFactory = function (configuration?: Configuration, fe
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCourseWorksTestPost(options?: any) {
-            return CourseWorksApiFp(configuration).apiCourseWorksTestPost(options)(fetch, basePath);
+        apiCourseWorksReviewersRemoveDelete(options?: any) {
+            return CourseWorksApiFp(configuration).apiCourseWorksReviewersRemoveDelete(options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseWorksUserFullInfoGet(options?: any) {
+            return CourseWorksApiFp(configuration).apiCourseWorksUserFullInfoGet(options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseWorksUserRolesGet(options?: any) {
+            return CourseWorksApiFp(configuration).apiCourseWorksUserRolesGet(options)(fetch, basePath);
         },
     };
 };
@@ -1585,26 +2268,39 @@ export class CourseWorksApi extends BaseAPI {
 
     /**
      * 
-     * @param {string} type 
+     * @param {number} fileId 
      * @param {number} courseWorkId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CourseWorksApi
      */
-    public apiCourseWorksByCourseWorkIdFilesByTypeDelete(type: string, courseWorkId: number, options?: any) {
-        return CourseWorksApiFp(this.configuration).apiCourseWorksByCourseWorkIdFilesByTypeDelete(type, courseWorkId, options)(this.fetch, this.basePath);
+    public apiCourseWorksByCourseWorkIdFilesByFileIdDelete(fileId: number, courseWorkId: number, options?: any) {
+        return CourseWorksApiFp(this.configuration).apiCourseWorksByCourseWorkIdFilesByFileIdDelete(fileId, courseWorkId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} fileId 
+     * @param {number} courseWorkId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CourseWorksApi
+     */
+    public apiCourseWorksByCourseWorkIdFilesByFileIdGet(fileId: number, courseWorkId: number, options?: any) {
+        return CourseWorksApiFp(this.configuration).apiCourseWorksByCourseWorkIdFilesByFileIdGet(fileId, courseWorkId, options)(this.fetch, this.basePath);
     }
 
     /**
      * 
      * @param {string} type 
      * @param {number} courseWorkId 
+     * @param {{ [key: string]: string; }} [file] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CourseWorksApi
      */
-    public apiCourseWorksByCourseWorkIdFilesByTypeGet(type: string, courseWorkId: number, options?: any) {
-        return CourseWorksApiFp(this.configuration).apiCourseWorksByCourseWorkIdFilesByTypeGet(type, courseWorkId, options)(this.fetch, this.basePath);
+    public apiCourseWorksByCourseWorkIdFilesByTypePost(type: string, courseWorkId: number, file?: { [key: string]: string; }, options?: any) {
+        return CourseWorksApiFp(this.configuration).apiCourseWorksByCourseWorkIdFilesByTypePost(type, courseWorkId, file, options)(this.fetch, this.basePath);
     }
 
     /**
@@ -1643,25 +2339,45 @@ export class CourseWorksApi extends BaseAPI {
     /**
      * 
      * @param {number} courseWorkId 
-     * @param {string} [reference] 
+     * @param {UpdateReferenceViewModel} [referenceViewModel] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CourseWorksApi
      */
-    public apiCourseWorksByCourseWorkIdReferencePost(courseWorkId: number, reference?: string, options?: any) {
-        return CourseWorksApiFp(this.configuration).apiCourseWorksByCourseWorkIdReferencePost(courseWorkId, reference, options)(this.fetch, this.basePath);
+    public apiCourseWorksByCourseWorkIdReferencePost(courseWorkId: number, referenceViewModel?: UpdateReferenceViewModel, options?: any) {
+        return CourseWorksApiFp(this.configuration).apiCourseWorksByCourseWorkIdReferencePost(courseWorkId, referenceViewModel, options)(this.fetch, this.basePath);
     }
 
     /**
      * 
-     * @param {string} role 
+     * @param {string} roleString 
      * @param {string} status 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CourseWorksApi
      */
-    public apiCourseWorksByRoleMyByStatusGet(role: string, status: string, options?: any) {
-        return CourseWorksApiFp(this.configuration).apiCourseWorksByRoleMyByStatusGet(role, status, options)(this.fetch, this.basePath);
+    public apiCourseWorksByRoleStringMyByStatusGet(roleString: string, status: string, options?: any) {
+        return CourseWorksApiFp(this.configuration).apiCourseWorksByRoleStringMyByStatusGet(roleString, status, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CourseWorksApi
+     */
+    public apiCourseWorksCuratorsGet(options?: any) {
+        return CourseWorksApiFp(this.configuration).apiCourseWorksCuratorsGet(options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CourseWorksApi
+     */
+    public apiCourseWorksDepartmentsGet(options?: any) {
+        return CourseWorksApiFp(this.configuration).apiCourseWorksDepartmentsGet(options)(this.fetch, this.basePath);
     }
 
     /**
@@ -1690,8 +2406,28 @@ export class CourseWorksApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof CourseWorksApi
      */
-    public apiCourseWorksTestPost(options?: any) {
-        return CourseWorksApiFp(this.configuration).apiCourseWorksTestPost(options)(this.fetch, this.basePath);
+    public apiCourseWorksReviewersRemoveDelete(options?: any) {
+        return CourseWorksApiFp(this.configuration).apiCourseWorksReviewersRemoveDelete(options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CourseWorksApi
+     */
+    public apiCourseWorksUserFullInfoGet(options?: any) {
+        return CourseWorksApiFp(this.configuration).apiCourseWorksUserFullInfoGet(options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CourseWorksApi
+     */
+    public apiCourseWorksUserRolesGet(options?: any) {
+        return CourseWorksApiFp(this.configuration).apiCourseWorksUserRolesGet(options)(this.fetch, this.basePath);
     }
 
 }
@@ -1715,6 +2451,12 @@ export const CuratorCourseWorksApiFetchParamCreator = function (configuration?: 
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
+
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
@@ -1723,6 +2465,236 @@ export const CuratorCourseWorksApiFetchParamCreator = function (configuration?: 
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"CreateCourseWorkViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(createCourseWorkViewModel || {}) : (createCourseWorkViewModel || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} courseWorkId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCuratorCourseWorksByCourseWorkIdClearUpdatedParameterPut(courseWorkId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'courseWorkId' is not null or undefined
+            if (courseWorkId === null || courseWorkId === undefined) {
+                throw new RequiredError('courseWorkId','Required parameter courseWorkId was null or undefined when calling apiCuratorCourseWorksByCourseWorkIdClearUpdatedParameterPut.');
+            }
+            const localVarPath = `/api/curator/course_works/{courseWorkId}/clear_updated_parameter`
+                .replace(`{${"courseWorkId"}}`, encodeURIComponent(String(courseWorkId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} status 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCuratorCourseWorksCreatedByCuratorByStatusGet(status: string, options: any = {}): FetchArgs {
+            // verify required parameter 'status' is not null or undefined
+            if (status === null || status === undefined) {
+                throw new RequiredError('status','Required parameter status was null or undefined when calling apiCuratorCourseWorksCreatedByCuratorByStatusGet.');
+            }
+            const localVarPath = `/api/curator/course_works/created_by_curator/{status}`
+                .replace(`{${"status"}}`, encodeURIComponent(String(status)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
+            
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} deadlineId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCuratorDeadlinesByDeadlineIdDelete(deadlineId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'deadlineId' is not null or undefined
+            if (deadlineId === null || deadlineId === undefined) {
+                throw new RequiredError('deadlineId','Required parameter deadlineId was null or undefined when calling apiCuratorDeadlinesByDeadlineIdDelete.');
+            }
+            const localVarPath = `/api/curator/deadlines/{deadlineId}`
+                .replace(`{${"deadlineId"}}`, encodeURIComponent(String(deadlineId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCuratorDeadlinesGet(options: any = {}): FetchArgs {
+            const localVarPath = `/api/curator/deadlines`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {AddDeadlineViewModel} [addDeadlineViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCuratorDeadlinesPost(addDeadlineViewModel?: AddDeadlineViewModel, options: any = {}): FetchArgs {
+            const localVarPath = `/api/curator/deadlines`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"AddDeadlineViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(addDeadlineViewModel || {}) : (addDeadlineViewModel || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} departmentId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCuratorDepartmentsByDepartmentIdDelete(departmentId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'departmentId' is not null or undefined
+            if (departmentId === null || departmentId === undefined) {
+                throw new RequiredError('departmentId','Required parameter departmentId was null or undefined when calling apiCuratorDepartmentsByDepartmentIdDelete.');
+            }
+            const localVarPath = `/api/curator/departments/{departmentId}`
+                .replace(`{${"departmentId"}}`, encodeURIComponent(String(departmentId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {AddDepartmentViewModel} [departmentViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCuratorDepartmentsPost(departmentViewModel?: AddDepartmentViewModel, options: any = {}): FetchArgs {
+            const localVarPath = `/api/curator/departments`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"AddDepartmentViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(departmentViewModel || {}) : (departmentViewModel || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -1747,6 +2719,12 @@ export const CuratorCourseWorksApiFetchParamCreator = function (configuration?: 
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
@@ -1770,6 +2748,12 @@ export const CuratorCourseWorksApiFetchParamCreator = function (configuration?: 
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
+
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
@@ -1786,16 +2770,22 @@ export const CuratorCourseWorksApiFetchParamCreator = function (configuration?: 
         },
         /**
          * 
-         * @param {string} [email] 
+         * @param {InviteCuratorViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCuratorInvitePost(email?: string, options: any = {}): FetchArgs {
+        apiCuratorInvitePost(model?: InviteCuratorViewModel, options: any = {}): FetchArgs {
             const localVarPath = `/api/curator/invite`;
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
 
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
 
@@ -1803,8 +2793,130 @@ export const CuratorCourseWorksApiFetchParamCreator = function (configuration?: 
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-            const needsSerialization = (<any>"string" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(email || {}) : (email || "");
+            const needsSerialization = (<any>"InviteCuratorViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {CuratorProfileViewModel} [curatorProfileViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCuratorProfilePut(curatorProfileViewModel?: CuratorProfileViewModel, options: any = {}): FetchArgs {
+            const localVarPath = `/api/curator/profile`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"CuratorProfileViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(curatorProfileViewModel || {}) : (curatorProfileViewModel || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCuratorReviewersBiddingGet(options: any = {}): FetchArgs {
+            const localVarPath = `/api/curator/reviewers/bidding`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCuratorReviewersGet(options: any = {}): FetchArgs {
+            const localVarPath = `/api/curator/reviewers`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {ReviewersForBiddingListViewModel} [reviewersListViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCuratorReviewersSetToBiddingPost(reviewersListViewModel?: ReviewersForBiddingListViewModel, options: any = {}): FetchArgs {
+            const localVarPath = `/api/curator/reviewers/set_to_bidding`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"ReviewersForBiddingListViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(reviewersListViewModel || {}) : (reviewersListViewModel || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -1840,6 +2952,131 @@ export const CuratorCourseWorksApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {number} courseWorkId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCuratorCourseWorksByCourseWorkIdClearUpdatedParameterPut(courseWorkId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = CuratorCourseWorksApiFetchParamCreator(configuration).apiCuratorCourseWorksByCourseWorkIdClearUpdatedParameterPut(courseWorkId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {string} status 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCuratorCourseWorksCreatedByCuratorByStatusGet(status: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<OverviewCourseWorkDTO>> {
+            const localVarFetchArgs = CuratorCourseWorksApiFetchParamCreator(configuration).apiCuratorCourseWorksCreatedByCuratorByStatusGet(status, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} deadlineId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCuratorDeadlinesByDeadlineIdDelete(deadlineId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = CuratorCourseWorksApiFetchParamCreator(configuration).apiCuratorDeadlinesByDeadlineIdDelete(deadlineId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCuratorDeadlinesGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<DeadlineDTO>> {
+            const localVarFetchArgs = CuratorCourseWorksApiFetchParamCreator(configuration).apiCuratorDeadlinesGet(options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {AddDeadlineViewModel} [addDeadlineViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCuratorDeadlinesPost(addDeadlineViewModel?: AddDeadlineViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
+            const localVarFetchArgs = CuratorCourseWorksApiFetchParamCreator(configuration).apiCuratorDeadlinesPost(addDeadlineViewModel, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} departmentId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCuratorDepartmentsByDepartmentIdDelete(departmentId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = CuratorCourseWorksApiFetchParamCreator(configuration).apiCuratorDepartmentsByDepartmentIdDelete(departmentId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {AddDepartmentViewModel} [departmentViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCuratorDepartmentsPost(departmentViewModel?: AddDepartmentViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
+            const localVarFetchArgs = CuratorCourseWorksApiFetchParamCreator(configuration).apiCuratorDepartmentsPost(departmentViewModel, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
          * @param {number} directionId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -1862,8 +3099,26 @@ export const CuratorCourseWorksApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCuratorDirectionsPost(directionViewModel?: AddDirectionViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+        apiCuratorDirectionsPost(directionViewModel?: AddDirectionViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
             const localVarFetchArgs = CuratorCourseWorksApiFetchParamCreator(configuration).apiCuratorDirectionsPost(directionViewModel, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {InviteCuratorViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCuratorInvitePost(model?: InviteCuratorViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = CuratorCourseWorksApiFetchParamCreator(configuration).apiCuratorInvitePost(model, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -1876,12 +3131,64 @@ export const CuratorCourseWorksApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @param {string} [email] 
+         * @param {CuratorProfileViewModel} [curatorProfileViewModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCuratorInvitePost(email?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = CuratorCourseWorksApiFetchParamCreator(configuration).apiCuratorInvitePost(email, options);
+        apiCuratorProfilePut(curatorProfileViewModel?: CuratorProfileViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = CuratorCourseWorksApiFetchParamCreator(configuration).apiCuratorProfilePut(curatorProfileViewModel, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCuratorReviewersBiddingGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<UserDTO>> {
+            const localVarFetchArgs = CuratorCourseWorksApiFetchParamCreator(configuration).apiCuratorReviewersBiddingGet(options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCuratorReviewersGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<UserDTO>> {
+            const localVarFetchArgs = CuratorCourseWorksApiFetchParamCreator(configuration).apiCuratorReviewersGet(options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {ReviewersForBiddingListViewModel} [reviewersListViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCuratorReviewersSetToBiddingPost(reviewersListViewModel?: ReviewersForBiddingListViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = CuratorCourseWorksApiFetchParamCreator(configuration).apiCuratorReviewersSetToBiddingPost(reviewersListViewModel, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -1912,6 +3219,68 @@ export const CuratorCourseWorksApiFactory = function (configuration?: Configurat
         },
         /**
          * 
+         * @param {number} courseWorkId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCuratorCourseWorksByCourseWorkIdClearUpdatedParameterPut(courseWorkId: number, options?: any) {
+            return CuratorCourseWorksApiFp(configuration).apiCuratorCourseWorksByCourseWorkIdClearUpdatedParameterPut(courseWorkId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {string} status 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCuratorCourseWorksCreatedByCuratorByStatusGet(status: string, options?: any) {
+            return CuratorCourseWorksApiFp(configuration).apiCuratorCourseWorksCreatedByCuratorByStatusGet(status, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} deadlineId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCuratorDeadlinesByDeadlineIdDelete(deadlineId: number, options?: any) {
+            return CuratorCourseWorksApiFp(configuration).apiCuratorDeadlinesByDeadlineIdDelete(deadlineId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCuratorDeadlinesGet(options?: any) {
+            return CuratorCourseWorksApiFp(configuration).apiCuratorDeadlinesGet(options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {AddDeadlineViewModel} [addDeadlineViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCuratorDeadlinesPost(addDeadlineViewModel?: AddDeadlineViewModel, options?: any) {
+            return CuratorCourseWorksApiFp(configuration).apiCuratorDeadlinesPost(addDeadlineViewModel, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} departmentId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCuratorDepartmentsByDepartmentIdDelete(departmentId: number, options?: any) {
+            return CuratorCourseWorksApiFp(configuration).apiCuratorDepartmentsByDepartmentIdDelete(departmentId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {AddDepartmentViewModel} [departmentViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCuratorDepartmentsPost(departmentViewModel?: AddDepartmentViewModel, options?: any) {
+            return CuratorCourseWorksApiFp(configuration).apiCuratorDepartmentsPost(departmentViewModel, options)(fetch, basePath);
+        },
+        /**
+         * 
          * @param {number} directionId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -1930,12 +3299,46 @@ export const CuratorCourseWorksApiFactory = function (configuration?: Configurat
         },
         /**
          * 
-         * @param {string} [email] 
+         * @param {InviteCuratorViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCuratorInvitePost(email?: string, options?: any) {
-            return CuratorCourseWorksApiFp(configuration).apiCuratorInvitePost(email, options)(fetch, basePath);
+        apiCuratorInvitePost(model?: InviteCuratorViewModel, options?: any) {
+            return CuratorCourseWorksApiFp(configuration).apiCuratorInvitePost(model, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {CuratorProfileViewModel} [curatorProfileViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCuratorProfilePut(curatorProfileViewModel?: CuratorProfileViewModel, options?: any) {
+            return CuratorCourseWorksApiFp(configuration).apiCuratorProfilePut(curatorProfileViewModel, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCuratorReviewersBiddingGet(options?: any) {
+            return CuratorCourseWorksApiFp(configuration).apiCuratorReviewersBiddingGet(options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCuratorReviewersGet(options?: any) {
+            return CuratorCourseWorksApiFp(configuration).apiCuratorReviewersGet(options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {ReviewersForBiddingListViewModel} [reviewersListViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCuratorReviewersSetToBiddingPost(reviewersListViewModel?: ReviewersForBiddingListViewModel, options?: any) {
+            return CuratorCourseWorksApiFp(configuration).apiCuratorReviewersSetToBiddingPost(reviewersListViewModel, options)(fetch, basePath);
         },
     };
 };
@@ -1956,6 +3359,82 @@ export class CuratorCourseWorksApi extends BaseAPI {
      */
     public apiCuratorCourseWorksAddPost(createCourseWorkViewModel?: CreateCourseWorkViewModel, options?: any) {
         return CuratorCourseWorksApiFp(this.configuration).apiCuratorCourseWorksAddPost(createCourseWorkViewModel, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} courseWorkId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CuratorCourseWorksApi
+     */
+    public apiCuratorCourseWorksByCourseWorkIdClearUpdatedParameterPut(courseWorkId: number, options?: any) {
+        return CuratorCourseWorksApiFp(this.configuration).apiCuratorCourseWorksByCourseWorkIdClearUpdatedParameterPut(courseWorkId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {string} status 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CuratorCourseWorksApi
+     */
+    public apiCuratorCourseWorksCreatedByCuratorByStatusGet(status: string, options?: any) {
+        return CuratorCourseWorksApiFp(this.configuration).apiCuratorCourseWorksCreatedByCuratorByStatusGet(status, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} deadlineId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CuratorCourseWorksApi
+     */
+    public apiCuratorDeadlinesByDeadlineIdDelete(deadlineId: number, options?: any) {
+        return CuratorCourseWorksApiFp(this.configuration).apiCuratorDeadlinesByDeadlineIdDelete(deadlineId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CuratorCourseWorksApi
+     */
+    public apiCuratorDeadlinesGet(options?: any) {
+        return CuratorCourseWorksApiFp(this.configuration).apiCuratorDeadlinesGet(options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {AddDeadlineViewModel} [addDeadlineViewModel] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CuratorCourseWorksApi
+     */
+    public apiCuratorDeadlinesPost(addDeadlineViewModel?: AddDeadlineViewModel, options?: any) {
+        return CuratorCourseWorksApiFp(this.configuration).apiCuratorDeadlinesPost(addDeadlineViewModel, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} departmentId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CuratorCourseWorksApi
+     */
+    public apiCuratorDepartmentsByDepartmentIdDelete(departmentId: number, options?: any) {
+        return CuratorCourseWorksApiFp(this.configuration).apiCuratorDepartmentsByDepartmentIdDelete(departmentId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {AddDepartmentViewModel} [departmentViewModel] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CuratorCourseWorksApi
+     */
+    public apiCuratorDepartmentsPost(departmentViewModel?: AddDepartmentViewModel, options?: any) {
+        return CuratorCourseWorksApiFp(this.configuration).apiCuratorDepartmentsPost(departmentViewModel, options)(this.fetch, this.basePath);
     }
 
     /**
@@ -1982,13 +3461,55 @@ export class CuratorCourseWorksApi extends BaseAPI {
 
     /**
      * 
-     * @param {string} [email] 
+     * @param {InviteCuratorViewModel} [model] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CuratorCourseWorksApi
      */
-    public apiCuratorInvitePost(email?: string, options?: any) {
-        return CuratorCourseWorksApiFp(this.configuration).apiCuratorInvitePost(email, options)(this.fetch, this.basePath);
+    public apiCuratorInvitePost(model?: InviteCuratorViewModel, options?: any) {
+        return CuratorCourseWorksApiFp(this.configuration).apiCuratorInvitePost(model, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {CuratorProfileViewModel} [curatorProfileViewModel] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CuratorCourseWorksApi
+     */
+    public apiCuratorProfilePut(curatorProfileViewModel?: CuratorProfileViewModel, options?: any) {
+        return CuratorCourseWorksApiFp(this.configuration).apiCuratorProfilePut(curatorProfileViewModel, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CuratorCourseWorksApi
+     */
+    public apiCuratorReviewersBiddingGet(options?: any) {
+        return CuratorCourseWorksApiFp(this.configuration).apiCuratorReviewersBiddingGet(options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CuratorCourseWorksApi
+     */
+    public apiCuratorReviewersGet(options?: any) {
+        return CuratorCourseWorksApiFp(this.configuration).apiCuratorReviewersGet(options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {ReviewersForBiddingListViewModel} [reviewersListViewModel] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CuratorCourseWorksApi
+     */
+    public apiCuratorReviewersSetToBiddingPost(reviewersListViewModel?: ReviewersForBiddingListViewModel, options?: any) {
+        return CuratorCourseWorksApiFp(this.configuration).apiCuratorReviewersSetToBiddingPost(reviewersListViewModel, options)(this.fetch, this.basePath);
     }
 
 }
@@ -2114,13 +3635,13 @@ export const LecturerCourseWorksApiFetchParamCreator = function (configuration?:
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
             let authService = new AuthService();
             if (authService.isLoggedIn()) {
                 localVarHeaderParameter["Authorization"] =
                     "Bearer " + authService.getToken();
             }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -2171,16 +3692,15 @@ export const LecturerCourseWorksApiFetchParamCreator = function (configuration?:
         /**
          * 
          * @param {number} courseWorkId 
-         * @param {string} [type] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiLecturerCourseWorksByCourseWorkIdDeadlinesDelete(courseWorkId: number, type?: string, options: any = {}): FetchArgs {
+        apiLecturerCourseWorksByCourseWorkIdDelete(courseWorkId: number, options: any = {}): FetchArgs {
             // verify required parameter 'courseWorkId' is not null or undefined
             if (courseWorkId === null || courseWorkId === undefined) {
-                throw new RequiredError('courseWorkId','Required parameter courseWorkId was null or undefined when calling apiLecturerCourseWorksByCourseWorkIdDeadlinesDelete.');
+                throw new RequiredError('courseWorkId','Required parameter courseWorkId was null or undefined when calling apiLecturerCourseWorksByCourseWorkIdDelete.');
             }
-            const localVarPath = `/api/lecturer/course_works/{courseWorkId}/deadlines`
+            const localVarPath = `/api/lecturer/course_works/{courseWorkId}`
                 .replace(`{${"courseWorkId"}}`, encodeURIComponent(String(courseWorkId)));
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
@@ -2193,10 +3713,6 @@ export const LecturerCourseWorksApiFetchParamCreator = function (configuration?:
                     "Bearer " + authService.getToken();
             }
 
-            if (type !== undefined) {
-                localVarQueryParameter['type'] = type;
-            }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
@@ -2210,93 +3726,15 @@ export const LecturerCourseWorksApiFetchParamCreator = function (configuration?:
         /**
          * 
          * @param {number} courseWorkId 
-         * @param {AddDeadlineViewModel} [addDeadlineViewModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiLecturerCourseWorksByCourseWorkIdDeadlinesPost(courseWorkId: number, addDeadlineViewModel?: AddDeadlineViewModel, options: any = {}): FetchArgs {
+        apiLecturerCourseWorksByCourseWorkIdExcludeDelete(courseWorkId: number, options: any = {}): FetchArgs {
             // verify required parameter 'courseWorkId' is not null or undefined
             if (courseWorkId === null || courseWorkId === undefined) {
-                throw new RequiredError('courseWorkId','Required parameter courseWorkId was null or undefined when calling apiLecturerCourseWorksByCourseWorkIdDeadlinesPost.');
+                throw new RequiredError('courseWorkId','Required parameter courseWorkId was null or undefined when calling apiLecturerCourseWorksByCourseWorkIdExcludeDelete.');
             }
-            const localVarPath = `/api/lecturer/course_works/{courseWorkId}/deadlines`
-                .replace(`{${"courseWorkId"}}`, encodeURIComponent(String(courseWorkId)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
-            let authService = new AuthService();
-            if (authService.isLoggedIn()) {
-                localVarHeaderParameter["Authorization"] =
-                    "Bearer " + authService.getToken();
-            }
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-            const needsSerialization = (<any>"AddDeadlineViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(addDeadlineViewModel || {}) : (addDeadlineViewModel || "");
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @param {number} courseWorkId 
-         * @param {AddDeadlineViewModel} [addDeadlineViewModel] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiLecturerCourseWorksByCourseWorkIdDeadlinesPut(courseWorkId: number, addDeadlineViewModel?: AddDeadlineViewModel, options: any = {}): FetchArgs {
-            // verify required parameter 'courseWorkId' is not null or undefined
-            if (courseWorkId === null || courseWorkId === undefined) {
-                throw new RequiredError('courseWorkId','Required parameter courseWorkId was null or undefined when calling apiLecturerCourseWorksByCourseWorkIdDeadlinesPut.');
-            }
-            const localVarPath = `/api/lecturer/course_works/{courseWorkId}/deadlines`
-                .replace(`{${"courseWorkId"}}`, encodeURIComponent(String(courseWorkId)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
-            let authService = new AuthService();
-            if (authService.isLoggedIn()) {
-                localVarHeaderParameter["Authorization"] =
-                    "Bearer " + authService.getToken();
-            }
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-            const needsSerialization = (<any>"AddDeadlineViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(addDeadlineViewModel || {}) : (addDeadlineViewModel || "");
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @param {number} courseWorkId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiLecturerCourseWorksByCourseWorkIdDelete(courseWorkId: number, options: any = {}): FetchArgs {
-            // verify required parameter 'courseWorkId' is not null or undefined
-            if (courseWorkId === null || courseWorkId === undefined) {
-                throw new RequiredError('courseWorkId','Required parameter courseWorkId was null or undefined when calling apiLecturerCourseWorksByCourseWorkIdDelete.');
-            }
-            const localVarPath = `/api/lecturer/course_works/{courseWorkId}`
+            const localVarPath = `/api/lecturer/course_works/{courseWorkId}/exclude`
                 .replace(`{${"courseWorkId"}}`, encodeURIComponent(String(courseWorkId)));
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
@@ -2338,13 +3776,13 @@ export const LecturerCourseWorksApiFetchParamCreator = function (configuration?:
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
             let authService = new AuthService();
             if (authService.isLoggedIn()) {
                 localVarHeaderParameter["Authorization"] =
                     "Bearer " + authService.getToken();
             }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -2352,6 +3790,39 @@ export const LecturerCourseWorksApiFetchParamCreator = function (configuration?:
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"CreateCourseWorkViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(createCourseWorkViewModel || {}) : (createCourseWorkViewModel || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {LecturerProfileViewModel} [lecturerProfileViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiLecturerProfilePut(lecturerProfileViewModel?: LecturerProfileViewModel, options: any = {}): FetchArgs {
+            const localVarPath = `/api/lecturer/profile`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"LecturerProfileViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(lecturerProfileViewModel || {}) : (lecturerProfileViewModel || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -2460,68 +3931,29 @@ export const LecturerCourseWorksApiFp = function(configuration?: Configuration) 
         /**
          * 
          * @param {number} courseWorkId 
-         * @param {string} [type] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiLecturerCourseWorksByCourseWorkIdDeadlinesDelete(courseWorkId: number, type?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = LecturerCourseWorksApiFetchParamCreator(configuration).apiLecturerCourseWorksByCourseWorkIdDeadlinesDelete(courseWorkId, type, options);
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response;
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
-         * @param {number} courseWorkId 
-         * @param {AddDeadlineViewModel} [addDeadlineViewModel] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiLecturerCourseWorksByCourseWorkIdDeadlinesPost(courseWorkId: number, addDeadlineViewModel?: AddDeadlineViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
-            const localVarFetchArgs = LecturerCourseWorksApiFetchParamCreator(configuration).apiLecturerCourseWorksByCourseWorkIdDeadlinesPost(courseWorkId, addDeadlineViewModel, options);
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
-         * @param {number} courseWorkId 
-         * @param {AddDeadlineViewModel} [addDeadlineViewModel] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiLecturerCourseWorksByCourseWorkIdDeadlinesPut(courseWorkId: number, addDeadlineViewModel?: AddDeadlineViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = LecturerCourseWorksApiFetchParamCreator(configuration).apiLecturerCourseWorksByCourseWorkIdDeadlinesPut(courseWorkId, addDeadlineViewModel, options);
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response;
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
-         * @param {number} courseWorkId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
         apiLecturerCourseWorksByCourseWorkIdDelete(courseWorkId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
             const localVarFetchArgs = LecturerCourseWorksApiFetchParamCreator(configuration).apiLecturerCourseWorksByCourseWorkIdDelete(courseWorkId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} courseWorkId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiLecturerCourseWorksByCourseWorkIdExcludeDelete(courseWorkId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = LecturerCourseWorksApiFetchParamCreator(configuration).apiLecturerCourseWorksByCourseWorkIdExcludeDelete(courseWorkId, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -2541,6 +3973,24 @@ export const LecturerCourseWorksApiFp = function(configuration?: Configuration) 
          */
         apiLecturerCourseWorksByCourseWorkIdPut(courseWorkId: number, createCourseWorkViewModel?: CreateCourseWorkViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
             const localVarFetchArgs = LecturerCourseWorksApiFetchParamCreator(configuration).apiLecturerCourseWorksByCourseWorkIdPut(courseWorkId, createCourseWorkViewModel, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {LecturerProfileViewModel} [lecturerProfileViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiLecturerProfilePut(lecturerProfileViewModel?: LecturerProfileViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = LecturerCourseWorksApiFetchParamCreator(configuration).apiLecturerProfilePut(lecturerProfileViewModel, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -2608,41 +4058,20 @@ export const LecturerCourseWorksApiFactory = function (configuration?: Configura
         /**
          * 
          * @param {number} courseWorkId 
-         * @param {string} [type] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiLecturerCourseWorksByCourseWorkIdDeadlinesDelete(courseWorkId: number, type?: string, options?: any) {
-            return LecturerCourseWorksApiFp(configuration).apiLecturerCourseWorksByCourseWorkIdDeadlinesDelete(courseWorkId, type, options)(fetch, basePath);
-        },
-        /**
-         * 
-         * @param {number} courseWorkId 
-         * @param {AddDeadlineViewModel} [addDeadlineViewModel] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiLecturerCourseWorksByCourseWorkIdDeadlinesPost(courseWorkId: number, addDeadlineViewModel?: AddDeadlineViewModel, options?: any) {
-            return LecturerCourseWorksApiFp(configuration).apiLecturerCourseWorksByCourseWorkIdDeadlinesPost(courseWorkId, addDeadlineViewModel, options)(fetch, basePath);
-        },
-        /**
-         * 
-         * @param {number} courseWorkId 
-         * @param {AddDeadlineViewModel} [addDeadlineViewModel] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiLecturerCourseWorksByCourseWorkIdDeadlinesPut(courseWorkId: number, addDeadlineViewModel?: AddDeadlineViewModel, options?: any) {
-            return LecturerCourseWorksApiFp(configuration).apiLecturerCourseWorksByCourseWorkIdDeadlinesPut(courseWorkId, addDeadlineViewModel, options)(fetch, basePath);
-        },
-        /**
-         * 
-         * @param {number} courseWorkId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
         apiLecturerCourseWorksByCourseWorkIdDelete(courseWorkId: number, options?: any) {
             return LecturerCourseWorksApiFp(configuration).apiLecturerCourseWorksByCourseWorkIdDelete(courseWorkId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} courseWorkId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiLecturerCourseWorksByCourseWorkIdExcludeDelete(courseWorkId: number, options?: any) {
+            return LecturerCourseWorksApiFp(configuration).apiLecturerCourseWorksByCourseWorkIdExcludeDelete(courseWorkId, options)(fetch, basePath);
         },
         /**
          * 
@@ -2653,6 +4082,15 @@ export const LecturerCourseWorksApiFactory = function (configuration?: Configura
          */
         apiLecturerCourseWorksByCourseWorkIdPut(courseWorkId: number, createCourseWorkViewModel?: CreateCourseWorkViewModel, options?: any) {
             return LecturerCourseWorksApiFp(configuration).apiLecturerCourseWorksByCourseWorkIdPut(courseWorkId, createCourseWorkViewModel, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {LecturerProfileViewModel} [lecturerProfileViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiLecturerProfilePut(lecturerProfileViewModel?: LecturerProfileViewModel, options?: any) {
+            return LecturerCourseWorksApiFp(configuration).apiLecturerProfilePut(lecturerProfileViewModel, options)(fetch, basePath);
         },
     };
 };
@@ -2722,48 +4160,23 @@ export class LecturerCourseWorksApi extends BaseAPI {
     /**
      * 
      * @param {number} courseWorkId 
-     * @param {string} [type] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof LecturerCourseWorksApi
-     */
-    public apiLecturerCourseWorksByCourseWorkIdDeadlinesDelete(courseWorkId: number, type?: string, options?: any) {
-        return LecturerCourseWorksApiFp(this.configuration).apiLecturerCourseWorksByCourseWorkIdDeadlinesDelete(courseWorkId, type, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     * 
-     * @param {number} courseWorkId 
-     * @param {AddDeadlineViewModel} [addDeadlineViewModel] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof LecturerCourseWorksApi
-     */
-    public apiLecturerCourseWorksByCourseWorkIdDeadlinesPost(courseWorkId: number, addDeadlineViewModel?: AddDeadlineViewModel, options?: any) {
-        return LecturerCourseWorksApiFp(this.configuration).apiLecturerCourseWorksByCourseWorkIdDeadlinesPost(courseWorkId, addDeadlineViewModel, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     * 
-     * @param {number} courseWorkId 
-     * @param {AddDeadlineViewModel} [addDeadlineViewModel] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof LecturerCourseWorksApi
-     */
-    public apiLecturerCourseWorksByCourseWorkIdDeadlinesPut(courseWorkId: number, addDeadlineViewModel?: AddDeadlineViewModel, options?: any) {
-        return LecturerCourseWorksApiFp(this.configuration).apiLecturerCourseWorksByCourseWorkIdDeadlinesPut(courseWorkId, addDeadlineViewModel, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     * 
-     * @param {number} courseWorkId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof LecturerCourseWorksApi
      */
     public apiLecturerCourseWorksByCourseWorkIdDelete(courseWorkId: number, options?: any) {
         return LecturerCourseWorksApiFp(this.configuration).apiLecturerCourseWorksByCourseWorkIdDelete(courseWorkId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} courseWorkId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof LecturerCourseWorksApi
+     */
+    public apiLecturerCourseWorksByCourseWorkIdExcludeDelete(courseWorkId: number, options?: any) {
+        return LecturerCourseWorksApiFp(this.configuration).apiLecturerCourseWorksByCourseWorkIdExcludeDelete(courseWorkId, options)(this.fetch, this.basePath);
     }
 
     /**
@@ -2776,6 +4189,197 @@ export class LecturerCourseWorksApi extends BaseAPI {
      */
     public apiLecturerCourseWorksByCourseWorkIdPut(courseWorkId: number, createCourseWorkViewModel?: CreateCourseWorkViewModel, options?: any) {
         return LecturerCourseWorksApiFp(this.configuration).apiLecturerCourseWorksByCourseWorkIdPut(courseWorkId, createCourseWorkViewModel, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {LecturerProfileViewModel} [lecturerProfileViewModel] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof LecturerCourseWorksApi
+     */
+    public apiLecturerProfilePut(lecturerProfileViewModel?: LecturerProfileViewModel, options?: any) {
+        return LecturerCourseWorksApiFp(this.configuration).apiLecturerProfilePut(lecturerProfileViewModel, options)(this.fetch, this.basePath);
+    }
+
+}
+
+/**
+ * ReviewerCourseWorksApi - fetch parameter creator
+ * @export
+ */
+export const ReviewerCourseWorksApiFetchParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {number} courseWorkId 
+         * @param {string} biddingValueString 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiReviewerBiddingByCourseWorkIdByBiddingValueStringPost(courseWorkId: number, biddingValueString: string, options: any = {}): FetchArgs {
+            // verify required parameter 'courseWorkId' is not null or undefined
+            if (courseWorkId === null || courseWorkId === undefined) {
+                throw new RequiredError('courseWorkId','Required parameter courseWorkId was null or undefined when calling apiReviewerBiddingByCourseWorkIdByBiddingValueStringPost.');
+            }
+            // verify required parameter 'biddingValueString' is not null or undefined
+            if (biddingValueString === null || biddingValueString === undefined) {
+                throw new RequiredError('biddingValueString','Required parameter biddingValueString was null or undefined when calling apiReviewerBiddingByCourseWorkIdByBiddingValueStringPost.');
+            }
+            const localVarPath = `/api/reviewer/bidding/{courseWorkId}/{biddingValueString}`
+                .replace(`{${"courseWorkId"}}`, encodeURIComponent(String(courseWorkId)))
+                .replace(`{${"biddingValueString"}}`, encodeURIComponent(String(biddingValueString)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiReviewerCourseWorksInBiddingGet(options: any = {}): FetchArgs {
+            const localVarPath = `/api/reviewer/course_works_in_bidding`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * ReviewerCourseWorksApi - functional programming interface
+ * @export
+ */
+export const ReviewerCourseWorksApiFp = function(configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {number} courseWorkId 
+         * @param {string} biddingValueString 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiReviewerBiddingByCourseWorkIdByBiddingValueStringPost(courseWorkId: number, biddingValueString: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = ReviewerCourseWorksApiFetchParamCreator(configuration).apiReviewerBiddingByCourseWorkIdByBiddingValueStringPost(courseWorkId, biddingValueString, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiReviewerCourseWorksInBiddingGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<ReviewerOverviewCourseWorkDTO>> {
+            const localVarFetchArgs = ReviewerCourseWorksApiFetchParamCreator(configuration).apiReviewerCourseWorksInBiddingGet(options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+    }
+};
+
+/**
+ * ReviewerCourseWorksApi - factory interface
+ * @export
+ */
+export const ReviewerCourseWorksApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         * 
+         * @param {number} courseWorkId 
+         * @param {string} biddingValueString 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiReviewerBiddingByCourseWorkIdByBiddingValueStringPost(courseWorkId: number, biddingValueString: string, options?: any) {
+            return ReviewerCourseWorksApiFp(configuration).apiReviewerBiddingByCourseWorkIdByBiddingValueStringPost(courseWorkId, biddingValueString, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiReviewerCourseWorksInBiddingGet(options?: any) {
+            return ReviewerCourseWorksApiFp(configuration).apiReviewerCourseWorksInBiddingGet(options)(fetch, basePath);
+        },
+    };
+};
+
+/**
+ * ReviewerCourseWorksApi - object-oriented interface
+ * @export
+ * @class ReviewerCourseWorksApi
+ * @extends {BaseAPI}
+ */
+export class ReviewerCourseWorksApi extends BaseAPI {
+    /**
+     * 
+     * @param {number} courseWorkId 
+     * @param {string} biddingValueString 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReviewerCourseWorksApi
+     */
+    public apiReviewerBiddingByCourseWorkIdByBiddingValueStringPost(courseWorkId: number, biddingValueString: string, options?: any) {
+        return ReviewerCourseWorksApiFp(this.configuration).apiReviewerBiddingByCourseWorkIdByBiddingValueStringPost(courseWorkId, biddingValueString, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ReviewerCourseWorksApi
+     */
+    public apiReviewerCourseWorksInBiddingGet(options?: any) {
+        return ReviewerCourseWorksApiFp(this.configuration).apiReviewerCourseWorksInBiddingGet(options)(this.fetch, this.basePath);
     }
 
 }
@@ -2856,6 +4460,34 @@ export const StudentCourseWorksApiFetchParamCreator = function (configuration?: 
         },
         /**
          * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiStudentChoiceThemeDeadlineGet(options: any = {}): FetchArgs {
+            const localVarPath = `/api/student/choice_theme_deadline`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {number} courseWorkId 
          * @param {CreateApplicationViewModel} [createApplicationViewModel] 
          * @param {*} [options] Override http request option.
@@ -2873,7 +4505,43 @@ export const StudentCourseWorksApiFetchParamCreator = function (configuration?: 
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
+
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"CreateApplicationViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(createApplicationViewModel || {}) : (createApplicationViewModel || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} courseWorkId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiStudentCourseWorksByCourseWorkIdSetUpdatedParameterPut(courseWorkId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'courseWorkId' is not null or undefined
+            if (courseWorkId === null || courseWorkId === undefined) {
+                throw new RequiredError('courseWorkId','Required parameter courseWorkId was null or undefined when calling apiStudentCourseWorksByCourseWorkIdSetUpdatedParameterPut.');
+            }
+            const localVarPath = `/api/student/course_works/{courseWorkId}/set_updated_parameter`
+                .replace(`{${"courseWorkId"}}`, encodeURIComponent(String(courseWorkId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
 
             let authService = new AuthService();
             if (authService.isLoggedIn()) {
@@ -2885,8 +4553,39 @@ export const StudentCourseWorksApiFetchParamCreator = function (configuration?: 
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-            const needsSerialization = (<any>"CreateApplicationViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(createApplicationViewModel || {}) : (createApplicationViewModel || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {StudentProfileViewModel} [studentProfileViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiStudentProfilePut(studentProfileViewModel?: StudentProfileViewModel, options: any = {}): FetchArgs {
+            const localVarPath = `/api/student/profile`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            let authService = new AuthService();
+            if (authService.isLoggedIn()) {
+                localVarHeaderParameter["Authorization"] =
+                    "Bearer " + authService.getToken();
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"StudentProfileViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(studentProfileViewModel || {}) : (studentProfileViewModel || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -2940,6 +4639,23 @@ export const StudentCourseWorksApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiStudentChoiceThemeDeadlineGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<DeadlineDTO>> {
+            const localVarFetchArgs = StudentCourseWorksApiFetchParamCreator(configuration).apiStudentChoiceThemeDeadlineGet(options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
          * @param {number} courseWorkId 
          * @param {CreateApplicationViewModel} [createApplicationViewModel] 
          * @param {*} [options] Override http request option.
@@ -2951,6 +4667,42 @@ export const StudentCourseWorksApiFp = function(configuration?: Configuration) {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
                         return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} courseWorkId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiStudentCourseWorksByCourseWorkIdSetUpdatedParameterPut(courseWorkId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = StudentCourseWorksApiFetchParamCreator(configuration).apiStudentCourseWorksByCourseWorkIdSetUpdatedParameterPut(courseWorkId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {StudentProfileViewModel} [studentProfileViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiStudentProfilePut(studentProfileViewModel?: StudentProfileViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = StudentCourseWorksApiFetchParamCreator(configuration).apiStudentProfilePut(studentProfileViewModel, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
                     } else {
                         throw response;
                     }
@@ -2986,6 +4738,14 @@ export const StudentCourseWorksApiFactory = function (configuration?: Configurat
         },
         /**
          * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiStudentChoiceThemeDeadlineGet(options?: any) {
+            return StudentCourseWorksApiFp(configuration).apiStudentChoiceThemeDeadlineGet(options)(fetch, basePath);
+        },
+        /**
+         * 
          * @param {number} courseWorkId 
          * @param {CreateApplicationViewModel} [createApplicationViewModel] 
          * @param {*} [options] Override http request option.
@@ -2993,6 +4753,24 @@ export const StudentCourseWorksApiFactory = function (configuration?: Configurat
          */
         apiStudentCourseWorksByCourseWorkIdApplyPost(courseWorkId: number, createApplicationViewModel?: CreateApplicationViewModel, options?: any) {
             return StudentCourseWorksApiFp(configuration).apiStudentCourseWorksByCourseWorkIdApplyPost(courseWorkId, createApplicationViewModel, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} courseWorkId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiStudentCourseWorksByCourseWorkIdSetUpdatedParameterPut(courseWorkId: number, options?: any) {
+            return StudentCourseWorksApiFp(configuration).apiStudentCourseWorksByCourseWorkIdSetUpdatedParameterPut(courseWorkId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {StudentProfileViewModel} [studentProfileViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiStudentProfilePut(studentProfileViewModel?: StudentProfileViewModel, options?: any) {
+            return StudentCourseWorksApiFp(configuration).apiStudentProfilePut(studentProfileViewModel, options)(fetch, basePath);
         },
     };
 };
@@ -3028,6 +4806,16 @@ export class StudentCourseWorksApi extends BaseAPI {
 
     /**
      * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StudentCourseWorksApi
+     */
+    public apiStudentChoiceThemeDeadlineGet(options?: any) {
+        return StudentCourseWorksApiFp(this.configuration).apiStudentChoiceThemeDeadlineGet(options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
      * @param {number} courseWorkId 
      * @param {CreateApplicationViewModel} [createApplicationViewModel] 
      * @param {*} [options] Override http request option.
@@ -3036,6 +4824,28 @@ export class StudentCourseWorksApi extends BaseAPI {
      */
     public apiStudentCourseWorksByCourseWorkIdApplyPost(courseWorkId: number, createApplicationViewModel?: CreateApplicationViewModel, options?: any) {
         return StudentCourseWorksApiFp(this.configuration).apiStudentCourseWorksByCourseWorkIdApplyPost(courseWorkId, createApplicationViewModel, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} courseWorkId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StudentCourseWorksApi
+     */
+    public apiStudentCourseWorksByCourseWorkIdSetUpdatedParameterPut(courseWorkId: number, options?: any) {
+        return StudentCourseWorksApiFp(this.configuration).apiStudentCourseWorksByCourseWorkIdSetUpdatedParameterPut(courseWorkId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {StudentProfileViewModel} [studentProfileViewModel] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StudentCourseWorksApi
+     */
+    public apiStudentProfilePut(studentProfileViewModel?: StudentProfileViewModel, options?: any) {
+        return StudentCourseWorksApiFp(this.configuration).apiStudentProfilePut(studentProfileViewModel, options)(this.fetch, this.basePath);
     }
 
 }

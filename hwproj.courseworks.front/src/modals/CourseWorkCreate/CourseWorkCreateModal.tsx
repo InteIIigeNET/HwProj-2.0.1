@@ -43,15 +43,16 @@ export default class CourseWorkCreateModalProps extends React.Component<ModalPro
     
     async handleSubmit(e: React.FormEvent) {
         e.preventDefault();
-        // ApiSingleton.accountApi.
-        const res = await axios.post("http://localhost:5000/api/lecturer/course_works/add", {...this.state}, {
+        //ApiSingleton.courseWorksApi.po
+        //ApiSingleton.courseWorksApi.
+        /*const res = await axios.post("http://localhost:5000/api/lecturer/course_works/add", {...this.state}, {
             headers: {
                 'Authorization': `Bearer ${ApiSingleton.authService.getToken()}`
             }
         })
         console.group('RESPONSE')
         console.log(res);
-        console.groupEnd();
+        console.groupEnd();*/
     }
 
     render() {
