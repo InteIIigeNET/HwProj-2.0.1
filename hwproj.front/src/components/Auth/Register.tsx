@@ -5,6 +5,7 @@ import Typography from "@material-ui/core/Typography";
 import { Redirect } from "react-router-dom";
 import ApiSingleton from "../../api/ApiSingleton";
 import { RegisterViewModel } from "../../api/auth";
+import "./Styles/Register.css";
 
 interface IRegisterState {
   registerData: RegisterViewModel;
@@ -34,12 +35,13 @@ export class Register extends React.Component<{}, IRegisterState> {
     }
 
     return (
-      <div className="container vertical-center-form">
-        <Typography variant="h6" gutterBottom>
+      <div className="page">
+        <Typography component="h1" variant="h5">
           Регистрация
         </Typography>
-        <form onSubmit={this.handleSubmit}>
+        <form onSubmit={this.handleSubmit} className="form">
           <TextField
+            size="small"
             required
             label="Имя"
             variant="outlined"
@@ -54,9 +56,9 @@ export class Register extends React.Component<{}, IRegisterState> {
               })
             }
           />
-          <br />
           <TextField
             required
+            size="small"
             label="Фамилия"
             variant="outlined"
             margin="normal"
@@ -70,9 +72,9 @@ export class Register extends React.Component<{}, IRegisterState> {
               })
             }
           />
-          <br />
           <TextField
             required
+            size="small"
             type="email"
             label="Email"
             variant="outlined"
@@ -87,9 +89,9 @@ export class Register extends React.Component<{}, IRegisterState> {
               })
             }
           />
-          <br />
           <TextField
             required
+            size="small"
             type="password"
             label="Пароль"
             variant="outlined"
@@ -104,9 +106,9 @@ export class Register extends React.Component<{}, IRegisterState> {
               })
             }
           />
-          <br />
           <TextField
             required
+            size="small"
             type="password"
             label="Поддвердите пароль"
             variant="outlined"
@@ -123,7 +125,7 @@ export class Register extends React.Component<{}, IRegisterState> {
           />
           <br />
           <Button
-            size="small"
+            size="medium"
             variant="contained"
             color="primary"
             type="submit"

@@ -57,7 +57,7 @@ export default class CreateCourse extends React.Component<
     }
     return (
       <div className="page">
-        <Typography variant="h6" gutterBottom>
+        <Typography component="h1" variant="h5">
           Создать курс
         </Typography>
         <form onSubmit={(e) => this.handleSubmit(e)} className="form">
@@ -89,7 +89,7 @@ export default class CreateCourse extends React.Component<
             label="Открытый курс"
           />
           <Button
-            size="small"
+            size="large"
             variant="contained"
             color="primary"
             type="submit"

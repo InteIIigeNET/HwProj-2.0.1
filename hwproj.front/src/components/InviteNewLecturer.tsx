@@ -50,7 +50,7 @@ export default class InviteNewLecturer extends React.Component<
 
     return (
       <div className="page">
-        <Typography variant="h6" gutterBottom>
+        <Typography component="h1" variant="h5">
           Пригласить преподавателя
         </Typography>
         <form onSubmit={(e) => this.handleSubmit(e)} className="form">
@@ -59,14 +59,17 @@ export default class InviteNewLecturer extends React.Component<
             label="Email Address"
             variant="outlined"
             margin="normal"
+            className="lecturerInput"
             value={this.state.userEmail}
             onChange={(e) => this.setState({ userEmail: e.target.value })}
           />
+          <br/>
           <Button
-            size="small"
+            size="large"
             variant="contained"
             color="primary"
             type="submit"
+            className="inviteButton"
           >
             Пригласить
           </Button>

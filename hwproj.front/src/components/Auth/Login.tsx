@@ -66,6 +66,7 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
           <TextField
             required
             type="email"
+            size="small"
             label="Email Address"
             variant="outlined"
             margin="normal"
@@ -75,6 +76,7 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
           <TextField
             required
             type="password"
+            size="small"
             label="Password"
             variant="outlined"
             margin="normal"
@@ -87,7 +89,6 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
             variant="contained"
             color="primary"
             type="submit"
-            className="loginButton"
           >
             Войти
           </Button>
