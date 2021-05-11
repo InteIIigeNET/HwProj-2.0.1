@@ -24,24 +24,35 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
     };
   }
 
-  handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  // handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
 
-    try {
-      await ApiSingleton.authService.login(
-        this.state.email,
-        this.state.password
-      );
-      this.props.onLogin?.();
-    } catch (err) {
-      if (typeof err === "string") {
-        this.setState({ error: err });
-      } else {
-        console.log(err);
-        //throw new Error("Unhandled eror." + JSON.stringify(err));
+  //   try {
+  //     await ApiSingleton.authService.login(
+  //       this.state.email,
+  //       this.state.password
+  //     );
+  //     this.props.onLogin?.();
+  //   } catch (err) {
+  //     if (typeof err === "string") {
+  //       this.setState({ error: err });
+  //     } else {
+  //       console.log(err);
+  //       //throw new Error("Unhandled eror." + JSON.stringify(err));
+  //     }
+  //   }
+  // };
+
+  handleSubmit = () => {
+    fetch("http://localhost:3001/login")
+    .then(res => res.json())
+    .then(result => {
+      console.log(result);
+      if (result.email === this.state.email && result.password === this.state.password){
+        this.props.onLogin?.();
       }
-    }
-  };
+    })
+  }
 
   render() {
     const headerStyles: React.CSSProperties = { marginRight: "9.5rem" };
@@ -50,9 +61,9 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
       headerStyles.marginBottom = "-1.5rem";
     }
 
-    if (ApiSingleton.authService.isLoggedIn()) {
-      this.props.onLogin?.()
-    }
+    //if (ApiSingleton.authService.isLoggedIn()) {
+    //  this.props.onLogin?.()
+    //}
 
     return (
       <div className="page">
@@ -62,7 +73,7 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
         {this.state.error && (
           <p style={{ color: "red", marginBottom: "0" }}>{this.state.error}</p>
         )}
-        <form onSubmit={(e) => this.handleSubmit(e)} className="loginForm">
+        <form onSubmit={(e) => this.handleSubmit()} className="loginForm">
           <TextField
             required
             type="email"
