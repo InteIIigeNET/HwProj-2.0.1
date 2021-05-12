@@ -1,10 +1,18 @@
 {
-    "login": [
-        {
-            "name": "Ivan",
-            "surname": "Ivanov",
-            "email": "ivanov@gmail.ru",
-            "password": "123456789"
-        }
-    ]
+  "login": [
+    {
+      "name": "Ivan",
+      "surname": "Ivanov",
+      "email": "ivanov@gmail.com",
+      "password": "123456789"
+    }
+  ],
+  "course": [
+    {
+      "name": "c#",
+      "groupName": "144",
+      "isOpen": true,
+      "id": 1
+    }
+  ]
 }

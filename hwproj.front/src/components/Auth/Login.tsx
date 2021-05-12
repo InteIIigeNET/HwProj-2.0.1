@@ -12,6 +12,7 @@ interface ILoginState {
   email: string;
   password: string;
   error: string;
+  isLogin: boolean;
 }
 
 export default class Login extends React.Component<LoginProps, ILoginState> {
@@ -21,6 +22,7 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
       email: "",
       password: "",
       error: "",
+      isLogin: false,
     };
   }
 
@@ -43,15 +45,21 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
   //   }
   // };
 
-  handleSubmit = () => {
+  handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
     fetch("http://localhost:3001/login")
-    .then(res => res.json())
-    .then(result => {
-      console.log(result);
-      if (result.email === this.state.email && result.password === this.state.password){
-        this.props.onLogin?.();
-      }
-    })
+      .then(resp => resp.json())
+      .then(data => {
+        data.map((item: any) => {
+          if (item.password === this.state.password &&
+            item.email === this.state.email){
+              this.props.onLogin?.();
+              this.setState({ isLogin: true });
+              return;
+          }
+        })
+      });
   }
 
   render() {
@@ -64,6 +72,9 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
     //if (ApiSingleton.authService.isLoggedIn()) {
     //  this.props.onLogin?.()
     //}
+    if (this.state.isLogin){
+      this.props.onLogin?.();
+    }
 
     return (
       <div className="page">
@@ -73,7 +84,7 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
         {this.state.error && (
           <p style={{ color: "red", marginBottom: "0" }}>{this.state.error}</p>
         )}
-        <form onSubmit={(e) => this.handleSubmit()} className="loginForm">
+        <form onSubmit={(e) => this.handleSubmit(e)} className="loginForm">
           <TextField
             required
             type="email"

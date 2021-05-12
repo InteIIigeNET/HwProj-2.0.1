@@ -31,6 +31,26 @@ export default class CreateCourse extends React.Component<
     courseId: "",
   };
 
+  // public handleSubmit(e: any) {
+  //   e.preventDefault();
+
+  //   let courseViewModel = {
+  //     name: this.state.name,
+  //     groupName: this.state.groupName,
+  //     isOpen: this.state.isOpen,
+  //   };
+
+  //   ApiSingleton.coursesApi
+  //     .apiCoursesCreatePost(courseViewModel)
+  //     .then((res) => res.json())
+  //     .then((id) =>
+  //       this.setState({
+  //         created: true,
+  //         courseId: id,
+  //       })
+  //     );
+  // }
+
   public handleSubmit(e: any) {
     e.preventDefault();
 
@@ -39,16 +59,13 @@ export default class CreateCourse extends React.Component<
       groupName: this.state.groupName,
       isOpen: this.state.isOpen,
     };
-
-    ApiSingleton.coursesApi
-      .apiCoursesCreatePost(courseViewModel)
-      .then((res) => res.json())
-      .then((id) =>
-        this.setState({
-          created: true,
-          courseId: id,
-        })
-      );
+    fetch("http://localhost:3001/course", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(courseViewModel)
+    })
   }
 
   public render() {
