@@ -6,6 +6,7 @@ import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import AuthService from "../services/AuthService";
+import ApiSingleton from "api/ApiSingleton";
 
 const styles = createStyles({
   root: {
@@ -28,24 +29,27 @@ interface IAppBarState {
 
 interface AppBarProps extends WithStyles<typeof styles> {
   loggedIn: boolean;
+  isLecturer: boolean;
   onLogout: () => void;
 }
 
 class ButtonAppBar extends React.Component<AppBarProps, IAppBarState> {
-  authService!: AuthService;
   constructor(props: AppBarProps) {
     super(props);
     this.state = {
       loaded: false,
     };
-    this.authService = new AuthService();
   }
 
   render() {
     const { loaded } = this.state;
-    const { classes, loggedIn } = this.props;
-
+    const { classes} = this.props;
+    const loggedIn = this.props.loggedIn;
+    const isLecturer = this.props.isLecturer;
+    // console.log(ApiSingleton.authService.getLecturerStateFake());
+    // console.log(ApiSingleton.authService.getLogginStateFake());
     if (loaded) {
+      console.log("Hello")
       return (
         <div className={classes.root}>
           <AppBar style={{ position: "relative", width: "100vw" }}>
@@ -61,9 +65,8 @@ class ButtonAppBar extends React.Component<AppBarProps, IAppBarState> {
                 color="inherit"
                 className={classes.grow}
               />
-              {loggedIn &&
-                this.authService.getProfile()._role.toLowerCase() ===
-                  "lecturer" && (
+              {loggedIn && isLecturer && 
+                (
                   <div>
                     <Button
                       onClick={() => window.location.assign("/invite_lecturer")}

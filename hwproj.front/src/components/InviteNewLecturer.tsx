@@ -36,17 +36,16 @@ export default class InviteNewLecturer extends React.Component<
       return <Redirect to={"/"} />;
     }
 
-    if (
-      !ApiSingleton.authService.isLoggedIn() ||
-      ApiSingleton.authService.getProfile()._role.toLowerCase() !== "lecturer"
-    ) 
-    {
-      return (
-        <Typography variant="h6" gutterBottom>
-          Страница не найдена
-        </Typography>
-      );
-    }
+    // if (
+    //   ApiSingleton.authService.getProfile()._role.toLowerCase() !== "lecturer"
+    // ) 
+    // {
+    //   return (
+    //     <Typography variant="h6" gutterBottom>
+    //       Страница не найдена
+    //     </Typography>
+    //   );
+    // }
 
     return (
       <div className="page">

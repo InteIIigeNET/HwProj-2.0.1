@@ -58,8 +58,9 @@ export default class CreateCourse extends React.Component<
       name: this.state.name,
       groupName: this.state.groupName,
       isOpen: this.state.isOpen,
+      isCompleted: false,
     };
-    fetch("http://localhost:3001/course", {
+    fetch("http://localhost:3001/courses", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

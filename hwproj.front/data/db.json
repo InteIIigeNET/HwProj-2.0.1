@@ -4,15 +4,31 @@
       "name": "Ivan",
       "surname": "Ivanov",
       "email": "ivanov@gmail.com",
-      "password": "123456789"
+      "password": "123456789",
+      "isLecturer": true
+    },
+    {
+      "name": "Nikita",
+      "surname": "Nikitin",
+      "email": "hello@gmail.com",
+      "password": "123456789",
+      "isLecturer": false
     }
   ],
-  "course": [
+  "courses": [
     {
       "name": "c#",
       "groupName": "144",
       "isOpen": true,
+      "isCompleted": false,
       "id": 1
+    },
+    {
+      "name": "C++",
+      "groupName": "244",
+      "isOpen": true,
+      "isCompleted": false,
+      "id": 2
     }
   ]
 }

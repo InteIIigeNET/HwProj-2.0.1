@@ -27,13 +27,15 @@ type AppProps = RouteComponentProps;
 
 interface AppState {
   loggedIn: boolean;
+  isLecturer: boolean;
 }
 
 class App extends Component<AppProps, AppState> {
   constructor(props: AppProps) {
     super(props);
     this.state = {
-      loggedIn: ApiSingleton.authService.isLoggedIn(),
+      loggedIn: ApiSingleton.authService.getLogginStateFake(),
+      isLecturer: ApiSingleton.authService.getRole()
     };
 
     this.login = this.login.bind(this);
@@ -41,20 +43,27 @@ class App extends Component<AppProps, AppState> {
   }
 
   login() {
-    this.setState({ loggedIn: true });
+    console.log("Privet")
+    ApiSingleton.authService.loginFake();
+    this.setState({loggedIn: true})
+    if (ApiSingleton.authService.getRole()){
+      this.setState({isLecturer: true})
+      console.log("Privet")
+    }
     this.props.history.push("/");
   }
 
   logout() {
-    ApiSingleton.authService.logout();
-    this.setState({ loggedIn: false });
+    ApiSingleton.authService.logoutFake();
+    this.setState({loggedIn: false});
+    this.setState({isLecturer: false});
     this.props.history.push("/");
   }
 
   render() {
     return (
       <>
-        <AppBar loggedIn={this.state.loggedIn} onLogout={this.logout} />
+        <AppBar loggedIn={this.state.loggedIn} isLecturer={this.state.isLecturer} onLogout={this.logout} />
         <Route exact path="/invite_lecturer" component={InviteNewLecturer} />
         <Route exact path="/user/edit" component={EditProfile} />
         <Route exact path="/" component={Courses} />

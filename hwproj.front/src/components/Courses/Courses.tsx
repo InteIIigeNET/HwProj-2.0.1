@@ -38,10 +38,12 @@ export default class Courses extends React.Component<{}, ICoursesState> {
     let activeCourses = courses.filter((course) => !course.isCompleted);
     let completedCourses = courses.filter((course) => course.isCompleted);
 
+
+
     return (
       <div className="container">
         <Tabs
-          value={tabValue}
+          value={tabValue} 
           onChange={(event, value) => {
             this.setState({ tabValue: value });
           }}
@@ -56,17 +58,26 @@ export default class Courses extends React.Component<{}, ICoursesState> {
     );
   }
 
-  componentDidMount(): void {
-    ApiSingleton.coursesApi
-      .apiCoursesGet()
-      .then((courses) =>
-        this.setState({
-          isLoaded: true,
-          courses: courses,
-        })
-      )
-      .catch((err) => {
-        this.setState({ isLoaded: true });
+  // componentDidMount(): void {
+  //   ApiSingleton.coursesApi
+  //     .apiCoursesGet()
+  //     .then((courses) =>
+  //       this.setState({
+  //         isLoaded: true,
+  //         courses: courses,
+  //       })
+  //     )
+  //     .catch((err) => {
+  //       this.setState({ isLoaded: true });
+  //     });
+  // }
+
+  componentDidMount(): void{
+    fetch("http://localhost:3001/courses")
+      .then(resp => resp.json())
+      .then(data => {
+        this.setState({courses: data})
+        this.setState({ isLoaded: true})
       });
   }
 }

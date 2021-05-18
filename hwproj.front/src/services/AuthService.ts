@@ -42,6 +42,28 @@ export default class AuthService {
     throw new Error("Should never happen. api has returned a 'value' of null");
   }
 
+  getRole(){
+    console.log(window.localStorage.getItem("isLecturer"))
+    return window.localStorage.getItem("isLecturer") == "lecturer";
+  }
+
+  setRole(role: string){
+    window.localStorage.setItem("isLecturer", role);
+  }
+
+  loginFake() {
+    window.localStorage.setItem("isLoggin", "true");
+  }
+
+  logoutFake() {
+    window.localStorage.setItem("isLoggin", "false");
+  }
+
+  getLogginStateFake(){
+    console.log(window.localStorage.getItem("isLoggin"))
+    return window.localStorage.getItem("isLoggin") == "true";
+  } 
+
   isLoggedIn() {
     const token = this.getToken();
     return !!token && !this.isTokenExpired(token);
@@ -52,6 +74,7 @@ export default class AuthService {
       let decoded = decode(token);
       return (decoded as any).exp + 300 < Date.now() / 1000;
     } catch (err) {
+
       return false;
     }
   }

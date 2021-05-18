@@ -45,21 +45,25 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
   //   }
   // };
 
-  handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
-    fetch("http://localhost:3001/login")
-      .then(resp => resp.json())
-      .then(data => {
-        data.map((item: any) => {
-          if (item.password === this.state.password &&
-            item.email === this.state.email){
-              this.props.onLogin?.();
-              this.setState({ isLogin: true });
-              return;
-          }
-        })
-      });
+    let response = await fetch("http://localhost:3001/login")
+    let users = await response.json()
+    users.map((item: any) => {
+      if (item.password === this.state.password &&
+        item.email === this.state.email){
+        this.setState({ isLogin: true });
+        if (item.isLecturer){
+          ApiSingleton.authService.setRole("lecturer");
+        }
+        else{
+          ApiSingleton.authService.setRole("student");
+        }
+        this.props.onLogin?.();
+        return;
+      }
+    })
   }
 
   render() {
