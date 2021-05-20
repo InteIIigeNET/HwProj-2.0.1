@@ -4,8 +4,17 @@ import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import { Redirect } from "react-router-dom";
 import ApiSingleton from "../../api/ApiSingleton";
-import { RegisterViewModel } from "../../api/auth";
+//import { RegisterViewModel } from "../../api/auth";
 import "./Styles/Register.css";
+
+interface RegisterViewModel {
+  name: string;
+  surname: string;
+  middleName: string;
+  password: string;
+  passwordConfirm: string;
+  email: string;
+}
 
 interface IRegisterState {
   registerData: RegisterViewModel;
@@ -20,10 +29,11 @@ export class Register extends React.Component<{}, IRegisterState> {
         name: "",
         surname: "",
         email: "",
+        middleName: "",
         password: "",
         passwordConfirm: "",
       },
-      logged: ApiSingleton.authService.isLoggedIn(),
+      logged: ApiSingleton.authService.getLogginStateFake(),
     };
   }
 
@@ -68,6 +78,22 @@ export class Register extends React.Component<{}, IRegisterState> {
                 registerData: {
                   ...this.state.registerData,
                   surname: e.target.value,
+                },
+              })
+            }
+          />
+          <TextField
+            required
+            size="small"
+            label="Отчество"
+            variant="outlined"
+            margin="normal"
+            name={registerData.middleName}
+            onChange={(e) =>
+              this.setState({
+                registerData: {
+                  ...this.state.registerData,
+                  middleName: e.target.value,
                 },
               })
             }
@@ -138,11 +164,29 @@ export class Register extends React.Component<{}, IRegisterState> {
   }
 
   private handleSubmit = async () => {
-    const { email, password } = this.state.registerData;
-
-    await ApiSingleton.accountApi.apiAccountRegisterPost(this.state.registerData);
-    await ApiSingleton.authService.login(email, password);
-
-    window.location.assign("/");
+    // const { email, password } = this.state.registerData;
+    // await ApiSingleton.accountApi.apiAccountRegisterPost(this.state.registerData);
+    // await ApiSingleton.authService.login(email, password);
+    debugger;
+    const response = await fetch("http://localhost:3001/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        name: this.state.registerData.name,
+        surname: this.state.registerData.surname,
+        email: this.state.registerData.email,
+        middleName: this.state.registerData.middleName,
+        password: this.state.registerData.password,
+        isLecturer: false
+      })
+    })
+    const user = await response.json()
+    ApiSingleton.authService.loginFake()
+    ApiSingleton.authService.setRoleFake("student")
+    ApiSingleton.authService.setUserIdFake(user.id)
+    this.setState({logged: true})
+    window.location.assign("/")
   };
 }

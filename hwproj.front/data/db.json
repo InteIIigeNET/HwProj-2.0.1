@@ -3,16 +3,29 @@
     {
       "name": "Ivan",
       "surname": "Ivanov",
-      "email": "ivanov@gmail.com",
-      "password": "123456789",
-      "isLecturer": true
+      "middleName": "Ivanovich",
+      "email": "ivanov@gmail.ru",
+      "password": "12345678910",
+      "isLecturer": true,
+      "id": 1
     },
     {
+      "id": 2,
       "name": "Nikita",
       "surname": "Nikitin",
+      "middleName": "Nikitich",
       "email": "hello@gmail.com",
       "password": "123456789",
       "isLecturer": false
+    },
+    {
+      "name": "sasha",
+      "surname": "sasha",
+      "email": "sasha@mail.ru",
+      "middleName": "sasha",
+      "password": "sasha",
+      "isLecturer": false,
+      "id": 3
     }
   ],
   "courses": [

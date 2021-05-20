@@ -46,10 +46,7 @@ class ButtonAppBar extends React.Component<AppBarProps, IAppBarState> {
     const { classes} = this.props;
     const loggedIn = this.props.loggedIn;
     const isLecturer = this.props.isLecturer;
-    // console.log(ApiSingleton.authService.getLecturerStateFake());
-    // console.log(ApiSingleton.authService.getLogginStateFake());
     if (loaded) {
-      console.log("Hello")
       return (
         <div className={classes.root}>
           <AppBar style={{ position: "relative", width: "100vw" }}>

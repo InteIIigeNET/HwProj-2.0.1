@@ -42,13 +42,16 @@ export default class AuthService {
     throw new Error("Should never happen. api has returned a 'value' of null");
   }
 
-  getRole(){
-    console.log(window.localStorage.getItem("isLecturer"))
-    return window.localStorage.getItem("isLecturer") == "lecturer";
+  setUserIdFake(id: number){
+    window.localStorage.setItem("userId", String(id));
   }
 
-  setRole(role: string){
-    window.localStorage.setItem("isLecturer", role);
+  getUserIdFake = () => Number(window.localStorage.getItem("userId"));
+
+  getRoleFake = () => window.localStorage.getItem("role") === "lecturer";
+
+  setRoleFake(role: string){
+    window.localStorage.setItem("role", role);
   }
 
   loginFake() {
@@ -59,10 +62,7 @@ export default class AuthService {
     window.localStorage.setItem("isLoggin", "false");
   }
 
-  getLogginStateFake(){
-    console.log(window.localStorage.getItem("isLoggin"))
-    return window.localStorage.getItem("isLoggin") == "true";
-  } 
+  getLogginStateFake = () => window.localStorage.getItem("isLoggin") === "true";
 
   isLoggedIn() {
     const token = this.getToken();

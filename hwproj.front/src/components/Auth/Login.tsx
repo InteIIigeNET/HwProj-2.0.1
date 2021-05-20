@@ -52,13 +52,14 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
     let users = await response.json()
     users.map((item: any) => {
       if (item.password === this.state.password &&
-        item.email === this.state.email){
+        item.email === this.state.email) {
         this.setState({ isLogin: true });
+        ApiSingleton.authService.setUserIdFake(item.id);
         if (item.isLecturer){
-          ApiSingleton.authService.setRole("lecturer");
+          ApiSingleton.authService.setRoleFake("lecturer");
         }
         else{
-          ApiSingleton.authService.setRole("student");
+          ApiSingleton.authService.setRoleFake("student");
         }
         this.props.onLogin?.();
         return;

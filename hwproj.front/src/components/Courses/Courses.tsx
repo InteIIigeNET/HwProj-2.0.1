@@ -72,12 +72,12 @@ export default class Courses extends React.Component<{}, ICoursesState> {
   //     });
   // }
 
-  componentDidMount(): void{
-    fetch("http://localhost:3001/courses")
-      .then(resp => resp.json())
-      .then(data => {
-        this.setState({courses: data})
-        this.setState({ isLoaded: true})
-      });
+  async componentDidMount() {
+    const response = await fetch("http://localhost:3001/courses")
+    const data = await response.json()
+    this.setState({
+      courses: data,
+      isLoaded: true
+    })
   }
 }

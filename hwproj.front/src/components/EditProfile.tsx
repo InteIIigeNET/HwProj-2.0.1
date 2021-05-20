@@ -6,6 +6,7 @@ import { Redirect } from "react-router-dom";
 import ApiSingleton from "../api/ApiSingleton";
 import { IUser } from "types";
 import { EditAccountViewModel } from "../api/auth";
+import { FormEvent } from "react";
 
 interface IEditProfileState {
   isLoaded: boolean;
@@ -15,6 +16,7 @@ interface IEditProfileState {
   currentPassword: string;
   newPassword: string;
   edited: boolean;
+  email: string;
 }
 
 export default class EditProfile extends React.Component<
@@ -28,29 +30,51 @@ export default class EditProfile extends React.Component<
       name: "",
       surname: "",
       middleName: "",
+      email: "",
       currentPassword: "",
       newPassword: "",
       edited: false,
     };
   }
 
-  public handleSubmit(e: any) {
+  handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    let editViewModel: EditAccountViewModel = {
+    // let editViewModel: EditAccountViewModel = {
+    //   name: this.state.name,
+    //   surname: this.state.surname,
+    //   middleName: this.state.middleName,
+    //   currentPassword: this.state.currentPassword,
+    //   newPassword: this.state.newPassword,
+    // };
+
+    const user = {
       name: this.state.name,
       surname: this.state.surname,
       middleName: this.state.middleName,
-      currentPassword: this.state.currentPassword,
-      newPassword: this.state.newPassword,
+      email: this.state.email,
+      password: this.state.newPassword,
+      isLecturer: ApiSingleton.authService.getRoleFake()
+    }
+
+    const id = ApiSingleton.authService.getUserIdFake()
+
+    const requestOptions = {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(user),
     };
+    const path = "http://localhost:3001/login/1"
+    await fetch(path, requestOptions)
+    this.setState({edited: true})
+
 
     /* а у нас EditAccountViewModel поменялась как бы
     ApiSingleton.accountApi
       .apiAccountEditPut(editViewModel)
       .then((res) => this.setState({ edited: true }));
      */
-    ApiSingleton.accountApi.apiAccountEditPut(editViewModel);
+    //ApiSingleton.accountApi.apiAccountEditPut(editViewModel);
   }
 
   public render() {
@@ -59,7 +83,7 @@ export default class EditProfile extends React.Component<
     }
 
     if (this.state.isLoaded) {
-      if (!ApiSingleton.authService.isLoggedIn()) {
+      if (!ApiSingleton.authService.getLogginStateFake()) {
         return (
           <Typography variant="h6" gutterBottom>
             Страница не найдена
@@ -131,22 +155,32 @@ export default class EditProfile extends React.Component<
     return "";
   }
 
-  componentDidMount() {
-    if (ApiSingleton.authService.isLoggedIn()) {
-      ApiSingleton.accountApi
-        .apiAccountGetUserDataByUserIdGet(
-          ApiSingleton.authService.getProfile()._id
-        )
-        .then((res) => JSON.stringify(res))
-        .then((user) => {
-          const userObj = JSON.parse(user);
-          console.log({ userObj });
-          this.setState({
-            isLoaded: true,
-            name: userObj.name,
-            surname: userObj.surname ?? "",
-          });
-        });
-    }
+  async componentDidMount() {
+    const id = ApiSingleton.authService.getUserIdFake()
+    let response = await fetch("http://localhost:3001/login")
+    let users = await response.json()
+    let currentUser = users.filter((item: any) => item.id == id).shift()
+    this.setState({
+      isLoaded: true,
+      name: currentUser.name,
+      surname: currentUser.surname,
+      email: currentUser.email,
+      middleName: currentUser.middleName,
+      currentPassword: currentUser.password,
+    })
+    // ApiSingleton.accountApi
+    //   .apiAccountGetUserDataByUserIdGet(
+    //     ApiSingleton.authService.getProfile()._id
+    //   )
+    //   .then((res) => JSON.stringify(res))
+    //   .then((user) => {
+    //     const userObj = JSON.parse(user);
+    //     console.log({ userObj });
+    //     this.setState({
+    //       isLoaded: true,
+    //       name: userObj.name,
+    //       surname: userObj.surname ?? "",
+    //     });
+    //   });
   }
 }
