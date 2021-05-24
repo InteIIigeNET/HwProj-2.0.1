@@ -9,12 +9,20 @@ import { HomeworkViewModel } from "../api/homeworks";
 import { Paper, createStyles, Theme, withStyles } from "@material-ui/core";
 import TaskStudentCell from "./TaskStudentCell";
 
+interface ICourseMate {
+  name: string;
+  surname: string;
+  middleName: string;
+  email: string;
+  id: string;
+}
+
 interface ICourseStudentsProps {
   course: CourseViewModel;
   homeworks: HomeworkViewModel[];
   forMentor: boolean;
   userId: string;
-  courseMates: string[];
+  courseMates: ICourseMate[];
 }
 
 const styles = (theme: Theme) =>
@@ -64,24 +72,23 @@ class CourseStudents extends React.Component<ICourseStudentsProps, {}> {
               </TableRow>
             </TableHead>
             <TableBody>
-              {this.props.course
-                .courseMates!.filter((cm) => cm.isAccepted)
+              {this.props.courseMates
                 .map((cm, index) => (
-                  <TableRow key={cm.studentId}>
+                  <TableRow key={index}>
                     <TableCell
                       align="center"
                       padding="none"
                       component="td"
                       scope="row"
                     >
-                      {this.props.courseMates[index]}
+                      {cm.name}
                     </TableCell>
                     {this.props.homeworks.map((homework) =>
                       homework.tasks!.map((task) => (
                         <TaskStudentCell
                           userId={this.props.userId}
                           forMentor={this.props.forMentor}
-                          studentId={cm.studentId!}
+                          studentId={String(index)}
                           taskId={task.id!}
                         />
                       ))

@@ -19,6 +19,11 @@ interface ICreateCourseState {
   courseId: string;
 }
 
+// interface ICourseMate {
+//   studentId: number,
+//   isAccepted: boolean
+// }
+
 export default class CreateCourse extends React.Component<
   {},
   ICreateCourseState
@@ -51,16 +56,32 @@ export default class CreateCourse extends React.Component<
   //     );
   // }
 
-  public handleSubmit(e: any) {
+  async handleSubmit(e: any) {
     e.preventDefault();
+
+    const userId = ApiSingleton.authService.getUserIdFake()
+    const response = await fetch("http://localhost:3001/login")
+    const data = await response.json()
+    const user = data.filter((item: any) => item.id == userId).shift()
 
     let courseViewModel = {
       name: this.state.name,
       groupName: this.state.groupName,
       isOpen: this.state.isOpen,
       isCompleted: false,
+      course: {
+        mentorId: userId
+      },
+      mentor: {
+        name: user.name,
+        surname: user.surname,
+        middleName: user.middleName,
+        email: user.email,
+      },
+      homeworks: [],
+      courseMates: [],
     };
-    fetch("http://localhost:3001/courses", {
+    await fetch("http://localhost:3001/courses", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -70,6 +91,11 @@ export default class CreateCourse extends React.Component<
   }
 
   public render() {
+    if (!ApiSingleton.authService.getRoleFake()){
+      <Typography component="h1" variant="h5">
+          Страница не доступна
+      </Typography>
+    }
     if (this.state.created) {
       return <Redirect to={"/courses/" + this.state.courseId} />;
     }

@@ -21,6 +21,14 @@ interface User extends AccountDataDTO {
   role?: string;
 }
 
+interface ICourseMate {
+  name: string;
+  surname: string;
+  middleName: string;
+  email: string;
+  id: string;
+}
+
 interface ICourseState {
   isLoaded: boolean;
   isFound: boolean;
@@ -28,8 +36,8 @@ interface ICourseState {
   courseHomework: HomeworkViewModel[];
   createHomework: boolean;
   mentor: User;
-  acceptedStudents: string[];
-  newStudents: string[];
+  acceptedStudents: ICourseMate[];
+  newStudents: ICourseMate[];
 }
 
 interface ICourseProp {
@@ -53,8 +61,8 @@ export default class Course extends React.Component<
       mentor: {
         name: "",
         surname: "",
+        middleName: "",
         email: "",
-        role: "",
       },
       acceptedStudents: [],
       newStudents: [],
@@ -65,18 +73,18 @@ export default class Course extends React.Component<
     const { isLoaded, isFound, course, createHomework, mentor } = this.state;
     if (isLoaded) {
       if (isFound) {
-        let isLogged = ApiSingleton.authService.isLoggedIn();
+        let isLogged = ApiSingleton.authService.getLogginStateFake();
         let userId = isLogged
-          ? ApiSingleton.authService.getProfile()._id
+          ? String(ApiSingleton.authService.getUserIdFake())
           : undefined;
-        let isMentor = isLogged && userId === course.mentorId;
+        let isMentor = isLogged && userId === String(course.mentorId);
         let isSignedInCourse =
-          isLogged && course.courseMates!.some((cm) => cm.studentId === userId);
+          isLogged && this.state.newStudents!.some((cm: any) => String(cm.studentId) === userId);
         let isAcceptedStudent =
-          isLogged &&
-          course.courseMates!.some(
-            (cm) => cm.studentId === userId && cm.isAccepted!
+          isLogged && this.state.acceptedStudents!.some(
+            (cm: any) => cm.id === Number(userId)
           );
+        debugger;
         return (
           <div className="container">
             <div className="d-flex justify-content-between">
@@ -129,7 +137,7 @@ export default class Course extends React.Component<
                 <NewCourseStudents
                   onUpdate={() => this.componentDidMount()}
                   course={this.state.course}
-                  studentNames={this.state.newStudents}
+                  students={this.state.newStudents}
                 />
                 <br />
                 <AddHomework
@@ -158,7 +166,7 @@ export default class Course extends React.Component<
                 <NewCourseStudents
                   onUpdate={() => this.componentDidMount()}
                   course={this.state.course}
-                  studentNames={this.state.newStudents}
+                  students={this.state.newStudents}
                 />
                 <br />
                 <Button
@@ -201,58 +209,165 @@ export default class Course extends React.Component<
           </div>
         );
       }
-
       return <Typography variant="h3">Не удалось найти курс.</Typography>;
     }
 
     return <h1></h1>;
   }
 
-  joinCourse() {
-    ApiSingleton.coursesApi
-      .apiCoursesSignInCourseByCourseIdPost(+this.props.match.params.id, 55)
-      .then((res) => this.componentDidMount());
+  // joinCourse() {
+  //   ApiSingleton.coursesApi
+  //     .apiCoursesSignInCourseByCourseIdPost(+this.props.match.params.id, 55)
+  //     .then((res) => this.componentDidMount());
+  // }
+
+  async joinCourse() {
+    const userId = ApiSingleton.authService.getUserIdFake()
+
+    const responseCourses = await fetch("http://localhost:3001/courses")
+    const courses = await responseCourses.json()
+    const course = courses.filter((item: any) => item.id == this.props.match.params.id).shift()
+
+    course.courseMates
+      .push({
+        isAccepted: false,
+        studentId: userId
+      })
+
+    const courseViewModel = {
+      name: course.name,
+      groupName: course.groupName,
+      isOpen: course.isOpen,
+      isCompleted: course.isCompleted,
+      course: course.course,
+      mentor: course.mentor,
+      homeworks: course.homework,
+      courseMates: course.courseMates,
+    }
+
+    await fetch("http://localhost:3001/courses/" + this.props.match.params.id, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(courseViewModel)
+    })
+    this.componentDidMount();
   }
 
   async componentDidMount() {
-    await ApiSingleton.coursesApi
-      .apiCoursesByCourseIdGet(+this.props.match.params.id)
-      .then((res) => res.json())
-      .then((course: CourseViewModel) =>
-        ApiSingleton.homeworksApi
-          .apiHomeworksCourseHomeworksByCourseIdGet(course.id!)
-          .then((homework) =>
-            ApiSingleton.accountApi
-              .apiAccountGetUserDataByUserIdGet(course.mentorId!)
-              .then(
-                async (mentor) =>
-                  await Promise.all(
-                    course.courseMates!.map(async (cm) => {
-                      let res = await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(
-                        cm.studentId!
-                      );
-                      let user = await JSON.stringify(res);
-                      return { user: user, isAccepted: cm.isAccepted };
-                    })
-                  ).then((courseMates) =>
-                    this.setState({
-                      isLoaded: true,
-                      isFound: true,
-                      course: course,
-                      courseHomework: homework,
-                      createHomework: false,
-                      mentor: mentor,
-                      acceptedStudents: courseMates
-                        .filter((cm) => cm.isAccepted)
-                        .map((cm) => cm.user),
-                      newStudents: courseMates
-                        .filter((cm) => !cm.isAccepted)
-                        .map((cm) => cm.user),
-                    })
-                  )
-              )
-          )
-      )
-      .catch((err) => this.setState({ isLoaded: true, isFound: false }));
+    const responseCourses = await fetch("http://localhost:3001/courses")
+    const courses = await responseCourses.json()
+    const course = courses.filter((item: any) => item.id == this.props.match.params.id).shift()
+    
+    const responseUsers = await fetch("http://localhost:3001/login")
+    const users = await responseUsers.json()
+
+    this.setState({
+      isLoaded: true,
+      isFound: true,
+      course: course.course,
+      courseHomework: [],
+      createHomework: false,
+      mentor: course.mentor,
+      acceptedStudents: course.courseMates
+      .filter((cm: any) => cm.isAccepted)
+      .map((cm: any) => {
+        let user;
+        users.forEach((element: any) => {
+          if (element.id == cm.studentId) {
+            user = {
+              name: element.name,
+              surname: element.surname,
+              middleName: element.middleName,
+              email: element.email,
+              id: String(element.id)
+            }
+          }
+        });
+        return user; 
+      }),
+      newStudents: course.courseMates
+        .filter((cm: any) => !cm.isAccepted)
+        .map((cm: any) => {
+          let user;
+          users.forEach((element: any) => {
+            if (element.id == cm.studentId) {
+              user = {
+                name: element.name,
+                surname: element.surname,
+                middleName: element.middleName,
+                email: element.email,
+                id: String(element.id)
+              }
+            }
+          });
+          return user; 
+        }),
+    })
   }
+
+  // async componentDidMount() {
+  //   await ApiSingleton.coursesApi
+  //     .apiCoursesByCourseIdGet(+this.props.match.params.id)
+  //     .then((res) => res.json())
+  //     .then((course: CourseViewModel) =>
+  //       ApiSingleton.homeworksApi
+  //         .apiHomeworksCourseHomeworksByCourseIdGet(course.id!)
+  //         .then((homework) =>
+  //           ApiSingleton.accountApi
+  //             .apiAccountGetUserDataByUserIdGet(course.mentorId!)
+  //             .then(
+  //               async (mentor) =>
+  //                 await Promise.all(
+  //                   course.courseMates!.map(async (cm) => {
+  //                     let res = await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(
+  //                       cm.studentId!
+  //                     );
+  //                     let user = await JSON.stringify(res);
+  //                     return { user: user, isAccepted: cm.isAccepted };
+  //                   })
+  //                 ).then((courseMates) =>
+  //                   this.setState({
+  //                     isLoaded: true,
+  //                     isFound: true,
+  //                     course: course,
+  //                     courseHomework: homework,
+  //                     createHomework: false,
+  //                     mentor: mentor,
+  //                     acceptedStudents: courseMates
+  //                       .filter((cm) => cm.isAccepted)
+  //                       .map((cm) => cm.user),
+  //                     newStudents: courseMates
+  //                       .filter((cm) => !cm.isAccepted)
+  //                       .map((cm) => cm.user),
+  //                   })
+  //                 )
+  //             )
+  //         )
+  //     )
+  //     .catch((err) => this.setState({ isLoaded: true, isFound: false }));
+  // }
 }
+
+
+// {
+//   "name": "Программирование, C#",
+//   "groupName": "группа 144",
+//   "isOpen": true,
+//   "isCompleted": false,
+//   "course": {
+//     "mentorId": 1
+//   },
+//   "mentor": {
+//     "name": "Ivan",
+//     "surname": "Ivanov",
+//     "middleName": "Ivanovich",
+//     "email": "ivanov@gmail.ru"
+//   },
+//   "homeworks": [
+//   ],
+//   "courseMates": [
+//   ],
+//   "id": 1
+// }

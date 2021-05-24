@@ -64,7 +64,7 @@ export default class EditProfile extends React.Component<
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(user),
     };
-    const path = "http://localhost:3001/login/1"
+    const path = "http://localhost:3001/login/" + id
     await fetch(path, requestOptions)
     this.setState({edited: true})
 

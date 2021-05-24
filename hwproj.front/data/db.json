@@ -30,18 +30,26 @@
   ],
   "courses": [
     {
-      "name": "c#",
-      "groupName": "144",
+      "name": "Программирование, C#",
+      "groupName": "группа 144",
       "isOpen": true,
       "isCompleted": false,
+      "course": {
+        "mentorId": 1
+      },
+      "mentor": {
+        "name": "Ivan",
+        "surname": "Ivanov",
+        "middleName": "Ivanovich",
+        "email": "ivanov@gmail.ru"
+      },
+      "courseMates": [
+        {
+          "isAccepted": false,
+          "studentId": 2
+        }
+      ],
       "id": 1
-    },
-    {
-      "name": "C++",
-      "groupName": "244",
-      "isOpen": true,
-      "isCompleted": false,
-      "id": 2
     }
   ]
 }

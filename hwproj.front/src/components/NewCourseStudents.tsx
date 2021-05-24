@@ -3,9 +3,17 @@ import { CourseViewModel } from '../api/courses/api';
 import Button from '@material-ui/core/Button'
 import ApiSingleton from "../api/ApiSingleton";
 
+interface ICourseMate {
+    name: string;
+    surname: string;
+    middleName: string;
+    email: string;
+    id: string;
+  }
+
 interface INewCourseStudentsProps {
     course: CourseViewModel,
-    studentNames: string[],
+    students: ICourseMate[],
     onUpdate: () => void
 }
 
@@ -15,7 +23,7 @@ export default class NewCourseStudents extends React.Component<INewCourseStudent
     }
 
     public render() {
-        if (this.props.studentNames.length === 0) {
+        if (this.props.students.length === 0) {
             return "Нет новых заявок в курс."
         }
 
@@ -24,16 +32,16 @@ export default class NewCourseStudents extends React.Component<INewCourseStudent
                 Новые заявки на вступление в курс:
                 <br />
                 <ol>
-                    {this.props.course.courseMates!.filter(cm => !cm.isAccepted).map((cm, index) => (
+                    {this.props.students.map((cm, index) => (
                         <li>
                             <div>
-                                {this.props.studentNames[index]}
+                                {cm.name}
                                 <br />
-                                <Button onClick={() => this.acceptStudent(cm.studentId!)} color="primary" variant="contained" size="small">
+                                <Button onClick={() => this.acceptStudent(cm.id)} color="primary" variant="contained" size="small">
                                     Принять
                                 </Button>
                                 &nbsp;
-                                <Button onClick={() => this.rejectStudent(cm.studentId!)} color="primary" variant="contained" size="small">
+                                <Button onClick={() => this.rejectStudent(cm.id!)} color="primary" variant="contained" size="small">
                                     Отклонить
                                 </Button>
                             </div>
