@@ -2,6 +2,7 @@ import * as React from 'react';
 import { CourseViewModel } from '../api/courses/api';
 import Button from '@material-ui/core/Button'
 import ApiSingleton from "../api/ApiSingleton";
+import { runInThisContext } from 'vm';
 
 interface ICourseMate {
     name: string;
@@ -14,7 +15,8 @@ interface ICourseMate {
 interface INewCourseStudentsProps {
     course: CourseViewModel,
     students: ICourseMate[],
-    onUpdate: () => void
+    onUpdate: () => void,
+    courseId: string,
 }
 
 export default class NewCourseStudents extends React.Component<INewCourseStudentsProps, {}> {
@@ -53,13 +55,70 @@ export default class NewCourseStudents extends React.Component<INewCourseStudent
         )
     }
 
-    acceptStudent(studentId: string) {
-        ApiSingleton.coursesApi.apiCoursesAcceptStudentByCourseIdPost(this.props.course.id!, studentId)
-            .then(res => this.props.onUpdate());
-    }
+    // acceptStudent(studentId: string) {
+    //     ApiSingleton.coursesApi.apiCoursesAcceptStudentByCourseIdPost(this.props.course.id!, studentId)
+    //         .then(res => this.props.onUpdate());
+    // }
 
-    rejectStudent(studentId: string) {
-        ApiSingleton.coursesApi.apiCoursesRejectStudentByCourseIdPost(this.props.course.id!, studentId)
-            .then(res => this.props.onUpdate());
+    // rejectStudent(studentId: string) {
+    //     ApiSingleton.coursesApi.apiCoursesRejectStudentByCourseIdPost(this.props.course.id!, studentId)
+    //         .then(res => this.props.onUpdate());
+    // }
+
+    async acceptStudent(studentId: string) {
+        const response = await fetch("http://localhost:3001/courses/" + this.props.courseId)
+        const course = await response.json()
+        const courseMates = course.courseMates.map((cm: any) => {
+            if (String(cm.studentId) === studentId) {
+                cm.isAccepted = true
+            }
+            return cm
+        })
+        
+        const courseViewModel = {
+            name: course.name,
+            groupName: course.groupName,
+            isOpen: course.isOpen,
+            isCompleted: course.isCompleted,
+            course: course.course,
+            mentor: course.mentor,
+            homeworks: course.homework,
+            courseMates: courseMates,
+        }
+
+        await fetch("http://localhost:3001/courses/" + this.props.courseId, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(courseViewModel)
+        })
+        this.props.onUpdate()
+    }   
+
+    async rejectStudent(studentId: string) {
+        const response = await fetch("http://localhost:3001/courses/" + this.props.courseId)
+        const course = await response.json()
+        const courseMates = course.courseMates.filter((cm: any) => String(cm.studentId) != studentId)
+        
+        const courseViewModel = {
+            name: course.name,
+            groupName: course.groupName,
+            isOpen: course.isOpen,
+            isCompleted: course.isCompleted,
+            course: course.course,
+            mentor: course.mentor,
+            homeworks: course.homework,
+            courseMates: courseMates,
+        }
+
+        await fetch("http://localhost:3001/courses/" + this.props.courseId, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(courseViewModel)
+        })
+        this.props.onUpdate()
     }
 }

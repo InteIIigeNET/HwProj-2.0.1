@@ -45,10 +45,31 @@
       },
       "courseMates": [
         {
-          "isAccepted": false,
+          "isAccepted": true,
           "studentId": 2
         }
       ],
+      "homeworks": [
+        1
+      ],
+      "id": 1
+    }
+  ],
+  "homeworks": [
+    {
+      "title": "Сделать домашку",
+      "description": "Сделать домашку",
+      "tasks": [
+        {
+          "title": "Сделать домашку",
+          "description": "Сделать домашку"
+        },
+        {
+          "title": "Сделать домашку",
+          "description": "Сделать домашку"
+        }
+      ],
+      "date": "2021-05-26T15:35:41.389Z",
       "id": 1
     }
   ]

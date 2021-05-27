@@ -5,6 +5,7 @@ import Typography from "@material-ui/core/Typography";
 import ApiSingleton from "../api/ApiSingleton";
 import { CreateTaskViewModel } from "../api/homeworks";
 import { Redirect } from "react-router-dom";
+import { Description } from "@material-ui/icons";
 
 interface IAddHomeworkProps {
   id: number;
@@ -33,22 +34,22 @@ export default class AddHomework extends React.Component<
     };
   }
 
-  public handleSubmit(e: any) {
-    e.preventDefault();
-    ApiSingleton.homeworksApi
-      .apiHomeworksByCourseIdPost(this.props.id, {
-        title: this.state.title,
-        description: this.state.description,
-      })
-      .then((homeworkId) =>
-        Promise.all(
-          this.state.tasks.map((t) =>
-            ApiSingleton.tasksApi.apiTasksByHomeworkIdPost(homeworkId, t)
-          )
-        )
-      )
-      .then((res) => this.props.onSubmit());
-  }
+  // public handleSubmit(e: any) {
+  //   e.preventDefault();
+  //   ApiSingleton.homeworksApi
+  //     .apiHomeworksByCourseIdPost(this.props.id, {
+  //       title: this.state.title,
+  //       description: this.state.description,
+  //     })
+  //     .then((homeworkId) =>
+  //       Promise.all(
+  //         this.state.tasks.map((t) =>
+  //           ApiSingleton.tasksApi.apiTasksByHomeworkIdPost(homeworkId, t)
+  //         )
+  //       )
+  //     )
+  //     .then((res) => this.props.onSubmit());
+  // }
 
   public render() {
     if (this.state.added) {
@@ -156,5 +157,20 @@ export default class AddHomework extends React.Component<
         </form>
       </div>
     );
+  }
+
+  async handleSubmit(e: any) {
+    e.preventDefault();
+
+    const homework = {
+      title: this.state.title,
+      description: this.state.description,
+      tasks: this.state.tasks,
+      date: new Date()
+    }
+    debugger
+    ApiSingleton.courseService.addHomework(homework, this.props.id)
+    this.setState({ added: true })
+    this.props.onSubmit()
   }
 }

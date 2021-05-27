@@ -31,7 +31,10 @@ export class CoursesList extends React.Component<ICoursesProps, {}> {
           ))}
           <Switch>
             {courses.map((course) => (
-              <Route path={"/courses/" + course.id!.toString()} component={Course}/>
+              <Route
+                path={"/courses/" + course.id!.toString()}
+                render={() => <Course id={course.id!.toString()} />}
+              />
             ))}
           </Switch>
         </Router>

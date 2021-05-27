@@ -45,10 +45,10 @@ interface ICourseProp {
 }
 
 export default class Course extends React.Component<
-  RouteComponentProps<ICourseProp>,
+  ICourseProp,
   ICourseState
 > {
-  constructor(props: RouteComponentProps<ICourseProp>) {
+  constructor(props: ICourseProp) {
     super(props);
     this.state = {
       isLoaded: false,
@@ -84,7 +84,6 @@ export default class Course extends React.Component<
           isLogged && this.state.acceptedStudents!.some(
             (cm: any) => cm.id === Number(userId)
           );
-        debugger;
         return (
           <div className="container">
             <div className="d-flex justify-content-between">
@@ -138,10 +137,11 @@ export default class Course extends React.Component<
                   onUpdate={() => this.componentDidMount()}
                   course={this.state.course}
                   students={this.state.newStudents}
+                  courseId={this.props.id}
                 />
                 <br />
                 <AddHomework
-                  id={+this.props.match.params.id}
+                  id={+this.props.id}
                   onCancel={() => this.componentDidMount()}
                   onSubmit={() => this.componentDidMount()}
                 />
@@ -167,6 +167,7 @@ export default class Course extends React.Component<
                   onUpdate={() => this.componentDidMount()}
                   course={this.state.course}
                   students={this.state.newStudents}
+                  courseId={this.props.id}
                 />
                 <br />
                 <Button
@@ -226,7 +227,8 @@ export default class Course extends React.Component<
 
     const responseCourses = await fetch("http://localhost:3001/courses")
     const courses = await responseCourses.json()
-    const course = courses.filter((item: any) => item.id == this.props.match.params.id).shift()
+    debugger
+    const course = courses.filter((item: any) => item.id == this.props.id).shift()
 
     course.courseMates
       .push({
@@ -245,7 +247,7 @@ export default class Course extends React.Component<
       courseMates: course.courseMates,
     }
 
-    await fetch("http://localhost:3001/courses/" + this.props.match.params.id, {
+    await fetch("http://localhost:3001/courses/" + this.props.id, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json"
@@ -256,18 +258,19 @@ export default class Course extends React.Component<
   }
 
   async componentDidMount() {
+    console.log(this.props)
+    console.log(this.props.match.params.id)
+    debugger
     const responseCourses = await fetch("http://localhost:3001/courses")
     const courses = await responseCourses.json()
-    const course = courses.filter((item: any) => item.id == this.props.match.params.id).shift()
-    
+    const course = courses.filter((item: any) => item.id == this.props.id).shift()
     const responseUsers = await fetch("http://localhost:3001/login")
     const users = await responseUsers.json()
-
     this.setState({
       isLoaded: true,
       isFound: true,
       course: course.course,
-      courseHomework: [],
+      courseHomework: await ApiSingleton.courseService.getHomeworksByCourseId(+this.props.id),
       createHomework: false,
       mentor: course.mentor,
       acceptedStudents: course.courseMates
@@ -349,25 +352,3 @@ export default class Course extends React.Component<
   //     .catch((err) => this.setState({ isLoaded: true, isFound: false }));
   // }
 }
-
-
-// {
-//   "name": "Программирование, C#",
-//   "groupName": "группа 144",
-//   "isOpen": true,
-//   "isCompleted": false,
-//   "course": {
-//     "mentorId": 1
-//   },
-//   "mentor": {
-//     "name": "Ivan",
-//     "surname": "Ivanov",
-//     "middleName": "Ivanovich",
-//     "email": "ivanov@gmail.ru"
-//   },
-//   "homeworks": [
-//   ],
-//   "courseMates": [
-//   ],
-//   "id": 1
-// }
