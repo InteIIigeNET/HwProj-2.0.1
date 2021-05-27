@@ -20,6 +20,7 @@ export default class AddTask extends React.Component<
     this.state = {
       title: "",
       description: "",
+      maxRating: 10
     };
   }
 
@@ -42,6 +43,16 @@ export default class AddTask extends React.Component<
             margin="normal"
             value={this.state.title}
             onChange={(e) => this.setState({ title: e.target.value })}
+          />
+          <br />
+          <TextField
+            required
+            label="Максимальное количество баллов"
+            variant="outlined"
+            type="number"
+            margin="normal"
+            value={this.state.maxRating}
+            onChange={(e) => this.setState({ maxRating: +e.target.value })}
           />
           <br />
           <TextField

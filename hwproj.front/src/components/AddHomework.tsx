@@ -166,7 +166,7 @@ export default class AddHomework extends React.Component<
       title: this.state.title,
       description: this.state.description,
       tasks: this.state.tasks,
-      date: new Date()
+      date: new Date().toLocaleDateString("ru-RU")
     }
     debugger
     ApiSingleton.courseService.addHomework(homework, this.props.id)

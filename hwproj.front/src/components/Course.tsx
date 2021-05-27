@@ -2,7 +2,6 @@ import * as React from "react";
 import { CourseViewModel } from "../api/courses";
 import { HomeworkViewModel } from "../api/homeworks";
 import CourseHomework from "./CourseHomework";
-import { RouteComponentProps } from "react-router-dom";
 import { Typography } from "@material-ui/core";
 import Button from "@material-ui/core/Button";
 import EditIcon from "@material-ui/icons/Edit";
@@ -10,8 +9,10 @@ import AddHomework from "./AddHomework";
 import CourseStudents from "./CourseStudents";
 import ApiSingleton from "../api/ApiSingleton";
 import { Link as RouterLink } from "react-router-dom";
+import {RouteComponentProps} from 'react-router';
 import NewCourseStudents from "./NewCourseStudents";
 import { AccountDataDTO } from "../api/auth";
+import { withRouter } from 'react-router-dom';
 
 interface User extends AccountDataDTO {
   name?: string;
@@ -40,15 +41,15 @@ interface ICourseState {
   newStudents: ICourseMate[];
 }
 
-interface ICourseProp {
+interface ICourseProps {
   id: string;
 }
 
-export default class Course extends React.Component<
-  ICourseProp,
+class Course extends React.Component<
+  RouteComponentProps<ICourseProps>,
   ICourseState
 > {
-  constructor(props: ICourseProp) {
+  constructor(props: RouteComponentProps<ICourseProps>) {
     super(props);
     this.state = {
       isLoaded: false,
@@ -137,11 +138,11 @@ export default class Course extends React.Component<
                   onUpdate={() => this.componentDidMount()}
                   course={this.state.course}
                   students={this.state.newStudents}
-                  courseId={this.props.id}
+                  courseId={this.props.match.params.id}
                 />
                 <br />
                 <AddHomework
-                  id={+this.props.id}
+                  id={+this.props.match.params.id}
                   onCancel={() => this.componentDidMount()}
                   onSubmit={() => this.componentDidMount()}
                 />
@@ -167,7 +168,7 @@ export default class Course extends React.Component<
                   onUpdate={() => this.componentDidMount()}
                   course={this.state.course}
                   students={this.state.newStudents}
-                  courseId={this.props.id}
+                  courseId={this.props.match.params.id}
                 />
                 <br />
                 <Button
@@ -228,7 +229,7 @@ export default class Course extends React.Component<
     const responseCourses = await fetch("http://localhost:3001/courses")
     const courses = await responseCourses.json()
     debugger
-    const course = courses.filter((item: any) => item.id == this.props.id).shift()
+    const course = courses.filter((item: any) => item.id == this.props.match.params.id).shift()
 
     course.courseMates
       .push({
@@ -247,7 +248,7 @@ export default class Course extends React.Component<
       courseMates: course.courseMates,
     }
 
-    await fetch("http://localhost:3001/courses/" + this.props.id, {
+    await fetch("http://localhost:3001/courses/" + this.props.match.params.id, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json"
@@ -258,19 +259,19 @@ export default class Course extends React.Component<
   }
 
   async componentDidMount() {
-    console.log(this.props)
-    console.log(this.props.match.params.id)
     debugger
+    console.log(this.props.match.params.id)
     const responseCourses = await fetch("http://localhost:3001/courses")
     const courses = await responseCourses.json()
-    const course = courses.filter((item: any) => item.id == this.props.id).shift()
+    const course = courses.filter((item: any) => item.id == this.props.match.params.id).shift()
     const responseUsers = await fetch("http://localhost:3001/login")
     const users = await responseUsers.json()
     this.setState({
       isLoaded: true,
       isFound: true,
       course: course.course,
-      courseHomework: await ApiSingleton.courseService.getHomeworksByCourseId(+this.props.id),
+      //courseHomework: await ApiSingleton.courseService.getHomeworksByCourseId(+this.props.match.params.id),
+      courseHomework: [],
       createHomework: false,
       mentor: course.mentor,
       acceptedStudents: course.courseMates
@@ -352,3 +353,5 @@ export default class Course extends React.Component<
   //     .catch((err) => this.setState({ isLoaded: true, isFound: false }));
   // }
 }
+
+export default withRouter(Course);
