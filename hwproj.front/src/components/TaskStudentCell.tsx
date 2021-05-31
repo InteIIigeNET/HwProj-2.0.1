@@ -86,20 +86,25 @@ export default class TaskStudentCell extends React.Component<
   }
 
   componentDidMount() {
-    ApiSingleton.solutionsApi
-      .getTaskSolutionsFromStudent(this.props.taskId, this.props.studentId)
-      .then((solutions) =>
-        this.setState({
-          isLoaded: true,
-          result:
-            solutions.length > 0
-              ? solutions.some((s) => s.state!.toString() === "Accepted")
-                ? 2
-                : solutions.some((s) => s.state!.toString() === "Rejected")
-                ? 1
-                : 0
-              : -1,
-        })
-      );
+    
   }
+
+//   componentDidMount() {
+//     ApiSingleton.solutionsApi
+//       .getTaskSolutionsFromStudent(this.props.taskId, this.props.studentId)
+//       .then((solutions) =>
+//         this.setState({
+//           isLoaded: true,
+//           result:
+//             solutions.length > 0
+//               ? solutions.some((s) => s.state!.toString() === "Accepted")
+//                 ? 2
+//                 : solutions.some((s) => s.state!.toString() === "Rejected")
+//                 ? 1
+//                 : 0
+//               : -1,
+//         })
+//       );
+//   }
 }
+

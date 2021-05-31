@@ -83,8 +83,9 @@ class Course extends React.Component<
           isLogged && this.state.newStudents!.some((cm: any) => String(cm.studentId) === userId);
         let isAcceptedStudent =
           isLogged && this.state.acceptedStudents!.some(
-            (cm: any) => cm.id === Number(userId)
+            (cm: any) => cm.id === userId
           );
+        console.log(this.state.course.id)
         return (
           <div className="container">
             <div className="d-flex justify-content-between">
@@ -92,8 +93,8 @@ class Course extends React.Component<
                 <Typography variant="h5">
                   {course.name} &nbsp;
                   {isMentor && (
-                    <RouterLink to={"./" + this.state.course.id + "/edit"}>
-                      <EditIcon fontSize="small" />
+                    <RouterLink to={"./" + this.props.match.params.id + "/edit"}>
+                      <EditIcon fontSize="small"/>
                     </RouterLink>
                   )}
                 </Typography>
@@ -108,7 +109,7 @@ class Course extends React.Component<
                 {(isMentor || isAcceptedStudent) && (
                   <Typography variant="subtitle1">{mentor.email}</Typography>
                 )}
-                {isLogged && !isSignedInCourse && !isMentor && (
+                {isLogged && !isSignedInCourse && !isMentor && !isAcceptedStudent &&(
                   <Button
                     size="small"
                     variant="contained"
@@ -259,8 +260,6 @@ class Course extends React.Component<
   }
 
   async componentDidMount() {
-    debugger
-    console.log(this.props.match.params.id)
     const responseCourses = await fetch("http://localhost:3001/courses")
     const courses = await responseCourses.json()
     const course = courses.filter((item: any) => item.id == this.props.match.params.id).shift()
@@ -270,8 +269,7 @@ class Course extends React.Component<
       isLoaded: true,
       isFound: true,
       course: course.course,
-      //courseHomework: await ApiSingleton.courseService.getHomeworksByCourseId(+this.props.match.params.id),
-      courseHomework: [],
+      courseHomework: await ApiSingleton.courseService.getHomeworksByCourseId(+this.props.match.params.id),
       createHomework: false,
       mentor: course.mentor,
       acceptedStudents: course.courseMates

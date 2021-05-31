@@ -4,6 +4,8 @@ import { HomeworksApi, TasksApi } from "./homeworks";
 import { SolutionsApi } from "./solutions";
 import AuthService from "../services/AuthService";
 import CourseService from "../services/CourseService";
+import TaskService from "../services/TaskService";
+import HomeworkService from "../services/HomeworkService";
 
 class Api {
   readonly accountApi: AccountApi;
@@ -13,6 +15,8 @@ class Api {
   readonly solutionsApi: SolutionsApi;
   readonly authService: AuthService;
   readonly courseService: CourseService;
+  readonly taskService: TaskService;
+  readonly homeworkService: HomeworkService;
 
   constructor(
     accountApi: AccountApi,
@@ -21,7 +25,9 @@ class Api {
     tasksApi: TasksApi,
     solutionsApi: SolutionsApi,
     authService: AuthService,
-    courseService: CourseService
+    courseService: CourseService,
+    taskService: TaskService,
+    homeworkService: HomeworkService,
   ) {
     this.accountApi = accountApi;
     this.coursesApi = coursesApi;
@@ -30,6 +36,8 @@ class Api {
     this.solutionsApi = solutionsApi;
     this.authService = authService;
     this.courseService = courseService;
+    this.taskService = taskService;
+    this.homeworkService = homeworkService;
   }
 }
 
@@ -43,6 +51,8 @@ ApiSingleton = new Api(
   new TasksApi({ basePath: basePath }),
   new SolutionsApi({ basePath: basePath }),
   new AuthService(),
-  new CourseService()
+  new CourseService(),
+  new TaskService(),
+  new HomeworkService(),
 );
 export default ApiSingleton;

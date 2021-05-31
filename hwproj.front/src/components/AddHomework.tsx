@@ -29,7 +29,10 @@ export default class AddHomework extends React.Component<
     this.state = {
       title: "",
       description: "",
-      tasks: [{ title: "", description: "" }],
+      tasks: [{ title: "",
+                description: "",
+                maxRating: 10
+              }],
       added: false,
     };
   }
@@ -108,6 +111,14 @@ export default class AddHomework extends React.Component<
                     name={task.title}
                     onChange={(e) => (task.title = e.target.value)}
                   />
+                  <TextField
+                    required
+                    label="Баллы"
+                    variant="outlined"
+                    type="number"
+                    margin="normal"
+                    onChange={(e) => (task.maxRating = +e.target.value)}
+                  />
                   <br />
                   <TextField
                     multiline
@@ -166,9 +177,8 @@ export default class AddHomework extends React.Component<
       title: this.state.title,
       description: this.state.description,
       tasks: this.state.tasks,
-      date: new Date().toLocaleDateString("ru-RU")
+      date: new Date()
     }
-    debugger
     ApiSingleton.courseService.addHomework(homework, this.props.id)
     this.setState({ added: true })
     this.props.onSubmit()

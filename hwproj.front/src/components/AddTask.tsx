@@ -46,16 +46,6 @@ export default class AddTask extends React.Component<
           />
           <br />
           <TextField
-            required
-            label="Максимальное количество баллов"
-            variant="outlined"
-            type="number"
-            margin="normal"
-            value={this.state.maxRating}
-            onChange={(e) => this.setState({ maxRating: +e.target.value })}
-          />
-          <br />
-          <TextField
             multiline
             fullWidth
             rows="4"

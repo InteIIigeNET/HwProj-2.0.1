@@ -1,3 +1,4 @@
+import ApiSingleton from 'api/ApiSingleton';
 import * as React from 'react';
 import { HomeworkTaskViewModel } from "../api/homeworks/api";
 import Task from './Task'
@@ -9,23 +10,43 @@ interface IHomeworkTasksProps {
     onDelete: () => void
 }
 
-export default class HomeworkTasks extends React.Component<IHomeworkTasksProps, {}> {
+interface IHomeworkTasks {
+    tasksList: []
+}
+
+export default class HomeworkTasks extends React.Component<IHomeworkTasksProps, IHomeworkTasks> {
     constructor(props : IHomeworkTasksProps) {
         super(props);
+        this.state = {
+            tasksList: []
+        }
     }
 
-    public render() {
-        let taskList = this.props.tasks.map(task =>
-            <li key={task.id}>
-                <Task task={task} forStudent={this.props.forStudent} forMentor={this.props.forMentor} onDeleteClick={() => this.props.onDelete()} />
-            </li>);
+    getTasks = async () => await ApiSingleton.taskService.getTasksByTasksId(this.props.tasks)
 
+    public render() {
         return (
             <div>
                 <ol>
-                    {taskList}
+                    {this.state.tasksList.map((task: any) => {
+                        return (
+                            <li key={task.id}>
+                                <Task
+                                    task={task}
+                                    forStudent={this.props.forStudent}
+                                    forMentor={this.props.forMentor}
+                                    onDeleteClick={() => this.props.onDelete()}
+                                />
+                            </li>
+                        )
+                    })}
                 </ol>
             </div>
         )
+    }
+
+    async componentDidMount() {
+        let tasks = await this.getTasks()
+        this.setState({ tasksList: tasks})
     }
 }

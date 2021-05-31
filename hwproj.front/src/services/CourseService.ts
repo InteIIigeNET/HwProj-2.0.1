@@ -1,16 +1,31 @@
 
+
 export default class CourseService {
 
     async addHomework(homework: any, courseId: number) {
+        let tasksId = []
+        for (let task of homework.tasks) {
+            const id = await this.addTask({
+                title: task.title,
+                description: task.description,
+                maxRating: task.maxRating,
+            })
+            tasksId.push(id)
+        }
         const responseHomework = await fetch("http://localhost:3001/homeworks", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(homework)
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                title: homework.title,
+                description: homework.description,
+                date: homework.date,
+                courseId: courseId,
+                tasks: tasksId
+            })
         })
         const data = await responseHomework.json()
-        debugger;
         const course = await this.getCourseById(courseId)
         
         const newHomeworks = course.homeworks
@@ -40,12 +55,10 @@ export default class CourseService {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({
-                
-            })
+            body: JSON.stringify(task)
         })
-        
-
+        const data = await response.json()
+        return data.id;
     }
 
     async getCourseById(courseId: number) {
@@ -74,4 +87,53 @@ export default class CourseService {
         })
         return courseHomeworks
     }
+
+    async deleteCourseById(courseId: number) {
+        const response = await fetch("http://localhost:3001/courses/" + courseId, {
+            method: "DELETE"
+        })
+        console.log(response.json())
+    }
+
+    async updateCourseById(courseId: number, courseModel: any) {
+        const course = await this.getCourseById(courseId)
+        
+        await fetch("http://localhost:3001/courses/" + courseId, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                name: courseModel.name,
+                groupName: courseModel.groupName,
+                isOpen: courseModel.isOpen,
+                isCompleted: courseModel.isCompleted,
+                course: course.course,
+                mentor: course.mentor,
+                courseMates: course.courseMates,
+                homeworks: course.homeworks,
+            })
+        })
+    }
+
+    async getAllCourses() {
+        const response = await fetch("http://localhost:3001/courses")
+        const courses = await response.json()
+        return courses
+    }
+
+    async getCourseByHomeworkId(homeworkId: number) {
+        const courses = await this.getAllCourses()
+        const course = courses.filter((course: any) => {
+            let isContain = false
+            course.homeworks.map((id: any) => {
+                if (id == homeworkId) {
+                    isContain = true
+                }
+            })
+            return isContain
+        }).shift()
+        return course
+    }
 }
+

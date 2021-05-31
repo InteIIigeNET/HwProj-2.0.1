@@ -35,7 +35,7 @@ export default class EditHomework extends React.Component<
     };
   }
 
-  public handleSubmit(e: any) {
+  public async handleSubmit(e: any) {
     e.preventDefault();
 
     let homeworkViewModel = {
@@ -43,23 +43,29 @@ export default class EditHomework extends React.Component<
       description: this.state.description,
     };
 
-    ApiSingleton.homeworksApi
-      .apiHomeworksUpdateByHomeworkIdPut(
-        +this.props.match.params.homeworkId,
-        homeworkViewModel
-      )
-      .then((res) => this.setState({ edited: true }));
+    await ApiSingleton.homeworkService.updateHomeworkByHomeworkId(
+      +this.props.match.params.homeworkId,
+      homeworkViewModel
+    )
+
+    this.setState({ edited: true })
+
+    // ApiSingleton.homeworksApi
+    //   .apiHomeworksUpdateByHomeworkIdPut(
+    //     +this.props.match.params.homeworkId,
+    //     homeworkViewModel
+    //   )
+    //   .then((res) => this.setState({ edited: true }));
   }
 
   public render() {
     if (this.state.edited) {
       return <Redirect to={"/courses/" + this.state.courseId} />;
     }
-
     if (this.state.isLoaded) {
       if (
-        !ApiSingleton.authService.isLoggedIn() ||
-        ApiSingleton.authService.getProfile()._id !== this.state.courseMentorId
+        !ApiSingleton.authService.getLogginStateFake() ||
+        ApiSingleton.authService.getUserIdFake().toString() != this.state.courseMentorId
       ) {
         return (
           <Typography variant="h6" gutterBottom>
@@ -118,23 +124,35 @@ export default class EditHomework extends React.Component<
     return "";
   }
 
-  componentDidMount() {
-    ApiSingleton.homeworksApi
-      .apiHomeworksGetByHomeworkIdGet(+this.props.match.params.homeworkId)
-      .then((res) => res.json())
-      .then((homework) =>
-        ApiSingleton.coursesApi
-          .apiCoursesByCourseIdGet(homework.courseId)
-          .then((res) => res.json())
-          .then((course) =>
-            this.setState({
-              isLoaded: true,
-              title: homework.title,
-              description: homework.description,
-              courseId: homework.courseId,
-              courseMentorId: course.mentorId,
-            })
-          )
-      );
+  async componentDidMount() {
+    const homework = await ApiSingleton.homeworkService.getHomeworkById(+this.props.match.params.homeworkId)
+    const course = await ApiSingleton.courseService.getCourseByHomeworkId(+this.props.match.params.homeworkId)
+    this.setState({
+      isLoaded: true,
+      title: homework.title,
+      description: homework.description,
+      courseId: course.id,
+      courseMentorId: course.course.mentorId.toString(),
+    })
   }
+
+  // componentDidMount() {
+  //   ApiSingleton.homeworksApi
+  //     .apiHomeworksGetByHomeworkIdGet(+this.props.match.params.homeworkId)
+  //     .then((res) => res.json())
+  //     .then((homework) =>
+  //       ApiSingleton.coursesApi
+  //         .apiCoursesByCourseIdGet(homework.courseId)
+  //         .then((res) => res.json())
+  //         .then((course) =>
+  //           this.setState({
+  //             isLoaded: true,
+  //             title: homework.title,
+  //             description: homework.description,
+  //             courseId: homework.courseId,
+  //             courseMentorId: course.mentorId,
+  //           })
+  //         )
+  //     );
+  // }
 }
