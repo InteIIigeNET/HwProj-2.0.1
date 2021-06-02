@@ -33,6 +33,7 @@
       "name": "Программирование, C# и C++",
       "groupName": "группа 144",
       "isOpen": true,
+      "isCompleted": false,
       "course": {
         "mentorId": 1
       },
@@ -57,8 +58,8 @@
   "homeworks": [
     {
       "title": "Алгоритмы сортировки",
-      "description": "Реализовать алгоритмы сортировки на C#",
-      "date": "2021-05-28T16:17:29.105Z",
+      "description": "Реализовать следующие алгоритмы сортировки на C#.",
+      "date": "2021-06-02T08:54:41.410Z",
       "courseId": 1,
       "tasks": [
         1,
@@ -71,7 +72,7 @@
     {
       "title": "Сортировка пузырьком",
       "description": "Реализовать сортировку пузырьком.",
-      "maxRating": 5,
+      "maxRating": 6,
       "id": 1
     },
     {
@@ -79,6 +80,16 @@
       "description": "Реализовать сортировку вставкой.",
       "maxRating": 7,
       "id": 2
+    }
+  ],
+  "solutions": [
+    {
+      "taskId": 1,
+      "studentId": "2",
+      "githubUrl": "https://www.deepl.com/translator",
+      "comment": "решение",
+      "state": 0,
+      "id": 1
     }
   ]
 }

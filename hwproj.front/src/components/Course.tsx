@@ -85,7 +85,6 @@ class Course extends React.Component<
           isLogged && this.state.acceptedStudents!.some(
             (cm: any) => cm.id === userId
           );
-        console.log(this.state.course.id)
         return (
           <div className="container">
             <div className="d-flex justify-content-between">

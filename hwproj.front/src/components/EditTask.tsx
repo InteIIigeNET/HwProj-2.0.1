@@ -10,6 +10,7 @@ interface IEditTaskState {
   isLoaded: boolean;
   title: string;
   description: string;
+  maxRating: number;
   courseId: number;
   courseMentorId: string;
   edited: boolean;
@@ -29,23 +30,31 @@ export default class EditTask extends React.Component<
       isLoaded: false,
       title: "",
       description: "",
+      maxRating: 0,
       courseId: 0,
       courseMentorId: "",
       edited: false,
     };
   }
 
-  public handleSubmit(e: any) {
+  public async handleSubmit(e: any) {
     e.preventDefault();
 
     let taskViewModel = {
       title: this.state.title,
       description: this.state.description,
+      maxRating: this.state.maxRating
     };
 
-    ApiSingleton.tasksApi
-      .apiTasksUpdateByTaskIdPost(+this.props.match.params.taskId, taskViewModel)
-      .then((res) => this.setState({ edited: true }));
+    await ApiSingleton.taskService.updateTaskByTaskId(
+      +this.props.match.params.taskId,
+      taskViewModel 
+    )
+    
+    this.setState({ edited: true })
+    // ApiSingleton.tasksApi
+    //   .apiTasksUpdateByTaskIdPost(+this.props.match.params.taskId, taskViewModel)
+    //   .then((res) => this.setState({ edited: true }));
   }
 
   public render() {
@@ -55,8 +64,8 @@ export default class EditTask extends React.Component<
 
     if (this.state.isLoaded) {
       if (
-        !ApiSingleton.authService.isLoggedIn() ||
-        ApiSingleton.authService.getProfile()._id !== this.state.courseMentorId
+        !ApiSingleton.authService.getLogginStateFake() ||
+        ApiSingleton.authService.getUserIdFake() != +this.state.courseMentorId
       ) {
         return (
           <Typography variant="h6" gutterBottom>
@@ -84,6 +93,16 @@ export default class EditTask extends React.Component<
                 margin="normal"
                 value={this.state.title}
                 onChange={(e) => this.setState({ title: e.target.value })}
+              />
+              <br />
+              <TextField
+                required
+                label="Баллы"
+                variant="outlined"
+                margin="normal"
+                type="number"
+                value={this.state.maxRating}
+                onChange={(e) => this.setState({ maxRating: +e.target.value })}
               />
               <br />
               <TextField
@@ -115,28 +134,42 @@ export default class EditTask extends React.Component<
     return "";
   }
 
-  componentDidMount() {
-    ApiSingleton.tasksApi
-      .apiTasksGetByTaskIdGet(+this.props.match.params.taskId)
-      .then((res) => res.json())
-      .then((task) =>
-        ApiSingleton.homeworksApi
-          .apiHomeworksGetByHomeworkIdGet(task.homeworkId)
-          .then((res) => res.json())
-          .then((homework) =>
-            ApiSingleton.coursesApi
-              .apiCoursesByCourseIdGet(homework.courseId)
-              .then((res) => res.json())
-              .then((course) =>
-                this.setState({
-                  isLoaded: true,
-                  title: task.title,
-                  description: task.description,
-                  courseId: homework.courseId,
-                  courseMentorId: course.mentorId,
-                })
-              )
-          )
-      );
+  async componentDidMount() {
+    const task = await ApiSingleton.taskService.getTaskByTaskId(+this.props.match.params.taskId)
+    const homework = await ApiSingleton.taskService.getHomeworkByTaskId(+this.props.match.params.taskId)
+    const course = await ApiSingleton.courseService.getCourseByHomeworkId(homework.id)
+    this.setState({
+      isLoaded: true,
+      title: task.title,
+      description: task.description,
+      maxRating: task.maxRating,
+      courseId: homework.courseId,
+      courseMentorId: course.course.mentorId,
+    })
   }
+
+  // componentDidMount() {
+  //   ApiSingleton.tasksApi
+  //     .apiTasksGetByTaskIdGet(+this.props.match.params.taskId)
+  //     .then((res) => res.json())
+  //     .then((task) =>
+  //       ApiSingleton.homeworksApi
+  //         .apiHomeworksGetByHomeworkIdGet(task.homeworkId)
+  //         .then((res) => res.json())
+  //         .then((homework) =>
+  //           ApiSingleton.coursesApi
+  //             .apiCoursesByCourseIdGet(homework.courseId)
+  //             .then((res) => res.json())
+  //             .then((course) =>
+  //               this.setState({
+  //                 isLoaded: true,
+  //                 title: task.title,
+  //                 description: task.description,
+  //                 courseId: homework.courseId,
+  //                 courseMentorId: course.mentorId,
+  //               })
+  //             )
+  //         )
+  //     );
+  // }
 }

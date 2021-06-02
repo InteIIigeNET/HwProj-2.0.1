@@ -1,3 +1,4 @@
+import ApiSingleton from "../api/ApiSingleton"
 
 
 export default class CourseService {
@@ -89,10 +90,13 @@ export default class CourseService {
     }
 
     async deleteCourseById(courseId: number) {
-        const response = await fetch("http://localhost:3001/courses/" + courseId, {
+        const course = await this.getCourseById(courseId)
+        course.homeworks.map((hw: any) => {
+            ApiSingleton.homeworkService.deleteHomeworkByHomeworkId(hw)
+        })
+        await fetch("http://localhost:3001/courses/" + courseId, {
             method: "DELETE"
         })
-        console.log(response.json())
     }
 
     async updateCourseById(courseId: number, courseModel: any) {

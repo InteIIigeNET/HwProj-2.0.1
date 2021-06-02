@@ -9,6 +9,7 @@ interface IAddTaskProps {
   id: number;
   onAdding: () => void;
   onCancel: () => void;
+  update: () => void;
 }
 
 export default class AddTask extends React.Component<
@@ -24,11 +25,14 @@ export default class AddTask extends React.Component<
     };
   }
 
-  public handleSubmit(e: any) {
-    ApiSingleton.tasksApi
-      .apiTasksByHomeworkIdPost(this.props.id, this.state)
-      .then((taskId) => console.log(taskId))
-      .then(this.props.onAdding);
+  public async handleSubmit(e: any) {
+    e.preventDefault();
+    // ApiSingleton.tasksApi
+    //   .apiTasksByHomeworkIdPost(this.props.id, this.state)
+    //   .then((taskId) => console.log(taskId))
+    //   .then(this.props.onAdding);
+    await ApiSingleton.taskService.addTask(this.props.id, this.state)
+    this.props.onCancel()
   }
 
   public render() {
@@ -43,6 +47,16 @@ export default class AddTask extends React.Component<
             margin="normal"
             value={this.state.title}
             onChange={(e) => this.setState({ title: e.target.value })}
+          />
+          <br />
+          <TextField
+            required
+            label="Баллы"
+            variant="outlined"
+            margin="normal"
+            type="number"
+            value={this.state.maxRating}
+            onChange={(e) => this.setState({ maxRating: +e.target.value })}
           />
           <br />
           <TextField
