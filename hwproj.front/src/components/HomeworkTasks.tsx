@@ -10,25 +10,16 @@ interface IHomeworkTasksProps {
     onDelete: () => void
 }
 
-interface IHomeworkTasks {
-    tasksList: []
-}
-
-export default class HomeworkTasks extends React.Component<IHomeworkTasksProps, IHomeworkTasks> {
+export default class HomeworkTasks extends React.Component<IHomeworkTasksProps, {}> {
     constructor(props : IHomeworkTasksProps) {
         super(props);
-        this.state = {
-            tasksList: []
-        }
     }
-
-    getTasks = async () => await ApiSingleton.taskService.getTasksByTasksId(this.props.tasks)
 
     public render() {
         return (
             <div>
                 <ol>
-                    {this.state.tasksList.map((task: any) => {
+                    {this.props.tasks.map((task: any) => {
                         return (
                             <li key={task.id}>
                                 <Task
@@ -43,10 +34,5 @@ export default class HomeworkTasks extends React.Component<IHomeworkTasksProps, 
                 </ol>
             </div>
         )
-    }
-
-    async componentDidMount() {
-        let tasks = await this.getTasks()
-        this.setState({ tasksList: tasks})
     }
 }

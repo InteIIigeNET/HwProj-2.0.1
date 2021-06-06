@@ -48,17 +48,16 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
   handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
-    let response = await fetch("http://localhost:3001/login")
-    let users = await response.json()
+    const users = await ApiSingleton.authService.getAllUsersFake()
     users.map((item: any) => {
       if (item.password === this.state.password &&
         item.email === this.state.email) {
         this.setState({ isLogin: true });
         ApiSingleton.authService.setUserIdFake(item.id);
-        if (item.isLecturer){
+        if (item.isLecturer) {
           ApiSingleton.authService.setRoleFake("lecturer");
         }
-        else{
+        else {
           ApiSingleton.authService.setRoleFake("student");
         }
         this.props.onLogin?.();

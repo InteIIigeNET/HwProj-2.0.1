@@ -48,7 +48,7 @@ export default class EditProfile extends React.Component<
     //   newPassword: this.state.newPassword,
     // };
 
-    const user = {
+    const userModel = {
       name: this.state.name,
       surname: this.state.surname,
       middleName: this.state.middleName,
@@ -57,17 +57,8 @@ export default class EditProfile extends React.Component<
       isLecturer: ApiSingleton.authService.getRoleFake()
     }
 
-    const id = ApiSingleton.authService.getUserIdFake()
-
-    const requestOptions = {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(user),
-    };
-    const path = "http://localhost:3001/login/" + id
-    await fetch(path, requestOptions)
+    await ApiSingleton.authService.editUserProfile(userModel)
     this.setState({edited: true})
-
 
     /* а у нас EditAccountViewModel поменялась как бы
     ApiSingleton.accountApi
@@ -156,10 +147,8 @@ export default class EditProfile extends React.Component<
   }
 
   async componentDidMount() {
-    const id = ApiSingleton.authService.getUserIdFake()
-    let response = await fetch("http://localhost:3001/login")
-    let users = await response.json()
-    let currentUser = users.filter((item: any) => item.id == id).shift()
+
+    const currentUser = await ApiSingleton.authService.getUserByUserIdFake()
     this.setState({
       isLoaded: true,
       name: currentUser.name,

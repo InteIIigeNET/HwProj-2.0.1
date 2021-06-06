@@ -38,7 +38,7 @@ export default class SolutionComponent extends React.Component<ISolutionProps, I
                     </div>
                     }
                     Статус решения: {solution.state}
-                    {this.props.forMentor &&
+                    {this.props.forMentor && solution.state != 2 &&
                         <div>
                             <Button onClick={() => this.acceptSolution()} size="small" color="primary" variant="contained">
                                 Принять
@@ -66,6 +66,14 @@ export default class SolutionComponent extends React.Component<ISolutionProps, I
         await this.componentDidMount()
     }
 
+    async componentDidMount() {
+        const solution = await ApiSingleton.solutionService.getSolutionBySolutionId(this.props.id)
+        this.setState({
+            isLoaded: true,
+            solution: solution
+        })
+    }
+
     // acceptSolution() {
     //     ApiSingleton.solutionsApi.acceptSolution(this.props.id)
     //         .then(res => this.componentDidMount())
@@ -84,12 +92,4 @@ export default class SolutionComponent extends React.Component<ISolutionProps, I
     //             solution: solution
     //         }));
     // }
-
-    async componentDidMount() {
-        const solution = await ApiSingleton.solutionService.getSolutionBySolutionId(this.props.id)
-        this.setState({
-            isLoaded: true,
-            solution: solution
-        })
-    }
 }

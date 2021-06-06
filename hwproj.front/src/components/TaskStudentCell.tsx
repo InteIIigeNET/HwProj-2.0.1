@@ -85,8 +85,19 @@ export default class TaskStudentCell extends React.Component<
     this.setState({ redirectForStudent: true });
   }
 
-  componentDidMount() {
-    
+  async componentDidMount() {
+    const solutions = await ApiSingleton.solutionService.getSolutionsByTaskIdAndStudentId(this.props.taskId, +this.props.studentId) 
+    this.setState({
+      isLoaded: true,
+      result:
+        solutions.length > 0
+          ? solutions.some((s: any) => s.state!.toString() === "Accepted")
+            ? 2
+            : solutions.some((s: any) => s.state!.toString() === "Rejected")
+            ? 1
+            : 0
+          : -1,
+    })
   }
 
 //   componentDidMount() {

@@ -41,7 +41,7 @@ export default class SolutionService {
                 studentId: solution.studentId,
                 githubUrl: solution.githubUrl,
                 comment: solution.comment,
-                state: 2
+                state: "Accepted"
             })
         })
     }
@@ -58,7 +58,7 @@ export default class SolutionService {
                 studentId: solution.studentId,
                 githubUrl: solution.githubUrl,
                 comment: solution.comment,
-                state: 1
+                state: "Rejected"
             })
         })
     }

@@ -59,18 +59,14 @@ export default class CreateCourse extends React.Component<
   async handleSubmit(e: any) {
     e.preventDefault();
 
-    const userId = ApiSingleton.authService.getUserIdFake()
-    const response = await fetch("http://localhost:3001/login")
-    const data = await response.json()
-    const user = data.filter((item: any) => item.id == userId).shift()
-
+    const user = await ApiSingleton.authService.getUserByUserIdFake()
     let courseViewModel = {
       name: this.state.name,
       groupName: this.state.groupName,
       isOpen: this.state.isOpen,
       isCompleted: false,
       course: {
-        mentorId: userId
+        mentorId: user.id
       },
       mentor: {
         name: user.name,
@@ -81,13 +77,7 @@ export default class CreateCourse extends React.Component<
       homeworks: [],
       courseMates: [],
     };
-    await fetch("http://localhost:3001/courses", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(courseViewModel)
-    })
+    await ApiSingleton.courseService.addCourse(courseViewModel)
   }
 
   public render() {

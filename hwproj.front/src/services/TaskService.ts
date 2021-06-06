@@ -1,4 +1,3 @@
-import { ThreeSixtySharp } from '@material-ui/icons';
 import ApiSingleton from '../api/ApiSingleton'
 
 export default class TaskService {

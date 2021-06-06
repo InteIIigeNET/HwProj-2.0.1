@@ -1,3 +1,4 @@
+import { CourseViewModel } from './../api/courses/api';
 import ApiSingleton from "../api/ApiSingleton"
 
 
@@ -50,6 +51,16 @@ export default class CourseService {
         })
     }
 
+    async addCourse(courseViewModel: any) {
+        await fetch("http://localhost:3001/courses", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(courseViewModel)
+        })
+    }
+
     async addTask(task: any) {
         const response = await fetch("http://localhost:3001/tasks", {
             method: "POST",
@@ -68,15 +79,9 @@ export default class CourseService {
         return course;
     }
 
-    async getAllHomeworks() {
-        const homeworkResponse = await fetch("http://localhost:3001/homeworks")
-        const homeworks = homeworkResponse.json()
-        return homeworks 
-    }
-
     async getHomeworksByCourseId(courseId: number) {
         const course = await this.getCourseById(courseId)
-        const homeworks = await this.getAllHomeworks()
+        const homeworks = await ApiSingleton.homeworkService.getAllHomeworks()
         const courseHomeworks = course.homeworks.map((hw: any) => {
             let homework
             for (let item of homeworks){
@@ -86,6 +91,19 @@ export default class CourseService {
             }
             return homework
         })
+        const allTasks = await ApiSingleton.taskService.getAllTasks()
+        for (let homeWork of courseHomeworks) {
+            let courseTasks = homeWork.tasks.map((taskId: any) => {
+                let currentTask
+                allTasks.forEach((element: any) => {
+                    if (element.id == taskId){
+                        currentTask = element
+                    }    
+                });
+                return currentTask
+            })
+            homeWork.tasks = courseTasks
+        }
         return courseHomeworks
     }
 
@@ -138,6 +156,16 @@ export default class CourseService {
             return isContain
         }).shift()
         return course
+    }
+
+    async updateStudent(courseId: number, courseModel: any) {
+        await fetch("http://localhost:3001/courses/" + courseId, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(courseModel)
+        })
     }
 }
 

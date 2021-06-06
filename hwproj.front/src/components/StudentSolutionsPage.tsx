@@ -16,6 +16,7 @@ interface IStudentSolutionsPageState {
   task: HomeworkTaskViewModel;
   isLoaded: boolean;
   course: CourseViewModel;
+  courseId: number
 }
 
 export default class StudentSolutionsPage extends React.Component<
@@ -27,22 +28,21 @@ export default class StudentSolutionsPage extends React.Component<
     this.state = {
       task: {},
       isLoaded: false,
-      course: {
-        mentorId: "",
-      },
+      course: {},
+      courseId: 0
     };
   }
 
   public render() {
     const { isLoaded } = this.state;
-    let userId = ApiSingleton.authService.isLoggedIn()
-      ? ApiSingleton.authService.getProfile()._id
+    let userId = ApiSingleton.authService.getLogginStateFake()
+      ? ApiSingleton.authService.getUserIdFake()
       : undefined;
 
     if (isLoaded) {
       if (
-        !ApiSingleton.authService.isLoggedIn() ||
-        userId !== this.state.course.mentorId!
+        !ApiSingleton.authService.getLogginStateFake() ||
+        userId != +this.state.course.mentorId!
       ) {
         return <Typography variant="h6">Страница не найдена</Typography>;
       }
@@ -50,7 +50,7 @@ export default class StudentSolutionsPage extends React.Component<
       return (
         <div>
           &nbsp;{" "}
-          <Link to={"/courses/" + this.state.course.id!.toString()}>
+          <Link to={"/courses/" + this.state.courseId!.toString()}>
             Назад к курсу
           </Link>
           <br />
@@ -75,26 +75,40 @@ export default class StudentSolutionsPage extends React.Component<
     return "";
   }
 
-  componentDidMount() {
-    ApiSingleton.tasksApi
-      .apiTasksGetByTaskIdGet(+this.props.match.params.taskId)
-      .then((res) => res.json())
-      .then((task) =>
-        ApiSingleton.homeworksApi
-          .apiHomeworksGetByHomeworkIdGet(task.homeworkId)
-          .then((res) => res.json())
-          .then((homework) =>
-            ApiSingleton.coursesApi
-              .apiCoursesUserCoursesByUserIdGet(homework.courseId)
-              .then((res) => res.json())
-              .then((course) =>
-                this.setState({
-                  task: task,
-                  isLoaded: true,
-                  course: course,
-                })
-              )
-          )
-      );
+  async componentDidMount() {
+    const task = await ApiSingleton.taskService.getTaskByTaskId(+this.props.match.params.taskId)
+    const homework = await ApiSingleton.taskService.getHomeworkByTaskId(+this.props.match.params.taskId)
+    const course = await ApiSingleton.courseService.getCourseByHomeworkId(homework.id)
+    this.setState({
+      task: task,
+      isLoaded: true,
+      course: {
+        mentorId: course.course.mentorId
+      },
+      courseId: course.id
+    })
   }
+
+  // componentDidMount() {
+  //   ApiSingleton.tasksApi
+  //     .apiTasksGetByTaskIdGet(+this.props.match.params.taskId)
+  //     .then((res) => res.json())
+  //     .then((task) =>
+  //       ApiSingleton.homeworksApi
+  //         .apiHomeworksGetByHomeworkIdGet(task.homeworkId)
+  //         .then((res) => res.json())
+  //         .then((homework) =>
+  //           ApiSingleton.coursesApi
+  //             .apiCoursesUserCoursesByUserIdGet(homework.courseId)
+  //             .then((res) => res.json())
+  //             .then((course) =>
+  //               this.setState({
+  //                 task: task,
+  //                 isLoaded: true,
+  //                 course: course,
+  //               })
+  //             )
+  //         )
+  //     );
+  // }
 }

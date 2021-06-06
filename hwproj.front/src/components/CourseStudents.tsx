@@ -8,6 +8,7 @@ import { CourseViewModel } from "../api/courses";
 import { HomeworkViewModel } from "../api/homeworks";
 import { Paper, createStyles, Theme, withStyles } from "@material-ui/core";
 import TaskStudentCell from "./TaskStudentCell";
+import ApiSingleton from "../api/ApiSingleton";
 
 interface ICourseMate {
   name: string;
@@ -73,7 +74,7 @@ class CourseStudents extends React.Component<ICourseStudentsProps, {}> {
             </TableHead>
             <TableBody>
               {this.props.courseMates
-                .map((cm, index) => (
+                .map((cm: any, index) => (
                   <TableRow key={index}>
                     <TableCell
                       align="center"
@@ -88,7 +89,7 @@ class CourseStudents extends React.Component<ICourseStudentsProps, {}> {
                         <TaskStudentCell
                           userId={this.props.userId}
                           forMentor={this.props.forMentor}
-                          studentId={String(index)}
+                          studentId={String(cm.id)}
                           taskId={task.id!}
                         />
                       ))

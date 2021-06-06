@@ -66,8 +66,8 @@ export default class NewCourseStudents extends React.Component<INewCourseStudent
     // }
 
     async acceptStudent(studentId: string) {
-        const response = await fetch("http://localhost:3001/courses/" + this.props.courseId)
-        const course = await response.json()
+
+        const course = await ApiSingleton.courseService.getCourseById(+this.props.courseId)
         const courseMates = course.courseMates.map((cm: any) => {
             if (String(cm.studentId) === studentId) {
                 cm.isAccepted = true
@@ -75,50 +75,36 @@ export default class NewCourseStudents extends React.Component<INewCourseStudent
             return cm
         })
         
-        const courseViewModel = {
+        const courseModel = {
             name: course.name,
             groupName: course.groupName,
             isOpen: course.isOpen,
             isCompleted: course.isCompleted,
             course: course.course,
             mentor: course.mentor,
-            homeworks: course.homework,
+            homeworks: course.homeworks,
             courseMates: courseMates,
         }
 
-        await fetch("http://localhost:3001/courses/" + this.props.courseId, {
-        method: "PUT",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(courseViewModel)
-        })
+        await ApiSingleton.courseService.updateStudent(+this.props.courseId, courseModel)
         this.props.onUpdate()
     }   
 
     async rejectStudent(studentId: string) {
-        const response = await fetch("http://localhost:3001/courses/" + this.props.courseId)
-        const course = await response.json()
+        const course = await ApiSingleton.courseService.getCourseById(+this.props.courseId)
         const courseMates = course.courseMates.filter((cm: any) => String(cm.studentId) != studentId)
         
-        const courseViewModel = {
+        const courseModel = {
             name: course.name,
             groupName: course.groupName,
             isOpen: course.isOpen,
             isCompleted: course.isCompleted,
             course: course.course,
             mentor: course.mentor,
-            homeworks: course.homework,
+            homeworks: course.homeworks,
             courseMates: courseMates,
         }
-
-        await fetch("http://localhost:3001/courses/" + this.props.courseId, {
-        method: "PUT",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(courseViewModel)
-        })
+        await ApiSingleton.courseService.updateStudent(+this.props.courseId, courseModel)
         this.props.onUpdate()
     }
 }

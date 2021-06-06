@@ -163,26 +163,23 @@ export class Register extends React.Component<{}, IRegisterState> {
     );
   }
 
-  private handleSubmit = async () => {
+  private handleSubmit = async (e: any) => {
+    e.preventDefault();
     // const { email, password } = this.state.registerData;
     // await ApiSingleton.accountApi.apiAccountRegisterPost(this.state.registerData);
     // await ApiSingleton.authService.login(email, password);
-    debugger;
-    const response = await fetch("http://localhost:3001/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        name: this.state.registerData.name,
-        surname: this.state.registerData.surname,
-        email: this.state.registerData.email,
-        middleName: this.state.registerData.middleName,
-        password: this.state.registerData.password,
-        isLecturer: false
-      })
-    })
-    const user = await response.json()
+
+    const registerUserModel = {
+      name: this.state.registerData.name,
+      surname: this.state.registerData.surname,
+      email: this.state.registerData.email,
+      middleName: this.state.registerData.middleName,
+      password: this.state.registerData.password,
+      isLecturer: false
+    }
+
+    const user = await ApiSingleton.authService.registerUserFake(registerUserModel)
+    debugger
     ApiSingleton.authService.loginFake()
     ApiSingleton.authService.setRoleFake("student")
     ApiSingleton.authService.setUserIdFake(user.id)

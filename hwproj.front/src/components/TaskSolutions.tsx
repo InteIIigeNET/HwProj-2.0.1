@@ -60,5 +60,6 @@ export default class TaskSolutions extends React.Component<ITaskSolutionsProps, 
             isLoaded: true,
             solutions: solutions.map((s: any) => s.id!)
         })
+        console.log(solutions)
     }
 }

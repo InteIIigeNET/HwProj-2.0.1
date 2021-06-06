@@ -80,7 +80,7 @@ class Course extends React.Component<
           : undefined;
         let isMentor = isLogged && userId === String(course.mentorId);
         let isSignedInCourse =
-          isLogged && this.state.newStudents!.some((cm: any) => String(cm.studentId) === userId);
+          isLogged && this.state.newStudents!.some((cm: any) => cm.id === userId);
         let isAcceptedStudent =
           isLogged && this.state.acceptedStudents!.some(
             (cm: any) => cm.id === userId
@@ -244,7 +244,7 @@ class Course extends React.Component<
       isCompleted: course.isCompleted,
       course: course.course,
       mentor: course.mentor,
-      homeworks: course.homework,
+      homeworks: course.homeworks,
       courseMates: course.courseMates,
     }
 
@@ -306,6 +306,7 @@ class Course extends React.Component<
           return user; 
         }),
     })
+    console.log(this.state.newStudents)
   }
 
   // async componentDidMount() {

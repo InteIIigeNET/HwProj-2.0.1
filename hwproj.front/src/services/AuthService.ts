@@ -58,6 +58,44 @@ export default class AuthService {
     window.localStorage.setItem("isLoggin", "true");
   }
 
+  async getAllUsersFake() {
+    let response = await fetch("http://localhost:3001/login")
+    let users = await response.json()
+    return users
+  }
+
+  async getUserByUserIdFake() {
+    const userId = this.getUserIdFake()
+    const response = await fetch("http://localhost:3001/login")
+    const data = await response.json()
+    const user = data.filter((item: any) => item.id == userId).shift()
+    return user
+  }
+
+  async registerUserFake(registerUserModel: any) {
+    const response = await fetch("http://localhost:3001/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(registerUserModel)
+    })
+    const user = await response.json()
+    return user
+  }
+
+  async editUserProfile(userModel: any) {
+    const id = this.getUserIdFake()
+
+    const requestOptions = {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(userModel),
+    };
+    const path = "http://localhost:3001/login/" + id
+    await fetch(path, requestOptions)
+  }
+
   logoutFake() {
     window.localStorage.setItem("isLoggin", "false");
   }

@@ -26,6 +26,24 @@
       "password": "sasha",
       "isLecturer": false,
       "id": 3
+    },
+    {
+      "name": "Михаил",
+      "surname": "Михайлов",
+      "middleName": "Сергеевич",
+      "email": "misha@mail.ru",
+      "password": "123456789",
+      "isLecturer": false,
+      "id": 4
+    },
+    {
+      "name": "Николай",
+      "surname": "Сергеев",
+      "middleName": "Сергеевич",
+      "email": "serega@mail.ru",
+      "password": "123456789",
+      "isLecturer": false,
+      "id": 5
     }
   ],
   "courses": [
@@ -43,14 +61,22 @@
         "middleName": "Ivanovich",
         "email": "ivanov@gmail.ru"
       },
+      "homeworks": [
+        1
+      ],
       "courseMates": [
         {
           "isAccepted": true,
           "studentId": 2
+        },
+        {
+          "isAccepted": true,
+          "studentId": 4
+        },
+        {
+          "isAccepted": true,
+          "studentId": 5
         }
-      ],
-      "homeworks": [
-        1
       ],
       "id": 1
     }
@@ -63,7 +89,9 @@
       "courseId": 1,
       "tasks": [
         1,
-        2
+        2,
+        3,
+        4
       ],
       "id": 1
     }
@@ -80,6 +108,18 @@
       "description": "Реализовать сортировку вставкой.",
       "maxRating": 7,
       "id": 2
+    },
+    {
+      "title": "Сортировка слиянием",
+      "description": "Реализовать сортировку слиянием.",
+      "maxRating": 8,
+      "id": 3
+    },
+    {
+      "title": "Крутой qsort",
+      "description": "Реализовать крутой qsort.",
+      "maxRating": 8,
+      "id": 4
     }
   ],
   "solutions": [
@@ -88,8 +128,24 @@
       "studentId": "2",
       "githubUrl": "https://www.deepl.com/translator",
       "comment": "решение",
-      "state": 0,
+      "state": "Accepted",
       "id": 1
+    },
+    {
+      "taskId": 2,
+      "studentId": "4",
+      "githubUrl": "https://www.deepl.com/en/translator",
+      "comment": "Новое решение.",
+      "state": "Accepted",
+      "id": 2
+    },
+    {
+      "taskId": 2,
+      "studentId": "5",
+      "githubUrl": "https://www.deepl.com/en/translator",
+      "comment": "Моя крутая задача.",
+      "state": "Accepted",
+      "id": 3
     }
   ]
 }
