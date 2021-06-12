@@ -101,7 +101,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         [HttpPut("course_works/{courseWorkId}/set_updated_parameter")]
         public async Task<IActionResult> SetIsUpdatedInCourseWork(long courseWorkId)
         {
-	        await _courseWorksService.SetIsUpdatedInCourseWork(courseWorkId, true).ConfigureAwait(false);
+	        await _courseWorksService.SetIsUpdatedInCourseWorkAsync(courseWorkId, true).ConfigureAwait(false);
 	        return Ok();
         }
 

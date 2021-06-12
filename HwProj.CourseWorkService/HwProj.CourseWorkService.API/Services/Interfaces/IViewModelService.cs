@@ -17,7 +17,7 @@ namespace HwProj.CourseWorkService.API.Services.Interfaces
 		Task<CourseWork> GetCourseWorkFromViewModel(CreateCourseWorkViewModel createCourseWorkViewModel,
 			string userId, bool createdByCurator);
 		Task<OverviewCourseWorkDTO> GetCourseWorkOverviewDTO(CourseWork courseWork);
-		Task<ReviewerOverviewCourseWorkDTO> GetReviewerOverviewCourseWorkDTO(CourseWork courseWork);
+		Task<ReviewerOverviewCourseWorkDTO> GetReviewerOverviewCourseWorkDTO(CourseWork courseWork, string reviewerId);
 		Task<DetailCourseWorkDTO> GetCourseWorkDetailDTO(CourseWork courseWork);
 		WorkFileDTO GetWorkFileDTO(WorkFile workFile);
 
@@ -29,9 +29,9 @@ namespace HwProj.CourseWorkService.API.Services.Interfaces
 		DeadlineDTO GetDeadlineDTO(Deadline deadline);
 
 		UserDTO GetUserDTO(User user);
-
 		RoleDTO GetRoleDTO(Role role);
-
 		Task<UserFullInfoDTO> GetUserFullInfoDTO(User user);
+
+		Task<ReviewersDistributionDTO> GetReviewersDistributionDTO(CourseWork courseWork, string reviewerId);
 	}
 }

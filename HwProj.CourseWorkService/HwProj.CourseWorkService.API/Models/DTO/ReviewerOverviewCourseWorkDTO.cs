@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace HwProj.CourseWorkService.API.Models.DTO
+﻿namespace HwProj.CourseWorkService.API.Models.DTO
 {
 	public class ReviewerOverviewCourseWorkDTO
 	{
@@ -15,5 +10,6 @@ namespace HwProj.CourseWorkService.API.Models.DTO
 		public int Course { get; set; }
 		public string StudentName { get; set; }
 		public string BiddingDeadline { get; set; }
+		public int? BiddingValue { get; set; }
 	}
 }

@@ -58,7 +58,6 @@ namespace HwProj.CourseWorkService.API.Controllers
 			return Ok();
 		}
 
-
 		#endregion
 	}
 }

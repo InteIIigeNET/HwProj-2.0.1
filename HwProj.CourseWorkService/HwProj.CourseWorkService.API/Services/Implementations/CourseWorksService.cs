@@ -191,7 +191,7 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 	        var id = await _workFilesRepository.AddAsync(workFile).ConfigureAwait(false);
 	        if (fileType == FileTypes.CourseWorkText)
 	        {
-		        await SetIsUpdatedInCourseWork(courseWorkId, true).ConfigureAwait(false);
+		        await SetIsUpdatedInCourseWorkAsync(courseWorkId, true).ConfigureAwait(false);
 	        }
 	        return id;
         }
@@ -236,12 +236,30 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 	        return workFilesDTO.ToArray();
         }
 
-        public async Task SetIsUpdatedInCourseWork(long courseWorkId, bool value = false)
+        public async Task SetIsUpdatedInCourseWorkAsync(long courseWorkId, bool value = false)
         {
 	        await _courseWorksRepository.UpdateAsync(courseWorkId, cw => new CourseWork()
 	        {
 		        IsUpdated = value
 	        }).ConfigureAwait(false);
+        }
+
+        public async Task ChangeCourseWorkReviewerAsync(long courseWorkId, string newReviewerId)
+        {
+	        await _courseWorksRepository.UpdateAsync(courseWorkId, cw => new CourseWork()
+		        {
+			        ReviewerProfileId = newReviewerId
+		        })
+		        .ConfigureAwait(false);
+        }
+
+        public async Task CompleteCourseWorkAsync(long courseWorkId)
+        {
+	        await _courseWorksRepository.UpdateAsync(courseWorkId, cw => new CourseWork()
+		        {
+			        IsCompleted = true
+		        })
+		        .ConfigureAwait(false);
         }
 
         #endregion

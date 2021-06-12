@@ -157,7 +157,7 @@ namespace HwProj.CourseWorkService.API.Controllers
 		[HttpPut("course_works/{courseWorkId}/clear_updated_parameter")]
 		public async Task<IActionResult> ClearIsUpdatedInCourseWorkAsync(long courseWorkId)
 		{
-			await _courseWorksService.SetIsUpdatedInCourseWork(courseWorkId).ConfigureAwait(false);
+			await _courseWorksService.SetIsUpdatedInCourseWorkAsync(courseWorkId).ConfigureAwait(false);
 			return Ok();
 		}
 
@@ -188,8 +188,40 @@ namespace HwProj.CourseWorkService.API.Controllers
 			return Ok();
 		}
 
+		[HttpGet("reviewers/get_optimized")]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ReviewersDistributionDTO[]))]
+        public async Task<IActionResult> GetOptimizedReviewersDistribution()
+		{
+			var userId = Request.GetUserId();
+			var distributionDTO = await _reviewService.GetReviewersOptimizedDistribution(userId)
+				.ConfigureAwait(false);
+			return Ok(distributionDTO);
+		}
 
+        [HttpPost("reviewers/set_distribution")]
+        public async Task<IActionResult> SetReviewersDistribution([FromBody] SetReviewDistributionViewModel[] distributionViewModels)
+        {
+	        var userId = Request.GetUserId();
+	        await _reviewService.SetReviewersDistribution(userId, distributionViewModels)
+		        .ConfigureAwait(false);
+	        return Ok();
+        }
 
-		#endregion
-	}
+        [HttpPut("course_works/{courseWorkId}/new_reviewer/{reviewerId}")]
+        public async Task<IActionResult> ChangeCourseWorkReviewer(long courseWorkId, string reviewerId)
+        {
+	        await _courseWorksService.ChangeCourseWorkReviewerAsync(courseWorkId, reviewerId)
+		        .ConfigureAwait(false);
+	        return Ok();
+        }
+
+        [HttpPut("course_works/{courseWorkId}/complete")]
+        public async Task<IActionResult> CompleteCourseWork(long courseWorkId)
+        {
+	        await _courseWorksService.CompleteCourseWorkAsync(courseWorkId)
+		        .ConfigureAwait(false);
+	        return Ok();
+        }
+        #endregion
+    }
 }

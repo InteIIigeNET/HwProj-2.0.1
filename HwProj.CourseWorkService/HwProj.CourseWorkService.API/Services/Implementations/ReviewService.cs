@@ -4,6 +4,7 @@ using HwProj.CourseWorkService.API.Exceptions;
 using HwProj.CourseWorkService.API.Models;
 using HwProj.CourseWorkService.API.Models.DTO;
 using HwProj.CourseWorkService.API.Models.UserInfo;
+using HwProj.CourseWorkService.API.Models.ViewModels;
 using HwProj.CourseWorkService.API.Repositories.Interfaces;
 using HwProj.CourseWorkService.API.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,8 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 	{
 		#region Fields: Private
 
+		private readonly ICourseWorksService _courseWorksService;
+		private readonly IReviewersDistributionService _reviewersDistributionService;
 		private readonly IViewModelService _viewModelService;
 		private readonly ICourseWorksRepository _courseWorksRepository;
 		private readonly IUsersRepository _usersRepository;
@@ -24,9 +27,13 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 
 		#region Constructors: Public
 
-		public ReviewService(IViewModelService viewModelService, ICourseWorksRepository courseWorksRepository, 
+		public ReviewService(ICourseWorksService courseWorksService,
+			IReviewersDistributionService reviewersDistributionService,
+			IViewModelService viewModelService, ICourseWorksRepository courseWorksRepository, 
 			IUsersRepository usersRepository)
 		{
+			_courseWorksService = courseWorksService;
+			_reviewersDistributionService = reviewersDistributionService;
 			_viewModelService = viewModelService;
 			_courseWorksRepository = courseWorksRepository;
 			_usersRepository = usersRepository;
@@ -58,6 +65,7 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 				.GetAll()
 				.Include(cw => cw.CuratorProfile)
 					.ThenInclude(cp => cp.ReviewersInCuratorsBidding)
+				.Include(cw => cw.Bids)
 				.Where(cw => 
 					!cw.IsCompleted 
 					&& cw.ReviewerProfileId == null 
@@ -66,7 +74,7 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 				.ToArrayAsync()
 				.ConfigureAwait(false);
 			return await Task.WhenAll(courseWorks.Select(async cw =>
-				await _viewModelService.GetReviewerOverviewCourseWorkDTO(cw).ConfigureAwait(false)));
+				await _viewModelService.GetReviewerOverviewCourseWorkDTO(cw, reviewerId).ConfigureAwait(false)));
 		}
 
 		public async Task CreateCourseWorkBid(string userId, long courseWorkId, BiddingValues biddingValue)
@@ -77,6 +85,41 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 			if (courseWork == null) throw new ObjectNotFoundException($"Course work with id {courseWorkId}");
 
 			await _courseWorksRepository.AddBidInCourseWork(courseWorkId, userId, biddingValue).ConfigureAwait(false);
+		}
+
+		public async Task<ReviewersDistributionDTO[]> GetReviewersOptimizedDistribution(string curatorId)
+		{
+			var distribution = await _reviewersDistributionService.GetOptimizedDistribution(curatorId)
+				.ConfigureAwait(false);
+			return await Task.WhenAll(distribution.Select(async d => await _viewModelService.GetReviewersDistributionDTO(d.CourseWork, d.ReviewerId)).ToArray());
+		}
+
+		public async Task SetReviewersDistribution(string curatorId, SetReviewDistributionViewModel[] distributionViewModels)
+		{
+			var courseWorksIds = (await _courseWorksService
+				.GetFilteredCourseWorksAsync(cw => cw.CuratorProfileId == curatorId)
+				.ConfigureAwait(false))
+					.Select(c => c.Id)
+					.ToArray();
+			var reviewersIds = (await _usersRepository
+				.GetUserAsync(curatorId).ConfigureAwait(false))
+				.CuratorProfile.ReviewersInCuratorsBidding
+				.Select(e => e.ReviewerProfileId)
+				.ToArray();
+			if (distributionViewModels.Any(distribution => !courseWorksIds.Contains(distribution.CourseWorkId)
+			                                               || !reviewersIds.Contains(distribution.ReviewerId)))
+			{
+				throw new ForbidException("You have not rights for this distribution.");
+			}
+
+			foreach (var distribution in distributionViewModels)
+			{
+				await _courseWorksRepository.UpdateAsync(distribution.CourseWorkId, 
+					cw => new CourseWork
+					{
+						ReviewerProfileId = distribution.ReviewerId
+					}).ConfigureAwait(false);
+			}
 		}
 
 		#endregion

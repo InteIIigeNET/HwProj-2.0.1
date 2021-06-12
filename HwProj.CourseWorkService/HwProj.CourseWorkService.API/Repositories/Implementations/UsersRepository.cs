@@ -32,6 +32,8 @@ namespace HwProj.CourseWorkService.API.Repositories.Implementations
 					.ThenInclude(cp => cp.Directions)
                 .Include(u => u.CuratorProfile)
 					.ThenInclude(cp => cp.Deadlines)
+                .Include(u => u.CuratorProfile)
+					.ThenInclude(cp => cp.ReviewersInCuratorsBidding)
                 .Include(u => u.ReviewerProfile)
 					.ThenInclude(rp => rp.ReviewersInCuratorsBidding)
                 .Include(u => u.ReviewerProfile)

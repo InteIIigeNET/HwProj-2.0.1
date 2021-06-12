@@ -113,7 +113,7 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
             return courseWorkDTO;
         }
 
-		public async Task<ReviewerOverviewCourseWorkDTO> GetReviewerOverviewCourseWorkDTO(CourseWork courseWork)
+		public async Task<ReviewerOverviewCourseWorkDTO> GetReviewerOverviewCourseWorkDTO(CourseWork courseWork, string reviewerId)
 		{
 			var overviewDTO = await GetCourseWorkOverviewDTO(courseWork).ConfigureAwait(false);
 			var reviewerCourseWorkDTO = _mapper.Map<ReviewerOverviewCourseWorkDTO>(overviewDTO);
@@ -127,6 +127,8 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 			var deadline = deadlines.FirstOrDefault(d => d.CourseWorkId == courseWork.Id)
 			               ?? deadlines.FirstOrDefault(d => d.CourseWorkId == null);
 			reviewerCourseWorkDTO.BiddingDeadline = deadline?.Date.ToString(CultureInfo.CurrentCulture);
+			reviewerCourseWorkDTO.BiddingValue = (int?) courseWork.Bids
+				.FirstOrDefault(b => b.ReviewerProfileId == reviewerId)?.BiddingValue;
 
 			return reviewerCourseWorkDTO;
 		}
@@ -223,6 +225,25 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 			userFullInfoDTO.DepartmentName = department == null ? "" : department.Name;
 			userFullInfoDTO.Contact = user.LecturerProfile?.Contact;
 			return userFullInfoDTO;
+		}
+
+		#endregion
+
+		#region Review
+
+		public async Task<ReviewersDistributionDTO> GetReviewersDistributionDTO(CourseWork courseWork, string reviewerId)
+		{
+			var reviewer = await _usersRepository.GetUserAsync(reviewerId).ConfigureAwait(false);
+
+			var distributionDTO = new ReviewersDistributionDTO
+			{
+				ReviewerId = reviewerId,
+				ReviewerName = reviewer.UserName,
+				CourseWorkId = courseWork.Id,
+				CourseWorkName = courseWork.Title
+			};
+
+			return distributionDTO;
 		}
 
 		#endregion

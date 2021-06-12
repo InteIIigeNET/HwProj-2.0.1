@@ -73,6 +73,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HwProj.EventBus.Tests", "Hw
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HwProj.EventBus", "HwProj.EventBus", "{5C097F08-BB63-49F4-BC69-892AE8136E40}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.CourseWorkService.Tests", "HwProj.CourseWorkService.Tests\HwProj.CourseWorkService.Tests.csproj", "{6DD2AD84-B314-46A3-A9F8-402CBD7BD793}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -159,6 +161,10 @@ Global
 		{9D2ECCE5-E63B-4362-889C-406966AF8F5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9D2ECCE5-E63B-4362-889C-406966AF8F5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9D2ECCE5-E63B-4362-889C-406966AF8F5E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6DD2AD84-B314-46A3-A9F8-402CBD7BD793}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6DD2AD84-B314-46A3-A9F8-402CBD7BD793}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6DD2AD84-B314-46A3-A9F8-402CBD7BD793}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6DD2AD84-B314-46A3-A9F8-402CBD7BD793}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -184,6 +190,7 @@ Global
 		{CB5FAC80-3B44-4719-8077-8CC1A896E349} = {35A92562-020E-43ED-9F23-67D2B99C4F9C}
 		{1B390715-0A95-4B09-8E04-D3F8F5CAC7BB} = {5C097F08-BB63-49F4-BC69-892AE8136E40}
 		{9D2ECCE5-E63B-4362-889C-406966AF8F5E} = {5C097F08-BB63-49F4-BC69-892AE8136E40}
+		{6DD2AD84-B314-46A3-A9F8-402CBD7BD793} = {35A92562-020E-43ED-9F23-67D2B99C4F9C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C03BF138-4A5B-4261-9495-6D3AC6CE9779}

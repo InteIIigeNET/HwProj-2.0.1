@@ -846,6 +846,29 @@
       }
     },
     {
+      "DownstreamPathTemplate": "/api/curator/reviewers/bidding",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/curator/reviewers/bidding/",
+      "UpstreamhttpsMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "Lecturer"
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value",
+        "_role": "Claims[_role] > value"
+      }
+    },
+    {
       "DownstreamPathTemplate": "/api/curator/reviewers/set_to_bidding",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
@@ -866,6 +889,137 @@
       "AddQueriesToRequest": {
         "_id": "Claims[_id] > value",
         "_role": "Claims[_role] > value"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/curator/reviewers/get_optimized",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/curator/reviewers/get_optimized/",
+      "UpstreamhttpsMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "Lecturer"
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value",
+        "_role": "Claims[_role] > value"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/curator/reviewers/set_distribution",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/curator/reviewers/set_distribution/",
+      "UpstreamhttpsMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "Lecturer"
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value",
+        "_role": "Claims[_role] > value"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/curator/course_works/{courseWorkId}/new_reviewer/{reviewerId}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/curator/course_works/{courseWorkId}/new_reviewer/{reviewerId}/",
+      "UpstreamhttpsMethod": [ "PUT" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "Lecturer"
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value",
+        "_role": "Claims[_role] > value"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/curator/course_works/{courseWorkId}/complete",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/curator/course_works/{courseWorkId}/complete/",
+      "UpstreamhttpsMethod": [ "PUT" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "RouteClaimsRequirement": {
+        "_role": "Lecturer"
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value",
+        "_role": "Claims[_role] > value"
+      }
+    },
+    //Reviewer
+    {
+      "DownstreamPathTemplate": "/api/reviewer/course_works_in_bidding",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/reviewer/course_works_in_bidding/",
+      "UpstreamhttpsMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/reviewer/bidding/{courseWorkId}/{biddingValueString}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44328
+        }
+      ],
+      "UpstreamPathTemplate": "/api/reviewer/bidding/{courseWorkId}/{biddingValueString}/",
+      "UpstreamhttpsMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "GatewayKey",
+        "AllowedScopes": []
+      },
+      "AddQueriesToRequest": {
+        "_id": "Claims[_id] > value"
       }
     }
   ]

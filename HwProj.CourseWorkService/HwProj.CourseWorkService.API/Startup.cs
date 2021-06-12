@@ -37,6 +37,7 @@ namespace HwProj.CourseWorkService.API
                 .AddScoped<IWorkFilesRepository, WorkFilesRepository>()
                 .AddScoped<IApplicationsService, ApplicationService>()
                 .AddScoped<ICourseWorksService, CourseWorksService>()
+                .AddScoped<IReviewersDistributionService, ReviewersDistributionService>()
                 .AddScoped<IReviewService, ReviewService>()
                 .AddScoped<IUniversityService, UniversityService>()
                 .AddScoped<IUserService, UserService>()
