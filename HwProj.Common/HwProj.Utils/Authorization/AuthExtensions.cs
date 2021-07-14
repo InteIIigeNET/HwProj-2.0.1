@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using HwProj.Models.Roles;
 using Microsoft.AspNetCore.Http;
 
@@ -9,6 +10,11 @@ namespace HwProj.Utils.Authorization
         public static string GetUserId(this HttpRequest request)
         {
             return request.Query.First(x => x.Key == "_id").Value.ToString();
+        }
+
+        public static string GetUserName(this HttpRequest request)
+        {
+            return request.Query.First(x => x.Key == "_userName").Value.ToString();
         }
 
         public static string GetUserRole(this HttpRequest request)

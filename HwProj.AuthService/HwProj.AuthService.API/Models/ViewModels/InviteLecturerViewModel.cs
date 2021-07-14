@@ -6,6 +6,6 @@ namespace HwProj.AuthService.API.Models.ViewModels
     {
         [Required]
         [EmailAddress]
-        public string EmailOfInvitedUser { get; set; }
+        public string Email { get; set; }
     }
 }

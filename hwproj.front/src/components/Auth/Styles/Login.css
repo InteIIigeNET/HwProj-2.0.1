@@ -1,0 +1,12 @@
+.page{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 8rem;
+}
+
+.loginForm{
+    display: flex;
+    flex-direction: column;
+}

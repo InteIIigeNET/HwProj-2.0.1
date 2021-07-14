@@ -1,16 +1,19 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Models.ViewModels;
 using HwProj.CoursesService.API.Services;
 using HwProj.Utils.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.CoursesService.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    
     public class CoursesController : Controller
     {
         private readonly ICoursesService _coursesService;
@@ -25,7 +28,7 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpGet]
         public async Task<CourseViewModel[]> GetAll()
         {
-            var courses = await _coursesService.GetAllAsync();
+            var courses = await _coursesService.GetAllAsync().ConfigureAwait(false);
             return _mapper.Map<CourseViewModel[]>(courses);
         }
 
@@ -38,7 +41,7 @@ namespace HwProj.CoursesService.API.Controllers
                 : Ok(_mapper.Map<CourseViewModel>(course)) as IActionResult;
         }
 
-        [HttpPost]
+        [HttpPost("create")]
         public async Task<IActionResult> AddCourse([FromBody] CreateCourseViewModel courseViewModel)
         {
             var mentorId = Request.GetUserId();

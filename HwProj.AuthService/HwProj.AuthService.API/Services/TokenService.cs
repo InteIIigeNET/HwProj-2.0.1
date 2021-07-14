@@ -1,6 +1,5 @@
 ﻿using HwProj.AuthService.API.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.IdentityModel.Tokens.Jwt;
@@ -10,31 +9,32 @@ using System.Text;
 using System.Threading.Tasks;
 using HwProj.AuthService.API.Models.DTO;
 using HwProj.Models.Roles;
+using Microsoft.Extensions.Configuration;
 
 namespace HwProj.AuthService.API.Services
 {
     public class AuthTokenService : IAuthTokenService
     {
-        private readonly IUserManager _userManager;
-        private readonly AppSettings _appSettings;
+        private readonly UserManager<User> _userManager;
+        private readonly IConfigurationSection _configuration;
 
-        public AuthTokenService(IUserManager userManager, AppSettings appSettings)
+        public AuthTokenService(UserManager<User> userManager, IConfiguration configuration)
         {
             _userManager = userManager;
-            _appSettings = appSettings;
+            _configuration = configuration.GetSection("AppSettings");
         }
 
         public async Task<TokenCredentials> GetTokenAsync(User user)
         {
-            var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_appSettings.SecurityKey));
+            var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["SecurityKey"]));
             var timeNow = DateTime.UtcNow;
 
             var userRoles = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
 
             var token = new JwtSecurityToken(
-                issuer: _appSettings.ApiName,
+                issuer: _configuration["ApiName"],
                 notBefore: timeNow,
-                expires: timeNow.AddMinutes(_appSettings.ExpireInForToken),
+                expires: timeNow.AddMinutes(int.Parse(_configuration["ExpireInForToken"])),
                 claims: new[]
                 {
                     new Claim("_userName", user.UserName),
@@ -47,7 +47,7 @@ namespace HwProj.AuthService.API.Services
             var tokenCredentials = new TokenCredentials
             {
                 AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
-                ExpiresIn = (int) TimeSpan.FromMinutes(_appSettings.ExpireInForResponse).TotalSeconds
+                ExpiresIn = (int) TimeSpan.FromMinutes(int.Parse(_configuration["ExpireInForResponse"])).TotalSeconds
             };
 
             return tokenCredentials;

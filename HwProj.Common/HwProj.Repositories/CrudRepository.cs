@@ -18,19 +18,33 @@ namespace HwProj.Repositories
 
         public async Task<TKey> AddAsync(TEntity item)
         {
-            await Context.AddAsync(item);
-            await Context.SaveChangesAsync();
+            await Context.AddAsync(item).ConfigureAwait(false);
+            await Context.SaveChangesAsync().ConfigureAwait(false);
             return item.Id;
         }
 
         public async Task DeleteAsync(TKey id)
         {
+            await Context.Set<TEntity>()
+                .Where(entity => entity.Id.Equals(id))
+                .DeleteAsync()
+                .ConfigureAwait(false);
+
+			// begin: этого не было в EventBusFix
             await Context.Set<TEntity>().Where(entity => entity.Id.Equals(id)).DeleteAsync();
+			// end
         }
 
         public async Task UpdateAsync(TKey id, Expression<Func<TEntity, TEntity>> updateFactory)
         {
+            await Context.Set<TEntity>()
+                .Where(entity => entity.Id.Equals(id))
+                .UpdateAsync(updateFactory)
+                .ConfigureAwait(false);
+
+			// begin: этого не было в EventBusFix
             await Context.Set<TEntity>().Where(entity => entity.Id.Equals(id)).UpdateAsync(updateFactory);
+			// end
         }
     }
 }

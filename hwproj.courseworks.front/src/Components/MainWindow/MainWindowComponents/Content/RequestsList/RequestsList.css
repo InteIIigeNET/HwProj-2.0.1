@@ -1,0 +1,30 @@
+.requestItem{
+    margin-left: 2vw;
+    margin-bottom: 2vh;
+    margin-top: 1vh;
+
+    text-decoration: underline;
+    border-bottom: rgb(199, 180, 180) 1px solid;
+    /* border-radius: 10px; */
+    width: auto;
+    padding-top: 5px;
+    min-width: 100px;
+    /* background : #f1f1f1; */
+}
+
+.inline{
+    display: inline-block;
+}
+
+.req_title{
+    /* position: relative; */
+    width: auto;
+    min-width: 15vw;
+    height: auto;
+
+}
+
+
+hr{
+    opacity: 25%;
+}

@@ -5,12 +5,15 @@ using AutoMapper;
 using HwProj.EventBus.Client;
 using HwProj.EventBus.Client.Implementations;
 using HwProj.EventBus.Client.Interfaces;
+using HwProj.Utils.Authorization;
 using HwProj.Utils.Configuration.Middleware;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Polly;
 using RabbitMQ.Client;
@@ -24,21 +27,35 @@ namespace HwProj.Utils.Configuration
         public static IServiceCollection ConfigureHwProjServices(this IServiceCollection services, string serviceName)
         {
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies())
+                .AddCors()
                 .AddMvc()
                 .AddJsonOptions(options =>
                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore)
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new Info {Title = serviceName, Version = "v1"}); })
-                .AddCors(options =>
-                {
-                    options.AddPolicy("CorsPolicy",
-                        builder => builder
-                            .AllowAnyOrigin()
-                            .AllowAnyMethod()
-                            .AllowAnyHeader()
-                            .AllowCredentials());
-                });
+            services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new Info {Title = serviceName, Version = "v1"}); });
+
+            if (serviceName != "AuthService API")
+            {
+                services.AddAuthentication(options =>
+                    {
+                        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                    })
+                    .AddJwtBearer(x =>
+                    {
+                        x.RequireHttpsMetadata = false; //TODO: dev env setting
+                        x.TokenValidationParameters = new TokenValidationParameters
+                        {
+                            ValidIssuer = "AuthService",
+                            ValidateIssuer = true,
+                            ValidateAudience = false,
+                            ValidateLifetime = true,
+                            IssuerSigningKey = AuthorizationKey.SecurityKey,
+                            ValidateIssuerSigningKey = true
+                        };
+                    });
+            }
 
             services.AddTransient<NoApiGatewayMiddleware>();
 
@@ -47,10 +64,12 @@ namespace HwProj.Utils.Configuration
 
         public static IServiceCollection AddEventBus(this IServiceCollection services, IConfiguration configuration)
         {
+            var eventBusSection = configuration.GetSection("EventBus");
+
             var retryCount = 5;
-            if (!string.IsNullOrEmpty(configuration["EventBusRetryCount"]))
+            if (!string.IsNullOrEmpty(eventBusSection["EventBusRetryCount"]))
             {
-                retryCount = int.Parse(configuration["EventBusRetryCount"]);
+                retryCount = int.Parse(eventBusSection["EventBusRetryCount"]);
             }
 
             services.AddSingleton(sp => Policy.Handle<SocketException>()
@@ -59,10 +78,10 @@ namespace HwProj.Utils.Configuration
 
             services.AddSingleton<IConnectionFactory, ConnectionFactory>(sp => new ConnectionFactory
             {
-                HostName = configuration["EventBusHostName"],
-                UserName = configuration["EventBusUserName"],
-                Password = configuration["EventBusPassword"],
-                VirtualHost = configuration["EventBusVirtualHost"]
+                HostName = eventBusSection["EventBusHostName"],
+                UserName = eventBusSection["EventBusUserName"],
+                Password = eventBusSection["EventBusPassword"],
+                VirtualHost = eventBusSection["EventBusVirtualHost"]
             });
 
             services.AddSingleton<IDefaultConnection, DefaultConnection>();
@@ -73,7 +92,8 @@ namespace HwProj.Utils.Configuration
             foreach (var eventType in eventTypes)
             {
                 var fullTypeInterface = typeof(IEventHandler<>).MakeGenericType(eventType);
-                var handlersTypes = types.Where(x => fullTypeInterface.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
+                var handlersTypes = types.Where(x =>
+                    fullTypeInterface.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
 
                 foreach (var handlerType in handlersTypes)
                 {
@@ -84,7 +104,8 @@ namespace HwProj.Utils.Configuration
             return services;
         }
 
-        public static void ConfigureHwProj(this IApplicationBuilder app, IHostingEnvironment env, string serviceName)
+        public static IApplicationBuilder ConfigureHwProj(this IApplicationBuilder app, IHostingEnvironment env,
+            string serviceName)
         {
             if (env.IsDevelopment())
             {
@@ -97,9 +118,15 @@ namespace HwProj.Utils.Configuration
                 app.UseHsts();
             }
 
-            app.UseCors("CorsPolicy");
-            app.UseHttpsRedirection()
-                .UseMvc();
+            app.UseAuthentication();
+            app.UseCors(x => x
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(origin => true)
+                .AllowCredentials());
+            app.UseMvc();
+
+            return app;
         }
     }
 }

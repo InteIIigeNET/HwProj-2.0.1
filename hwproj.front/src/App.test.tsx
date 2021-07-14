@@ -1,9 +1,20 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import App from './App';
+import React from "react";
+import { Router } from "react-router-dom";
+import { createMemoryHistory } from "history";
+import { render, screen } from "@testing-library/react";
 
-it('renders without crashing', () => {
-  const div = document.createElement('div');
-  ReactDOM.render(<App />, div);
-  ReactDOM.unmountComponentAtNode(div);
+import App from "./App";
+
+test("displays Login Page on /login url", () => {
+  const history = createMemoryHistory({ initialEntries: ["/login"] });
+
+  render(
+    <Router history={history}>
+      <App />
+    </Router>
+  );
+
+  const heading = screen.getByRole("heading", { name: "Войти" });
+
+  expect(heading).toBeVisible();
 });

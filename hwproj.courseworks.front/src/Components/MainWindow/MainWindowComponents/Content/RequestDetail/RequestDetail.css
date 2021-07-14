@@ -1,0 +1,50 @@
+.requestTitle{
+    margin-top: 10px;
+    margin-left: 30px;
+    text-decoration: underline;
+    height: auto;
+    width: auto;
+}
+
+.aboutMeDiv{
+    margin-top: 20px;
+    margin-left: 30px;
+}
+
+.aboutMe{
+    width: 85%;
+    height: auto;
+    left: 30px;
+    margin-left: 0px;
+    margin-top: 0px;
+    margin-bottom: 20px;
+    border: 1px solid #000000;
+    box-sizing: border-box;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 10px;
+    padding: 15px;
+    font-size: 18px;
+    font-style: italic;
+    background: white;
+}
+
+#aboutMeTitle{
+    text-decoration: underline;
+}
+
+.cancel{
+    margin-left: 30px;
+    width: auto;
+    height: 40px;
+    background: #E39E9E;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    box-sizing: border-box;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 10px;
+    padding: 5px;
+}
+
+.cancel:hover{
+    transform: scale(1.03);
+    background: rgb(202, 123, 123);
+}

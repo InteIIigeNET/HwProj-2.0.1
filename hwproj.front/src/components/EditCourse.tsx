@@ -38,8 +38,22 @@ export default class EditCourse extends React.Component<RouteComponentProps<IEdi
         };
     }
 
-    public handleSubmit(e: any) {
-        e.preventDefault();
+    // public handleSubmit(e: any) {
+    //     e.preventDefault();
+
+    //     let courseViewModel = {
+    //         name: this.state.name,
+    //         groupName: this.state.groupName,
+    //         isOpen: this.state.isOpen,
+    //         isComplete: this.state.isComplete
+    //     };
+
+    //     ApiSingleton.coursesApi.apiCoursesUpdateByCourseIdPost(+this.props.match.params.courseId, courseViewModel)
+    //         .then(res => this.setState({edited: true}))
+    // }
+
+    public async handleSubmit(e: any) {
+        e.preventDefault()
 
         let courseViewModel = {
             name: this.state.name,
@@ -48,13 +62,18 @@ export default class EditCourse extends React.Component<RouteComponentProps<IEdi
             isComplete: this.state.isComplete
         };
 
-        ApiSingleton.coursesApi.updateCourse(+this.props.match.params.courseId, courseViewModel)
-            .then(res => this.setState({edited: true}))
+        await ApiSingleton.courseService.updateCourseById(+this.props.match.params.courseId, courseViewModel)
+        this.setState({ edited: true })
     }
 
-    public onDelete() {
-        ApiSingleton.coursesApi.deleteCourse(+this.props.match.params.courseId)
-            .then(res => this.setState({deleted: true}));
+    // public onDelete() {
+    //     ApiSingleton.coursesApi.apiCoursesByCourseIdDelete(+this.props.match.params.courseId)
+    //         .then(res => this.setState({deleted: true}));
+    // }
+
+    public async onDelete() {
+        await ApiSingleton.courseService.deleteCourseById(+this.props.match.params.courseId)
+        this.setState({ deleted: true })
     }
 
     public render() {
@@ -67,7 +86,7 @@ export default class EditCourse extends React.Component<RouteComponentProps<IEdi
                 return <Redirect to='/' />
             }
 
-            if (!ApiSingleton.authService.isLoggedIn() || ApiSingleton.authService.getProfile()._id !== this.state.mentorId) {
+            if (!ApiSingleton.authService.getLogginStateFake() || ApiSingleton.authService.getUserIdFake().toString() != this.state.mentorId) {
                 return <Typography variant='h6' gutterBottom>Только преподаватель может редактировать курс</Typography>
             }
 
@@ -133,16 +152,28 @@ export default class EditCourse extends React.Component<RouteComponentProps<IEdi
         return "";
     }
 
-    componentDidMount() {
-        ApiSingleton.coursesApi.get(+this.props.match.params.courseId)
-            .then(res => res.json())
-            .then(course => this.setState({
-                isLoaded: true,
-                name: course.name,
-                groupName: course.groupName,
-                isOpen: course.isOpen,
-                isComplete: course.isComplete,
-                mentorId: course.mentorId
-            }))
+    async componentDidMount() {
+        const course = await ApiSingleton.courseService.getCourseById(+this.props.match.params.courseId)
+        this.setState({
+            isLoaded: true,
+            name: course.name,
+            groupName: course.groupName,
+            isOpen: course.isOpen,
+            isComplete: course.isComplete,
+            mentorId: course.course.mentorId
+        })
     }
+
+    // componentDidMount() {
+    //     ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+this.props.match.params.courseId)
+    //         .then(res => res.json())
+    //         .then(course => this.setState({
+    //             isLoaded: true,
+    //             name: course.name,
+    //             groupName: course.groupName,
+    //             isOpen: course.isOpen,
+    //             isComplete: course.isComplete,
+    //             mentorId: course.mentorId
+    //         }))
+    // }
 }

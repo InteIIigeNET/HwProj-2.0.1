@@ -21,11 +21,24 @@ export default class AddSolution extends React.Component<IAddSolutionProps, Solu
         };
     }
 
-    public handleSubmit(e: any) {
+    public async handleSubmit(e: any) {
         e.preventDefault();
-        ApiSingleton.solutionsApi.postSolution(this.props.taskId, this.state)
-            .then(id => this.props.onAdding());
+
+        await ApiSingleton.solutionService.addSolution({
+            taskId: this.props.taskId,
+            studentId: this.state.studentId,
+            githubUrl: this.state.githubUrl,
+            comment: this.state.comment,
+            state: "Posted"
+        })
+        this.props.onAdding()
     }
+
+    // public handleSubmit(e: any) {
+    //     e.preventDefault();
+    //     ApiSingleton.solutionsApi.postSolution(this.props.taskId, this.state)
+    //         .then(id => this.props.onAdding());
+    // }
 
     public render() {
         return (<div>

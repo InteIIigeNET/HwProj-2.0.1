@@ -8,6 +8,7 @@ import AddTask from'./AddTask'
 import HomeworkTasks from './HomeworkTasks'
 import EditIcon from '@material-ui/icons/Edit'
 import {Link as RouterLink} from 'react-router-dom'
+import ApiSingleton from 'api/ApiSingleton';
 
 interface IHomeworkProps {
     homework: HomeworkViewModel,
@@ -48,9 +49,11 @@ export default class Homework extends React.Component<IHomeworkProps, IHomeworkS
                     <div>
                         <HomeworkTasks onDelete={() => this.props.onDeleteClick()} tasks={this.props.homework.tasks!} forStudent={this.props.forStudent} forMentor={this.props.forMentor} />
                         <AddTask
-                        id={this.props.homework.id!}
-                        onAdding={() => this.setState({createTask: false})}
-                        onCancel={() => this.setState({createTask: false})} />
+                            id={this.props.homework.id!}
+                            onAdding={() => this.setState({createTask: false})}
+                            onCancel={() => this.setState({createTask: false})}
+                            update={() => this.props.onDeleteClick()} 
+                        />
                     </div>
                 }
                 {(this.props.forMentor && !this.state.createTask) &&
@@ -70,9 +73,14 @@ export default class Homework extends React.Component<IHomeworkProps, IHomeworkS
         )
     }
 
-    deleteHomework(): void {
-        let api = new HomeworksApi();
-        api.deleteHomework(this.props.homework.id!)
-            .then(res => this.props.onDeleteClick());
-    }
+    // deleteHomework(): void {
+    //     let api = new HomeworksApi();
+    //     api.apiHomeworksDeleteByHomeworkIdDelete(this.props.homework.id!)
+    //         .then(res => this.props.onDeleteClick());
+    // }
+
+    async deleteHomework() {
+        await ApiSingleton.homeworkService.deleteHomeworkByHomeworkId(+this.props.homework.id!)
+        this.props.onDeleteClick()
+    } 
 }

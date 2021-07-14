@@ -1,13 +1,15 @@
 ﻿using HwProj.AuthService.API.Models;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
+using HwProj.AuthService.API.Events;
+using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.Roles;
 
 namespace HwProj.AuthService.API
 {
     public class RoleInitializer
     {
-        public static async Task InitializeAsync(UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
+        public static async Task InitializeAsync(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, IEventBus eventBus)
         {
             if(await roleManager.FindByNameAsync(Roles.LecturerRole) == null)
             {
@@ -26,6 +28,7 @@ namespace HwProj.AuthService.API
             {
                 var admin = new User { 
                     Email = email,
+                    Name = "Admin",
                     UserName = "Admin"
                 };
 
@@ -36,6 +39,8 @@ namespace HwProj.AuthService.API
                     await userManager.AddToRoleAsync(admin, Roles.LecturerRole); //TODO: dangerous
                     admin.EmailConfirmed = true;
                     await userManager.UpdateAsync(admin);
+                    var @event = new AdminRegisterEvent(admin.Id, admin.Email, admin.Name);
+                    eventBus.Publish(@event);
                 }
             }
         }

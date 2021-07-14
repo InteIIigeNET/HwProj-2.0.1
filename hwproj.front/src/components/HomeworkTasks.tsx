@@ -1,3 +1,4 @@
+import ApiSingleton from 'api/ApiSingleton';
 import * as React from 'react';
 import { HomeworkTaskViewModel } from "../api/homeworks/api";
 import Task from './Task'
@@ -15,15 +16,21 @@ export default class HomeworkTasks extends React.Component<IHomeworkTasksProps, 
     }
 
     public render() {
-        let taskList = this.props.tasks.map(task =>
-            <li key={task.id}>
-                <Task task={task} forStudent={this.props.forStudent} forMentor={this.props.forMentor} onDeleteClick={() => this.props.onDelete()} />
-            </li>);
-
         return (
             <div>
                 <ol>
-                    {taskList}
+                    {this.props.tasks.map((task: any) => {
+                        return (
+                            <li key={task.id}>
+                                <Task
+                                    task={task}
+                                    forStudent={this.props.forStudent}
+                                    forMentor={this.props.forMentor}
+                                    onDeleteClick={() => this.props.onDelete()}
+                                />
+                            </li>
+                        )
+                    })}
                 </ol>
             </div>
         )

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Ocelot.DependencyInjection;
 
 namespace HwProj.APIGateway.API
 {
@@ -13,7 +14,7 @@ namespace HwProj.APIGateway.API
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
                     config.SetBasePath(hostingContext.HostingEnvironment.ContentRootPath)
-                        .AddJsonFile("ocelot.Development.json", false, true)
+                        .AddOcelot(hostingContext.HostingEnvironment)
                         .AddEnvironmentVariables();
                 })
                 .Build()

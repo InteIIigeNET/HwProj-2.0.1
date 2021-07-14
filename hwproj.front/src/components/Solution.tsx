@@ -38,7 +38,7 @@ export default class SolutionComponent extends React.Component<ISolutionProps, I
                     </div>
                     }
                     Статус решения: {solution.state}
-                    {this.props.forMentor &&
+                    {this.props.forMentor && solution.state != 2 &&
                         <div>
                             <Button onClick={() => this.acceptSolution()} size="small" color="primary" variant="contained">
                                 Принять
@@ -56,22 +56,40 @@ export default class SolutionComponent extends React.Component<ISolutionProps, I
         return "";
     }
 
-    acceptSolution() {
-        ApiSingleton.solutionsApi.acceptSolution(this.props.id)
-            .then(res => this.componentDidMount())
+    async acceptSolution() {
+        await ApiSingleton.solutionService.acceptSolutionBySolutionId(this.props.id)
+        await this.componentDidMount()
     }
 
-    rejectSolution() {
-        ApiSingleton.solutionsApi.rejectSolution(this.props.id)
-            .then(res => this.componentDidMount())
+    async rejectSolution() {
+        await ApiSingleton.solutionService.rejectSolutionBySolutionId(this.props.id)
+        await this.componentDidMount()
     }
 
-    componentDidMount() {
-        ApiSingleton.solutionsApi.getSolution(this.props.id)
-            .then(res => res.json())
-            .then(solution => this.setState({
-                isLoaded: true,
-                solution: solution
-            }));
+    async componentDidMount() {
+        const solution = await ApiSingleton.solutionService.getSolutionBySolutionId(this.props.id)
+        this.setState({
+            isLoaded: true,
+            solution: solution
+        })
     }
+
+    // acceptSolution() {
+    //     ApiSingleton.solutionsApi.acceptSolution(this.props.id)
+    //         .then(res => this.componentDidMount())
+    // }
+
+    // rejectSolution() {
+    //     ApiSingleton.solutionsApi.rejectSolution(this.props.id)
+    //         .then(res => this.componentDidMount())
+    // }
+
+    // componentDidMount() {
+    //     ApiSingleton.solutionsApi.getSolution(this.props.id)
+    //         .then(res => res.json())
+    //         .then(solution => this.setState({
+    //             isLoaded: true,
+    //             solution: solution
+    //         }));
+    // }
 }

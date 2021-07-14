@@ -46,11 +46,20 @@ export default class TaskSolutions extends React.Component<ITaskSolutionsProps, 
         return "";
     }
 
-    componentDidMount() {
-        ApiSingleton.solutionsApi.getTaskSolutionsFromStudent(this.props.taskId, this.props.studentId)
-            .then(solutions => this.setState({
-                isLoaded: true,
-                solutions: solutions.map(s => s.id!)
-            }));
+    // componentDidMount() {
+    //     ApiSingleton.solutionsApi.getTaskSolutionsFromStudent(this.props.taskId, this.props.studentId)
+    //         .then(solutions => this.setState({
+    //             isLoaded: true,
+    //             solutions: solutions.map(s => s.id!)
+    //         }));
+    // }
+
+    async componentDidMount() {
+        const solutions = await ApiSingleton.solutionService.getSolutionsByTaskIdAndStudentId(this.props.taskId, +this.props.studentId)
+        this.setState({ 
+            isLoaded: true,
+            solutions: solutions.map((s: any) => s.id!)
+        })
+        console.log(solutions)
     }
 }

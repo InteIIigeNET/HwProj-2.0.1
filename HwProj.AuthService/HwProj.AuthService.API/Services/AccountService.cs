@@ -7,7 +7,8 @@ using AutoMapper;
 using HwProj.AuthService.API.Extensions;
 using HwProj.AuthService.API.Models.DTO;
 using HwProj.Models.Roles;
-using System;
+using HwProj.AuthService.API.Events;
+using HwProj.EventBus.Client.Interfaces;
 
 namespace HwProj.AuthService.API.Services
 {
@@ -16,20 +17,23 @@ namespace HwProj.AuthService.API.Services
         private readonly IUserManager _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly IAuthTokenService _tokenService;
+        private readonly IEventBus _eventBus;
         private readonly IMapper _mapper;
 
         public AccountService(IUserManager userManager,
             SignInManager<User> signInManager,
             IAuthTokenService authTokenService,
+            IEventBus eventBus,
             IMapper mapper)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _tokenService = authTokenService;
+            _eventBus = eventBus;
             _mapper = mapper;
         }
 
-        public async Task<AccountData> GetAccountDataAsync(string userId)
+        public async Task<AccountDataDTO> GetAccountDataAsync(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId).ConfigureAwait(false);
             if (user == null)
@@ -39,7 +43,7 @@ namespace HwProj.AuthService.API.Services
 
             var userRoles = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
             var userRole = userRoles.FirstOrDefault() ?? Roles.StudentRole;
-            return new AccountData(user.UserName, user.Email, userRole);
+            return new AccountDataDTO(user.Name, user.Surname, user.Email, userRole, user.MiddleName);
         }
 
         public async Task<IdentityResult> EditAccountAsync(string id, EditAccountViewModel model)
@@ -55,7 +59,18 @@ namespace HwProj.AuthService.API.Services
                 return IdentityResults.WrongPassword;
             }
 
-            return await ChangeUserNameTask(user, model).Then(() => ChangePasswordAsync(user, model)).ConfigureAwait(false);
+            var result = await ChangeUserNameTask(user, model)
+                .Then(() => ChangePasswordAsync(user, model))
+                .ConfigureAwait(false);
+
+            if (result.Succeeded)
+            {
+                var editEvent = new EditEvent(id, model.Name,
+                    model.Surname, model.MiddleName);
+                _eventBus.Publish(editEvent);
+            }
+
+            return result;
         }
 
         public async Task<IdentityResult<TokenCredentials>> LoginUserAsync(LoginViewModel model)
@@ -94,14 +109,25 @@ namespace HwProj.AuthService.API.Services
             }
 
             var user = _mapper.Map<User>(model);
+            user.UserName = user.Email.Split('@')[0];
 
-            return await _userManager.CreateAsync(user, model.Password)
+            var result = await _userManager.CreateAsync(user, model.Password)
                 .Then(() => _userManager.AddToRoleAsync(user, Roles.StudentRole))
                 .Then(() =>
                 {
                     user.EmailConfirmed = true;
                     return _userManager.UpdateAsync(user);
                 }).ConfigureAwait(false);
+
+            if (result.Succeeded)
+            {
+                var newUser = await _userManager.FindByEmailAsync(model.Email).ConfigureAwait(false);
+                var registerEvent = new StudentRegisterEvent(newUser.Id, newUser.Email, newUser.Name,
+                    newUser.Surname, newUser.MiddleName);
+                _eventBus.Publish(registerEvent);
+            }
+
+            return result;
         }
 
         public async Task<IdentityResult> InviteNewLecturer(string emailOfInvitedUser)
@@ -113,15 +139,34 @@ namespace HwProj.AuthService.API.Services
                 return IdentityResults.UserNotFound;
             }
 
-            return await _userManager.AddToRoleAsync(invitedUser, Roles.LecturerRole)
+            var result = await _userManager.AddToRoleAsync(invitedUser, Roles.LecturerRole)
                 .Then(() => _userManager.RemoveFromRoleAsync(invitedUser, Roles.StudentRole)).ConfigureAwait(false);
+
+            if (result.Succeeded)
+            {
+                var inviteEvent = new InviteLecturerEvent(invitedUser.Id);
+                _eventBus.Publish(inviteEvent);
+            }
+
+            return result;
         }
 
         private Task<IdentityResult> ChangeUserNameTask(User user, EditAccountViewModel model)
         {
-            return !string.IsNullOrWhiteSpace(model.UserName)
-                ? _userManager.UpdateAsync(user)
-                : Task.FromResult(IdentityResult.Success);
+            if (!string.IsNullOrWhiteSpace(model.Name))
+            {
+                user.Name = model.Name;
+            }
+            if (!string.IsNullOrWhiteSpace(model.Name))
+            {
+                user.Surname = model.Surname;
+            }
+            if (!string.IsNullOrWhiteSpace(model.Name))
+            {
+                user.MiddleName = model.MiddleName;
+            }
+
+            return _userManager.UpdateAsync(user);
         }
 
         private Task<IdentityResult> ChangePasswordAsync(User user, EditAccountViewModel model)
