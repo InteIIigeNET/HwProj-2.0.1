@@ -48,10 +48,11 @@ namespace HwProj.AuthService.API.Controllers
         }
 
         [HttpPost("login")]
+        [ProducesResponseType(typeof(TokenCredentials), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             var tokenMeta = await _accountService.LoginUserAsync(model).ConfigureAwait(false);
-            return Ok(tokenMeta);
+            return Ok(tokenMeta.Value);
         }
 
         [Authorize]
