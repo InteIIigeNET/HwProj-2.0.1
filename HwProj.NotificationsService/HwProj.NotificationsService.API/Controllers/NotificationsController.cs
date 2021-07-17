@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Services;
 using HwProj.Utils.Authorization;
@@ -18,7 +17,7 @@ namespace HwProj.NotificationsService.API.Controllers
             _notificationsService = notificationsService;
         }
 
-        [HttpGet]
+        [HttpPost]
         public async Task<IActionResult> Get([FromBody] NotificationFilter filter)
         {
             var userId = Request.GetUserId();

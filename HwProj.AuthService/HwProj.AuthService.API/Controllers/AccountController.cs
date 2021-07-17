@@ -1,10 +1,12 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
+using HwProj.AuthService.API.Events;
 using HwProj.AuthService.API.Models.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using HwProj.AuthService.API.Models.ViewModels;
 using HwProj.AuthService.API.Services;
+using HwProj.EventBus.Client.Interfaces;
 using HwProj.Utils.Authorization;
 
 namespace HwProj.AuthService.API.Controllers
@@ -14,21 +16,32 @@ namespace HwProj.AuthService.API.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService;
+        private readonly IEventBus _eventBus;
 
-        public AccountController(IAccountService accountService)
+        public AccountController(IAccountService accountService, IEventBus eventBus)
         {
             _accountService = accountService;
+            _eventBus = eventBus;
         }
 
         [HttpGet("getUserData/{userId}")]
         [ProducesResponseType(typeof(AccountDataDTO), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetUserDataById(string userId)
+        public async Task<IActionResult> GetUserDataById(object userId)
         {
             var accountData = await _accountService.GetAccountDataAsync(userId).ConfigureAwait(false);
 
             return accountData != null
                 ? Ok(accountData)
                 : NotFound() as IActionResult;
+        }
+        
+        [HttpGet("test")]
+        [ProducesResponseType(typeof(AccountDataDTO), (int)HttpStatusCode.OK)]
+        public IActionResult Test()
+        {
+            var inviteEvent = new StudentRegisterEvent("123", "email", "Alex", "Beralex", "");
+            _eventBus.Publish(inviteEvent);
+            return Ok();
         }
 
         [Authorize]

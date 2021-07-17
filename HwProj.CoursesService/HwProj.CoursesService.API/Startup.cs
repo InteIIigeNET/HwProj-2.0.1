@@ -33,6 +33,9 @@ namespace HwProj.CoursesService.API
             services.AddScoped<ICoursesService, Services.CoursesService>();
             services.AddScoped<IGroupsService, GroupsService>();
             services.AddScoped<CourseMentorOnlyAttribute>();
+
+            services.AddEventBus(Configuration);
+
             services.ConfigureHwProjServices("Courses API");
         }
 

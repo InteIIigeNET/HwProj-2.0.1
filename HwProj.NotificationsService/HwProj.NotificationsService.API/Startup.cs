@@ -1,4 +1,7 @@
-﻿using HwProj.NotificationsService.API.Models;
+﻿using HwProj.AuthService.API.Events;
+using HwProj.EventBus.Client.Interfaces;
+using HwProj.NotificationsService.API.EventHandlers;
+using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
 using HwProj.Utils.Configuration;
@@ -25,11 +28,15 @@ namespace HwProj.NotificationsService.API
             services.AddDbContext<NotificationsContext>(options => options.UseSqlServer(connectionString));
             services.AddScoped<INotificationsRepository, NotificationsRepository>();
             services.AddScoped<INotificationsService, Services.NotificationsService>();
+            services.AddEventBus(Configuration);
+            services.AddTransient<IEventHandler<StudentRegisterEvent>, RegisterEventHandler>();
+
             services.ConfigureHwProjServices("Notifications API");
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IEventBus eventBus)
         {
+            eventBus.Subscribe<StudentRegisterEvent>();
             app.ConfigureHwProj(env, "Notifications API");
         }
     }

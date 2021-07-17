@@ -12,6 +12,7 @@ namespace HwProj.AuthService.API.Models.ViewModels
         [DataType(DataType.Password)]
         public string Password { get; set; }
 
+        [Required]
         public bool RememberMe { get; set; }
     }
 }
