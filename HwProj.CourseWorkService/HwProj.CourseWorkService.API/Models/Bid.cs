@@ -5,8 +5,6 @@ namespace HwProj.CourseWorkService.API.Models
 {
 	public class Bid : IEntity<long>
 	{
-		public long Id { get; set; }
-
 		public string ReviewerProfileId { get; set; }
 		public ReviewerProfile ReviewerProfile { get; set; }
 
@@ -14,6 +12,7 @@ namespace HwProj.CourseWorkService.API.Models
 		public CourseWork CourseWork { get; set; }
 
 		public BiddingValues BiddingValue { get; set; }
+		public long Id { get; set; }
 	}
 
 	public enum BiddingValues

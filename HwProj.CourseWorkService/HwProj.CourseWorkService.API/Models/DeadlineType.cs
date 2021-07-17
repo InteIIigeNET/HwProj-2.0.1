@@ -15,13 +15,13 @@ namespace HwProj.CourseWorkService.API.Models
 
 	public class DeadlineType : IEntity<long>
 	{
-		public long Id { get; set; }
-		public string DisplayValue { get; set; }
-		public List<Deadline> Deadlines { get; set; }
-
 		public DeadlineType()
 		{
 			Deadlines = new List<Deadline>();
 		}
+
+		public string DisplayValue { get; set; }
+		public List<Deadline> Deadlines { get; set; }
+		public long Id { get; set; }
 	}
 }

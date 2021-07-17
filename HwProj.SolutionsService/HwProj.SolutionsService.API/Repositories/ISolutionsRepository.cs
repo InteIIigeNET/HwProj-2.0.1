@@ -4,8 +4,8 @@ using HwProj.SolutionsService.API.Models;
 
 namespace HwProj.SolutionsService.API.Repositories
 {
-    public interface ISolutionsRepository : ICrudRepository<Solution, long>
-    {
-        Task UpdateSolutionStateAsync(long solutionId, SolutionState newState);
-    }
+	public interface ISolutionsRepository : ICrudRepository<Solution, long>
+	{
+		Task UpdateSolutionStateAsync(long solutionId, SolutionState newState);
+	}
 }

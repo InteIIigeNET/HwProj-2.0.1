@@ -22,110 +22,100 @@ using Swashbuckle.AspNetCore.Swagger;
 
 namespace HwProj.Utils.Configuration
 {
-    public static class StartupExtensions
-    {
-        public static IServiceCollection ConfigureHwProjServices(this IServiceCollection services, string serviceName)
-        {
-            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies())
-                .AddMvc()
-                .AddJsonOptions(options =>
-                    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore)
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+	public static class StartupExtensions
+	{
+		public static IServiceCollection ConfigureHwProjServices(this IServiceCollection services, string serviceName)
+		{
+			services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies())
+				.AddMvc()
+				.AddJsonOptions(options =>
+					options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore)
+				.SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new Info {Title = serviceName, Version = "v1"}); })
-                .AddCors();
+			services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new Info {Title = serviceName, Version = "v1"}); })
+				.AddCors();
 
-            if (serviceName != "AuthService API")
-            {
-                services.AddAuthentication(options =>
-                    {
-                        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                    })
-                    .AddJwtBearer(x =>
-                    {
-                        x.RequireHttpsMetadata = false; //TODO: dev env setting
-                        x.TokenValidationParameters = new TokenValidationParameters
-                        {
-                            ValidIssuer = "AuthService",
-                            ValidateIssuer = true,
-                            ValidateAudience = false,
-                            ValidateLifetime = true,
-                            IssuerSigningKey = AuthorizationKey.SecurityKey,
-                            ValidateIssuerSigningKey = true
-                        };
-                    });
-            }
+			if (serviceName != "AuthService API")
+				services.AddAuthentication(options =>
+					{
+						options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+						options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+					})
+					.AddJwtBearer(x =>
+					{
+						x.RequireHttpsMetadata = false; //TODO: dev env setting
+						x.TokenValidationParameters = new TokenValidationParameters
+						{
+							ValidIssuer = "AuthService",
+							ValidateIssuer = true,
+							ValidateAudience = false,
+							ValidateLifetime = true,
+							IssuerSigningKey = AuthorizationKey.SecurityKey,
+							ValidateIssuerSigningKey = true
+						};
+					});
 
-            services.AddTransient<NoApiGatewayMiddleware>();
+			services.AddTransient<NoApiGatewayMiddleware>();
 
-            return services;
-        }
+			return services;
+		}
 
-        public static IServiceCollection AddEventBus(this IServiceCollection services, IConfiguration configuration)
-        {
-            var eventBusSection = configuration.GetSection("EventBus");
+		public static IServiceCollection AddEventBus(this IServiceCollection services, IConfiguration configuration)
+		{
+			var eventBusSection = configuration.GetSection("EventBus");
 
-            var retryCount = 5;
-            if (!string.IsNullOrEmpty(eventBusSection["EventBusRetryCount"]))
-            {
-                retryCount = int.Parse(eventBusSection["EventBusRetryCount"]);
-            }
+			var retryCount = 5;
+			if (!string.IsNullOrEmpty(eventBusSection["EventBusRetryCount"]))
+				retryCount = int.Parse(eventBusSection["EventBusRetryCount"]);
 
-            services.AddSingleton(sp => Policy.Handle<SocketException>()
-                .Or<BrokerUnreachableException>()
-                .WaitAndRetry(retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))));
+			services.AddSingleton(sp => Policy.Handle<SocketException>()
+				.Or<BrokerUnreachableException>()
+				.WaitAndRetry(retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))));
 
-            services.AddSingleton<IConnectionFactory, ConnectionFactory>(sp => new ConnectionFactory
-            {
-                HostName = eventBusSection["EventBusHostName"],
-                UserName = eventBusSection["EventBusUserName"],
-                Password = eventBusSection["EventBusPassword"],
-                VirtualHost = eventBusSection["EventBusVirtualHost"]
-            });
+			services.AddSingleton<IConnectionFactory, ConnectionFactory>(sp => new ConnectionFactory
+			{
+				HostName = eventBusSection["EventBusHostName"],
+				UserName = eventBusSection["EventBusUserName"],
+				Password = eventBusSection["EventBusPassword"],
+				VirtualHost = eventBusSection["EventBusVirtualHost"]
+			});
 
-            services.AddSingleton<IDefaultConnection, DefaultConnection>();
-            services.AddSingleton<IEventBus, EventBusRabbitMq>();
+			services.AddSingleton<IDefaultConnection, DefaultConnection>();
+			services.AddSingleton<IEventBus, EventBusRabbitMq>();
 
-            var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes()).ToList();
-            var eventTypes = types.Where(x => typeof(Event).IsAssignableFrom(x));
-            foreach (var eventType in eventTypes)
-            {
-                var fullTypeInterface = typeof(IEventHandler<>).MakeGenericType(eventType);
-                var handlersTypes = types.Where(x => fullTypeInterface.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
+			var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes()).ToList();
+			var eventTypes = types.Where(x => typeof(Event).IsAssignableFrom(x));
+			foreach (var eventType in eventTypes)
+			{
+				var fullTypeInterface = typeof(IEventHandler<>).MakeGenericType(eventType);
+				var handlersTypes = types.Where(x =>
+					fullTypeInterface.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
 
-                foreach (var handlerType in handlersTypes)
-                {
-                    services.AddTransient(handlerType);
-                }
-            }
+				foreach (var handlerType in handlersTypes) services.AddTransient(handlerType);
+			}
 
-            return services;
-        }
+			return services;
+		}
 
-        public static void ConfigureHwProj(this IApplicationBuilder app, IHostingEnvironment env, string serviceName)
-        {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage()
-                    .UseSwagger()
-                    .UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", serviceName); });
-            }
-            else
-            {
-                app.UseHsts();
-            }
+		public static void ConfigureHwProj(this IApplicationBuilder app, IHostingEnvironment env, string serviceName)
+		{
+			if (env.IsDevelopment())
+				app.UseDeveloperExceptionPage()
+					.UseSwagger()
+					.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", serviceName); });
+			else
+				app.UseHsts();
 
-            app.UseAuthentication();
+			app.UseAuthentication();
 
-            app.UseCors(x => x
-                .AllowAnyMethod()
-                .AllowAnyHeader()
-                .SetIsOriginAllowed(origin => true)
-                .AllowCredentials());
+			app.UseCors(x => x
+				.AllowAnyMethod()
+				.AllowAnyHeader()
+				.SetIsOriginAllowed(origin => true)
+				.AllowCredentials());
 
-            app.UseHttpsRedirection()
-                .UseMvc();
-        }
-    }
+			app.UseHttpsRedirection()
+				.UseMvc();
+		}
+	}
 }

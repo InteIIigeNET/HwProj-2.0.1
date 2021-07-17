@@ -10,6 +10,28 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 {
 	public class ReviewersDistributionService : IReviewersDistributionService
 	{
+		#region Constructors: Public
+
+		public ReviewersDistributionService(ICourseWorksRepository courseWorksRepository,
+			IUsersRepository usersRepository)
+		{
+			_courseWorksRepository = courseWorksRepository;
+			_usersRepository = usersRepository;
+		}
+
+		#endregion
+
+		#region Methods: Public
+
+		public async Task<ReviewDistribution[]> GetOptimizedDistribution(string curatorId)
+		{
+			await InitData(curatorId).ConfigureAwait(false);
+			SetMatrixForHungarianAlgorithm();
+			return GetHungarianAlgorithmAnswer();
+		}
+
+		#endregion
+
 		#region Fields: Private
 
 		private readonly ICourseWorksRepository _courseWorksRepository;
@@ -19,17 +41,6 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 		private string[] _reviewers;
 		private Dictionary<string, int> _reviewersCourseWorksCount;
 		private int[,] _matrix;
-
-
-		#endregion
-
-		#region Constructors: Public
-
-		public ReviewersDistributionService(ICourseWorksRepository courseWorksRepository, IUsersRepository usersRepository)
-		{
-			_courseWorksRepository = courseWorksRepository;
-			_usersRepository = usersRepository;
-		}
 
 		#endregion
 
@@ -65,19 +76,15 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 			_matrix = new int[_courseWorks.Length, _reviewers.Length * duplicateCount];
 
 			for (var i = 0; i < _matrix.GetLength(0); i++)
+			for (var k = 0; k < duplicateCount; k++)
+			for (var j = 0; j < _matrix.GetLength(1); j++)
 			{
-				for (var k = 0; k < duplicateCount; k++)
-				{
-					for (var j = 0; j < _matrix.GetLength(1); j++)
-					{
-						var bid = _courseWorks[i].Bids.FirstOrDefault(b => b.ReviewerProfileId == _reviewers[j]);
-						var defaultValue = bid != null ? (int) bid.BiddingValue : 0;
-						var valueWithCurrentCuratorCourseWorksCount = defaultValue - k;
-						var valueWithBeforeCourseWorksCount = valueWithCurrentCuratorCourseWorksCount -
-						                                      _reviewersCourseWorksCount[_reviewers[j]];
-						_matrix[i, j] = valueWithBeforeCourseWorksCount * -1;
-					}
-				}
+				var bid = _courseWorks[i].Bids.FirstOrDefault(b => b.ReviewerProfileId == _reviewers[j]);
+				var defaultValue = bid != null ? (int) bid.BiddingValue : 0;
+				var valueWithCurrentCuratorCourseWorksCount = defaultValue - k;
+				var valueWithBeforeCourseWorksCount = valueWithCurrentCuratorCourseWorksCount -
+				                                      _reviewersCourseWorksCount[_reviewers[j]];
+				_matrix[i, j] = valueWithBeforeCourseWorksCount * -1;
 			}
 		}
 
@@ -87,22 +94,9 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 			var ans = executer.GetAnswer();
 			var distribution = new ReviewDistribution[ans.Length];
 			for (var i = 0; i < ans.Length; i++)
-			{
 				distribution[i] = new ReviewDistribution(_courseWorks[i], _reviewers[ans[i]]);
-			}
 
 			return distribution;
-		}
-
-		#endregion
-
-		#region Methods: Public
-
-		public async Task<ReviewDistribution[]> GetOptimizedDistribution(string curatorId)
-		{
-			await InitData(curatorId).ConfigureAwait(false);
-			SetMatrixForHungarianAlgorithm();
-			return GetHungarianAlgorithmAnswer();
 		}
 
 		#endregion

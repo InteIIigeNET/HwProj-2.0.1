@@ -3,24 +3,22 @@ using Newtonsoft.Json;
 
 namespace HwProj.EventBus.Client
 {
-    public class Event
-    {
-        [JsonProperty]
-        public Guid Id { get; set; }
+	public class Event
+	{
+		public Event()
+		{
+			Id = Guid.NewGuid();
+			CreationData = DateTime.UtcNow;
+		}
 
-        [JsonProperty]
-        public DateTime CreationData { get; set; }
+		public Event(Guid id, DateTime data)
+		{
+			Id = id;
+			CreationData = data;
+		}
 
-        public Event()
-        {
-            Id = Guid.NewGuid();
-            CreationData = DateTime.UtcNow;
-        }
+		[JsonProperty] public Guid Id { get; set; }
 
-        public Event(Guid id, DateTime data)
-        {
-            Id = id;
-            CreationData = data;
-        }
-    }
+		[JsonProperty] public DateTime CreationData { get; set; }
+	}
 }

@@ -10,12 +10,14 @@ namespace HwProj.CourseWorkService.API.Services.Interfaces
 	{
 		Application GetApplicationFromViewModel(string userId, long courseWorkId,
 			CreateApplicationViewModel createApplicationViewModel);
+
 		StudentApplicationDTO GetStudentApplicationDTO(Application application);
 		LecturerApplicationDTO GetLecturerApplicationDTO(Application application);
 		OverviewApplicationDTO GetOverviewApplicationDTO(Application application);
 
 		Task<CourseWork> GetCourseWorkFromViewModel(CreateCourseWorkViewModel createCourseWorkViewModel,
 			string userId, bool createdByCurator);
+
 		Task<OverviewCourseWorkDTO> GetCourseWorkOverviewDTO(CourseWork courseWork);
 		Task<ReviewerOverviewCourseWorkDTO> GetReviewerOverviewCourseWorkDTO(CourseWork courseWork, string reviewerId);
 		Task<DetailCourseWorkDTO> GetCourseWorkDetailDTO(CourseWork courseWork);

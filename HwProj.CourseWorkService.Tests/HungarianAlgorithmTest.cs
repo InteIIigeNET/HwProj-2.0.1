@@ -6,15 +6,13 @@ namespace HwProj.CourseWorkService.Tests
 	public class Tests
 	{
 		[SetUp]
-		public void Setup()
-		{
-		}
+		public void Setup() { }
 
 		[Test]
 		public void Test1()
 		{
 			// Arrange
-			var expectedAns = new [] {3, 0, 2};
+			var expectedAns = new[] {3, 0, 2};
 			var matrix = new[,]
 			{
 				{-2, 0, 2, -2},

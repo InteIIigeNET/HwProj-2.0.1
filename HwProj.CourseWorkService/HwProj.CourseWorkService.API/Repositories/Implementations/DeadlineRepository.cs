@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -13,9 +12,7 @@ namespace HwProj.CourseWorkService.API.Repositories.Implementations
 	public class DeadlineRepository : CrudRepository<Deadline, long>, IDeadlineRepository
 	{
 		public DeadlineRepository(CourseWorkContext context)
-			: base(context)
-		{
-		}
+			: base(context) { }
 
 		public async Task<Deadline> GetDeadlineAsync(long id)
 		{

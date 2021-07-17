@@ -1,13 +1,13 @@
-﻿using HwProj.CoursesService.API.Models;
-using HwProj.Repositories;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
+using HwProj.CoursesService.API.Models;
+using HwProj.Repositories;
 
 namespace HwProj.CoursesService.API.Repositories
 {
-    public interface ICoursesRepository : ICrudRepository<Course, long>
-    {
-        Task<Course> GetWithCourseMatesAsync(long id);
-        IQueryable<Course> GetAllWithCourseMates();
-    }
+	public interface ICoursesRepository : ICrudRepository<Course, long>
+	{
+		Task<Course> GetWithCourseMatesAsync(long id);
+		IQueryable<Course> GetAllWithCourseMates();
+	}
 }

@@ -1,7 +1,9 @@
 ﻿namespace HwProj.SolutionsService.API.Models
 {
-    public enum SolutionState
-    {
-        Posted, Rejected, Accepted
-    }
+	public enum SolutionState
+	{
+		Posted,
+		Rejected,
+		Accepted
+	}
 }

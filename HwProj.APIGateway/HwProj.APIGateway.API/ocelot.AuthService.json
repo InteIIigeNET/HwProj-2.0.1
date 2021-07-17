@@ -10,7 +10,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/Account/getCurrentUserData/",
-      "UpstreamhttpsMethod": [ "GET" ],
+      "UpstreamhttpsMethod": ["GET"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -29,7 +29,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/Account/getUserData/{userId}/",
-      "UpstreamhttpsMethod": [ "GET" ] //,
+      "UpstreamhttpsMethod": ["GET"] //,
       //"Key": "user-data"
     },
     {
@@ -42,7 +42,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/Account/register/",
-      "UpstreamhttpsMethod": [ "POST" ]
+      "UpstreamhttpsMethod": ["POST"]
     },
     {
       "DownStreamPathTemplate": "/api/Account/login",
@@ -54,7 +54,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/Account/login/",
-      "UpstreamhttpsMethod": [ "POST" ]
+      "UpstreamhttpsMethod": ["POST"]
     },
     {
       "DownStreamPathTemplate": "/api/Account/edit",
@@ -66,7 +66,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/Account/edit/",
-      "UpstreamhttpsMethod": [ "GET" ],
+      "UpstreamhttpsMethod": ["GET"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -85,7 +85,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/Account/invitenewlecturer",
-      "UpstreamhttpsMethod": [ "POST" ],
+      "UpstreamhttpsMethod": ["POST"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []

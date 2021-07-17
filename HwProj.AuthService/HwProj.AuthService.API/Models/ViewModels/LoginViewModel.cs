@@ -2,16 +2,16 @@
 
 namespace HwProj.AuthService.API.Models.ViewModels
 {
-    public class LoginViewModel
-    {
-        [Required]
-        [DataType(DataType.EmailAddress)]
-        public string Email { get; set; }
+	public class LoginViewModel
+	{
+		[Required]
+		[DataType(DataType.EmailAddress)]
+		public string Email { get; set; }
 
-        [Required]
-        [DataType(DataType.Password)]
-        public string Password { get; set; }
+		[Required]
+		[DataType(DataType.Password)]
+		public string Password { get; set; }
 
-        public bool RememberMe { get; set; } = false;
-    }
+		public bool RememberMe { get; set; } = false;
+	}
 }

@@ -7,39 +7,39 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace HwProj.CourseWorkService.API.Filters
 {
-    public class CommonExceptionFilterAttribute : Attribute, IExceptionFilter
-    {
-        private readonly IEnumerable<Type> _exceptionTypes;
+	public class CommonExceptionFilterAttribute : Attribute, IExceptionFilter
+	{
+		private readonly IEnumerable<Type> _exceptionTypes;
 
-        public CommonExceptionFilterAttribute(IEnumerable<Type> exceptionTypes)
-        {
-            _exceptionTypes = exceptionTypes;
-        }
+		public CommonExceptionFilterAttribute(IEnumerable<Type> exceptionTypes)
+		{
+			_exceptionTypes = exceptionTypes;
+		}
 
-        public void OnException(ExceptionContext context)
-        {
-            if (_exceptionTypes.All(exType => exType != context.Exception.GetType())) return;
+		public void OnException(ExceptionContext context)
+		{
+			if (_exceptionTypes.All(exType => exType != context.Exception.GetType())) return;
 
-            switch (context.Exception)
-            {
-                case ForbidException _:
-                {
-                    context.Result = new ForbidResult();
-                    break;
-                }
-                case ObjectNotFoundException _:
-                {
-                    context.Result = new NotFoundResult();
-                    break;
-                }
-                case BadRequestException _:
-                {
-                    context.Result = new BadRequestResult();
-                    break;
-                }
-            }
+			switch (context.Exception)
+			{
+				case ForbidException _:
+				{
+					context.Result = new ForbidResult();
+					break;
+				}
+				case ObjectNotFoundException _:
+				{
+					context.Result = new NotFoundResult();
+					break;
+				}
+				case BadRequestException _:
+				{
+					context.Result = new BadRequestResult();
+					break;
+				}
+			}
 
-            context.ExceptionHandled = true;
-        }
-    }
+			context.ExceptionHandled = true;
+		}
+	}
 }

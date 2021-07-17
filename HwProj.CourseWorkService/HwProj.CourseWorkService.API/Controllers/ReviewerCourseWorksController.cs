@@ -12,24 +12,24 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.CourseWorkService.API.Controllers
 {
-    [Authorize]
-    [Route("api/reviewer")]
-    [TypeFilter(typeof(OnlySelectRoleAttribute), Arguments = new object[] { Roles.Reviewer })]
-    [ApiController]
-    public class ReviewerCourseWorksController : ControllerBase
-    {
-	    #region Fields: Private
+	[Authorize]
+	[Route("api/reviewer")]
+	[TypeFilter(typeof(OnlySelectRoleAttribute), Arguments = new object[] {Roles.Reviewer})]
+	[ApiController]
+	public class ReviewerCourseWorksController : ControllerBase
+	{
+		#region Fields: Private
 
-	    private readonly IReviewService _reviewService;
+		private readonly IReviewService _reviewService;
 
-	    #endregion
+		#endregion
 
-	    #region Constructors: Public
+		#region Constructors: Public
 
-	    public ReviewerCourseWorksController(IReviewService reviewService)
-	    {
-		    _reviewService = reviewService;
-	    }
+		public ReviewerCourseWorksController(IReviewService reviewService)
+		{
+			_reviewService = reviewService;
+		}
 
 		#endregion
 
@@ -48,10 +48,7 @@ namespace HwProj.CourseWorkService.API.Controllers
 		[HttpPost("bidding/{courseWorkId}/{biddingValueString}")]
 		public async Task<IActionResult> CreateCourseWorkBid(long courseWorkId, string biddingValueString)
 		{
-			if (!Enum.TryParse<BiddingValues>(biddingValueString, out var biddingValue))
-			{
-				return NotFound();
-			}
+			if (!Enum.TryParse<BiddingValues>(biddingValueString, out var biddingValue)) return NotFound();
 			var userId = Request.GetUserId();
 
 			await _reviewService.CreateCourseWorkBid(userId, courseWorkId, biddingValue).ConfigureAwait(false);

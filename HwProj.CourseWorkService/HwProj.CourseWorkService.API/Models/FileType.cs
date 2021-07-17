@@ -14,13 +14,13 @@ namespace HwProj.CourseWorkService.API.Models
 
 	public class FileType : IEntity<long>
 	{
-		public long Id { get; set; }
-		public string DisplayValue { get; set; }
-		public List<WorkFile> Files { get; set; }
-
 		public FileType()
 		{
 			Files = new List<WorkFile>();
 		}
+
+		public string DisplayValue { get; set; }
+		public List<WorkFile> Files { get; set; }
+		public long Id { get; set; }
 	}
 }

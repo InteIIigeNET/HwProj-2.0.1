@@ -12,139 +12,140 @@ using RabbitMQ.Client.Events;
 
 namespace HwProj.EventBus.Client.Implementations
 {
-    public class EventBusRabbitMq : IEventBus, IDisposable
-    {
-        private const string BrokerName = "hwproj_event_bus";
+	public class EventBusRabbitMq : IEventBus, IDisposable
+	{
+		private const string BrokerName = "hwproj_event_bus";
 
-        private readonly IDefaultConnection _connection;
-        private readonly IServiceScopeFactory _scopeFactory;
+		private readonly IDefaultConnection _connection;
+		private readonly RetryPolicy _policy;
 
-        private readonly string _queueName;
-        private readonly RetryPolicy _policy;
+		private readonly string _queueName;
+		private readonly IServiceScopeFactory _scopeFactory;
 
-        private  IModel _consumerChannel;
+		private IModel _consumerChannel;
 
-        public EventBusRabbitMq(IDefaultConnection connection, IServiceProvider serviceProvider,
-            IServiceScopeFactory scopeFactory, RetryPolicy policy)
-        {
-            _connection = connection;
-            _scopeFactory = scopeFactory;
-            _queueName = serviceProvider.GetApplicationUniqueIdentifier().Split('\\').Last();
-            _policy = policy;
-            _consumerChannel = CreateConsumerChannel();
-        }
+		public EventBusRabbitMq(IDefaultConnection connection, IServiceProvider serviceProvider,
+			IServiceScopeFactory scopeFactory, RetryPolicy policy)
+		{
+			_connection = connection;
+			_scopeFactory = scopeFactory;
+			_queueName = serviceProvider.GetApplicationUniqueIdentifier().Split('\\').Last();
+			_policy = policy;
+			_consumerChannel = CreateConsumerChannel();
+		}
 
-        public void Publish(Event @event)
-        {
-            using (var channel = _connection.CreateModel())
-            {
-                channel.ExchangeDeclare(exchange: BrokerName, type: ExchangeType.Direct, durable: true);
+		public void Dispose()
+		{
+			_consumerChannel.Close();
+			_connection.Dispose();
+		}
 
-                var message = JsonConvert.SerializeObject(@event);
-                var body = Encoding.UTF8.GetBytes(message);
-                var eventName = @event.GetType().Name;
+		public void Publish(Event @event)
+		{
+			using (var channel = _connection.CreateModel())
+			{
+				channel.ExchangeDeclare(BrokerName, ExchangeType.Direct, true);
 
-                var properties = channel.CreateBasicProperties();
-                properties.Persistent = true;
+				var message = JsonConvert.SerializeObject(@event);
+				var body = Encoding.UTF8.GetBytes(message);
+				var eventName = @event.GetType().Name;
 
-                _policy.Execute(() =>
-                {
-                    channel.BasicPublish(exchange: BrokerName,
-                                    routingKey: eventName, 
-                                    mandatory: true,
-                                    basicProperties: properties,  
-                                    body: body);
-                });
-            }
-        }
+				var properties = channel.CreateBasicProperties();
+				properties.Persistent = true;
 
-        public void Subscribe<TEvent>()
-            where TEvent : Event
-        {
-            using (var channel = _connection.CreateModel())
-            {
-                var eventName = GetEventName<TEvent>();
-                channel.QueueBind(queue: _queueName, exchange: BrokerName, routingKey: eventName);
-            }
-            StartBasicConsume();
-        }
+				_policy.Execute(() =>
+				{
+					channel.BasicPublish(BrokerName,
+						eventName,
+						true,
+						properties,
+						body);
+				});
+			}
+		}
 
-        private IModel CreateConsumerChannel()
-        {
-            var channel = _connection.CreateModel();
+		public void Subscribe<TEvent>()
+			where TEvent : Event
+		{
+			using (var channel = _connection.CreateModel())
+			{
+				var eventName = GetEventName<TEvent>();
+				channel.QueueBind(_queueName, BrokerName, eventName);
+			}
 
-            channel.ExchangeDeclare(exchange: BrokerName, type: ExchangeType.Direct, durable: true);
-            channel.QueueDeclare(queue: _queueName,
-                                 durable: true,
-                                 exclusive: false,
-                                 autoDelete: false,
-                                 arguments: null);
+			StartBasicConsume();
+		}
 
-            channel.CallbackException += (sender, ea) =>
-            {
-                _consumerChannel.Close();
-                _consumerChannel = CreateConsumerChannel();
-                StartBasicConsume();
-            };
+		private IModel CreateConsumerChannel()
+		{
+			var channel = _connection.CreateModel();
 
-            return channel;
-        }
+			channel.ExchangeDeclare(BrokerName, ExchangeType.Direct, true);
+			channel.QueueDeclare(_queueName,
+				true,
+				false,
+				false,
+				null);
 
-        private void StartBasicConsume()
-        {
-            var consumer = new EventingBasicConsumer(_consumerChannel);
-            consumer.Received += Consumer_Received;
-            _consumerChannel.BasicConsume(queue: _queueName, autoAck: false, consumer: consumer);
-        }
+			channel.CallbackException += (sender, ea) =>
+			{
+				_consumerChannel.Close();
+				_consumerChannel = CreateConsumerChannel();
+				StartBasicConsume();
+			};
 
-        private async void Consumer_Received(object sender, BasicDeliverEventArgs eventArgs)
-        {
-            var eventName = eventArgs.RoutingKey;
-            var message = Encoding.UTF8.GetString(eventArgs.Body);
+			return channel;
+		}
 
-            await ProcessEvent(eventName, message).ConfigureAwait(false);
+		private void StartBasicConsume()
+		{
+			var consumer = new EventingBasicConsumer(_consumerChannel);
+			consumer.Received += Consumer_Received;
+			_consumerChannel.BasicConsume(_queueName, false, consumer);
+		}
 
-            _consumerChannel.BasicAck(deliveryTag: eventArgs.DeliveryTag, multiple: false);
-        }
+		private async void Consumer_Received(object sender, BasicDeliverEventArgs eventArgs)
+		{
+			var eventName = eventArgs.RoutingKey;
+			var message = Encoding.UTF8.GetString(eventArgs.Body);
 
-        private async Task ProcessEvent(string eventName, string message)
-        {
-            var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes()).ToList();
-            var eventType = types.FirstOrDefault(x => x.Name == eventName);
-            if (eventType != null)
-            {
-                var @event = JsonConvert.DeserializeObject(message, eventType) as Event;
-                var fullTypeInterface = typeof(IEventHandler<>).MakeGenericType(eventType);
-                var handlers =
-                    types.Where(x => fullTypeInterface.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
+			await ProcessEvent(eventName, message).ConfigureAwait(false);
 
-                using (var scope = _scopeFactory.CreateScope())
-                {
-                    foreach (var handler in handlers)
-                    {
-                        var handlerObject = scope.ServiceProvider.GetRequiredService(handler);
-                        // ReSharper disable once PossibleNullReferenceException
-                        await ((Task)handler.GetMethod("HandleAsync")
-                            ?.Invoke(handlerObject, new object[] { @event }))
-                            .ConfigureAwait(false);
-                    }
-                }
-            }
-            else
-            {
-                await Task.CompletedTask;
-            }
-        }
+			_consumerChannel.BasicAck(eventArgs.DeliveryTag, false);
+		}
 
-        public void Dispose()
-        {
-            _consumerChannel.Close();
-            _connection.Dispose();
-        }
+		private async Task ProcessEvent(string eventName, string message)
+		{
+			var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes()).ToList();
+			var eventType = types.FirstOrDefault(x => x.Name == eventName);
+			if (eventType != null)
+			{
+				var @event = JsonConvert.DeserializeObject(message, eventType) as Event;
+				var fullTypeInterface = typeof(IEventHandler<>).MakeGenericType(eventType);
+				var handlers =
+					types.Where(x => fullTypeInterface.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
 
-        private static string GetEventName<TEvent>()
-        {
-            return typeof(TEvent).Name;
-        }
-    }
+				using (var scope = _scopeFactory.CreateScope())
+				{
+					foreach (var handler in handlers)
+					{
+						var handlerObject = scope.ServiceProvider.GetRequiredService(handler);
+						// ReSharper disable once PossibleNullReferenceException
+						await ((Task) handler.GetMethod("HandleAsync")
+								?.Invoke(handlerObject, new object[] {@event}))
+							.ConfigureAwait(false);
+					}
+				}
+			}
+			else
+			{
+				await Task.CompletedTask;
+			}
+		}
+
+		private static string GetEventName<TEvent>()
+		{
+			return typeof(TEvent).Name;
+		}
+	}
 }

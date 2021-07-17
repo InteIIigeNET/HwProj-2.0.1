@@ -2,16 +2,16 @@
 
 namespace HwProj.EventBus.Tests
 {
-    public class TestEvent : Event
-    {
-        public int OldPrice { get; set; }
+	public class TestEvent : Event
+	{
+		public TestEvent(int newPrice, int oldPrice)
+		{
+			OldPrice = oldPrice;
+			NewPrice = newPrice;
+		}
 
-        public int NewPrice { get; set; }
+		public int OldPrice { get; set; }
 
-        public TestEvent(int newPrice, int oldPrice) 
-        {
-            OldPrice = oldPrice;
-            NewPrice = newPrice;
-        }
-    }
+		public int NewPrice { get; set; }
+	}
 }

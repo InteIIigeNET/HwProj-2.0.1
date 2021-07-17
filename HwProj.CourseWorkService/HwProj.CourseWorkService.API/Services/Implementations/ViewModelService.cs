@@ -14,16 +14,6 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 {
 	public class ViewModelService : IViewModelService
 	{
-		#region Fields: Private
-
-		private readonly IDeadlineRepository _deadlineRepository;
-		private readonly IDepartmentRepository _departmentRepository;
-		private readonly IDirectionRepository _directionRepository;
-		private readonly IUsersRepository _usersRepository;
-		private readonly IMapper _mapper;
-
-		#endregion
-
 		#region Constructors: Public
 
 		public ViewModelService(IDeadlineRepository deadlineRepository,
@@ -39,81 +29,94 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 
 		#endregion
 
-        #region Methods: Public
+		#region Fields: Private
 
-        #region Application
+		private readonly IDeadlineRepository _deadlineRepository;
+		private readonly IDepartmentRepository _departmentRepository;
+		private readonly IDirectionRepository _directionRepository;
+		private readonly IUsersRepository _usersRepository;
+		private readonly IMapper _mapper;
 
-        public Application GetApplicationFromViewModel(string userId, long courseWorkId,
-	        CreateApplicationViewModel createApplicationViewModel)
-        {
-	        var application = _mapper.Map<Application>(createApplicationViewModel);
-	        application.Date = DateTime.UtcNow;
-	        application.StudentProfileId = userId;
-	        application.CourseWorkId = courseWorkId;
-	        return application;
-        }
+		#endregion
 
-        public StudentApplicationDTO GetStudentApplicationDTO(Application application)
-        {
-	        var studentApplication = _mapper.Map<StudentApplicationDTO>(application);
-	        studentApplication.CourseWorkTitle = application.CourseWork.Title;
-	        studentApplication.CourseWorkOverview = application.CourseWork.Overview;
-	        studentApplication.CourseWorkSupervisorName = application.CourseWork.SupervisorName;
-	        return studentApplication;
-        }
-        public LecturerApplicationDTO GetLecturerApplicationDTO(Application application)
-        {
-	        var lecturerApplication = _mapper.Map<LecturerApplicationDTO>(application);
-	        lecturerApplication.CourseWorkTitle = application.CourseWork.Title;
-	        lecturerApplication.CourseWorkOverview = application.CourseWork.Overview;
-	        lecturerApplication.StudentName = application.StudentProfile.User.UserName;
-	        lecturerApplication.StudentGroup = application.StudentProfile.Group ?? default;
-	        return lecturerApplication;
-        }
-        public OverviewApplicationDTO GetOverviewApplicationDTO(Application application)
-        {
-	        var overviewApplication = _mapper.Map<OverviewApplicationDTO>(application);
-	        overviewApplication.CourseWorkTitle = application.CourseWork.Title;
-	        overviewApplication.StudentName = application.StudentProfile.User.UserName;
-	        overviewApplication.StudentGroup = application.StudentProfile.Group ?? default;
-	        return overviewApplication;
-        }
+		#region Methods: Public
+
+		#region Application
+
+		public Application GetApplicationFromViewModel(string userId, long courseWorkId,
+			CreateApplicationViewModel createApplicationViewModel)
+		{
+			var application = _mapper.Map<Application>(createApplicationViewModel);
+			application.Date = DateTime.UtcNow;
+			application.StudentProfileId = userId;
+			application.CourseWorkId = courseWorkId;
+			return application;
+		}
+
+		public StudentApplicationDTO GetStudentApplicationDTO(Application application)
+		{
+			var studentApplication = _mapper.Map<StudentApplicationDTO>(application);
+			studentApplication.CourseWorkTitle = application.CourseWork.Title;
+			studentApplication.CourseWorkOverview = application.CourseWork.Overview;
+			studentApplication.CourseWorkSupervisorName = application.CourseWork.SupervisorName;
+			return studentApplication;
+		}
+
+		public LecturerApplicationDTO GetLecturerApplicationDTO(Application application)
+		{
+			var lecturerApplication = _mapper.Map<LecturerApplicationDTO>(application);
+			lecturerApplication.CourseWorkTitle = application.CourseWork.Title;
+			lecturerApplication.CourseWorkOverview = application.CourseWork.Overview;
+			lecturerApplication.StudentName = application.StudentProfile.User.UserName;
+			lecturerApplication.StudentGroup = application.StudentProfile.Group ?? default;
+			return lecturerApplication;
+		}
+
+		public OverviewApplicationDTO GetOverviewApplicationDTO(Application application)
+		{
+			var overviewApplication = _mapper.Map<OverviewApplicationDTO>(application);
+			overviewApplication.CourseWorkTitle = application.CourseWork.Title;
+			overviewApplication.StudentName = application.StudentProfile.User.UserName;
+			overviewApplication.StudentGroup = application.StudentProfile.Group ?? default;
+			return overviewApplication;
+		}
 
 		#endregion
 
 		#region CourseWorks
 
 		public async Task<CourseWork> GetCourseWorkFromViewModel(CreateCourseWorkViewModel createCourseWorkViewModel,
-	        string userId, bool createdByCurator)
-        {
-	        var courseWork = _mapper.Map<CourseWork>(createCourseWorkViewModel);
-	        if (createdByCurator)
-	        {
-		        courseWork.CreatedByCurator = true;
-	        }
-	        else
-	        {
-		        var user = await _usersRepository.GetUserAsync(userId).ConfigureAwait(false);
-		        courseWork.SupervisorName = user.UserName;
-		        courseWork.SupervisorContact = courseWork.SupervisorContact ?? user.LecturerProfile?.Contact;
-	        }
+			string userId, bool createdByCurator)
+		{
+			var courseWork = _mapper.Map<CourseWork>(createCourseWorkViewModel);
+			if (createdByCurator)
+			{
+				courseWork.CreatedByCurator = true;
+			}
+			else
+			{
+				var user = await _usersRepository.GetUserAsync(userId).ConfigureAwait(false);
+				courseWork.SupervisorName = user.UserName;
+				courseWork.SupervisorContact = courseWork.SupervisorContact ?? user.LecturerProfile?.Contact;
+			}
 
-	        courseWork.CreationTime = DateTime.UtcNow;
-	        courseWork.LecturerProfileId = userId;
-	        return courseWork;
-        }
+			courseWork.CreationTime = DateTime.UtcNow;
+			courseWork.LecturerProfileId = userId;
+			return courseWork;
+		}
 
 		public async Task<OverviewCourseWorkDTO> GetCourseWorkOverviewDTO(CourseWork courseWork)
-        {
-            var courseWorkDTO = _mapper.Map<OverviewCourseWorkDTO>(courseWork);
+		{
+			var courseWorkDTO = _mapper.Map<OverviewCourseWorkDTO>(courseWork);
 
-            var student = await _usersRepository.GetAsync(courseWork.StudentProfileId).ConfigureAwait(false);
-            courseWorkDTO.StudentName = student?.UserName ?? "";
+			var student = await _usersRepository.GetAsync(courseWork.StudentProfileId).ConfigureAwait(false);
+			courseWorkDTO.StudentName = student?.UserName ?? "";
 
-            return courseWorkDTO;
-        }
+			return courseWorkDTO;
+		}
 
-		public async Task<ReviewerOverviewCourseWorkDTO> GetReviewerOverviewCourseWorkDTO(CourseWork courseWork, string reviewerId)
+		public async Task<ReviewerOverviewCourseWorkDTO> GetReviewerOverviewCourseWorkDTO(CourseWork courseWork,
+			string reviewerId)
 		{
 			var overviewDTO = await GetCourseWorkOverviewDTO(courseWork).ConfigureAwait(false);
 			var reviewerCourseWorkDTO = _mapper.Map<ReviewerOverviewCourseWorkDTO>(overviewDTO);
@@ -134,22 +137,23 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 		}
 
 		public async Task<DetailCourseWorkDTO> GetCourseWorkDetailDTO(CourseWork courseWork)
-        {
-            var detailCourseWorkDTO = _mapper.Map<DetailCourseWorkDTO>(courseWork);
-            var reviewer = await _usersRepository.GetAsync(courseWork.ReviewerProfileId).ConfigureAwait(false);
-            var student = await _usersRepository.GetUserAsync(courseWork.StudentProfileId).ConfigureAwait(false);
+		{
+			var detailCourseWorkDTO = _mapper.Map<DetailCourseWorkDTO>(courseWork);
+			var reviewer = await _usersRepository.GetAsync(courseWork.ReviewerProfileId).ConfigureAwait(false);
+			var student = await _usersRepository.GetUserAsync(courseWork.StudentProfileId).ConfigureAwait(false);
 
-            detailCourseWorkDTO.ReviewerName = reviewer?.UserName ?? "";
-            detailCourseWorkDTO.StudentName = student?.UserName ?? "";
-            detailCourseWorkDTO.StudentCourse = student?.StudentProfile.Course ?? 0;
-            return detailCourseWorkDTO;
-        }
+			detailCourseWorkDTO.ReviewerName = reviewer?.UserName ?? "";
+			detailCourseWorkDTO.StudentName = student?.UserName ?? "";
+			detailCourseWorkDTO.StudentCourse = student?.StudentProfile.Course ?? 0;
+			return detailCourseWorkDTO;
+		}
+
 		public WorkFileDTO GetWorkFileDTO(WorkFile workFile)
-        {
-            var workFileDTO = _mapper.Map<WorkFileDTO>(workFile);
-            workFileDTO.FileTypeName = workFile.FileType.DisplayValue;
-            return workFileDTO;
-        }
+		{
+			var workFileDTO = _mapper.Map<WorkFileDTO>(workFile);
+			workFileDTO.FileTypeName = workFile.FileType.DisplayValue;
+			return workFileDTO;
+		}
 
 		#endregion
 
@@ -161,11 +165,13 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 			direction.CuratorProfileId = directionViewModel.CuratorId;
 			return direction;
 		}
+
 		public Department GetDepartmentFromViewModel(AddDepartmentViewModel departmentViewModel)
 		{
 			var department = _mapper.Map<Department>(departmentViewModel);
 			return department;
 		}
+
 		public Deadline GetDeadlineFromViewModel(AddDeadlineViewModel deadlineViewModel, string userId)
 		{
 			var deadline = _mapper.Map<Deadline>(deadlineViewModel);
@@ -174,23 +180,25 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 		}
 
 		public DirectionDTO GetDirectionDTO(Direction direction)
-        {
-	        var directionDTO = _mapper.Map<DirectionDTO>(direction);
-	        directionDTO.CuratorName = direction.CuratorProfile.User.UserName;
-	        return directionDTO;
-        }
+		{
+			var directionDTO = _mapper.Map<DirectionDTO>(direction);
+			directionDTO.CuratorName = direction.CuratorProfile.User.UserName;
+			return directionDTO;
+		}
+
 		public DepartmentDTO GetDepartmentDTO(Department department)
-        {
-	        var departmentDTO = _mapper.Map<DepartmentDTO>(department);
-	        return departmentDTO;
-        }
+		{
+			var departmentDTO = _mapper.Map<DepartmentDTO>(department);
+			return departmentDTO;
+		}
+
 		public DeadlineDTO GetDeadlineDTO(Deadline deadline)
-        {
-	        var deadlineDTO = _mapper.Map<DeadlineDTO>(deadline);
-	        deadlineDTO.DeadlineTypeName = deadline.DeadlineType.DisplayValue;
-	        deadlineDTO.DirectionName = deadline.Direction.Name;
-	        return deadlineDTO;
-        }
+		{
+			var deadlineDTO = _mapper.Map<DeadlineDTO>(deadline);
+			deadlineDTO.DeadlineTypeName = deadline.DeadlineType.DisplayValue;
+			deadlineDTO.DirectionName = deadline.Direction.Name;
+			return deadlineDTO;
+		}
 
 		#endregion
 
@@ -214,14 +222,14 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 			userFullInfoDTO.DirectionId = user.StudentProfile?.DirectionId;
 			var direction = userFullInfoDTO.DirectionId == null
 				? null
-				: await _directionRepository.GetAsync((long)userFullInfoDTO.DirectionId).ConfigureAwait(false);
+				: await _directionRepository.GetAsync((long) userFullInfoDTO.DirectionId).ConfigureAwait(false);
 			userFullInfoDTO.DirectionName = direction == null ? "" : direction.Name;
 			userFullInfoDTO.Course = user.StudentProfile?.Course;
 			userFullInfoDTO.Group = user.StudentProfile?.Group;
 			userFullInfoDTO.DepartmentId = user.LecturerProfile?.DepartmentId;
 			var department = userFullInfoDTO.DepartmentId == null
 				? null
-				: await _departmentRepository.GetAsync((long)userFullInfoDTO.DepartmentId).ConfigureAwait(false);
+				: await _departmentRepository.GetAsync((long) userFullInfoDTO.DepartmentId).ConfigureAwait(false);
 			userFullInfoDTO.DepartmentName = department == null ? "" : department.Name;
 			userFullInfoDTO.Contact = user.LecturerProfile?.Contact;
 			return userFullInfoDTO;
@@ -231,7 +239,8 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 
 		#region Review
 
-		public async Task<ReviewersDistributionDTO> GetReviewersDistributionDTO(CourseWork courseWork, string reviewerId)
+		public async Task<ReviewersDistributionDTO> GetReviewersDistributionDTO(CourseWork courseWork,
+			string reviewerId)
 		{
 			var reviewer = await _usersRepository.GetUserAsync(reviewerId).ConfigureAwait(false);
 

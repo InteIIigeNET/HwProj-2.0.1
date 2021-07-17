@@ -10,29 +10,29 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace HwProj.HomeworkService.API
 {
-    public class Startup
-    {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+	public class Startup
+	{
+		public Startup(IConfiguration configuration)
+		{
+			Configuration = configuration;
+		}
 
-        public IConfiguration Configuration { get; }
+		public IConfiguration Configuration { get; }
 
-        public void ConfigureServices(IServiceCollection services)
-        {
-            var connectionString = Configuration.GetConnectionString("DefaultConnection");
-            services.AddDbContext<HomeworkContext>(options => options.UseSqlServer(connectionString));
-            services.AddScoped<IHomeworksRepository, HomeworksRepository>();
-            services.AddScoped<ITasksRepository, TasksRepository>();
-            services.AddScoped<IHomeworksService, HomeworksService>();
-            services.AddScoped<ITasksService, TasksService>();
-            services.ConfigureHwProjServices("Homeworks API");
-        }
+		public void ConfigureServices(IServiceCollection services)
+		{
+			var connectionString = Configuration.GetConnectionString("DefaultConnection");
+			services.AddDbContext<HomeworkContext>(options => options.UseSqlServer(connectionString));
+			services.AddScoped<IHomeworksRepository, HomeworksRepository>();
+			services.AddScoped<ITasksRepository, TasksRepository>();
+			services.AddScoped<IHomeworksService, HomeworksService>();
+			services.AddScoped<ITasksService, TasksService>();
+			services.ConfigureHwProjServices("Homeworks API");
+		}
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
-        {
-            app.ConfigureHwProj(env, "Homeworks API");
-        }
-    }
+		public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+		{
+			app.ConfigureHwProj(env, "Homeworks API");
+		}
+	}
 }

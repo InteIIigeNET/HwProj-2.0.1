@@ -7,15 +7,16 @@ using HwProj.CourseWorkService.API.Models.ViewModels;
 
 namespace HwProj.CourseWorkService.API.Services.Interfaces
 {
-    public interface IApplicationsService
-    {
-        Task<long> AddApplicationAsync(string userId, long courseWorkId,
-            CreateApplicationViewModel createApplicationViewModel);
-        Task<OverviewApplicationDTO[]> GetFilteredApplicationsAsync(Expression<Func<Application, bool>> predicate);
-        Task<StudentApplicationDTO> GetApplicationForStudentAsync(string userId, long appId);
-        Task<LecturerApplicationDTO> GetApplicationForLecturerAsync(string userId, long appId);
-        Task CancelApplicationAsync(string userId, long appId);
-        Task RejectApplicationAsync(string userId, long appId);
-        Task AcceptStudentApplicationAsync(string userId, long appId);
-    }
+	public interface IApplicationsService
+	{
+		Task<long> AddApplicationAsync(string userId, long courseWorkId,
+			CreateApplicationViewModel createApplicationViewModel);
+
+		Task<OverviewApplicationDTO[]> GetFilteredApplicationsAsync(Expression<Func<Application, bool>> predicate);
+		Task<StudentApplicationDTO> GetApplicationForStudentAsync(string userId, long appId);
+		Task<LecturerApplicationDTO> GetApplicationForLecturerAsync(string userId, long appId);
+		Task CancelApplicationAsync(string userId, long appId);
+		Task RejectApplicationAsync(string userId, long appId);
+		Task AcceptStudentApplicationAsync(string userId, long appId);
+	}
 }

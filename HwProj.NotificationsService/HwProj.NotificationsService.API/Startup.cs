@@ -10,27 +10,27 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace HwProj.NotificationsService.API
 {
-    public class Startup
-    {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+	public class Startup
+	{
+		public Startup(IConfiguration configuration)
+		{
+			Configuration = configuration;
+		}
 
-        public IConfiguration Configuration { get; }
+		public IConfiguration Configuration { get; }
 
-        public void ConfigureServices(IServiceCollection services)
-        {
-            var connectionString = Configuration.GetConnectionString("DefaultConnection");
-            services.AddDbContext<NotificationsContext>(options => options.UseSqlServer(connectionString));
-            services.AddScoped<INotificationsRepository, NotificationsRepository>();
-            services.AddScoped<INotificationsService, Services.NotificationsService>();
-            services.ConfigureHwProjServices("Notifications API");
-        }
+		public void ConfigureServices(IServiceCollection services)
+		{
+			var connectionString = Configuration.GetConnectionString("DefaultConnection");
+			services.AddDbContext<NotificationsContext>(options => options.UseSqlServer(connectionString));
+			services.AddScoped<INotificationsRepository, NotificationsRepository>();
+			services.AddScoped<INotificationsService, Services.NotificationsService>();
+			services.ConfigureHwProjServices("Notifications API");
+		}
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
-        {
-            app.ConfigureHwProj(env, "Notifications API");
-        }
-    }
+		public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+		{
+			app.ConfigureHwProj(env, "Notifications API");
+		}
+	}
 }

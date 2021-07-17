@@ -15,21 +15,11 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 
 	public class ReviewService : IReviewService
 	{
-		#region Fields: Private
-
-		private readonly ICourseWorksService _courseWorksService;
-		private readonly IReviewersDistributionService _reviewersDistributionService;
-		private readonly IViewModelService _viewModelService;
-		private readonly ICourseWorksRepository _courseWorksRepository;
-		private readonly IUsersRepository _usersRepository;
-
-		#endregion
-
 		#region Constructors: Public
 
 		public ReviewService(ICourseWorksService courseWorksService,
 			IReviewersDistributionService reviewersDistributionService,
-			IViewModelService viewModelService, ICourseWorksRepository courseWorksRepository, 
+			IViewModelService viewModelService, ICourseWorksRepository courseWorksRepository,
 			IUsersRepository usersRepository)
 		{
 			_courseWorksService = courseWorksService;
@@ -38,6 +28,16 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 			_courseWorksRepository = courseWorksRepository;
 			_usersRepository = usersRepository;
 		}
+
+		#endregion
+
+		#region Fields: Private
+
+		private readonly ICourseWorksService _courseWorksService;
+		private readonly IReviewersDistributionService _reviewersDistributionService;
+		private readonly IViewModelService _viewModelService;
+		private readonly ICourseWorksRepository _courseWorksRepository;
+		private readonly IUsersRepository _usersRepository;
 
 		#endregion
 
@@ -64,11 +64,11 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 			var courseWorks = await _courseWorksRepository
 				.GetAll()
 				.Include(cw => cw.CuratorProfile)
-					.ThenInclude(cp => cp.ReviewersInCuratorsBidding)
+				.ThenInclude(cp => cp.ReviewersInCuratorsBidding)
 				.Include(cw => cw.Bids)
-				.Where(cw => 
-					!cw.IsCompleted 
-					&& cw.ReviewerProfileId == null 
+				.Where(cw =>
+					!cw.IsCompleted
+					&& cw.ReviewerProfileId == null
 					&& cw.CuratorProfile.ReviewersInCuratorsBidding
 						.Any(e => e.ReviewerProfileId == reviewerId))
 				.ToArrayAsync()
@@ -91,35 +91,33 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 		{
 			var distribution = await _reviewersDistributionService.GetOptimizedDistribution(curatorId)
 				.ConfigureAwait(false);
-			return await Task.WhenAll(distribution.Select(async d => await _viewModelService.GetReviewersDistributionDTO(d.CourseWork, d.ReviewerId)).ToArray());
+			return await Task.WhenAll(distribution.Select(async d =>
+				await _viewModelService.GetReviewersDistributionDTO(d.CourseWork, d.ReviewerId)).ToArray());
 		}
 
-		public async Task SetReviewersDistribution(string curatorId, SetReviewDistributionViewModel[] distributionViewModels)
+		public async Task SetReviewersDistribution(string curatorId,
+			SetReviewDistributionViewModel[] distributionViewModels)
 		{
 			var courseWorksIds = (await _courseWorksService
-				.GetFilteredCourseWorksAsync(cw => cw.CuratorProfileId == curatorId)
-				.ConfigureAwait(false))
-					.Select(c => c.Id)
-					.ToArray();
+					.GetFilteredCourseWorksAsync(cw => cw.CuratorProfileId == curatorId)
+					.ConfigureAwait(false))
+				.Select(c => c.Id)
+				.ToArray();
 			var reviewersIds = (await _usersRepository
-				.GetUserAsync(curatorId).ConfigureAwait(false))
+					.GetUserAsync(curatorId).ConfigureAwait(false))
 				.CuratorProfile.ReviewersInCuratorsBidding
 				.Select(e => e.ReviewerProfileId)
 				.ToArray();
 			if (distributionViewModels.Any(distribution => !courseWorksIds.Contains(distribution.CourseWorkId)
 			                                               || !reviewersIds.Contains(distribution.ReviewerId)))
-			{
 				throw new ForbidException("You have not rights for this distribution.");
-			}
 
 			foreach (var distribution in distributionViewModels)
-			{
-				await _courseWorksRepository.UpdateAsync(distribution.CourseWorkId, 
+				await _courseWorksRepository.UpdateAsync(distribution.CourseWorkId,
 					cw => new CourseWork
 					{
 						ReviewerProfileId = distribution.ReviewerId
 					}).ConfigureAwait(false);
-			}
 		}
 
 		#endregion

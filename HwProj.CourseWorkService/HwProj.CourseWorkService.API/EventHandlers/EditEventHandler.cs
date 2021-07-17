@@ -6,23 +6,23 @@ using HwProj.EventBus.Client.Interfaces;
 
 namespace HwProj.CourseWorkService.API.EventHandlers
 {
-    public class EditEventHandler : IEventHandler<EditEvent>
-    {
-        private readonly IUsersRepository _usersRepository;
+	public class EditEventHandler : IEventHandler<EditEvent>
+	{
+		private readonly IUsersRepository _usersRepository;
 
-        public EditEventHandler(IUsersRepository usersRepository)
-        {
-            _usersRepository = usersRepository;
-        }
+		public EditEventHandler(IUsersRepository usersRepository)
+		{
+			_usersRepository = usersRepository;
+		}
 
-        public async Task HandleAsync(EditEvent @event)
-        {
-            await _usersRepository.UpdateAsync(@event.UserId, u => new User()
-            {
-                Name = @event.NewName,
-                Surname = @event.NewSurname,
-                MiddleName = @event.NewMiddleName
-            }).ConfigureAwait(false);
-        }
-    }
+		public async Task HandleAsync(EditEvent @event)
+		{
+			await _usersRepository.UpdateAsync(@event.UserId, u => new User
+			{
+				Name = @event.NewName,
+				Surname = @event.NewSurname,
+				MiddleName = @event.NewMiddleName
+			}).ConfigureAwait(false);
+		}
+	}
 }

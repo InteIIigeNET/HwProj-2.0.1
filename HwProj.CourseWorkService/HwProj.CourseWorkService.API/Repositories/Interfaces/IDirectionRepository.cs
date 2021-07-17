@@ -4,8 +4,8 @@ using HwProj.Repositories;
 
 namespace HwProj.CourseWorkService.API.Repositories.Interfaces
 {
-    public interface IDirectionRepository : ICrudRepository<Direction, long>
-    {
-        Task<Direction[]> GetDirectionsAsync();
-    }
+	public interface IDirectionRepository : ICrudRepository<Direction, long>
+	{
+		Task<Direction[]> GetDirectionsAsync();
+	}
 }

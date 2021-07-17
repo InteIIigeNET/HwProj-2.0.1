@@ -6,9 +6,9 @@ using HwProj.Repositories;
 
 namespace HwProj.CourseWorkService.API.Repositories.Interfaces
 {
-    public interface IDeadlineRepository : ICrudRepository<Deadline, long>
-    {
-        Task<Deadline> GetDeadlineAsync(long id);
-        Task<Deadline[]> FindAllDeadlines(Expression<Func<Deadline, bool>> predicate);
-    }
+	public interface IDeadlineRepository : ICrudRepository<Deadline, long>
+	{
+		Task<Deadline> GetDeadlineAsync(long id);
+		Task<Deadline[]> FindAllDeadlines(Expression<Func<Deadline, bool>> predicate);
+	}
 }

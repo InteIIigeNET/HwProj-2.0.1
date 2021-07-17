@@ -4,8 +4,8 @@ using HwProj.Repositories;
 
 namespace HwProj.CourseWorkService.API.Repositories.Interfaces
 {
-    public interface IWorkFilesRepository : ICrudRepository<WorkFile, long>
-    {
-        Task<WorkFile> GetWorkFileAsync(long id);
-    }
+	public interface IWorkFilesRepository : ICrudRepository<WorkFile, long>
+	{
+		Task<WorkFile> GetWorkFileAsync(long id);
+	}
 }

@@ -7,27 +7,31 @@ namespace HwProj.CourseWorkService.API
 		private const int Inf = 1000000;
 
 		private readonly int[,] _matrix;
+
+		//p -- паросочетание
+		private readonly int[] _p;
+
 		//u и v -- потенциалы
 		private readonly int[] _u;
-		private readonly int[] _v;
-			//p -- паросочетание
-		private readonly int[] _p;
-			//way -- вспомогательный массив для хранения минимумов, для более быстрой реализации
-		private readonly int[] _way;
 
-		private int RowCount { get; }
-		private int ColumnCount { get; }
+		private readonly int[] _v;
+
+		//way -- вспомогательный массив для хранения минимумов, для более быстрой реализации
+		private readonly int[] _way;
 
 		public HungarianAlgorithmExecuter(int[,] matrix)
 		{
 			RowCount = matrix.GetLength(0);
 			ColumnCount = matrix.GetLength(1);
-			this._matrix = matrix;
+			_matrix = matrix;
 			_u = new int[RowCount + 1];
 			_v = new int[ColumnCount + 1];
 			_p = new int[ColumnCount + 1];
 			_way = new int[ColumnCount + 1];
 		}
+
+		private int RowCount { get; }
+		private int ColumnCount { get; }
 
 		public int[] GetAnswer()
 		{
@@ -59,7 +63,6 @@ namespace HwProj.CourseWorkService.API
 					}
 
 					for (var j = 0; j <= ColumnCount; j++)
-					{
 						if (used[j])
 						{
 							_u[_p[j]] += delta;
@@ -69,9 +72,10 @@ namespace HwProj.CourseWorkService.API
 						{
 							minv[j] -= delta;
 						}
-					}
+
 					j0 = j1;
 				} while (_p[j0] != 0);
+
 				do
 				{
 					var j1 = _way[j0];
@@ -90,10 +94,7 @@ namespace HwProj.CourseWorkService.API
 		private T[] InitArray<T>(int length, T value)
 		{
 			var arr = new T[length];
-			for (var i = 0; i < arr.Length; i++)
-			{
-				arr[i] = value;
-			}
+			for (var i = 0; i < arr.Length; i++) arr[i] = value;
 
 			return arr;
 		}

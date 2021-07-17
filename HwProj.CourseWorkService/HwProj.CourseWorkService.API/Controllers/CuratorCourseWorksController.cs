@@ -14,114 +14,113 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.CourseWorkService.API.Controllers
 {
-    [Authorize]
-    [Route("api/curator")]
-    [TypeFilter(typeof(OnlySelectRoleAttribute), Arguments = new object[] { Roles.Curator })]
-    [TypeFilter(typeof(CommonExceptionFilterAttribute),
-        Arguments = new object[] { new[] { typeof(ObjectNotFoundException) } })]
-    [ApiController]
-    public class CuratorCourseWorksController : ControllerBase
-    {
-        #region Fields: Private
+	[Authorize]
+	[Route("api/curator")]
+	[TypeFilter(typeof(OnlySelectRoleAttribute), Arguments = new object[] {Roles.Curator})]
+	[TypeFilter(typeof(CommonExceptionFilterAttribute),
+		Arguments = new object[] {new[] {typeof(ObjectNotFoundException)}})]
+	[ApiController]
+	public class CuratorCourseWorksController : ControllerBase
+	{
+		#region Constructors: Public
 
-        private readonly ICourseWorksService _courseWorksService;
-        private readonly IReviewService _reviewService;
-        private readonly IUniversityService _universityService;
-        private readonly IUserService _userService;
+		public CuratorCourseWorksController(ICourseWorksService courseWorksService, IReviewService reviewService,
+			IUniversityService universityService, IUserService userService)
+		{
+			_courseWorksService = courseWorksService;
+			_reviewService = reviewService;
+			_universityService = universityService;
+			_userService = userService;
+		}
 
-        #endregion
+		#endregion
 
-        #region Constructors: Public
+		#region Fields: Private
 
-        public CuratorCourseWorksController(ICourseWorksService courseWorksService, IReviewService reviewService,
-            IUniversityService universityService, IUserService userService)
-        {
-            _courseWorksService = courseWorksService;
-            _reviewService = reviewService;
-            _universityService = universityService;
-            _userService = userService;
-        }
+		private readonly ICourseWorksService _courseWorksService;
+		private readonly IReviewService _reviewService;
+		private readonly IUniversityService _universityService;
+		private readonly IUserService _userService;
 
-        #endregion
+		#endregion
 
-        #region Methods: Public
+		#region Methods: Public
 
-        [HttpPost("course_works/add")]
-        [ProducesResponseType(typeof(int), (int) HttpStatusCode.OK)]
-        public async Task<IActionResult> AddCourseWorkAsync([FromBody] CreateCourseWorkViewModel createCourseWorkViewModel)
-        {
-            var userId = Request.GetUserId();
-            var id = await _courseWorksService.AddCourseWorkAsync(createCourseWorkViewModel, userId, true);
-            return Ok(id);
-        }
+		[HttpPost("course_works/add")]
+		[ProducesResponseType(typeof(int), (int) HttpStatusCode.OK)]
+		public async Task<IActionResult> AddCourseWorkAsync(
+			[FromBody] CreateCourseWorkViewModel createCourseWorkViewModel)
+		{
+			var userId = Request.GetUserId();
+			var id = await _courseWorksService.AddCourseWorkAsync(createCourseWorkViewModel, userId, true);
+			return Ok(id);
+		}
 
-        [HttpGet("course_works/created_by_curator/{status}")]
-        [ProducesResponseType(typeof(OverviewCourseWorkDTO[]), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetMyCourseWork(string status)
-        {
-	        if (status != "active" && status != "completed")
-	        {
-		        return NotFound();
-	        }
+		[HttpGet("course_works/created_by_curator/{status}")]
+		[ProducesResponseType(typeof(OverviewCourseWorkDTO[]), (int) HttpStatusCode.OK)]
+		public async Task<IActionResult> GetMyCourseWork(string status)
+		{
+			if (status != "active" && status != "completed") return NotFound();
 
-	        var userId = Request.GetUserId();
-	        var courseWorks = await _courseWorksService
-		        .GetFilteredCourseWorksAsync(courseWork =>
-			        courseWork.IsCompleted == (status == "completed") &&
-			        courseWork.LecturerProfileId == userId &&
-			        courseWork.CreatedByCurator)
-		        .ConfigureAwait(false);
-	        return Ok(courseWorks);
-        }
+			var userId = Request.GetUserId();
+			var courseWorks = await _courseWorksService
+				.GetFilteredCourseWorksAsync(courseWork =>
+					courseWork.IsCompleted == (status == "completed") &&
+					courseWork.LecturerProfileId == userId &&
+					courseWork.CreatedByCurator)
+				.ConfigureAwait(false);
+			return Ok(courseWorks);
+		}
 
-        [HttpPut("profile")]
-        public async Task<IActionResult> UpdateProfileAsync([FromBody] CuratorProfileViewModel curatorProfileViewModel)
-        {
-            var userId = Request.GetUserId();
-            await _userService.UpdateUserRoleProfile<CuratorProfile, CuratorProfileViewModel>(userId, curatorProfileViewModel)
-                .ConfigureAwait(false);
-            return Ok();
-        }
+		[HttpPut("profile")]
+		public async Task<IActionResult> UpdateProfileAsync([FromBody] CuratorProfileViewModel curatorProfileViewModel)
+		{
+			var userId = Request.GetUserId();
+			await _userService
+				.UpdateUserRoleProfile<CuratorProfile, CuratorProfileViewModel>(userId, curatorProfileViewModel)
+				.ConfigureAwait(false);
+			return Ok();
+		}
 
-        [HttpPost("invite")]
-        public async Task<IActionResult> InviteCuratorAsync([FromBody] InviteCuratorViewModel model)
-        {
-            await _userService.InviteCuratorAsync(model.Email);
-            return Ok();
-        }
+		[HttpPost("invite")]
+		public async Task<IActionResult> InviteCuratorAsync([FromBody] InviteCuratorViewModel model)
+		{
+			await _userService.InviteCuratorAsync(model.Email);
+			return Ok();
+		}
 
-        [HttpPost("directions")]
-        [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> AddDirectionAsync([FromBody] AddDirectionViewModel directionViewModel)
-        {
-            var id = await _universityService.AddDirectionAsync(directionViewModel).ConfigureAwait(false);
-            return Ok(id);
-        }
+		[HttpPost("directions")]
+		[ProducesResponseType(typeof(long), (int) HttpStatusCode.OK)]
+		public async Task<IActionResult> AddDirectionAsync([FromBody] AddDirectionViewModel directionViewModel)
+		{
+			var id = await _universityService.AddDirectionAsync(directionViewModel).ConfigureAwait(false);
+			return Ok(id);
+		}
 
-        [HttpDelete("directions/{directionId}")]
-        public async Task<IActionResult> DeleteDirectionAsync(long directionId)
-        {
-            await _universityService.DeleteDirectionAsync(directionId).ConfigureAwait(false);
-            return Ok();
-        }
+		[HttpDelete("directions/{directionId}")]
+		public async Task<IActionResult> DeleteDirectionAsync(long directionId)
+		{
+			await _universityService.DeleteDirectionAsync(directionId).ConfigureAwait(false);
+			return Ok();
+		}
 
-        [HttpPost("departments")]
-        [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> AddDepartmentAsync([FromBody] AddDepartmentViewModel departmentViewModel)
-        {
-            var id = await _universityService.AddDepartmentAsync(departmentViewModel).ConfigureAwait(false);
-            return Ok(id);
-        }
+		[HttpPost("departments")]
+		[ProducesResponseType(typeof(long), (int) HttpStatusCode.OK)]
+		public async Task<IActionResult> AddDepartmentAsync([FromBody] AddDepartmentViewModel departmentViewModel)
+		{
+			var id = await _universityService.AddDepartmentAsync(departmentViewModel).ConfigureAwait(false);
+			return Ok(id);
+		}
 
-        [HttpDelete("departments/{departmentId}")]
-        public async Task<IActionResult> DeleteDepartmentAsync(long departmentId)
-        {
-            await _universityService.DeleteDepartmentAsync(departmentId).ConfigureAwait(false);
-            return Ok();
-        }
+		[HttpDelete("departments/{departmentId}")]
+		public async Task<IActionResult> DeleteDepartmentAsync(long departmentId)
+		{
+			await _universityService.DeleteDepartmentAsync(departmentId).ConfigureAwait(false);
+			return Ok();
+		}
 
-        [HttpGet("deadlines")]
-		[ProducesResponseType(typeof(DeadlineDTO[]), (int)HttpStatusCode.OK)]
+		[HttpGet("deadlines")]
+		[ProducesResponseType(typeof(DeadlineDTO[]), (int) HttpStatusCode.OK)]
 		public async Task<IActionResult> GetDeadlinesAsync()
 		{
 			var userId = Request.GetUserId();
@@ -130,16 +129,14 @@ namespace HwProj.CourseWorkService.API.Controllers
 		}
 
 		[HttpPost("deadlines")]
-        [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> AddDeadlineAsync([FromBody] AddDeadlineViewModel addDeadlineViewModel)
+		[ProducesResponseType(typeof(long), (int) HttpStatusCode.OK)]
+		public async Task<IActionResult> AddDeadlineAsync([FromBody] AddDeadlineViewModel addDeadlineViewModel)
 		{
 			if (addDeadlineViewModel.DeadlineTypeId == (long) DeadlineTypes.ChoiceTheme
-			    && (addDeadlineViewModel.DirectionId == null 
-			        || addDeadlineViewModel.Course == null 
+			    && (addDeadlineViewModel.DirectionId == null
+			        || addDeadlineViewModel.Course == null
 			        || addDeadlineViewModel.CourseWorkId != null))
-			{
 				return BadRequest();
-			}
 
 			var userId = Request.GetUserId();
 			var id = await _universityService.AddDeadlineAsync(userId, addDeadlineViewModel).ConfigureAwait(false);
@@ -168,19 +165,20 @@ namespace HwProj.CourseWorkService.API.Controllers
 			var usersDTO = await _userService.GetUsersByRoleAsync(Roles.Reviewer)
 				.ConfigureAwait(false);
 			return Ok(usersDTO);
-        }
+		}
 
-        [HttpGet("reviewers/bidding")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserDTO[]))]
-        public async Task<IActionResult> GetReviewersInBidding()
-        {
-            var userId = Request.GetUserId();
-            var usersDTO = await _reviewService.GetReviewersInBidding(userId).ConfigureAwait(false);
-	        return Ok(usersDTO);
-        }
+		[HttpGet("reviewers/bidding")]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserDTO[]))]
+		public async Task<IActionResult> GetReviewersInBidding()
+		{
+			var userId = Request.GetUserId();
+			var usersDTO = await _reviewService.GetReviewersInBidding(userId).ConfigureAwait(false);
+			return Ok(usersDTO);
+		}
 
-        [HttpPost("reviewers/set_to_bidding")]
-		public async Task<IActionResult> SetReviewersToBidding([FromBody] ReviewersForBiddingListViewModel reviewersListViewModel)
+		[HttpPost("reviewers/set_to_bidding")]
+		public async Task<IActionResult> SetReviewersToBidding(
+			[FromBody] ReviewersForBiddingListViewModel reviewersListViewModel)
 		{
 			var userId = Request.GetUserId();
 			await _reviewService.SetReviewersToBidding(userId, reviewersListViewModel.ReviewersId)
@@ -190,7 +188,7 @@ namespace HwProj.CourseWorkService.API.Controllers
 
 		[HttpGet("reviewers/get_optimized")]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ReviewersDistributionDTO[]))]
-        public async Task<IActionResult> GetOptimizedReviewersDistribution()
+		public async Task<IActionResult> GetOptimizedReviewersDistribution()
 		{
 			var userId = Request.GetUserId();
 			var distributionDTO = await _reviewService.GetReviewersOptimizedDistribution(userId)
@@ -198,30 +196,32 @@ namespace HwProj.CourseWorkService.API.Controllers
 			return Ok(distributionDTO);
 		}
 
-        [HttpPost("reviewers/set_distribution")]
-        public async Task<IActionResult> SetReviewersDistribution([FromBody] SetReviewDistributionViewModel[] distributionViewModels)
-        {
-	        var userId = Request.GetUserId();
-	        await _reviewService.SetReviewersDistribution(userId, distributionViewModels)
-		        .ConfigureAwait(false);
-	        return Ok();
-        }
+		[HttpPost("reviewers/set_distribution")]
+		public async Task<IActionResult> SetReviewersDistribution(
+			[FromBody] SetReviewDistributionViewModel[] distributionViewModels)
+		{
+			var userId = Request.GetUserId();
+			await _reviewService.SetReviewersDistribution(userId, distributionViewModels)
+				.ConfigureAwait(false);
+			return Ok();
+		}
 
-        [HttpPut("course_works/{courseWorkId}/new_reviewer/{reviewerId}")]
-        public async Task<IActionResult> ChangeCourseWorkReviewer(long courseWorkId, string reviewerId)
-        {
-	        await _courseWorksService.ChangeCourseWorkReviewerAsync(courseWorkId, reviewerId)
-		        .ConfigureAwait(false);
-	        return Ok();
-        }
+		[HttpPut("course_works/{courseWorkId}/new_reviewer/{reviewerId}")]
+		public async Task<IActionResult> ChangeCourseWorkReviewer(long courseWorkId, string reviewerId)
+		{
+			await _courseWorksService.ChangeCourseWorkReviewerAsync(courseWorkId, reviewerId)
+				.ConfigureAwait(false);
+			return Ok();
+		}
 
-        [HttpPut("course_works/{courseWorkId}/complete")]
-        public async Task<IActionResult> CompleteCourseWork(long courseWorkId)
-        {
-	        await _courseWorksService.CompleteCourseWorkAsync(courseWorkId)
-		        .ConfigureAwait(false);
-	        return Ok();
-        }
-        #endregion
-    }
+		[HttpPut("course_works/{courseWorkId}/complete")]
+		public async Task<IActionResult> CompleteCourseWork(long courseWorkId)
+		{
+			await _courseWorksService.CompleteCourseWorkAsync(courseWorkId)
+				.ConfigureAwait(false);
+			return Ok();
+		}
+
+		#endregion
+	}
 }

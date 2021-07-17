@@ -10,27 +10,27 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace HwProj.SolutionsService.API
 {
-    public class Startup
-    {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+	public class Startup
+	{
+		public Startup(IConfiguration configuration)
+		{
+			Configuration = configuration;
+		}
 
-        public IConfiguration Configuration { get; }
+		public IConfiguration Configuration { get; }
 
-        public void ConfigureServices(IServiceCollection services)
-        {
-            var connectionString = Configuration.GetConnectionString("DefaultConnection");
-            services.AddDbContext<SolutionContext>(options => options.UseSqlServer(connectionString));
-            services.AddScoped<ISolutionsRepository, SolutionsRepository>();
-            services.AddScoped<ISolutionsService, Services.SolutionsService>();
-            services.ConfigureHwProjServices("Solutions API");
-        }
+		public void ConfigureServices(IServiceCollection services)
+		{
+			var connectionString = Configuration.GetConnectionString("DefaultConnection");
+			services.AddDbContext<SolutionContext>(options => options.UseSqlServer(connectionString));
+			services.AddScoped<ISolutionsRepository, SolutionsRepository>();
+			services.AddScoped<ISolutionsService, Services.SolutionsService>();
+			services.ConfigureHwProjServices("Solutions API");
+		}
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
-        {
-            app.ConfigureHwProj(env, "Solutions API");
-        }
-    }
+		public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+		{
+			app.ConfigureHwProj(env, "Solutions API");
+		}
+	}
 }

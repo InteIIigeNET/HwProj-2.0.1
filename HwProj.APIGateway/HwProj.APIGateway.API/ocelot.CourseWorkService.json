@@ -11,7 +11,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/available/",
-      "UpstreamhttpsMethod": [ "GET" ]
+      "UpstreamhttpsMethod": ["GET"]
     },
     {
       "DownstreamPathTemplate": "/api/course_works/{roleString}/my/{status}",
@@ -23,7 +23,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/{roleString}/my/{status}/",
-      "UpstreamhttpsMethod": [ "GET" ],
+      "UpstreamhttpsMethod": ["GET"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -42,7 +42,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/{courseWorkId}/",
-      "UpstreamhttpsMethod": [ "GET" ]
+      "UpstreamhttpsMethod": ["GET"]
     },
     {
       "DownstreamPathTemplate": "/api/course_works/directions",
@@ -54,7 +54,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/directions/",
-      "UpstreamhttpsMethod": [ "GET" ]
+      "UpstreamhttpsMethod": ["GET"]
     },
     {
       "DownstreamPathTemplate": "/api/course_works/departments",
@@ -66,7 +66,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/departments/",
-      "UpstreamhttpsMethod": [ "GET" ]
+      "UpstreamhttpsMethod": ["GET"]
     },
     {
       "DownstreamPathTemplate": "/api/course_works/curators",
@@ -78,7 +78,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/curators/",
-      "UpstreamhttpsMethod": [ "GET" ]
+      "UpstreamhttpsMethod": ["GET"]
     },
     {
       "DownstreamPathTemplate": "/api/course_works/user/roles",
@@ -90,7 +90,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/user/roles/",
-      "UpstreamhttpsMethod": [ "GET" ],
+      "UpstreamhttpsMethod": ["GET"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -109,7 +109,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/user/fullInfo/",
-      "UpstreamhttpsMethod": [ "GET" ],
+      "UpstreamhttpsMethod": ["GET"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -128,7 +128,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/applications/{status}/",
-      "UpstreamhttpsMethod": [ "GET" ],
+      "UpstreamhttpsMethod": ["GET"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -147,7 +147,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/{courseWorkId}/reference/",
-      "UpstreamhttpsMethod": [ "POST", "DELETE" ],
+      "UpstreamhttpsMethod": ["POST", "DELETE"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -166,7 +166,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/{courseWorkId}/files/{type}/",
-      "UpstreamhttpsMethod": [ "POST" ],
+      "UpstreamhttpsMethod": ["POST"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -185,7 +185,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/{courseWorkId}/files/{fileId}/",
-      "UpstreamhttpsMethod": [ "GET", "DELETE" ],
+      "UpstreamhttpsMethod": ["GET", "DELETE"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -204,7 +204,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/{courseWorkId}/files/",
-      "UpstreamhttpsMethod": [ "GET" ],
+      "UpstreamhttpsMethod": ["GET"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -220,7 +220,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/{courseWorkId}/deadlines/",
-      "UpstreamhttpsMethod": [ "GET" ],
+      "UpstreamhttpsMethod": ["GET"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -239,7 +239,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/reviewers/new/",
-      "UpstreamhttpsMethod": [ "POST" ],
+      "UpstreamhttpsMethod": ["POST"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -258,7 +258,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/course_works/reviewers/remove/",
-      "UpstreamhttpsMethod": [ "DELETE" ],
+      "UpstreamhttpsMethod": ["DELETE"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -278,7 +278,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/student/profile/",
-      "UpstreamhttpsMethod": [ "PUT" ],
+      "UpstreamhttpsMethod": ["PUT"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -301,7 +301,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/student/applications/{appId}/",
-      "UpstreamhttpsMethod": [ "GET", "DELETE" ],
+      "UpstreamhttpsMethod": ["GET", "DELETE"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -324,7 +324,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/student/course_works/{courseWorkId}/apply/",
-      "UpstreamhttpsMethod": [ "POST" ],
+      "UpstreamhttpsMethod": ["POST"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -347,7 +347,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/student/choice_theme_deadline/",
-      "UpstreamhttpsMethod": [ "GET" ],
+      "UpstreamhttpsMethod": ["GET"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -370,7 +370,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/student/course_works/{courseWorkId}/set_updated_parameter/",
-      "UpstreamhttpsMethod": [ "PUT" ],
+      "UpstreamhttpsMethod": ["PUT"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -394,7 +394,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/lecturer/course_works/add/",
-      "UpstreamhttpsMethod": [ "POST" ],
+      "UpstreamhttpsMethod": ["POST"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -417,7 +417,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/lecturer/course_works/{courseWorkId}/",
-      "UpstreamhttpsMethod": [ "PUT", "DELETE" ],
+      "UpstreamhttpsMethod": ["PUT", "DELETE"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -440,7 +440,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/lecturer/course_works/{courseWorksId}/exclude/",
-      "UpstreamhttpsMethod": [ "DELETE" ],
+      "UpstreamhttpsMethod": ["DELETE"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -463,7 +463,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/lecturer/profile/",
-      "UpstreamhttpsMethod": [ "PUT" ],
+      "UpstreamhttpsMethod": ["PUT"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -486,7 +486,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/lecturer/applications/{appId}/",
-      "UpstreamhttpsMethod": [ "GET" ],
+      "UpstreamhttpsMethod": ["GET"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -509,7 +509,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/lecturer/course_works/{courseWorkId}/applications/",
-      "UpstreamhttpsMethod": [ "GET" ],
+      "UpstreamhttpsMethod": ["GET"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -532,7 +532,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/lecturer/applications/{appId}/accept/",
-      "UpstreamhttpsMethod": [ "POST" ],
+      "UpstreamhttpsMethod": ["POST"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -555,7 +555,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/lecturer/applications/{appId}/reject/",
-      "UpstreamhttpsMethod": [ "DELETE" ],
+      "UpstreamhttpsMethod": ["DELETE"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -579,7 +579,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/curator/course_works/add/",
-      "UpstreamhttpsMethod": [ "POST" ],
+      "UpstreamhttpsMethod": ["POST"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -602,7 +602,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/curator/course_works/created_by_curator/{status}/",
-      "UpstreamhttpsMethod": [ "GET" ],
+      "UpstreamhttpsMethod": ["GET"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -625,7 +625,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/curator/profile/",
-      "UpstreamhttpsMethod": [ "PUT" ],
+      "UpstreamhttpsMethod": ["PUT"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -648,7 +648,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/curator/invite/",
-      "UpstreamhttpsMethod": [ "POST" ],
+      "UpstreamhttpsMethod": ["POST"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -671,7 +671,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/curator/directions/",
-      "UpstreamhttpsMethod": [ "POST" ],
+      "UpstreamhttpsMethod": ["POST"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -694,7 +694,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/curator/directions/{directionId}/",
-      "UpstreamhttpsMethod": [ "DELETE" ],
+      "UpstreamhttpsMethod": ["DELETE"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -717,7 +717,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/curator/departments/",
-      "UpstreamhttpsMethod": [ "POST" ],
+      "UpstreamhttpsMethod": ["POST"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -740,7 +740,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/curator/departments/{departmentId}/",
-      "UpstreamhttpsMethod": [ "DELETE" ],
+      "UpstreamhttpsMethod": ["DELETE"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -763,7 +763,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/curator/deadlines/",
-      "UpstreamhttpsMethod": [ "GET", "POST" ],
+      "UpstreamhttpsMethod": ["GET", "POST"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -786,7 +786,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/curator/deadlines/{deadlineId}/",
-      "UpstreamhttpsMethod": [ "DELETE" ],
+      "UpstreamhttpsMethod": ["DELETE"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -809,7 +809,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/curator/course_works/{courseWorkId}/clear_updated_parameter/",
-      "UpstreamhttpsMethod": [ "PUT" ],
+      "UpstreamhttpsMethod": ["PUT"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -832,7 +832,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/curator/reviewers/",
-      "UpstreamhttpsMethod": [ "GET" ],
+      "UpstreamhttpsMethod": ["GET"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -855,7 +855,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/curator/reviewers/bidding/",
-      "UpstreamhttpsMethod": [ "GET" ],
+      "UpstreamhttpsMethod": ["GET"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -878,7 +878,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/curator/reviewers/set_to_bidding/",
-      "UpstreamhttpsMethod": [ "POST" ],
+      "UpstreamhttpsMethod": ["POST"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -901,7 +901,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/curator/reviewers/get_optimized/",
-      "UpstreamhttpsMethod": [ "GET" ],
+      "UpstreamhttpsMethod": ["GET"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -924,7 +924,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/curator/reviewers/set_distribution/",
-      "UpstreamhttpsMethod": [ "POST" ],
+      "UpstreamhttpsMethod": ["POST"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -947,7 +947,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/curator/course_works/{courseWorkId}/new_reviewer/{reviewerId}/",
-      "UpstreamhttpsMethod": [ "PUT" ],
+      "UpstreamhttpsMethod": ["PUT"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -970,7 +970,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/curator/course_works/{courseWorkId}/complete/",
-      "UpstreamhttpsMethod": [ "PUT" ],
+      "UpstreamhttpsMethod": ["PUT"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -994,7 +994,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/reviewer/course_works_in_bidding/",
-      "UpstreamhttpsMethod": [ "GET" ],
+      "UpstreamhttpsMethod": ["GET"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []
@@ -1013,7 +1013,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/reviewer/bidding/{courseWorkId}/{biddingValueString}/",
-      "UpstreamhttpsMethod": [ "POST" ],
+      "UpstreamhttpsMethod": ["POST"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "GatewayKey",
         "AllowedScopes": []

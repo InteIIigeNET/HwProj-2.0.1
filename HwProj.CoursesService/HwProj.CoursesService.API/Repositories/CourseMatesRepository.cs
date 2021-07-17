@@ -1,13 +1,11 @@
-﻿using HwProj.Repositories;
-using HwProj.CoursesService.API.Models;
+﻿using HwProj.CoursesService.API.Models;
+using HwProj.Repositories;
 
 namespace HwProj.CoursesService.API.Repositories
 {
-    public class CourseMatesRepository : CrudRepository<CourseMate, long>, ICourseMatesRepository
-    {
-        public CourseMatesRepository(CourseContext context)
-            : base(context)
-        {
-        }
-    }
+	public class CourseMatesRepository : CrudRepository<CourseMate, long>, ICourseMatesRepository
+	{
+		public CourseMatesRepository(CourseContext context)
+			: base(context) { }
+	}
 }

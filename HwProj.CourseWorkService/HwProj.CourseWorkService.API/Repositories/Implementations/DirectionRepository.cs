@@ -6,19 +6,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.CourseWorkService.API.Repositories.Implementations
 {
-    public class DirectionRepository : CrudRepository<Direction, long>, IDirectionRepository
-    {
-        public DirectionRepository(CourseWorkContext context) : base(context)
-        {
+	public class DirectionRepository : CrudRepository<Direction, long>, IDirectionRepository
+	{
+		public DirectionRepository(CourseWorkContext context) : base(context) { }
 
-        }
-
-        public async Task<Direction[]> GetDirectionsAsync()
-        {
-            return await Context.Set<Direction>()
-                .Include(d => d.CuratorProfile)
-                .ThenInclude(cp => cp.User)
-                .ToArrayAsync();
-        }
-    }
+		public async Task<Direction[]> GetDirectionsAsync()
+		{
+			return await Context.Set<Direction>()
+				.Include(d => d.CuratorProfile)
+				.ThenInclude(cp => cp.User)
+				.ToArrayAsync();
+		}
+	}
 }

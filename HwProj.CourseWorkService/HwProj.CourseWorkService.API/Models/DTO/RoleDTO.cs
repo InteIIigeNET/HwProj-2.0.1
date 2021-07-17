@@ -1,10 +1,8 @@
-﻿using HwProj.CourseWorkService.API.Models.UserInfo;
-
-namespace HwProj.CourseWorkService.API.Models.DTO
+﻿namespace HwProj.CourseWorkService.API.Models.DTO
 {
-    public class RoleDTO
-    {
-        public long Id { get; set; }
-        public string DisplayValue { get; set; }
-    }
+	public class RoleDTO
+	{
+		public long Id { get; set; }
+		public string DisplayValue { get; set; }
+	}
 }

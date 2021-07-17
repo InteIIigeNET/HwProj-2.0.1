@@ -4,25 +4,25 @@ using HwProj.EventBus.Client.Interfaces;
 
 namespace HwProj.EventBus.Tests
 {
-    public class OtherTestHandler : IEventHandler<TestEvent>
-    {
-        public int NewPrice { get; set; }
-        public int OldPrice { get; set; }
+	public class OtherTestHandler : IEventHandler<TestEvent>
+	{
+		public OtherTestHandler()
+		{
+			NewPrice = 0;
+			OldPrice = 0;
+		}
 
-        public int ChangedSum => Math.Abs(NewPrice - OldPrice);
+		public int NewPrice { get; set; }
+		public int OldPrice { get; set; }
 
-        public OtherTestHandler()
-        {
-            NewPrice = 0;
-            OldPrice = 0;
-        }
+		public int ChangedSum => Math.Abs(NewPrice - OldPrice);
 
-        public Task HandleAsync(TestEvent @event)
-        {
-            NewPrice = @event.NewPrice;
-            OldPrice = @event.OldPrice;
+		public Task HandleAsync(TestEvent @event)
+		{
+			NewPrice = @event.NewPrice;
+			OldPrice = @event.OldPrice;
 
-            return Task.CompletedTask;
-        }
-    }
+			return Task.CompletedTask;
+		}
+	}
 }

@@ -11,29 +11,29 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace HwProj.CoursesService.API
 {
-    public class Startup
-    {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+	public class Startup
+	{
+		public Startup(IConfiguration configuration)
+		{
+			Configuration = configuration;
+		}
 
-        public IConfiguration Configuration { get; }
+		public IConfiguration Configuration { get; }
 
-        public void ConfigureServices(IServiceCollection services)
-        {
-            var connection = Configuration.GetConnectionString("DefaultConnection");
-            services.AddDbContext<CourseContext>(options => options.UseSqlServer(connection));
-            services.AddScoped<ICoursesRepository, CoursesRepository>();
-            services.AddScoped<ICourseMatesRepository, CourseMatesRepository>();
-            services.AddScoped<ICoursesService, Services.CoursesService>();
-            services.AddScoped<CourseMentorOnlyAttribute>();
-            services.ConfigureHwProjServices("Courses API");
-        }
+		public void ConfigureServices(IServiceCollection services)
+		{
+			var connection = Configuration.GetConnectionString("DefaultConnection");
+			services.AddDbContext<CourseContext>(options => options.UseSqlServer(connection));
+			services.AddScoped<ICoursesRepository, CoursesRepository>();
+			services.AddScoped<ICourseMatesRepository, CourseMatesRepository>();
+			services.AddScoped<ICoursesService, Services.CoursesService>();
+			services.AddScoped<CourseMentorOnlyAttribute>();
+			services.ConfigureHwProjServices("Courses API");
+		}
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
-        {
-            app.ConfigureHwProj(env, "Courses API");
-        }
-    }
+		public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+		{
+			app.ConfigureHwProj(env, "Courses API");
+		}
+	}
 }

@@ -1,7 +1,7 @@
 ﻿namespace HwProj.CourseWorkService.API.Models.DTO
 {
-    public class DeadlineDTO
-    {
+	public class DeadlineDTO
+	{
 		public long Id { get; set; }
 		public string Date { get; set; }
 		public int? Course { get; set; }
