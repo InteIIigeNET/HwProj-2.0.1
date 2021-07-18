@@ -2,7 +2,7 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using HwProj.AuthService.API.Models.DTO;
-using HwProj.Utils.HttpUtils;
+using HwProj.HttpUtils;
 
 namespace HwProj.AuthService.Client
 {

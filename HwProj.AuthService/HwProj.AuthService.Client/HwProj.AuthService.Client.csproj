@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\HwProj.Common\HwProj.Utils\HwProj.Utils.csproj" />
+    <ProjectReference Include="..\..\HwProj.HttpUtils\HwProj.HttpUtils.csproj" />
     <ProjectReference Include="..\HwProj.AuthService.API\HwProj.AuthService.API.csproj" />
   </ItemGroup>
 

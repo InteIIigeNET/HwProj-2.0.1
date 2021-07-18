@@ -1,4 +1,5 @@
 ﻿using HwProj.AuthService.API.Events;
+using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.NotificationsService.API.EventHandlers;
 using HwProj.NotificationsService.API.Models;
@@ -10,6 +11,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Net.Http;
 
 namespace HwProj.NotificationsService.API
 {
@@ -32,6 +35,10 @@ namespace HwProj.NotificationsService.API
             services.AddTransient<IEventHandler<StudentRegisterEvent>, RegisterEventHandler>();
 
             services.ConfigureHwProjServices("Notifications API");
+
+            var httpsClient = new HttpClient();
+            var uri = new Uri("http://localhost:5001/Account");
+            var authClient = new AuthServiceClient(httpsClient, uri);
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IEventBus eventBus)
