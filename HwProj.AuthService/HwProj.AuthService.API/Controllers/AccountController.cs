@@ -26,7 +26,7 @@ namespace HwProj.AuthService.API.Controllers
 
         [HttpGet("getUserData/{userId}")]
         [ProducesResponseType(typeof(AccountDataDTO), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetUserDataById(object userId)
+        public async Task<IActionResult> GetUserDataById(string userId)
         {
             var accountData = await _accountService.GetAccountDataAsync(userId).ConfigureAwait(false);
 

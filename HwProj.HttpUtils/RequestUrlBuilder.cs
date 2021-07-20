@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace HwProj.Utils.HttpUtils
+namespace HwProj.HttpUtils
 {
     public class RequestUrlBuilder
     {

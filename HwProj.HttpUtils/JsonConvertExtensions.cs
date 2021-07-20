@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace HwProj.Utils.HttpUtils
+namespace HwProj.HttpUtils
 {
     public static class JsonConvertExtensions
     {

@@ -2,7 +2,7 @@
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 
-namespace HwProj.Utils.HttpUtils
+namespace HwProj.HttpUtils
 {
     public class HwProjJsonSerializerSettings
     {
