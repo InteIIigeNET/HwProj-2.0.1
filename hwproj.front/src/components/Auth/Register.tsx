@@ -6,6 +6,7 @@ import { Redirect } from "react-router-dom";
 import ApiSingleton from "../../api/ApiSingleton";
 //import { RegisterViewModel } from "../../api/auth";
 import "./Styles/Register.css";
+import AccountApi from "../../api/auth/accountApi";
 
 interface RegisterViewModel {
   name: string;
@@ -169,20 +170,12 @@ export class Register extends React.Component<{}, IRegisterState> {
     // await ApiSingleton.accountApi.apiAccountRegisterPost(this.state.registerData);
     // await ApiSingleton.authService.login(email, password);
 
-    const registerUserModel = {
-      name: this.state.registerData.name,
-      surname: this.state.registerData.surname,
-      email: this.state.registerData.email,
-      middleName: this.state.registerData.middleName,
-      password: this.state.registerData.password,
-      isLecturer: false
-    }
 
-    const user = await ApiSingleton.authService.registerUserFake(registerUserModel)
+    await AccountApi.register(this.state.registerData)
     debugger
-    ApiSingleton.authService.loginFake()
-    ApiSingleton.authService.setRoleFake("student")
-    ApiSingleton.authService.setUserIdFake(user.id)
+    //ApiSingleton.authService.loginFake()
+    //ApiSingleton.authService.setRoleFake("student")
+    //ApiSingleton.authService.setUserIdFake(user.id)
     this.setState({logged: true})
     window.location.assign("/")
   };

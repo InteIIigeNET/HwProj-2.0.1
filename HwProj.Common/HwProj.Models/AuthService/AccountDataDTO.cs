@@ -1,6 +1,6 @@
-﻿namespace HwProj.AuthService.API.Models.DTO
+﻿namespace HwProj.Models.AuthService
 {
-    public class AccountDataDTO
+    public class AccountDataDto
     {
         public string Name { get; set; }
         public string Surname { get; set; }
@@ -8,7 +8,7 @@
         public string Email { get; }
         public string Role { get; }
 
-        public AccountDataDTO(string name, string surname, string email, string role, string middleName = "")
+        public AccountDataDto(string name, string surname, string email, string role, string middleName = "")
         {
             Name = name;
             Surname = surname;

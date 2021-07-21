@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\HwProj.AuthService\HwProj.AuthService.Client\HwProj.AuthService.Client.csproj" />
     <ProjectReference Include="..\..\HwProj.Common\HwProj.Utils\HwProj.Utils.csproj" />
   </ItemGroup>
 

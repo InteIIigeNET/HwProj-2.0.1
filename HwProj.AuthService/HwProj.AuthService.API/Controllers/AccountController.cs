@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using HwProj.AuthService.API.Models.ViewModels;
 using HwProj.AuthService.API.Services;
 using HwProj.EventBus.Client.Interfaces;
-using HwProj.Utils.Authorization;
+using HwProj.Models.AuthService;
 
 namespace HwProj.AuthService.API.Controllers
 {
@@ -25,7 +25,7 @@ namespace HwProj.AuthService.API.Controllers
         }
 
         [HttpGet("getUserData/{userId}")]
-        [ProducesResponseType(typeof(AccountDataDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(AccountDataDto), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetUserDataById(string userId)
         {
             var accountData = await _accountService.GetAccountDataAsync(userId).ConfigureAwait(false);
@@ -36,20 +36,12 @@ namespace HwProj.AuthService.API.Controllers
         }
         
         [HttpGet("test")]
-        [ProducesResponseType(typeof(AccountDataDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(AccountDataDto), (int)HttpStatusCode.OK)]
         public IActionResult Test()
         {
             var inviteEvent = new StudentRegisterEvent("123", "email", "Alex", "Beralex", "");
             _eventBus.Publish(inviteEvent);
             return Ok();
-        }
-
-        [Authorize]
-        [HttpGet("getCurrentUserData")]
-        public IActionResult GetCurrentUserData()
-        {
-            var userId = Request.GetUserId();
-            return RedirectToAction("GetUserDataById", new { userId });
         }
 
         [HttpPost("register")]
@@ -70,9 +62,10 @@ namespace HwProj.AuthService.API.Controllers
 
         [Authorize]
         [HttpPut("edit")]
-        public async Task<IActionResult> Edit(EditAccountViewModel model)
+        public async Task<IActionResult> Edit(EditAccountViewModel model, string userId)
         {
-            var result = await _accountService.EditAccountAsync(Request.GetUserId(), model).ConfigureAwait(false);
+            var token = ControllerContext.HttpContext.Request.Headers["Auth"][0];
+            var result = await _accountService.EditAccountAsync(userId, model).ConfigureAwait(false);
             return Ok(result);
         }
 

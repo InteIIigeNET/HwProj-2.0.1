@@ -3,6 +3,7 @@ import { RouteComponentProps } from "react-router-dom";
 import { TextField, Button, Typography } from "@material-ui/core";
 import ApiSingleton from "../../api/ApiSingleton";
 import "./Styles/Login.css";
+import AccountApi from "../../api/auth/accountApi";
 
 interface LoginProps extends Partial<RouteComponentProps> {
   onLogin: () => void;
@@ -48,7 +49,10 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
   handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
-    const users = await ApiSingleton.authService.getAllUsersFake()
+    await AccountApi.login(this.state)
+
+    //await ApiSingleton.authService.getAllUsersFake()
+    /*
     users.map((item: any) => {
       if (item.password === this.state.password &&
         item.email === this.state.email) {
@@ -63,7 +67,7 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
         this.props.onLogin?.();
         return;
       }
-    })
+    })*/
   }
 
   render() {
