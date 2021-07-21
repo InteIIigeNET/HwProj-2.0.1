@@ -1,5 +1,7 @@
 using System.Net;
 using System.Threading.Tasks;
+using HwProj.AuthService.API.Models.DTO;
+using HwProj.AuthService.API.Models.ViewModels;
 using HwProj.AuthService.Client;
 using HwProj.Models.AuthService;
 using Microsoft.AspNetCore.Mvc;
@@ -22,6 +24,22 @@ namespace HwProj.APIGateway.API.Controllers
         {
             var result = await _client.GetAccountData(userId);
             return Ok(result);
+        }
+
+        [HttpPost("register")]
+        public async Task<IActionResult> Register(RegisterViewModel model)
+        {
+            var result = await _client.Register(model);
+
+            return Ok(result);
+        }
+        
+        [HttpPost("login")]
+        [ProducesResponseType(typeof(TokenCredentials), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> Login(LoginViewModel model)
+        {
+            var tokenMeta = await _client.Login(model).ConfigureAwait(false);
+            return Ok(tokenMeta);
         }
     }
 }
