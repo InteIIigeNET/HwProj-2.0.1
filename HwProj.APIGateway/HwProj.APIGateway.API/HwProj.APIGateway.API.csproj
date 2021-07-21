@@ -11,8 +11,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.All" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.3" />
     <PackageReference Include="Ocelot" Version="13.5.2" />
     <PackageReference Include="Ocelot.ConfigEditor" Version="5.0.4" />
   </ItemGroup>

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using HwProj.HttpUtils;
 using HwProj.Models.AuthService;
-using HwProj.Utils.HttpUtils;
 
 namespace HwProj.AuthService.Client
 {

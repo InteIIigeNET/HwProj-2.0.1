@@ -9,7 +9,7 @@
     <ItemGroup>
         <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
         <PackageReference Include="FluentAssertions" Version="5.9.0" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.3" />
         <PackageReference Include="nunit" Version="3.11.0" />
         <PackageReference Include="NUnit3TestAdapter" Version="3.11.0" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />

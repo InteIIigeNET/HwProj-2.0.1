@@ -9,10 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.3" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\HwProj.HttpUtils\HwProj.HttpUtils.csproj" />
     <ProjectReference Include="..\HwProj.AuthService.API\HwProj.AuthService.API.csproj" />
   </ItemGroup>
