@@ -1,8 +1,7 @@
-﻿using System.Threading.Tasks;
-using HwProj.AuthService.API.Models.DTO;
-using HwProj.AuthService.API.Models.ViewModels;
-using HwProj.Models.AuthService;
+﻿using HwProj.Models.AuthService.DTO;
+using HwProj.Models.AuthService.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace HwProj.AuthService.Client
 {

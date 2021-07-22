@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Identity;
 
-namespace HwProj.AuthService.API.Models.DTO
+namespace HwProj.Models.AuthService.DTO
 {
     public sealed class IdentityResult<T> where T : class
     {

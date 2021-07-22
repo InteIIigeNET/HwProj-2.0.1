@@ -1,13 +1,12 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
 using HwProj.AuthService.API.Events;
-using HwProj.AuthService.API.Models.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using HwProj.AuthService.API.Models.ViewModels;
 using HwProj.AuthService.API.Services;
 using HwProj.EventBus.Client.Interfaces;
-using HwProj.Models.AuthService;
+using HwProj.Models.AuthService.DTO;
+using HwProj.Models.AuthService.ViewModels;
 
 namespace HwProj.AuthService.API.Controllers
 {

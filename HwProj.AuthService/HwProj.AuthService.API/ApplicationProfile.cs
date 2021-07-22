@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using HwProj.AuthService.API.Models;
-using HwProj.AuthService.API.Models.ViewModels;
+using HwProj.Models.AuthService.ViewModels;
 
 namespace HwProj.AuthService.API
 {

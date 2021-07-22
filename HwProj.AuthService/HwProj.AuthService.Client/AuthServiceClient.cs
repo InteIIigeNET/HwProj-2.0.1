@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using HwProj.AuthService.API.Models.ViewModels;
 using HwProj.HttpUtils;
-using HwProj.Models.AuthService;
-using Microsoft.AspNetCore.Identity.UI.V3.Pages.Account.Internal;
+using HwProj.Models.AuthService.DTO;
+using HwProj.Models.AuthService.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 

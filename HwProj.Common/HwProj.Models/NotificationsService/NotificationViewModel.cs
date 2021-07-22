@@ -1,4 +1,4 @@
-﻿namespace HwProj.NotificationsService.API.Models
+﻿namespace HwProj.Models.NotificationsService
 {
     public class NotificationViewModel
     {

@@ -1,4 +1,4 @@
-﻿namespace HwProj.AuthService.API.Models.DTO
+﻿namespace HwProj.Models.AuthService.DTO
 {
     public class TokenCredentials
     {

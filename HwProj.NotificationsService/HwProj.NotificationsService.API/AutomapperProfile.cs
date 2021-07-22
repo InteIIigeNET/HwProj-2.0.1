@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using HwProj.NotificationsService.API.Models;
 
 namespace HwProj.NotificationsService.API
 {

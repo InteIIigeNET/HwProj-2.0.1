@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using HwProj.Repositories;
 
-namespace HwProj.NotificationsService.API.Models
+namespace HwProj.Models.NotificationsService
 {
     public class Notification : IEntity<long>
     {

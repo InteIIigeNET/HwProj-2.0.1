@@ -1,6 +1,6 @@
-﻿using System.Threading.Tasks;
-using HwProj.AuthService.API.Models;
-using HwProj.AuthService.API.Models.DTO;
+﻿using HwProj.AuthService.API.Models;
+using HwProj.Models.AuthService.DTO;
+using System.Threading.Tasks;
 
 namespace HwProj.AuthService.API.Services
 {

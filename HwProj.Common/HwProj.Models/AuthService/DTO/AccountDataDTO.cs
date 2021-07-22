@@ -1,4 +1,4 @@
-﻿namespace HwProj.Models.AuthService
+﻿namespace HwProj.Models.AuthService.DTO
 {
     public class AccountDataDto
     {

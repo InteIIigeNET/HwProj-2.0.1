@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using HwProj.NotificationsService.API.Models;
+using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Services;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,9 +18,8 @@ namespace HwProj.NotificationsService.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Get([FromBody] NotificationFilter filter)
+        public async Task<IActionResult> Get([FromBody] NotificationFilter filter, string userId)
         {
-            var userId = Request.GetUserId();
             await _notificationsService.GetAsync(userId, filter);
             return Ok();
         }

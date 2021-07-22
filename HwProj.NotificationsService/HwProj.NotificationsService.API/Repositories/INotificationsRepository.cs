@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using HwProj.NotificationsService.API.Models;
+using HwProj.Models.NotificationsService;
 using HwProj.Repositories;
 
 namespace HwProj.NotificationsService.API.Repositories
