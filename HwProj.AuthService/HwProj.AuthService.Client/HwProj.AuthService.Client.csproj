@@ -5,14 +5,11 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <ApplicationIcon />
     <StartupObject />
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\HwProj.Common\HwProj.Utils\HwProj.Utils.csproj" />
+    <ProjectReference Include="..\..\HwProj.HttpUtils\HwProj.HttpUtils.csproj" />
     <ProjectReference Include="..\HwProj.AuthService.API\HwProj.AuthService.API.csproj" />
   </ItemGroup>
 

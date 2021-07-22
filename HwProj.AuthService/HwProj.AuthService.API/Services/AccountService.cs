@@ -9,6 +9,7 @@ using HwProj.AuthService.API.Models.DTO;
 using HwProj.Models.Roles;
 using HwProj.AuthService.API.Events;
 using HwProj.EventBus.Client.Interfaces;
+using HwProj.Models.AuthService;
 
 namespace HwProj.AuthService.API.Services
 {
@@ -33,7 +34,7 @@ namespace HwProj.AuthService.API.Services
             _mapper = mapper;
         }
 
-        public async Task<AccountDataDTO> GetAccountDataAsync(string userId)
+        public async Task<AccountDataDto> GetAccountDataAsync(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId).ConfigureAwait(false);
             if (user == null)
@@ -43,7 +44,7 @@ namespace HwProj.AuthService.API.Services
 
             var userRoles = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
             var userRole = userRoles.FirstOrDefault() ?? Roles.StudentRole;
-            return new AccountDataDTO(user.Name, user.Surname, user.Email, userRole, user.MiddleName);
+            return new AccountDataDto(user.Name, user.Surname, user.Email, userRole, user.MiddleName);
         }
 
         public async Task<IdentityResult> EditAccountAsync(string id, EditAccountViewModel model)

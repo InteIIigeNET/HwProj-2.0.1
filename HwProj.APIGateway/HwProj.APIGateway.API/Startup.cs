@@ -1,4 +1,7 @@
-﻿using HwProj.Utils.Configuration;
+﻿using System;
+using System.Net.Http;
+using HwProj.AuthService.Client;
+using HwProj.Utils.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -40,13 +43,14 @@ namespace HwProj.APIGateway.API
                     };
                 });
 
-            services.AddOcelot();
+            var httpClient = new HttpClient();
+            var authServiceClient = new AuthServiceClient(httpClient, new Uri("http://localhost:5001"));
+            services.AddSingleton<IAuthServiceClient, AuthServiceClient>(_ => authServiceClient);
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.ConfigureHwProj(env, "API Gateway")
-                .UseOcelot();
+            app.ConfigureHwProj(env, "API Gateway");
         }
     }
 }
