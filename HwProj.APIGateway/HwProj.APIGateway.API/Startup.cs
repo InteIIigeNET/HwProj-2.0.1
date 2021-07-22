@@ -44,8 +44,7 @@ namespace HwProj.APIGateway.API
                 });
 
             var httpClient = new HttpClient();
-            var authServiceClient = new AuthServiceClient(httpClient, new Uri("http://localhost:5001"));
-            services.AddSingleton<IAuthServiceClient, AuthServiceClient>(_ => authServiceClient);
+            services.AddAuthServiceClient(httpClient, "http://localhost:5001");
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

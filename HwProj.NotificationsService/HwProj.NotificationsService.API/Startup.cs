@@ -34,11 +34,10 @@ namespace HwProj.NotificationsService.API
             services.AddEventBus(Configuration);
             services.AddTransient<IEventHandler<StudentRegisterEvent>, RegisterEventHandler>();
 
-            services.ConfigureHwProjServices("Notifications API");
+            var httpClient = new HttpClient();
+            services.AddAuthServiceClient(httpClient, "http://localhost:5001");
 
-            var httpsClient = new HttpClient();
-            var uri = new Uri("http://localhost:5001/Account");
-            var authClient = new AuthServiceClient(httpsClient, uri);
+            services.ConfigureHwProjServices("Notifications API");
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IEventBus eventBus)
