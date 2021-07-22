@@ -45,7 +45,7 @@ interface ICourseProps {
   id: string;
 }
 
-class Course extends React.Component<
+export default class Course extends React.Component<
   RouteComponentProps<ICourseProps>,
   ICourseState
 > {
@@ -259,6 +259,7 @@ class Course extends React.Component<
   }
 
   async componentDidMount() {
+    console.log(this.props.match.params.id)
     const responseCourses = await fetch("http://localhost:3001/courses")
     const courses = await responseCourses.json()
     const course = courses.filter((item: any) => item.id == this.props.match.params.id).shift()
@@ -306,7 +307,6 @@ class Course extends React.Component<
           return user; 
         }),
     })
-    console.log(this.state.newStudents)
   }
 
   // async componentDidMount() {
@@ -352,4 +352,4 @@ class Course extends React.Component<
   // }
 }
 
-export default withRouter(Course);
+//export default withRouter(Course);

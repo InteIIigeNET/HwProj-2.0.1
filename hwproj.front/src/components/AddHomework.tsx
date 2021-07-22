@@ -55,9 +55,10 @@ export default class AddHomework extends React.Component<
   // }
 
   public render() {
-    if (this.state.added) {
-      return <Redirect to={"/courses/" + this.props.id.toString} />;
-    }
+    // if (this.state.added) {
+    //   debugger
+    //   return <Redirect to={"/courses/" + this.props.id.toString} />;
+    // }
     return (
       <div>
         <Typography variant="subtitle1">Добавить домашку</Typography>
@@ -179,7 +180,7 @@ export default class AddHomework extends React.Component<
       tasks: this.state.tasks,
       date: new Date()
     }
-    ApiSingleton.courseService.addHomework(homework, this.props.id)
+    await ApiSingleton.courseService.addHomework(homework, this.props.id)
     this.setState({ added: true })
     this.props.onSubmit()
   }

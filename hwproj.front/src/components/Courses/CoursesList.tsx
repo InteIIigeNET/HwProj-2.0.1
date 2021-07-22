@@ -29,14 +29,6 @@ export class CoursesList extends React.Component<ICoursesProps, {}> {
               {course.groupName}
             </li>
           ))}
-          <Switch>
-            {courses.map((course) => (
-              <Route
-                path={"/courses/:" + course.id}
-                render={(props) => (<Course {...props} {...course.id!.toString()} />)}
-              />
-            ))}
-          </Switch>
         </Router>
       </div>
     );

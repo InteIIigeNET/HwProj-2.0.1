@@ -61,9 +61,6 @@
         "middleName": "Ivanovich",
         "email": "ivanov@gmail.ru"
       },
-      "homeworks": [
-        1
-      ],
       "courseMates": [
         {
           "isAccepted": true,
@@ -78,6 +75,9 @@
           "studentId": 5
         }
       ],
+      "homeworks": [
+        1
+      ],
       "id": 1
     }
   ],
@@ -90,8 +90,7 @@
       "tasks": [
         1,
         2,
-        3,
-        4
+        3
       ],
       "id": 1
     }
@@ -114,12 +113,6 @@
       "description": "Реализовать сортировку слиянием.",
       "maxRating": 8,
       "id": 3
-    },
-    {
-      "title": "Крутой qsort",
-      "description": "Реализовать крутой qsort.",
-      "maxRating": 8,
-      "id": 4
     }
   ],
   "solutions": [
@@ -144,7 +137,7 @@
       "studentId": "5",
       "githubUrl": "https://www.deepl.com/en/translator",
       "comment": "Моя крутая задача.",
-      "state": "Accepted",
+      "state": "Rejected",
       "id": 3
     }
   ]
