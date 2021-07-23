@@ -45,6 +45,7 @@ namespace HwProj.APIGateway.API
 
             var httpClient = new HttpClient();
             services.AddAuthServiceClient(httpClient, "http://localhost:5001");
+            services.AddNotificationsServiceClient(httpClient, "http://localhost:5006");
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

@@ -26,7 +26,7 @@ namespace HwProj.APIGateway.API.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterViewModel model)
+        public async Task<IActionResult> Register([FromBody] RegisterViewModel model)
         {
             var result = await _client.Register(model);
 
@@ -35,7 +35,7 @@ namespace HwProj.APIGateway.API.Controllers
         
         [HttpPost("login")]
         [ProducesResponseType(typeof(TokenCredentials), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Login(LoginViewModel model)
+        public async Task<IActionResult> Login([FromBody] LoginViewModel model)
         {
             var tokenMeta = await _client.Login(model).ConfigureAwait(false);
             return Ok(tokenMeta);
