@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using HwProj.HttpUtils;
-using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
-using Microsoft.AspNetCore.Mvc;
+using HwProj.Models.AuthService.DTO;
+using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json;
 
 namespace HwProj.AuthService.Client
@@ -31,29 +33,37 @@ namespace HwProj.AuthService.Client
             return data;
         }
         
-        public async Task<IActionResult> Register(RegisterViewModel model)
+        public async Task<Result> Register(RegisterViewModel model)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
                 _authServiceUri + "api/account/register");
             
-                httpRequest.Content = new StringContent(JsonConvert.SerializeObject(model));
+                httpRequest.Content = new StringContent(
+                    JsonConvert.SerializeObject(model),
+                    Encoding.UTF8,
+                    "application/json");
 
             var response = await _httpClient.SendAsync(httpRequest);
-            var data = await response.DeserializeAsync<IActionResult>().ConfigureAwait(false);
-            return data;
+
+            var data = await response.DeserializeAsync<IdentityResult>();
+            var result = new Result(data.Succeeded, data.Errors.Select(error => error.Description).ToArray());
+            return result;
         }
         
-        public async Task<IActionResult> Login(LoginViewModel model)
+        public async Task<TokenCredentials> Login(LoginViewModel model)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
                 _authServiceUri + "api/account/login");
             
-            httpRequest.Content = new StringContent(JsonConvert.SerializeObject(model));
+            httpRequest.Content = new StringContent(
+                JsonConvert.SerializeObject(model),
+                Encoding.UTF8,
+                "application/json");
 
             var response = await _httpClient.SendAsync(httpRequest);
-            var data = await response.DeserializeAsync<IActionResult>().ConfigureAwait(false);
+            var data = await response.DeserializeAsync<TokenCredentials>();
             return data;
         }
     }
