@@ -9,8 +9,8 @@ namespace HwProj.AuthService.Client
     {
         Task<AccountDataDto> GetAccountData(string accountId);
         
-        Task<IActionResult> Register(RegisterViewModel model);
+        Task<Result> Register(RegisterViewModel model);
 
-        Task<IActionResult> Login(LoginViewModel model);
+        Task<TokenCredentials> Login(LoginViewModel model);
     }
 }

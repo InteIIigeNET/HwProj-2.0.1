@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HwProj.APIGateway.API.Controllers
 {
     [Route("api/account")] //localhost:5000/api/account
+    [ApiController]
     public class AccountController : ControllerBase
     {
         private readonly IAuthServiceClient _client;
