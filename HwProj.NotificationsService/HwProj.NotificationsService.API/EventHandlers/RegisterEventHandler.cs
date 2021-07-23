@@ -22,11 +22,21 @@ namespace HwProj.NotificationsService.API.EventHandlers
             await _notificationRepository.AddAsync(new Notification
             {
                 Sender = "AuthService",
-                Body = $"Новый пользователь зарегистрирован: {@event.Email}",
+                Body = $"{@event.Name} {@event.Surname}, Добро Пожаловать в HwProj2.",
                 Category = "AuthService",
                 Date = DateTime.UtcNow,
                 HasSeen = false,
                 Owner = @event.UserId
+            });
+
+            await _notificationRepository.AddAsync(new Notification
+            {
+                Sender = "AuthService",
+                Body = $"Новый пользователь зарегистрирован. Email: {@event.Email}. UserId: {@event.UserId}",
+                Category = "AuthService",
+                Date = DateTime.UtcNow,
+                HasSeen = false,
+                Owner = "ab8a5687-80b6-418b-a120-bb08aaf9da55" // Admin (admin@gmail.com) UserId
             });
         }
     }
