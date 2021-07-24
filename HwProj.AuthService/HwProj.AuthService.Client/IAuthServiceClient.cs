@@ -1,6 +1,5 @@
 ﻿using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
-using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
 namespace HwProj.AuthService.Client
@@ -9,8 +8,8 @@ namespace HwProj.AuthService.Client
     {
         Task<AccountDataDto> GetAccountData(string accountId);
         
-        Task<Result> Register(RegisterViewModel model);
+        Task<Result<TokenCredentials>> Register(RegisterViewModel model);
 
-        Task<TokenCredentials> Login(LoginViewModel model);
+        Task<Result<TokenCredentials>> Login(LoginViewModel model);
     }
 }

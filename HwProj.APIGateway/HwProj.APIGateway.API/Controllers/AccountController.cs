@@ -27,6 +27,7 @@ namespace HwProj.APIGateway.API.Controllers
         }
 
         [HttpPost("register")]
+        [ProducesResponseType(typeof(TokenCredentials), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Register([FromBody] RegisterViewModel model)
         {
             var result = await _client.Register(model);

@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using HwProj.HttpUtils;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.AuthService.DTO;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json;
 
@@ -33,7 +35,7 @@ namespace HwProj.AuthService.Client
             return data;
         }
         
-        public async Task<Result> Register(RegisterViewModel model)
+        public async Task<Result<TokenCredentials>> Register(RegisterViewModel model)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
@@ -45,13 +47,15 @@ namespace HwProj.AuthService.Client
                     "application/json");
 
             var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<Result<TokenCredentials>>();
+        }
 
-            var data = await response.DeserializeAsync<IdentityResult>();
-            var result = new Result(data.Succeeded, data.Errors.Select(error => error.Description).ToArray());
-            return result;
+        private async Task<Result<TokenCredentials>> DeserializeResponse(HttpResponseMessage response)
+        {
+            return await response.DeserializeAsync<Result<TokenCredentials>>();
         }
         
-        public async Task<TokenCredentials> Login(LoginViewModel model)
+        public async Task<Result<TokenCredentials>> Login(LoginViewModel model)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
@@ -63,8 +67,7 @@ namespace HwProj.AuthService.Client
                 "application/json");
 
             var response = await _httpClient.SendAsync(httpRequest);
-            var data = await response.DeserializeAsync<TokenCredentials>();
-            return data;
+            return await response.DeserializeAsync<Result<TokenCredentials>>();
         }
     }
 }

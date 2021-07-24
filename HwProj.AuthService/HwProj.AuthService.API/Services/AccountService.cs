@@ -73,17 +73,17 @@ namespace HwProj.AuthService.API.Services
             return result;
         }
 
-        public async Task<IdentityResult<TokenCredentials>> LoginUserAsync(LoginViewModel model)
+        public async Task<Result<TokenCredentials>> LoginUserAsync(LoginViewModel model)
         {
             if (await _userManager.FindByEmailAsync(model.Email).ConfigureAwait(false)
                     is var user && user == null)
             {
-                return IdentityResult<TokenCredentials>.Failed(IdentityErrors.UserNotFound);
+                return Result<TokenCredentials>.Failed("User not found");
             }
 
             if (!await _userManager.IsEmailConfirmedAsync(user).ConfigureAwait(false))
             {
-                return IdentityResult<TokenCredentials>.Failed(IdentityErrors.EmailNotConfirmed);
+                return Result<TokenCredentials>.Failed("Email not confirmed");
             }
 
             var result = await _signInManager.PasswordSignInAsync(
@@ -94,18 +94,18 @@ namespace HwProj.AuthService.API.Services
 
             if (!result.Succeeded)
             {
-                return IdentityResult<TokenCredentials>.Failed(result.TryGetIdentityError());
+                return Result<TokenCredentials>.Failed(result.TryGetIdentityError());
             }
 
             var token = await _tokenService.GetTokenAsync(user).ConfigureAwait(false);
-            return IdentityResult<TokenCredentials>.Success(token);
+            return Result<TokenCredentials>.Success(token);
         }
 
-        public async Task<IdentityResult> RegisterUserAsync(RegisterViewModel model)
+        public async Task<Result<TokenCredentials>> RegisterUserAsync(RegisterViewModel model)
         {
             if (await _userManager.FindByEmailAsync(model.Email).ConfigureAwait(false) != null)
             {
-                return IdentityResults.UserExists;
+                return Result<TokenCredentials>.Failed("User exist");
             }
 
             var user = _mapper.Map<User>(model);
@@ -127,7 +127,8 @@ namespace HwProj.AuthService.API.Services
                 _eventBus.Publish(registerEvent);
             }
 
-            return result;
+            var token = await _tokenService.GetTokenAsync(user).ConfigureAwait(false);
+            return Result<TokenCredentials>.Success(token);
         }
 
         public async Task<IdentityResult> InviteNewLecturer(string emailOfInvitedUser)

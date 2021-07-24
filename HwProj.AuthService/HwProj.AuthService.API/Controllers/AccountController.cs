@@ -44,6 +44,7 @@ namespace HwProj.AuthService.API.Controllers
         }
 
         [HttpPost("register")]
+        [ProducesResponseType(typeof(TokenCredentials), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
             var result = await _accountService.RegisterUserAsync(model).ConfigureAwait(false);
@@ -56,7 +57,7 @@ namespace HwProj.AuthService.API.Controllers
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             var tokenMeta = await _accountService.LoginUserAsync(model).ConfigureAwait(false);
-            return Ok(tokenMeta.Value);
+            return Ok(tokenMeta);
         }
 
         [Authorize]

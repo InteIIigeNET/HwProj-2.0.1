@@ -1,16 +1,30 @@
-﻿
+﻿using System.Collections.Generic;
+using Newtonsoft.Json;
+
 namespace HwProj.Models.AuthService.DTO
 {
-    public class Result
+    public sealed class Result<T> where T : class
     {
-        public Result(bool succeed, string[] errors)
+        public T Value { get; }
+        public bool Succeeded { get; }
+        public string[] Errors { get; }
+        
+        [JsonConstructor]
+        private Result(T value, bool succeeded, string[] errors)
         {
-            Succeed = succeed;
+            Succeeded = succeeded;
+            Value = value;
             Errors = errors;
         }
 
-        public bool Succeed { get; }
-
-        public string[] Errors;
+        public static Result<T> Success(T value)
+        {
+            return new Result<T>(value, true, null);
+        }
+        
+        public static Result<T> Failed(params string[] errors)
+        {
+            return new Result<T>(null, false, errors);
+        }
     }
 }

@@ -16,24 +16,24 @@ namespace HwProj.AuthService.API.Extensions
                 : result;
         }
 
-        public static IdentityError TryGetIdentityError(this SignInResult result)
+        public static string TryGetIdentityError(this SignInResult result)
         {
             if (result.IsLockedOut)
             {
-                return new IdentityError {Description = nameof(result.IsLockedOut)};
+                return nameof(result.IsLockedOut);
             }
 
             if (result.IsNotAllowed)
             {
-                return new IdentityError {Description = nameof(result.IsNotAllowed)};
+                return nameof(result.IsNotAllowed);
             }
 
             if (result.RequiresTwoFactor)
             {
-                return new IdentityError {Description = nameof(result.RequiresTwoFactor)};
+                return nameof(result.RequiresTwoFactor);
             }
-
-            return IdentityErrors.WrongPassword;
+            
+            return IdentityErrors.WrongPassword.Description;
         }
     }
 }
