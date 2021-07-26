@@ -5,6 +5,6 @@ namespace HwProj.NotificationsService.Client
 {
     public interface INotificationsServiceClient
     {
-        Task<Notification[]> Get(string userId);
+        Task<NotificationViewModel[]> Get(string userId, NotificationFilter filter);
     }
 }

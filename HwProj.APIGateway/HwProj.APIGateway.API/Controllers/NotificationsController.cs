@@ -18,12 +18,12 @@ namespace HwProj.APIGateway.API.Controllers
         }
 
         [HttpGet("get")]
-        [ProducesResponseType(typeof(Notification[]), (int)HttpStatusCode.OK)]
-        public async Task<Notification[]> Get()
+        [ProducesResponseType(typeof(NotificationViewModel[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> Get()
         {
             var userId = Request.GetUserId();
-            var result = await _client.Get(userId);
-            return result;
+            var result = await _client.Get(userId, new NotificationFilter());
+            return Ok(result);
         }
     }
 }
