@@ -26,20 +26,20 @@ export default class AuthService {
   }
 
   async login(email: string, password: string) {
-    const res = await this.client.apiAccountLoginPost({ email, password });
-    const data: LoginResponseData = await res.json();
+    // const res = await this.client.apiAccountLoginPost({ email, password });
+    // const data: LoginResponseData = await res.json();
 
-    if (data.errors && data.errors.length > 0) {
-      const firstErrorMsg = data.errors[0].description;
-      return Promise.reject(firstErrorMsg);
-    }
+    // if (data.errors && data.errors.length > 0) {
+    //   const firstErrorMsg = data.errors[0].description;
+    //   return Promise.reject(firstErrorMsg);
+    // }
 
-    if (data.value) {
-      this.setToken(data.value.accessToken);
-      return Promise.resolve(data);
-    }
+    // if (data.value) {
+    //   this.setToken(data.value.accessToken);
+    //   return Promise.resolve(data);
+    // }
 
-    throw new Error("Should never happen. api has returned a 'value' of null");
+    // throw new Error("Should never happen. api has returned a 'value' of null");
   }
 
   setUserIdFake(id: number){

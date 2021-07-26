@@ -4,8 +4,6 @@ import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import { Redirect } from "react-router-dom";
 import ApiSingleton from "../api/ApiSingleton";
-import { IUser } from "types";
-import { EditAccountViewModel } from "../api/auth";
 import { FormEvent } from "react";
 
 interface IEditProfileState {
