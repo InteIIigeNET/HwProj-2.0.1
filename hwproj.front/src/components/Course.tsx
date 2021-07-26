@@ -11,10 +11,10 @@ import ApiSingleton from "../api/ApiSingleton";
 import { Link as RouterLink } from "react-router-dom";
 import {RouteComponentProps} from 'react-router';
 import NewCourseStudents from "./NewCourseStudents";
-import { AccountDataDTO } from "../api/auth";
+import { AccountDataDto } from "../api/auth";
 import { withRouter } from 'react-router-dom';
 
-interface User extends AccountDataDTO {
+interface User extends AccountDataDto {
   name?: string;
   surname?: string;
   middleName?: string;

@@ -50,11 +50,6 @@ namespace HwProj.AuthService.Client
             return await response.DeserializeAsync<Result<TokenCredentials>>();
         }
 
-        private async Task<Result<TokenCredentials>> DeserializeResponse(HttpResponseMessage response)
-        {
-            return await response.DeserializeAsync<Result<TokenCredentials>>();
-        }
-        
         public async Task<Result<TokenCredentials>> Login(LoginViewModel model)
         {
             using var httpRequest = new HttpRequestMessage(
