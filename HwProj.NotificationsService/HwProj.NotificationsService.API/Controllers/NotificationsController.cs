@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Net;
+using System.Threading.Tasks;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Services;
 using HwProj.Utils.Authorization;
@@ -17,11 +18,12 @@ namespace HwProj.NotificationsService.API.Controllers
             _notificationsService = notificationsService;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Get([FromBody] NotificationFilter filter, string userId)
+        [HttpPost("get/{userId}")]
+        [ProducesResponseType(typeof(NotificationViewModel[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> Get(string userId, [FromBody] NotificationFilter filter)
         {
-            await _notificationsService.GetAsync(userId, filter);
-            return Ok();
+            var notifications = await _notificationsService.GetAsync(userId, filter);
+            return Ok(notifications ?? new NotificationViewModel[] { });
         }
 
         [HttpPut("mark_as_seen")]

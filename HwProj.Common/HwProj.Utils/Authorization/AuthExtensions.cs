@@ -9,7 +9,7 @@ namespace HwProj.Utils.Authorization
     {
         public static string GetUserId(this HttpRequest request)
         {
-            return request.Query.First(x => x.Key == "_id").Value.ToString();
+            return request.HttpContext.User.FindFirst("_id").Value;
         }
 
         public static string GetUserName(this HttpRequest request)
