@@ -33,5 +33,17 @@ namespace HwProj.NotificationsService.Client
             var data = await response.DeserializeAsync<NotificationViewModel[]>();
             return data ?? new NotificationViewModel[] { };
         }
+
+        public async Task MarkAsSeen(string userId, long[] notificationIds)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Put,
+                _notificationServiceUri + $"api/notifications/mark_as_seen/" + userId);
+
+            var jsonIds = JsonConvert.SerializeObject(notificationIds);
+            httpRequest.Content = new StringContent(jsonIds, Encoding.UTF8, "application/json");
+
+            await _httpClient.SendAsync(httpRequest);
+        }
     }
 }

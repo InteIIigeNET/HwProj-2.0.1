@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Services;
-using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.NotificationsService.API.Controllers
@@ -26,10 +25,9 @@ namespace HwProj.NotificationsService.API.Controllers
             return Ok(notifications ?? new NotificationViewModel[] { });
         }
 
-        [HttpPut("mark_as_seen")]
-        public async Task<IActionResult> MarkNotifications([FromBody] long[] notificationIds)
+        [HttpPut("mark_as_seen/{userId}")]
+        public async Task<IActionResult> MarkNotifications([FromBody] long[] notificationIds, string userId)
         {
-            var userId = Request.GetUserId();
             await _notificationsService.MarkAsSeenAsync(userId, notificationIds);
             return Ok();
         }
