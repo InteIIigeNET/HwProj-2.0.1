@@ -9,8 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\HwProj.Common\HwProj.HttpUtils\HwProj.HttpUtils.csproj" />
     <ProjectReference Include="..\..\HwProj.Common\HwProj.Models\HwProj.Models.csproj" />
-    <ProjectReference Include="..\..\HwProj.HttpUtils\HwProj.HttpUtils.csproj" />
   </ItemGroup>
 
 </Project>
