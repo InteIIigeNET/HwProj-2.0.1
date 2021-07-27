@@ -125,10 +125,16 @@ namespace HwProj.AuthService.API.Services
                 var registerEvent = new StudentRegisterEvent(newUser.Id, newUser.Email, newUser.Name,
                     newUser.Surname, newUser.MiddleName);
                 _eventBus.Publish(registerEvent);
+                await _signInManager.PasswordSignInAsync(
+                    user,
+                    model.Password,
+                    false,
+                    false).ConfigureAwait(false);
+                var token = await _tokenService.GetTokenAsync(user).ConfigureAwait(false);
+                return Result<TokenCredentials>.Success(token);
             }
 
-            var token = await _tokenService.GetTokenAsync(user).ConfigureAwait(false);
-            return Result<TokenCredentials>.Success(token);
+            return Result<TokenCredentials>.Failed(result.Errors.Select(errors => errors.Description).ToArray());
         }
 
         public async Task<IdentityResult> InviteNewLecturer(string emailOfInvitedUser)
