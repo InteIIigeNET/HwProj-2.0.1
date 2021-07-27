@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using HwProj.HttpUtils;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.AuthService.DTO;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json;
 
 namespace HwProj.AuthService.Client
@@ -34,17 +30,17 @@ namespace HwProj.AuthService.Client
             var data = await response.DeserializeAsync<AccountDataDto>().ConfigureAwait(false);
             return data;
         }
-        
+
         public async Task<Result<TokenCredentials>> Register(RegisterViewModel model)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
                 _authServiceUri + "api/account/register");
-            
-                httpRequest.Content = new StringContent(
-                    JsonConvert.SerializeObject(model),
-                    Encoding.UTF8,
-                    "application/json");
+
+            httpRequest.Content = new StringContent(
+                JsonConvert.SerializeObject(model),
+                Encoding.UTF8,
+                "application/json");
 
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Result<TokenCredentials>>();
@@ -55,7 +51,7 @@ namespace HwProj.AuthService.Client
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
                 _authServiceUri + "api/account/login");
-            
+
             httpRequest.Content = new StringContent(
                 JsonConvert.SerializeObject(model),
                 Encoding.UTF8,

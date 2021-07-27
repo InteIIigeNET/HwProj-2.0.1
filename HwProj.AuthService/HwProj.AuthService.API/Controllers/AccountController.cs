@@ -33,7 +33,7 @@ namespace HwProj.AuthService.API.Controllers
                 ? Ok(accountData)
                 : NotFound() as IActionResult;
         }
-        
+
         [HttpGet("test")]
         [ProducesResponseType(typeof(AccountDataDto), (int)HttpStatusCode.OK)]
         public IActionResult Test()
@@ -48,12 +48,11 @@ namespace HwProj.AuthService.API.Controllers
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
             var result = await _accountService.RegisterUserAsync(model).ConfigureAwait(false);
-
             return Ok(result);
         }
 
         [HttpPost("login")]
-        [ProducesResponseType(typeof(TokenCredentials), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             var tokenMeta = await _accountService.LoginUserAsync(model).ConfigureAwait(false);

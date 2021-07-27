@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace HwProj.Models.AuthService.DTO
 {
@@ -8,7 +7,7 @@ namespace HwProj.Models.AuthService.DTO
         public T Value { get; }
         public bool Succeeded { get; }
         public string[] Errors { get; }
-        
+
         [JsonConstructor]
         private Result(T value, bool succeeded, string[] errors)
         {
@@ -21,7 +20,7 @@ namespace HwProj.Models.AuthService.DTO
         {
             return new Result<T>(value, true, null);
         }
-        
+
         public static Result<T> Failed(params string[] errors)
         {
             return new Result<T>(null, false, errors);
