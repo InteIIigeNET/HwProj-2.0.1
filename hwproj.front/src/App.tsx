@@ -11,6 +11,7 @@ import "./components/Course";
 import Course from "./components/Course";
 import Courses from "./components/Courses/Courses";
 import CreateCourse from "./components/CreateCourse";
+import Profile from "./components/Profile";
 import TaskSolutionsPage from "./components/TaskSolutionsPage";
 import AppBar from "./components/AppBar";
 import Login from "./components/Auth/Login";
@@ -67,6 +68,7 @@ class App extends Component<AppProps, AppState> {
         <Route exact path="/invite_lecturer" component={InviteNewLecturer} />
         <Route exact path="/user/edit" component={EditProfile} />
         <Route exact path="/" component={Courses} />
+        <Route exact path="/profile" component={Profile} />
         <Route exact path="/create_course" component={CreateCourse} />
         <Route exact path="/courses/:id" component={Course} />
         <Route exact path="/courses/:courseId/edit" component={EditCourse} />
