@@ -1,4 +1,6 @@
-﻿namespace HwProj.CoursesService.Client
+﻿
+
+namespace HwProj.CoursesService.Client
 {
     public interface ICoursesServiceClient
     {

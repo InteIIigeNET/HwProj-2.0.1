@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http;
+using HwProj.CoursesService.Client;
 
 namespace HwProj.NotificationsService.API
 {
@@ -35,6 +36,7 @@ namespace HwProj.NotificationsService.API
 
             var httpClient = new HttpClient();
             services.AddAuthServiceClient(httpClient, "http://localhost:5001");
+            //services.AddCoursesServiceClient(httpClient, "http://localhost:5002"); ?
 
             services.ConfigureHwProjServices("Notifications API");
         }

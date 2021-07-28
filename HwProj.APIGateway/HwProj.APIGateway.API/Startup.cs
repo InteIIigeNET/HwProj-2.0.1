@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using HwProj.AuthService.Client;
+using HwProj.CoursesService.Client;
 using HwProj.Utils.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -45,6 +46,8 @@ namespace HwProj.APIGateway.API
 
             var httpClient = new HttpClient();
             services.AddAuthServiceClient(httpClient, "http://localhost:5001");
+            services.AddCoursesServiceClient(httpClient, "http://localhost:5002");
+            
             services.AddNotificationsServiceClient(httpClient, "http://localhost:5006");
         }
 
