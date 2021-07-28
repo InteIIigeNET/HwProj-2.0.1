@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace HwProj.CoursesService.API.Models.ViewModels
+namespace HwProj.Models.CoursesService.ViewModels
 {
     public class CreateCourseViewModel
     {

@@ -34,15 +34,6 @@ namespace HwProj.AuthService.API.Controllers
                 : NotFound() as IActionResult;
         }
 
-        [HttpGet("test")]
-        [ProducesResponseType(typeof(AccountDataDto), (int)HttpStatusCode.OK)]
-        public IActionResult Test()
-        {
-            var inviteEvent = new StudentRegisterEvent("123", "email", "Alex", "Beralex", "");
-            _eventBus.Publish(inviteEvent);
-            return Ok();
-        }
-
         [HttpPost("register")]
         [ProducesResponseType(typeof(TokenCredentials), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Register(RegisterViewModel model)

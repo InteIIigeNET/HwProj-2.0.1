@@ -1,10 +1,7 @@
-﻿using HwProj.CoursesService.API.Models.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using HwProj.Models.CoursesService.ViewModels;
 
-namespace HwProj.CoursesService.API.Models.DTO
+namespace HwProj.Models.CoursesService.DTO
 {
     public class UserGroupDescription
     {
