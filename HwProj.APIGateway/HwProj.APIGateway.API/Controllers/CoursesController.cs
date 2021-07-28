@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.APIGateway.API.Controllers
 {
-    [Route("api/Courses")]
+    [Route("api/Courses/")]
     [ApiController]
     public class CoursesController : ControllerBase
     {
@@ -24,6 +24,21 @@ namespace HwProj.APIGateway.API.Controllers
         {
             var result = await _coursesClient.GetAllCourses();
             return Ok(result);
+        }
+        
+        [HttpGet("{courseId}")]
+        [ProducesResponseType(typeof(CourseViewModel), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetCourseData(long courseId)
+        {
+            var result = await _coursesClient.GetCourseData(courseId);
+            return Ok(result);
+        }
+        
+        [HttpDelete("{courseId}")]
+        public async Task<IActionResult> DeleteCourse(long courseId)
+        {
+            await _coursesClient.DeleteCourse(courseId);
+            return Ok();
         }
     }
 }
