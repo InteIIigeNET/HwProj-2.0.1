@@ -2,9 +2,9 @@
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.API.Models;
-using HwProj.CoursesService.API.Models.DTO;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.CoursesService.API.Repositories.Groups;
+using HwProj.Models.CoursesService.DTO;
 using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.CoursesService.API.Services

@@ -1,4 +1,4 @@
-﻿namespace HwProj.CoursesService.API.Models.DTO
+﻿namespace HwProj.Models.CoursesService.DTO
 {
     public class UserCourseDescription
     {

@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using HwProj.CoursesService.API.Models;
-using HwProj.CoursesService.API.Models.DTO;
-using HwProj.CoursesService.API.Models.ViewModels;
 using System.Linq;
+using HwProj.Models.CoursesService.DTO;
+using HwProj.Models.CoursesService.ViewModels;
 
 namespace HwProj.CoursesService.API
 {

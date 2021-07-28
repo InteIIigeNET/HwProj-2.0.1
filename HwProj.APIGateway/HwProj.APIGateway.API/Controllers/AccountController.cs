@@ -11,17 +11,17 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.APIGateway.API.Controllers
 {
-    [Route("api/account")] //localhost:5000/api/account
+    [Route("api/account")]
     [ApiController]
     public class AccountController : ControllerBase
     {
         private readonly INotificationsServiceClient _notificationsClient;
         private readonly IAuthServiceClient _authClient;
 
-        public AccountController(IAuthServiceClient authAuthClient, INotificationsServiceClient notificationsClient)
+        public AccountController(IAuthServiceClient authClient, INotificationsServiceClient notificationsClient)
         {
             _notificationsClient = notificationsClient;
-            _authClient = authAuthClient;
+            _authClient = authClient;
         }
 
         [HttpGet("getUserData/{userId}")]
@@ -30,25 +30,6 @@ namespace HwProj.APIGateway.API.Controllers
         {
             var result = await _authClient.GetAccountData(userId);
             return Ok(result);
-        }
-
-        [HttpGet("getUserData")]
-        [ProducesResponseType(typeof(UserDataDto), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetUserData()
-        {
-            var userId = Request.GetUserId();
-
-            var getAccountDataTask = _authClient.GetAccountData(userId);
-            var getNotificationsTask = _notificationsClient.Get(userId, new NotificationFilter());
-
-            await Task.WhenAll(getAccountDataTask, getNotificationsTask);
-
-            var aggregatedResult = new UserDataDto
-            {
-                UserData = getAccountDataTask.Result,
-                Notifications = getNotificationsTask.Result
-            };
-            return Ok(aggregatedResult);
         }
 
         [HttpPost("register")]
