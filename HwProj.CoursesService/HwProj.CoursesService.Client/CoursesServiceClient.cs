@@ -2,6 +2,7 @@
 using System.Diagnostics.Contracts;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using HwProj.HttpUtils;
 using HwProj.Models.AuthService.DTO;
@@ -40,6 +41,17 @@ namespace HwProj.CoursesService.Client
                 HttpMethod.Get,
                 _coursesServiceUri + $"api/Courses/{courseId}");
 
+            var response = await _httpClient.SendAsync(httpRequest);
+            var data = await response.DeserializeAsync<CourseViewModel>();
+            return data;
+        }
+        
+        public async Task<CourseViewModel> DeleteCourse(long courseId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Delete,
+                _coursesServiceUri + $"api/Courses/{courseId}");
+            
             var response = await _httpClient.SendAsync(httpRequest);
             var data = await response.DeserializeAsync<CourseViewModel>();
             return data;

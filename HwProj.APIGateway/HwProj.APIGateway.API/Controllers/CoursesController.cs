@@ -33,5 +33,12 @@ namespace HwProj.APIGateway.API.Controllers
             var result = await _coursesClient.GetCourseData(courseId);
             return Ok(result);
         }
+        
+        [HttpDelete("{courseId}")]
+        public async Task<IActionResult> DeleteCourse(long courseId)
+        {
+            await _coursesClient.DeleteCourse(courseId);
+            return Ok();
+        }
     }
 }
