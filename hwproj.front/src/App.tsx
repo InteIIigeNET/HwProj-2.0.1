@@ -66,6 +66,7 @@ class App extends Component<AppProps, AppState> {
         <Route exact path="/user/edit" component={EditProfile} />
         <Route exact path="/" component={Courses} />
         <Route exact path="/profile" component={Profile} />
+        <Route exact path="/profile/:id" component={Profile} />
         <Route exact path="/create_course" component={CreateCourse} />
         <Route exact path="/courses/:id" component={Course} />
         <Route exact path="/courses/:courseId/edit" component={EditCourse} />

@@ -1,5 +1,6 @@
-.root {
+.notification {
     min-width: 275;
+    background-color: dimgray;
 }
 .bullet {
     display: 'inline-block';
@@ -11,4 +12,10 @@
 }
 .pos {
     margin-bottom: 12;
+}
+.userData {
+    width: '25ch';
+}
+.role {
+    float: right;
 }

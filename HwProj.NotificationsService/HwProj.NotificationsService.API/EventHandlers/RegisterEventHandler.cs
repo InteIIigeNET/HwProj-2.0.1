@@ -32,7 +32,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             await _notificationRepository.AddAsync(new Notification
             {
                 Sender = "AuthService",
-                Body = $"Новый пользователь зарегистрирован. Email: {@event.Email}. UserId: {@event.UserId}",
+                Body = $"Новый пользователь {@event.Name} {@event.Surname} зарегистрирован. Email: {@event.Email}. UserId: {@event.UserId}",
                 Category = "AuthService",
                 Date = DateTime.UtcNow,
                 HasSeen = false,

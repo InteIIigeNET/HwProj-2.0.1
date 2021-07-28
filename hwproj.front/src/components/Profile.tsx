@@ -1,84 +1,97 @@
-import { Card, Typography, Button, CardActions, CardContent } from "@material-ui/core";
-import Checkbox from '@material-ui/core/Checkbox';
-
 import * as React from "react";
 import {RouteComponentProps} from 'react-router';
-import { AccountDataDto } from "../api/auth";
-import "./Styles/Profile.css";
 
-interface Notification {
-  sender: string,
-  owner: string,
-  category: string,
-  body: string,
-}
+import { Card, Typography, CardContent, Checkbox, CircularProgress, TextField } from "@material-ui/core";
+
+import ApiSingleton from "api/ApiSingleton";
+import AuthService from "services/AuthService";
+import { AccountDataDto, NotificationViewModel } from "../api/auth";
+
+import "./Styles/Profile.css";
 
 interface IProfileState {
   isLoaded: boolean;
   isFound: boolean;
   accountData: AccountDataDto;
-  notifications: Notification[];
+  notifications: NotificationViewModel[];
 }
 
 interface IProfileProps {
   id: string;
 }
 
-export default class Profile extends React.Component<
-  RouteComponentProps<IProfileProps>,
-  IProfileState
-> {
-  constructor(props: RouteComponentProps<IProfileProps>) {
-    super(props);
-    this.state = {
-      isLoaded: false,
-      isFound: false,
-      accountData: {
-        name: "",
-        surname: "",
-        middleName: "",
-        email: "",
-        role: ""
-      },
-      notifications: []
-    }
-  }
+export default class Profile extends React.Component<RouteComponentProps<IProfileProps>, IProfileState> {
+	constructor(props: RouteComponentProps<IProfileProps>) {
+		super(props);
+		this.state = {
+		isLoaded: false,
+		isFound: false,
+		accountData: {
+			name: "",
+			surname: "",
+			middleName: "",
+			email: "",
+			role: ""
+		},
+		notifications: []
+		}
+	}
   
 
-  public render() {
-    const { isLoaded, isFound, accountData, notifications } = this.state;
-    if (isLoaded) {
-      if (isFound) {
-          return (<div>{this.state.notifications.map(n => 
-            <Card className="root" variant="outlined" color="">
-              <CardContent>
-                <Typography variant="body2" component="p">
-                  {n.body}
-                </Typography>
-                <Checkbox color="primary"/>
-              </CardContent>
-            </Card>
-            )}</div>);
-      }
-      return (<div>Not found</div>);
-    }
-    return <div>Loading...</div>;
-  }
+	public render() {
+		const { isLoaded, isFound, accountData, notifications } = this.state;
+		if (isLoaded) {
+			if (isFound) {
+				return (<div>
+					<div className="userData">
+						<TextField id="name" variant="filled" label="Имя" disabled defaultValue={accountData.name} />
+						<TextField id="middleName" variant="filled" label="Отчество" disabled defaultValue={accountData.middleName} />
+						<TextField id="surname" variant="filled" label="Фамилия" disabled defaultValue={accountData.surname} />
+						<TextField id="email" variant="filled" label="Email" disabled defaultValue={accountData.email} />
+						<TextField className="role" variant="outlined" id="role" label="Роль" disabled defaultValue={accountData.role} />
+					</div>
 
-async componentDidMount() {
-    const responseData = await fetch("http://localhost:5000/api/account/getUserData", {
-      headers:{
-        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfdXNlck5hbWUiOiJBZG1pbiIsIl9pZCI6ImFiOGE1Njg3LTgwYjYtNDE4Yi1hMTIwLWJiMDhhYWY5ZGE1NSIsIl9lbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsIl9yb2xlIjoiTGVjdHVyZXIiLCJuYmYiOjE2Mjc0MDczNDcsImV4cCI6MTYyNzQyNTM0NywiaXNzIjoiQXV0aFNlcnZpY2UifQ.PrdyC31dAzXAbg4Ss4xvESucjwupH-AbUD1YyHdp3CM"
-      } 
-    });
-    const data = await responseData.json();
-    this.setState({
-      isLoaded: true,
-      isFound: true,
-      accountData: data.UserData,
-      notifications: data.notifications
-    });
-  }
+					<br /><br />					
+					
+					{notifications.map(n => 
+					<Card className="notification" variant="outlined">
+					<CardContent>
+						<Typography variant="body2" component="p">
+						{n.body}
+						</Typography>
+						<Checkbox color="primary"/>
+					</CardContent>
+					</Card>
+					)}</div>);
+			}
+			return (<div>Not found</div>);
+		}
+		return <div>
+				<p>Loading...</p>
+				<CircularProgress />
+			</div>;
+	}
+
+	async componentDidMount() {
+		if (this.props.match.params.id) {
+			const data = await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(this.props.match.params.id);
+			this.setState({
+				isLoaded: true,
+				isFound: true,
+				accountData: data!,
+			});
+		}
+		else {
+			const token = (new AuthService).getToken();
+			const data = await ApiSingleton.accountApi.apiAccountGetUserDataGet({ headers: {"Authorization": `Bearer ${token}`} });
+			this.setState({
+				isLoaded: true,
+				isFound: true,
+				accountData: data.userData!,
+				notifications: data.notifications!,
+			});
+		}
+	}
 }
 
 
