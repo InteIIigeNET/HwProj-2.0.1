@@ -12,7 +12,7 @@
  */
 
 
-export interface ConfigurationParameters {
+ export interface ConfigurationParameters {
     apiKey?: string | ((name: string) => string);
     username?: string;
     password?: string;

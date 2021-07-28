@@ -35,8 +35,8 @@ class App extends Component<AppProps, AppState> {
   constructor(props: AppProps) {
     super(props);
     this.state = {
-      loggedIn: ApiSingleton.authService.getLogginStateFake(),
-      isLecturer: ApiSingleton.authService.getRoleFake()
+      loggedIn: ApiSingleton.authService.getToken() !== null,
+      isLecturer: ApiSingleton.authService.getUserRole() === "lecturer"
     };
 
     this.login = this.login.bind(this);
@@ -44,18 +44,15 @@ class App extends Component<AppProps, AppState> {
   }
 
   login() {
-    ApiSingleton.authService.loginFake();
-    this.setState({loggedIn: true})
-    if (ApiSingleton.authService.getRoleFake()){
-      this.setState({isLecturer: true})
-    }
+    this.setState({
+      loggedIn: true,
+      isLecturer: ApiSingleton.authService.getUserRole() === "lecturer"
+    })
     this.props.history.push("/");
   }
 
   logout() {
-    ApiSingleton.authService.logoutFake();
-    ApiSingleton.authService.setRoleFake("");
-    ApiSingleton.authService.setUserIdFake(-1);
+    ApiSingleton.authService.logout();
     this.setState({loggedIn: false});
     this.setState({isLecturer: false});
     this.props.history.push("/");

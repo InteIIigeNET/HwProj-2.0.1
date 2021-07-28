@@ -12,7 +12,7 @@ interface LoginProps extends Partial<RouteComponentProps> {
 interface ILoginState {
   email: string;
   password: string;
-  error: string;
+  error: string[] | null;
   isLogin: boolean;
 }
 
@@ -22,7 +22,7 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
     this.state = {
       email: "",
       password: "",
-      error: "",
+      error: [],
       isLogin: false,
     };
   }
@@ -36,12 +36,13 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
       password: this.state.password,
       rememberMe: false
     }
-    debugger
-    const token = await ApiSingleton.accountApi.apiAccountLoginPost(userData)
-    console.log(token)
-    debugger
 
-
+    const result = await ApiSingleton.authService.login(userData)
+    this.setState({
+      error: result!.error,
+      isLogin: result.isLogin
+    })
+    debugger
     //await ApiSingleton.authService.getAllUsersFake()
     /*
     users.map((item: any) => {

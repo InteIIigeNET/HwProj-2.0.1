@@ -1,5 +1,7 @@
+import { LoginViewModel } from './../api/auth/api';
 import decode from "jwt-decode";
 import { AccountApi } from "../api/auth";
+import ApiSingleton from "../api/ApiSingleton";
 
 interface TokenPayload {
   _userName: string;
@@ -25,21 +27,20 @@ export default class AuthService {
     this.getProfile = this.getProfile.bind(this);
   }
 
-  async login(email: string, password: string) {
-    // const res = await this.client.apiAccountLoginPost({ email, password });
-    // const data: LoginResponseData = await res.json();
-
-    // if (data.errors && data.errors.length > 0) {
-    //   const firstErrorMsg = data.errors[0].description;
-    //   return Promise.reject(firstErrorMsg);
-    // }
-
-    // if (data.value) {
-    //   this.setToken(data.value.accessToken);
-    //   return Promise.resolve(data);
-    // }
-
-    // throw new Error("Should never happen. api has returned a 'value' of null");
+  async login(user: LoginViewModel) {
+    debugger
+    const token = await ApiSingleton.accountApi.apiAccountLoginPost(user)
+    if (token.errors) {
+      return {
+        error: token.errors,
+        isLogin: false
+      }
+    }
+    this.setToken(token.value?.accessToken!)
+    return {
+      error: null,
+      isLogin: true
+    }
   }
 
   setUserIdFake(id: number){
@@ -135,5 +136,12 @@ export default class AuthService {
 
   getUserId() {
     return this.getProfile()._id;
+  }
+
+  getUserRole() {
+    if (this.getToken() === null) {
+      return "student"
+    }
+    return this.getProfile()._role;
   }
 }
