@@ -5,8 +5,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using HwProj.HttpUtils;
-using HwProj.Models.AuthService.DTO;
-using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using Newtonsoft.Json;
@@ -54,6 +52,22 @@ namespace HwProj.CoursesService.Client
             
             var response = await _httpClient.SendAsync(httpRequest);
             var data = await response.DeserializeAsync<CourseViewModel>();
+            return data;
+        }
+        
+        public async Task<long> CreateCourse(CreateCourseViewModel model, string mentorId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _coursesServiceUri + $"api/Courses/create?mentorId={mentorId}");
+            
+            httpRequest.Content = new StringContent(
+                JsonConvert.SerializeObject(model),
+                Encoding.UTF8,
+                "application/json");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            var data = await response.DeserializeAsync<long>();
             return data;
         }
     }

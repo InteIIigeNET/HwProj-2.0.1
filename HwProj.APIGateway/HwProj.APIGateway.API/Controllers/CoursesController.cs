@@ -40,5 +40,13 @@ namespace HwProj.APIGateway.API.Controllers
             await _coursesClient.DeleteCourse(courseId);
             return Ok();
         }
+        
+        [HttpPost("create")]
+        [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> CreateCourse(CreateCourseViewModel model, [FromQuery] string mentorId)
+        {
+            var result = await _coursesClient.CreateCourse(model, mentorId);
+            return Ok(result);
+        }
     }
 }

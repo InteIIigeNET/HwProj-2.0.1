@@ -42,7 +42,7 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> AddCourse([FromBody] CreateCourseViewModel courseViewModel, string mentorId)
+        public async Task<IActionResult> AddCourse([FromBody] CreateCourseViewModel courseViewModel, [FromQuery] string mentorId)
         {
             // var mentorId = Request.GetUserId();
             var course = _mapper.Map<Course>(courseViewModel);
