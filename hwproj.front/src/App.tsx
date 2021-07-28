@@ -35,8 +35,8 @@ class App extends Component<AppProps, AppState> {
   constructor(props: AppProps) {
     super(props);
     this.state = {
-      loggedIn: ApiSingleton.authService.getToken() !== null,
-      isLecturer: ApiSingleton.authService.getUserRole() === "lecturer"
+      loggedIn: ApiSingleton.authService.loggedIn(),
+      isLecturer: ApiSingleton.authService.isLecturer()
     };
 
     this.login = this.login.bind(this);
@@ -46,7 +46,7 @@ class App extends Component<AppProps, AppState> {
   login() {
     this.setState({
       loggedIn: true,
-      isLecturer: ApiSingleton.authService.getUserRole() === "lecturer"
+      isLecturer: ApiSingleton.authService.isLecturer()
     })
     this.props.history.push("/");
   }

@@ -4,21 +4,13 @@ import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import { Redirect } from "react-router-dom";
 import ApiSingleton from "../../api/ApiSingleton";
-//import { RegisterViewModel } from "../../api/auth";
+import { RegisterViewModel } from "../../api/auth";
 import "./Styles/Register.css";
-
-interface RegisterViewModel {
-  name: string;
-  surname: string;
-  middleName: string;
-  password: string;
-  passwordConfirm: string;
-  email: string;
-}
 
 interface IRegisterState {
   registerData: RegisterViewModel;
-  logged: boolean;
+  loggedIn: boolean;
+  error: string[];
 }
 
 export class Register extends React.Component<{}, IRegisterState> {
@@ -33,14 +25,15 @@ export class Register extends React.Component<{}, IRegisterState> {
         password: "",
         passwordConfirm: "",
       },
-      logged: ApiSingleton.authService.getLogginStateFake(),
+      loggedIn: ApiSingleton.authService.loggedIn(),
+      error: [],
     };
   }
 
-  public render(): JSX.Element {
-    const { registerData, logged } = this.state;
+  render(): JSX.Element {
+    const { registerData, loggedIn } = this.state;
 
-    if (logged) {
+    if (loggedIn) {
       return <Redirect to={"/"} />;
     }
 
@@ -165,16 +158,13 @@ export class Register extends React.Component<{}, IRegisterState> {
 
   private handleSubmit = async (e: any) => {
     e.preventDefault();
-    // const { email, password } = this.state.registerData;
-    // await ApiSingleton.accountApi.apiAccountRegisterPost(this.state.registerData);
-    // await ApiSingleton.authService.login(email, password);
-
-    
-    
-    ApiSingleton.authService.loginFake()
-    ApiSingleton.authService.setRoleFake("student")
-    //ApiSingleton.authService.setUserIdFake(user.id)
-    this.setState({logged: true})
+    debugger
+    const result = await ApiSingleton.authService.register(this.state.registerData)
+    this.setState({
+      error: result!.error!,
+      loggedIn: result.loggedIn
+    })
+    debugger
     window.location.assign("/")
   };
 }
