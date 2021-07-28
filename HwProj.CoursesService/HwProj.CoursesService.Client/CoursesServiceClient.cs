@@ -15,22 +15,33 @@ namespace HwProj.CoursesService.Client
     public class CoursesServiceClient : ICoursesServiceClient
     {
         private readonly HttpClient _httpClient;
-        private readonly Uri _authServiceUri;
+        private readonly Uri _coursesServiceUri;
 
-        public CoursesServiceClient(HttpClient httpClient, Uri authServiceUri)
+        public CoursesServiceClient(HttpClient httpClient, Uri coursesServiceUri)
         {
             _httpClient = httpClient;
-            _authServiceUri = authServiceUri;
+            _coursesServiceUri = coursesServiceUri;
         }
 
         public async Task<CourseViewModel[]> GetAllCourses()
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get, 
-                _authServiceUri + "api/Courses");
+                _coursesServiceUri + "api/Courses");
 
             var response = await _httpClient.SendAsync(httpRequest);
             var data = await response.DeserializeAsync<CourseViewModel[]>();
+            return data;
+        }
+        
+        public async Task<CourseViewModel> GetCourseData(long courseId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + $"api/Courses/{courseId}");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            var data = await response.DeserializeAsync<CourseViewModel>();
             return data;
         }
     }

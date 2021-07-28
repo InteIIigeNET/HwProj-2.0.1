@@ -6,5 +6,7 @@ namespace HwProj.CoursesService.Client
     public interface ICoursesServiceClient
     {
         Task<CourseViewModel[]> GetAllCourses();
+
+        Task<CourseViewModel> GetCourseData(long courseId);
     }
 }
