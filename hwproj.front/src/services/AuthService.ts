@@ -2,6 +2,7 @@ import { LoginViewModel } from './../api/auth/api';
 import decode from "jwt-decode";
 import { AccountApi } from "../api/auth";
 import ApiSingleton from "../api/ApiSingleton";
+import { RegisterViewModel } from "./../api/auth";
 
 interface TokenPayload {
   _userName: string;
@@ -37,11 +38,31 @@ export default class AuthService {
       }
     }
     this.setToken(token.value?.accessToken!)
+    debugger
     return {
       error: null,
       isLogin: true
     }
   }
+
+  async register(user: RegisterViewModel){
+    debugger
+    const token = await ApiSingleton.accountApi.apiAccountRegisterPost(user) 
+    if (!token.succeeded) {
+      return {
+        loggedIn: false,
+        error: token.errors
+      }
+    }
+    this.setToken(token.value?.accessToken!)
+    debugger
+    return {
+      loggedIn: true,
+      error: []
+    }
+  }
+
+  
 
   setUserIdFake(id: number){
     window.localStorage.setItem("userId", String(id));
@@ -118,30 +139,22 @@ export default class AuthService {
     }
   }
 
-  setToken(idToken: any) {
-    localStorage.setItem("id_token", idToken);
-  }
+  setToken = (idToken: string) => localStorage.setItem("id_token", idToken);
 
-  getToken() {
-    return localStorage.getItem("id_token");
-  }
+  getToken = () => localStorage.getItem("id_token");
 
-  logout() {
-    localStorage.removeItem("id_token");
-  }
+  logout = () => localStorage.removeItem("id_token");
 
-  getProfile() {
-    return decode<TokenPayload>(this.getToken() as string);
-  }
+  getProfile = () => decode<TokenPayload>(this.getToken() as string);
 
-  getUserId() {
-    return this.getProfile()._id;
-  }
+  getUserId = () => this.getProfile()._id;
 
-  getUserRole() {
+  loggedIn = () => this.getToken() !== null
+
+  isLecturer() {
     if (this.getToken() === null) {
-      return "student"
+      return false
     }
-    return this.getProfile()._role;
+    return this.getProfile()._role === "Lecturer"
   }
 }
