@@ -7,6 +7,7 @@ import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import AuthService from "../services/AuthService";
 import ApiSingleton from "api/ApiSingleton";
+import { Avatar } from "@material-ui/core";
 
 const styles = createStyles({
   root: {
@@ -87,6 +88,10 @@ class ButtonAppBar extends React.Component<AppBarProps, IAppBarState> {
                   >
                     Редактировать данные
                   </Button>
+                  <Avatar
+                    src="/broken-image.jpg"
+                    onClick={() => window.location.assign("/profile")}
+                  />
                   <Button onClick={this.props.onLogout} color="inherit">
                     Выйти
                   </Button>
