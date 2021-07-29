@@ -32,6 +32,25 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok(result);
         }
 
+        [HttpGet("getUserData")]
+        [ProducesResponseType(typeof(UserDataDto), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetUserData()
+        {
+            var userId = Request.GetUserId();
+
+            var getAccountDataTask = _authClient.GetAccountData(userId);
+            var getNotificationsTask = _notificationsClient.Get(userId, new NotificationFilter());
+
+            await Task.WhenAll(getAccountDataTask, getNotificationsTask);
+
+            var aggregatedResult = new UserDataDto
+            {
+                UserData = getAccountDataTask.Result,
+                Notifications = getNotificationsTask.Result
+            };
+            return Ok(aggregatedResult);
+        }
+
         [HttpPost("register")]
         [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Register([FromBody] RegisterViewModel model)
