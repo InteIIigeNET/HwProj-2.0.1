@@ -42,6 +42,9 @@ export class Register extends React.Component<{}, IRegisterState> {
         <Typography component="h1" variant="h5">
           Регистрация
         </Typography>
+          {this.state.error.length > 0 && (
+              <p style={{ color: "red", marginBottom: "0" }}>{this.state.error}</p>
+          )}
         <form onSubmit={this.handleSubmit} className="form">
           <TextField
             size="small"
@@ -164,7 +167,9 @@ export class Register extends React.Component<{}, IRegisterState> {
       error: result!.error!,
       loggedIn: result.loggedIn
     })
-    debugger
-    window.location.assign("/")
+    if (result.loggedIn)
+    {
+        window.location.assign("/")
+    }
   };
 }
