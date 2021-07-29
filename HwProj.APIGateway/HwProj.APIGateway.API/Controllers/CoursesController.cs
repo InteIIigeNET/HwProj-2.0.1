@@ -31,7 +31,9 @@ namespace HwProj.APIGateway.API.Controllers
         public async Task<IActionResult> GetCourseData(long courseId)
         {
             var result = await _coursesClient.GetCourseData(courseId);
-            return Ok(result);
+            return result == null
+                ? NotFound()
+                : Ok(result) as IActionResult;
         }
         
         [HttpDelete("{courseId}")]
