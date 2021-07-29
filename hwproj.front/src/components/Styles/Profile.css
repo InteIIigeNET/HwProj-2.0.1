@@ -1,21 +1,3 @@
-.notification {
-    min-width: 275;
-    background-color: dimgray;
-}
-.bullet {
-    display: 'inline-block';
-    margin: '0 2px';
-    transform: 'scale(0.8)';
-}
-.title {
-    font-size: 14;
-}
-.pos {
-    margin-bottom: 12;
-}
-.userData {
-    width: '25ch';
-}
 .role {
     float: right;
 }
