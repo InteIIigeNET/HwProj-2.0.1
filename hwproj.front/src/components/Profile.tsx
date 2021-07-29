@@ -56,7 +56,7 @@ export default class Profile extends React.Component<RouteComponentProps<IProfil
 								{n.body}
 							</Typography>
 						</CardContent>
-						<Box display="flex" flexDirection="row-reverse"><Checkbox color="primary"/></Box>
+						<Box display="flex" flexDirection="row-reverse"><Checkbox color="primary" id={n.id?.toString()}/></Box>
 					</Card>
 				</Box>)}
 			</div>);
