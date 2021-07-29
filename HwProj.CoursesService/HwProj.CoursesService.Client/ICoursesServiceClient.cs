@@ -9,8 +9,10 @@ namespace HwProj.CoursesService.Client
 
         Task<CourseViewModel> GetCourseData(long courseId);
         
-        Task<CourseViewModel> DeleteCourse(long courseId);
+        Task DeleteCourse(long courseId);
 
         Task<long> CreateCourse(CreateCourseViewModel model, string mentorId);
+
+        Task UpdateCourse(CourseViewModel model, long courseId);
     }
 }

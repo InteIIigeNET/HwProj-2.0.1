@@ -35,12 +35,14 @@ namespace HwProj.AuthService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _authServiceUri + "api/account/register");
+                _authServiceUri + "api/account/register")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(model),
+                    Encoding.UTF8,
+                    "application/json")
+            };
 
-            httpRequest.Content = new StringContent(
-                JsonConvert.SerializeObject(model),
-                Encoding.UTF8,
-                "application/json");
 
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Result<TokenCredentials>>();
@@ -50,13 +52,14 @@ namespace HwProj.AuthService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _authServiceUri + "api/account/login");
-
-            httpRequest.Content = new StringContent(
-                JsonConvert.SerializeObject(model),
-                Encoding.UTF8,
-                "application/json");
-
+                _authServiceUri + "api/account/login")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(model),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+            
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Result<TokenCredentials>>();
         }

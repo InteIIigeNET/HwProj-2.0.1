@@ -44,31 +44,45 @@ namespace HwProj.CoursesService.Client
             return data;
         }
         
-        public async Task<CourseViewModel> DeleteCourse(long courseId)
+        public async Task DeleteCourse(long courseId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Delete,
                 _coursesServiceUri + $"api/Courses/{courseId}");
             
-            var response = await _httpClient.SendAsync(httpRequest);
-            var data = await response.DeserializeAsync<CourseViewModel>();
-            return data;
+            await _httpClient.SendAsync(httpRequest);
         }
         
         public async Task<long> CreateCourse(CreateCourseViewModel model, string mentorId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _coursesServiceUri + $"api/Courses/create?mentorId={mentorId}");
-            
-            httpRequest.Content = new StringContent(
-                JsonConvert.SerializeObject(model),
-                Encoding.UTF8,
-                "application/json");
+                _coursesServiceUri + $"api/Courses/create?mentorId={mentorId}")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(model),
+                    Encoding.UTF8,
+                    "application/json")
+            };
 
             var response = await _httpClient.SendAsync(httpRequest);
             var data = await response.DeserializeAsync<long>();
             return data;
+        }
+        
+        public async Task UpdateCourse(CourseViewModel model, long courseId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _coursesServiceUri + $"api/Courses/update/{courseId}")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(model),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+            
+            await _httpClient.SendAsync(httpRequest);
         }
     }
 }
