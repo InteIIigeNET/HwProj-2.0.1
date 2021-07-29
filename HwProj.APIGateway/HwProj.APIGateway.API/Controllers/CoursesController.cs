@@ -50,5 +50,12 @@ namespace HwProj.APIGateway.API.Controllers
             var result = await _coursesClient.CreateCourse(model, mentorId);
             return Ok(result);
         }
+        
+        [HttpPost("update/{courseId}")]
+        public async Task<IActionResult> UpdateCourse(CourseViewModel model, long courseId)
+        {
+            await _coursesClient.UpdateCourse(model, courseId);
+            return Ok();
+        }
     }
 }
