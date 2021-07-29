@@ -29,7 +29,9 @@ namespace HwProj.APIGateway.API.Controllers
         public async Task<IActionResult> GetUserDataById(string userId)
         {
             var result = await _authClient.GetAccountData(userId);
-            return Ok(result);
+            return result == null
+                ? NotFound()
+                : Ok(result) as IActionResult;
         }
 
         [HttpGet("getUserData")]
