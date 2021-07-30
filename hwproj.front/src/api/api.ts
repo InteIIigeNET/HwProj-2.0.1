@@ -247,6 +247,44 @@
  /**
   * 
   * @export
+  * @interface EditAccountViewModel
+  */
+ export interface EditAccountViewModel {
+     /**
+      * 
+      * @type {string}
+      * @memberof EditAccountViewModel
+      */
+     name?: string;
+     /**
+      * 
+      * @type {string}
+      * @memberof EditAccountViewModel
+      */
+     surname?: string;
+     /**
+      * 
+      * @type {string}
+      * @memberof EditAccountViewModel
+      */
+     middleName?: string;
+     /**
+      * 
+      * @type {string}
+      * @memberof EditAccountViewModel
+      */
+     currentPassword: string;
+     /**
+      * 
+      * @type {string}
+      * @memberof EditAccountViewModel
+      */
+     newPassword?: string;
+ }
+ 
+ /**
+  * 
+  * @export
   * @interface FileAggregateReRoute
   */
  export interface FileAggregateReRoute {
@@ -985,6 +1023,26 @@
  /**
   * 
   * @export
+  * @interface Result
+  */
+ export interface Result {
+     /**
+      * 
+      * @type {boolean}
+      * @memberof Result
+      */
+     succeeded?: boolean;
+     /**
+      * 
+      * @type {Array<string>}
+      * @memberof Result
+      */
+     errors?: Array<string>;
+ }
+ 
+ /**
+  * 
+  * @export
   * @interface ResultTokenCredentials
   */
  export interface ResultTokenCredentials {
@@ -1055,6 +1113,33 @@
   */
  export const AccountApiFetchParamCreator = function (configuration?: Configuration) {
      return {
+         /**
+          * 
+          * @param {EditAccountViewModel} [model] 
+          * @param {*} [options] Override http request option.
+          * @throws {RequiredError}
+          */
+         apiAccountEditPut(model?: EditAccountViewModel, options: any = {}): FetchArgs {
+             const localVarPath = `/api/Account/edit`;
+             const localVarUrlObj = url.parse(localVarPath, true);
+             const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
+             const localVarHeaderParameter = {} as any;
+             const localVarQueryParameter = {} as any;
+ 
+             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+ 
+             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+             delete localVarUrlObj.search;
+             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+             const needsSerialization = (<any>"EditAccountViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
+ 
+             return {
+                 url: url.format(localVarUrlObj),
+                 options: localVarRequestOptions,
+             };
+         },
          /**
           * 
           * @param {string} userId 
@@ -1170,6 +1255,24 @@
      return {
          /**
           * 
+          * @param {EditAccountViewModel} [model] 
+          * @param {*} [options] Override http request option.
+          * @throws {RequiredError}
+          */
+         apiAccountEditPut(model?: EditAccountViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Result> {
+             const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountEditPut(model, options);
+             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                     if (response.status >= 200 && response.status < 300) {
+                         return response.json();
+                     } else {
+                         throw response;
+                     }
+                 });
+             };
+         },
+         /**
+          * 
           * @param {string} userId 
           * @param {*} [options] Override http request option.
           * @throws {RequiredError}
@@ -1250,6 +1353,15 @@
      return {
          /**
           * 
+          * @param {EditAccountViewModel} [model] 
+          * @param {*} [options] Override http request option.
+          * @throws {RequiredError}
+          */
+         apiAccountEditPut(model?: EditAccountViewModel, options?: any) {
+             return AccountApiFp(configuration).apiAccountEditPut(model, options)(fetch, basePath);
+         },
+         /**
+          * 
           * @param {string} userId 
           * @param {*} [options] Override http request option.
           * @throws {RequiredError}
@@ -1293,6 +1405,17 @@
   * @extends {BaseAPI}
   */
  export class AccountApi extends BaseAPI {
+     /**
+      * 
+      * @param {EditAccountViewModel} [model] 
+      * @param {*} [options] Override http request option.
+      * @throws {RequiredError}
+      * @memberof AccountApi
+      */
+     public apiAccountEditPut(model?: EditAccountViewModel, options?: any) {
+         return AccountApiFp(this.configuration).apiAccountEditPut(model, options)(this.fetch, this.basePath);
+     }
+ 
      /**
       * 
       * @param {string} userId 
