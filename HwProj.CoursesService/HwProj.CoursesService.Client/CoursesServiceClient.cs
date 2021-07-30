@@ -84,5 +84,43 @@ namespace HwProj.CoursesService.Client
             
             await _httpClient.SendAsync(httpRequest);
         }
+
+        public async Task SignInCourse(long courseId, string studentId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _coursesServiceUri + $"api/Courses/sign_in_course/{courseId}?studentId={studentId}");
+            
+            await _httpClient.SendAsync(httpRequest);
+        }
+        
+        public async Task AcceptStudent(long courseId, string studentId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _coursesServiceUri + $"api/Courses/accept_student/{courseId}?studentId={studentId}");
+            
+            await _httpClient.SendAsync(httpRequest);
+        }
+        
+        public async Task RejectStudent(long courseId, string studentId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _coursesServiceUri + $"api/Courses/reject_student/{courseId}?studentId={studentId}");
+            
+            await _httpClient.SendAsync(httpRequest);
+        }
+
+        public async Task<CourseViewModel[]> GetAllUserCourses(string userId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get, 
+                _coursesServiceUri + $"api/Courses/user_courses/{userId}");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            var data = await response.DeserializeAsync<CourseViewModel[]>();
+            return data;
+        }
     }
 }

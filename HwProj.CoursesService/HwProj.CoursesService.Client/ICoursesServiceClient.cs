@@ -14,5 +14,13 @@ namespace HwProj.CoursesService.Client
         Task<long> CreateCourse(CreateCourseViewModel model, string mentorId);
 
         Task UpdateCourse(CourseViewModel model, long courseId);
+
+        Task SignInCourse(long courseId, string studentId);
+
+        Task AcceptStudent(long courseId, string studentId);
+
+        Task RejectStudent(long courseId, string studentId);
+
+        Task<CourseViewModel[]> GetAllUserCourses(string userId);
     }
 }

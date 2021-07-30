@@ -57,5 +57,36 @@ namespace HwProj.APIGateway.API.Controllers
             await _coursesClient.UpdateCourse(model, courseId);
             return Ok();
         }
+        
+        [HttpPost("sign_in_course/{courseId}")]
+        public async Task<IActionResult> SignInCourse(long courseId, [FromQuery] string studentId)
+        {
+            await _coursesClient.SignInCourse(courseId, studentId);
+            return Ok();
+        }
+        
+        [HttpPost("accept_student/{courseId}")]
+        public async Task<IActionResult> AcceptStudent(long courseId, [FromQuery] string studentId)
+        {
+            await _coursesClient.AcceptStudent(courseId, studentId);
+            return Ok();
+        }
+        
+        [HttpPost("reject_student/{courseId}")]
+        public async Task<IActionResult> RejectStudent(long courseId, [FromQuery] string studentId)
+        {
+            await _coursesClient.RejectStudent(courseId, studentId);
+            return Ok();
+        }
+        
+        [HttpGet("user_courses/{userId}")]
+        [ProducesResponseType(typeof(CourseViewModel[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetAllUserCourses(string userId)
+        {
+            var result = await _coursesClient.GetAllUserCourses(userId);
+            return result == null
+                ? NotFound()
+                : Ok(result) as IActionResult;
+        } 
     }
 }
