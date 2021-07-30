@@ -63,6 +63,12 @@ class ButtonAppBar extends React.Component<AppBarProps, IAppBarState> {
                 color="inherit"
                 className={classes.grow}
               />
+              {loggedIn &&
+                <Avatar
+                  src="/broken-image.jpg"
+                  onClick={() => window.location.assign("/profile")}
+                />
+              }
               {loggedIn && isLecturer && 
                 (
                   <div>
@@ -88,10 +94,6 @@ class ButtonAppBar extends React.Component<AppBarProps, IAppBarState> {
                   >
                     Редактировать данные
                   </Button>
-                  <Avatar
-                    src="/broken-image.jpg"
-                    onClick={() => window.location.assign("/profile")}
-                  />
                   <Button onClick={this.props.onLogout} color="inherit">
                     Выйти
                   </Button>
