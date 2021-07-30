@@ -50,11 +50,10 @@ namespace HwProj.AuthService.API.Controllers
             return Ok(tokenMeta);
         }
         
-        [HttpPut("edit")]
+        [HttpPut("edit/{userId}")]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Edit([FromBody] EditAccountViewModel model, [FromQuery] string userId)
+        public async Task<IActionResult> Edit([FromBody] EditAccountViewModel model, string userId)
         {
-            var token = ControllerContext.HttpContext.Request.Headers["Auth"][0];
             var result = await _accountService.EditAccountAsync(userId, model).ConfigureAwait(false);
             return Ok(result);
         }
