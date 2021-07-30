@@ -3,7 +3,7 @@ import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 
 import { CoursesList } from "./CoursesList";
-import { CourseViewModel } from "../../api/courses";
+import { CourseViewModel } from "../../api/";
 import ApiSingleton from "../../api/ApiSingleton";
 import CircularProgress from "@material-ui/core/CircularProgress";
 

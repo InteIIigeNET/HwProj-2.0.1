@@ -6,7 +6,7 @@ import AddSolution from "./AddSolution";
 import Button from "@material-ui/core/Button";
 import TaskSolutions from "./TaskSolutions";
 import { HomeworkTaskViewModel } from "../api/homeworks";
-import { CourseViewModel } from "../api/courses";
+import { CourseViewModel } from "../api/";
 import ApiSingleton from "../api/ApiSingleton";
 
 interface ITaskSolutionsProps {

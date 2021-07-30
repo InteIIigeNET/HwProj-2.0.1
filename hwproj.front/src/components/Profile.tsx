@@ -4,7 +4,7 @@ import {RouteComponentProps} from 'react-router';
 import { Card, Typography, CardContent, Checkbox, CircularProgress, TextField, Box, AppBar, Tabs, Tab } from "@material-ui/core";
 
 import ApiSingleton from "api/ApiSingleton";
-import { AccountDataDto, NotificationViewModel } from "../api/auth";
+import { AccountDataDto, NotificationViewModel } from "../api/";
 
 import "./Styles/Profile.css";
 

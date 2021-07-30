@@ -1,6 +1,6 @@
 import * as React from "react";
 import { storiesOf } from "@storybook/react";
-import { CourseViewModel } from "../../api/courses/api";
+import { CourseViewModel } from "../../api/";
 import { CoursesList } from "./CoursesList";
 
 const data : CourseViewModel[] = [];

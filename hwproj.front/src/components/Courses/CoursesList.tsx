@@ -1,5 +1,5 @@
 import * as React from "react";
-import { CourseViewModel } from "../../api/courses";
+import { CourseViewModel } from "../../api/";
 import {
   Link as RouterLink,
   BrowserRouter as Router,

@@ -3,7 +3,7 @@ import { RouteComponentProps } from "react-router-dom";
 import { TextField, Button, Typography } from "@material-ui/core";
 import ApiSingleton from "../../api/ApiSingleton";
 import "./Styles/Login.css";
-import { LoginViewModel } from "../../api/auth"
+import { LoginViewModel } from "../../api/"
 
 interface LoginProps extends Partial<RouteComponentProps> {
   onLogin: () => void;

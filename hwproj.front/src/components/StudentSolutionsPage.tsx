@@ -1,6 +1,6 @@
 import * as React from "react";
 import { RouteComponentProps, Link } from "react-router-dom";
-import { CourseViewModel } from "../api/courses";
+import { CourseViewModel } from "../api/";
 import { HomeworkTaskViewModel } from "../api/homeworks";
 import Typography from "@material-ui/core/Typography";
 import Task from "./Task";

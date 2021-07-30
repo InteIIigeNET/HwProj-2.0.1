@@ -1,5 +1,5 @@
 import * as React from "react";
-import { CourseViewModel } from "../api/courses";
+import { CourseViewModel, AccountDataDto } from "../api/";
 import { HomeworkViewModel } from "../api/homeworks";
 import CourseHomework from "./CourseHomework";
 import { Typography } from "@material-ui/core";
@@ -11,7 +11,6 @@ import ApiSingleton from "../api/ApiSingleton";
 import { Link as RouterLink } from "react-router-dom";
 import {RouteComponentProps} from 'react-router';
 import NewCourseStudents from "./NewCourseStudents";
-import { AccountDataDto } from "../api/auth";
 import { withRouter } from 'react-router-dom';
 
 interface User extends AccountDataDto {
