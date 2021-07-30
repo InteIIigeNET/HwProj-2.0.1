@@ -55,6 +55,9 @@ export default class Courses extends React.Component<{}, ICoursesState> {
     }
 
     componentDidMount(): void {
+        if (!ApiSingleton.authService.isLoggedIn()) {
+            window.location.assign("/login");
+        }
         ApiSingleton.coursesApi
             .apiCoursesUserCoursesByUserIdGet(ApiSingleton.authService.getUserId())
             .then((courses) =>
