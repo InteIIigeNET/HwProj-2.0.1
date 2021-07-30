@@ -1,4 +1,4 @@
-import { AccountApi } from "./auth";
+import { AccountApi, NotificationsApi } from "./auth";
 import { CoursesApi } from "./courses";
 import { HomeworksApi, TasksApi } from "./homeworks";
 import { SolutionsApi } from "./solutions";
@@ -14,6 +14,7 @@ class Api {
   readonly homeworksApi: HomeworksApi;
   readonly tasksApi: TasksApi;
   readonly solutionsApi: SolutionsApi;
+  readonly notificationsApi: NotificationsApi;
   readonly authService: AuthService;
   readonly courseService: CourseService;
   readonly taskService: TaskService;
@@ -26,6 +27,7 @@ class Api {
     homeworksApi: HomeworksApi,
     tasksApi: TasksApi,
     solutionsApi: SolutionsApi,
+    notificationsApi: NotificationsApi,
     authService: AuthService,
     courseService: CourseService,
     taskService: TaskService,
@@ -37,6 +39,7 @@ class Api {
     this.homeworksApi = homeworksApi;
     this.tasksApi = tasksApi;
     this.solutionsApi = solutionsApi;
+    this.notificationsApi = notificationsApi;
     this.authService = authService;
     this.courseService = courseService;
     this.taskService = taskService;
@@ -54,6 +57,7 @@ ApiSingleton = new Api(
   new HomeworksApi({ basePath: basePath }),
   new TasksApi({ basePath: basePath }),
   new SolutionsApi({ basePath: basePath }),
+  new NotificationsApi({basePath: basePath}),
   new AuthService(),
   new CourseService(),
   new TaskService(),

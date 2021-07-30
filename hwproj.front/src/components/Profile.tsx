@@ -1,7 +1,7 @@
 import * as React from "react";
 import {RouteComponentProps} from 'react-router';
 
-import { Card, Typography, CardContent, Checkbox, CircularProgress, TextField, Box } from "@material-ui/core";
+import { Card, Typography, CardContent, Checkbox, CircularProgress, TextField, Box, AppBar, Tabs, Tab } from "@material-ui/core";
 
 import ApiSingleton from "api/ApiSingleton";
 import { AccountDataDto, NotificationViewModel } from "../api/auth";
@@ -12,6 +12,7 @@ interface IProfileState {
   isLoaded: boolean;
   accountData: AccountDataDto;
   notifications: NotificationViewModel[];
+  tab: number;
 }
 
 interface IProfileProps {
@@ -30,7 +31,8 @@ export default class Profile extends React.Component<RouteComponentProps<IProfil
 				email: "",
 				role: ""
 			},
-			notifications: []
+			notifications: [],
+			tab: 0,
 		}
 	}
   
@@ -48,17 +50,27 @@ export default class Profile extends React.Component<RouteComponentProps<IProfil
 				</Box>
 				<hr /><br />
 
-				{notifications.map(n => 
-				<Box m={2} bgcolor="AliceBlue" clone>
-					<Card>
-						<CardContent >
-							<Typography variant="body1" component="p">
-								{n.body}
-							</Typography>
-						</CardContent>
-						<Box display="flex" flexDirection="row-reverse"><Checkbox color="primary" id={n.id?.toString()}/></Box>
-					</Card>
-				</Box>)}
+				{ !this.props.match.params.id &&
+
+				<div>
+					<Tabs 
+						onChange={(event: React.ChangeEvent<{}>, newValue: number) => this.setState({tab: newValue}) } 
+						indicatorColor="primary"
+						value={this.state.tab}
+						variant="fullWidth"
+					>
+						<Tab label="Новые уведомления" id="simple-tab-0" aria-controls="simple-tabpanel-0" />
+						<Tab label="Все уведомления" id="simple-tab-1" aria-controls="simple-tabpanel-1"/>
+					</Tabs>
+
+					<div role="tabpanel" hidden={this.state.tab !== 0} id="simple-tab-0">
+						{this.renderNotifications(notifications.filter( n => !n.hasSeen ))}
+					</div>
+					<div role="tabpanel" hidden={this.state.tab !== 1} id="simple-tab-1">
+						{this.renderNotifications(notifications)}
+					</div>
+				</div>
+				}
 			</div>);
 		}
 		return <Box m={2}>
@@ -89,6 +101,39 @@ export default class Profile extends React.Component<RouteComponentProps<IProfil
 			});
 		}
 	}
+
+	public renderNotifications(notifications: NotificationViewModel[]) {  
+		return (<div>
+			{notifications.map(n => 
+			<Box m={2} bgcolor="AliceBlue" clone>
+				<Card>
+					<CardContent >
+						<Typography variant="body1" component="p">
+							{n.body}
+						</Typography>
+					</CardContent>
+	
+					<Box display="flex" flexDirection="row-reverse">
+						<Checkbox 
+							title="Прочитано"
+							color="primary" 
+							id={n.id?.toString()}
+							checked={n.hasSeen}
+							onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+								const token = ApiSingleton.authService.getToken();
+								const id = parseInt(event.target.id);
+								ApiSingleton.notificationsApi.apiNotificationsMarkAsSeenPut([ id ], { headers: {"Authorization": `Bearer ${token}`} });
+								
+								const notifications = this.state.notifications;
+								notifications.find(not => not.id === id)!.hasSeen = true;
+								this.setState({ notifications: notifications, });
+							}}
+						/>
+					</Box>
+				</Card>
+			</Box>)}
+		</div>);
+	  }
 }
 
 
