@@ -85,11 +85,11 @@ namespace HwProj.CoursesService.Client
             await _httpClient.SendAsync(httpRequest);
         }
 
-        public async Task SignInCourse(long courseId)
+        public async Task SignInCourse(long courseId, string studentId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _coursesServiceUri + $"api/Courses/sign_in_course/{courseId}");
+                _coursesServiceUri + $"api/Courses/sign_in_course/{courseId}?studentId={studentId}");
             
             await _httpClient.SendAsync(httpRequest);
         }

@@ -15,7 +15,7 @@ namespace HwProj.CoursesService.Client
 
         Task UpdateCourse(CourseViewModel model, long courseId);
 
-        Task SignInCourse(long courseId);
+        Task SignInCourse(long courseId, string studentId);
 
         Task AcceptStudent(long courseId, string studentId);
 

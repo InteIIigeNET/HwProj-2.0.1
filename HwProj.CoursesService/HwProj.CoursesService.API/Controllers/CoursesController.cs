@@ -74,9 +74,9 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost("sign_in_course/{courseId}")]
-        public async Task<IActionResult> SignInCourse(long courseId)
+        public async Task<IActionResult> SignInCourse(long courseId, [FromQuery] string studentId)
         {
-            var studentId = Request.GetUserId();
+            //var studentId = Request.GetUserId();
             return await _coursesService.AddStudentAsync(courseId, studentId)
                 ? Ok()
                 : NotFound() as IActionResult;

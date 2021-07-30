@@ -59,9 +59,9 @@ namespace HwProj.APIGateway.API.Controllers
         }
         
         [HttpPost("sign_in_course/{courseId}")]
-        public async Task<IActionResult> SignInCourse(long courseId)
+        public async Task<IActionResult> SignInCourse(long courseId, [FromQuery] string studentId)
         {
-            await _coursesClient.SignInCourse(courseId);
+            await _coursesClient.SignInCourse(courseId, studentId);
             return Ok();
         }
         
@@ -84,7 +84,9 @@ namespace HwProj.APIGateway.API.Controllers
         public async Task<IActionResult> GetAllUserCourses(string userId)
         {
             var result = await _coursesClient.GetAllUserCourses(userId);
-            return Ok(result);
-        }
+            return result == null
+                ? NotFound()
+                : Ok(result) as IActionResult;
+        } 
     }
 }
