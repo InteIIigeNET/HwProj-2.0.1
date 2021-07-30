@@ -68,7 +68,7 @@ namespace HwProj.AuthService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Put,
-                _authServiceUri + $"api/account/edit?userId={userId}")
+                _authServiceUri + $"api/account/edit/{userId}")
             {
                 Content = new StringContent(
                     JsonConvert.SerializeObject(model),
