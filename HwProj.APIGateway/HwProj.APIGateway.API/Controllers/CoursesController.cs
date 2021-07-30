@@ -65,6 +65,7 @@ namespace HwProj.APIGateway.API.Controllers
         }
         
         [HttpPost("sign_in_course/{courseId}")]
+        [Authorize]
         public async Task<IActionResult> SignInCourse(long courseId)
         {
             var studentId = Request.GetUserId();
