@@ -138,13 +138,13 @@ namespace HwProj.AuthService.API.Services
             return Result<TokenCredentials>.Failed(result.Errors.Select(errors => errors.Description).ToArray());
         }
 
-        public async Task<IdentityResult> InviteNewLecturer(string emailOfInvitedUser)
+        public async Task<Result> InviteNewLecturer(string emailOfInvitedUser)
         {
             var invitedUser = await _userManager.FindByEmailAsync(emailOfInvitedUser).ConfigureAwait(false);
 
             if (invitedUser == null)
             {
-                return IdentityResults.UserNotFound;
+                return Result.Failed("User not found");
             }
 
             var result = await _userManager.AddToRoleAsync(invitedUser, Roles.LecturerRole)
@@ -154,9 +154,10 @@ namespace HwProj.AuthService.API.Services
             {
                 var inviteEvent = new InviteLecturerEvent(invitedUser.Id);
                 _eventBus.Publish(inviteEvent);
+                return Result.Success();
             }
 
-            return result;
+            return Result.Failed();
         }
 
         private Task<IdentityResult> ChangeUserNameTask(User user, EditAccountViewModel model)

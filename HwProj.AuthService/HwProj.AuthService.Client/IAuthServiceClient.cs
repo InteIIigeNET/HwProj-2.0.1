@@ -13,5 +13,7 @@ namespace HwProj.AuthService.Client
         Task<Result<TokenCredentials>> Login(LoginViewModel model);
 
         Task<Result> Edit(EditAccountViewModel model, string userId);
+
+        Task<Result> InviteNewLecturer(InviteLecturerViewModel model);
     }
 }

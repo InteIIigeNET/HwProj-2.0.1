@@ -79,5 +79,21 @@ namespace HwProj.AuthService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Result>();
         }
+        
+        public async Task<Result> InviteNewLecturer(InviteLecturerViewModel model)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _authServiceUri + "api/account/inviteNewLecturer")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(model),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+            
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<Result>();
+        }
     }
 }
