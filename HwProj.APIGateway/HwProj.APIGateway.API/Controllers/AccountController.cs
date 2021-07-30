@@ -5,6 +5,7 @@ using HwProj.Models.ApiGateway;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.NotificationsService;
+using HwProj.Models.Roles;
 using HwProj.NotificationsService.Client;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Authorization;
@@ -77,6 +78,15 @@ namespace HwProj.APIGateway.API.Controllers
         {
             var userId = Request.GetUserId();
             var result = await _authClient.Edit(model, userId).ConfigureAwait(false);
+            return Ok(result);
+        }
+        
+        [HttpPost("inviteNewLecturer")]
+        [Authorize(Roles = Roles.LecturerRole )]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> InviteNewLecturer([FromBody] InviteLecturerViewModel model)
+        {
+            var result = await _authClient.InviteNewLecturer(model).ConfigureAwait(false);
             return Ok(result);
         }
     }

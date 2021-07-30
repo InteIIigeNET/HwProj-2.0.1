@@ -58,9 +58,9 @@ namespace HwProj.AuthService.API.Controllers
             var result = await _accountService.EditAccountAsync(userId, model).ConfigureAwait(false);
             return Ok(result);
         }
-
-        [Authorize]
-        [HttpPost("invitenewlecturer")]
+        
+        [HttpPost("inviteNewLecturer")]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> InviteNewLecturer(InviteLecturerViewModel model)
         {
             var result = await _accountService.InviteNewLecturer(model.Email).ConfigureAwait(false);

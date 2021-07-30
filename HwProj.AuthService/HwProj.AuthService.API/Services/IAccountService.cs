@@ -11,6 +11,6 @@ namespace HwProj.AuthService.API.Services
         Task<Result<TokenCredentials>> RegisterUserAsync(RegisterViewModel model);
         Task<Result> EditAccountAsync(string accountId, EditAccountViewModel model);
         Task<Result<TokenCredentials>> LoginUserAsync(LoginViewModel model);
-        Task<IdentityResult> InviteNewLecturer(string emailOfInvitedUser);
+        Task<Result> InviteNewLecturer(string emailOfInvitedUser);
     }
 }
