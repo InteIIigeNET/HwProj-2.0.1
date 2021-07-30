@@ -7,6 +7,7 @@ using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.Client;
 using HwProj.Utils.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.APIGateway.API.Controllers
@@ -67,6 +68,16 @@ namespace HwProj.APIGateway.API.Controllers
         {
             var tokenMeta = await _authClient.Login(model).ConfigureAwait(false);
             return Ok(tokenMeta);
+        }
+        
+        [HttpPut("edit")]
+        [Authorize]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> Edit([FromBody] EditAccountViewModel model)
+        {
+            var userId = Request.GetUserId();
+            var result = await _authClient.Edit(model, userId).ConfigureAwait(false);
+            return Ok(result);
         }
     }
 }

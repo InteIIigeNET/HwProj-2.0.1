@@ -46,17 +46,17 @@ namespace HwProj.AuthService.API.Services
             return new AccountDataDto(user.Name, user.Surname, user.Email, userRole, user.MiddleName);
         }
 
-        public async Task<IdentityResult> EditAccountAsync(string id, EditAccountViewModel model)
+        public async Task<Result> EditAccountAsync(string id, EditAccountViewModel model)
         {
             var user = await _userManager.FindByIdAsync(id).ConfigureAwait(false);
             if (user == null)
             {
-                return IdentityResults.UserNotFound;
+                return Result.Failed("User not found");
             }
 
             if (!await _userManager.CheckPasswordAsync(user, model.CurrentPassword))
             {
-                return IdentityResults.WrongPassword;
+                return Result.Failed("Wrong current password");
             }
 
             var result = await ChangeUserNameTask(user, model)
@@ -68,9 +68,10 @@ namespace HwProj.AuthService.API.Services
                 var editEvent = new EditEvent(id, model.Name,
                     model.Surname, model.MiddleName);
                 _eventBus.Publish(editEvent);
+                return Result.Success();
             }
 
-            return result;
+            return Result.Failed();
         }
 
         public async Task<Result<TokenCredentials>> LoginUserAsync(LoginViewModel model)
