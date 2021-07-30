@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.APIGateway.API.Controllers
 {
-    [Route("api/account")]
+    [Route("api/[controller]")]
     [ApiController]
     public class AccountController : ControllerBase
     {

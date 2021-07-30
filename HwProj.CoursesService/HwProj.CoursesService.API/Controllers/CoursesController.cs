@@ -42,9 +42,8 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> AddCourse([FromBody] CreateCourseViewModel courseViewModel, [FromQuery] string mentorId)
+        public async Task<IActionResult> AddCourse([FromBody] CreateCourseViewModel courseViewModel, string mentorId)
         {
-            // var mentorId = Request.GetUserId();
             var course = _mapper.Map<Course>(courseViewModel);
             var id = await _coursesService.AddAsync(course, mentorId);
             return Ok(id);
@@ -74,9 +73,8 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost("sign_in_course/{courseId}")]
-        public async Task<IActionResult> SignInCourse(long courseId, [FromQuery] string studentId)
+        public async Task<IActionResult> SignInCourse(long courseId, string studentId)
         {
-            //var studentId = Request.GetUserId();
             return await _coursesService.AddStudentAsync(courseId, studentId)
                 ? Ok()
                 : NotFound() as IActionResult;
@@ -84,7 +82,7 @@ namespace HwProj.CoursesService.API.Controllers
 
         [HttpPost("accept_student/{courseId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        public async Task<IActionResult> AcceptStudent(long courseId, [FromQuery] string studentId)
+        public async Task<IActionResult> AcceptStudent(long courseId, string studentId)
         {
             return await _coursesService.AcceptCourseMateAsync(courseId, studentId)
                 ? Ok()
@@ -93,7 +91,7 @@ namespace HwProj.CoursesService.API.Controllers
 
         [HttpPost("reject_student/{courseId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        public async Task<IActionResult> RejectStudent(long courseId, [FromQuery] string studentId)
+        public async Task<IActionResult> RejectStudent(long courseId, string studentId)
         {
             return await _coursesService.RejectCourseMateAsync(courseId, studentId)
                 ? Ok()

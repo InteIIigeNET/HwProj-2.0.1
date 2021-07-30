@@ -2,12 +2,14 @@
 using System.Threading.Tasks;
 using HwProj.CoursesService.Client;
 using HwProj.Models.CoursesService.ViewModels;
+using HwProj.Models.Roles;
 using HwProj.Utils.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.APIGateway.API.Controllers
 {
-    [Route("api/Courses/")]
+    [Route("api/[controller]")]
     [ApiController]
     public class CoursesController : ControllerBase
     {
@@ -37,6 +39,7 @@ namespace HwProj.APIGateway.API.Controllers
         }
         
         [HttpDelete("{courseId}")]
+        [Authorize(Roles = Roles.LecturerRole)]
         public async Task<IActionResult> DeleteCourse(long courseId)
         {
             await _coursesClient.DeleteCourse(courseId);
@@ -44,14 +47,17 @@ namespace HwProj.APIGateway.API.Controllers
         }
         
         [HttpPost("create")]
+        [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> CreateCourse(CreateCourseViewModel model, [FromQuery] string mentorId)
+        public async Task<IActionResult> CreateCourse(CreateCourseViewModel model)
         {
+            var mentorId = Request.GetUserId();
             var result = await _coursesClient.CreateCourse(model, mentorId);
             return Ok(result);
         }
         
         [HttpPost("update/{courseId}")]
+        [Authorize(Roles = Roles.LecturerRole)]
         public async Task<IActionResult> UpdateCourse(CourseViewModel model, long courseId)
         {
             await _coursesClient.UpdateCourse(model, courseId);
@@ -59,22 +65,27 @@ namespace HwProj.APIGateway.API.Controllers
         }
         
         [HttpPost("sign_in_course/{courseId}")]
-        public async Task<IActionResult> SignInCourse(long courseId, [FromQuery] string studentId)
+        public async Task<IActionResult> SignInCourse(long courseId)
         {
+            var studentId = Request.GetUserId();
             await _coursesClient.SignInCourse(courseId, studentId);
             return Ok();
         }
         
         [HttpPost("accept_student/{courseId}")]
-        public async Task<IActionResult> AcceptStudent(long courseId, [FromQuery] string studentId)
+        [Authorize(Roles = Roles.LecturerRole)]
+        public async Task<IActionResult> AcceptStudent(long courseId)
         {
+            var studentId = Request.GetUserId();
             await _coursesClient.AcceptStudent(courseId, studentId);
             return Ok();
         }
         
         [HttpPost("reject_student/{courseId}")]
-        public async Task<IActionResult> RejectStudent(long courseId, [FromQuery] string studentId)
+        [Authorize(Roles = Roles.LecturerRole)]
+        public async Task<IActionResult> RejectStudent(long courseId)
         {
+            var studentId = Request.GetUserId();
             await _coursesClient.RejectStudent(courseId, studentId);
             return Ok();
         }
