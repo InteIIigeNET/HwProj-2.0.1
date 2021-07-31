@@ -40,7 +40,8 @@ namespace HwProj.APIGateway.API.Controllers
         }
         
         [HttpDelete("{courseId}")]
-        [Authorize(Roles = Roles.LecturerRole)]
+        [Authorize]
+        //[Authorize(Roles = Roles.LecturerRole)]
         public async Task<IActionResult> DeleteCourse(long courseId)
         {
             await _coursesClient.DeleteCourse(courseId);
@@ -48,7 +49,8 @@ namespace HwProj.APIGateway.API.Controllers
         }
         
         [HttpPost("create")]
-        [Authorize(Roles = Roles.LecturerRole)]
+        [Authorize]
+        //[Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> CreateCourse(CreateCourseViewModel model)
         {
@@ -58,7 +60,8 @@ namespace HwProj.APIGateway.API.Controllers
         }
         
         [HttpPost("update/{courseId}")]
-        [Authorize(Roles = Roles.LecturerRole)]
+        [Authorize]
+        //[Authorize(Roles = Roles.LecturerRole)]
         public async Task<IActionResult> UpdateCourse(CourseViewModel model, long courseId)
         {
             await _coursesClient.UpdateCourse(model, courseId);
@@ -75,7 +78,8 @@ namespace HwProj.APIGateway.API.Controllers
         }
         
         [HttpPost("accept_student/{courseId}")]
-        [Authorize(Roles = Roles.LecturerRole)]
+        [Authorize]
+        //[Authorize(Roles = Roles.LecturerRole)]
         public async Task<IActionResult> AcceptStudent(long courseId)
         {
             var studentId = Request.GetUserId();
@@ -84,7 +88,8 @@ namespace HwProj.APIGateway.API.Controllers
         }
         
         [HttpPost("reject_student/{courseId}")]
-        [Authorize(Roles = Roles.LecturerRole)]
+        [Authorize]
+        //[Authorize(Roles = Roles.LecturerRole)]
         public async Task<IActionResult> RejectStudent(long courseId)
         {
             var studentId = Request.GetUserId();

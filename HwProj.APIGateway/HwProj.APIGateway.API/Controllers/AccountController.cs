@@ -37,6 +37,7 @@ namespace HwProj.APIGateway.API.Controllers
         }
 
         [HttpGet("getUserData")]
+        [Authorize]
         [ProducesResponseType(typeof(UserDataDto), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetUserData()
         {
@@ -82,7 +83,8 @@ namespace HwProj.APIGateway.API.Controllers
         }
         
         [HttpPost("inviteNewLecturer")]
-        [Authorize(Roles = Roles.LecturerRole)]
+        [Authorize]
+        //[Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> InviteNewLecturer([FromBody] InviteLecturerViewModel model)
         {
