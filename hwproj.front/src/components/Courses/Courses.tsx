@@ -23,7 +23,6 @@ export default class Courses extends React.Component<{}, ICoursesState> {
 
     public render() {
         const { isLoaded, courses, tabValue } = this.state;
-        console.log(courses);
 
         if (!isLoaded) {
             return (
@@ -58,8 +57,9 @@ export default class Courses extends React.Component<{}, ICoursesState> {
         if (!ApiSingleton.authService.isLoggedIn()) {
             window.location.assign("/login");
         }
+        const token = ApiSingleton.authService.getToken();
         ApiSingleton.coursesApi
-            .apiCoursesUserCoursesByUserIdGet(ApiSingleton.authService.getUserId())
+            .apiCoursesUserCoursesGet({ headers: {"Authorization": `Bearer ${token}`} })
             .then((courses) =>
                 this.setState({
                     isLoaded: true,

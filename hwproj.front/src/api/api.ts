@@ -1103,6 +1103,50 @@
  /**
   * 
   * @export
+  * @interface UserCourseDescription
+  */
+ export interface UserCourseDescription {
+     /**
+      * 
+      * @type {number}
+      * @memberof UserCourseDescription
+      */
+     id?: number;
+     /**
+      * 
+      * @type {string}
+      * @memberof UserCourseDescription
+      */
+     name?: string;
+     /**
+      * 
+      * @type {string}
+      * @memberof UserCourseDescription
+      */
+     groupName?: string;
+     /**
+      * 
+      * @type {boolean}
+      * @memberof UserCourseDescription
+      */
+     isOpen?: boolean;
+     /**
+      * 
+      * @type {boolean}
+      * @memberof UserCourseDescription
+      */
+     isCompleted?: boolean;
+     /**
+      * 
+      * @type {boolean}
+      * @memberof UserCourseDescription
+      */
+     userIsMentor?: boolean;
+ }
+ 
+ /**
+  * 
+  * @export
   * @interface UserDataDto
   */
  export interface UserDataDto {
@@ -1770,17 +1814,11 @@
          },
          /**
           * 
-          * @param {string} userId 
           * @param {*} [options] Override http request option.
           * @throws {RequiredError}
           */
-         apiCoursesUserCoursesByUserIdGet(userId: string, options: any = {}): FetchArgs {
-             // verify required parameter 'userId' is not null or undefined
-             if (userId === null || userId === undefined) {
-                 throw new RequiredError('userId','Required parameter userId was null or undefined when calling apiCoursesUserCoursesByUserIdGet.');
-             }
-             const localVarPath = `/api/Courses/user_courses/{userId}`
-                 .replace(`{${"userId"}}`, encodeURIComponent(String(userId)));
+         apiCoursesUserCoursesGet(options: any = {}): FetchArgs {
+             const localVarPath = `/api/Courses/user_courses`;
              const localVarUrlObj = url.parse(localVarPath, true);
              const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
              const localVarHeaderParameter = {} as any;
@@ -1951,12 +1989,11 @@
          },
          /**
           * 
-          * @param {string} userId 
           * @param {*} [options] Override http request option.
           * @throws {RequiredError}
           */
-         apiCoursesUserCoursesByUserIdGet(userId: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<CourseViewModel>> {
-             const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesUserCoursesByUserIdGet(userId, options);
+         apiCoursesUserCoursesGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<UserCourseDescription>> {
+             const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesUserCoursesGet(options);
              return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                  return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                      if (response.status >= 200 && response.status < 300) {
@@ -2050,12 +2087,11 @@
          },
          /**
           * 
-          * @param {string} userId 
           * @param {*} [options] Override http request option.
           * @throws {RequiredError}
           */
-         apiCoursesUserCoursesByUserIdGet(userId: string, options?: any) {
-             return CoursesApiFp(configuration).apiCoursesUserCoursesByUserIdGet(userId, options)(fetch, basePath);
+         apiCoursesUserCoursesGet(options?: any) {
+             return CoursesApiFp(configuration).apiCoursesUserCoursesGet(options)(fetch, basePath);
          },
      };
  };
@@ -2157,13 +2193,12 @@
  
      /**
       * 
-      * @param {string} userId 
       * @param {*} [options] Override http request option.
       * @throws {RequiredError}
       * @memberof CoursesApi
       */
-     public apiCoursesUserCoursesByUserIdGet(userId: string, options?: any) {
-         return CoursesApiFp(this.configuration).apiCoursesUserCoursesByUserIdGet(userId, options)(this.fetch, this.basePath);
+     public apiCoursesUserCoursesGet(options?: any) {
+         return CoursesApiFp(this.configuration).apiCoursesUserCoursesGet(options)(this.fetch, this.basePath);
      }
  
  }
