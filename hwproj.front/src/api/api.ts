@@ -909,6 +909,20 @@
  /**
   * 
   * @export
+  * @interface InviteLecturerViewModel
+  */
+ export interface InviteLecturerViewModel {
+     /**
+      * 
+      * @type {string}
+      * @memberof InviteLecturerViewModel
+      */
+     email: string;
+ }
+ 
+ /**
+  * 
+  * @export
   * @interface LoginViewModel
   */
  export interface LoginViewModel {
@@ -1192,6 +1206,33 @@
          },
          /**
           * 
+          * @param {InviteLecturerViewModel} [model] 
+          * @param {*} [options] Override http request option.
+          * @throws {RequiredError}
+          */
+         apiAccountInviteNewLecturerPost(model?: InviteLecturerViewModel, options: any = {}): FetchArgs {
+             const localVarPath = `/api/Account/inviteNewLecturer`;
+             const localVarUrlObj = url.parse(localVarPath, true);
+             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+             const localVarHeaderParameter = {} as any;
+             const localVarQueryParameter = {} as any;
+ 
+             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+ 
+             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+             delete localVarUrlObj.search;
+             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+             const needsSerialization = (<any>"InviteLecturerViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
+ 
+             return {
+                 url: url.format(localVarUrlObj),
+                 options: localVarRequestOptions,
+             };
+         },
+         /**
+          * 
           * @param {LoginViewModel} [model] 
           * @param {*} [options] Override http request option.
           * @throws {RequiredError}
@@ -1308,6 +1349,24 @@
          },
          /**
           * 
+          * @param {InviteLecturerViewModel} [model] 
+          * @param {*} [options] Override http request option.
+          * @throws {RequiredError}
+          */
+         apiAccountInviteNewLecturerPost(model?: InviteLecturerViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Result> {
+             const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountInviteNewLecturerPost(model, options);
+             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                     if (response.status >= 200 && response.status < 300) {
+                         return response.json();
+                     } else {
+                         throw response;
+                     }
+                 });
+             };
+         },
+         /**
+          * 
           * @param {LoginViewModel} [model] 
           * @param {*} [options] Override http request option.
           * @throws {RequiredError}
@@ -1379,6 +1438,15 @@
          },
          /**
           * 
+          * @param {InviteLecturerViewModel} [model] 
+          * @param {*} [options] Override http request option.
+          * @throws {RequiredError}
+          */
+         apiAccountInviteNewLecturerPost(model?: InviteLecturerViewModel, options?: any) {
+             return AccountApiFp(configuration).apiAccountInviteNewLecturerPost(model, options)(fetch, basePath);
+         },
+         /**
+          * 
           * @param {LoginViewModel} [model] 
           * @param {*} [options] Override http request option.
           * @throws {RequiredError}
@@ -1435,6 +1503,17 @@
       */
      public apiAccountGetUserDataGet(options?: any) {
          return AccountApiFp(this.configuration).apiAccountGetUserDataGet(options)(this.fetch, this.basePath);
+     }
+ 
+     /**
+      * 
+      * @param {InviteLecturerViewModel} [model] 
+      * @param {*} [options] Override http request option.
+      * @throws {RequiredError}
+      * @memberof AccountApi
+      */
+     public apiAccountInviteNewLecturerPost(model?: InviteLecturerViewModel, options?: any) {
+         return AccountApiFp(this.configuration).apiAccountInviteNewLecturerPost(model, options)(this.fetch, this.basePath);
      }
  
      /**
