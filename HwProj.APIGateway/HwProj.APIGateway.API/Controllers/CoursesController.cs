@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
 using HwProj.CoursesService.Client;
+using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
 using HwProj.Utils.Authorization;
@@ -91,10 +92,12 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok();
         }
         
-        [HttpGet("user_courses/{userId}")]
-        [ProducesResponseType(typeof(CourseViewModel[]), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetAllUserCourses(string userId)
+        [HttpGet("user_courses")]
+        [Authorize]
+        [ProducesResponseType(typeof(UserCourseDescription[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetAllUserCourses()
         {
+            var userId = Request.GetUserId();
             var result = await _coursesClient.GetAllUserCourses(userId);
             return result == null
                 ? NotFound()

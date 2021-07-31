@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 
 namespace HwProj.CoursesService.Client
@@ -21,6 +22,6 @@ namespace HwProj.CoursesService.Client
 
         Task RejectStudent(long courseId, string studentId);
 
-        Task<CourseViewModel[]> GetAllUserCourses(string userId);
+        Task<UserCourseDescription[]> GetAllUserCourses(string userId);
     }
 }

@@ -112,14 +112,14 @@ namespace HwProj.CoursesService.Client
             await _httpClient.SendAsync(httpRequest);
         }
 
-        public async Task<CourseViewModel[]> GetAllUserCourses(string userId)
+        public async Task<UserCourseDescription[]> GetAllUserCourses(string userId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get, 
                 _coursesServiceUri + $"api/Courses/user_courses/{userId}");
 
             var response = await _httpClient.SendAsync(httpRequest);
-            var data = await response.DeserializeAsync<CourseViewModel[]>();
+            var data = await response.DeserializeAsync<UserCourseDescription[]>();
             return data;
         }
     }
