@@ -13,22 +13,7 @@ namespace HwProj.CoursesService.API.Services
         {
             _homeworksRepository = homeworksRepository;
         }
-
-        public async Task<Homework[]> GetAllHomeworksAsync()
-        {
-            return await _homeworksRepository.GetAllWithTasksAsync();
-        }
-
-        public async Task<Homework> GetHomeworkAsync(long homeworkId)
-        {
-            return await _homeworksRepository.GetWithTasksAsync(homeworkId);
-        }
-
-        public async Task<Homework[]> GetCourseHomeworksAsync(long courseId)
-        {
-            return await _homeworksRepository.GetAllWithTasksByCourseAsync(courseId);
-        }
-
+        
         public async Task<long> AddHomeworkAsync(long courseId, Homework homework)
         {
             homework.CourseId = courseId;

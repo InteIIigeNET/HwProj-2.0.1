@@ -8,7 +8,7 @@ namespace HwProj.CoursesService.Client
     {
         Task<CourseViewModel[]> GetAllCourses();
 
-        Task<CourseViewModel> GetCourseData(long courseId);
+        Task<CourseViewModel> GetCourseById(long courseId);
         
         Task DeleteCourse(long courseId);
 
@@ -23,5 +23,11 @@ namespace HwProj.CoursesService.Client
         Task RejectStudent(long courseId, string studentId);
 
         Task<UserCourseDescription[]> GetAllUserCourses(string userId);
+
+        Task<long> AddHomeworkToCourse(CreateHomeworkViewModel model, long courseId);
+
+        Task UpdateHomework(CreateHomeworkViewModel model, long homeworkId);
+
+        Task DeleteHomework(long homeworkId);
     }
 }

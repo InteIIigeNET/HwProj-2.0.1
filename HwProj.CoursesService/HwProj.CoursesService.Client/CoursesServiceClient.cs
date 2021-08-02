@@ -33,7 +33,7 @@ namespace HwProj.CoursesService.Client
             return data;
         }
         
-        public async Task<CourseViewModel> GetCourseData(long courseId)
+        public async Task<CourseViewModel> GetCourseById(long courseId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
@@ -121,6 +121,47 @@ namespace HwProj.CoursesService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             var data = await response.DeserializeAsync<UserCourseDescription[]>();
             return data;
+        }
+
+        public async Task<long> AddHomeworkToCourse(CreateHomeworkViewModel model, long courseId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _coursesServiceUri + $"api/Courses/?courseId={courseId}/Homeworks/")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(model),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+            
+            var response = await _httpClient.SendAsync(httpRequest);
+            var data = await response.DeserializeAsync<long>();
+            return data;
+        }
+        
+        public async Task UpdateHomework(CreateHomeworkViewModel model, long homeworkId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Put,
+                _coursesServiceUri + $"api/Courses/courseId/Homeworks/update/{homeworkId}")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(model),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+            
+            await _httpClient.SendAsync(httpRequest);
+        }
+
+        public async Task DeleteHomework(long homeworkId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Delete,
+                _coursesServiceUri + $"api/Courses/courseId/Homeworks/{homeworkId}");
+            
+            await _httpClient.SendAsync(httpRequest);
         }
     }
 }

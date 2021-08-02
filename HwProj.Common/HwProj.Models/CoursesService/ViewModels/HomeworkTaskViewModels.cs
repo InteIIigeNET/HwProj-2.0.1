@@ -1,4 +1,4 @@
-﻿namespace HwProj.CoursesService.API.Models
+﻿namespace HwProj.Models.CoursesService.ViewModels
 {
     public class HomeworkTaskViewModel
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace HwProj.CoursesService.API.Models
+namespace HwProj.Models.CoursesService.ViewModels
 {
     public class CreateHomeworkViewModel
     {
