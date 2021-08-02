@@ -127,7 +127,7 @@ namespace HwProj.CoursesService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _coursesServiceUri + $"api/Courses/?courseId={courseId}/Homeworks/")
+                _coursesServiceUri + $"api/Courses/{courseId}/Homeworks/")
             {
                 Content = new StringContent(
                     JsonConvert.SerializeObject(model),

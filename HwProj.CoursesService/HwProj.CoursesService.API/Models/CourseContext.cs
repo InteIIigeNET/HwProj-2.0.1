@@ -10,7 +10,7 @@ namespace HwProj.CoursesService.API.Models
         public DbSet<GroupMate> GroupMates { get; set; }
         public DbSet<TaskModel> TasksModels { get; set; }
 
-        public CourseContext(DbContextOptions options)
+        public CourseContext(DbContextOptions<CourseContext> options)
             : base(options)
         {
             Database.EnsureCreated();

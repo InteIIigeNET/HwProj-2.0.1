@@ -20,7 +20,7 @@ namespace HwProj.CoursesService.API.Controllers
             _mapper = mapper;
         }
 
-        [HttpPost("{courseId}/Homeworks/{homeworkId}")]
+        [HttpPost("{courseId}/Homeworks")]
 
         public async Task<long> AddHomework(long courseId, [FromBody] CreateHomeworkViewModel homeworkViewModel)
         {
