@@ -55,7 +55,7 @@ class App extends Component<AppProps, AppState> {
     ApiSingleton.authService.logout();
     this.setState({loggedIn: false});
     this.setState({isLecturer: false});
-    this.props.history.push("/");
+    this.props.history.push("/login");
   }
 
   render() {
