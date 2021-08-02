@@ -2,11 +2,12 @@
 using AutoMapper;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Services;
+using HwProj.Models.CoursesService.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.CoursesService.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/Courses")]
     [ApiController]
     public class HomeworksController : Controller
     {
@@ -19,30 +20,8 @@ namespace HwProj.CoursesService.API.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet]
-        public async Task<HomeworkViewModel[]> GetAllHomeworks()
-        {
-            var homeworks = await _homeworksService.GetAllHomeworksAsync();
-            return _mapper.Map<HomeworkViewModel[]>(homeworks);
-        }
+        [HttpPost("{courseId}/Homeworks/{homeworkId}")]
 
-        [HttpGet("get/{homeworkId}")]
-        public async Task<IActionResult> GetHomework(long homeworkId)
-        {
-            var homework = await _homeworksService.GetHomeworkAsync(homeworkId);
-            return homework == null
-            ? NotFound()
-            : Ok(_mapper.Map<HomeworkViewModel>(homework)) as IActionResult;
-        }
-
-        [HttpGet("course_homeworks/{courseId}")]
-        public async Task<HomeworkViewModel[]> GetCourseHomeworks(long courseId)
-        {
-            var homeworks = await _homeworksService.GetCourseHomeworksAsync(courseId);
-            return _mapper.Map<HomeworkViewModel[]>(homeworks);
-        }
-
-        [HttpPost("{courseId}")]
         public async Task<long> AddHomework(long courseId, [FromBody] CreateHomeworkViewModel homeworkViewModel)
         {
             var homework = _mapper.Map<Homework>(homeworkViewModel);
@@ -50,13 +29,13 @@ namespace HwProj.CoursesService.API.Controllers
             return homeworkId;
         }
 
-        [HttpDelete("delete/{homeworkId}")]
+        [HttpDelete("{courseId}/Homeworks/delete/{homeworkId}")]
         public async Task DeleteHomework(long homeworkId)
         {
             await _homeworksService.DeleteHomeworkAsync(homeworkId);
         }
 
-        [HttpPut("update/{homeworkId}")]
+        [HttpPut("{courseId}/Homeworks/update/{homeworkId}")]
         public async Task UpdateHomework(long homeworkId,
             [FromBody] CreateHomeworkViewModel homeworkViewModel)
         {
