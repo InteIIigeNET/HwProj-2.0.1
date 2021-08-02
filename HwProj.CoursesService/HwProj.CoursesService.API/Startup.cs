@@ -25,13 +25,18 @@ namespace HwProj.CoursesService.API
         {
             var connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<CourseContext>(options => options.UseSqlServer(connection));
+            services.AddDbContext<HomeworkContext>(options => options.UseSqlServer(connection));
             services.AddScoped<ICoursesRepository, CoursesRepository>();
             services.AddScoped<ICourseMatesRepository, CourseMatesRepository>();
             services.AddScoped<IGroupsRepository, GroupsRepository>();
             services.AddScoped<IGroupMatesRepository, GroupMatesRepository>();
             services.AddScoped<ITaskModelsRepository, TaskModelsRepository>();
+            services.AddScoped<IHomeworksRepository, HomeworksRepository>();
+            services.AddScoped<ITasksRepository, TasksRepository>();
             services.AddScoped<ICoursesService, Services.CoursesService>();
             services.AddScoped<IGroupsService, GroupsService>();
+            services.AddScoped<IHomeworksService, HomeworksService>();
+            services.AddScoped<ITasksService, TasksService>();
             services.AddScoped<CourseMentorOnlyAttribute>();
 
             services.AddEventBus(Configuration);
