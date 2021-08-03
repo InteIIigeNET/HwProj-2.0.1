@@ -71,7 +71,7 @@ namespace HwProj.APIGateway.API.Controllers
             var tokenMeta = await _authClient.Login(model).ConfigureAwait(false);
             return Ok(tokenMeta);
         }
-        
+
         [HttpPut("edit")]
         [Authorize]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
@@ -81,7 +81,7 @@ namespace HwProj.APIGateway.API.Controllers
             var result = await _authClient.Edit(model, userId).ConfigureAwait(false);
             return Ok(result);
         }
-        
+
         [HttpPost("inviteNewLecturer")]
         [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
