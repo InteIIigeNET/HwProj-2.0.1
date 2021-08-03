@@ -31,7 +31,7 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<Course[]> GetAllAsync()
         {
-            return await _coursesRepository.GetAllWithCourseMates().ToArrayAsync();
+            return await _coursesRepository.GetAllWithCourseMatesAndHomeworks().ToArrayAsync();
         }
 
         public async Task<Course> GetAsync(long id)

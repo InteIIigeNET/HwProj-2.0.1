@@ -26,8 +26,8 @@ namespace HwProj.CoursesService.Client
 
         Task<long> AddHomeworkToCourse(CreateHomeworkViewModel model, long courseId);
 
-        Task UpdateHomework(CreateHomeworkViewModel model, long homeworkId);
+        Task UpdateHomework(CreateHomeworkViewModel model, long courseId, long homeworkId);
 
-        Task DeleteHomework(long homeworkId);
+        Task DeleteHomework(long courseId, long homeworkId);
     }
 }
