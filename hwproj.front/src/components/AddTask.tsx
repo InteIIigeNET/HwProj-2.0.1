@@ -21,16 +21,14 @@ export default class AddTask extends React.Component<
     this.state = {
       title: "",
       description: "",
-      maxRating: 10
+      maxRating: 10,
+      publicationDate: new Date(),
+      deadlineDate: new Date(new Date().setDate(7))
     };
   }
 
   public async handleSubmit(e: any) {
     e.preventDefault();
-    // ApiSingleton.tasksApi
-    //   .apiTasksByHomeworkIdPost(this.props.id, this.state)
-    //   .then((taskId) => console.log(taskId))
-    //   .then(this.props.onAdding);
     await ApiSingleton.taskService.addTask(this.props.id, this.state)
     this.props.onCancel()
   }
@@ -63,12 +61,22 @@ export default class AddTask extends React.Component<
             multiline
             fullWidth
             rows="4"
-            rowsMax="15"
+            //rowsMax="15"
             label="Условие задачи"
             variant="outlined"
             margin="normal"
             value={this.state.description}
             onChange={(e) => this.setState({ description: e.target.value })}
+          />
+          <TextField
+            id="datetime-local"
+            label="Крайний срок решения задачи"
+            type="datetime-local"
+            value={this.state.deadlineDate}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            onChange={(e) => this.setState({deadlineDate: new Date(e.target.value)})}
           />
           <br />
           <Button

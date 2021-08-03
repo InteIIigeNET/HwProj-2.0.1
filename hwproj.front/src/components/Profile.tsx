@@ -1,11 +1,8 @@
 import * as React from "react";
 import {RouteComponentProps} from 'react-router';
-
-import { Card, Typography, CardContent, Checkbox, CircularProgress, TextField, Box, AppBar, Tabs, Tab } from "@material-ui/core";
-
+import { Card, Typography, CardContent, Checkbox, CircularProgress, TextField, Box, Tabs, Tab } from "@material-ui/core";
 import ApiSingleton from "api/ApiSingleton";
 import { AccountDataDto, NotificationViewModel } from "../api/";
-
 import "./Styles/Profile.css";
 
 interface IProfileState {
@@ -105,7 +102,7 @@ export default class Profile extends React.Component<RouteComponentProps<IProfil
 	public renderNotifications(notifications: NotificationViewModel[]) {  
 		return (<div>
 			{notifications.map(n => 
-			<Box m={2} bgcolor="AliceBlue" clone>
+			<Box m={2} bgcolor="AliceBlue">
 				<Card>
 					<CardContent >
 						<Typography variant="body1" component="p">
@@ -135,7 +132,3 @@ export default class Profile extends React.Component<RouteComponentProps<IProfil
 		</div>);
 	  }
 }
-
-
-
-//export default withRouter(Course);

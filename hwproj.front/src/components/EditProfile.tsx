@@ -33,32 +33,31 @@ export default class EditProfile extends React.Component<{}, IEditProfileState> 
     }
 
     handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        const token = ApiSingleton.authService.getToken();
-        const editForm = {
-            name: this.state.name,
-            surname: this.state.surname,
-            middleName: this.state.middleName,
-            currentPassword: this.state.currentPassword,
-            newPassword: this.state.newPassword,
-        }
-        ApiSingleton.accountApi
-            .apiAccountEditPut(editForm, {headers: {"Authorization": `Bearer ${token}`}})
-            .then((res) => {
-                if (res.succeeded) {
-                    this.setState({ edited: true });
-                }
-                else {
-                    this.setState({ errors: res.errors! });
-                }
-            });
-  }
+      e.preventDefault();
+      const token = ApiSingleton.authService.getToken();
+      const editForm = {
+          name: this.state.name,
+          surname: this.state.surname,
+          middleName: this.state.middleName,
+          currentPassword: this.state.currentPassword,
+          newPassword: this.state.newPassword,
+      }
+      ApiSingleton.accountApi
+        .apiAccountEditPut(editForm, {headers: {"Authorization": `Bearer ${token}`}})
+        .then((res) => {
+            if (res.succeeded) {
+                this.setState({ edited: true });
+            }
+            else {
+                this.setState({ errors: res.errors! });
+            }
+        });
+    }
 
     public render() {
         if (this.state.edited) {
             return <Redirect to={"/"} />;
         }
-
         if (this.state.isLoaded) {
             if (!ApiSingleton.authService.isLoggedIn()) {
                 return (
@@ -133,7 +132,6 @@ export default class EditProfile extends React.Component<{}, IEditProfileState> 
                 </div>
             );
         }
-
         return "";
     }
 

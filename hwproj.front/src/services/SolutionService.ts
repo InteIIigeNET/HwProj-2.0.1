@@ -29,7 +29,7 @@ export default class SolutionService {
         return solution
     }
 
-    async acceptSolutionBySolutionId(solutionId: number) {
+    async assignPointsBySolutionId (solutionId: number, points: number) {
         const solution = await this.getSolutionBySolutionId(solutionId)
         await fetch("http://localhost:3001/solutions/" + solutionId, {
             method: "PUT",
@@ -41,24 +41,9 @@ export default class SolutionService {
                 studentId: solution.studentId,
                 githubUrl: solution.githubUrl,
                 comment: solution.comment,
-                state: "Accepted"
-            })
-        })
-    }
-
-    async rejectSolutionBySolutionId(solutionId: number) {
-        const solution = await this.getSolutionBySolutionId(solutionId)
-        await fetch("http://localhost:3001/solutions/" + solutionId, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                taskId: solution.taskId,
-                studentId: solution.studentId,
-                githubUrl: solution.githubUrl,
-                comment: solution.comment,
-                state: "Rejected"
+                points: points,
+                state: "checked",
+                date: solution.date
             })
         })
     }

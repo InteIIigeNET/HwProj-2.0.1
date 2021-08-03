@@ -126,6 +126,18 @@ export interface CreateTaskViewModel {
      * @memberof CreateTaskViewModel
      */
     maxRating?: number;
+    /**
+     * 
+     * @type {Date}
+     * @memberof CreateTaskViewModel
+     */
+    publicationDate?: Date;
+     /**
+     * 
+     * @type {Date}
+     * @memberof CreateTaskViewModel
+     */
+    deadlineDate?: Date | null;
 }
 
 /**

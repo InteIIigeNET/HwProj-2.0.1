@@ -29,16 +29,12 @@ export default class AddSolution extends React.Component<IAddSolutionProps, Solu
             studentId: this.state.studentId,
             githubUrl: this.state.githubUrl,
             comment: this.state.comment,
-            state: "Posted"
+            state: "posted",
+            point: 0,
+            date: new Date()
         })
         this.props.onAdding()
     }
-
-    // public handleSubmit(e: any) {
-    //     e.preventDefault();
-    //     ApiSingleton.solutionsApi.postSolution(this.props.taskId, this.state)
-    //         .then(id => this.props.onAdding());
-    // }
 
     public render() {
         return (<div>
@@ -56,7 +52,7 @@ export default class AddSolution extends React.Component<IAddSolutionProps, Solu
                     multiline
                     fullWidth
                     rows="3"
-                    rowsMax="15"
+                    //rowsMax="15"
                     label="Комментарий"
                     variant="outlined"
                     margin="normal"

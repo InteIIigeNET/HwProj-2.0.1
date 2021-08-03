@@ -7,11 +7,7 @@ export default class CourseService {
     async addHomework(homework: any, courseId: number) {
         let tasksId = []
         for (let task of homework.tasks) {
-            const id = await this.addTask({
-                title: task.title,
-                description: task.description,
-                maxRating: task.maxRating,
-            })
+            const id = await this.addTask(task)
             tasksId.push(id)
         }
         const responseHomework = await fetch("http://localhost:3001/homeworks", {

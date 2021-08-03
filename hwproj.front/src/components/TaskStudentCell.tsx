@@ -2,6 +2,7 @@ import * as React from "react";
 import TableCell from "@material-ui/core/TableCell";
 import { Redirect } from "react-router-dom";
 import ApiSingleton from "../api/ApiSingleton";
+import { Solution } from "api/solutions";
 
 interface ITaskStudentCellProps {
   studentId: string;
@@ -49,28 +50,24 @@ export default class TaskStudentCell extends React.Component<
     }
 
     if (this.state.isLoaded) {
-      let classname =
-        this.state.result === 2
-          ? "accepted"
-          : this.state.result === 1
-          ? "rejected"
-          : this.state.result === 0
-          ? "posted"
-          : "td";
       let onClick = this.props.forMentor
         ? () => this.onMentorCellClick()
         : this.props.userId === this.props.studentId
         ? () => this.onStudentCellClick()
         : () => 0;
-
+      const result = this.state.result !== -1
+        ? this.state.result.toString()
+        : ""
       return (
         <TableCell
           onClick={onClick}
-          className={classname}
           component="td"
           padding="none"
           scope="row"
-        ></TableCell>
+          align="center"
+        >
+          {result}
+        </TableCell>
       );
     }
 
@@ -85,37 +82,34 @@ export default class TaskStudentCell extends React.Component<
     this.setState({ redirectForStudent: true });
   }
 
-  async componentDidMount() {
-    const solutions = await ApiSingleton.solutionService.getSolutionsByTaskIdAndStudentId(this.props.taskId, +this.props.studentId) 
-    this.setState({
-      isLoaded: true,
-      result:
-        solutions.length > 0
-          ? solutions.some((s: any) => s.state!.toString() === "Accepted")
-            ? 2
-            : solutions.some((s: any) => s.state!.toString() === "Rejected")
-            ? 1
-            : 0
-          : -1,
-    })
+  getTheLastAssessedSolution = (solutions: Array<Solution>): Solution | null => {
+    let maxPoints = 0
+    let selectedSolution = null
+    solutions
+      .filter((solution) => solution.state === "checked")
+      .map((solution) => {
+        if (solution.points! >= maxPoints) {
+          maxPoints = solution.points!
+          selectedSolution = solution
+        }
+      })
+    return selectedSolution
   }
 
-//   componentDidMount() {
-//     ApiSingleton.solutionsApi
-//       .getTaskSolutionsFromStudent(this.props.taskId, this.props.studentId)
-//       .then((solutions) =>
-//         this.setState({
-//           isLoaded: true,
-//           result:
-//             solutions.length > 0
-//               ? solutions.some((s) => s.state!.toString() === "Accepted")
-//                 ? 2
-//                 : solutions.some((s) => s.state!.toString() === "Rejected")
-//                 ? 1
-//                 : 0
-//               : -1,
-//         })
-//       );
-//   }
+  async componentDidMount() {
+    const solutions = await ApiSingleton.solutionService.getSolutionsByTaskIdAndStudentId(this.props.taskId, +this.props.studentId)
+    const solution = this.getTheLastAssessedSolution(solutions)
+    if (solution === null){
+      this.setState({
+        isLoaded: true
+      })
+      return
+    }
+    debugger
+    this.setState({
+      isLoaded: true,
+      result: solution.points!
+    })
+  }
 }
 

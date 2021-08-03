@@ -75,70 +75,11 @@
           "studentId": 5
         }
       ],
-      "homeworks": [
-        1
-      ],
+      "homeworks": [],
       "id": 1
     }
   ],
-  "homeworks": [
-    {
-      "title": "Алгоритмы сортировки",
-      "description": "Реализовать следующие алгоритмы сортировки на C#.",
-      "date": "2021-06-02T08:54:41.410Z",
-      "courseId": 1,
-      "tasks": [
-        1,
-        2,
-        3
-      ],
-      "id": 1
-    }
-  ],
-  "tasks": [
-    {
-      "title": "Сортировка пузырьком",
-      "description": "Реализовать сортировку пузырьком.",
-      "maxRating": 6,
-      "id": 1
-    },
-    {
-      "title": "Сортировка вставкой",
-      "description": "Реализовать сортировку вставкой.",
-      "maxRating": 7,
-      "id": 2
-    },
-    {
-      "title": "Сортировка слиянием",
-      "description": "Реализовать сортировку слиянием.",
-      "maxRating": 8,
-      "id": 3
-    }
-  ],
-  "solutions": [
-    {
-      "taskId": 1,
-      "studentId": "2",
-      "githubUrl": "https://www.deepl.com/translator",
-      "comment": "решение",
-      "state": "Accepted",
-      "id": 1
-    },
-    {
-      "taskId": 2,
-      "studentId": "4",
-      "githubUrl": "https://www.deepl.com/en/translator",
-      "comment": "Новое решение.",
-      "state": "Accepted",
-      "id": 2
-    },
-    {
-      "taskId": 2,
-      "studentId": "5",
-      "githubUrl": "https://www.deepl.com/en/translator",
-      "comment": "Моя крутая задача.",
-      "state": "Accepted",
-      "id": 3
-    }
-  ]
+  "homeworks": [],
+  "tasks": [],
+  "solutions": []
 }

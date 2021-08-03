@@ -7,8 +7,8 @@ import Homework from "./Homework";
 
 interface ICourseHomeworkProps {
   homework: HomeworkViewModel[];
-  forMentor: boolean;
-  forStudent: boolean;
+  isMentor: boolean;
+  isStudent: boolean;
   onDelete: () => void;
 }
 
@@ -26,8 +26,8 @@ export default class CourseHomework extends React.Component<
         <ListItem key={hw.id}>
           <Homework
             homework={hw}
-            forStudent={this.props.forStudent}
-            forMentor={this.props.forMentor}
+            forStudent={this.props.isStudent}
+            forMentor={this.props.isMentor}
             onDeleteClick={() => this.props.onDelete()}
           />
         </ListItem>
