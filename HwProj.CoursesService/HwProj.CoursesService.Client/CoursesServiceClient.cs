@@ -164,11 +164,11 @@ namespace HwProj.CoursesService.Client
             await _httpClient.SendAsync(httpRequest);
         }
 
-        public async Task<long> AddTask(long courseId, long homeworkId, CreateTaskViewModel taskViewModel)
+        public async Task<long> AddTask(long homeworkId, CreateTaskViewModel taskViewModel)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _coursesServiceUri + $"api/Courses/{courseId}/Homeworks/{homeworkId}/Tasks/add")
+                _coursesServiceUri + $"api/Courses/Homeworks/{homeworkId}/Tasks/add")
             {
                 Content = new StringContent(
                     JsonConvert.SerializeObject(taskViewModel),
@@ -179,18 +179,37 @@ namespace HwProj.CoursesService.Client
             return await response.DeserializeAsync<long>();
         }
 
-        public async Task UpdateTask(long courseId, long homeworkId,
+        public async Task UpdateTask(long homeworkId,
             long taskId, CreateTaskViewModel taskViewModel)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Put,
-                _coursesServiceUri + $"api/Courses/{courseId}/Homeworks/{homeworkId}/Tasks/update/{taskId}")
+                _coursesServiceUri + $"api/Courses/Homeworks/{homeworkId}/Tasks/update/{taskId}")
             {
                 Content = new StringContent(
                     JsonConvert.SerializeObject(taskViewModel),
                     Encoding.UTF8,
                     "application/json")
             };  
+            await _httpClient.SendAsync(httpRequest);
+        }
+
+        public async Task<HomeworkTaskViewModel> GetTask(long homeworkId, long taskId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get, 
+                _coursesServiceUri + $"api/Courses/Homeworks/{homeworkId}/Tasks/get/{taskId}");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<HomeworkTaskViewModel>();
+        }
+        
+        public async Task DeleteTask(long homeworkId, long taskId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Delete,
+                _coursesServiceUri + $"api/Courses/Homeworks/{homeworkId}/Tasks/delete/{taskId}");
+            
             await _httpClient.SendAsync(httpRequest);
         }
     }

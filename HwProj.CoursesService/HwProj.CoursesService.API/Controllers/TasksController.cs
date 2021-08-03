@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.CoursesService.API.Controllers
 {
-    [Route("api/Courses/{courseId}/Homeworks/{homeworkId}/[controller]")]
+    [Route("api/Courses/Homeworks/{homeworkId}/[controller]")]
     [ApiController]
     public class TasksController : Controller
     {

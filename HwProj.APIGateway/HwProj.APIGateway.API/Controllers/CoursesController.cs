@@ -129,22 +129,40 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok();
         }
         
-        [HttpPost("{courseId}/Homeworks/{homeworkId}/Tasks/add")]
+        [HttpPost("Homeworks/{homeworkId}/Tasks/add")]
         [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> AddTask(CreateTaskViewModel taskViewModel, long courseId, long homeworkId)
+        public async Task<IActionResult> AddTask(CreateTaskViewModel taskViewModel, long homeworkId)
         {
-            var result = await _coursesClient.AddTask(courseId, homeworkId, taskViewModel);
+            var result = await _coursesClient.AddTask(homeworkId, taskViewModel);
             return Ok(result);
         } 
         
-        [HttpPut("{courseId}/Homeworks/{homeworkId}/Tasks/update/{taskId}")]
+        [HttpPut("Homeworks/{homeworkId}/Tasks/update/{taskId}")]
         [Authorize(Roles = Roles.LecturerRole)]
         public async Task<IActionResult> UpdateTask(CreateTaskViewModel taskViewModel,
-            long courseId, long homeworkId, long taskId)
+            long homeworkId, long taskId)
         {
-            await _coursesClient.UpdateTask(courseId, homeworkId, taskId, taskViewModel);
+            await _coursesClient.UpdateTask(homeworkId, taskId, taskViewModel);
             return Ok();
+        }
+        
+        [HttpDelete("Homeworks/{homeworkId}/Tasks/delete/{taskId}")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        public async Task<IActionResult> DeleteTask(long homeworkId, long taskId)
+        {
+            await _coursesClient.DeleteTask(homeworkId, taskId);
+            return Ok();
+        }
+        
+        [HttpGet("Homeworks/{homeworkId}/Tasks/get/{taskId}")]
+        [ProducesResponseType(typeof(HomeworkTaskViewModel), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetTask(long homeworkId, long taskId)
+        {
+            var result = await _coursesClient.GetTask(homeworkId, taskId);
+            return result == null
+                ? NotFound()
+                : Ok(result) as IActionResult;
         }
     }
 }
