@@ -128,5 +128,23 @@ namespace HwProj.APIGateway.API.Controllers
             await _coursesClient.UpdateHomework(homeworkViewModel, courseId, homeworkId);
             return Ok();
         }
+        
+        [HttpPost("{courseId}/Homeworks/{homeworkId}/Tasks/add")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> AddTask(CreateTaskViewModel taskViewModel, long courseId, long homeworkId)
+        {
+            var result = await _coursesClient.AddTask(courseId, homeworkId, taskViewModel);
+            return Ok(result);
+        } 
+        
+        [HttpPut("{courseId}/Homeworks/{homeworkId}/Tasks/update/{taskId}")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        public async Task<IActionResult> UpdateTask(CreateTaskViewModel taskViewModel,
+            long courseId, long homeworkId, long taskId)
+        {
+            await _coursesClient.UpdateTask(courseId, homeworkId, taskId, taskViewModel);
+            return Ok();
+        }
     }
 }
