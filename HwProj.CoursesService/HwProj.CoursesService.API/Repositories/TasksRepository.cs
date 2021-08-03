@@ -5,7 +5,7 @@ namespace HwProj.CoursesService.API.Repositories
 {
     public class TasksRepository : CrudRepository<HomeworkTask, long>, ITasksRepository
     {
-        public TasksRepository(HomeworkContext context)
+        public TasksRepository(CourseContext context)
             : base(context)
         {
         }

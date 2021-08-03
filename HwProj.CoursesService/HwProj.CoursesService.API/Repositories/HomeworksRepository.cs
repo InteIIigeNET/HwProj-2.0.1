@@ -8,7 +8,7 @@ namespace HwProj.CoursesService.API.Repositories
 {
     public class HomeworksRepository : CrudRepository<Homework, long>, IHomeworksRepository
     {
-        public HomeworksRepository(HomeworkContext context)
+        public HomeworksRepository(CourseContext context)
             : base(context)
         {
         }

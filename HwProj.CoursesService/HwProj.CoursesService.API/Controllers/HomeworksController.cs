@@ -21,7 +21,6 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost("{courseId}/Homeworks")]
-
         public async Task<long> AddHomework(long courseId, [FromBody] CreateHomeworkViewModel homeworkViewModel)
         {
             var homework = _mapper.Map<Homework>(homeworkViewModel);
