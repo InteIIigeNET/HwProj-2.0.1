@@ -61,9 +61,9 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
         const { isLoaded, isFound, course, createHomework, mentor } = this.state;
         if (isLoaded) {
         if (isFound) {
-            let isLogged = ApiSingleton.authService.getLogginStateFake();
+            let isLogged = ApiSingleton.authService.isLoggedIn()
             let userId = isLogged
-            ? String(ApiSingleton.authService.getUserIdFake())
+            ? ApiSingleton.authService.getUserId()
             : undefined;
             let isMentor = isLogged && userId === String(course.mentorId);
             let isSignedInCourse =
@@ -210,12 +210,11 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
 
     async componentDidMount() {
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+this.props.match.params.id);
-
         this.setState({
           isLoaded: true,
           isFound: true,
           course: course,
-          courseHomework: await ApiSingleton.courseService.getHomeworksByCourseId(+this.props.match.params.id),
+          courseHomework: course.homeworks!,
           createHomework: false,
           mentor: await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(course.mentorId!),
           acceptedStudents: await Promise.all(course.courseMates!

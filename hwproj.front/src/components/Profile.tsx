@@ -90,7 +90,9 @@ export default class Profile extends React.Component<RouteComponentProps<IProfil
 		}
 		else {
 			const token = ApiSingleton.authService.getToken();
+			debugger;
 			const data = await ApiSingleton.accountApi.apiAccountGetUserDataGet({ headers: {"Authorization": `Bearer ${token}`} });
+			debugger;
 			this.setState({
 				isLoaded: true,
 				accountData: data.userData!,
@@ -102,8 +104,8 @@ export default class Profile extends React.Component<RouteComponentProps<IProfil
 	public renderNotifications(notifications: NotificationViewModel[]) {  
 		return (<div>
 			{notifications.map(n => 
-			<Box m={2} bgcolor="AliceBlue">
-				<Card>
+			<Box m={2}>
+				<Card style={{backgroundColor: "AliceBlue"}}>
 					<CardContent >
 						<Typography variant="body1" component="p">
 							{n.body}

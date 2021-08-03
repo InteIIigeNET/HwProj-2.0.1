@@ -34,25 +34,19 @@ export default class CreateCourse extends React.Component<
   async handleSubmit(e: any) {
     e.preventDefault();
 
-    const user = await ApiSingleton.authService.getUserByUserIdFake()
     let courseViewModel = {
       name: this.state.name,
       groupName: this.state.groupName,
       isOpen: this.state.isOpen,
-      isCompleted: false,
-      course: {
-        mentorId: user.id
-      },
-      mentor: {
-        name: user.name,
-        surname: user.surname,
-        middleName: user.middleName,
-        email: user.email,
-      },
-      homeworks: [],
-      courseMates: [],
     };
-    await ApiSingleton.courseService.addCourse(courseViewModel)
+    const token = ApiSingleton.authService.getToken();
+    const id = await ApiSingleton.coursesApi.apiCoursesCreatePost(courseViewModel, { headers: {"Authorization": `Bearer ${token}`} })
+    if (id) {
+      window.location.assign("/")
+    }
+    else {
+      console.log("Something wrong!")
+    }
   }
 
   public render() {
