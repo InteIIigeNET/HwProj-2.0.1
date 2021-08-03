@@ -29,6 +29,11 @@ namespace HwProj.CoursesService.API
             CreateMap<GroupMate, GroupMateViewModel>();
 
             CreateMap<CourseMate, CourseMateViewModel>();
+
+            CreateMap<CreateHomeworkViewModel, Homework>();
+            CreateMap<Homework, HomeworkViewModel>();
+            CreateMap<HomeworkTask, HomeworkTaskViewModel>().ReverseMap();
+            CreateMap<CreateTaskViewModel, HomeworkTask>().ReverseMap();
         }
     }
 }

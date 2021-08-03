@@ -1,8 +1,6 @@
-import { LoginViewModel } from './../api/auth/api';
-import decode from "jwt-decode";
-import { AccountApi } from "../api/auth";
+import { LoginViewModel, AccountApi, RegisterViewModel } from './../api/';
 import ApiSingleton from "../api/ApiSingleton";
-import { RegisterViewModel } from "./../api/auth";
+import decode from "jwt-decode";
 
 interface TokenPayload {
   _userName: string;

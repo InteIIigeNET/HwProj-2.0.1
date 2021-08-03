@@ -6,6 +6,7 @@
         public string Name { get; set; }
         public string GroupName { get; set; }
         public bool IsOpen { get; set; }
+        public bool IsCompleted { get; set; }
         public bool UserIsMentor { get; set; }
     }
 }

@@ -3,7 +3,7 @@ import { RouteComponentProps } from "react-router-dom";
 import { TextField, Button, Typography } from "@material-ui/core";
 import ApiSingleton from "../../api/ApiSingleton";
 import "./Styles/Login.css";
-import { LoginViewModel } from "../../api/auth"
+import { LoginViewModel } from "../../api/"
 
 interface LoginProps extends Partial<RouteComponentProps> {
   onLogin: () => void;
@@ -53,7 +53,7 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
     if (this.state.isLogin){
       this.props.onLogin?.();
     }
-
+    debugger
     return (
       <div className="page">
         <Typography component="h1" variant="h5">

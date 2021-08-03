@@ -9,8 +9,8 @@ namespace HwProj.AuthService.API.Services
     {
         Task<AccountDataDto> GetAccountDataAsync(string userId);
         Task<Result<TokenCredentials>> RegisterUserAsync(RegisterViewModel model);
-        Task<IdentityResult> EditAccountAsync(string accountId, EditAccountViewModel model);
+        Task<Result> EditAccountAsync(string accountId, EditAccountViewModel model);
         Task<Result<TokenCredentials>> LoginUserAsync(LoginViewModel model);
-        Task<IdentityResult> InviteNewLecturer(string emailOfInvitedUser);
+        Task<Result> InviteNewLecturer(string emailOfInvitedUser);
     }
 }

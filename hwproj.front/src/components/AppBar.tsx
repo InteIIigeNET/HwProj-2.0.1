@@ -5,6 +5,7 @@ import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import ApiSingleton from "api/ApiSingleton";
+import Avatar from "@material-ui/core/Avatar";
 
 const styles = makeStyles({
   root: {
@@ -62,6 +63,10 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) =>  {
             )}
           {props.loggedIn && (
             <div>
+              <Avatar
+                src="/broken-image.jpg"
+                onClick={() => window.location.assign("/profile")}
+              />
               <Button
                 color="inherit"
                 onClick={() => window.location.assign("/user/edit")}

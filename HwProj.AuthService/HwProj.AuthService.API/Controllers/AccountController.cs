@@ -49,18 +49,17 @@ namespace HwProj.AuthService.API.Controllers
             var tokenMeta = await _accountService.LoginUserAsync(model).ConfigureAwait(false);
             return Ok(tokenMeta);
         }
-
-        [Authorize]
-        [HttpPut("edit")]
-        public async Task<IActionResult> Edit(EditAccountViewModel model, string userId)
+        
+        [HttpPut("edit/{userId}")]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> Edit([FromBody] EditAccountViewModel model, string userId)
         {
-            var token = ControllerContext.HttpContext.Request.Headers["Auth"][0];
             var result = await _accountService.EditAccountAsync(userId, model).ConfigureAwait(false);
             return Ok(result);
         }
-
-        [Authorize]
-        [HttpPost("invitenewlecturer")]
+        
+        [HttpPost("inviteNewLecturer")]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> InviteNewLecturer(InviteLecturerViewModel model)
         {
             var result = await _accountService.InviteNewLecturer(model.Email).ConfigureAwait(false);

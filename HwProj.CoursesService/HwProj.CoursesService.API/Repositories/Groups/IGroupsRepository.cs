@@ -1,9 +1,9 @@
-﻿using HwProj.CoursesService.API.Models;
-using HwProj.Repositories;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
+using HwProj.CoursesService.API.Models;
+using HwProj.Repositories;
 
-namespace HwProj.CoursesService.API.Repositories
+namespace HwProj.CoursesService.API.Repositories.Groups
 {
     public interface IGroupsRepository : ICrudRepository<Group, long>
     {

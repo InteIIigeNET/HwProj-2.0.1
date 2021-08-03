@@ -33,6 +33,7 @@ namespace HwProj.NotificationsService.API
             services.AddScoped<INotificationsService, Services.NotificationsService>();
             services.AddEventBus(Configuration);
             services.AddTransient<IEventHandler<StudentRegisterEvent>, RegisterEventHandler>();
+            services.AddTransient<IEventHandler<InviteLecturerEvent>, InviteLecturerEventHandler>();
 
             var httpClient = new HttpClient();
             services.AddAuthServiceClient(httpClient, "http://localhost:5001");
@@ -44,6 +45,7 @@ namespace HwProj.NotificationsService.API
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IEventBus eventBus)
         {
             eventBus.Subscribe<StudentRegisterEvent>();
+            eventBus.Subscribe<InviteLecturerEvent>();
             app.ConfigureHwProj(env, "Notifications API");
         }
     }

@@ -4,7 +4,7 @@ import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import { Redirect } from "react-router-dom";
 import ApiSingleton from "../../api/ApiSingleton";
-import { RegisterViewModel } from "../../api/auth";
+import { RegisterViewModel } from "../../api/";
 import "./Styles/Register.css";
 
 interface IRegisterState {
@@ -42,9 +42,9 @@ export class Register extends React.Component<{}, IRegisterState> {
         <Typography component="h1" variant="h5">
           Регистрация
         </Typography>
-        {this.state.error && (
-          <Typography style={{ color: "red", marginBottom: "0" }}>{this.state.error}</Typography>
-        )}
+          {this.state.error.length > 0 && (
+              <p style={{ color: "red", marginBottom: "0" }}>{this.state.error}</p>
+          )}
         <form onSubmit={this.handleSubmit} className="form">
           <TextField
             size="small"
@@ -167,9 +167,9 @@ export class Register extends React.Component<{}, IRegisterState> {
       error: result!.error!,
       loggedIn: result.loggedIn
     })
-    debugger
-    if (this.state.loggedIn){
-      window.location.assign("/")
+    if (result.loggedIn)
+    {
+        window.location.assign("/")
     }
   };
 }

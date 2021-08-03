@@ -1,4 +1,4 @@
-import { CourseViewModel } from './../api/courses/api';
+import { CourseViewModel } from './../api/';
 import ApiSingleton from "../api/ApiSingleton"
 
 

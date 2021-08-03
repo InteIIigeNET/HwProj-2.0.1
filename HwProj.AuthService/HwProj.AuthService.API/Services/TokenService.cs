@@ -39,8 +39,8 @@ namespace HwProj.AuthService.API.Services
                 {
                     new Claim("_userName", user.UserName),
                     new Claim("_id", user.Id),
-                    new Claim("_email", user.Email),
-                    new Claim("_role", userRoles.FirstOrDefault() ?? Roles.StudentRole)
+                    new Claim(ClaimTypes.Email, user.Email),
+                    new Claim(ClaimTypes.Role, userRoles.FirstOrDefault() ?? Roles.StudentRole)
                 },
                 signingCredentials: new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256));
 

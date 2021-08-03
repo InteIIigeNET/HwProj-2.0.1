@@ -5,13 +5,15 @@ using HwProj.Models.ApiGateway;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.NotificationsService;
+using HwProj.Models.Roles;
 using HwProj.NotificationsService.Client;
 using HwProj.Utils.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.APIGateway.API.Controllers
 {
-    [Route("api/account")]
+    [Route("api/[controller]")]
     [ApiController]
     public class AccountController : ControllerBase
     {
@@ -29,10 +31,13 @@ namespace HwProj.APIGateway.API.Controllers
         public async Task<IActionResult> GetUserDataById(string userId)
         {
             var result = await _authClient.GetAccountData(userId);
-            return Ok(result);
+            return result == null
+                ? NotFound()
+                : Ok(result) as IActionResult;
         }
 
         [HttpGet("getUserData")]
+        [Authorize]
         [ProducesResponseType(typeof(UserDataDto), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetUserData()
         {
@@ -65,6 +70,25 @@ namespace HwProj.APIGateway.API.Controllers
         {
             var tokenMeta = await _authClient.Login(model).ConfigureAwait(false);
             return Ok(tokenMeta);
+        }
+
+        [HttpPut("edit")]
+        [Authorize]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> Edit([FromBody] EditAccountViewModel model)
+        {
+            var userId = Request.GetUserId();
+            var result = await _authClient.Edit(model, userId).ConfigureAwait(false);
+            return Ok(result);
+        }
+
+        [HttpPost("inviteNewLecturer")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> InviteNewLecturer([FromBody] InviteLecturerViewModel model)
+        {
+            var result = await _authClient.InviteNewLecturer(model).ConfigureAwait(false);
+            return Ok(result);
         }
     }
 }

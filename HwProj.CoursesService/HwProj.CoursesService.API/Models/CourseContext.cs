@@ -9,6 +9,8 @@ namespace HwProj.CoursesService.API.Models
         public DbSet<Group> Groups { get; set; }
         public DbSet<GroupMate> GroupMates { get; set; }
         public DbSet<TaskModel> TasksModels { get; set; }
+        public DbSet<Homework> Homeworks { get; set; }
+        public DbSet<HomeworkTask> Tasks { get; set; }
 
         public CourseContext(DbContextOptions options)
             : base(options)
