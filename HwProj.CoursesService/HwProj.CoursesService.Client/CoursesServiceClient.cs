@@ -163,5 +163,35 @@ namespace HwProj.CoursesService.Client
             
             await _httpClient.SendAsync(httpRequest);
         }
+
+        public async Task<long> AddTask(long courseId, long homeworkId, CreateTaskViewModel taskViewModel)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _coursesServiceUri + $"api/Courses/{courseId}/Homeworks/{homeworkId}/Tasks/add")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(taskViewModel),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<long>();
+        }
+
+        public async Task UpdateTask(long courseId, long homeworkId,
+            long taskId, CreateTaskViewModel taskViewModel)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Put,
+                _coursesServiceUri + $"api/Courses/{courseId}/Homeworks/{homeworkId}/Tasks/update/{taskId}")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(taskViewModel),
+                    Encoding.UTF8,
+                    "application/json")
+            };  
+            await _httpClient.SendAsync(httpRequest);
+        }
     }
 }
