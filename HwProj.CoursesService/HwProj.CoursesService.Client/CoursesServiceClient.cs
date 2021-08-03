@@ -70,7 +70,7 @@ namespace HwProj.CoursesService.Client
             return data;
         }
         
-        public async Task UpdateCourse(CourseViewModel model, long courseId)
+        public async Task UpdateCourse(UpdateCourseViewModel model, long courseId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,

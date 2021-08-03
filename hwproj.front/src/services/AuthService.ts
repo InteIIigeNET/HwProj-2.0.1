@@ -6,7 +6,7 @@ interface TokenPayload {
   _userName: string;
   _id: string;
   _email: string;
-  _role: string;
+  "http://schemas.microsoft.com/ws/2008/06/identity/claims/role": string;
   nbf: number;
   exp: number;
   iss: string;
@@ -149,6 +149,6 @@ export default class AuthService {
     if (this.getToken() === null) {
       return false
     }
-    return this.getProfile()._role === "Lecturer"
+    return this.getProfile()["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] === "Lecturer"
   }
 }

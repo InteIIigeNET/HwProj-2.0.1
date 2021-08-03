@@ -42,7 +42,7 @@ export default class InviteNewLecturer extends React.Component<{}, IEditTaskStat
             return <Redirect to={"/"} />;
         }
 
-        if (ApiSingleton.authService.getProfile()._role.toLowerCase() !== "lecturer") {
+        if (!ApiSingleton.authService.isLecturer()) {
             return (
                 <Typography variant="h6" gutterBottom>
                     Страница не найдена

@@ -36,7 +36,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 Category = "AuthService",
                 Date = DateTime.UtcNow,
                 HasSeen = false,
-                Owner = "ab8a5687-80b6-418b-a120-bb08aaf9da55" // Admin (admin@gmail.com) UserId
+                Owner = "b26fa7ef-401d-45e0-a0f0-9e656b2bc16d" // Admin (admin@gmail.com) UserId
             });
         }
     }

@@ -6,6 +6,7 @@ import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import ApiSingleton from "api/ApiSingleton";
 import Avatar from "@material-ui/core/Avatar";
+import Box from "@material-ui/core/Box";
 
 const styles = makeStyles({
   root: {
@@ -63,19 +64,21 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) =>  {
             )}
           {props.loggedIn && (
             <div>
-              <Avatar
-                src="/broken-image.jpg"
-                onClick={() => window.location.assign("/profile")}
-              />
-              <Button
-                color="inherit"
-                onClick={() => window.location.assign("/user/edit")}
-              >
-                Редактировать данные
-              </Button>
-              <Button onClick={props.onLogout} color="inherit">
-                Выйти
-              </Button>
+              <Box display="flex" flexDirection="row">
+                <Avatar
+                  src="/broken-image.jpg"
+                  onClick={() => window.location.assign("/profile")}
+                />
+                <Button
+                  color="inherit"
+                  onClick={() => window.location.assign("/user/edit")}
+                >
+                  Редактировать данные
+                </Button>
+                <Button onClick={props.onLogout} color="inherit">
+                  Выйти
+                </Button>
+              </Box>
             </div>
           )}
           {!props.loggedIn && (

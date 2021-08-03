@@ -59,7 +59,7 @@ namespace HwProj.APIGateway.API.Controllers
         
         [HttpPost("update/{courseId}")]
         [Authorize(Roles = Roles.LecturerRole)]
-        public async Task<IActionResult> UpdateCourse(CourseViewModel model, long courseId)
+        public async Task<IActionResult> UpdateCourse(UpdateCourseViewModel model, long courseId)
         {
             await _coursesClient.UpdateCourse(model, courseId);
             return Ok();
