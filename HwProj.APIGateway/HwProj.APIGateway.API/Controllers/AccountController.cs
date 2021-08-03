@@ -83,8 +83,7 @@ namespace HwProj.APIGateway.API.Controllers
         }
         
         [HttpPost("inviteNewLecturer")]
-        [Authorize]
-        //[Authorize(Roles = Roles.LecturerRole)]
+        [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> InviteNewLecturer([FromBody] InviteLecturerViewModel model)
         {

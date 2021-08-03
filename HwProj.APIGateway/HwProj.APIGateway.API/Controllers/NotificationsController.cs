@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace HwProj.APIGateway.API.Controllers
 {
-    [Route("api/notifications")] //localhost:5000/api/notifications
+    [Route("api/notifications")]
     [ApiController]
     public class NotificationsController : ControllerBase
     {
