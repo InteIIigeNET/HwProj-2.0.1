@@ -36,13 +36,11 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
       password: this.state.password,
       rememberMe: false
     }
-    debugger
     const result = await ApiSingleton.authService.login(userData)
     this.setState({
       error: result!.error,
       isLogin: result.isLogin
     })
-    debugger
   }
 
   render() {

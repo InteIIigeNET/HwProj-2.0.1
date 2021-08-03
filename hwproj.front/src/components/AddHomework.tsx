@@ -4,8 +4,9 @@ import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import ApiSingleton from "../api/ApiSingleton";
 import { CreateTaskViewModel } from "../api/homeworks";
-import { Redirect } from "react-router-dom";
-import { Description } from "@material-ui/icons";
+import DateTimePicker from "@material-ui/lab/DateTimePicker";
+import MuiPickersUtilsProvider from "@material-ui/pickers/MuiPickersUtilsProvider";
+import DateFnsUtils from "@material-ui/lab/AdapterDateFns";
 
 interface IAddHomeworkProps {
   id: number;
@@ -31,34 +32,15 @@ export default class AddHomework extends React.Component<
       description: "",
       tasks: [{ title: "",
                 description: "",
-                maxRating: 10
+                maxRating: 10,
+                publicationDate: new Date(),
+                deadlineDate: new Date(new Date().setDate(7))
               }],
       added: false,
     };
   }
 
-  // public handleSubmit(e: any) {
-  //   e.preventDefault();
-  //   ApiSingleton.homeworksApi
-  //     .apiHomeworksByCourseIdPost(this.props.id, {
-  //       title: this.state.title,
-  //       description: this.state.description,
-  //     })
-  //     .then((homeworkId) =>
-  //       Promise.all(
-  //         this.state.tasks.map((t) =>
-  //           ApiSingleton.tasksApi.apiTasksByHomeworkIdPost(homeworkId, t)
-  //         )
-  //       )
-  //     )
-  //     .then((res) => this.props.onSubmit());
-  // }
-
-  public render() {
-    // if (this.state.added) {
-    //   debugger
-    //   return <Redirect to={"/courses/" + this.props.id.toString} />;
-    // }
+  render() {
     return (
       <div>
         <Typography variant="subtitle1">Добавить домашку</Typography>
@@ -75,13 +57,16 @@ export default class AddHomework extends React.Component<
             multiline
             fullWidth
             rows="4"
-            rowsMax="15"
+            //rowsMax="15"
             label="Описание домашки"
             variant="outlined"
             margin="normal"
             name={this.state.description}
             onChange={(e) => this.setState({ description: e.target.value })}
           />
+          {
+            console.log(this.state.tasks)
+          }
           <div className="container">
             <ol>
               {this.state.tasks.map((task, index) => (
@@ -118,6 +103,7 @@ export default class AddHomework extends React.Component<
                     variant="outlined"
                     type="number"
                     margin="normal"
+                    value={task.maxRating}
                     onChange={(e) => (task.maxRating = +e.target.value)}
                   />
                   <br />
@@ -125,13 +111,23 @@ export default class AddHomework extends React.Component<
                     multiline
                     fullWidth
                     rows="4"
-                    rowsMax="15"
+                    //rowsMax="15"
                     label="Условие задачи"
                     variant="outlined"
                     margin="normal"
                     name={task.description}
                     onChange={(e) => (task.description = e.target.value)}
                   />
+                  <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                    <DateTimePicker
+                      renderInput={(props) => <TextField {...props} />}
+                      label="Крайний срок решения задачи"
+                      value={task.deadlineDate}
+                      onChange={(newValue) => {
+                        task.deadlineDate = newValue
+                      }}
+                    />
+                  </MuiPickersUtilsProvider>
                 </li>
               ))}
             </ol>
@@ -141,7 +137,13 @@ export default class AddHomework extends React.Component<
               color="primary"
               onClick={() =>
                 this.setState({
-                  tasks: [...this.state.tasks, { title: "", description: "" }],
+                  tasks: [...this.state.tasks, { 
+                    title: "",
+                    description: "",
+                    maxRating: 10,
+                    publicationDate: new Date(),
+                    deadlineDate: new Date(new Date().setDate(7))
+                  }],
                 })
               }
             >
@@ -174,14 +176,18 @@ export default class AddHomework extends React.Component<
   async handleSubmit(e: any) {
     e.preventDefault();
 
-    const homework = {
-      title: this.state.title,
-      description: this.state.description,
-      tasks: this.state.tasks,
-      date: new Date()
-    }
-    await ApiSingleton.courseService.addHomework(homework, this.props.id)
-    this.setState({ added: true })
-    this.props.onSubmit()
+    console.log(this.state.tasks)
+    debugger
+    return
+
+    // const homework = {
+    //   title: this.state.title,
+    //   description: this.state.description,
+    //   tasks: this.state.tasks,
+    //   date: new Date()
+    // }
+    // await ApiSingleton.courseService.addHomework(homework, this.props.id)
+    // this.setState({ added: true })
+    // this.props.onSubmit()
   }
 }

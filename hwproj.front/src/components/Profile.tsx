@@ -4,7 +4,6 @@ import {RouteComponentProps} from 'react-router';
 import { Card, Typography, CardContent, Checkbox, CircularProgress, TextField } from "@material-ui/core";
 
 import ApiSingleton from "api/ApiSingleton";
-import AuthService from "services/AuthService";
 import { AccountDataDto, NotificationViewModel } from "../api/auth";
 
 import "./Styles/Profile.css";
@@ -82,7 +81,7 @@ export default class Profile extends React.Component<RouteComponentProps<IProfil
 			});
 		}
 		else {
-			const token = (new AuthService).getToken();
+			const token = ApiSingleton.authService.getToken();
 			const data = await ApiSingleton.accountApi.apiAccountGetUserDataGet({ headers: {"Authorization": `Bearer ${token}`} });
 			this.setState({
 				isLoaded: true,

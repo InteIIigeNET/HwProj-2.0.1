@@ -19,11 +19,6 @@ interface ICreateCourseState {
   courseId: string;
 }
 
-// interface ICourseMate {
-//   studentId: number,
-//   isAccepted: boolean
-// }
-
 export default class CreateCourse extends React.Component<
   {},
   ICreateCourseState
@@ -35,26 +30,6 @@ export default class CreateCourse extends React.Component<
     created: false,
     courseId: "",
   };
-
-  // public handleSubmit(e: any) {
-  //   e.preventDefault();
-
-  //   let courseViewModel = {
-  //     name: this.state.name,
-  //     groupName: this.state.groupName,
-  //     isOpen: this.state.isOpen,
-  //   };
-
-  //   ApiSingleton.coursesApi
-  //     .apiCoursesCreatePost(courseViewModel)
-  //     .then((res) => res.json())
-  //     .then((id) =>
-  //       this.setState({
-  //         created: true,
-  //         courseId: id,
-  //       })
-  //     );
-  // }
 
   async handleSubmit(e: any) {
     e.preventDefault();
@@ -81,7 +56,7 @@ export default class CreateCourse extends React.Component<
   }
 
   public render() {
-    if (!ApiSingleton.authService.getRoleFake()){
+    if (!ApiSingleton.authService.isLecturer){
       <Typography component="h1" variant="h5">
           Страница не доступна
       </Typography>

@@ -29,7 +29,6 @@ export default class AuthService {
   }
 
   async login(user: LoginViewModel) {
-    debugger
     const token = await ApiSingleton.accountApi.apiAccountLoginPost(user)
     if (token.errors) {
       return {
@@ -38,7 +37,6 @@ export default class AuthService {
       }
     }
     this.setToken(token.value?.accessToken!)
-    debugger
     return {
       error: null,
       isLogin: true
@@ -46,7 +44,6 @@ export default class AuthService {
   }
 
   async register(user: RegisterViewModel){
-    debugger
     const token = await ApiSingleton.accountApi.apiAccountRegisterPost(user) 
     if (!token.succeeded) {
       return {
@@ -55,7 +52,6 @@ export default class AuthService {
       }
     }
     this.setToken(token.value?.accessToken!)
-    debugger
     return {
       loggedIn: true,
       error: []

@@ -108,7 +108,7 @@ export interface Solution {
      * @type {number}
      * @memberof Solution
      */
-    state?: StateEnum;
+    state?: string;
     /**
      * 
      * @type {string}
@@ -121,6 +121,18 @@ export interface Solution {
      * @memberof Solution
      */
     taskId?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof Solution
+     */
+     points?: number;
+    /**
+     * 
+     * @type {Date}
+     * @memberof Solution
+     */
+     date?: Date;
 }
 
 

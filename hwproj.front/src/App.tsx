@@ -13,7 +13,7 @@ import Courses from "./components/Courses/Courses";
 import CreateCourse from "./components/CreateCourse";
 import Profile from "./components/Profile";
 import TaskSolutionsPage from "./components/TaskSolutionsPage";
-import AppBar from "./components/AppBar";
+import { Header } from "./components/AppBar";
 import Login from "./components/Auth/Login";
 import EditCourse from "./components/EditCourse";
 import EditTask from "./components/EditTask";
@@ -61,7 +61,7 @@ class App extends Component<AppProps, AppState> {
   render() {
     return (
       <>
-        <AppBar loggedIn={this.state.loggedIn} isLecturer={this.state.isLecturer} onLogout={this.logout} />
+        <Header loggedIn={this.state.loggedIn} isLecturer={this.state.isLecturer} onLogout={this.logout} />
         <Route exact path="/invite_lecturer" component={InviteNewLecturer} />
         <Route exact path="/user/edit" component={EditProfile} />
         <Route exact path="/" component={Courses} />

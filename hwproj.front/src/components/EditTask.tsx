@@ -109,7 +109,7 @@ export default class EditTask extends React.Component<
                 multiline
                 fullWidth
                 rows="4"
-                rowsMax="15"
+                //rowsMax="15"
                 label="Условие задачи"
                 variant="outlined"
                 margin="normal"

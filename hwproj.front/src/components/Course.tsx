@@ -12,7 +12,6 @@ import { Link as RouterLink } from "react-router-dom";
 import {RouteComponentProps} from 'react-router';
 import NewCourseStudents from "./NewCourseStudents";
 import { AccountDataDto } from "../api/auth";
-import { withRouter } from 'react-router-dom';
 
 interface User extends AccountDataDto {
   name?: string;
@@ -130,7 +129,7 @@ export default class Course extends React.Component<
                   courseMates={this.state.acceptedStudents}
                   homeworks={this.state.courseHomework}
                   userId={userId as string}
-                  forMentor={isMentor}
+                  isMentor={isMentor}
                   course={this.state.course}
                 />
                 <br />
@@ -148,8 +147,8 @@ export default class Course extends React.Component<
                 />
                 <CourseHomework
                   onDelete={() => this.componentDidMount()}
-                  forStudent={isAcceptedStudent}
-                  forMentor={isMentor}
+                  isStudent={isAcceptedStudent}
+                  isMentor={isMentor}
                   homework={this.state.courseHomework}
                 />
               </div>
@@ -160,7 +159,7 @@ export default class Course extends React.Component<
                   courseMates={this.state.acceptedStudents}
                   homeworks={this.state.courseHomework}
                   userId={userId as string}
-                  forMentor={isMentor}
+                  isMentor={isMentor}
                   course={this.state.course}
                 />
                 <br />
@@ -183,8 +182,8 @@ export default class Course extends React.Component<
                 </Button>
                 <CourseHomework
                   onDelete={() => this.componentDidMount()}
-                  forStudent={isAcceptedStudent}
-                  forMentor={isMentor}
+                  isStudent={isAcceptedStudent}
+                  isMentor={isMentor}
                   homework={this.state.courseHomework}
                 />
               </div>
@@ -194,7 +193,7 @@ export default class Course extends React.Component<
                 courseMates={this.state.acceptedStudents}
                 homeworks={this.state.courseHomework}
                 userId={userId as string}
-                forMentor={isMentor}
+                isMentor={isMentor}
                 course={this.state.course}
               />
             )}
@@ -203,8 +202,8 @@ export default class Course extends React.Component<
                 <CourseHomework
                   onDelete={() => this.componentDidMount()}
                   homework={this.state.courseHomework}
-                  forStudent={isAcceptedStudent}
-                  forMentor={isMentor}
+                  isStudent={isAcceptedStudent}
+                  isMentor={isMentor}
                 />
               </div>
             )}
@@ -216,12 +215,6 @@ export default class Course extends React.Component<
 
     return <h1></h1>;
   }
-
-  // joinCourse() {
-  //   ApiSingleton.coursesApi
-  //     .apiCoursesSignInCourseByCourseIdPost(+this.props.match.params.id, 55)
-  //     .then((res) => this.componentDidMount());
-  // }
 
   async joinCourse() {
     const userId = ApiSingleton.authService.getUserIdFake()
@@ -308,48 +301,4 @@ export default class Course extends React.Component<
         }),
     })
   }
-
-  // async componentDidMount() {
-  //   await ApiSingleton.coursesApi
-  //     .apiCoursesByCourseIdGet(+this.props.match.params.id)
-  //     .then((res) => res.json())
-  //     .then((course: CourseViewModel) =>
-  //       ApiSingleton.homeworksApi
-  //         .apiHomeworksCourseHomeworksByCourseIdGet(course.id!)
-  //         .then((homework) =>
-  //           ApiSingleton.accountApi
-  //             .apiAccountGetUserDataByUserIdGet(course.mentorId!)
-  //             .then(
-  //               async (mentor) =>
-  //                 await Promise.all(
-  //                   course.courseMates!.map(async (cm) => {
-  //                     let res = await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(
-  //                       cm.studentId!
-  //                     );
-  //                     let user = await JSON.stringify(res);
-  //                     return { user: user, isAccepted: cm.isAccepted };
-  //                   })
-  //                 ).then((courseMates) =>
-  //                   this.setState({
-  //                     isLoaded: true,
-  //                     isFound: true,
-  //                     course: course,
-  //                     courseHomework: homework,
-  //                     createHomework: false,
-  //                     mentor: mentor,
-  //                     acceptedStudents: courseMates
-  //                       .filter((cm) => cm.isAccepted)
-  //                       .map((cm) => cm.user),
-  //                     newStudents: courseMates
-  //                       .filter((cm) => !cm.isAccepted)
-  //                       .map((cm) => cm.user),
-  //                   })
-  //                 )
-  //             )
-  //         )
-  //     )
-  //     .catch((err) => this.setState({ isLoaded: true, isFound: false }));
-  // }
 }
-
-//export default withRouter(Course);

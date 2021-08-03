@@ -7,7 +7,6 @@ import ApiSingleton from "../api/ApiSingleton";
 import { FormEvent } from "react";
 
 interface IEditProfileState {
-  isLoaded: boolean;
   name: string;
   surname: string;
   middleName: string;
@@ -24,7 +23,6 @@ export default class EditProfile extends React.Component<
   constructor(props: {}) {
     super(props);
     this.state = {
-      isLoaded: false,
       name: "",
       surname: "",
       middleName: "",
@@ -38,14 +36,6 @@ export default class EditProfile extends React.Component<
   handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // let editViewModel: EditAccountViewModel = {
-    //   name: this.state.name,
-    //   surname: this.state.surname,
-    //   middleName: this.state.middleName,
-    //   currentPassword: this.state.currentPassword,
-    //   newPassword: this.state.newPassword,
-    // };
-
     const userModel = {
       name: this.state.name,
       surname: this.state.surname,
@@ -57,13 +47,6 @@ export default class EditProfile extends React.Component<
 
     await ApiSingleton.authService.editUserProfile(userModel)
     this.setState({edited: true})
-
-    /* а у нас EditAccountViewModel поменялась как бы
-    ApiSingleton.accountApi
-      .apiAccountEditPut(editViewModel)
-      .then((res) => this.setState({ edited: true }));
-     */
-    //ApiSingleton.accountApi.apiAccountEditPut(editViewModel);
   }
 
   public render() {
@@ -71,103 +54,86 @@ export default class EditProfile extends React.Component<
       return <Redirect to={"/"} />;
     }
 
-    if (this.state.isLoaded) {
-      if (!ApiSingleton.authService.getLogginStateFake()) {
-        return (
-          <Typography variant="h6" gutterBottom>
-            Страница не найдена
-          </Typography>
-        );
-      }
-
+    if (!ApiSingleton.authService.loggedIn()) {
       return (
-        <div>
-          <div className="page">
-            <Typography variant="h6" gutterBottom>
-              Редактировать профиль
-            </Typography>
-            <form onSubmit={(e) => this.handleSubmit(e)} className="form">
-              <TextField
-                  required
-                  label="Фамилия"
-                  variant="outlined"
-                  margin="normal"
-                  value={this.state.surname}
-                  onChange={(e) => this.setState({ surname: e.target.value })}
-              />
-              <TextField
-                required
-                label="Имя"
-                variant="outlined"
-                margin="normal"
-                value={this.state.name}
-                onChange={(e) => this.setState({ name: e.target.value })}
-              />
-              <TextField
-                required
-                label="Отчество"
-                variant="outlined"
-                margin="normal"
-                value={this.state.middleName}
-                onChange={(e) => this.setState({ middleName: e.target.value })}
-              />
-              <TextField
-                  required
-                  label="Пароль"
-                  variant="outlined"
-                  margin="normal"
-                  value={this.state.currentPassword}
-                  onChange={(e) => this.setState({ currentPassword: e.target.value })}
-              />
-              <TextField
-                  required
-                  label="Новый пароль"
-                  variant="outlined"
-                  margin="normal"
-                  value={this.state.newPassword}
-                  onChange={(e) => this.setState({ newPassword: e.target.value })}
-              />
-              <Button
-                size="small"
-                variant="contained"
-                color="primary"
-                type="submit"
-              >
-                Редактировать профиль
-              </Button>
-            </form>
-          </div>
-        </div>
+        <Typography variant="h6" gutterBottom>
+          Страница не найдена
+        </Typography>
       );
     }
 
-    return "";
+    return (
+      <div>
+        <div className="page">
+          <Typography variant="h6" gutterBottom>
+            Редактировать профиль
+          </Typography>
+          <form onSubmit={(e) => this.handleSubmit(e)} className="form">
+            <TextField
+                required
+                label="Фамилия"
+                variant="outlined"
+                margin="normal"
+                value={this.state.surname}
+                onChange={(e) => this.setState({ surname: e.target.value })}
+            />
+            <TextField
+              required
+              label="Имя"
+              variant="outlined"
+              margin="normal"
+              value={this.state.name}
+              onChange={(e) => this.setState({ name: e.target.value })}
+            />
+            <TextField
+              required
+              label="Отчество"
+              variant="outlined"
+              margin="normal"
+              value={this.state.middleName}
+              onChange={(e) => this.setState({ middleName: e.target.value })}
+            />
+            <TextField
+                required
+                label="Пароль"
+                variant="outlined"
+                margin="normal"
+                value={this.state.currentPassword}
+                onChange={(e) => this.setState({ currentPassword: e.target.value })}
+            />
+            <TextField
+                required
+                label="Новый пароль"
+                variant="outlined"
+                margin="normal"
+                value={this.state.newPassword}
+                onChange={(e) => this.setState({ newPassword: e.target.value })}
+            />
+            <Button
+              size="small"
+              variant="contained"
+              color="primary"
+              type="submit"
+            >
+              Редактировать профиль
+            </Button>
+          </form>
+        </div>
+      </div>
+    );
   }
 
   async componentDidMount() {
-
-    const currentUser = await ApiSingleton.authService.getUserByUserIdFake()
-    this.setState({
-      isLoaded: true,
-      name: currentUser.name,
-      surname: currentUser.surname,
-      email: currentUser.email,
-      middleName: currentUser.middleName,
-      currentPassword: currentUser.password,
-    })
-    // ApiSingleton.accountApi
-    //   .apiAccountGetUserDataByUserIdGet(
-    //     ApiSingleton.authService.getProfile()._id
-    //   )
-    //   .then((res) => JSON.stringify(res))
-    //   .then((user) => {
-    //     const userObj = JSON.parse(user);
-    //     console.log({ userObj });
-    //     this.setState({
-    //       isLoaded: true,
-    //       name: userObj.name,
-    //       surname: userObj.surname ?? "",
-    //     });
-    //   });
+    debugger
+    const userData = await ApiSingleton.authService.getProfile()
+    console.log(userData)
+    debugger
+    // this.setState({
+    //   name: currentUser.name,
+    //   surname: currentUser.surname,
+    //   email: currentUser.email,
+    //   middleName: currentUser.middleName,
+    //   currentPassword: currentUser.password,
+    // })
   }
 }
