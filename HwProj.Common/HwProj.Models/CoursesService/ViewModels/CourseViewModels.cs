@@ -8,8 +8,7 @@ namespace HwProj.Models.CoursesService.ViewModels
         [Required]
         [RegularExpression(@"^\S+.*", ErrorMessage = "Name shouldn't start with white spaces.")]
         public string Name { get; set; }
-
-        [Required]
+        
         public string GroupName { get; set; }
 
         [Required]
@@ -21,8 +20,7 @@ namespace HwProj.Models.CoursesService.ViewModels
         [Required]
         [RegularExpression(@"^\S+.*", ErrorMessage = "Name shouldn't start with white spaces.")]
         public string Name { get; set; }
-
-        [Required]
+        
         public string GroupName { get; set; }
 
         [Required]
