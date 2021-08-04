@@ -1,12 +1,11 @@
 import * as React from 'react';
-import Button from '@material-ui/core/Button'
-import IconButton from '@material-ui/core/IconButton'
+import { Button, IconButton } from '@material-ui/core'
 import DeleteIcon from '@material-ui/icons/Delete'
+import EditIcon from '@material-ui/icons/Edit'
 import ReactMarkdown from 'react-markdown';
-import { HomeworkViewModel, HomeworksApi} from "../api/homeworks/api";
+import { HomeworkViewModel } from "../api";
 import AddTask from'./AddTask'
 import HomeworkTasks from './HomeworkTasks'
-import EditIcon from '@material-ui/icons/Edit'
 import {Link as RouterLink} from 'react-router-dom'
 import ApiSingleton from 'api/ApiSingleton';
 
@@ -73,14 +72,9 @@ export default class Homework extends React.Component<IHomeworkProps, IHomeworkS
         )
     }
 
-    // deleteHomework(): void {
-    //     let api = new HomeworksApi();
-    //     api.apiHomeworksDeleteByHomeworkIdDelete(this.props.homework.id!)
-    //         .then(res => this.props.onDeleteClick());
-    // }
+    deleteHomework(): void {
+        ApiSingleton.coursesApi.apiCoursesHomeworksDeleteByHomeworkIdDelete(this.props.homework.id!)
+            .then(res => this.props.onDeleteClick());
+    }
 
-    async deleteHomework() {
-        await ApiSingleton.homeworkService.deleteHomeworkByHomeworkId(+this.props.homework.id!)
-        this.props.onDeleteClick()
-    } 
 }

@@ -1,6 +1,6 @@
 import ApiSingleton from 'api/ApiSingleton';
 import * as React from 'react';
-import { HomeworkTaskViewModel } from "../api/homeworks/api";
+import { HomeworkTaskViewModel } from "../api";
 import Task from './Task'
 
 interface IHomeworkTasksProps {
@@ -11,10 +11,6 @@ interface IHomeworkTasksProps {
 }
 
 export default class HomeworkTasks extends React.Component<IHomeworkTasksProps, {}> {
-    constructor(props : IHomeworkTasksProps) {
-        super(props);
-    }
-
     public render() {
         return (
             <div>

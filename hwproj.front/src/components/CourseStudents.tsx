@@ -1,11 +1,6 @@
 import React from "react";
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import TableCell from "@material-ui/core/TableCell";
-import TableHead from "@material-ui/core/TableHead";
-import TableRow from "@material-ui/core/TableRow";
-import { CourseViewModel } from "../api/";
-import { HomeworkViewModel } from "../api/homeworks";
+import { Table, TableBody, TableCell, TableHead, TableRow } from "@material-ui/core";
+import { CourseViewModel, HomeworkViewModel } from "../api/";
 import { Paper, createStyles, Theme } from "@material-ui/core";
 import TaskStudentCell from "./TaskStudentCell";
 import ApiSingleton from "../api/ApiSingleton";

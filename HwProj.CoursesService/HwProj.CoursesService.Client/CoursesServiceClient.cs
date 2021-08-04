@@ -127,7 +127,7 @@ namespace HwProj.CoursesService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _coursesServiceUri + $"api/Courses/{courseId}/Homeworks/add")
+                _coursesServiceUri + $"api/Courses/Homeworks/{courseId}/add")
             {
                 Content = new StringContent(
                     JsonConvert.SerializeObject(model),
@@ -140,11 +140,11 @@ namespace HwProj.CoursesService.Client
             return data;
         }
         
-        public async Task UpdateHomework(CreateHomeworkViewModel model, long courseId, long homeworkId)
+        public async Task UpdateHomework(CreateHomeworkViewModel model, long homeworkId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Put,
-                _coursesServiceUri + $"api/Courses/{courseId}/Homeworks/update/{homeworkId}")
+                _coursesServiceUri + $"api/Courses/Homeworks/update/{homeworkId}")
             {
                 Content = new StringContent(
                     JsonConvert.SerializeObject(model),
@@ -155,11 +155,11 @@ namespace HwProj.CoursesService.Client
             await _httpClient.SendAsync(httpRequest);
         }
 
-        public async Task DeleteHomework(long courseId, long homeworkId)
+        public async Task DeleteHomework(long homeworkId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Delete,
-                _coursesServiceUri + $"api/Courses/{courseId}/Homeworks/delete/{homeworkId}");
+                _coursesServiceUri + $"api/Courses/Homeworks/delete/{homeworkId}");
             
             await _httpClient.SendAsync(httpRequest);
         }

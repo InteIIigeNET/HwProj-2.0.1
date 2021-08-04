@@ -1,8 +1,7 @@
 import * as React from "react";
 import { Link as RouterLink } from "react-router-dom";
 import {RouteComponentProps} from 'react-router';
-import { AccountDataDto, CourseViewModel } from "../api/";
-import { HomeworkViewModel } from "../api/homeworks";
+import { AccountDataDto, CourseViewModel, HomeworkViewModel } from "../api/";
 import CourseHomework from "./CourseHomework";
 import AddHomework from "./AddHomework";
 import CourseStudents from "./CourseStudents";

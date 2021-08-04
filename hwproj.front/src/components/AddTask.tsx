@@ -3,7 +3,7 @@ import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import ApiSingleton from "../api/ApiSingleton";
-import { CreateTaskViewModel } from "../api/homeworks/api";
+import { CreateTaskViewModel } from "../api";
 
 interface IAddTaskProps {
   id: number;
@@ -22,15 +22,15 @@ export default class AddTask extends React.Component<
       title: "",
       description: "",
       maxRating: 10,
-      publicationDate: new Date(),
-      deadlineDate: new Date(new Date().setDate(7))
+      // publicationDate: new Date(),
+      // deadlineDate: new Date(new Date().setDate(7))
     };
   }
 
   public async handleSubmit(e: any) {
     e.preventDefault();
     const token = ApiSingleton.authService.getToken()
-    await ApiSingleton.coursesApi.apiCoursesByCourseIdHomeworksByHomeworkIdTasksAddPost(0, this.props.id, this.state, { headers: {"Authorization": `Bearer ${token}`} });
+    await ApiSingleton.coursesApi.apiCoursesHomeworksByHomeworkIdTasksAddPost(this.props.id, this.state, { headers: {"Authorization": `Bearer ${token}`} });
     this.props.onCancel()
   }
 
@@ -69,7 +69,7 @@ export default class AddTask extends React.Component<
             value={this.state.description}
             onChange={(e) => this.setState({ description: e.target.value })}
           />
-          <TextField
+          {/* <TextField
             id="datetime-local"
             label="Крайний срок решения задачи"
             type="datetime-local"
@@ -78,7 +78,7 @@ export default class AddTask extends React.Component<
               shrink: true,
             }}
             onChange={(e) => this.setState({deadlineDate: new Date(e.target.value)})}
-          />
+          /> */}
           <br />
           <Button
             size="small"

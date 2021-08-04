@@ -3,7 +3,7 @@ import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import ApiSingleton from "../api/ApiSingleton";
-import { CreateTaskViewModel } from "../api/homeworks";
+import { CreateTaskViewModel } from "../api";
 import DateTimePicker from "@material-ui/lab/DateTimePicker";
 import MuiPickersUtilsProvider from "@material-ui/pickers/MuiPickersUtilsProvider";
 import DateFnsUtils from "@material-ui/lab/AdapterDateFns";
@@ -33,8 +33,8 @@ export default class AddHomework extends React.Component<
       tasks: [{ title: "",
                 description: "",
                 maxRating: 10,
-                publicationDate: new Date(),
-                deadlineDate: new Date(new Date().setDate(7))
+                // publicationDate: new Date(),
+                // deadlineDate: new Date(new Date().setDate(7))
               }],
       added: false,
     };
@@ -118,7 +118,7 @@ export default class AddHomework extends React.Component<
                     name={task.description}
                     onChange={(e) => (task.description = e.target.value)}
                   />
-                  <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                  {/* <MuiPickersUtilsProvider utils={DateFnsUtils}>
                     <DateTimePicker
                       renderInput={(props) => <TextField {...props} />}
                       label="Крайний срок решения задачи"
@@ -127,7 +127,7 @@ export default class AddHomework extends React.Component<
                         task.deadlineDate = newValue
                       }}
                     />
-                  </MuiPickersUtilsProvider>
+                  </MuiPickersUtilsProvider> */}
                 </li>
               ))}
             </ol>
@@ -141,8 +141,8 @@ export default class AddHomework extends React.Component<
                     title: "",
                     description: "",
                     maxRating: 10,
-                    publicationDate: new Date(),
-                    deadlineDate: new Date(new Date().setDate(7))
+                    // publicationDate: new Date(),
+                    // deadlineDate: new Date(new Date().setDate(7))
                   }],
                 })
               }

@@ -2,7 +2,7 @@ import * as React from "react";
 import ListItem from "@material-ui/core/ListItem";
 import List from "@material-ui/core/List";
 import { Typography } from "@material-ui/core";
-import { HomeworkViewModel } from "../api/homeworks";
+import { HomeworkViewModel } from "../api";
 import Homework from "./Homework";
 
 interface ICourseHomeworkProps {
@@ -12,13 +12,7 @@ interface ICourseHomeworkProps {
   onDelete: () => void;
 }
 
-export default class CourseHomework extends React.Component<
-  ICourseHomeworkProps,
-  {}
-> {
-  constructor(props: ICourseHomeworkProps) {
-    super(props);
-  }
+export default class CourseHomework extends React.Component<ICourseHomeworkProps, {}> {
 
   public render() {
     let homeworkList = this.props.homework
