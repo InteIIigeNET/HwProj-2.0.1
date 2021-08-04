@@ -66,8 +66,7 @@ namespace HwProj.CoursesService.Client
             };
 
             var response = await _httpClient.SendAsync(httpRequest);
-            var data = await response.DeserializeAsync<long>();
-            return data;
+            return await response.DeserializeAsync<long>();;
         }
         
         public async Task UpdateCourse(UpdateCourseViewModel model, long courseId)
@@ -89,7 +88,7 @@ namespace HwProj.CoursesService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _coursesServiceUri + $"api/Courses/sign_in_course/{courseId}?studentId={studentId}");
+                _coursesServiceUri + $"api/Courses/signInCourse/{courseId}?studentId={studentId}");
             
             await _httpClient.SendAsync(httpRequest);
         }
@@ -98,7 +97,7 @@ namespace HwProj.CoursesService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _coursesServiceUri + $"api/Courses/accept_student/{courseId}?studentId={studentId}");
+                _coursesServiceUri + $"api/Courses/acceptStudent/{courseId}?studentId={studentId}");
             
             await _httpClient.SendAsync(httpRequest);
         }
@@ -107,7 +106,7 @@ namespace HwProj.CoursesService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _coursesServiceUri + $"api/Courses/reject_student/{courseId}?studentId={studentId}");
+                _coursesServiceUri + $"api/Courses/rejectStudent/{courseId}?studentId={studentId}");
             
             await _httpClient.SendAsync(httpRequest);
         }
@@ -116,11 +115,10 @@ namespace HwProj.CoursesService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get, 
-                _coursesServiceUri + $"api/Courses/user_courses/{userId}");
+                _coursesServiceUri + $"api/Courses/userCourses/{userId}");
 
             var response = await _httpClient.SendAsync(httpRequest);
-            var data = await response.DeserializeAsync<UserCourseDescription[]>();
-            return data;
+            return await response.DeserializeAsync<UserCourseDescription[]>();
         }
 
         public async Task<long> AddHomeworkToCourse(CreateHomeworkViewModel model, long courseId)
@@ -134,10 +132,9 @@ namespace HwProj.CoursesService.Client
                     Encoding.UTF8,
                     "application/json")
             };
-            
+
             var response = await _httpClient.SendAsync(httpRequest);
-            var data = await response.DeserializeAsync<long>();
-            return data;
+            return await response.DeserializeAsync<long>();
         }
         
         public async Task UpdateHomework(CreateHomeworkViewModel model, long homeworkId)

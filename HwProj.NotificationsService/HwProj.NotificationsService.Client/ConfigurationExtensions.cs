@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Net.Http;
-using HwProj.NotificationsService.Client;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace HwProj.AuthService.Client
+namespace HwProj.NotificationsService.Client
 {
     public static class ConfigurationExtensions
     {

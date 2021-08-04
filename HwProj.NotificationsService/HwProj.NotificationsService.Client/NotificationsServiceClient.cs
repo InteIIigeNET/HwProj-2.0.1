@@ -11,7 +11,6 @@ namespace HwProj.NotificationsService.Client
     public class NotificationsServiceClient: INotificationsServiceClient
     {
         private readonly HttpClient _httpClient;
-
         private readonly Uri _notificationServiceUri;
 
         public NotificationsServiceClient(HttpClient httpClient, Uri notificationServiceUri)
@@ -30,15 +29,14 @@ namespace HwProj.NotificationsService.Client
             httpRequest.Content = new StringContent(jsonFilter, Encoding.UTF8, "application/json");
             
             var response = await _httpClient.SendAsync(httpRequest);
-            var data = await response.DeserializeAsync<NotificationViewModel[]>();
-            return data ?? new NotificationViewModel[] { };
+            return await response.DeserializeAsync<NotificationViewModel[]>() ?? new NotificationViewModel[] { };
         }
 
         public async Task MarkAsSeen(string userId, long[] notificationIds)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Put,
-                _notificationServiceUri + $"api/notifications/mark_as_seen/" + userId);
+                _notificationServiceUri + $"api/notifications/markAsSeen/" + userId);
 
             var jsonIds = JsonConvert.SerializeObject(notificationIds);
             httpRequest.Content = new StringContent(jsonIds, Encoding.UTF8, "application/json");

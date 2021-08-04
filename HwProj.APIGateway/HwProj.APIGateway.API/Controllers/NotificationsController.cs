@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace HwProj.APIGateway.API.Controllers
 {
-    [Route("api/notifications")]
+    [Route("api/[controller]")]
     [ApiController]
     public class NotificationsController : ControllerBase
     {
@@ -27,7 +27,7 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok(result);
         }
 
-        [HttpPut("mark_as_seen")]
+        [HttpPut("markAsSeen")]
         public async Task<IActionResult> MarkAsSeen([FromBody] long[] notificationIds)
         {
             var userId = Request.GetUserId();

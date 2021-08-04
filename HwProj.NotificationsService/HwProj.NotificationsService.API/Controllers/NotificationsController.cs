@@ -25,7 +25,7 @@ namespace HwProj.NotificationsService.API.Controllers
             return Ok(notifications ?? new NotificationViewModel[] { });
         }
 
-        [HttpPut("mark_as_seen/{userId}")]
+        [HttpPut("markAsSeen/{userId}")]
         public async Task<IActionResult> MarkNotifications([FromBody] long[] notificationIds, string userId)
         {
             await _notificationsService.MarkAsSeenAsync(userId, notificationIds);

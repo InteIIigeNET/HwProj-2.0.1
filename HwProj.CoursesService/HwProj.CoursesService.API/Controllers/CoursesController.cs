@@ -72,7 +72,7 @@ namespace HwProj.CoursesService.API.Controllers
             return Ok();
         }
 
-        [HttpPost("sign_in_course/{courseId}")]
+        [HttpPost("signInCourse/{courseId}")]
         public async Task<IActionResult> SignInCourse(long courseId, [FromQuery] string studentId)
         {
             return await _coursesService.AddStudentAsync(courseId, studentId)
@@ -80,7 +80,7 @@ namespace HwProj.CoursesService.API.Controllers
                 : NotFound() as IActionResult;
         }
 
-        [HttpPost("accept_student/{courseId}")]
+        [HttpPost("acceptStudent/{courseId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> AcceptStudent(long courseId, [FromQuery] string studentId)
         {
@@ -89,7 +89,7 @@ namespace HwProj.CoursesService.API.Controllers
                 : NotFound() as IActionResult;
         }
 
-        [HttpPost("reject_student/{courseId}")]
+        [HttpPost("rejectStudent/{courseId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> RejectStudent(long courseId, [FromQuery] string studentId)
         {
@@ -98,7 +98,7 @@ namespace HwProj.CoursesService.API.Controllers
                 : NotFound() as IActionResult;
         }
 
-        [HttpGet("user_courses/{userId}")]
+        [HttpGet("userСourses/{userId}")]
         public async Task<IActionResult> GetCourses(string userId)
         {
             var courses = await _coursesService.GetUserCoursesAsync(userId);

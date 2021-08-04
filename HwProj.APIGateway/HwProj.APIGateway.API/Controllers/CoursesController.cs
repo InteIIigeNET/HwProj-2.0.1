@@ -65,7 +65,7 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok();
         }
         
-        [HttpPost("sign_in_course/{courseId}")]
+        [HttpPost("signInCourse/{courseId}")]
         [Authorize]
         public async Task<IActionResult> SignInCourse(long courseId)
         {
@@ -74,7 +74,7 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok();
         }
         
-        [HttpPost("accept_student/{courseId}")]
+        [HttpPost("acceptStudent/{courseId}")]
         [Authorize(Roles = Roles.LecturerRole)]
         public async Task<IActionResult> AcceptStudent(long courseId)
         {
@@ -83,7 +83,7 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok();
         }
         
-        [HttpPost("reject_student/{courseId}")]
+        [HttpPost("rejectStudent/{courseId}")]
         [Authorize(Roles = Roles.LecturerRole)]
         public async Task<IActionResult> RejectStudent(long courseId)
         {
@@ -92,7 +92,7 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok();
         }
         
-        [HttpGet("user_courses")]
+        [HttpGet("userСourses")]
         [Authorize]
         [ProducesResponseType(typeof(UserCourseDescription[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetAllUserCourses()
