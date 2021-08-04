@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.API.Events;
@@ -21,10 +22,16 @@ namespace HwProj.NotificationsService.API.EventHandlers
         public async Task HandleAsync(NewCourseMateEvent @event)
         {
             var user = await _authClient.GetAccountData(@event.StudentId);
-            var notification = new Notification
+
+            await _notificationRepository.AddAsync(new Notification
             {
-                Body = $"Студент {user.Name} {user.Surname} записался на курс {@event.CourseName}"
-            };
+                Sender = "CourseService",
+                Body = $"Пользователь {user.Name} {user.Surname} подал заявку на вступление в курс {@event.CourseName}",
+                Category = "CourseService",
+                Date = DateTime.UtcNow,
+                HasSeen = false,
+                Owner = @event.MentorId
+            });
         }
     }
 }

@@ -74,20 +74,18 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok();
         }
         
-        [HttpPost("acceptStudent/{courseId}")]
+        [HttpPost("acceptStudent/{courseId}/{studentId}")]
         [Authorize(Roles = Roles.LecturerRole)]
-        public async Task<IActionResult> AcceptStudent(long courseId)
+        public async Task<IActionResult> AcceptStudent(long courseId, string studentId)
         {
-            var studentId = Request.GetUserId();
             await _coursesClient.AcceptStudent(courseId, studentId);
             return Ok();
         }
         
-        [HttpPost("rejectStudent/{courseId}")]
+        [HttpPost("rejectStudent/{courseId}/{studentId}")]
         [Authorize(Roles = Roles.LecturerRole)]
-        public async Task<IActionResult> RejectStudent(long courseId)
+        public async Task<IActionResult> RejectStudent(long courseId, string studentId)
         {
-            var studentId = Request.GetUserId();
             await _coursesClient.RejectStudent(courseId, studentId);
             return Ok();
         }

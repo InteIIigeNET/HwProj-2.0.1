@@ -55,56 +55,15 @@ export default class NewCourseStudents extends React.Component<INewCourseStudent
         )
     }
 
-    // acceptStudent(studentId: string) {
-    //     ApiSingleton.coursesApi.apiCoursesAcceptStudentByCourseIdPost(this.props.course.id!, studentId)
-    //         .then(res => this.props.onUpdate());
-    // }
+    acceptStudent(studentId: string) {
+        const token = ApiSingleton.authService.getToken();
+        ApiSingleton.coursesApi.apiCoursesAcceptStudentByCourseIdByStudentIdPost(this.props.course.id!, studentId, { headers: {"Authorization": `Bearer ${token}`} })
+            .then(res => this.props.onUpdate());
+    }
 
-    // rejectStudent(studentId: string) {
-    //     ApiSingleton.coursesApi.apiCoursesRejectStudentByCourseIdPost(this.props.course.id!, studentId)
-    //         .then(res => this.props.onUpdate());
-    // }
-
-    async acceptStudent(studentId: string) {
-
-        const course = await ApiSingleton.courseService.getCourseById(+this.props.courseId)
-        const courseMates = course.courseMates.map((cm: any) => {
-            if (String(cm.studentId) === studentId) {
-                cm.isAccepted = true
-            }
-            return cm
-        })
-        
-        const courseModel = {
-            name: course.name,
-            groupName: course.groupName,
-            isOpen: course.isOpen,
-            isCompleted: course.isCompleted,
-            course: course.course,
-            mentor: course.mentor,
-            homeworks: course.homeworks,
-            courseMates: courseMates,
-        }
-
-        await ApiSingleton.courseService.updateStudent(+this.props.courseId, courseModel)
-        this.props.onUpdate()
-    }   
-
-    async rejectStudent(studentId: string) {
-        const course = await ApiSingleton.courseService.getCourseById(+this.props.courseId)
-        const courseMates = course.courseMates.filter((cm: any) => String(cm.studentId) != studentId)
-        
-        const courseModel = {
-            name: course.name,
-            groupName: course.groupName,
-            isOpen: course.isOpen,
-            isCompleted: course.isCompleted,
-            course: course.course,
-            mentor: course.mentor,
-            homeworks: course.homeworks,
-            courseMates: courseMates,
-        }
-        await ApiSingleton.courseService.updateStudent(+this.props.courseId, courseModel)
-        this.props.onUpdate()
+    rejectStudent(studentId: string) {
+        const token = ApiSingleton.authService.getToken();
+        ApiSingleton.coursesApi.apiCoursesRejectStudentByCourseIdByStudentIdPost(this.props.course.id!, studentId, { headers: {"Authorization": `Bearer ${token}`} })
+            .then(res => this.props.onUpdate());
     }
 }

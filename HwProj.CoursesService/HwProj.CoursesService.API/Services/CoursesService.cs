@@ -79,7 +79,7 @@ namespace HwProj.CoursesService.API.Services
             {
                 CourseId = courseId,
                 StudentId = studentId,
-                IsAccepted = course.IsOpen
+                IsAccepted = false
             };
 
             await _courseMatesRepository.AddAsync(courseMate);
@@ -89,7 +89,7 @@ namespace HwProj.CoursesService.API.Services
                 CourseName = course.Name,
                 MentorId = course.MentorId,
                 StudentId = studentId,
-                IsAccepted = course.IsOpen
+                IsAccepted = false
             });
 
             return true;

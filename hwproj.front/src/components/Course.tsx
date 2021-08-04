@@ -202,8 +202,9 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
     }
 
     joinCourse() {
+        const token = ApiSingleton.authService.getToken();
         ApiSingleton.coursesApi
-            .apiCoursesSignInCourseByCourseIdPost(+this.props.match.params.id, 55)
+            .apiCoursesSignInCourseByCourseIdPost(+this.props.match.params.id, { headers: {"Authorization": `Bearer ${token}`} })
             .then((res) => this.componentDidMount());
     }
 

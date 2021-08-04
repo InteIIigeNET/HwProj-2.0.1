@@ -1765,16 +1765,22 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
         /**
          * 
          * @param {number} courseId 
+         * @param {string} studentId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCoursesAcceptStudentByCourseIdPost(courseId: number, options: any = {}): FetchArgs {
+        apiCoursesAcceptStudentByCourseIdByStudentIdPost(courseId: number, studentId: string, options: any = {}): FetchArgs {
             // verify required parameter 'courseId' is not null or undefined
             if (courseId === null || courseId === undefined) {
-                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesAcceptStudentByCourseIdPost.');
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesAcceptStudentByCourseIdByStudentIdPost.');
             }
-            const localVarPath = `/api/Courses/acceptStudent/{courseId}`
-                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
+            // verify required parameter 'studentId' is not null or undefined
+            if (studentId === null || studentId === undefined) {
+                throw new RequiredError('studentId','Required parameter studentId was null or undefined when calling apiCoursesAcceptStudentByCourseIdByStudentIdPost.');
+            }
+            const localVarPath = `/api/Courses/acceptStudent/{courseId}/{studentId}`
+                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)))
+                .replace(`{${"studentId"}}`, encodeURIComponent(String(studentId)));
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
@@ -2114,16 +2120,22 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
         /**
          * 
          * @param {number} courseId 
+         * @param {string} studentId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCoursesRejectStudentByCourseIdPost(courseId: number, options: any = {}): FetchArgs {
+        apiCoursesRejectStudentByCourseIdByStudentIdPost(courseId: number, studentId: string, options: any = {}): FetchArgs {
             // verify required parameter 'courseId' is not null or undefined
             if (courseId === null || courseId === undefined) {
-                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesRejectStudentByCourseIdPost.');
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesRejectStudentByCourseIdByStudentIdPost.');
             }
-            const localVarPath = `/api/Courses/rejectStudent/{courseId}`
-                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
+            // verify required parameter 'studentId' is not null or undefined
+            if (studentId === null || studentId === undefined) {
+                throw new RequiredError('studentId','Required parameter studentId was null or undefined when calling apiCoursesRejectStudentByCourseIdByStudentIdPost.');
+            }
+            const localVarPath = `/api/Courses/rejectStudent/{courseId}/{studentId}`
+                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)))
+                .replace(`{${"studentId"}}`, encodeURIComponent(String(studentId)));
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
@@ -2234,11 +2246,12 @@ export const CoursesApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @param {number} courseId 
+         * @param {string} studentId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCoursesAcceptStudentByCourseIdPost(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesAcceptStudentByCourseIdPost(courseId, options);
+        apiCoursesAcceptStudentByCourseIdByStudentIdPost(courseId: number, studentId: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesAcceptStudentByCourseIdByStudentIdPost(courseId, studentId, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -2453,11 +2466,12 @@ export const CoursesApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @param {number} courseId 
+         * @param {string} studentId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCoursesRejectStudentByCourseIdPost(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesRejectStudentByCourseIdPost(courseId, options);
+        apiCoursesRejectStudentByCourseIdByStudentIdPost(courseId: number, studentId: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesRejectStudentByCourseIdByStudentIdPost(courseId, studentId, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -2534,11 +2548,12 @@ export const CoursesApiFactory = function (configuration?: Configuration, fetch?
         /**
          * 
          * @param {number} courseId 
+         * @param {string} studentId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCoursesAcceptStudentByCourseIdPost(courseId: number, options?: any) {
-            return CoursesApiFp(configuration).apiCoursesAcceptStudentByCourseIdPost(courseId, options)(fetch, basePath);
+        apiCoursesAcceptStudentByCourseIdByStudentIdPost(courseId: number, studentId: string, options?: any) {
+            return CoursesApiFp(configuration).apiCoursesAcceptStudentByCourseIdByStudentIdPost(courseId, studentId, options)(fetch, basePath);
         },
         /**
          * 
@@ -2645,11 +2660,12 @@ export const CoursesApiFactory = function (configuration?: Configuration, fetch?
         /**
          * 
          * @param {number} courseId 
+         * @param {string} studentId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCoursesRejectStudentByCourseIdPost(courseId: number, options?: any) {
-            return CoursesApiFp(configuration).apiCoursesRejectStudentByCourseIdPost(courseId, options)(fetch, basePath);
+        apiCoursesRejectStudentByCourseIdByStudentIdPost(courseId: number, studentId: string, options?: any) {
+            return CoursesApiFp(configuration).apiCoursesRejectStudentByCourseIdByStudentIdPost(courseId, studentId, options)(fetch, basePath);
         },
         /**
          * 
@@ -2691,12 +2707,13 @@ export class CoursesApi extends BaseAPI {
     /**
      * 
      * @param {number} courseId 
+     * @param {string} studentId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CoursesApi
      */
-    public apiCoursesAcceptStudentByCourseIdPost(courseId: number, options?: any) {
-        return CoursesApiFp(this.configuration).apiCoursesAcceptStudentByCourseIdPost(courseId, options)(this.fetch, this.basePath);
+    public apiCoursesAcceptStudentByCourseIdByStudentIdPost(courseId: number, studentId: string, options?: any) {
+        return CoursesApiFp(this.configuration).apiCoursesAcceptStudentByCourseIdByStudentIdPost(courseId, studentId, options)(this.fetch, this.basePath);
     }
 
     /**
@@ -2826,12 +2843,13 @@ export class CoursesApi extends BaseAPI {
     /**
      * 
      * @param {number} courseId 
+     * @param {string} studentId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CoursesApi
      */
-    public apiCoursesRejectStudentByCourseIdPost(courseId: number, options?: any) {
-        return CoursesApiFp(this.configuration).apiCoursesRejectStudentByCourseIdPost(courseId, options)(this.fetch, this.basePath);
+    public apiCoursesRejectStudentByCourseIdByStudentIdPost(courseId: number, studentId: string, options?: any) {
+        return CoursesApiFp(this.configuration).apiCoursesRejectStudentByCourseIdByStudentIdPost(courseId, studentId, options)(this.fetch, this.basePath);
     }
 
     /**
