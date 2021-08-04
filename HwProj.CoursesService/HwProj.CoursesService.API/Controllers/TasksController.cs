@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.CoursesService.API.Controllers
 {
-    [Route("api/Courses/Homeworks/{homeworkId}/[controller]")]
+    [Route("api/Courses/Homeworks/[controller]")]
     [ApiController]
     public class TasksController : Controller
     {
@@ -29,9 +29,8 @@ namespace HwProj.CoursesService.API.Controllers
                 : Ok(_mapper.Map<HomeworkTaskViewModel>(task)) as IActionResult;
         }
         
-        [HttpPost("add")]
-        public async Task<long> AddTask(long homeworkId,
-            [FromBody] CreateTaskViewModel taskViewModel)
+        [HttpPost("/{homeworkId}/add")]
+        public async Task<long> AddTask(long homeworkId, [FromBody] CreateTaskViewModel taskViewModel)
         {
             var task = _mapper.Map<HomeworkTask>(taskViewModel);
             var taskId = await _tasksService.AddTaskAsync(homeworkId, task);
@@ -45,8 +44,7 @@ namespace HwProj.CoursesService.API.Controllers
         }
         
         [HttpPost("update/{taskId}")]
-        public async Task UpdateTask(long taskId,
-            [FromBody] CreateTaskViewModel taskViewModel)
+        public async Task UpdateTask(long taskId, [FromBody] CreateTaskViewModel taskViewModel)
         {
             await _tasksService.UpdateTaskAsync(taskId, new HomeworkTask()
             {

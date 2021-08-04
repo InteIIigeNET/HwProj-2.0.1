@@ -30,12 +30,12 @@ namespace HwProj.CoursesService.Client
 
         Task DeleteHomework(long homeworkId);
         
-        Task<HomeworkTaskViewModel> GetTask(long homeworkId, long taskId);
+        Task<HomeworkTaskViewModel> GetTask(long taskId);
 
         Task<long> AddTask(CreateTaskViewModel taskViewModel, long homeworkId);
         
-        Task DeleteTask(long homeworkId, long taskId);
+        Task DeleteTask(long taskId);
 
-        Task UpdateTask(CreateTaskViewModel taskViewModel, long homeworkId, long taskId);
+        Task UpdateTask(CreateTaskViewModel taskViewModel, long taskId);
     }
 }
