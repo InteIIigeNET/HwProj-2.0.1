@@ -8,6 +8,8 @@ namespace HwProj.Models.CoursesService.ViewModels
         public string Title { get; set; }
         
         public string Description { get; set; }
+
+        public List<CreateTaskViewModel> Tasks { get; set; } = new List<CreateTaskViewModel>();
     }
 
     public class HomeworkViewModel

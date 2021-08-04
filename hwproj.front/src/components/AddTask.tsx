@@ -31,7 +31,7 @@ export default class AddTask extends React.Component<
     e.preventDefault();
     const token = ApiSingleton.authService.getToken()
     await ApiSingleton.coursesApi.apiCoursesHomeworksByHomeworkIdTasksAddPost(this.props.id, this.state, { headers: {"Authorization": `Bearer ${token}`} });
-    this.props.onCancel()
+    this.props.onAdding()
   }
 
   public render() {

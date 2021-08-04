@@ -49,7 +49,7 @@ export default class Homework extends React.Component<IHomeworkProps, IHomeworkS
                         <HomeworkTasks onDelete={() => this.props.onDeleteClick()} tasks={this.props.homework.tasks!} forStudent={this.props.forStudent} forMentor={this.props.forMentor} />
                         <AddTask
                             id={this.props.homework.id!}
-                            onAdding={() => this.setState({createTask: false})}
+                            onAdding={() => window.location.reload()}
                             onCancel={() => this.setState({createTask: false})}
                             update={() => this.props.onDeleteClick()} 
                         />

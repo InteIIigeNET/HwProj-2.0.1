@@ -23,7 +23,7 @@ export default class HomeworkTasks extends React.Component<IHomeworkTasksProps, 
                                     forStudent={this.props.forStudent}
                                     forMentor={this.props.forMentor}
                                     onDeleteClick={() => this.props.onDelete()}
-                                />
+                                    />
                             </li>
                         )
                     })}

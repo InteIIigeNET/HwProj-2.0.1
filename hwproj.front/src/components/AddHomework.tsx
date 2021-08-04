@@ -64,9 +64,6 @@ export default class AddHomework extends React.Component<
             name={this.state.description}
             onChange={(e) => this.setState({ description: e.target.value })}
           />
-          {
-            console.log(this.state.tasks)
-          }
           <div className="container">
             <ol>
               {this.state.tasks.map((task, index) => (
@@ -174,20 +171,20 @@ export default class AddHomework extends React.Component<
   }
 
   async handleSubmit(e: any) {
+    debugger;
     e.preventDefault();
 
-    console.log(this.state.tasks)
-    debugger
-    return
-
-    // const homework = {
-    //   title: this.state.title,
-    //   description: this.state.description,
-    //   tasks: this.state.tasks,
-    //   date: new Date()
-    // }
-    // await ApiSingleton.courseService.addHomework(homework, this.props.id)
-    // this.setState({ added: true })
-    // this.props.onSubmit()
+    const homework = {
+      title: this.state.title,
+      description: this.state.description,
+      tasks: this.state.tasks,
+      date: new Date()
+    }
+    debugger;
+    const token = ApiSingleton.authService.getToken()
+    await ApiSingleton.coursesApi.apiCoursesHomeworksByCourseIdAddPost(this.props.id, homework, { headers: {"Authorization": `Bearer ${token}`} })
+    debugger;
+    this.setState({ added: true })
+    this.props.onSubmit()
   }
 }
