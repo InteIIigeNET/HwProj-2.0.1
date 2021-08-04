@@ -17,12 +17,7 @@ namespace HwProj.CoursesService.API.Services
             _tasksRepository = tasksRepository;
             _eventBus = eventBus;
         }
-
-        public async Task<HomeworkTask[]> GetAllTasksAsync()
-        {
-            return await _tasksRepository.GetAll().ToArrayAsync();
-        }
-
+        
         public async Task<HomeworkTask> GetTaskAsync(long taskId)
         {
             return await _tasksRepository.GetAsync(taskId);

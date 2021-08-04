@@ -18,6 +18,7 @@ namespace HwProj.CoursesService.API.Repositories
             return await Context.Set<Course>()
                 .Include(c => c.CourseMates)
                 .Include(c => c.Homeworks)
+                .ThenInclude(c => c.Tasks)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
@@ -27,6 +28,7 @@ namespace HwProj.CoursesService.API.Repositories
             return Context.Set<Course>()
                 .Include(c => c.CourseMates)
                 .Include(c => c.Homeworks)
+                .ThenInclude(c => c.Tasks)
                 .AsNoTracking();
         }
     }

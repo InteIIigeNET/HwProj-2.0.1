@@ -20,13 +20,6 @@ namespace HwProj.CoursesService.API.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet]
-        public async Task<HomeworkTaskViewModel[]> GetAllTasks()
-        {
-            var tasks = await _tasksService.GetAllTasksAsync();
-            return _mapper.Map<HomeworkTaskViewModel[]>(tasks);
-        }
-        
         [HttpGet("get/{taskId}")]
         public async Task<IActionResult> GetTask(long taskId)
         {

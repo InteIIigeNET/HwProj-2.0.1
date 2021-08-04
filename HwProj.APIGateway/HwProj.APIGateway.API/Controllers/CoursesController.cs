@@ -129,32 +129,6 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok();
         }
         
-        [HttpPost("Homeworks/{homeworkId}/Tasks/add")]
-        [Authorize(Roles = Roles.LecturerRole)]
-        [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> AddTask(CreateTaskViewModel taskViewModel, long homeworkId)
-        {
-            var result = await _coursesClient.AddTask(homeworkId, taskViewModel);
-            return Ok(result);
-        } 
-        
-        [HttpPut("Homeworks/{homeworkId}/Tasks/update/{taskId}")]
-        [Authorize(Roles = Roles.LecturerRole)]
-        public async Task<IActionResult> UpdateTask(CreateTaskViewModel taskViewModel,
-            long homeworkId, long taskId)
-        {
-            await _coursesClient.UpdateTask(homeworkId, taskId, taskViewModel);
-            return Ok();
-        }
-        
-        [HttpDelete("Homeworks/{homeworkId}/Tasks/delete/{taskId}")]
-        [Authorize(Roles = Roles.LecturerRole)]
-        public async Task<IActionResult> DeleteTask(long homeworkId, long taskId)
-        {
-            await _coursesClient.DeleteTask(homeworkId, taskId);
-            return Ok();
-        }
-        
         [HttpGet("Homeworks/{homeworkId}/Tasks/get/{taskId}")]
         [ProducesResponseType(typeof(HomeworkTaskViewModel), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetTask(long homeworkId, long taskId)
@@ -163,6 +137,31 @@ namespace HwProj.APIGateway.API.Controllers
             return result == null
                 ? NotFound()
                 : Ok(result) as IActionResult;
+        }
+        
+        [HttpPost("Homeworks/{homeworkId}/Tasks/add")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> AddTask(CreateTaskViewModel taskViewModel, long homeworkId)
+        {
+            var result = await _coursesClient.AddTask(taskViewModel, homeworkId);
+            return Ok(result);
+        }
+
+        [HttpDelete("Homeworks/{homeworkId}/Tasks/delete/{taskId}")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        public async Task<IActionResult> DeleteTask(long homeworkId, long taskId)
+        {
+            await _coursesClient.DeleteTask(homeworkId, taskId);
+            return Ok();
+        }
+        
+        [HttpPut("Homeworks/{homeworkId}/Tasks/update/{taskId}")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        public async Task<IActionResult> UpdateTask(CreateTaskViewModel taskViewModel, long homeworkId, long taskId)
+        {
+            await _coursesClient.UpdateTask(taskViewModel, homeworkId, taskId);
+            return Ok();
         }
     }
 }
