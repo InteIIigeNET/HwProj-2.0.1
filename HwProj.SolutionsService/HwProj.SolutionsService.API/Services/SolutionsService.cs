@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using HwProj.EventBus.Client.Interfaces;
+using HwProj.Models.SolutionsService;
 using HwProj.SolutionsService.API.Events;
 using HwProj.SolutionsService.API.Models;
 using HwProj.SolutionsService.API.Repositories;

@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using AutoMapper;
+using HwProj.Models.SolutionsService;
 using HwProj.SolutionsService.API.Models;
 using HwProj.SolutionsService.API.Services;
 using Microsoft.AspNetCore.Mvc;

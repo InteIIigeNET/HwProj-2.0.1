@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using HwProj.SolutionsService.API.Models;
+using HwProj.Models.SolutionsService;
 
 namespace HwProj.SolutionsService.Client
 {

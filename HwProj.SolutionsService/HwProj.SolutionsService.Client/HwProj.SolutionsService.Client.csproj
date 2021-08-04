@@ -15,7 +15,6 @@
     <ItemGroup>
       <ProjectReference Include="..\..\HwProj.Common\HwProj.HttpUtils\HwProj.HttpUtils.csproj" />
       <ProjectReference Include="..\..\HwProj.Common\HwProj.Models\HwProj.Models.csproj" />
-      <ProjectReference Include="..\HwProj.SolutionsService.API\HwProj.SolutionsService.API.csproj" />
     </ItemGroup>
     
 </Project>
