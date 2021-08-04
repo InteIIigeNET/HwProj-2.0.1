@@ -1,0 +1,22 @@
+﻿using System.Threading.Tasks;
+using HwProj.SolutionsService.API.Models;
+
+namespace HwProj.SolutionsService.Client
+{
+    public interface ISolutionsServiceClient
+    { 
+        Task<Solution[]> GetAllSolutions();
+
+        Task<Solution> GetSolutionById(long solutionId);
+
+        Task<Solution[]> GetAllUserSolutions(long taskId, string studentId);
+
+        Task<long> PostSolution(SolutionViewModel model, long taskId);
+
+        Task RateSolution(long solutionId, int newRating);
+
+        Task MarkSolution(long solutionId);
+
+        Task DeleteSolution(long solutionId);
+    }
+}
