@@ -1,8 +1,8 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
 using HwProj.Models.Roles;
+using HwProj.Models.SolutionsService;
 using HwProj.NotificationsService.Client;
-using HwProj.SolutionsService.API.Models;
 using HwProj.SolutionsService.Client;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Authorization;

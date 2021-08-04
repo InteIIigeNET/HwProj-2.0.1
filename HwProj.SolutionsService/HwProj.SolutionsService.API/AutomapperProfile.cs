@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using HwProj.Models.SolutionsService;
 using HwProj.SolutionsService.API.Models;
 
 namespace HwProj.SolutionsService.API

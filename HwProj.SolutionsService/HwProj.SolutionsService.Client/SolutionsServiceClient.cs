@@ -3,7 +3,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using HwProj.HttpUtils;
-using HwProj.SolutionsService.API.Models;
+using HwProj.Models.SolutionsService;
 using Newtonsoft.Json;
 
 namespace HwProj.SolutionsService.Client

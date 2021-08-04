@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace HwProj.SolutionsService.API.Models
+namespace HwProj.Models.SolutionsService
 {
     public class Solution : IEntity<long>
     {

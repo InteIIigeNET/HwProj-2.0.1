@@ -1,4 +1,4 @@
-﻿namespace HwProj.SolutionsService.API.Models
+﻿namespace HwProj.Models.SolutionsService
 {
     public class SolutionViewModel
     {
