@@ -37,13 +37,13 @@ export default class TaskSolutionsPage extends React.Component<
 
   public render() {
     const { isLoaded } = this.state;
-    let userId = ApiSingleton.authService.getLogginStateFake()
-      ? ApiSingleton.authService.getUserIdFake().toString()
+    let userId = ApiSingleton.authService.isLoggedIn()
+      ? ApiSingleton.authService.getUserId()
       : undefined;
 
     if (isLoaded) {
       if (
-        !ApiSingleton.authService.getLogginStateFake() ||
+        !ApiSingleton.authService.isLoggedIn() ||
         userId == this.state.course.mentorId ||
         !this.state.course.courseMates!.some(
           (cm) => cm.isAccepted! && cm.studentId == userId
@@ -112,39 +112,29 @@ export default class TaskSolutionsPage extends React.Component<
     return "";
   }
 
-  async componentDidMount() {
-    const task = await ApiSingleton.taskService.getTaskByTaskId(+this.props.match.params.taskId)
-    const homework = await ApiSingleton.taskService.getHomeworkByTaskId(+this.props.match.params.taskId)
-    const course = await ApiSingleton.courseService.getCourseByHomeworkId(homework.id)
-    this.setState({
-      isLoaded: true,
-      addSolution: false,
-      task: task,
-      course: course
-    })
-  }
+  componentDidMount() {
+    const token = ApiSingleton.authService.getToken();
+    ApiSingleton.coursesApi
+      .apiCoursesHomeworksTasksGetByTaskIdGet(+this.props.match.params.taskId)
+      .then((task) =>
+        ApiSingleton.coursesApi
+          .apiCoursesHomeworksGetByHomeworkIdGet(task.homeworkId!, { headers: {"Authorization": `Bearer ${token}`} })
+          .then((homework) =>
+            ApiSingleton.coursesApi
+              .apiCoursesByCourseIdGet(homework.courseId!)
+              .then((course) =>
+              {
 
-  // componentDidMount() {
-  //   ApiSingleton.tasksApi
-  //     .apiTasksGetByTaskIdGet(+this.props.match.params.taskId)
-  //     .then((res) => res.json())
-  //     .then((task) =>
-  //       ApiSingleton.homeworksApi
-  //         .apiHomeworksGetByHomeworkIdGet(task.homeworkId)
-  //         .then((res) => res.json())
-  //         .then((homework) =>
-  //           ApiSingleton.coursesApi
-  //             .apiCoursesByCourseIdGet(homework.courseId)
-  //             .then((res) => res.json())
-  //             .then((course) =>
-  //               this.setState({
-  //                 isLoaded: true,
-  //                 addSolution: false,
-  //                 task: task,
-  //                 course: course,
-  //               })
-  //             )
-  //         )
-  //     );
-  // }
+                this.setState({
+                  isLoaded: true,
+                  addSolution: false,
+                  task: task,
+                  course: course,
+                })
+                debugger;
+              }
+              )
+          )
+      );
+  }
 }

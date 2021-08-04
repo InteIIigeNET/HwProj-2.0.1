@@ -42,20 +42,14 @@ export default class EditHomework extends React.Component<
       title: this.state.title,
       description: this.state.description,
     };
-
-    await ApiSingleton.homeworkService.updateHomeworkByHomeworkId(
-      +this.props.match.params.homeworkId,
-      homeworkViewModel
-    )
-
-    this.setState({ edited: true })
-
-    // ApiSingleton.homeworksApi
-    //   .apiHomeworksUpdateByHomeworkIdPut(
-    //     +this.props.match.params.homeworkId,
-    //     homeworkViewModel
-    //   )
-    //   .then((res) => this.setState({ edited: true }));
+    const token = ApiSingleton.authService.getToken();
+    ApiSingleton.coursesApi
+      .apiCoursesHomeworksUpdateByHomeworkIdPut(
+        +this.props.match.params.homeworkId,
+        homeworkViewModel,
+        { headers: {"Authorization": `Bearer ${token}`} }
+      )
+      .then((res) => this.setState({ edited: true }));
   }
 
   public render() {
@@ -64,8 +58,8 @@ export default class EditHomework extends React.Component<
     }
     if (this.state.isLoaded) {
       if (
-        !ApiSingleton.authService.getLogginStateFake() ||
-        ApiSingleton.authService.getUserIdFake().toString() != this.state.courseMentorId
+        !ApiSingleton.authService.isLoggedIn() ||
+        ApiSingleton.authService.getUserId() != this.state.courseMentorId
       ) {
         return (
           <Typography variant="h6" gutterBottom>
@@ -124,35 +118,22 @@ export default class EditHomework extends React.Component<
     return "";
   }
 
-  async componentDidMount() {
-    const homework = await ApiSingleton.homeworkService.getHomeworkById(+this.props.match.params.homeworkId)
-    const course = await ApiSingleton.courseService.getCourseByHomeworkId(+this.props.match.params.homeworkId)
-    this.setState({
-      isLoaded: true,
-      title: homework.title,
-      description: homework.description,
-      courseId: course.id,
-      courseMentorId: course.course.mentorId.toString(),
-    })
+  componentDidMount() {
+    const token = ApiSingleton.authService.getToken();
+    ApiSingleton.coursesApi
+      .apiCoursesHomeworksGetByHomeworkIdGet(+this.props.match.params.homeworkId, { headers: {"Authorization": `Bearer ${token}`} })
+      .then((homework) =>
+        ApiSingleton.coursesApi
+          .apiCoursesByCourseIdGet(homework.courseId!)
+          .then((course) =>
+            this.setState({
+              isLoaded: true,
+              title: homework.title!,
+              description: homework.description!,
+              courseId: homework.courseId!,
+              courseMentorId: course.mentorId!,
+            })
+          )
+      );
   }
-
-  // componentDidMount() {
-  //   ApiSingleton.homeworksApi
-  //     .apiHomeworksGetByHomeworkIdGet(+this.props.match.params.homeworkId)
-  //     .then((res) => res.json())
-  //     .then((homework) =>
-  //       ApiSingleton.coursesApi
-  //         .apiCoursesByCourseIdGet(homework.courseId)
-  //         .then((res) => res.json())
-  //         .then((course) =>
-  //           this.setState({
-  //             isLoaded: true,
-  //             title: homework.title,
-  //             description: homework.description,
-  //             courseId: homework.courseId,
-  //             courseMentorId: course.mentorId,
-  //           })
-  //         )
-  //     );
-  // }
 }

@@ -28,6 +28,13 @@ namespace HwProj.CoursesService.API.Controllers
             return homeworkId;
         }
 
+        [HttpGet("get/{homeworkId}")]
+        public async Task<HomeworkViewModel> GetHomework(long homeworkId)
+        {
+            var homework = await _homeworksService.GetHomeworkAsync(homeworkId);
+            return _mapper.Map<HomeworkViewModel>(homework);
+        }
+
         [HttpDelete("delete/{homeworkId}")]
         public async Task DeleteHomework(long homeworkId)
         {

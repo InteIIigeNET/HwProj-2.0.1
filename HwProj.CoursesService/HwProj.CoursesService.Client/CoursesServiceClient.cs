@@ -136,7 +136,17 @@ namespace HwProj.CoursesService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<long>();
         }
-        
+
+        public async Task<HomeworkViewModel> GetHomework(long homeworkId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + $"api/Courses/Homeworks/get/{homeworkId}");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<HomeworkViewModel>();
+        }
+
         public async Task UpdateHomework(CreateHomeworkViewModel model, long homeworkId)
         {
             using var httpRequest = new HttpRequestMessage(

@@ -1997,6 +1997,34 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @param {number} homeworkId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesHomeworksGetByHomeworkIdGet(homeworkId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'homeworkId' is not null or undefined
+            if (homeworkId === null || homeworkId === undefined) {
+                throw new RequiredError('homeworkId','Required parameter homeworkId was null or undefined when calling apiCoursesHomeworksGetByHomeworkIdGet.');
+            }
+            const localVarPath = `/api/Courses/Homeworks/get/{homeworkId}`
+                .replace(`{${"homeworkId"}}`, encodeURIComponent(String(homeworkId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {number} taskId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -2391,6 +2419,24 @@ export const CoursesApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {number} homeworkId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesHomeworksGetByHomeworkIdGet(homeworkId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<HomeworkViewModel> {
+            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesHomeworksGetByHomeworkIdGet(homeworkId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
          * @param {number} taskId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -2621,6 +2667,15 @@ export const CoursesApiFactory = function (configuration?: Configuration, fetch?
         },
         /**
          * 
+         * @param {number} homeworkId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesHomeworksGetByHomeworkIdGet(homeworkId: number, options?: any) {
+            return CoursesApiFp(configuration).apiCoursesHomeworksGetByHomeworkIdGet(homeworkId, options)(fetch, basePath);
+        },
+        /**
+         * 
          * @param {number} taskId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -2792,6 +2847,17 @@ export class CoursesApi extends BaseAPI {
      */
     public apiCoursesHomeworksDeleteByHomeworkIdDelete(homeworkId: number, options?: any) {
         return CoursesApiFp(this.configuration).apiCoursesHomeworksDeleteByHomeworkIdDelete(homeworkId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} homeworkId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CoursesApi
+     */
+    public apiCoursesHomeworksGetByHomeworkIdGet(homeworkId: number, options?: any) {
+        return CoursesApiFp(this.configuration).apiCoursesHomeworksGetByHomeworkIdGet(homeworkId, options)(this.fetch, this.basePath);
     }
 
     /**

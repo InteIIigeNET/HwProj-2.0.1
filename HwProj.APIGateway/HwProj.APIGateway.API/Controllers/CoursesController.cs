@@ -101,6 +101,15 @@ namespace HwProj.APIGateway.API.Controllers
                 ? NotFound()
                 : Ok(result) as IActionResult;
         }
+
+        [HttpGet("Homeworks/get/{homeworkId}")]
+        [Authorize]
+        [ProducesResponseType(typeof(HomeworkViewModel), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetHomework(long homeworkId)
+        {
+            var result = await _coursesClient.GetHomework(homeworkId);
+            return Ok(result);
+        } 
         
         [HttpPost("Homeworks/{courseId}/add")]
         [Authorize(Roles = Roles.LecturerRole)]
