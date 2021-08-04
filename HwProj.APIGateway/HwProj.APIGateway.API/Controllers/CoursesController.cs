@@ -92,7 +92,7 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok();
         }
         
-        [HttpGet("userСourses")]
+        [HttpGet("userCourses")]
         [Authorize]
         [ProducesResponseType(typeof(UserCourseDescription[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetAllUserCourses()

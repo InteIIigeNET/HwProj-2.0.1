@@ -98,7 +98,7 @@ namespace HwProj.CoursesService.API.Controllers
                 : NotFound() as IActionResult;
         }
 
-        [HttpGet("userСourses/{userId}")]
+        [HttpGet("userCourses/{userId}")]
         public async Task<IActionResult> GetCourses(string userId)
         {
             var courses = await _coursesService.GetUserCoursesAsync(userId);
