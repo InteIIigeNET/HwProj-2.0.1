@@ -241,7 +241,7 @@ export interface CreateCourseViewModel {
      * @type {string}
      * @memberof CreateCourseViewModel
      */
-    groupName: string;
+    groupName?: string;
     /**
      * 
      * @type {boolean}
@@ -1223,6 +1223,111 @@ export interface ResultTokenCredentials {
 /**
  * 
  * @export
+ * @interface Solution
+ */
+export interface Solution {
+    /**
+     * 
+     * @type {number}
+     * @memberof Solution
+     */
+    id?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof Solution
+     */
+    githubUrl?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Solution
+     */
+    comment?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof Solution
+     */
+    state?: Solution.StateEnum;
+    /**
+     * 
+     * @type {number}
+     * @memberof Solution
+     */
+    rating?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof Solution
+     */
+    maxRating?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof Solution
+     */
+    studentId?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof Solution
+     */
+    groupId?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof Solution
+     */
+    taskId?: number;
+}
+
+/**
+ * @export
+ * @namespace Solution
+ */
+export namespace Solution {
+    /**
+     * @export
+     * @enum {string}
+     */
+    export enum StateEnum {
+        NUMBER_0 = <any> 0,
+        NUMBER_1 = <any> 1,
+        NUMBER_2 = <any> 2,
+        NUMBER_3 = <any> 3
+    }
+}
+
+/**
+ * 
+ * @export
+ * @interface SolutionViewModel
+ */
+export interface SolutionViewModel {
+    /**
+     * 
+     * @type {string}
+     * @memberof SolutionViewModel
+     */
+    githubUrl?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof SolutionViewModel
+     */
+    comment?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof SolutionViewModel
+     */
+    studentId?: string;
+}
+
+/**
+ * 
+ * @export
  * @interface TokenCredentials
  */
 export interface TokenCredentials {
@@ -1257,7 +1362,7 @@ export interface UpdateCourseViewModel {
      * @type {string}
      * @memberof UpdateCourseViewModel
      */
-    groupName: string;
+    groupName?: string;
     /**
      * 
      * @type {boolean}
@@ -3367,6 +3472,512 @@ export class OutputCacheApi extends BaseAPI {
      */
     public outputcacheByRegionDelete(region: string, options?: any) {
         return OutputCacheApiFp(this.configuration).outputcacheByRegionDelete(region, options)(this.fetch, this.basePath);
+    }
+
+}
+
+/**
+ * SolutionsApi - fetch parameter creator
+ * @export
+ */
+export const SolutionsApiFetchParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {number} solutionId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsBySolutionIdGet(solutionId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'solutionId' is not null or undefined
+            if (solutionId === null || solutionId === undefined) {
+                throw new RequiredError('solutionId','Required parameter solutionId was null or undefined when calling apiSolutionsBySolutionIdGet.');
+            }
+            const localVarPath = `/api/Solutions/{solutionId}`
+                .replace(`{${"solutionId"}}`, encodeURIComponent(String(solutionId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} taskId 
+         * @param {SolutionViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsByTaskIdPost(taskId: number, model?: SolutionViewModel, options: any = {}): FetchArgs {
+            // verify required parameter 'taskId' is not null or undefined
+            if (taskId === null || taskId === undefined) {
+                throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling apiSolutionsByTaskIdPost.');
+            }
+            const localVarPath = `/api/Solutions/{taskId}`
+                .replace(`{${"taskId"}}`, encodeURIComponent(String(taskId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"SolutionViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} solutionId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsDeleteBySolutionIdDelete(solutionId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'solutionId' is not null or undefined
+            if (solutionId === null || solutionId === undefined) {
+                throw new RequiredError('solutionId','Required parameter solutionId was null or undefined when calling apiSolutionsDeleteBySolutionIdDelete.');
+            }
+            const localVarPath = `/api/Solutions/delete/{solutionId}`
+                .replace(`{${"solutionId"}}`, encodeURIComponent(String(solutionId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsGet(options: any = {}): FetchArgs {
+            const localVarPath = `/api/Solutions`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} solutionId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsMarkSolutionFinalBySolutionIdPost(solutionId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'solutionId' is not null or undefined
+            if (solutionId === null || solutionId === undefined) {
+                throw new RequiredError('solutionId','Required parameter solutionId was null or undefined when calling apiSolutionsMarkSolutionFinalBySolutionIdPost.');
+            }
+            const localVarPath = `/api/Solutions/markSolutionFinal/{solutionId}`
+                .replace(`{${"solutionId"}}`, encodeURIComponent(String(solutionId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} solutionId 
+         * @param {number} newRating 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsRateSolutionBySolutionIdByNewRatingPost(solutionId: number, newRating: number, options: any = {}): FetchArgs {
+            // verify required parameter 'solutionId' is not null or undefined
+            if (solutionId === null || solutionId === undefined) {
+                throw new RequiredError('solutionId','Required parameter solutionId was null or undefined when calling apiSolutionsRateSolutionBySolutionIdByNewRatingPost.');
+            }
+            // verify required parameter 'newRating' is not null or undefined
+            if (newRating === null || newRating === undefined) {
+                throw new RequiredError('newRating','Required parameter newRating was null or undefined when calling apiSolutionsRateSolutionBySolutionIdByNewRatingPost.');
+            }
+            const localVarPath = `/api/Solutions/rateSolution/{solutionId}/{newRating}`
+                .replace(`{${"solutionId"}}`, encodeURIComponent(String(solutionId)))
+                .replace(`{${"newRating"}}`, encodeURIComponent(String(newRating)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} solutionId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsTaskSolutionBySolutionIdGet(solutionId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'solutionId' is not null or undefined
+            if (solutionId === null || solutionId === undefined) {
+                throw new RequiredError('solutionId','Required parameter solutionId was null or undefined when calling apiSolutionsTaskSolutionBySolutionIdGet.');
+            }
+            const localVarPath = `/api/Solutions/taskSolution/{solutionId}`
+                .replace(`{${"solutionId"}}`, encodeURIComponent(String(solutionId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * SolutionsApi - functional programming interface
+ * @export
+ */
+export const SolutionsApiFp = function(configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {number} solutionId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsBySolutionIdGet(solutionId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Solution> {
+            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsBySolutionIdGet(solutionId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} taskId 
+         * @param {SolutionViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsByTaskIdPost(taskId: number, model?: SolutionViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
+            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsByTaskIdPost(taskId, model, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} solutionId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsDeleteBySolutionIdDelete(solutionId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsDeleteBySolutionIdDelete(solutionId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<Solution>> {
+            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsGet(options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} solutionId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsMarkSolutionFinalBySolutionIdPost(solutionId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsMarkSolutionFinalBySolutionIdPost(solutionId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} solutionId 
+         * @param {number} newRating 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsRateSolutionBySolutionIdByNewRatingPost(solutionId: number, newRating: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsRateSolutionBySolutionIdByNewRatingPost(solutionId, newRating, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} solutionId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsTaskSolutionBySolutionIdGet(solutionId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<Solution>> {
+            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsTaskSolutionBySolutionIdGet(solutionId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+    }
+};
+
+/**
+ * SolutionsApi - factory interface
+ * @export
+ */
+export const SolutionsApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         * 
+         * @param {number} solutionId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsBySolutionIdGet(solutionId: number, options?: any) {
+            return SolutionsApiFp(configuration).apiSolutionsBySolutionIdGet(solutionId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} taskId 
+         * @param {SolutionViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsByTaskIdPost(taskId: number, model?: SolutionViewModel, options?: any) {
+            return SolutionsApiFp(configuration).apiSolutionsByTaskIdPost(taskId, model, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} solutionId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsDeleteBySolutionIdDelete(solutionId: number, options?: any) {
+            return SolutionsApiFp(configuration).apiSolutionsDeleteBySolutionIdDelete(solutionId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsGet(options?: any) {
+            return SolutionsApiFp(configuration).apiSolutionsGet(options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} solutionId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsMarkSolutionFinalBySolutionIdPost(solutionId: number, options?: any) {
+            return SolutionsApiFp(configuration).apiSolutionsMarkSolutionFinalBySolutionIdPost(solutionId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} solutionId 
+         * @param {number} newRating 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsRateSolutionBySolutionIdByNewRatingPost(solutionId: number, newRating: number, options?: any) {
+            return SolutionsApiFp(configuration).apiSolutionsRateSolutionBySolutionIdByNewRatingPost(solutionId, newRating, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} solutionId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsTaskSolutionBySolutionIdGet(solutionId: number, options?: any) {
+            return SolutionsApiFp(configuration).apiSolutionsTaskSolutionBySolutionIdGet(solutionId, options)(fetch, basePath);
+        },
+    };
+};
+
+/**
+ * SolutionsApi - object-oriented interface
+ * @export
+ * @class SolutionsApi
+ * @extends {BaseAPI}
+ */
+export class SolutionsApi extends BaseAPI {
+    /**
+     * 
+     * @param {number} solutionId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SolutionsApi
+     */
+    public apiSolutionsBySolutionIdGet(solutionId: number, options?: any) {
+        return SolutionsApiFp(this.configuration).apiSolutionsBySolutionIdGet(solutionId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} taskId 
+     * @param {SolutionViewModel} [model] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SolutionsApi
+     */
+    public apiSolutionsByTaskIdPost(taskId: number, model?: SolutionViewModel, options?: any) {
+        return SolutionsApiFp(this.configuration).apiSolutionsByTaskIdPost(taskId, model, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} solutionId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SolutionsApi
+     */
+    public apiSolutionsDeleteBySolutionIdDelete(solutionId: number, options?: any) {
+        return SolutionsApiFp(this.configuration).apiSolutionsDeleteBySolutionIdDelete(solutionId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SolutionsApi
+     */
+    public apiSolutionsGet(options?: any) {
+        return SolutionsApiFp(this.configuration).apiSolutionsGet(options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} solutionId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SolutionsApi
+     */
+    public apiSolutionsMarkSolutionFinalBySolutionIdPost(solutionId: number, options?: any) {
+        return SolutionsApiFp(this.configuration).apiSolutionsMarkSolutionFinalBySolutionIdPost(solutionId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} solutionId 
+     * @param {number} newRating 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SolutionsApi
+     */
+    public apiSolutionsRateSolutionBySolutionIdByNewRatingPost(solutionId: number, newRating: number, options?: any) {
+        return SolutionsApiFp(this.configuration).apiSolutionsRateSolutionBySolutionIdByNewRatingPost(solutionId, newRating, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} solutionId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SolutionsApi
+     */
+    public apiSolutionsTaskSolutionBySolutionIdGet(solutionId: number, options?: any) {
+        return SolutionsApiFp(this.configuration).apiSolutionsTaskSolutionBySolutionIdGet(solutionId, options)(this.fetch, this.basePath);
     }
 
 }

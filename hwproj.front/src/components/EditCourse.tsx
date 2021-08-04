@@ -11,7 +11,7 @@ import ApiSingleton from "../api/ApiSingleton";
 interface IEditCourseState {
     isLoaded: boolean,
     name: string,
-    groupName: string,
+    groupName?: string,
     isOpen: boolean,
     isComplete: boolean,
     mentorId: string,
@@ -90,7 +90,6 @@ export default class EditCourse extends React.Component<RouteComponentProps<IEdi
                             />
                             <br />
                             <TextField
-                                required
                                 label="Номер группы"
                                 variant="outlined"
                                 margin="normal"
@@ -122,8 +121,7 @@ export default class EditCourse extends React.Component<RouteComponentProps<IEdi
                             />
                             <br />
                             <Button size="small" variant="contained" color="primary" type="submit">Редактировать курс</Button>
-                            <br />
-                            <br />
+                            <br /> <br /> <br /> <hr />
                             <Button onClick={() => this.onDelete()} size="small" variant="contained" color="secondary">Удалить курс</Button>
                         </form>
                     </div>
