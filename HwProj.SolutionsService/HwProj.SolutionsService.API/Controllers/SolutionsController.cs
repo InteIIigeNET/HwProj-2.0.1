@@ -34,7 +34,7 @@ namespace HwProj.SolutionsService.API.Controllers
                 : Ok(solution) as IActionResult;
         }
 
-        [HttpGet("task_solutions/{taskId}/{studentId}")]
+        [HttpGet("taskSolutions/{taskId}/{studentId}")]
         public async Task<Solution[]> GetTaskSolutionsFromStudent(long taskId, string studentId)
         {
             return await _solutionsService.GetTaskSolutionsFromStudentAsync(taskId, studentId);
@@ -48,13 +48,13 @@ namespace HwProj.SolutionsService.API.Controllers
             return solutionId;
         }
 
-        [HttpPost("rate_solution/{solutionId}")]
-        public async Task RateSolution(long solutionId, int newRating)
+        [HttpPost("rateSolution/{solutionId}")]
+        public async Task RateSolution(long solutionId, [FromQuery] int newRating)
         {
             await _solutionsService.RateSolutionAsync(solutionId, newRating);
         }
         
-        [HttpPost("mark_solution_final/{solutionId}")]
+        [HttpPost("markSolutionFinal/{solutionId}")]
         public async Task MarkSolutionFinal(long solutionId)
         {
             await _solutionsService.MarkSolutionFinal(solutionId);

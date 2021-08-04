@@ -29,8 +29,7 @@ namespace HwProj.CoursesService.Client
                 _coursesServiceUri + "api/Courses");
 
             var response = await _httpClient.SendAsync(httpRequest);
-            var data = await response.DeserializeAsync<CourseViewModel[]>();
-            return data;
+            return await response.DeserializeAsync<CourseViewModel[]>();
         }
         
         public async Task<CourseViewModel> GetCourseById(long courseId)
@@ -40,8 +39,7 @@ namespace HwProj.CoursesService.Client
                 _coursesServiceUri + $"api/Courses/{courseId}");
 
             var response = await _httpClient.SendAsync(httpRequest);
-            var data = await response.DeserializeAsync<CourseViewModel>();
-            return data;
+            return await response.DeserializeAsync<CourseViewModel>();
         }
         
         public async Task DeleteCourse(long courseId)
