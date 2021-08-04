@@ -175,7 +175,7 @@ namespace HwProj.CoursesService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _coursesServiceUri + $"api/Courses/Homeworks/{homeworkId}/Tasks/add")
+                _coursesServiceUri + $"api/Courses/Homeworks/Tasks/{homeworkId}/add")
             {
                 Content = new StringContent(
                     JsonConvert.SerializeObject(taskViewModel),

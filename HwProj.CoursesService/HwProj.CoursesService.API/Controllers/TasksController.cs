@@ -29,7 +29,7 @@ namespace HwProj.CoursesService.API.Controllers
                 : Ok(_mapper.Map<HomeworkTaskViewModel>(task)) as IActionResult;
         }
         
-        [HttpPost("/{homeworkId}/add")]
+        [HttpPost("{homeworkId}/add")]
         public async Task<long> AddTask(long homeworkId, [FromBody] CreateTaskViewModel taskViewModel)
         {
             var task = _mapper.Map<HomeworkTask>(taskViewModel);
