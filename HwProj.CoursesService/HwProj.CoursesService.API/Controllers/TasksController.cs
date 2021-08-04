@@ -43,7 +43,7 @@ namespace HwProj.CoursesService.API.Controllers
             await _tasksService.DeleteTaskAsync(taskId);
         }
         
-        [HttpPost("update/{taskId}")]
+        [HttpPut("update/{taskId}")]
         public async Task UpdateTask(long taskId, [FromBody] CreateTaskViewModel taskViewModel)
         {
             await _tasksService.UpdateTaskAsync(taskId, new HomeworkTask()
