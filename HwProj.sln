@@ -66,6 +66,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HwProj.HttpUtils", "HwProj.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.NotificationsService.Client", "HwProj.NotificationsService\HwProj.NotificationsService.Client\HwProj.NotificationsService.Client.csproj", "{0CBD72C5-1CCF-4C13-8046-732398816160}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.SolutionsService.Client", "HwProj.SolutionsService\HwProj.SolutionsService.Client\HwProj.SolutionsService.Client.csproj", "{C1ACAB32-4100-4C19-AE08-57FA9BA75DF2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -148,6 +150,10 @@ Global
 		{0CBD72C5-1CCF-4C13-8046-732398816160}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0CBD72C5-1CCF-4C13-8046-732398816160}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0CBD72C5-1CCF-4C13-8046-732398816160}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1ACAB32-4100-4C19-AE08-57FA9BA75DF2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1ACAB32-4100-4C19-AE08-57FA9BA75DF2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1ACAB32-4100-4C19-AE08-57FA9BA75DF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1ACAB32-4100-4C19-AE08-57FA9BA75DF2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -172,6 +178,7 @@ Global
 		{9D2ECCE5-E63B-4362-889C-406966AF8F5E} = {5C097F08-BB63-49F4-BC69-892AE8136E40}
 		{6E686DBA-1B30-4F72-86BC-BF1602B3B2FC} = {77D857A8-45C6-4432-B4BF-A2F2C9ECA7FE}
 		{0CBD72C5-1CCF-4C13-8046-732398816160} = {1EAEB779-E7C8-4EF9-B9A9-22CB8E3C246D}
+		{C1ACAB32-4100-4C19-AE08-57FA9BA75DF2} = {A85A3030-2878-4923-B450-9683832CDAC1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C03BF138-4A5B-4261-9495-6D3AC6CE9779}
