@@ -134,23 +134,24 @@ export default class EditTask extends React.Component<
   componentDidMount() {
     const token = ApiSingleton.authService.getToken();
     ApiSingleton.coursesApi
-      .apiCoursesHomeworksTasksGetByTaskIdGet(+this.props.match.params.taskId)
-      .then((task) =>
-        ApiSingleton.coursesApi
-          .apiCoursesHomeworksGetByHomeworkIdGet(task.homeworkId!, { headers: {"Authorization": `Bearer ${token}`} })
-          .then((homework) =>
-            ApiSingleton.coursesApi
-              .apiCoursesByCourseIdGet(homework.courseId!)
-              .then((course) =>
-                this.setState({
-                  isLoaded: true,
-                  title: task.title!,
-                  description: task.description!,
-                  courseId: homework.courseId!,
-                  courseMentorId: course.mentorId!,
-                })
-              )
-          )
-      );
+    .apiCoursesHomeworksTasksGetByTaskIdGet(+this.props.match.params.taskId)
+    .then((task) =>
+    ApiSingleton.coursesApi
+    .apiCoursesHomeworksGetByHomeworkIdGet(task.homeworkId!, { headers: {"Authorization": `Bearer ${token}`} })
+    .then((homework) =>
+    ApiSingleton.coursesApi
+    .apiCoursesByCourseIdGet(homework.courseId!)
+    .then((course) =>
+    this.setState({
+      isLoaded: true,
+      title: task.title!,
+      description: task.description!,
+      maxRating: task.maxRating!,
+      courseId: homework.courseId!,
+      courseMentorId: course.mentorId!,
+    })
+    )
+    )
+    );  
   }
 }

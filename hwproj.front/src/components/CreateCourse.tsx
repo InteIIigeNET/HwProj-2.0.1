@@ -13,7 +13,7 @@ import './Styles/CreateCourse.css';
 
 interface ICreateCourseState {
   name: string;
-  groupName: string;
+  groupName?: string;
   isOpen: boolean;
   created: boolean;
   courseId: string;
@@ -73,7 +73,6 @@ export default class CreateCourse extends React.Component<
             onChange={(e) => this.setState({ name: e.target.value })}
           />
           <TextField
-            required
             label="Номер группы"
             variant="outlined"
             margin="normal"
