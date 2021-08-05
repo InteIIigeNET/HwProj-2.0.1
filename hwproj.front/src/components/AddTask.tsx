@@ -22,14 +22,21 @@ export default class AddTask extends React.Component<
       title: "",
       description: "",
       maxRating: 10,
-      // publicationDate: new Date(),
-      // deadlineDate: new Date(new Date().setDate(7))
+      publicationDate: new Date(),
+      deadlineDate: new Date(new Date().setDate(7))
     };
   }
 
   public async handleSubmit(e: any) {
     e.preventDefault();
     const token = ApiSingleton.authService.getToken()
+
+    // ReDo
+    this.setState({ 
+      deadlineDate: new Date(this.state.deadlineDate!.setHours(this.state.deadlineDate!.getHours() + 3)),
+      publicationDate: new Date(this.state.publicationDate!.setHours(this.state.publicationDate!.getHours() + 3)),
+    })
+    
     await ApiSingleton.coursesApi.apiCoursesHomeworksByHomeworkIdTasksAddPost(this.props.id, this.state, { headers: {"Authorization": `Bearer ${token}`} });
     this.props.onAdding()
   }
@@ -69,16 +76,16 @@ export default class AddTask extends React.Component<
             value={this.state.description}
             onChange={(e) => this.setState({ description: e.target.value })}
           />
-          {/* <TextField
+          <TextField
             id="datetime-local"
-            label="Крайний срок решения задачи"
+            label="Дедлайн задачи"
             type="datetime-local"
-            value={this.state.deadlineDate}
+            defaultValue={this.state.deadlineDate}
             InputLabelProps={{
               shrink: true,
             }}
             onChange={(e) => this.setState({deadlineDate: new Date(e.target.value)})}
-          /> */}
+          />
           <br />
           <Button
             size="small"

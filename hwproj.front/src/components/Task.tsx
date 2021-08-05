@@ -18,6 +18,8 @@ interface ITaskProp {
 export default class Task extends React.Component<ITaskProp, {}> {
     public render() {
         let task = this.props.task;
+        let deadlineDate = new Date(task.deadlineDate!.toString()).toLocaleString("ru-RU")
+        let publicationDate = new Date(task.publicationDate!.toString()).toLocaleString("ru-RU")
         return (
             <div>
                 <Typography variant="subtitle1">
@@ -26,12 +28,14 @@ export default class Task extends React.Component<ITaskProp, {}> {
                             {task.title}
                         </RouterLink>
                     }
+
                     {!this.props.forStudent && task.title}
                     {this.props.forMentor && 
                             <IconButton aria-label="Delete" onClick={() => this.deleteTask()}>
                                 <DeleteIcon fontSize="small" />
                             </IconButton>
                     }
+                    
                     {this.props.forMentor && 
                             <RouterLink to={'/task/' + task.id!.toString() + '/edit'}>
                                 <EditIcon fontSize="small" />
@@ -40,6 +44,13 @@ export default class Task extends React.Component<ITaskProp, {}> {
                 </Typography>
                 <Typography variant="body1">
                     <ReactMarkdown source={task.description} />
+                </Typography>
+                <Typography>
+                    Дата публикации: {publicationDate}
+                </Typography>
+
+                <Typography>
+                    Дедлайн: {deadlineDate}
                 </Typography>
             </div>
         );

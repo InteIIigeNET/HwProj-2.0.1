@@ -166,19 +166,20 @@ export default class AddHomework extends React.Component<
   }
 
   async handleSubmit(e: any) {
-    debugger;
     e.preventDefault();
 
     const homework = {
       title: this.state.title,
       description: this.state.description,
       tasks: this.state.tasks,
-      date: new Date()
     }
-    debugger;
+
+    // ReDo
+    homework.tasks.forEach(task => task.deadlineDate = new Date(task.deadlineDate!.setHours(task.deadlineDate!.getHours() + 3)))
+    homework.tasks.forEach(task => task.publicationDate = new Date(task.publicationDate!.setHours(task.publicationDate!.getHours() + 3)))
+    
     const token = ApiSingleton.authService.getToken()
     await ApiSingleton.coursesApi.apiCoursesHomeworksByCourseIdAddPost(this.props.id, homework, { headers: {"Authorization": `Bearer ${token}`} })
-    debugger;
     this.setState({ added: true })
     this.props.onSubmit()
   }

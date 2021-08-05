@@ -12,7 +12,7 @@ interface IEditProfileState {
     errors: string[];
     name: string;
     surname: string;
-    middleName: string;
+    middleName?: string;
     currentPassword: string;
     newPassword: string;
 }
@@ -91,7 +91,6 @@ export default class EditProfile extends React.Component<{}, IEditProfileState> 
                         onChange={(e) => this.setState({ surname: e.target.value })}
                     />
                     <TextField
-                        required
                         label="Отчество"
                         variant="outlined"
                         margin="normal"

@@ -14,6 +14,7 @@ interface IEditTaskState {
   courseId: number;
   courseMentorId: string;
   edited: boolean;
+  deadlineDate: Date;
 }
 
 interface IEditTaskProps {
@@ -34,6 +35,7 @@ export default class EditTask extends React.Component<
       courseId: 0,
       courseMentorId: "",
       edited: false,
+      deadlineDate: new Date()
     };
   }
 
@@ -43,9 +45,13 @@ export default class EditTask extends React.Component<
     let taskViewModel = {
       title: this.state.title,
       description: this.state.description,
-      maxRating: this.state.maxRating
+      maxRating: this.state.maxRating,
+      deadlineDate: this.state.deadlineDate,
     };
-    
+
+    // ReDo
+    taskViewModel.deadlineDate = new Date(taskViewModel.deadlineDate!.setHours(taskViewModel.deadlineDate!.getHours() + 3))
+
     const token = ApiSingleton.authService.getToken();
     ApiSingleton.coursesApi
       .apiCoursesHomeworksTasksUpdateByTaskIdPut(+this.props.match.params.taskId, taskViewModel, { headers: {"Authorization": `Bearer ${token}`} })
@@ -114,6 +120,17 @@ export default class EditTask extends React.Component<
                 onChange={(e) => this.setState({ description: e.target.value })}
               />
               <br />
+              <TextField
+                id="datetime-local"
+                label="Дедлайн задачи"
+                type="datetime-local"
+                defaultValue={this.state.deadlineDate}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                onChange={(e) => this.setState({deadlineDate: new Date(e.target.value)})}
+              />
+              <br />
               <Button
                 size="small"
                 variant="contained"
@@ -131,27 +148,27 @@ export default class EditTask extends React.Component<
     return "";
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     const token = ApiSingleton.authService.getToken();
-    ApiSingleton.coursesApi
-    .apiCoursesHomeworksTasksGetByTaskIdGet(+this.props.match.params.taskId)
-    .then((task) =>
-    ApiSingleton.coursesApi
-    .apiCoursesHomeworksGetByHomeworkIdGet(task.homeworkId!, { headers: {"Authorization": `Bearer ${token}`} })
-    .then((homework) =>
-    ApiSingleton.coursesApi
-    .apiCoursesByCourseIdGet(homework.courseId!)
-    .then((course) =>
-    this.setState({
-      isLoaded: true,
-      title: task.title!,
-      description: task.description!,
-      maxRating: task.maxRating!,
-      courseId: homework.courseId!,
-      courseMentorId: course.mentorId!,
-    })
-    )
-    )
+    await ApiSingleton.coursesApi.apiCoursesHomeworksTasksGetByTaskIdGet(+this.props.match.params.taskId)
+      .then(async (task) =>
+        await ApiSingleton.coursesApi
+        .apiCoursesHomeworksGetByHomeworkIdGet(task.homeworkId!, { headers: {"Authorization": `Bearer ${token}`} })
+        .then(async (homework) =>
+          await ApiSingleton.coursesApi
+          .apiCoursesByCourseIdGet(homework.courseId!)
+          .then((course) =>
+            this.setState({
+              isLoaded: true,
+              title: task.title!,
+              description: task.description!,
+              maxRating: task.maxRating!,
+              courseId: homework.courseId!,
+              courseMentorId: course.mentorId!,
+              deadlineDate: task.deadlineDate!
+            })
+          )
+        )
     );  
   }
 }

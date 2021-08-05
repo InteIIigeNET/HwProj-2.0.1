@@ -79,7 +79,6 @@ export class Register extends React.Component<{}, IRegisterState> {
             }
           />
           <TextField
-            required
             size="small"
             label="Отчество"
             variant="outlined"

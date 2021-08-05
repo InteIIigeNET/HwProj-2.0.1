@@ -13,3997 +13,3995 @@
  */
 
 
- import * as url from "url";
- import * as portableFetch from "portable-fetch";
- import { Configuration } from "./configuration";
- 
- const BASE_PATH = "https://localhost".replace(/\/+$/, "");
- 
- /**
-  *
-  * @export
-  */
- export const COLLECTION_FORMATS = {
-     csv: ",",
-     ssv: " ",
-     tsv: "\t",
-     pipes: "|",
- };
- 
- /**
-  *
-  * @export
-  * @interface FetchAPI
-  */
- export interface FetchAPI {
-     (url: string, init?: any): Promise<Response>;
- }
- 
- /**
-  *
-  * @export
-  * @interface FetchArgs
-  */
- export interface FetchArgs {
-     url: string;
-     options: any;
- }
- 
- /**
-  *
-  * @export
-  * @class BaseAPI
-  */
- export class BaseAPI {
-     protected configuration!: Configuration;
- 
-     constructor(configuration?: Configuration, protected basePath: string = BASE_PATH, protected fetch: FetchAPI = portableFetch) {
-         if (configuration) {
-             this.configuration = configuration;
-             this.basePath = configuration.basePath || this.basePath;
-         }
-     }
- };
- 
- /**
-  *
-  * @export
-  * @class RequiredError
-  * @extends {Error}
-  */
- export class RequiredError extends Error {
-     name!: "RequiredError"
-     constructor(public field: string, msg?: string) {
-         super(msg);
-     }
- }
- 
- /**
-  * 
-  * @export
-  * @interface AccountDataDto
-  */
- export interface AccountDataDto {
-     /**
-      * 
-      * @type {string}
-      * @memberof AccountDataDto
-      */
-     name?: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof AccountDataDto
-      */
-     surname?: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof AccountDataDto
-      */
-     middleName?: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof AccountDataDto
-      */
-     email?: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof AccountDataDto
-      */
-     role?: string;
- }
- 
- /**
-  * 
-  * @export
-  * @interface AggregateReRouteConfig
-  */
- export interface AggregateReRouteConfig {
-     /**
-      * 
-      * @type {string}
-      * @memberof AggregateReRouteConfig
-      */
-     reRouteKey?: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof AggregateReRouteConfig
-      */
-     parameter?: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof AggregateReRouteConfig
-      */
-     jsonPath?: string;
- }
- 
- /**
-  * 
-  * @export
-  * @interface CourseMateViewModel
-  */
- export interface CourseMateViewModel {
-     /**
-      * 
-      * @type {string}
-      * @memberof CourseMateViewModel
-      */
-     studentId?: string;
-     /**
-      * 
-      * @type {boolean}
-      * @memberof CourseMateViewModel
-      */
-     isAccepted?: boolean;
- }
- 
- /**
-  * 
-  * @export
-  * @interface CourseViewModel
-  */
- export interface CourseViewModel {
-     /**
-      * 
-      * @type {number}
-      * @memberof CourseViewModel
-      */
-     id?: number;
-     /**
-      * 
-      * @type {string}
-      * @memberof CourseViewModel
-      */
-     name?: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof CourseViewModel
-      */
-     groupName?: string;
-     /**
-      * 
-      * @type {boolean}
-      * @memberof CourseViewModel
-      */
-     isOpen?: boolean;
-     /**
-      * 
-      * @type {boolean}
-      * @memberof CourseViewModel
-      */
-     isCompleted?: boolean;
-     /**
-      * 
-      * @type {string}
-      * @memberof CourseViewModel
-      */
-     mentorId?: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof CourseViewModel
-      */
-     inviteCode?: string;
-     /**
-      * 
-      * @type {Array<CourseMateViewModel>}
-      * @memberof CourseViewModel
-      */
-     courseMates?: Array<CourseMateViewModel>;
-     /**
-      * 
-      * @type {Array<HomeworkViewModel>}
-      * @memberof CourseViewModel
-      */
-     homeworks?: Array<HomeworkViewModel>;
- }
- 
- /**
-  * 
-  * @export
-  * @interface CreateCourseViewModel
-  */
- export interface CreateCourseViewModel {
-     /**
-      * 
-      * @type {string}
-      * @memberof CreateCourseViewModel
-      */
-     name: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof CreateCourseViewModel
-      */
-     groupName?: string;
-     /**
-      * 
-      * @type {boolean}
-      * @memberof CreateCourseViewModel
-      */
-     isOpen: boolean;
- }
- 
- /**
-  * 
-  * @export
-  * @interface CreateHomeworkViewModel
-  */
- export interface CreateHomeworkViewModel {
-     /**
-      * 
-      * @type {string}
-      * @memberof CreateHomeworkViewModel
-      */
-     title?: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof CreateHomeworkViewModel
-      */
-     description?: string;
-     /**
-      * 
-      * @type {Array<CreateTaskViewModel>}
-      * @memberof CreateHomeworkViewModel
-      */
-     tasks?: Array<CreateTaskViewModel>;
- }
- 
- /**
-  * 
-  * @export
-  * @interface CreateTaskViewModel
-  */
- export interface CreateTaskViewModel {
-     /**
-      * 
-      * @type {string}
-      * @memberof CreateTaskViewModel
-      */
-     title?: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof CreateTaskViewModel
-      */
-     description?: string;
-     /**
-      * 
-      * @type {Date}
-      * @memberof CreateTaskViewModel
-      */
-     deadlineDate?: Date;
-     /**
-      * 
-      * @type {Date}
-      * @memberof CreateTaskViewModel
-      */
-     publicationDate?: Date;
-     /**
-      * 
-      * @type {number}
-      * @memberof CreateTaskViewModel
-      */
-     maxRating?: number;
- }
- 
- /**
-  * 
-  * @export
-  * @interface EditAccountViewModel
-  */
- export interface EditAccountViewModel {
-     /**
-      * 
-      * @type {string}
-      * @memberof EditAccountViewModel
-      */
-     name?: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof EditAccountViewModel
-      */
-     surname?: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof EditAccountViewModel
-      */
-     middleName?: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof EditAccountViewModel
-      */
-     currentPassword: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof EditAccountViewModel
-      */
-     newPassword?: string;
- }
- 
- /**
-  * 
-  * @export
-  * @interface FileAggregateReRoute
-  */
- export interface FileAggregateReRoute {
-     /**
-      * 
-      * @type {Array<string>}
-      * @memberof FileAggregateReRoute
-      */
-     reRouteKeys?: Array<string>;
-     /**
-      * 
-      * @type {Array<AggregateReRouteConfig>}
-      * @memberof FileAggregateReRoute
-      */
-     reRouteKeysConfig?: Array<AggregateReRouteConfig>;
-     /**
-      * 
-      * @type {string}
-      * @memberof FileAggregateReRoute
-      */
-     upstreamPathTemplate?: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof FileAggregateReRoute
-      */
-     upstreamHost?: string;
-     /**
-      * 
-      * @type {boolean}
-      * @memberof FileAggregateReRoute
-      */
-     reRouteIsCaseSensitive?: boolean;
-     /**
-      * 
-      * @type {string}
-      * @memberof FileAggregateReRoute
-      */
-     aggregator?: string;
-     /**
-      * 
-      * @type {Array<string>}
-      * @memberof FileAggregateReRoute
-      */
-     upstreamHttpMethod?: Array<string>;
-     /**
-      * 
-      * @type {number}
-      * @memberof FileAggregateReRoute
-      */
-     priority?: number;
- }
- 
- /**
-  * 
-  * @export
-  * @interface FileAuthenticationOptions
-  */
- export interface FileAuthenticationOptions {
-     /**
-      * 
-      * @type {string}
-      * @memberof FileAuthenticationOptions
-      */
-     authenticationProviderKey?: string;
-     /**
-      * 
-      * @type {Array<string>}
-      * @memberof FileAuthenticationOptions
-      */
-     allowedScopes?: Array<string>;
- }
- 
- /**
-  * 
-  * @export
-  * @interface FileCacheOptions
-  */
- export interface FileCacheOptions {
-     /**
-      * 
-      * @type {number}
-      * @memberof FileCacheOptions
-      */
-     ttlSeconds?: number;
-     /**
-      * 
-      * @type {string}
-      * @memberof FileCacheOptions
-      */
-     region?: string;
- }
- 
- /**
-  * 
-  * @export
-  * @interface FileConfiguration
-  */
- export interface FileConfiguration {
-     /**
-      * 
-      * @type {Array<FileReRoute>}
-      * @memberof FileConfiguration
-      */
-     reRoutes?: Array<FileReRoute>;
-     /**
-      * 
-      * @type {Array<FileDynamicReRoute>}
-      * @memberof FileConfiguration
-      */
-     dynamicReRoutes?: Array<FileDynamicReRoute>;
-     /**
-      * 
-      * @type {Array<FileAggregateReRoute>}
-      * @memberof FileConfiguration
-      */
-     aggregates?: Array<FileAggregateReRoute>;
-     /**
-      * 
-      * @type {FileGlobalConfiguration}
-      * @memberof FileConfiguration
-      */
-     globalConfiguration?: FileGlobalConfiguration;
- }
- 
- /**
-  * 
-  * @export
-  * @interface FileDynamicReRoute
-  */
- export interface FileDynamicReRoute {
-     /**
-      * 
-      * @type {string}
-      * @memberof FileDynamicReRoute
-      */
-     serviceName?: string;
-     /**
-      * 
-      * @type {FileRateLimitRule}
-      * @memberof FileDynamicReRoute
-      */
-     rateLimitRule?: FileRateLimitRule;
- }
- 
- /**
-  * 
-  * @export
-  * @interface FileGlobalConfiguration
-  */
- export interface FileGlobalConfiguration {
-     /**
-      * 
-      * @type {string}
-      * @memberof FileGlobalConfiguration
-      */
-     requestIdKey?: string;
-     /**
-      * 
-      * @type {FileServiceDiscoveryProvider}
-      * @memberof FileGlobalConfiguration
-      */
-     serviceDiscoveryProvider?: FileServiceDiscoveryProvider;
-     /**
-      * 
-      * @type {FileRateLimitOptions}
-      * @memberof FileGlobalConfiguration
-      */
-     rateLimitOptions?: FileRateLimitOptions;
-     /**
-      * 
-      * @type {FileQoSOptions}
-      * @memberof FileGlobalConfiguration
-      */
-     qoSOptions?: FileQoSOptions;
-     /**
-      * 
-      * @type {string}
-      * @memberof FileGlobalConfiguration
-      */
-     baseUrl?: string;
-     /**
-      * 
-      * @type {FileLoadBalancerOptions}
-      * @memberof FileGlobalConfiguration
-      */
-     loadBalancerOptions?: FileLoadBalancerOptions;
-     /**
-      * 
-      * @type {string}
-      * @memberof FileGlobalConfiguration
-      */
-     downstreamScheme?: string;
-     /**
-      * 
-      * @type {FileHttpHandlerOptions}
-      * @memberof FileGlobalConfiguration
-      */
-     httpHandlerOptions?: FileHttpHandlerOptions;
- }
- 
- /**
-  * 
-  * @export
-  * @interface FileHostAndPort
-  */
- export interface FileHostAndPort {
-     /**
-      * 
-      * @type {string}
-      * @memberof FileHostAndPort
-      */
-     host?: string;
-     /**
-      * 
-      * @type {number}
-      * @memberof FileHostAndPort
-      */
-     port?: number;
- }
- 
- /**
-  * 
-  * @export
-  * @interface FileHttpHandlerOptions
-  */
- export interface FileHttpHandlerOptions {
-     /**
-      * 
-      * @type {boolean}
-      * @memberof FileHttpHandlerOptions
-      */
-     allowAutoRedirect?: boolean;
-     /**
-      * 
-      * @type {boolean}
-      * @memberof FileHttpHandlerOptions
-      */
-     useCookieContainer?: boolean;
-     /**
-      * 
-      * @type {boolean}
-      * @memberof FileHttpHandlerOptions
-      */
-     useTracing?: boolean;
-     /**
-      * 
-      * @type {boolean}
-      * @memberof FileHttpHandlerOptions
-      */
-     useProxy?: boolean;
- }
- 
- /**
-  * 
-  * @export
-  * @interface FileLoadBalancerOptions
-  */
- export interface FileLoadBalancerOptions {
-     /**
-      * 
-      * @type {string}
-      * @memberof FileLoadBalancerOptions
-      */
-     type?: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof FileLoadBalancerOptions
-      */
-     key?: string;
-     /**
-      * 
-      * @type {number}
-      * @memberof FileLoadBalancerOptions
-      */
-     expiry?: number;
- }
- 
- /**
-  * 
-  * @export
-  * @interface FileQoSOptions
-  */
- export interface FileQoSOptions {
-     /**
-      * 
-      * @type {number}
-      * @memberof FileQoSOptions
-      */
-     exceptionsAllowedBeforeBreaking?: number;
-     /**
-      * 
-      * @type {number}
-      * @memberof FileQoSOptions
-      */
-     durationOfBreak?: number;
-     /**
-      * 
-      * @type {number}
-      * @memberof FileQoSOptions
-      */
-     timeoutValue?: number;
- }
- 
- /**
-  * 
-  * @export
-  * @interface FileRateLimitOptions
-  */
- export interface FileRateLimitOptions {
-     /**
-      * 
-      * @type {string}
-      * @memberof FileRateLimitOptions
-      */
-     clientIdHeader?: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof FileRateLimitOptions
-      */
-     quotaExceededMessage?: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof FileRateLimitOptions
-      */
-     rateLimitCounterPrefix?: string;
-     /**
-      * 
-      * @type {boolean}
-      * @memberof FileRateLimitOptions
-      */
-     disableRateLimitHeaders?: boolean;
-     /**
-      * 
-      * @type {number}
-      * @memberof FileRateLimitOptions
-      */
-     httpStatusCode?: number;
- }
- 
- /**
-  * 
-  * @export
-  * @interface FileRateLimitRule
-  */
- export interface FileRateLimitRule {
-     /**
-      * 
-      * @type {Array<string>}
-      * @memberof FileRateLimitRule
-      */
-     clientWhitelist?: Array<string>;
-     /**
-      * 
-      * @type {boolean}
-      * @memberof FileRateLimitRule
-      */
-     enableRateLimiting?: boolean;
-     /**
-      * 
-      * @type {string}
-      * @memberof FileRateLimitRule
-      */
-     period?: string;
-     /**
-      * 
-      * @type {number}
-      * @memberof FileRateLimitRule
-      */
-     periodTimespan?: number;
-     /**
-      * 
-      * @type {number}
-      * @memberof FileRateLimitRule
-      */
-     limit?: number;
- }
- 
- /**
-  * 
-  * @export
-  * @interface FileReRoute
-  */
- export interface FileReRoute {
-     /**
-      * 
-      * @type {string}
-      * @memberof FileReRoute
-      */
-     downstreamPathTemplate?: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof FileReRoute
-      */
-     upstreamPathTemplate?: string;
-     /**
-      * 
-      * @type {Array<string>}
-      * @memberof FileReRoute
-      */
-     upstreamHttpMethod?: Array<string>;
-     /**
-      * 
-      * @type {{ [key: string]: string; }}
-      * @memberof FileReRoute
-      */
-     addHeadersToRequest?: { [key: string]: string; };
-     /**
-      * 
-      * @type {{ [key: string]: string; }}
-      * @memberof FileReRoute
-      */
-     upstreamHeaderTransform?: { [key: string]: string; };
-     /**
-      * 
-      * @type {{ [key: string]: string; }}
-      * @memberof FileReRoute
-      */
-     downstreamHeaderTransform?: { [key: string]: string; };
-     /**
-      * 
-      * @type {{ [key: string]: string; }}
-      * @memberof FileReRoute
-      */
-     addClaimsToRequest?: { [key: string]: string; };
-     /**
-      * 
-      * @type {{ [key: string]: string; }}
-      * @memberof FileReRoute
-      */
-     routeClaimsRequirement?: { [key: string]: string; };
-     /**
-      * 
-      * @type {{ [key: string]: string; }}
-      * @memberof FileReRoute
-      */
-     addQueriesToRequest?: { [key: string]: string; };
-     /**
-      * 
-      * @type {string}
-      * @memberof FileReRoute
-      */
-     requestIdKey?: string;
-     /**
-      * 
-      * @type {FileCacheOptions}
-      * @memberof FileReRoute
-      */
-     fileCacheOptions?: FileCacheOptions;
-     /**
-      * 
-      * @type {boolean}
-      * @memberof FileReRoute
-      */
-     reRouteIsCaseSensitive?: boolean;
-     /**
-      * 
-      * @type {string}
-      * @memberof FileReRoute
-      */
-     serviceName?: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof FileReRoute
-      */
-     downstreamScheme?: string;
-     /**
-      * 
-      * @type {FileQoSOptions}
-      * @memberof FileReRoute
-      */
-     qoSOptions?: FileQoSOptions;
-     /**
-      * 
-      * @type {FileLoadBalancerOptions}
-      * @memberof FileReRoute
-      */
-     loadBalancerOptions?: FileLoadBalancerOptions;
-     /**
-      * 
-      * @type {FileRateLimitRule}
-      * @memberof FileReRoute
-      */
-     rateLimitOptions?: FileRateLimitRule;
-     /**
-      * 
-      * @type {FileAuthenticationOptions}
-      * @memberof FileReRoute
-      */
-     authenticationOptions?: FileAuthenticationOptions;
-     /**
-      * 
-      * @type {FileHttpHandlerOptions}
-      * @memberof FileReRoute
-      */
-     httpHandlerOptions?: FileHttpHandlerOptions;
-     /**
-      * 
-      * @type {Array<FileHostAndPort>}
-      * @memberof FileReRoute
-      */
-     downstreamHostAndPorts?: Array<FileHostAndPort>;
-     /**
-      * 
-      * @type {string}
-      * @memberof FileReRoute
-      */
-     upstreamHost?: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof FileReRoute
-      */
-     key?: string;
-     /**
-      * 
-      * @type {Array<string>}
-      * @memberof FileReRoute
-      */
-     delegatingHandlers?: Array<string>;
-     /**
-      * 
-      * @type {number}
-      * @memberof FileReRoute
-      */
-     priority?: number;
-     /**
-      * 
-      * @type {number}
-      * @memberof FileReRoute
-      */
-     timeout?: number;
-     /**
-      * 
-      * @type {boolean}
-      * @memberof FileReRoute
-      */
-     dangerousAcceptAnyServerCertificateValidator?: boolean;
-     /**
-      * 
-      * @type {FileSecurityOptions}
-      * @memberof FileReRoute
-      */
-     securityOptions?: FileSecurityOptions;
- }
- 
- /**
-  * 
-  * @export
-  * @interface FileSecurityOptions
-  */
- export interface FileSecurityOptions {
-     /**
-      * 
-      * @type {Array<string>}
-      * @memberof FileSecurityOptions
-      */
-     ipAllowedList?: Array<string>;
-     /**
-      * 
-      * @type {Array<string>}
-      * @memberof FileSecurityOptions
-      */
-     ipBlockedList?: Array<string>;
- }
- 
- /**
-  * 
-  * @export
-  * @interface FileServiceDiscoveryProvider
-  */
- export interface FileServiceDiscoveryProvider {
-     /**
-      * 
-      * @type {string}
-      * @memberof FileServiceDiscoveryProvider
-      */
-     host?: string;
-     /**
-      * 
-      * @type {number}
-      * @memberof FileServiceDiscoveryProvider
-      */
-     port?: number;
-     /**
-      * 
-      * @type {string}
-      * @memberof FileServiceDiscoveryProvider
-      */
-     type?: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof FileServiceDiscoveryProvider
-      */
-     token?: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof FileServiceDiscoveryProvider
-      */
-     configurationKey?: string;
-     /**
-      * 
-      * @type {number}
-      * @memberof FileServiceDiscoveryProvider
-      */
-     pollingInterval?: number;
-     /**
-      * 
-      * @type {string}
-      * @memberof FileServiceDiscoveryProvider
-      */
-     namespace?: string;
- }
- 
- /**
-  * 
-  * @export
-  * @interface HomeworkTaskViewModel
-  */
- export interface HomeworkTaskViewModel {
-     /**
-      * 
-      * @type {number}
-      * @memberof HomeworkTaskViewModel
-      */
-     id?: number;
-     /**
-      * 
-      * @type {string}
-      * @memberof HomeworkTaskViewModel
-      */
-     title?: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof HomeworkTaskViewModel
-      */
-     description?: string;
-     /**
-      * 
-      * @type {number}
-      * @memberof HomeworkTaskViewModel
-      */
-     maxRating?: number;
-     /**
-      * 
-      * @type {Date}
-      * @memberof HomeworkTaskViewModel
-      */
-     deadlineDate?: Date;
-     /**
-      * 
-      * @type {Date}
-      * @memberof HomeworkTaskViewModel
-      */
-     publicationDate?: Date;
-     /**
-      * 
-      * @type {number}
-      * @memberof HomeworkTaskViewModel
-      */
-     homeworkId?: number;
- }
- 
- /**
-  * 
-  * @export
-  * @interface HomeworkViewModel
-  */
- export interface HomeworkViewModel {
-     /**
-      * 
-      * @type {number}
-      * @memberof HomeworkViewModel
-      */
-     id?: number;
-     /**
-      * 
-      * @type {string}
-      * @memberof HomeworkViewModel
-      */
-     title?: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof HomeworkViewModel
-      */
-     description?: string;
-     /**
-      * 
-      * @type {Date}
-      * @memberof HomeworkViewModel
-      */
-     date?: Date;
-     /**
-      * 
-      * @type {number}
-      * @memberof HomeworkViewModel
-      */
-     courseId?: number;
-     /**
-      * 
-      * @type {Array<HomeworkTaskViewModel>}
-      * @memberof HomeworkViewModel
-      */
-     tasks?: Array<HomeworkTaskViewModel>;
- }
- 
- /**
-  * 
-  * @export
-  * @interface InviteLecturerViewModel
-  */
- export interface InviteLecturerViewModel {
-     /**
-      * 
-      * @type {string}
-      * @memberof InviteLecturerViewModel
-      */
-     email: string;
- }
- 
- /**
-  * 
-  * @export
-  * @interface LoginViewModel
-  */
- export interface LoginViewModel {
-     /**
-      * 
-      * @type {string}
-      * @memberof LoginViewModel
-      */
-     email: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof LoginViewModel
-      */
-     password: string;
-     /**
-      * 
-      * @type {boolean}
-      * @memberof LoginViewModel
-      */
-     rememberMe: boolean;
- }
- 
- /**
-  * 
-  * @export
-  * @interface NotificationViewModel
-  */
- export interface NotificationViewModel {
-     /**
-      * 
-      * @type {number}
-      * @memberof NotificationViewModel
-      */
-     id?: number;
-     /**
-      * 
-      * @type {string}
-      * @memberof NotificationViewModel
-      */
-     sender?: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof NotificationViewModel
-      */
-     owner?: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof NotificationViewModel
-      */
-     category?: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof NotificationViewModel
-      */
-     body?: string;
-     /**
-      * 
-      * @type {boolean}
-      * @memberof NotificationViewModel
-      */
-     hasSeen?: boolean;
- }
- 
- /**
-  * 
-  * @export
-  * @interface RegisterViewModel
-  */
- export interface RegisterViewModel {
-     /**
-      * 
-      * @type {string}
-      * @memberof RegisterViewModel
-      */
-     name: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof RegisterViewModel
-      */
-     surname: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof RegisterViewModel
-      */
-     middleName?: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof RegisterViewModel
-      */
-     email: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof RegisterViewModel
-      */
-     password: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof RegisterViewModel
-      */
-     passwordConfirm: string;
- }
- 
- /**
-  * 
-  * @export
-  * @interface Result
-  */
- export interface Result {
-     /**
-      * 
-      * @type {boolean}
-      * @memberof Result
-      */
-     succeeded?: boolean;
-     /**
-      * 
-      * @type {Array<string>}
-      * @memberof Result
-      */
-     errors?: Array<string>;
- }
- 
- /**
-  * 
-  * @export
-  * @interface ResultTokenCredentials
-  */
- export interface ResultTokenCredentials {
-     /**
-      * 
-      * @type {TokenCredentials}
-      * @memberof ResultTokenCredentials
-      */
-     value?: TokenCredentials;
-     /**
-      * 
-      * @type {boolean}
-      * @memberof ResultTokenCredentials
-      */
-     succeeded?: boolean;
-     /**
-      * 
-      * @type {Array<string>}
-      * @memberof ResultTokenCredentials
-      */
-     errors?: Array<string>;
- }
- 
- /**
-  * 
-  * @export
-  * @interface Solution
-  */
- export interface Solution {
-     /**
-      * 
-      * @type {number}
-      * @memberof Solution
-      */
-     id?: number;
-     /**
-      * 
-      * @type {string}
-      * @memberof Solution
-      */
-     githubUrl?: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof Solution
-      */
-     comment?: string;
-     /**
-      * 
-      * @type {number}
-      * @memberof Solution
-      */
-     state?: Solution.StateEnum;
-     /**
-      * 
-      * @type {number}
-      * @memberof Solution
-      */
-     rating?: number;
-     /**
-      * 
-      * @type {number}
-      * @memberof Solution
-      */
-     maxRating?: number;
-     /**
-      * 
-      * @type {string}
-      * @memberof Solution
-      */
-     studentId?: string;
-     /**
-      * 
-      * @type {number}
-      * @memberof Solution
-      */
-     groupId?: number;
-     /**
-      * 
-      * @type {number}
-      * @memberof Solution
-      */
-     taskId?: number;
- }
- 
- /**
-  * @export
-  * @namespace Solution
-  */
- export namespace Solution {
-     /**
-      * @export
-      * @enum {string}
-      */
-     export enum StateEnum {
-         NUMBER_0 = <any> 0,
-         NUMBER_1 = <any> 1,
-         NUMBER_2 = <any> 2,
-         NUMBER_3 = <any> 3
-     }
- }
- 
- /**
-  * 
-  * @export
-  * @interface SolutionViewModel
-  */
- export interface SolutionViewModel {
-     /**
-      * 
-      * @type {string}
-      * @memberof SolutionViewModel
-      */
-     githubUrl?: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof SolutionViewModel
-      */
-     comment?: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof SolutionViewModel
-      */
-     studentId?: string;
- }
- 
- /**
-  * 
-  * @export
-  * @interface TokenCredentials
-  */
- export interface TokenCredentials {
-     /**
-      * 
-      * @type {string}
-      * @memberof TokenCredentials
-      */
-     accessToken?: string;
-     /**
-      * 
-      * @type {number}
-      * @memberof TokenCredentials
-      */
-     expiresIn?: number;
- }
- 
- /**
-  * 
-  * @export
-  * @interface UpdateCourseViewModel
-  */
- export interface UpdateCourseViewModel {
-     /**
-      * 
-      * @type {string}
-      * @memberof UpdateCourseViewModel
-      */
-     name: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof UpdateCourseViewModel
-      */
-     groupName?: string;
-     /**
-      * 
-      * @type {boolean}
-      * @memberof UpdateCourseViewModel
-      */
-     isOpen: boolean;
-     /**
-      * 
-      * @type {boolean}
-      * @memberof UpdateCourseViewModel
-      */
-     isComplete?: boolean;
- }
- 
- /**
-  * 
-  * @export
-  * @interface UserCourseDescription
-  */
- export interface UserCourseDescription {
-     /**
-      * 
-      * @type {number}
-      * @memberof UserCourseDescription
-      */
-     id?: number;
-     /**
-      * 
-      * @type {string}
-      * @memberof UserCourseDescription
-      */
-     name?: string;
-     /**
-      * 
-      * @type {string}
-      * @memberof UserCourseDescription
-      */
-     groupName?: string;
-     /**
-      * 
-      * @type {boolean}
-      * @memberof UserCourseDescription
-      */
-     isOpen?: boolean;
-     /**
-      * 
-      * @type {boolean}
-      * @memberof UserCourseDescription
-      */
-     isCompleted?: boolean;
-     /**
-      * 
-      * @type {boolean}
-      * @memberof UserCourseDescription
-      */
-     userIsMentor?: boolean;
- }
- 
- /**
-  * 
-  * @export
-  * @interface UserDataDto
-  */
- export interface UserDataDto {
-     /**
-      * 
-      * @type {AccountDataDto}
-      * @memberof UserDataDto
-      */
-     userData?: AccountDataDto;
-     /**
-      * 
-      * @type {Array<NotificationViewModel>}
-      * @memberof UserDataDto
-      */
-     notifications?: Array<NotificationViewModel>;
- }
- 
- 
- /**
-  * AccountApi - fetch parameter creator
-  * @export
-  */
- export const AccountApiFetchParamCreator = function (configuration?: Configuration) {
-     return {
-         /**
-          * 
-          * @param {EditAccountViewModel} [model] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiAccountEditPut(model?: EditAccountViewModel, options: any = {}): FetchArgs {
-             const localVarPath = `/api/Account/edit`;
-             const localVarUrlObj = url.parse(localVarPath, true);
-             const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
-             const localVarHeaderParameter = {} as any;
-             const localVarQueryParameter = {} as any;
- 
-             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
- 
-             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-             delete localVarUrlObj.search;
-             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-             const needsSerialization = (<any>"EditAccountViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
- 
-             return {
-                 url: url.format(localVarUrlObj),
-                 options: localVarRequestOptions,
-             };
-         },
-         /**
-          * 
-          * @param {string} userId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiAccountGetUserDataByUserIdGet(userId: string, options: any = {}): FetchArgs {
-             // verify required parameter 'userId' is not null or undefined
-             if (userId === null || userId === undefined) {
-                 throw new RequiredError('userId','Required parameter userId was null or undefined when calling apiAccountGetUserDataByUserIdGet.');
-             }
-             const localVarPath = `/api/Account/getUserData/{userId}`
-                 .replace(`{${"userId"}}`, encodeURIComponent(String(userId)));
-             const localVarUrlObj = url.parse(localVarPath, true);
-             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-             const localVarHeaderParameter = {} as any;
-             const localVarQueryParameter = {} as any;
- 
-             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-             delete localVarUrlObj.search;
-             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
- 
-             return {
-                 url: url.format(localVarUrlObj),
-                 options: localVarRequestOptions,
-             };
-         },
-         /**
-          * 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiAccountGetUserDataGet(options: any = {}): FetchArgs {
-             const localVarPath = `/api/Account/getUserData`;
-             const localVarUrlObj = url.parse(localVarPath, true);
-             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-             const localVarHeaderParameter = {} as any;
-             const localVarQueryParameter = {} as any;
- 
-             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-             delete localVarUrlObj.search;
-             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
- 
-             return {
-                 url: url.format(localVarUrlObj),
-                 options: localVarRequestOptions,
-             };
-         },
-         /**
-          * 
-          * @param {InviteLecturerViewModel} [model] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiAccountInviteNewLecturerPost(model?: InviteLecturerViewModel, options: any = {}): FetchArgs {
-             const localVarPath = `/api/Account/inviteNewLecturer`;
-             const localVarUrlObj = url.parse(localVarPath, true);
-             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-             const localVarHeaderParameter = {} as any;
-             const localVarQueryParameter = {} as any;
- 
-             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
- 
-             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-             delete localVarUrlObj.search;
-             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-             const needsSerialization = (<any>"InviteLecturerViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
- 
-             return {
-                 url: url.format(localVarUrlObj),
-                 options: localVarRequestOptions,
-             };
-         },
-         /**
-          * 
-          * @param {LoginViewModel} [model] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiAccountLoginPost(model?: LoginViewModel, options: any = {}): FetchArgs {
-             const localVarPath = `/api/Account/login`;
-             const localVarUrlObj = url.parse(localVarPath, true);
-             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-             const localVarHeaderParameter = {} as any;
-             const localVarQueryParameter = {} as any;
- 
-             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
- 
-             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-             delete localVarUrlObj.search;
-             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-             const needsSerialization = (<any>"LoginViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
- 
-             return {
-                 url: url.format(localVarUrlObj),
-                 options: localVarRequestOptions,
-             };
-         },
-         /**
-          * 
-          * @param {RegisterViewModel} [model] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiAccountRegisterPost(model?: RegisterViewModel, options: any = {}): FetchArgs {
-             const localVarPath = `/api/Account/register`;
-             const localVarUrlObj = url.parse(localVarPath, true);
-             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-             const localVarHeaderParameter = {} as any;
-             const localVarQueryParameter = {} as any;
- 
-             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
- 
-             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-             delete localVarUrlObj.search;
-             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-             const needsSerialization = (<any>"RegisterViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
- 
-             return {
-                 url: url.format(localVarUrlObj),
-                 options: localVarRequestOptions,
-             };
-         },
-     }
- };
- 
- /**
-  * AccountApi - functional programming interface
-  * @export
-  */
- export const AccountApiFp = function(configuration?: Configuration) {
-     return {
-         /**
-          * 
-          * @param {EditAccountViewModel} [model] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiAccountEditPut(model?: EditAccountViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Result> {
-             const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountEditPut(model, options);
-             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                     if (response.status >= 200 && response.status < 300) {
-                         return response.json();
-                     } else {
-                         throw response;
-                     }
-                 });
-             };
-         },
-         /**
-          * 
-          * @param {string} userId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiAccountGetUserDataByUserIdGet(userId: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<AccountDataDto> {
-             const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountGetUserDataByUserIdGet(userId, options);
-             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                     if (response.status >= 200 && response.status < 300) {
-                         return response.json();
-                     } else {
-                         throw response;
-                     }
-                 });
-             };
-         },
-         /**
-          * 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiAccountGetUserDataGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<UserDataDto> {
-             const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountGetUserDataGet(options);
-             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                     if (response.status >= 200 && response.status < 300) {
-                         return response.json();
-                     } else {
-                         throw response;
-                     }
-                 });
-             };
-         },
-         /**
-          * 
-          * @param {InviteLecturerViewModel} [model] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiAccountInviteNewLecturerPost(model?: InviteLecturerViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Result> {
-             const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountInviteNewLecturerPost(model, options);
-             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                     if (response.status >= 200 && response.status < 300) {
-                         return response.json();
-                     } else {
-                         throw response;
-                     }
-                 });
-             };
-         },
-         /**
-          * 
-          * @param {LoginViewModel} [model] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiAccountLoginPost(model?: LoginViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ResultTokenCredentials> {
-             const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountLoginPost(model, options);
-             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                     if (response.status >= 200 && response.status < 300) {
-                         return response.json();
-                     } else {
-                         throw response;
-                     }
-                 });
-             };
-         },
-         /**
-          * 
-          * @param {RegisterViewModel} [model] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiAccountRegisterPost(model?: RegisterViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ResultTokenCredentials> {
-             const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountRegisterPost(model, options);
-             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                     if (response.status >= 200 && response.status < 300) {
-                         return response.json();
-                     } else {
-                         throw response;
-                     }
-                 });
-             };
-         },
-     }
- };
- 
- /**
-  * AccountApi - factory interface
-  * @export
-  */
- export const AccountApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
-     return {
-         /**
-          * 
-          * @param {EditAccountViewModel} [model] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiAccountEditPut(model?: EditAccountViewModel, options?: any) {
-             return AccountApiFp(configuration).apiAccountEditPut(model, options)(fetch, basePath);
-         },
-         /**
-          * 
-          * @param {string} userId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiAccountGetUserDataByUserIdGet(userId: string, options?: any) {
-             return AccountApiFp(configuration).apiAccountGetUserDataByUserIdGet(userId, options)(fetch, basePath);
-         },
-         /**
-          * 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiAccountGetUserDataGet(options?: any) {
-             return AccountApiFp(configuration).apiAccountGetUserDataGet(options)(fetch, basePath);
-         },
-         /**
-          * 
-          * @param {InviteLecturerViewModel} [model] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiAccountInviteNewLecturerPost(model?: InviteLecturerViewModel, options?: any) {
-             return AccountApiFp(configuration).apiAccountInviteNewLecturerPost(model, options)(fetch, basePath);
-         },
-         /**
-          * 
-          * @param {LoginViewModel} [model] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiAccountLoginPost(model?: LoginViewModel, options?: any) {
-             return AccountApiFp(configuration).apiAccountLoginPost(model, options)(fetch, basePath);
-         },
-         /**
-          * 
-          * @param {RegisterViewModel} [model] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiAccountRegisterPost(model?: RegisterViewModel, options?: any) {
-             return AccountApiFp(configuration).apiAccountRegisterPost(model, options)(fetch, basePath);
-         },
-     };
- };
- 
- /**
-  * AccountApi - object-oriented interface
-  * @export
-  * @class AccountApi
-  * @extends {BaseAPI}
-  */
- export class AccountApi extends BaseAPI {
-     /**
-      * 
-      * @param {EditAccountViewModel} [model] 
-      * @param {*} [options] Override http request option.
-      * @throws {RequiredError}
-      * @memberof AccountApi
-      */
-     public apiAccountEditPut(model?: EditAccountViewModel, options?: any) {
-         return AccountApiFp(this.configuration).apiAccountEditPut(model, options)(this.fetch, this.basePath);
-     }
- 
-     /**
-      * 
-      * @param {string} userId 
-      * @param {*} [options] Override http request option.
-      * @throws {RequiredError}
-      * @memberof AccountApi
-      */
-     public apiAccountGetUserDataByUserIdGet(userId: string, options?: any) {
-         return AccountApiFp(this.configuration).apiAccountGetUserDataByUserIdGet(userId, options)(this.fetch, this.basePath);
-     }
- 
-     /**
-      * 
-      * @param {*} [options] Override http request option.
-      * @throws {RequiredError}
-      * @memberof AccountApi
-      */
-     public apiAccountGetUserDataGet(options?: any) {
-         return AccountApiFp(this.configuration).apiAccountGetUserDataGet(options)(this.fetch, this.basePath);
-     }
- 
-     /**
-      * 
-      * @param {InviteLecturerViewModel} [model] 
-      * @param {*} [options] Override http request option.
-      * @throws {RequiredError}
-      * @memberof AccountApi
-      */
-     public apiAccountInviteNewLecturerPost(model?: InviteLecturerViewModel, options?: any) {
-         return AccountApiFp(this.configuration).apiAccountInviteNewLecturerPost(model, options)(this.fetch, this.basePath);
-     }
- 
-     /**
-      * 
-      * @param {LoginViewModel} [model] 
-      * @param {*} [options] Override http request option.
-      * @throws {RequiredError}
-      * @memberof AccountApi
-      */
-     public apiAccountLoginPost(model?: LoginViewModel, options?: any) {
-         return AccountApiFp(this.configuration).apiAccountLoginPost(model, options)(this.fetch, this.basePath);
-     }
- 
-     /**
-      * 
-      * @param {RegisterViewModel} [model] 
-      * @param {*} [options] Override http request option.
-      * @throws {RequiredError}
-      * @memberof AccountApi
-      */
-     public apiAccountRegisterPost(model?: RegisterViewModel, options?: any) {
-         return AccountApiFp(this.configuration).apiAccountRegisterPost(model, options)(this.fetch, this.basePath);
-     }
- 
- }
- 
- /**
-  * CoursesApi - fetch parameter creator
-  * @export
-  */
- export const CoursesApiFetchParamCreator = function (configuration?: Configuration) {
-     return {
-         /**
-          * 
-          * @param {number} courseId 
-          * @param {string} studentId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesAcceptStudentByCourseIdByStudentIdPost(courseId: number, studentId: string, options: any = {}): FetchArgs {
-             // verify required parameter 'courseId' is not null or undefined
-             if (courseId === null || courseId === undefined) {
-                 throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesAcceptStudentByCourseIdByStudentIdPost.');
-             }
-             // verify required parameter 'studentId' is not null or undefined
-             if (studentId === null || studentId === undefined) {
-                 throw new RequiredError('studentId','Required parameter studentId was null or undefined when calling apiCoursesAcceptStudentByCourseIdByStudentIdPost.');
-             }
-             const localVarPath = `/api/Courses/acceptStudent/{courseId}/{studentId}`
-                 .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)))
-                 .replace(`{${"studentId"}}`, encodeURIComponent(String(studentId)));
-             const localVarUrlObj = url.parse(localVarPath, true);
-             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-             const localVarHeaderParameter = {} as any;
-             const localVarQueryParameter = {} as any;
- 
-             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-             delete localVarUrlObj.search;
-             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
- 
-             return {
-                 url: url.format(localVarUrlObj),
-                 options: localVarRequestOptions,
-             };
-         },
-         /**
-          * 
-          * @param {number} courseId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesByCourseIdDelete(courseId: number, options: any = {}): FetchArgs {
-             // verify required parameter 'courseId' is not null or undefined
-             if (courseId === null || courseId === undefined) {
-                 throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesByCourseIdDelete.');
-             }
-             const localVarPath = `/api/Courses/{courseId}`
-                 .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
-             const localVarUrlObj = url.parse(localVarPath, true);
-             const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
-             const localVarHeaderParameter = {} as any;
-             const localVarQueryParameter = {} as any;
- 
-             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-             delete localVarUrlObj.search;
-             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
- 
-             return {
-                 url: url.format(localVarUrlObj),
-                 options: localVarRequestOptions,
-             };
-         },
-         /**
-          * 
-          * @param {number} courseId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesByCourseIdGet(courseId: number, options: any = {}): FetchArgs {
-             // verify required parameter 'courseId' is not null or undefined
-             if (courseId === null || courseId === undefined) {
-                 throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesByCourseIdGet.');
-             }
-             const localVarPath = `/api/Courses/{courseId}`
-                 .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
-             const localVarUrlObj = url.parse(localVarPath, true);
-             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-             const localVarHeaderParameter = {} as any;
-             const localVarQueryParameter = {} as any;
- 
-             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-             delete localVarUrlObj.search;
-             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
- 
-             return {
-                 url: url.format(localVarUrlObj),
-                 options: localVarRequestOptions,
-             };
-         },
-         /**
-          * 
-          * @param {CreateCourseViewModel} [model] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesCreatePost(model?: CreateCourseViewModel, options: any = {}): FetchArgs {
-             const localVarPath = `/api/Courses/create`;
-             const localVarUrlObj = url.parse(localVarPath, true);
-             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-             const localVarHeaderParameter = {} as any;
-             const localVarQueryParameter = {} as any;
- 
-             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
- 
-             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-             delete localVarUrlObj.search;
-             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-             const needsSerialization = (<any>"CreateCourseViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
- 
-             return {
-                 url: url.format(localVarUrlObj),
-                 options: localVarRequestOptions,
-             };
-         },
-         /**
-          * 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesGet(options: any = {}): FetchArgs {
-             const localVarPath = `/api/Courses`;
-             const localVarUrlObj = url.parse(localVarPath, true);
-             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-             const localVarHeaderParameter = {} as any;
-             const localVarQueryParameter = {} as any;
- 
-             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-             delete localVarUrlObj.search;
-             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
- 
-             return {
-                 url: url.format(localVarUrlObj),
-                 options: localVarRequestOptions,
-             };
-         },
-         /**
-          * 
-          * @param {number} courseId 
-          * @param {CreateHomeworkViewModel} [homeworkViewModel] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesHomeworksByCourseIdAddPost(courseId: number, homeworkViewModel?: CreateHomeworkViewModel, options: any = {}): FetchArgs {
-             // verify required parameter 'courseId' is not null or undefined
-             if (courseId === null || courseId === undefined) {
-                 throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesHomeworksByCourseIdAddPost.');
-             }
-             const localVarPath = `/api/Courses/Homeworks/{courseId}/add`
-                 .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
-             const localVarUrlObj = url.parse(localVarPath, true);
-             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-             const localVarHeaderParameter = {} as any;
-             const localVarQueryParameter = {} as any;
- 
-             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
- 
-             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-             delete localVarUrlObj.search;
-             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-             const needsSerialization = (<any>"CreateHomeworkViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(homeworkViewModel || {}) : (homeworkViewModel || "");
- 
-             return {
-                 url: url.format(localVarUrlObj),
-                 options: localVarRequestOptions,
-             };
-         },
-         /**
-          * 
-          * @param {number} homeworkId 
-          * @param {CreateTaskViewModel} [taskViewModel] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesHomeworksByHomeworkIdTasksAddPost(homeworkId: number, taskViewModel?: CreateTaskViewModel, options: any = {}): FetchArgs {
-             // verify required parameter 'homeworkId' is not null or undefined
-             if (homeworkId === null || homeworkId === undefined) {
-                 throw new RequiredError('homeworkId','Required parameter homeworkId was null or undefined when calling apiCoursesHomeworksByHomeworkIdTasksAddPost.');
-             }
-             const localVarPath = `/api/Courses/Homeworks/{homeworkId}/Tasks/add`
-                 .replace(`{${"homeworkId"}}`, encodeURIComponent(String(homeworkId)));
-             const localVarUrlObj = url.parse(localVarPath, true);
-             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-             const localVarHeaderParameter = {} as any;
-             const localVarQueryParameter = {} as any;
- 
-             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
- 
-             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-             delete localVarUrlObj.search;
-             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-             const needsSerialization = (<any>"CreateTaskViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(taskViewModel || {}) : (taskViewModel || "");
- 
-             return {
-                 url: url.format(localVarUrlObj),
-                 options: localVarRequestOptions,
-             };
-         },
-         /**
-          * 
-          * @param {number} homeworkId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesHomeworksDeleteByHomeworkIdDelete(homeworkId: number, options: any = {}): FetchArgs {
-             // verify required parameter 'homeworkId' is not null or undefined
-             if (homeworkId === null || homeworkId === undefined) {
-                 throw new RequiredError('homeworkId','Required parameter homeworkId was null or undefined when calling apiCoursesHomeworksDeleteByHomeworkIdDelete.');
-             }
-             const localVarPath = `/api/Courses/Homeworks/delete/{homeworkId}`
-                 .replace(`{${"homeworkId"}}`, encodeURIComponent(String(homeworkId)));
-             const localVarUrlObj = url.parse(localVarPath, true);
-             const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
-             const localVarHeaderParameter = {} as any;
-             const localVarQueryParameter = {} as any;
- 
-             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-             delete localVarUrlObj.search;
-             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
- 
-             return {
-                 url: url.format(localVarUrlObj),
-                 options: localVarRequestOptions,
-             };
-         },
-         /**
-          * 
-          * @param {number} homeworkId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesHomeworksGetByHomeworkIdGet(homeworkId: number, options: any = {}): FetchArgs {
-             // verify required parameter 'homeworkId' is not null or undefined
-             if (homeworkId === null || homeworkId === undefined) {
-                 throw new RequiredError('homeworkId','Required parameter homeworkId was null or undefined when calling apiCoursesHomeworksGetByHomeworkIdGet.');
-             }
-             const localVarPath = `/api/Courses/Homeworks/get/{homeworkId}`
-                 .replace(`{${"homeworkId"}}`, encodeURIComponent(String(homeworkId)));
-             const localVarUrlObj = url.parse(localVarPath, true);
-             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-             const localVarHeaderParameter = {} as any;
-             const localVarQueryParameter = {} as any;
- 
-             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-             delete localVarUrlObj.search;
-             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
- 
-             return {
-                 url: url.format(localVarUrlObj),
-                 options: localVarRequestOptions,
-             };
-         },
-         /**
-          * 
-          * @param {number} taskId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesHomeworksTasksDeleteByTaskIdDelete(taskId: number, options: any = {}): FetchArgs {
-             // verify required parameter 'taskId' is not null or undefined
-             if (taskId === null || taskId === undefined) {
-                 throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling apiCoursesHomeworksTasksDeleteByTaskIdDelete.');
-             }
-             const localVarPath = `/api/Courses/Homeworks/Tasks/delete/{taskId}`
-                 .replace(`{${"taskId"}}`, encodeURIComponent(String(taskId)));
-             const localVarUrlObj = url.parse(localVarPath, true);
-             const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
-             const localVarHeaderParameter = {} as any;
-             const localVarQueryParameter = {} as any;
- 
-             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-             delete localVarUrlObj.search;
-             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
- 
-             return {
-                 url: url.format(localVarUrlObj),
-                 options: localVarRequestOptions,
-             };
-         },
-         /**
-          * 
-          * @param {number} taskId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesHomeworksTasksGetByTaskIdGet(taskId: number, options: any = {}): FetchArgs {
-             // verify required parameter 'taskId' is not null or undefined
-             if (taskId === null || taskId === undefined) {
-                 throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling apiCoursesHomeworksTasksGetByTaskIdGet.');
-             }
-             const localVarPath = `/api/Courses/Homeworks/Tasks/get/{taskId}`
-                 .replace(`{${"taskId"}}`, encodeURIComponent(String(taskId)));
-             const localVarUrlObj = url.parse(localVarPath, true);
-             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-             const localVarHeaderParameter = {} as any;
-             const localVarQueryParameter = {} as any;
- 
-             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-             delete localVarUrlObj.search;
-             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
- 
-             return {
-                 url: url.format(localVarUrlObj),
-                 options: localVarRequestOptions,
-             };
-         },
-         /**
-          * 
-          * @param {number} taskId 
-          * @param {CreateTaskViewModel} [taskViewModel] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesHomeworksTasksUpdateByTaskIdPut(taskId: number, taskViewModel?: CreateTaskViewModel, options: any = {}): FetchArgs {
-             // verify required parameter 'taskId' is not null or undefined
-             if (taskId === null || taskId === undefined) {
-                 throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling apiCoursesHomeworksTasksUpdateByTaskIdPut.');
-             }
-             const localVarPath = `/api/Courses/Homeworks/Tasks/update/{taskId}`
-                 .replace(`{${"taskId"}}`, encodeURIComponent(String(taskId)));
-             const localVarUrlObj = url.parse(localVarPath, true);
-             const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
-             const localVarHeaderParameter = {} as any;
-             const localVarQueryParameter = {} as any;
- 
-             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
- 
-             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-             delete localVarUrlObj.search;
-             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-             const needsSerialization = (<any>"CreateTaskViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(taskViewModel || {}) : (taskViewModel || "");
- 
-             return {
-                 url: url.format(localVarUrlObj),
-                 options: localVarRequestOptions,
-             };
-         },
-         /**
-          * 
-          * @param {number} homeworkId 
-          * @param {CreateHomeworkViewModel} [homeworkViewModel] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesHomeworksUpdateByHomeworkIdPut(homeworkId: number, homeworkViewModel?: CreateHomeworkViewModel, options: any = {}): FetchArgs {
-             // verify required parameter 'homeworkId' is not null or undefined
-             if (homeworkId === null || homeworkId === undefined) {
-                 throw new RequiredError('homeworkId','Required parameter homeworkId was null or undefined when calling apiCoursesHomeworksUpdateByHomeworkIdPut.');
-             }
-             const localVarPath = `/api/Courses/Homeworks/update/{homeworkId}`
-                 .replace(`{${"homeworkId"}}`, encodeURIComponent(String(homeworkId)));
-             const localVarUrlObj = url.parse(localVarPath, true);
-             const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
-             const localVarHeaderParameter = {} as any;
-             const localVarQueryParameter = {} as any;
- 
-             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
- 
-             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-             delete localVarUrlObj.search;
-             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-             const needsSerialization = (<any>"CreateHomeworkViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(homeworkViewModel || {}) : (homeworkViewModel || "");
- 
-             return {
-                 url: url.format(localVarUrlObj),
-                 options: localVarRequestOptions,
-             };
-         },
-         /**
-          * 
-          * @param {number} courseId 
-          * @param {string} studentId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesRejectStudentByCourseIdByStudentIdPost(courseId: number, studentId: string, options: any = {}): FetchArgs {
-             // verify required parameter 'courseId' is not null or undefined
-             if (courseId === null || courseId === undefined) {
-                 throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesRejectStudentByCourseIdByStudentIdPost.');
-             }
-             // verify required parameter 'studentId' is not null or undefined
-             if (studentId === null || studentId === undefined) {
-                 throw new RequiredError('studentId','Required parameter studentId was null or undefined when calling apiCoursesRejectStudentByCourseIdByStudentIdPost.');
-             }
-             const localVarPath = `/api/Courses/rejectStudent/{courseId}/{studentId}`
-                 .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)))
-                 .replace(`{${"studentId"}}`, encodeURIComponent(String(studentId)));
-             const localVarUrlObj = url.parse(localVarPath, true);
-             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-             const localVarHeaderParameter = {} as any;
-             const localVarQueryParameter = {} as any;
- 
-             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-             delete localVarUrlObj.search;
-             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
- 
-             return {
-                 url: url.format(localVarUrlObj),
-                 options: localVarRequestOptions,
-             };
-         },
-         /**
-          * 
-          * @param {number} courseId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesSignInCourseByCourseIdPost(courseId: number, options: any = {}): FetchArgs {
-             // verify required parameter 'courseId' is not null or undefined
-             if (courseId === null || courseId === undefined) {
-                 throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesSignInCourseByCourseIdPost.');
-             }
-             const localVarPath = `/api/Courses/signInCourse/{courseId}`
-                 .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
-             const localVarUrlObj = url.parse(localVarPath, true);
-             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-             const localVarHeaderParameter = {} as any;
-             const localVarQueryParameter = {} as any;
- 
-             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-             delete localVarUrlObj.search;
-             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
- 
-             return {
-                 url: url.format(localVarUrlObj),
-                 options: localVarRequestOptions,
-             };
-         },
-         /**
-          * 
-          * @param {number} courseId 
-          * @param {UpdateCourseViewModel} [model] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesUpdateByCourseIdPost(courseId: number, model?: UpdateCourseViewModel, options: any = {}): FetchArgs {
-             // verify required parameter 'courseId' is not null or undefined
-             if (courseId === null || courseId === undefined) {
-                 throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesUpdateByCourseIdPost.');
-             }
-             const localVarPath = `/api/Courses/update/{courseId}`
-                 .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
-             const localVarUrlObj = url.parse(localVarPath, true);
-             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-             const localVarHeaderParameter = {} as any;
-             const localVarQueryParameter = {} as any;
- 
-             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
- 
-             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-             delete localVarUrlObj.search;
-             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-             const needsSerialization = (<any>"UpdateCourseViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
- 
-             return {
-                 url: url.format(localVarUrlObj),
-                 options: localVarRequestOptions,
-             };
-         },
-         /**
-          * 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesUserCoursesGet(options: any = {}): FetchArgs {
-             const localVarPath = `/api/Courses/userCourses`;
-             const localVarUrlObj = url.parse(localVarPath, true);
-             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-             const localVarHeaderParameter = {} as any;
-             const localVarQueryParameter = {} as any;
- 
-             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-             delete localVarUrlObj.search;
-             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
- 
-             return {
-                 url: url.format(localVarUrlObj),
-                 options: localVarRequestOptions,
-             };
-         },
-     }
- };
- 
- /**
-  * CoursesApi - functional programming interface
-  * @export
-  */
- export const CoursesApiFp = function(configuration?: Configuration) {
-     return {
-         /**
-          * 
-          * @param {number} courseId 
-          * @param {string} studentId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesAcceptStudentByCourseIdByStudentIdPost(courseId: number, studentId: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-             const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesAcceptStudentByCourseIdByStudentIdPost(courseId, studentId, options);
-             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                     if (response.status >= 200 && response.status < 300) {
-                         return response;
-                     } else {
-                         throw response;
-                     }
-                 });
-             };
-         },
-         /**
-          * 
-          * @param {number} courseId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesByCourseIdDelete(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-             const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesByCourseIdDelete(courseId, options);
-             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                     if (response.status >= 200 && response.status < 300) {
-                         return response;
-                     } else {
-                         throw response;
-                     }
-                 });
-             };
-         },
-         /**
-          * 
-          * @param {number} courseId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesByCourseIdGet(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<CourseViewModel> {
-             const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesByCourseIdGet(courseId, options);
-             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                     if (response.status >= 200 && response.status < 300) {
-                         return response.json();
-                     } else {
-                         throw response;
-                     }
-                 });
-             };
-         },
-         /**
-          * 
-          * @param {CreateCourseViewModel} [model] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesCreatePost(model?: CreateCourseViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
-             const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesCreatePost(model, options);
-             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                     if (response.status >= 200 && response.status < 300) {
-                         return response.json();
-                     } else {
-                         throw response;
-                     }
-                 });
-             };
-         },
-         /**
-          * 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<CourseViewModel>> {
-             const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesGet(options);
-             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                     if (response.status >= 200 && response.status < 300) {
-                         return response.json();
-                     } else {
-                         throw response;
-                     }
-                 });
-             };
-         },
-         /**
-          * 
-          * @param {number} courseId 
-          * @param {CreateHomeworkViewModel} [homeworkViewModel] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesHomeworksByCourseIdAddPost(courseId: number, homeworkViewModel?: CreateHomeworkViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
-             const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesHomeworksByCourseIdAddPost(courseId, homeworkViewModel, options);
-             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                     if (response.status >= 200 && response.status < 300) {
-                         return response.json();
-                     } else {
-                         throw response;
-                     }
-                 });
-             };
-         },
-         /**
-          * 
-          * @param {number} homeworkId 
-          * @param {CreateTaskViewModel} [taskViewModel] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesHomeworksByHomeworkIdTasksAddPost(homeworkId: number, taskViewModel?: CreateTaskViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
-             const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesHomeworksByHomeworkIdTasksAddPost(homeworkId, taskViewModel, options);
-             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                     if (response.status >= 200 && response.status < 300) {
-                         return response.json();
-                     } else {
-                         throw response;
-                     }
-                 });
-             };
-         },
-         /**
-          * 
-          * @param {number} homeworkId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesHomeworksDeleteByHomeworkIdDelete(homeworkId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-             const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesHomeworksDeleteByHomeworkIdDelete(homeworkId, options);
-             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                     if (response.status >= 200 && response.status < 300) {
-                         return response;
-                     } else {
-                         throw response;
-                     }
-                 });
-             };
-         },
-         /**
-          * 
-          * @param {number} homeworkId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesHomeworksGetByHomeworkIdGet(homeworkId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<HomeworkViewModel> {
-             const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesHomeworksGetByHomeworkIdGet(homeworkId, options);
-             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                     if (response.status >= 200 && response.status < 300) {
-                         return response.json();
-                     } else {
-                         throw response;
-                     }
-                 });
-             };
-         },
-         /**
-          * 
-          * @param {number} taskId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesHomeworksTasksDeleteByTaskIdDelete(taskId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-             const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesHomeworksTasksDeleteByTaskIdDelete(taskId, options);
-             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                     if (response.status >= 200 && response.status < 300) {
-                         return response;
-                     } else {
-                         throw response;
-                     }
-                 });
-             };
-         },
-         /**
-          * 
-          * @param {number} taskId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesHomeworksTasksGetByTaskIdGet(taskId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<HomeworkTaskViewModel> {
-             const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesHomeworksTasksGetByTaskIdGet(taskId, options);
-             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                     if (response.status >= 200 && response.status < 300) {
-                         return response.json();
-                     } else {
-                         throw response;
-                     }
-                 });
-             };
-         },
-         /**
-          * 
-          * @param {number} taskId 
-          * @param {CreateTaskViewModel} [taskViewModel] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesHomeworksTasksUpdateByTaskIdPut(taskId: number, taskViewModel?: CreateTaskViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-             const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesHomeworksTasksUpdateByTaskIdPut(taskId, taskViewModel, options);
-             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                     if (response.status >= 200 && response.status < 300) {
-                         return response;
-                     } else {
-                         throw response;
-                     }
-                 });
-             };
-         },
-         /**
-          * 
-          * @param {number} homeworkId 
-          * @param {CreateHomeworkViewModel} [homeworkViewModel] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesHomeworksUpdateByHomeworkIdPut(homeworkId: number, homeworkViewModel?: CreateHomeworkViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-             const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesHomeworksUpdateByHomeworkIdPut(homeworkId, homeworkViewModel, options);
-             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                     if (response.status >= 200 && response.status < 300) {
-                         return response;
-                     } else {
-                         throw response;
-                     }
-                 });
-             };
-         },
-         /**
-          * 
-          * @param {number} courseId 
-          * @param {string} studentId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesRejectStudentByCourseIdByStudentIdPost(courseId: number, studentId: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-             const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesRejectStudentByCourseIdByStudentIdPost(courseId, studentId, options);
-             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                     if (response.status >= 200 && response.status < 300) {
-                         return response;
-                     } else {
-                         throw response;
-                     }
-                 });
-             };
-         },
-         /**
-          * 
-          * @param {number} courseId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesSignInCourseByCourseIdPost(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-             const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesSignInCourseByCourseIdPost(courseId, options);
-             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                     if (response.status >= 200 && response.status < 300) {
-                         return response;
-                     } else {
-                         throw response;
-                     }
-                 });
-             };
-         },
-         /**
-          * 
-          * @param {number} courseId 
-          * @param {UpdateCourseViewModel} [model] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesUpdateByCourseIdPost(courseId: number, model?: UpdateCourseViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-             const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesUpdateByCourseIdPost(courseId, model, options);
-             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                     if (response.status >= 200 && response.status < 300) {
-                         return response;
-                     } else {
-                         throw response;
-                     }
-                 });
-             };
-         },
-         /**
-          * 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesUserCoursesGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<UserCourseDescription>> {
-             const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesUserCoursesGet(options);
-             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                     if (response.status >= 200 && response.status < 300) {
-                         return response.json();
-                     } else {
-                         throw response;
-                     }
-                 });
-             };
-         },
-     }
- };
- 
- /**
-  * CoursesApi - factory interface
-  * @export
-  */
- export const CoursesApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
-     return {
-         /**
-          * 
-          * @param {number} courseId 
-          * @param {string} studentId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesAcceptStudentByCourseIdByStudentIdPost(courseId: number, studentId: string, options?: any) {
-             return CoursesApiFp(configuration).apiCoursesAcceptStudentByCourseIdByStudentIdPost(courseId, studentId, options)(fetch, basePath);
-         },
-         /**
-          * 
-          * @param {number} courseId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesByCourseIdDelete(courseId: number, options?: any) {
-             return CoursesApiFp(configuration).apiCoursesByCourseIdDelete(courseId, options)(fetch, basePath);
-         },
-         /**
-          * 
-          * @param {number} courseId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesByCourseIdGet(courseId: number, options?: any) {
-             return CoursesApiFp(configuration).apiCoursesByCourseIdGet(courseId, options)(fetch, basePath);
-         },
-         /**
-          * 
-          * @param {CreateCourseViewModel} [model] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesCreatePost(model?: CreateCourseViewModel, options?: any) {
-             return CoursesApiFp(configuration).apiCoursesCreatePost(model, options)(fetch, basePath);
-         },
-         /**
-          * 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesGet(options?: any) {
-             return CoursesApiFp(configuration).apiCoursesGet(options)(fetch, basePath);
-         },
-         /**
-          * 
-          * @param {number} courseId 
-          * @param {CreateHomeworkViewModel} [homeworkViewModel] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesHomeworksByCourseIdAddPost(courseId: number, homeworkViewModel?: CreateHomeworkViewModel, options?: any) {
-             return CoursesApiFp(configuration).apiCoursesHomeworksByCourseIdAddPost(courseId, homeworkViewModel, options)(fetch, basePath);
-         },
-         /**
-          * 
-          * @param {number} homeworkId 
-          * @param {CreateTaskViewModel} [taskViewModel] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesHomeworksByHomeworkIdTasksAddPost(homeworkId: number, taskViewModel?: CreateTaskViewModel, options?: any) {
-             return CoursesApiFp(configuration).apiCoursesHomeworksByHomeworkIdTasksAddPost(homeworkId, taskViewModel, options)(fetch, basePath);
-         },
-         /**
-          * 
-          * @param {number} homeworkId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesHomeworksDeleteByHomeworkIdDelete(homeworkId: number, options?: any) {
-             return CoursesApiFp(configuration).apiCoursesHomeworksDeleteByHomeworkIdDelete(homeworkId, options)(fetch, basePath);
-         },
-         /**
-          * 
-          * @param {number} homeworkId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesHomeworksGetByHomeworkIdGet(homeworkId: number, options?: any) {
-             return CoursesApiFp(configuration).apiCoursesHomeworksGetByHomeworkIdGet(homeworkId, options)(fetch, basePath);
-         },
-         /**
-          * 
-          * @param {number} taskId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesHomeworksTasksDeleteByTaskIdDelete(taskId: number, options?: any) {
-             return CoursesApiFp(configuration).apiCoursesHomeworksTasksDeleteByTaskIdDelete(taskId, options)(fetch, basePath);
-         },
-         /**
-          * 
-          * @param {number} taskId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesHomeworksTasksGetByTaskIdGet(taskId: number, options?: any) {
-             return CoursesApiFp(configuration).apiCoursesHomeworksTasksGetByTaskIdGet(taskId, options)(fetch, basePath);
-         },
-         /**
-          * 
-          * @param {number} taskId 
-          * @param {CreateTaskViewModel} [taskViewModel] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesHomeworksTasksUpdateByTaskIdPut(taskId: number, taskViewModel?: CreateTaskViewModel, options?: any) {
-             return CoursesApiFp(configuration).apiCoursesHomeworksTasksUpdateByTaskIdPut(taskId, taskViewModel, options)(fetch, basePath);
-         },
-         /**
-          * 
-          * @param {number} homeworkId 
-          * @param {CreateHomeworkViewModel} [homeworkViewModel] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesHomeworksUpdateByHomeworkIdPut(homeworkId: number, homeworkViewModel?: CreateHomeworkViewModel, options?: any) {
-             return CoursesApiFp(configuration).apiCoursesHomeworksUpdateByHomeworkIdPut(homeworkId, homeworkViewModel, options)(fetch, basePath);
-         },
-         /**
-          * 
-          * @param {number} courseId 
-          * @param {string} studentId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesRejectStudentByCourseIdByStudentIdPost(courseId: number, studentId: string, options?: any) {
-             return CoursesApiFp(configuration).apiCoursesRejectStudentByCourseIdByStudentIdPost(courseId, studentId, options)(fetch, basePath);
-         },
-         /**
-          * 
-          * @param {number} courseId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesSignInCourseByCourseIdPost(courseId: number, options?: any) {
-             return CoursesApiFp(configuration).apiCoursesSignInCourseByCourseIdPost(courseId, options)(fetch, basePath);
-         },
-         /**
-          * 
-          * @param {number} courseId 
-          * @param {UpdateCourseViewModel} [model] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesUpdateByCourseIdPost(courseId: number, model?: UpdateCourseViewModel, options?: any) {
-             return CoursesApiFp(configuration).apiCoursesUpdateByCourseIdPost(courseId, model, options)(fetch, basePath);
-         },
-         /**
-          * 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiCoursesUserCoursesGet(options?: any) {
-             return CoursesApiFp(configuration).apiCoursesUserCoursesGet(options)(fetch, basePath);
-         },
-     };
- };
- 
- /**
-  * CoursesApi - object-oriented interface
-  * @export
-  * @class CoursesApi
-  * @extends {BaseAPI}
-  */
- export class CoursesApi extends BaseAPI {
-     /**
-      * 
-      * @param {number} courseId 
-      * @param {string} studentId 
-      * @param {*} [options] Override http request option.
-      * @throws {RequiredError}
-      * @memberof CoursesApi
-      */
-     public apiCoursesAcceptStudentByCourseIdByStudentIdPost(courseId: number, studentId: string, options?: any) {
-         return CoursesApiFp(this.configuration).apiCoursesAcceptStudentByCourseIdByStudentIdPost(courseId, studentId, options)(this.fetch, this.basePath);
-     }
- 
-     /**
-      * 
-      * @param {number} courseId 
-      * @param {*} [options] Override http request option.
-      * @throws {RequiredError}
-      * @memberof CoursesApi
-      */
-     public apiCoursesByCourseIdDelete(courseId: number, options?: any) {
-         return CoursesApiFp(this.configuration).apiCoursesByCourseIdDelete(courseId, options)(this.fetch, this.basePath);
-     }
- 
-     /**
-      * 
-      * @param {number} courseId 
-      * @param {*} [options] Override http request option.
-      * @throws {RequiredError}
-      * @memberof CoursesApi
-      */
-     public apiCoursesByCourseIdGet(courseId: number, options?: any) {
-         return CoursesApiFp(this.configuration).apiCoursesByCourseIdGet(courseId, options)(this.fetch, this.basePath);
-     }
- 
-     /**
-      * 
-      * @param {CreateCourseViewModel} [model] 
-      * @param {*} [options] Override http request option.
-      * @throws {RequiredError}
-      * @memberof CoursesApi
-      */
-     public apiCoursesCreatePost(model?: CreateCourseViewModel, options?: any) {
-         return CoursesApiFp(this.configuration).apiCoursesCreatePost(model, options)(this.fetch, this.basePath);
-     }
- 
-     /**
-      * 
-      * @param {*} [options] Override http request option.
-      * @throws {RequiredError}
-      * @memberof CoursesApi
-      */
-     public apiCoursesGet(options?: any) {
-         return CoursesApiFp(this.configuration).apiCoursesGet(options)(this.fetch, this.basePath);
-     }
- 
-     /**
-      * 
-      * @param {number} courseId 
-      * @param {CreateHomeworkViewModel} [homeworkViewModel] 
-      * @param {*} [options] Override http request option.
-      * @throws {RequiredError}
-      * @memberof CoursesApi
-      */
-     public apiCoursesHomeworksByCourseIdAddPost(courseId: number, homeworkViewModel?: CreateHomeworkViewModel, options?: any) {
-         return CoursesApiFp(this.configuration).apiCoursesHomeworksByCourseIdAddPost(courseId, homeworkViewModel, options)(this.fetch, this.basePath);
-     }
- 
-     /**
-      * 
-      * @param {number} homeworkId 
-      * @param {CreateTaskViewModel} [taskViewModel] 
-      * @param {*} [options] Override http request option.
-      * @throws {RequiredError}
-      * @memberof CoursesApi
-      */
-     public apiCoursesHomeworksByHomeworkIdTasksAddPost(homeworkId: number, taskViewModel?: CreateTaskViewModel, options?: any) {
-         return CoursesApiFp(this.configuration).apiCoursesHomeworksByHomeworkIdTasksAddPost(homeworkId, taskViewModel, options)(this.fetch, this.basePath);
-     }
- 
-     /**
-      * 
-      * @param {number} homeworkId 
-      * @param {*} [options] Override http request option.
-      * @throws {RequiredError}
-      * @memberof CoursesApi
-      */
-     public apiCoursesHomeworksDeleteByHomeworkIdDelete(homeworkId: number, options?: any) {
-         return CoursesApiFp(this.configuration).apiCoursesHomeworksDeleteByHomeworkIdDelete(homeworkId, options)(this.fetch, this.basePath);
-     }
- 
-     /**
-      * 
-      * @param {number} homeworkId 
-      * @param {*} [options] Override http request option.
-      * @throws {RequiredError}
-      * @memberof CoursesApi
-      */
-     public apiCoursesHomeworksGetByHomeworkIdGet(homeworkId: number, options?: any) {
-         return CoursesApiFp(this.configuration).apiCoursesHomeworksGetByHomeworkIdGet(homeworkId, options)(this.fetch, this.basePath);
-     }
- 
-     /**
-      * 
-      * @param {number} taskId 
-      * @param {*} [options] Override http request option.
-      * @throws {RequiredError}
-      * @memberof CoursesApi
-      */
-     public apiCoursesHomeworksTasksDeleteByTaskIdDelete(taskId: number, options?: any) {
-         return CoursesApiFp(this.configuration).apiCoursesHomeworksTasksDeleteByTaskIdDelete(taskId, options)(this.fetch, this.basePath);
-     }
- 
-     /**
-      * 
-      * @param {number} taskId 
-      * @param {*} [options] Override http request option.
-      * @throws {RequiredError}
-      * @memberof CoursesApi
-      */
-     public apiCoursesHomeworksTasksGetByTaskIdGet(taskId: number, options?: any) {
-         return CoursesApiFp(this.configuration).apiCoursesHomeworksTasksGetByTaskIdGet(taskId, options)(this.fetch, this.basePath);
-     }
- 
-     /**
-      * 
-      * @param {number} taskId 
-      * @param {CreateTaskViewModel} [taskViewModel] 
-      * @param {*} [options] Override http request option.
-      * @throws {RequiredError}
-      * @memberof CoursesApi
-      */
-     public apiCoursesHomeworksTasksUpdateByTaskIdPut(taskId: number, taskViewModel?: CreateTaskViewModel, options?: any) {
-         return CoursesApiFp(this.configuration).apiCoursesHomeworksTasksUpdateByTaskIdPut(taskId, taskViewModel, options)(this.fetch, this.basePath);
-     }
- 
-     /**
-      * 
-      * @param {number} homeworkId 
-      * @param {CreateHomeworkViewModel} [homeworkViewModel] 
-      * @param {*} [options] Override http request option.
-      * @throws {RequiredError}
-      * @memberof CoursesApi
-      */
-     public apiCoursesHomeworksUpdateByHomeworkIdPut(homeworkId: number, homeworkViewModel?: CreateHomeworkViewModel, options?: any) {
-         return CoursesApiFp(this.configuration).apiCoursesHomeworksUpdateByHomeworkIdPut(homeworkId, homeworkViewModel, options)(this.fetch, this.basePath);
-     }
- 
-     /**
-      * 
-      * @param {number} courseId 
-      * @param {string} studentId 
-      * @param {*} [options] Override http request option.
-      * @throws {RequiredError}
-      * @memberof CoursesApi
-      */
-     public apiCoursesRejectStudentByCourseIdByStudentIdPost(courseId: number, studentId: string, options?: any) {
-         return CoursesApiFp(this.configuration).apiCoursesRejectStudentByCourseIdByStudentIdPost(courseId, studentId, options)(this.fetch, this.basePath);
-     }
- 
-     /**
-      * 
-      * @param {number} courseId 
-      * @param {*} [options] Override http request option.
-      * @throws {RequiredError}
-      * @memberof CoursesApi
-      */
-     public apiCoursesSignInCourseByCourseIdPost(courseId: number, options?: any) {
-         return CoursesApiFp(this.configuration).apiCoursesSignInCourseByCourseIdPost(courseId, options)(this.fetch, this.basePath);
-     }
- 
-     /**
-      * 
-      * @param {number} courseId 
-      * @param {UpdateCourseViewModel} [model] 
-      * @param {*} [options] Override http request option.
-      * @throws {RequiredError}
-      * @memberof CoursesApi
-      */
-     public apiCoursesUpdateByCourseIdPost(courseId: number, model?: UpdateCourseViewModel, options?: any) {
-         return CoursesApiFp(this.configuration).apiCoursesUpdateByCourseIdPost(courseId, model, options)(this.fetch, this.basePath);
-     }
- 
-     /**
-      * 
-      * @param {*} [options] Override http request option.
-      * @throws {RequiredError}
-      * @memberof CoursesApi
-      */
-     public apiCoursesUserCoursesGet(options?: any) {
-         return CoursesApiFp(this.configuration).apiCoursesUserCoursesGet(options)(this.fetch, this.basePath);
-     }
- 
- }
- 
- /**
-  * FileConfigurationApi - fetch parameter creator
-  * @export
-  */
- export const FileConfigurationApiFetchParamCreator = function (configuration?: Configuration) {
-     return {
-         /**
-          * 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         configurationGet(options: any = {}): FetchArgs {
-             const localVarPath = `/configuration`;
-             const localVarUrlObj = url.parse(localVarPath, true);
-             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-             const localVarHeaderParameter = {} as any;
-             const localVarQueryParameter = {} as any;
- 
-             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-             delete localVarUrlObj.search;
-             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
- 
-             return {
-                 url: url.format(localVarUrlObj),
-                 options: localVarRequestOptions,
-             };
-         },
-         /**
-          * 
-          * @param {FileConfiguration} [fileConfiguration] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         configurationPost(fileConfiguration?: FileConfiguration, options: any = {}): FetchArgs {
-             const localVarPath = `/configuration`;
-             const localVarUrlObj = url.parse(localVarPath, true);
-             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-             const localVarHeaderParameter = {} as any;
-             const localVarQueryParameter = {} as any;
- 
-             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
- 
-             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-             delete localVarUrlObj.search;
-             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-             const needsSerialization = (<any>"FileConfiguration" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(fileConfiguration || {}) : (fileConfiguration || "");
- 
-             return {
-                 url: url.format(localVarUrlObj),
-                 options: localVarRequestOptions,
-             };
-         },
-     }
- };
- 
- /**
-  * FileConfigurationApi - functional programming interface
-  * @export
-  */
- export const FileConfigurationApiFp = function(configuration?: Configuration) {
-     return {
-         /**
-          * 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         configurationGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-             const localVarFetchArgs = FileConfigurationApiFetchParamCreator(configuration).configurationGet(options);
-             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                     if (response.status >= 200 && response.status < 300) {
-                         return response;
-                     } else {
-                         throw response;
-                     }
-                 });
-             };
-         },
-         /**
-          * 
-          * @param {FileConfiguration} [fileConfiguration] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         configurationPost(fileConfiguration?: FileConfiguration, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-             const localVarFetchArgs = FileConfigurationApiFetchParamCreator(configuration).configurationPost(fileConfiguration, options);
-             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                     if (response.status >= 200 && response.status < 300) {
-                         return response;
-                     } else {
-                         throw response;
-                     }
-                 });
-             };
-         },
-     }
- };
- 
- /**
-  * FileConfigurationApi - factory interface
-  * @export
-  */
- export const FileConfigurationApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
-     return {
-         /**
-          * 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         configurationGet(options?: any) {
-             return FileConfigurationApiFp(configuration).configurationGet(options)(fetch, basePath);
-         },
-         /**
-          * 
-          * @param {FileConfiguration} [fileConfiguration] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         configurationPost(fileConfiguration?: FileConfiguration, options?: any) {
-             return FileConfigurationApiFp(configuration).configurationPost(fileConfiguration, options)(fetch, basePath);
-         },
-     };
- };
- 
- /**
-  * FileConfigurationApi - object-oriented interface
-  * @export
-  * @class FileConfigurationApi
-  * @extends {BaseAPI}
-  */
- export class FileConfigurationApi extends BaseAPI {
-     /**
-      * 
-      * @param {*} [options] Override http request option.
-      * @throws {RequiredError}
-      * @memberof FileConfigurationApi
-      */
-     public configurationGet(options?: any) {
-         return FileConfigurationApiFp(this.configuration).configurationGet(options)(this.fetch, this.basePath);
-     }
- 
-     /**
-      * 
-      * @param {FileConfiguration} [fileConfiguration] 
-      * @param {*} [options] Override http request option.
-      * @throws {RequiredError}
-      * @memberof FileConfigurationApi
-      */
-     public configurationPost(fileConfiguration?: FileConfiguration, options?: any) {
-         return FileConfigurationApiFp(this.configuration).configurationPost(fileConfiguration, options)(this.fetch, this.basePath);
-     }
- 
- }
- 
- /**
-  * NotificationsApi - fetch parameter creator
-  * @export
-  */
- export const NotificationsApiFetchParamCreator = function (configuration?: Configuration) {
-     return {
-         /**
-          * 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiNotificationsGetGet(options: any = {}): FetchArgs {
-             const localVarPath = `/api/Notifications/get`;
-             const localVarUrlObj = url.parse(localVarPath, true);
-             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-             const localVarHeaderParameter = {} as any;
-             const localVarQueryParameter = {} as any;
- 
-             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-             delete localVarUrlObj.search;
-             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
- 
-             return {
-                 url: url.format(localVarUrlObj),
-                 options: localVarRequestOptions,
-             };
-         },
-         /**
-          * 
-          * @param {Array<number>} [notificationIds] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiNotificationsMarkAsSeenPut(notificationIds?: Array<number>, options: any = {}): FetchArgs {
-             const localVarPath = `/api/Notifications/markAsSeen`;
-             const localVarUrlObj = url.parse(localVarPath, true);
-             const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
-             const localVarHeaderParameter = {} as any;
-             const localVarQueryParameter = {} as any;
- 
-             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
- 
-             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-             delete localVarUrlObj.search;
-             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-             const needsSerialization = (<any>"Array&lt;number&gt;" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(notificationIds || {}) : (notificationIds || "");
- 
-             return {
-                 url: url.format(localVarUrlObj),
-                 options: localVarRequestOptions,
-             };
-         },
-     }
- };
- 
- /**
-  * NotificationsApi - functional programming interface
-  * @export
-  */
- export const NotificationsApiFp = function(configuration?: Configuration) {
-     return {
-         /**
-          * 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiNotificationsGetGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<NotificationViewModel>> {
-             const localVarFetchArgs = NotificationsApiFetchParamCreator(configuration).apiNotificationsGetGet(options);
-             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                     if (response.status >= 200 && response.status < 300) {
-                         return response.json();
-                     } else {
-                         throw response;
-                     }
-                 });
-             };
-         },
-         /**
-          * 
-          * @param {Array<number>} [notificationIds] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiNotificationsMarkAsSeenPut(notificationIds?: Array<number>, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-             const localVarFetchArgs = NotificationsApiFetchParamCreator(configuration).apiNotificationsMarkAsSeenPut(notificationIds, options);
-             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                     if (response.status >= 200 && response.status < 300) {
-                         return response;
-                     } else {
-                         throw response;
-                     }
-                 });
-             };
-         },
-     }
- };
- 
- /**
-  * NotificationsApi - factory interface
-  * @export
-  */
- export const NotificationsApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
-     return {
-         /**
-          * 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiNotificationsGetGet(options?: any) {
-             return NotificationsApiFp(configuration).apiNotificationsGetGet(options)(fetch, basePath);
-         },
-         /**
-          * 
-          * @param {Array<number>} [notificationIds] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiNotificationsMarkAsSeenPut(notificationIds?: Array<number>, options?: any) {
-             return NotificationsApiFp(configuration).apiNotificationsMarkAsSeenPut(notificationIds, options)(fetch, basePath);
-         },
-     };
- };
- 
- /**
-  * NotificationsApi - object-oriented interface
-  * @export
-  * @class NotificationsApi
-  * @extends {BaseAPI}
-  */
- export class NotificationsApi extends BaseAPI {
-     /**
-      * 
-      * @param {*} [options] Override http request option.
-      * @throws {RequiredError}
-      * @memberof NotificationsApi
-      */
-     public apiNotificationsGetGet(options?: any) {
-         return NotificationsApiFp(this.configuration).apiNotificationsGetGet(options)(this.fetch, this.basePath);
-     }
- 
-     /**
-      * 
-      * @param {Array<number>} [notificationIds] 
-      * @param {*} [options] Override http request option.
-      * @throws {RequiredError}
-      * @memberof NotificationsApi
-      */
-     public apiNotificationsMarkAsSeenPut(notificationIds?: Array<number>, options?: any) {
-         return NotificationsApiFp(this.configuration).apiNotificationsMarkAsSeenPut(notificationIds, options)(this.fetch, this.basePath);
-     }
- 
- }
- 
- /**
-  * OutputCacheApi - fetch parameter creator
-  * @export
-  */
- export const OutputCacheApiFetchParamCreator = function (configuration?: Configuration) {
-     return {
-         /**
-          * 
-          * @param {string} region 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         outputcacheByRegionDelete(region: string, options: any = {}): FetchArgs {
-             // verify required parameter 'region' is not null or undefined
-             if (region === null || region === undefined) {
-                 throw new RequiredError('region','Required parameter region was null or undefined when calling outputcacheByRegionDelete.');
-             }
-             const localVarPath = `/outputcache/{region}`
-                 .replace(`{${"region"}}`, encodeURIComponent(String(region)));
-             const localVarUrlObj = url.parse(localVarPath, true);
-             const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
-             const localVarHeaderParameter = {} as any;
-             const localVarQueryParameter = {} as any;
- 
-             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-             delete localVarUrlObj.search;
-             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
- 
-             return {
-                 url: url.format(localVarUrlObj),
-                 options: localVarRequestOptions,
-             };
-         },
-     }
- };
- 
- /**
-  * OutputCacheApi - functional programming interface
-  * @export
-  */
- export const OutputCacheApiFp = function(configuration?: Configuration) {
-     return {
-         /**
-          * 
-          * @param {string} region 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         outputcacheByRegionDelete(region: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-             const localVarFetchArgs = OutputCacheApiFetchParamCreator(configuration).outputcacheByRegionDelete(region, options);
-             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                     if (response.status >= 200 && response.status < 300) {
-                         return response;
-                     } else {
-                         throw response;
-                     }
-                 });
-             };
-         },
-     }
- };
- 
- /**
-  * OutputCacheApi - factory interface
-  * @export
-  */
- export const OutputCacheApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
-     return {
-         /**
-          * 
-          * @param {string} region 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         outputcacheByRegionDelete(region: string, options?: any) {
-             return OutputCacheApiFp(configuration).outputcacheByRegionDelete(region, options)(fetch, basePath);
-         },
-     };
- };
- 
- /**
-  * OutputCacheApi - object-oriented interface
-  * @export
-  * @class OutputCacheApi
-  * @extends {BaseAPI}
-  */
- export class OutputCacheApi extends BaseAPI {
-     /**
-      * 
-      * @param {string} region 
-      * @param {*} [options] Override http request option.
-      * @throws {RequiredError}
-      * @memberof OutputCacheApi
-      */
-     public outputcacheByRegionDelete(region: string, options?: any) {
-         return OutputCacheApiFp(this.configuration).outputcacheByRegionDelete(region, options)(this.fetch, this.basePath);
-     }
- 
- }
- 
- /**
-  * SolutionsApi - fetch parameter creator
-  * @export
-  */
- export const SolutionsApiFetchParamCreator = function (configuration?: Configuration) {
-     return {
-         /**
-          * 
-          * @param {number} solutionId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiSolutionsBySolutionIdGet(solutionId: number, options: any = {}): FetchArgs {
-             // verify required parameter 'solutionId' is not null or undefined
-             if (solutionId === null || solutionId === undefined) {
-                 throw new RequiredError('solutionId','Required parameter solutionId was null or undefined when calling apiSolutionsBySolutionIdGet.');
-             }
-             const localVarPath = `/api/Solutions/{solutionId}`
-                 .replace(`{${"solutionId"}}`, encodeURIComponent(String(solutionId)));
-             const localVarUrlObj = url.parse(localVarPath, true);
-             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-             const localVarHeaderParameter = {} as any;
-             const localVarQueryParameter = {} as any;
- 
-             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-             delete localVarUrlObj.search;
-             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
- 
-             return {
-                 url: url.format(localVarUrlObj),
-                 options: localVarRequestOptions,
-             };
-         },
-         /**
-          * 
-          * @param {number} taskId 
-          * @param {SolutionViewModel} [model] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiSolutionsByTaskIdPost(taskId: number, model?: SolutionViewModel, options: any = {}): FetchArgs {
-             // verify required parameter 'taskId' is not null or undefined
-             if (taskId === null || taskId === undefined) {
-                 throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling apiSolutionsByTaskIdPost.');
-             }
-             const localVarPath = `/api/Solutions/{taskId}`
-                 .replace(`{${"taskId"}}`, encodeURIComponent(String(taskId)));
-             const localVarUrlObj = url.parse(localVarPath, true);
-             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-             const localVarHeaderParameter = {} as any;
-             const localVarQueryParameter = {} as any;
- 
-             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
- 
-             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-             delete localVarUrlObj.search;
-             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-             const needsSerialization = (<any>"SolutionViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
- 
-             return {
-                 url: url.format(localVarUrlObj),
-                 options: localVarRequestOptions,
-             };
-         },
-         /**
-          * 
-          * @param {number} solutionId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiSolutionsDeleteBySolutionIdDelete(solutionId: number, options: any = {}): FetchArgs {
-             // verify required parameter 'solutionId' is not null or undefined
-             if (solutionId === null || solutionId === undefined) {
-                 throw new RequiredError('solutionId','Required parameter solutionId was null or undefined when calling apiSolutionsDeleteBySolutionIdDelete.');
-             }
-             const localVarPath = `/api/Solutions/delete/{solutionId}`
-                 .replace(`{${"solutionId"}}`, encodeURIComponent(String(solutionId)));
-             const localVarUrlObj = url.parse(localVarPath, true);
-             const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
-             const localVarHeaderParameter = {} as any;
-             const localVarQueryParameter = {} as any;
- 
-             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-             delete localVarUrlObj.search;
-             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
- 
-             return {
-                 url: url.format(localVarUrlObj),
-                 options: localVarRequestOptions,
-             };
-         },
-         /**
-          * 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiSolutionsGet(options: any = {}): FetchArgs {
-             const localVarPath = `/api/Solutions`;
-             const localVarUrlObj = url.parse(localVarPath, true);
-             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-             const localVarHeaderParameter = {} as any;
-             const localVarQueryParameter = {} as any;
- 
-             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-             delete localVarUrlObj.search;
-             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
- 
-             return {
-                 url: url.format(localVarUrlObj),
-                 options: localVarRequestOptions,
-             };
-         },
-         /**
-          * 
-          * @param {number} solutionId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiSolutionsMarkSolutionFinalBySolutionIdPost(solutionId: number, options: any = {}): FetchArgs {
-             // verify required parameter 'solutionId' is not null or undefined
-             if (solutionId === null || solutionId === undefined) {
-                 throw new RequiredError('solutionId','Required parameter solutionId was null or undefined when calling apiSolutionsMarkSolutionFinalBySolutionIdPost.');
-             }
-             const localVarPath = `/api/Solutions/markSolutionFinal/{solutionId}`
-                 .replace(`{${"solutionId"}}`, encodeURIComponent(String(solutionId)));
-             const localVarUrlObj = url.parse(localVarPath, true);
-             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-             const localVarHeaderParameter = {} as any;
-             const localVarQueryParameter = {} as any;
- 
-             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-             delete localVarUrlObj.search;
-             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
- 
-             return {
-                 url: url.format(localVarUrlObj),
-                 options: localVarRequestOptions,
-             };
-         },
-         /**
-          * 
-          * @param {number} solutionId 
-          * @param {number} newRating 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiSolutionsRateSolutionBySolutionIdByNewRatingPost(solutionId: number, newRating: number, options: any = {}): FetchArgs {
-             // verify required parameter 'solutionId' is not null or undefined
-             if (solutionId === null || solutionId === undefined) {
-                 throw new RequiredError('solutionId','Required parameter solutionId was null or undefined when calling apiSolutionsRateSolutionBySolutionIdByNewRatingPost.');
-             }
-             // verify required parameter 'newRating' is not null or undefined
-             if (newRating === null || newRating === undefined) {
-                 throw new RequiredError('newRating','Required parameter newRating was null or undefined when calling apiSolutionsRateSolutionBySolutionIdByNewRatingPost.');
-             }
-             const localVarPath = `/api/Solutions/rateSolution/{solutionId}/{newRating}`
-                 .replace(`{${"solutionId"}}`, encodeURIComponent(String(solutionId)))
-                 .replace(`{${"newRating"}}`, encodeURIComponent(String(newRating)));
-             const localVarUrlObj = url.parse(localVarPath, true);
-             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-             const localVarHeaderParameter = {} as any;
-             const localVarQueryParameter = {} as any;
- 
-             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-             delete localVarUrlObj.search;
-             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
- 
-             return {
-                 url: url.format(localVarUrlObj),
-                 options: localVarRequestOptions,
-             };
-         },
-         /**
-          * 
-          * @param {number} solutionId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiSolutionsTaskSolutionBySolutionIdGet(solutionId: number, options: any = {}): FetchArgs {
-             // verify required parameter 'solutionId' is not null or undefined
-             if (solutionId === null || solutionId === undefined) {
-                 throw new RequiredError('solutionId','Required parameter solutionId was null or undefined when calling apiSolutionsTaskSolutionBySolutionIdGet.');
-             }
-             const localVarPath = `/api/Solutions/taskSolution/{solutionId}`
-                 .replace(`{${"solutionId"}}`, encodeURIComponent(String(solutionId)));
-             const localVarUrlObj = url.parse(localVarPath, true);
-             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-             const localVarHeaderParameter = {} as any;
-             const localVarQueryParameter = {} as any;
- 
-             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-             delete localVarUrlObj.search;
-             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
- 
-             return {
-                 url: url.format(localVarUrlObj),
-                 options: localVarRequestOptions,
-             };
-         },
-     }
- };
- 
- /**
-  * SolutionsApi - functional programming interface
-  * @export
-  */
- export const SolutionsApiFp = function(configuration?: Configuration) {
-     return {
-         /**
-          * 
-          * @param {number} solutionId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiSolutionsBySolutionIdGet(solutionId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Solution> {
-             const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsBySolutionIdGet(solutionId, options);
-             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                     if (response.status >= 200 && response.status < 300) {
-                         return response.json();
-                     } else {
-                         throw response;
-                     }
-                 });
-             };
-         },
-         /**
-          * 
-          * @param {number} taskId 
-          * @param {SolutionViewModel} [model] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiSolutionsByTaskIdPost(taskId: number, model?: SolutionViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
-             const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsByTaskIdPost(taskId, model, options);
-             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                     if (response.status >= 200 && response.status < 300) {
-                         return response.json();
-                     } else {
-                         throw response;
-                     }
-                 });
-             };
-         },
-         /**
-          * 
-          * @param {number} solutionId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiSolutionsDeleteBySolutionIdDelete(solutionId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-             const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsDeleteBySolutionIdDelete(solutionId, options);
-             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                     if (response.status >= 200 && response.status < 300) {
-                         return response;
-                     } else {
-                         throw response;
-                     }
-                 });
-             };
-         },
-         /**
-          * 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiSolutionsGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<Solution>> {
-             const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsGet(options);
-             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                     if (response.status >= 200 && response.status < 300) {
-                         return response.json();
-                     } else {
-                         throw response;
-                     }
-                 });
-             };
-         },
-         /**
-          * 
-          * @param {number} solutionId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiSolutionsMarkSolutionFinalBySolutionIdPost(solutionId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-             const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsMarkSolutionFinalBySolutionIdPost(solutionId, options);
-             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                     if (response.status >= 200 && response.status < 300) {
-                         return response;
-                     } else {
-                         throw response;
-                     }
-                 });
-             };
-         },
-         /**
-          * 
-          * @param {number} solutionId 
-          * @param {number} newRating 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiSolutionsRateSolutionBySolutionIdByNewRatingPost(solutionId: number, newRating: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-             const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsRateSolutionBySolutionIdByNewRatingPost(solutionId, newRating, options);
-             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                     if (response.status >= 200 && response.status < 300) {
-                         return response;
-                     } else {
-                         throw response;
-                     }
-                 });
-             };
-         },
-         /**
-          * 
-          * @param {number} solutionId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiSolutionsTaskSolutionBySolutionIdGet(solutionId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<Solution>> {
-             const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsTaskSolutionBySolutionIdGet(solutionId, options);
-             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                     if (response.status >= 200 && response.status < 300) {
-                         return response.json();
-                     } else {
-                         throw response;
-                     }
-                 });
-             };
-         },
-     }
- };
- 
- /**
-  * SolutionsApi - factory interface
-  * @export
-  */
- export const SolutionsApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
-     return {
-         /**
-          * 
-          * @param {number} solutionId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiSolutionsBySolutionIdGet(solutionId: number, options?: any) {
-             return SolutionsApiFp(configuration).apiSolutionsBySolutionIdGet(solutionId, options)(fetch, basePath);
-         },
-         /**
-          * 
-          * @param {number} taskId 
-          * @param {SolutionViewModel} [model] 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiSolutionsByTaskIdPost(taskId: number, model?: SolutionViewModel, options?: any) {
-             return SolutionsApiFp(configuration).apiSolutionsByTaskIdPost(taskId, model, options)(fetch, basePath);
-         },
-         /**
-          * 
-          * @param {number} solutionId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiSolutionsDeleteBySolutionIdDelete(solutionId: number, options?: any) {
-             return SolutionsApiFp(configuration).apiSolutionsDeleteBySolutionIdDelete(solutionId, options)(fetch, basePath);
-         },
-         /**
-          * 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiSolutionsGet(options?: any) {
-             return SolutionsApiFp(configuration).apiSolutionsGet(options)(fetch, basePath);
-         },
-         /**
-          * 
-          * @param {number} solutionId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiSolutionsMarkSolutionFinalBySolutionIdPost(solutionId: number, options?: any) {
-             return SolutionsApiFp(configuration).apiSolutionsMarkSolutionFinalBySolutionIdPost(solutionId, options)(fetch, basePath);
-         },
-         /**
-          * 
-          * @param {number} solutionId 
-          * @param {number} newRating 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiSolutionsRateSolutionBySolutionIdByNewRatingPost(solutionId: number, newRating: number, options?: any) {
-             return SolutionsApiFp(configuration).apiSolutionsRateSolutionBySolutionIdByNewRatingPost(solutionId, newRating, options)(fetch, basePath);
-         },
-         /**
-          * 
-          * @param {number} solutionId 
-          * @param {*} [options] Override http request option.
-          * @throws {RequiredError}
-          */
-         apiSolutionsTaskSolutionBySolutionIdGet(solutionId: number, options?: any) {
-             return SolutionsApiFp(configuration).apiSolutionsTaskSolutionBySolutionIdGet(solutionId, options)(fetch, basePath);
-         },
-     };
- };
- 
- /**
-  * SolutionsApi - object-oriented interface
-  * @export
-  * @class SolutionsApi
-  * @extends {BaseAPI}
-  */
- export class SolutionsApi extends BaseAPI {
-     /**
-      * 
-      * @param {number} solutionId 
-      * @param {*} [options] Override http request option.
-      * @throws {RequiredError}
-      * @memberof SolutionsApi
-      */
-     public apiSolutionsBySolutionIdGet(solutionId: number, options?: any) {
-         return SolutionsApiFp(this.configuration).apiSolutionsBySolutionIdGet(solutionId, options)(this.fetch, this.basePath);
-     }
- 
-     /**
-      * 
-      * @param {number} taskId 
-      * @param {SolutionViewModel} [model] 
-      * @param {*} [options] Override http request option.
-      * @throws {RequiredError}
-      * @memberof SolutionsApi
-      */
-     public apiSolutionsByTaskIdPost(taskId: number, model?: SolutionViewModel, options?: any) {
-         return SolutionsApiFp(this.configuration).apiSolutionsByTaskIdPost(taskId, model, options)(this.fetch, this.basePath);
-     }
- 
-     /**
-      * 
-      * @param {number} solutionId 
-      * @param {*} [options] Override http request option.
-      * @throws {RequiredError}
-      * @memberof SolutionsApi
-      */
-     public apiSolutionsDeleteBySolutionIdDelete(solutionId: number, options?: any) {
-         return SolutionsApiFp(this.configuration).apiSolutionsDeleteBySolutionIdDelete(solutionId, options)(this.fetch, this.basePath);
-     }
- 
-     /**
-      * 
-      * @param {*} [options] Override http request option.
-      * @throws {RequiredError}
-      * @memberof SolutionsApi
-      */
-     public apiSolutionsGet(options?: any) {
-         return SolutionsApiFp(this.configuration).apiSolutionsGet(options)(this.fetch, this.basePath);
-     }
- 
-     /**
-      * 
-      * @param {number} solutionId 
-      * @param {*} [options] Override http request option.
-      * @throws {RequiredError}
-      * @memberof SolutionsApi
-      */
-     public apiSolutionsMarkSolutionFinalBySolutionIdPost(solutionId: number, options?: any) {
-         return SolutionsApiFp(this.configuration).apiSolutionsMarkSolutionFinalBySolutionIdPost(solutionId, options)(this.fetch, this.basePath);
-     }
- 
-     /**
-      * 
-      * @param {number} solutionId 
-      * @param {number} newRating 
-      * @param {*} [options] Override http request option.
-      * @throws {RequiredError}
-      * @memberof SolutionsApi
-      */
-     public apiSolutionsRateSolutionBySolutionIdByNewRatingPost(solutionId: number, newRating: number, options?: any) {
-         return SolutionsApiFp(this.configuration).apiSolutionsRateSolutionBySolutionIdByNewRatingPost(solutionId, newRating, options)(this.fetch, this.basePath);
-     }
- 
-     /**
-      * 
-      * @param {number} solutionId 
-      * @param {*} [options] Override http request option.
-      * @throws {RequiredError}
-      * @memberof SolutionsApi
-      */
-     public apiSolutionsTaskSolutionBySolutionIdGet(solutionId: number, options?: any) {
-         return SolutionsApiFp(this.configuration).apiSolutionsTaskSolutionBySolutionIdGet(solutionId, options)(this.fetch, this.basePath);
-     }
- 
- }
- 
- 
+import * as url from "url";
+import * as portableFetch from "portable-fetch";
+import { Configuration } from "./configuration";
+
+const BASE_PATH = "https://localhost".replace(/\/+$/, "");
+
+/**
+ *
+ * @export
+ */
+export const COLLECTION_FORMATS = {
+    csv: ",",
+    ssv: " ",
+    tsv: "\t",
+    pipes: "|",
+};
+
+/**
+ *
+ * @export
+ * @interface FetchAPI
+ */
+export interface FetchAPI {
+    (url: string, init?: any): Promise<Response>;
+}
+
+/**
+ *
+ * @export
+ * @interface FetchArgs
+ */
+export interface FetchArgs {
+    url: string;
+    options: any;
+}
+
+/**
+ *
+ * @export
+ * @class BaseAPI
+ */
+export class BaseAPI {
+    protected configuration!: Configuration;
+
+    constructor(configuration?: Configuration, protected basePath: string = BASE_PATH, protected fetch: FetchAPI = portableFetch) {
+        if (configuration) {
+            this.configuration = configuration;
+            this.basePath = configuration.basePath || this.basePath;
+        }
+    }
+};
+
+/**
+ *
+ * @export
+ * @class RequiredError
+ * @extends {Error}
+ */
+export class RequiredError extends Error {
+    name!: "RequiredError"
+    constructor(public field: string, msg?: string) {
+        super(msg);
+    }
+}
+
+/**
+ * 
+ * @export
+ * @interface AccountDataDto
+ */
+export interface AccountDataDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof AccountDataDto
+     */
+    name?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof AccountDataDto
+     */
+    surname?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof AccountDataDto
+     */
+    middleName?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof AccountDataDto
+     */
+    email?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof AccountDataDto
+     */
+    role?: string;
+}
+
+/**
+ * 
+ * @export
+ * @interface AggregateReRouteConfig
+ */
+export interface AggregateReRouteConfig {
+    /**
+     * 
+     * @type {string}
+     * @memberof AggregateReRouteConfig
+     */
+    reRouteKey?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof AggregateReRouteConfig
+     */
+    parameter?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof AggregateReRouteConfig
+     */
+    jsonPath?: string;
+}
+
+/**
+ * 
+ * @export
+ * @interface CourseMateViewModel
+ */
+export interface CourseMateViewModel {
+    /**
+     * 
+     * @type {string}
+     * @memberof CourseMateViewModel
+     */
+    studentId?: string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof CourseMateViewModel
+     */
+    isAccepted?: boolean;
+}
+
+/**
+ * 
+ * @export
+ * @interface CourseViewModel
+ */
+export interface CourseViewModel {
+    /**
+     * 
+     * @type {number}
+     * @memberof CourseViewModel
+     */
+    id?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof CourseViewModel
+     */
+    name?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CourseViewModel
+     */
+    groupName?: string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof CourseViewModel
+     */
+    isOpen?: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof CourseViewModel
+     */
+    isCompleted?: boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof CourseViewModel
+     */
+    mentorId?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CourseViewModel
+     */
+    inviteCode?: string;
+    /**
+     * 
+     * @type {Array<CourseMateViewModel>}
+     * @memberof CourseViewModel
+     */
+    courseMates?: Array<CourseMateViewModel>;
+    /**
+     * 
+     * @type {Array<HomeworkViewModel>}
+     * @memberof CourseViewModel
+     */
+    homeworks?: Array<HomeworkViewModel>;
+}
+
+/**
+ * 
+ * @export
+ * @interface CreateCourseViewModel
+ */
+export interface CreateCourseViewModel {
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateCourseViewModel
+     */
+    name: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateCourseViewModel
+     */
+    groupName?: string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof CreateCourseViewModel
+     */
+    isOpen: boolean;
+}
+
+/**
+ * 
+ * @export
+ * @interface CreateHomeworkViewModel
+ */
+export interface CreateHomeworkViewModel {
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateHomeworkViewModel
+     */
+    title?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateHomeworkViewModel
+     */
+    description?: string;
+    /**
+     * 
+     * @type {Array<CreateTaskViewModel>}
+     * @memberof CreateHomeworkViewModel
+     */
+    tasks?: Array<CreateTaskViewModel>;
+}
+
+/**
+ * 
+ * @export
+ * @interface CreateTaskViewModel
+ */
+export interface CreateTaskViewModel {
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateTaskViewModel
+     */
+    title?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateTaskViewModel
+     */
+    description?: string;
+    /**
+     * 
+     * @type {Date}
+     * @memberof CreateTaskViewModel
+     */
+    deadlineDate?: Date;
+    /**
+     * 
+     * @type {Date}
+     * @memberof CreateTaskViewModel
+     */
+    publicationDate?: Date;
+    /**
+     * 
+     * @type {number}
+     * @memberof CreateTaskViewModel
+     */
+    maxRating?: number;
+}
+
+/**
+ * 
+ * @export
+ * @interface EditAccountViewModel
+ */
+export interface EditAccountViewModel {
+    /**
+     * 
+     * @type {string}
+     * @memberof EditAccountViewModel
+     */
+    name?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof EditAccountViewModel
+     */
+    surname?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof EditAccountViewModel
+     */
+    middleName?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof EditAccountViewModel
+     */
+    currentPassword: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof EditAccountViewModel
+     */
+    newPassword?: string;
+}
+
+/**
+ * 
+ * @export
+ * @interface FileAggregateReRoute
+ */
+export interface FileAggregateReRoute {
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof FileAggregateReRoute
+     */
+    reRouteKeys?: Array<string>;
+    /**
+     * 
+     * @type {Array<AggregateReRouteConfig>}
+     * @memberof FileAggregateReRoute
+     */
+    reRouteKeysConfig?: Array<AggregateReRouteConfig>;
+    /**
+     * 
+     * @type {string}
+     * @memberof FileAggregateReRoute
+     */
+    upstreamPathTemplate?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof FileAggregateReRoute
+     */
+    upstreamHost?: string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof FileAggregateReRoute
+     */
+    reRouteIsCaseSensitive?: boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof FileAggregateReRoute
+     */
+    aggregator?: string;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof FileAggregateReRoute
+     */
+    upstreamHttpMethod?: Array<string>;
+    /**
+     * 
+     * @type {number}
+     * @memberof FileAggregateReRoute
+     */
+    priority?: number;
+}
+
+/**
+ * 
+ * @export
+ * @interface FileAuthenticationOptions
+ */
+export interface FileAuthenticationOptions {
+    /**
+     * 
+     * @type {string}
+     * @memberof FileAuthenticationOptions
+     */
+    authenticationProviderKey?: string;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof FileAuthenticationOptions
+     */
+    allowedScopes?: Array<string>;
+}
+
+/**
+ * 
+ * @export
+ * @interface FileCacheOptions
+ */
+export interface FileCacheOptions {
+    /**
+     * 
+     * @type {number}
+     * @memberof FileCacheOptions
+     */
+    ttlSeconds?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof FileCacheOptions
+     */
+    region?: string;
+}
+
+/**
+ * 
+ * @export
+ * @interface FileConfiguration
+ */
+export interface FileConfiguration {
+    /**
+     * 
+     * @type {Array<FileReRoute>}
+     * @memberof FileConfiguration
+     */
+    reRoutes?: Array<FileReRoute>;
+    /**
+     * 
+     * @type {Array<FileDynamicReRoute>}
+     * @memberof FileConfiguration
+     */
+    dynamicReRoutes?: Array<FileDynamicReRoute>;
+    /**
+     * 
+     * @type {Array<FileAggregateReRoute>}
+     * @memberof FileConfiguration
+     */
+    aggregates?: Array<FileAggregateReRoute>;
+    /**
+     * 
+     * @type {FileGlobalConfiguration}
+     * @memberof FileConfiguration
+     */
+    globalConfiguration?: FileGlobalConfiguration;
+}
+
+/**
+ * 
+ * @export
+ * @interface FileDynamicReRoute
+ */
+export interface FileDynamicReRoute {
+    /**
+     * 
+     * @type {string}
+     * @memberof FileDynamicReRoute
+     */
+    serviceName?: string;
+    /**
+     * 
+     * @type {FileRateLimitRule}
+     * @memberof FileDynamicReRoute
+     */
+    rateLimitRule?: FileRateLimitRule;
+}
+
+/**
+ * 
+ * @export
+ * @interface FileGlobalConfiguration
+ */
+export interface FileGlobalConfiguration {
+    /**
+     * 
+     * @type {string}
+     * @memberof FileGlobalConfiguration
+     */
+    requestIdKey?: string;
+    /**
+     * 
+     * @type {FileServiceDiscoveryProvider}
+     * @memberof FileGlobalConfiguration
+     */
+    serviceDiscoveryProvider?: FileServiceDiscoveryProvider;
+    /**
+     * 
+     * @type {FileRateLimitOptions}
+     * @memberof FileGlobalConfiguration
+     */
+    rateLimitOptions?: FileRateLimitOptions;
+    /**
+     * 
+     * @type {FileQoSOptions}
+     * @memberof FileGlobalConfiguration
+     */
+    qoSOptions?: FileQoSOptions;
+    /**
+     * 
+     * @type {string}
+     * @memberof FileGlobalConfiguration
+     */
+    baseUrl?: string;
+    /**
+     * 
+     * @type {FileLoadBalancerOptions}
+     * @memberof FileGlobalConfiguration
+     */
+    loadBalancerOptions?: FileLoadBalancerOptions;
+    /**
+     * 
+     * @type {string}
+     * @memberof FileGlobalConfiguration
+     */
+    downstreamScheme?: string;
+    /**
+     * 
+     * @type {FileHttpHandlerOptions}
+     * @memberof FileGlobalConfiguration
+     */
+    httpHandlerOptions?: FileHttpHandlerOptions;
+}
+
+/**
+ * 
+ * @export
+ * @interface FileHostAndPort
+ */
+export interface FileHostAndPort {
+    /**
+     * 
+     * @type {string}
+     * @memberof FileHostAndPort
+     */
+    host?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof FileHostAndPort
+     */
+    port?: number;
+}
+
+/**
+ * 
+ * @export
+ * @interface FileHttpHandlerOptions
+ */
+export interface FileHttpHandlerOptions {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof FileHttpHandlerOptions
+     */
+    allowAutoRedirect?: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof FileHttpHandlerOptions
+     */
+    useCookieContainer?: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof FileHttpHandlerOptions
+     */
+    useTracing?: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof FileHttpHandlerOptions
+     */
+    useProxy?: boolean;
+}
+
+/**
+ * 
+ * @export
+ * @interface FileLoadBalancerOptions
+ */
+export interface FileLoadBalancerOptions {
+    /**
+     * 
+     * @type {string}
+     * @memberof FileLoadBalancerOptions
+     */
+    type?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof FileLoadBalancerOptions
+     */
+    key?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof FileLoadBalancerOptions
+     */
+    expiry?: number;
+}
+
+/**
+ * 
+ * @export
+ * @interface FileQoSOptions
+ */
+export interface FileQoSOptions {
+    /**
+     * 
+     * @type {number}
+     * @memberof FileQoSOptions
+     */
+    exceptionsAllowedBeforeBreaking?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof FileQoSOptions
+     */
+    durationOfBreak?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof FileQoSOptions
+     */
+    timeoutValue?: number;
+}
+
+/**
+ * 
+ * @export
+ * @interface FileRateLimitOptions
+ */
+export interface FileRateLimitOptions {
+    /**
+     * 
+     * @type {string}
+     * @memberof FileRateLimitOptions
+     */
+    clientIdHeader?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof FileRateLimitOptions
+     */
+    quotaExceededMessage?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof FileRateLimitOptions
+     */
+    rateLimitCounterPrefix?: string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof FileRateLimitOptions
+     */
+    disableRateLimitHeaders?: boolean;
+    /**
+     * 
+     * @type {number}
+     * @memberof FileRateLimitOptions
+     */
+    httpStatusCode?: number;
+}
+
+/**
+ * 
+ * @export
+ * @interface FileRateLimitRule
+ */
+export interface FileRateLimitRule {
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof FileRateLimitRule
+     */
+    clientWhitelist?: Array<string>;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof FileRateLimitRule
+     */
+    enableRateLimiting?: boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof FileRateLimitRule
+     */
+    period?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof FileRateLimitRule
+     */
+    periodTimespan?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof FileRateLimitRule
+     */
+    limit?: number;
+}
+
+/**
+ * 
+ * @export
+ * @interface FileReRoute
+ */
+export interface FileReRoute {
+    /**
+     * 
+     * @type {string}
+     * @memberof FileReRoute
+     */
+    downstreamPathTemplate?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof FileReRoute
+     */
+    upstreamPathTemplate?: string;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof FileReRoute
+     */
+    upstreamHttpMethod?: Array<string>;
+    /**
+     * 
+     * @type {{ [key: string]: string; }}
+     * @memberof FileReRoute
+     */
+    addHeadersToRequest?: { [key: string]: string; };
+    /**
+     * 
+     * @type {{ [key: string]: string; }}
+     * @memberof FileReRoute
+     */
+    upstreamHeaderTransform?: { [key: string]: string; };
+    /**
+     * 
+     * @type {{ [key: string]: string; }}
+     * @memberof FileReRoute
+     */
+    downstreamHeaderTransform?: { [key: string]: string; };
+    /**
+     * 
+     * @type {{ [key: string]: string; }}
+     * @memberof FileReRoute
+     */
+    addClaimsToRequest?: { [key: string]: string; };
+    /**
+     * 
+     * @type {{ [key: string]: string; }}
+     * @memberof FileReRoute
+     */
+    routeClaimsRequirement?: { [key: string]: string; };
+    /**
+     * 
+     * @type {{ [key: string]: string; }}
+     * @memberof FileReRoute
+     */
+    addQueriesToRequest?: { [key: string]: string; };
+    /**
+     * 
+     * @type {string}
+     * @memberof FileReRoute
+     */
+    requestIdKey?: string;
+    /**
+     * 
+     * @type {FileCacheOptions}
+     * @memberof FileReRoute
+     */
+    fileCacheOptions?: FileCacheOptions;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof FileReRoute
+     */
+    reRouteIsCaseSensitive?: boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof FileReRoute
+     */
+    serviceName?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof FileReRoute
+     */
+    downstreamScheme?: string;
+    /**
+     * 
+     * @type {FileQoSOptions}
+     * @memberof FileReRoute
+     */
+    qoSOptions?: FileQoSOptions;
+    /**
+     * 
+     * @type {FileLoadBalancerOptions}
+     * @memberof FileReRoute
+     */
+    loadBalancerOptions?: FileLoadBalancerOptions;
+    /**
+     * 
+     * @type {FileRateLimitRule}
+     * @memberof FileReRoute
+     */
+    rateLimitOptions?: FileRateLimitRule;
+    /**
+     * 
+     * @type {FileAuthenticationOptions}
+     * @memberof FileReRoute
+     */
+    authenticationOptions?: FileAuthenticationOptions;
+    /**
+     * 
+     * @type {FileHttpHandlerOptions}
+     * @memberof FileReRoute
+     */
+    httpHandlerOptions?: FileHttpHandlerOptions;
+    /**
+     * 
+     * @type {Array<FileHostAndPort>}
+     * @memberof FileReRoute
+     */
+    downstreamHostAndPorts?: Array<FileHostAndPort>;
+    /**
+     * 
+     * @type {string}
+     * @memberof FileReRoute
+     */
+    upstreamHost?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof FileReRoute
+     */
+    key?: string;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof FileReRoute
+     */
+    delegatingHandlers?: Array<string>;
+    /**
+     * 
+     * @type {number}
+     * @memberof FileReRoute
+     */
+    priority?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof FileReRoute
+     */
+    timeout?: number;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof FileReRoute
+     */
+    dangerousAcceptAnyServerCertificateValidator?: boolean;
+    /**
+     * 
+     * @type {FileSecurityOptions}
+     * @memberof FileReRoute
+     */
+    securityOptions?: FileSecurityOptions;
+}
+
+/**
+ * 
+ * @export
+ * @interface FileSecurityOptions
+ */
+export interface FileSecurityOptions {
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof FileSecurityOptions
+     */
+    ipAllowedList?: Array<string>;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof FileSecurityOptions
+     */
+    ipBlockedList?: Array<string>;
+}
+
+/**
+ * 
+ * @export
+ * @interface FileServiceDiscoveryProvider
+ */
+export interface FileServiceDiscoveryProvider {
+    /**
+     * 
+     * @type {string}
+     * @memberof FileServiceDiscoveryProvider
+     */
+    host?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof FileServiceDiscoveryProvider
+     */
+    port?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof FileServiceDiscoveryProvider
+     */
+    type?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof FileServiceDiscoveryProvider
+     */
+    token?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof FileServiceDiscoveryProvider
+     */
+    configurationKey?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof FileServiceDiscoveryProvider
+     */
+    pollingInterval?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof FileServiceDiscoveryProvider
+     */
+    namespace?: string;
+}
+
+/**
+ * 
+ * @export
+ * @interface HomeworkTaskViewModel
+ */
+export interface HomeworkTaskViewModel {
+    /**
+     * 
+     * @type {number}
+     * @memberof HomeworkTaskViewModel
+     */
+    id?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof HomeworkTaskViewModel
+     */
+    title?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof HomeworkTaskViewModel
+     */
+    description?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof HomeworkTaskViewModel
+     */
+    maxRating?: number;
+    /**
+     * 
+     * @type {Date}
+     * @memberof HomeworkTaskViewModel
+     */
+    deadlineDate?: Date;
+    /**
+     * 
+     * @type {Date}
+     * @memberof HomeworkTaskViewModel
+     */
+    publicationDate?: Date;
+    /**
+     * 
+     * @type {number}
+     * @memberof HomeworkTaskViewModel
+     */
+    homeworkId?: number;
+}
+
+/**
+ * 
+ * @export
+ * @interface HomeworkViewModel
+ */
+export interface HomeworkViewModel {
+    /**
+     * 
+     * @type {number}
+     * @memberof HomeworkViewModel
+     */
+    id?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof HomeworkViewModel
+     */
+    title?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof HomeworkViewModel
+     */
+    description?: string;
+    /**
+     * 
+     * @type {Date}
+     * @memberof HomeworkViewModel
+     */
+    date?: Date;
+    /**
+     * 
+     * @type {number}
+     * @memberof HomeworkViewModel
+     */
+    courseId?: number;
+    /**
+     * 
+     * @type {Array<HomeworkTaskViewModel>}
+     * @memberof HomeworkViewModel
+     */
+    tasks?: Array<HomeworkTaskViewModel>;
+}
+
+/**
+ * 
+ * @export
+ * @interface InviteLecturerViewModel
+ */
+export interface InviteLecturerViewModel {
+    /**
+     * 
+     * @type {string}
+     * @memberof InviteLecturerViewModel
+     */
+    email: string;
+}
+
+/**
+ * 
+ * @export
+ * @interface LoginViewModel
+ */
+export interface LoginViewModel {
+    /**
+     * 
+     * @type {string}
+     * @memberof LoginViewModel
+     */
+    email: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof LoginViewModel
+     */
+    password: string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof LoginViewModel
+     */
+    rememberMe: boolean;
+}
+
+/**
+ * 
+ * @export
+ * @interface NotificationViewModel
+ */
+export interface NotificationViewModel {
+    /**
+     * 
+     * @type {number}
+     * @memberof NotificationViewModel
+     */
+    id?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof NotificationViewModel
+     */
+    sender?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof NotificationViewModel
+     */
+    owner?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof NotificationViewModel
+     */
+    category?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof NotificationViewModel
+     */
+    body?: string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof NotificationViewModel
+     */
+    hasSeen?: boolean;
+}
+
+/**
+ * 
+ * @export
+ * @interface RegisterViewModel
+ */
+export interface RegisterViewModel {
+    /**
+     * 
+     * @type {string}
+     * @memberof RegisterViewModel
+     */
+    name: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof RegisterViewModel
+     */
+    surname: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof RegisterViewModel
+     */
+    middleName?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof RegisterViewModel
+     */
+    email: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof RegisterViewModel
+     */
+    password: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof RegisterViewModel
+     */
+    passwordConfirm: string;
+}
+
+/**
+ * 
+ * @export
+ * @interface Result
+ */
+export interface Result {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof Result
+     */
+    succeeded?: boolean;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof Result
+     */
+    errors?: Array<string>;
+}
+
+/**
+ * 
+ * @export
+ * @interface ResultTokenCredentials
+ */
+export interface ResultTokenCredentials {
+    /**
+     * 
+     * @type {TokenCredentials}
+     * @memberof ResultTokenCredentials
+     */
+    value?: TokenCredentials;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof ResultTokenCredentials
+     */
+    succeeded?: boolean;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof ResultTokenCredentials
+     */
+    errors?: Array<string>;
+}
+
+/**
+ * 
+ * @export
+ * @interface Solution
+ */
+export interface Solution {
+    /**
+     * 
+     * @type {number}
+     * @memberof Solution
+     */
+    id?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof Solution
+     */
+    githubUrl?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Solution
+     */
+    comment?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof Solution
+     */
+    state?: Solution.StateEnum;
+    /**
+     * 
+     * @type {number}
+     * @memberof Solution
+     */
+    rating?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof Solution
+     */
+    maxRating?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof Solution
+     */
+    studentId?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof Solution
+     */
+    groupId?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof Solution
+     */
+    taskId?: number;
+}
+
+/**
+ * @export
+ * @namespace Solution
+ */
+export namespace Solution {
+    /**
+     * @export
+     * @enum {string}
+     */
+    export enum StateEnum {
+        NUMBER_0 = <any> 0,
+        NUMBER_1 = <any> 1,
+        NUMBER_2 = <any> 2,
+        NUMBER_3 = <any> 3
+    }
+}
+
+/**
+ * 
+ * @export
+ * @interface SolutionViewModel
+ */
+export interface SolutionViewModel {
+    /**
+     * 
+     * @type {string}
+     * @memberof SolutionViewModel
+     */
+    githubUrl?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof SolutionViewModel
+     */
+    comment?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof SolutionViewModel
+     */
+    studentId?: string;
+}
+
+/**
+ * 
+ * @export
+ * @interface TokenCredentials
+ */
+export interface TokenCredentials {
+    /**
+     * 
+     * @type {string}
+     * @memberof TokenCredentials
+     */
+    accessToken?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof TokenCredentials
+     */
+    expiresIn?: number;
+}
+
+/**
+ * 
+ * @export
+ * @interface UpdateCourseViewModel
+ */
+export interface UpdateCourseViewModel {
+    /**
+     * 
+     * @type {string}
+     * @memberof UpdateCourseViewModel
+     */
+    name: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UpdateCourseViewModel
+     */
+    groupName?: string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof UpdateCourseViewModel
+     */
+    isOpen: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof UpdateCourseViewModel
+     */
+    isComplete?: boolean;
+}
+
+/**
+ * 
+ * @export
+ * @interface UserCourseDescription
+ */
+export interface UserCourseDescription {
+    /**
+     * 
+     * @type {number}
+     * @memberof UserCourseDescription
+     */
+    id?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserCourseDescription
+     */
+    name?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserCourseDescription
+     */
+    groupName?: string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof UserCourseDescription
+     */
+    isOpen?: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof UserCourseDescription
+     */
+    isCompleted?: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof UserCourseDescription
+     */
+    userIsMentor?: boolean;
+}
+
+/**
+ * 
+ * @export
+ * @interface UserDataDto
+ */
+export interface UserDataDto {
+    /**
+     * 
+     * @type {AccountDataDto}
+     * @memberof UserDataDto
+     */
+    userData?: AccountDataDto;
+    /**
+     * 
+     * @type {Array<NotificationViewModel>}
+     * @memberof UserDataDto
+     */
+    notifications?: Array<NotificationViewModel>;
+}
+
+
+/**
+ * AccountApi - fetch parameter creator
+ * @export
+ */
+export const AccountApiFetchParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {EditAccountViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountEditPut(model?: EditAccountViewModel, options: any = {}): FetchArgs {
+            const localVarPath = `/api/Account/edit`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"EditAccountViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} userId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountGetUserDataByUserIdGet(userId: string, options: any = {}): FetchArgs {
+            // verify required parameter 'userId' is not null or undefined
+            if (userId === null || userId === undefined) {
+                throw new RequiredError('userId','Required parameter userId was null or undefined when calling apiAccountGetUserDataByUserIdGet.');
+            }
+            const localVarPath = `/api/Account/getUserData/{userId}`
+                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountGetUserDataGet(options: any = {}): FetchArgs {
+            const localVarPath = `/api/Account/getUserData`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {InviteLecturerViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountInviteNewLecturerPost(model?: InviteLecturerViewModel, options: any = {}): FetchArgs {
+            const localVarPath = `/api/Account/inviteNewLecturer`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"InviteLecturerViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {LoginViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountLoginPost(model?: LoginViewModel, options: any = {}): FetchArgs {
+            const localVarPath = `/api/Account/login`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"LoginViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {RegisterViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountRegisterPost(model?: RegisterViewModel, options: any = {}): FetchArgs {
+            const localVarPath = `/api/Account/register`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"RegisterViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * AccountApi - functional programming interface
+ * @export
+ */
+export const AccountApiFp = function(configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {EditAccountViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountEditPut(model?: EditAccountViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Result> {
+            const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountEditPut(model, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {string} userId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountGetUserDataByUserIdGet(userId: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<AccountDataDto> {
+            const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountGetUserDataByUserIdGet(userId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountGetUserDataGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<UserDataDto> {
+            const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountGetUserDataGet(options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {InviteLecturerViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountInviteNewLecturerPost(model?: InviteLecturerViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Result> {
+            const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountInviteNewLecturerPost(model, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {LoginViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountLoginPost(model?: LoginViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ResultTokenCredentials> {
+            const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountLoginPost(model, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {RegisterViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountRegisterPost(model?: RegisterViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ResultTokenCredentials> {
+            const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountRegisterPost(model, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+    }
+};
+
+/**
+ * AccountApi - factory interface
+ * @export
+ */
+export const AccountApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         * 
+         * @param {EditAccountViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountEditPut(model?: EditAccountViewModel, options?: any) {
+            return AccountApiFp(configuration).apiAccountEditPut(model, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {string} userId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountGetUserDataByUserIdGet(userId: string, options?: any) {
+            return AccountApiFp(configuration).apiAccountGetUserDataByUserIdGet(userId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountGetUserDataGet(options?: any) {
+            return AccountApiFp(configuration).apiAccountGetUserDataGet(options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {InviteLecturerViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountInviteNewLecturerPost(model?: InviteLecturerViewModel, options?: any) {
+            return AccountApiFp(configuration).apiAccountInviteNewLecturerPost(model, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {LoginViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountLoginPost(model?: LoginViewModel, options?: any) {
+            return AccountApiFp(configuration).apiAccountLoginPost(model, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {RegisterViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountRegisterPost(model?: RegisterViewModel, options?: any) {
+            return AccountApiFp(configuration).apiAccountRegisterPost(model, options)(fetch, basePath);
+        },
+    };
+};
+
+/**
+ * AccountApi - object-oriented interface
+ * @export
+ * @class AccountApi
+ * @extends {BaseAPI}
+ */
+export class AccountApi extends BaseAPI {
+    /**
+     * 
+     * @param {EditAccountViewModel} [model] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AccountApi
+     */
+    public apiAccountEditPut(model?: EditAccountViewModel, options?: any) {
+        return AccountApiFp(this.configuration).apiAccountEditPut(model, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {string} userId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AccountApi
+     */
+    public apiAccountGetUserDataByUserIdGet(userId: string, options?: any) {
+        return AccountApiFp(this.configuration).apiAccountGetUserDataByUserIdGet(userId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AccountApi
+     */
+    public apiAccountGetUserDataGet(options?: any) {
+        return AccountApiFp(this.configuration).apiAccountGetUserDataGet(options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {InviteLecturerViewModel} [model] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AccountApi
+     */
+    public apiAccountInviteNewLecturerPost(model?: InviteLecturerViewModel, options?: any) {
+        return AccountApiFp(this.configuration).apiAccountInviteNewLecturerPost(model, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {LoginViewModel} [model] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AccountApi
+     */
+    public apiAccountLoginPost(model?: LoginViewModel, options?: any) {
+        return AccountApiFp(this.configuration).apiAccountLoginPost(model, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {RegisterViewModel} [model] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AccountApi
+     */
+    public apiAccountRegisterPost(model?: RegisterViewModel, options?: any) {
+        return AccountApiFp(this.configuration).apiAccountRegisterPost(model, options)(this.fetch, this.basePath);
+    }
+
+}
+
+/**
+ * CoursesApi - fetch parameter creator
+ * @export
+ */
+export const CoursesApiFetchParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {string} studentId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesAcceptStudentByCourseIdByStudentIdPost(courseId: number, studentId: string, options: any = {}): FetchArgs {
+            // verify required parameter 'courseId' is not null or undefined
+            if (courseId === null || courseId === undefined) {
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesAcceptStudentByCourseIdByStudentIdPost.');
+            }
+            // verify required parameter 'studentId' is not null or undefined
+            if (studentId === null || studentId === undefined) {
+                throw new RequiredError('studentId','Required parameter studentId was null or undefined when calling apiCoursesAcceptStudentByCourseIdByStudentIdPost.');
+            }
+            const localVarPath = `/api/Courses/acceptStudent/{courseId}/{studentId}`
+                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)))
+                .replace(`{${"studentId"}}`, encodeURIComponent(String(studentId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesByCourseIdDelete(courseId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'courseId' is not null or undefined
+            if (courseId === null || courseId === undefined) {
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesByCourseIdDelete.');
+            }
+            const localVarPath = `/api/Courses/{courseId}`
+                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesByCourseIdGet(courseId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'courseId' is not null or undefined
+            if (courseId === null || courseId === undefined) {
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesByCourseIdGet.');
+            }
+            const localVarPath = `/api/Courses/{courseId}`
+                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {CreateCourseViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesCreatePost(model?: CreateCourseViewModel, options: any = {}): FetchArgs {
+            const localVarPath = `/api/Courses/create`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"CreateCourseViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesGet(options: any = {}): FetchArgs {
+            const localVarPath = `/api/Courses`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {CreateHomeworkViewModel} [homeworkViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesHomeworksByCourseIdAddPost(courseId: number, homeworkViewModel?: CreateHomeworkViewModel, options: any = {}): FetchArgs {
+            // verify required parameter 'courseId' is not null or undefined
+            if (courseId === null || courseId === undefined) {
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesHomeworksByCourseIdAddPost.');
+            }
+            const localVarPath = `/api/Courses/Homeworks/{courseId}/add`
+                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"CreateHomeworkViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(homeworkViewModel || {}) : (homeworkViewModel || "");
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} homeworkId 
+         * @param {CreateTaskViewModel} [taskViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesHomeworksByHomeworkIdTasksAddPost(homeworkId: number, taskViewModel?: CreateTaskViewModel, options: any = {}): FetchArgs {
+            // verify required parameter 'homeworkId' is not null or undefined
+            if (homeworkId === null || homeworkId === undefined) {
+                throw new RequiredError('homeworkId','Required parameter homeworkId was null or undefined when calling apiCoursesHomeworksByHomeworkIdTasksAddPost.');
+            }
+            const localVarPath = `/api/Courses/Homeworks/{homeworkId}/Tasks/add`
+                .replace(`{${"homeworkId"}}`, encodeURIComponent(String(homeworkId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"CreateTaskViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(taskViewModel || {}) : (taskViewModel || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} homeworkId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesHomeworksDeleteByHomeworkIdDelete(homeworkId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'homeworkId' is not null or undefined
+            if (homeworkId === null || homeworkId === undefined) {
+                throw new RequiredError('homeworkId','Required parameter homeworkId was null or undefined when calling apiCoursesHomeworksDeleteByHomeworkIdDelete.');
+            }
+            const localVarPath = `/api/Courses/Homeworks/delete/{homeworkId}`
+                .replace(`{${"homeworkId"}}`, encodeURIComponent(String(homeworkId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} homeworkId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesHomeworksGetByHomeworkIdGet(homeworkId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'homeworkId' is not null or undefined
+            if (homeworkId === null || homeworkId === undefined) {
+                throw new RequiredError('homeworkId','Required parameter homeworkId was null or undefined when calling apiCoursesHomeworksGetByHomeworkIdGet.');
+            }
+            const localVarPath = `/api/Courses/Homeworks/get/{homeworkId}`
+                .replace(`{${"homeworkId"}}`, encodeURIComponent(String(homeworkId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} taskId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesHomeworksTasksDeleteByTaskIdDelete(taskId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'taskId' is not null or undefined
+            if (taskId === null || taskId === undefined) {
+                throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling apiCoursesHomeworksTasksDeleteByTaskIdDelete.');
+            }
+            const localVarPath = `/api/Courses/Homeworks/Tasks/delete/{taskId}`
+                .replace(`{${"taskId"}}`, encodeURIComponent(String(taskId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} taskId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesHomeworksTasksGetByTaskIdGet(taskId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'taskId' is not null or undefined
+            if (taskId === null || taskId === undefined) {
+                throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling apiCoursesHomeworksTasksGetByTaskIdGet.');
+            }
+            const localVarPath = `/api/Courses/Homeworks/Tasks/get/{taskId}`
+                .replace(`{${"taskId"}}`, encodeURIComponent(String(taskId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} taskId 
+         * @param {CreateTaskViewModel} [taskViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesHomeworksTasksUpdateByTaskIdPut(taskId: number, taskViewModel?: CreateTaskViewModel, options: any = {}): FetchArgs {
+            // verify required parameter 'taskId' is not null or undefined
+            if (taskId === null || taskId === undefined) {
+                throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling apiCoursesHomeworksTasksUpdateByTaskIdPut.');
+            }
+            const localVarPath = `/api/Courses/Homeworks/Tasks/update/{taskId}`
+                .replace(`{${"taskId"}}`, encodeURIComponent(String(taskId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"CreateTaskViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(taskViewModel || {}) : (taskViewModel || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} homeworkId 
+         * @param {CreateHomeworkViewModel} [homeworkViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesHomeworksUpdateByHomeworkIdPut(homeworkId: number, homeworkViewModel?: CreateHomeworkViewModel, options: any = {}): FetchArgs {
+            // verify required parameter 'homeworkId' is not null or undefined
+            if (homeworkId === null || homeworkId === undefined) {
+                throw new RequiredError('homeworkId','Required parameter homeworkId was null or undefined when calling apiCoursesHomeworksUpdateByHomeworkIdPut.');
+            }
+            const localVarPath = `/api/Courses/Homeworks/update/{homeworkId}`
+                .replace(`{${"homeworkId"}}`, encodeURIComponent(String(homeworkId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"CreateHomeworkViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(homeworkViewModel || {}) : (homeworkViewModel || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {string} studentId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesRejectStudentByCourseIdByStudentIdPost(courseId: number, studentId: string, options: any = {}): FetchArgs {
+            // verify required parameter 'courseId' is not null or undefined
+            if (courseId === null || courseId === undefined) {
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesRejectStudentByCourseIdByStudentIdPost.');
+            }
+            // verify required parameter 'studentId' is not null or undefined
+            if (studentId === null || studentId === undefined) {
+                throw new RequiredError('studentId','Required parameter studentId was null or undefined when calling apiCoursesRejectStudentByCourseIdByStudentIdPost.');
+            }
+            const localVarPath = `/api/Courses/rejectStudent/{courseId}/{studentId}`
+                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)))
+                .replace(`{${"studentId"}}`, encodeURIComponent(String(studentId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesSignInCourseByCourseIdPost(courseId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'courseId' is not null or undefined
+            if (courseId === null || courseId === undefined) {
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesSignInCourseByCourseIdPost.');
+            }
+            const localVarPath = `/api/Courses/signInCourse/{courseId}`
+                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {UpdateCourseViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesUpdateByCourseIdPost(courseId: number, model?: UpdateCourseViewModel, options: any = {}): FetchArgs {
+            // verify required parameter 'courseId' is not null or undefined
+            if (courseId === null || courseId === undefined) {
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesUpdateByCourseIdPost.');
+            }
+            const localVarPath = `/api/Courses/update/{courseId}`
+                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"UpdateCourseViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesUserCoursesGet(options: any = {}): FetchArgs {
+            const localVarPath = `/api/Courses/userCourses`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * CoursesApi - functional programming interface
+ * @export
+ */
+export const CoursesApiFp = function(configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {string} studentId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesAcceptStudentByCourseIdByStudentIdPost(courseId: number, studentId: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesAcceptStudentByCourseIdByStudentIdPost(courseId, studentId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesByCourseIdDelete(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesByCourseIdDelete(courseId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesByCourseIdGet(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<CourseViewModel> {
+            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesByCourseIdGet(courseId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {CreateCourseViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesCreatePost(model?: CreateCourseViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
+            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesCreatePost(model, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<CourseViewModel>> {
+            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesGet(options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {CreateHomeworkViewModel} [homeworkViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesHomeworksByCourseIdAddPost(courseId: number, homeworkViewModel?: CreateHomeworkViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
+            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesHomeworksByCourseIdAddPost(courseId, homeworkViewModel, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} homeworkId 
+         * @param {CreateTaskViewModel} [taskViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesHomeworksByHomeworkIdTasksAddPost(homeworkId: number, taskViewModel?: CreateTaskViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
+            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesHomeworksByHomeworkIdTasksAddPost(homeworkId, taskViewModel, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} homeworkId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesHomeworksDeleteByHomeworkIdDelete(homeworkId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesHomeworksDeleteByHomeworkIdDelete(homeworkId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} homeworkId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesHomeworksGetByHomeworkIdGet(homeworkId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<HomeworkViewModel> {
+            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesHomeworksGetByHomeworkIdGet(homeworkId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} taskId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesHomeworksTasksDeleteByTaskIdDelete(taskId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesHomeworksTasksDeleteByTaskIdDelete(taskId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} taskId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesHomeworksTasksGetByTaskIdGet(taskId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<HomeworkTaskViewModel> {
+            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesHomeworksTasksGetByTaskIdGet(taskId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} taskId 
+         * @param {CreateTaskViewModel} [taskViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesHomeworksTasksUpdateByTaskIdPut(taskId: number, taskViewModel?: CreateTaskViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesHomeworksTasksUpdateByTaskIdPut(taskId, taskViewModel, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} homeworkId 
+         * @param {CreateHomeworkViewModel} [homeworkViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesHomeworksUpdateByHomeworkIdPut(homeworkId: number, homeworkViewModel?: CreateHomeworkViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesHomeworksUpdateByHomeworkIdPut(homeworkId, homeworkViewModel, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {string} studentId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesRejectStudentByCourseIdByStudentIdPost(courseId: number, studentId: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesRejectStudentByCourseIdByStudentIdPost(courseId, studentId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesSignInCourseByCourseIdPost(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesSignInCourseByCourseIdPost(courseId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {UpdateCourseViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesUpdateByCourseIdPost(courseId: number, model?: UpdateCourseViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesUpdateByCourseIdPost(courseId, model, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesUserCoursesGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<UserCourseDescription>> {
+            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesUserCoursesGet(options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+    }
+};
+
+/**
+ * CoursesApi - factory interface
+ * @export
+ */
+export const CoursesApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {string} studentId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesAcceptStudentByCourseIdByStudentIdPost(courseId: number, studentId: string, options?: any) {
+            return CoursesApiFp(configuration).apiCoursesAcceptStudentByCourseIdByStudentIdPost(courseId, studentId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesByCourseIdDelete(courseId: number, options?: any) {
+            return CoursesApiFp(configuration).apiCoursesByCourseIdDelete(courseId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesByCourseIdGet(courseId: number, options?: any) {
+            return CoursesApiFp(configuration).apiCoursesByCourseIdGet(courseId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {CreateCourseViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesCreatePost(model?: CreateCourseViewModel, options?: any) {
+            return CoursesApiFp(configuration).apiCoursesCreatePost(model, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesGet(options?: any) {
+            return CoursesApiFp(configuration).apiCoursesGet(options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {CreateHomeworkViewModel} [homeworkViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesHomeworksByCourseIdAddPost(courseId: number, homeworkViewModel?: CreateHomeworkViewModel, options?: any) {
+            return CoursesApiFp(configuration).apiCoursesHomeworksByCourseIdAddPost(courseId, homeworkViewModel, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} homeworkId 
+         * @param {CreateTaskViewModel} [taskViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesHomeworksByHomeworkIdTasksAddPost(homeworkId: number, taskViewModel?: CreateTaskViewModel, options?: any) {
+            return CoursesApiFp(configuration).apiCoursesHomeworksByHomeworkIdTasksAddPost(homeworkId, taskViewModel, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} homeworkId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesHomeworksDeleteByHomeworkIdDelete(homeworkId: number, options?: any) {
+            return CoursesApiFp(configuration).apiCoursesHomeworksDeleteByHomeworkIdDelete(homeworkId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} homeworkId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesHomeworksGetByHomeworkIdGet(homeworkId: number, options?: any) {
+            return CoursesApiFp(configuration).apiCoursesHomeworksGetByHomeworkIdGet(homeworkId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} taskId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesHomeworksTasksDeleteByTaskIdDelete(taskId: number, options?: any) {
+            return CoursesApiFp(configuration).apiCoursesHomeworksTasksDeleteByTaskIdDelete(taskId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} taskId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesHomeworksTasksGetByTaskIdGet(taskId: number, options?: any) {
+            return CoursesApiFp(configuration).apiCoursesHomeworksTasksGetByTaskIdGet(taskId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} taskId 
+         * @param {CreateTaskViewModel} [taskViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesHomeworksTasksUpdateByTaskIdPut(taskId: number, taskViewModel?: CreateTaskViewModel, options?: any) {
+            return CoursesApiFp(configuration).apiCoursesHomeworksTasksUpdateByTaskIdPut(taskId, taskViewModel, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} homeworkId 
+         * @param {CreateHomeworkViewModel} [homeworkViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesHomeworksUpdateByHomeworkIdPut(homeworkId: number, homeworkViewModel?: CreateHomeworkViewModel, options?: any) {
+            return CoursesApiFp(configuration).apiCoursesHomeworksUpdateByHomeworkIdPut(homeworkId, homeworkViewModel, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {string} studentId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesRejectStudentByCourseIdByStudentIdPost(courseId: number, studentId: string, options?: any) {
+            return CoursesApiFp(configuration).apiCoursesRejectStudentByCourseIdByStudentIdPost(courseId, studentId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesSignInCourseByCourseIdPost(courseId: number, options?: any) {
+            return CoursesApiFp(configuration).apiCoursesSignInCourseByCourseIdPost(courseId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {UpdateCourseViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesUpdateByCourseIdPost(courseId: number, model?: UpdateCourseViewModel, options?: any) {
+            return CoursesApiFp(configuration).apiCoursesUpdateByCourseIdPost(courseId, model, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesUserCoursesGet(options?: any) {
+            return CoursesApiFp(configuration).apiCoursesUserCoursesGet(options)(fetch, basePath);
+        },
+    };
+};
+
+/**
+ * CoursesApi - object-oriented interface
+ * @export
+ * @class CoursesApi
+ * @extends {BaseAPI}
+ */
+export class CoursesApi extends BaseAPI {
+    /**
+     * 
+     * @param {number} courseId 
+     * @param {string} studentId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CoursesApi
+     */
+    public apiCoursesAcceptStudentByCourseIdByStudentIdPost(courseId: number, studentId: string, options?: any) {
+        return CoursesApiFp(this.configuration).apiCoursesAcceptStudentByCourseIdByStudentIdPost(courseId, studentId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} courseId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CoursesApi
+     */
+    public apiCoursesByCourseIdDelete(courseId: number, options?: any) {
+        return CoursesApiFp(this.configuration).apiCoursesByCourseIdDelete(courseId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} courseId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CoursesApi
+     */
+    public apiCoursesByCourseIdGet(courseId: number, options?: any) {
+        return CoursesApiFp(this.configuration).apiCoursesByCourseIdGet(courseId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {CreateCourseViewModel} [model] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CoursesApi
+     */
+    public apiCoursesCreatePost(model?: CreateCourseViewModel, options?: any) {
+        return CoursesApiFp(this.configuration).apiCoursesCreatePost(model, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CoursesApi
+     */
+    public apiCoursesGet(options?: any) {
+        return CoursesApiFp(this.configuration).apiCoursesGet(options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} courseId 
+     * @param {CreateHomeworkViewModel} [homeworkViewModel] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CoursesApi
+     */
+    public apiCoursesHomeworksByCourseIdAddPost(courseId: number, homeworkViewModel?: CreateHomeworkViewModel, options?: any) {
+        return CoursesApiFp(this.configuration).apiCoursesHomeworksByCourseIdAddPost(courseId, homeworkViewModel, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} homeworkId 
+     * @param {CreateTaskViewModel} [taskViewModel] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CoursesApi
+     */
+    public apiCoursesHomeworksByHomeworkIdTasksAddPost(homeworkId: number, taskViewModel?: CreateTaskViewModel, options?: any) {
+        return CoursesApiFp(this.configuration).apiCoursesHomeworksByHomeworkIdTasksAddPost(homeworkId, taskViewModel, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} homeworkId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CoursesApi
+     */
+    public apiCoursesHomeworksDeleteByHomeworkIdDelete(homeworkId: number, options?: any) {
+        return CoursesApiFp(this.configuration).apiCoursesHomeworksDeleteByHomeworkIdDelete(homeworkId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} homeworkId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CoursesApi
+     */
+    public apiCoursesHomeworksGetByHomeworkIdGet(homeworkId: number, options?: any) {
+        return CoursesApiFp(this.configuration).apiCoursesHomeworksGetByHomeworkIdGet(homeworkId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} taskId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CoursesApi
+     */
+    public apiCoursesHomeworksTasksDeleteByTaskIdDelete(taskId: number, options?: any) {
+        return CoursesApiFp(this.configuration).apiCoursesHomeworksTasksDeleteByTaskIdDelete(taskId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} taskId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CoursesApi
+     */
+    public apiCoursesHomeworksTasksGetByTaskIdGet(taskId: number, options?: any) {
+        return CoursesApiFp(this.configuration).apiCoursesHomeworksTasksGetByTaskIdGet(taskId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} taskId 
+     * @param {CreateTaskViewModel} [taskViewModel] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CoursesApi
+     */
+    public apiCoursesHomeworksTasksUpdateByTaskIdPut(taskId: number, taskViewModel?: CreateTaskViewModel, options?: any) {
+        return CoursesApiFp(this.configuration).apiCoursesHomeworksTasksUpdateByTaskIdPut(taskId, taskViewModel, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} homeworkId 
+     * @param {CreateHomeworkViewModel} [homeworkViewModel] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CoursesApi
+     */
+    public apiCoursesHomeworksUpdateByHomeworkIdPut(homeworkId: number, homeworkViewModel?: CreateHomeworkViewModel, options?: any) {
+        return CoursesApiFp(this.configuration).apiCoursesHomeworksUpdateByHomeworkIdPut(homeworkId, homeworkViewModel, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} courseId 
+     * @param {string} studentId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CoursesApi
+     */
+    public apiCoursesRejectStudentByCourseIdByStudentIdPost(courseId: number, studentId: string, options?: any) {
+        return CoursesApiFp(this.configuration).apiCoursesRejectStudentByCourseIdByStudentIdPost(courseId, studentId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} courseId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CoursesApi
+     */
+    public apiCoursesSignInCourseByCourseIdPost(courseId: number, options?: any) {
+        return CoursesApiFp(this.configuration).apiCoursesSignInCourseByCourseIdPost(courseId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} courseId 
+     * @param {UpdateCourseViewModel} [model] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CoursesApi
+     */
+    public apiCoursesUpdateByCourseIdPost(courseId: number, model?: UpdateCourseViewModel, options?: any) {
+        return CoursesApiFp(this.configuration).apiCoursesUpdateByCourseIdPost(courseId, model, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CoursesApi
+     */
+    public apiCoursesUserCoursesGet(options?: any) {
+        return CoursesApiFp(this.configuration).apiCoursesUserCoursesGet(options)(this.fetch, this.basePath);
+    }
+
+}
+
+/**
+ * FileConfigurationApi - fetch parameter creator
+ * @export
+ */
+export const FileConfigurationApiFetchParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        configurationGet(options: any = {}): FetchArgs {
+            const localVarPath = `/configuration`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {FileConfiguration} [fileConfiguration] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        configurationPost(fileConfiguration?: FileConfiguration, options: any = {}): FetchArgs {
+            const localVarPath = `/configuration`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"FileConfiguration" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(fileConfiguration || {}) : (fileConfiguration || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * FileConfigurationApi - functional programming interface
+ * @export
+ */
+export const FileConfigurationApiFp = function(configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        configurationGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = FileConfigurationApiFetchParamCreator(configuration).configurationGet(options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {FileConfiguration} [fileConfiguration] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        configurationPost(fileConfiguration?: FileConfiguration, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = FileConfigurationApiFetchParamCreator(configuration).configurationPost(fileConfiguration, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+    }
+};
+
+/**
+ * FileConfigurationApi - factory interface
+ * @export
+ */
+export const FileConfigurationApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        configurationGet(options?: any) {
+            return FileConfigurationApiFp(configuration).configurationGet(options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {FileConfiguration} [fileConfiguration] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        configurationPost(fileConfiguration?: FileConfiguration, options?: any) {
+            return FileConfigurationApiFp(configuration).configurationPost(fileConfiguration, options)(fetch, basePath);
+        },
+    };
+};
+
+/**
+ * FileConfigurationApi - object-oriented interface
+ * @export
+ * @class FileConfigurationApi
+ * @extends {BaseAPI}
+ */
+export class FileConfigurationApi extends BaseAPI {
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FileConfigurationApi
+     */
+    public configurationGet(options?: any) {
+        return FileConfigurationApiFp(this.configuration).configurationGet(options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {FileConfiguration} [fileConfiguration] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FileConfigurationApi
+     */
+    public configurationPost(fileConfiguration?: FileConfiguration, options?: any) {
+        return FileConfigurationApiFp(this.configuration).configurationPost(fileConfiguration, options)(this.fetch, this.basePath);
+    }
+
+}
+
+/**
+ * NotificationsApi - fetch parameter creator
+ * @export
+ */
+export const NotificationsApiFetchParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiNotificationsGetGet(options: any = {}): FetchArgs {
+            const localVarPath = `/api/Notifications/get`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {Array<number>} [notificationIds] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiNotificationsMarkAsSeenPut(notificationIds?: Array<number>, options: any = {}): FetchArgs {
+            const localVarPath = `/api/Notifications/markAsSeen`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"Array&lt;number&gt;" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(notificationIds || {}) : (notificationIds || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * NotificationsApi - functional programming interface
+ * @export
+ */
+export const NotificationsApiFp = function(configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiNotificationsGetGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<NotificationViewModel>> {
+            const localVarFetchArgs = NotificationsApiFetchParamCreator(configuration).apiNotificationsGetGet(options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {Array<number>} [notificationIds] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiNotificationsMarkAsSeenPut(notificationIds?: Array<number>, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = NotificationsApiFetchParamCreator(configuration).apiNotificationsMarkAsSeenPut(notificationIds, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+    }
+};
+
+/**
+ * NotificationsApi - factory interface
+ * @export
+ */
+export const NotificationsApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiNotificationsGetGet(options?: any) {
+            return NotificationsApiFp(configuration).apiNotificationsGetGet(options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {Array<number>} [notificationIds] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiNotificationsMarkAsSeenPut(notificationIds?: Array<number>, options?: any) {
+            return NotificationsApiFp(configuration).apiNotificationsMarkAsSeenPut(notificationIds, options)(fetch, basePath);
+        },
+    };
+};
+
+/**
+ * NotificationsApi - object-oriented interface
+ * @export
+ * @class NotificationsApi
+ * @extends {BaseAPI}
+ */
+export class NotificationsApi extends BaseAPI {
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof NotificationsApi
+     */
+    public apiNotificationsGetGet(options?: any) {
+        return NotificationsApiFp(this.configuration).apiNotificationsGetGet(options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {Array<number>} [notificationIds] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof NotificationsApi
+     */
+    public apiNotificationsMarkAsSeenPut(notificationIds?: Array<number>, options?: any) {
+        return NotificationsApiFp(this.configuration).apiNotificationsMarkAsSeenPut(notificationIds, options)(this.fetch, this.basePath);
+    }
+
+}
+
+/**
+ * OutputCacheApi - fetch parameter creator
+ * @export
+ */
+export const OutputCacheApiFetchParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {string} region 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        outputcacheByRegionDelete(region: string, options: any = {}): FetchArgs {
+            // verify required parameter 'region' is not null or undefined
+            if (region === null || region === undefined) {
+                throw new RequiredError('region','Required parameter region was null or undefined when calling outputcacheByRegionDelete.');
+            }
+            const localVarPath = `/outputcache/{region}`
+                .replace(`{${"region"}}`, encodeURIComponent(String(region)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * OutputCacheApi - functional programming interface
+ * @export
+ */
+export const OutputCacheApiFp = function(configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {string} region 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        outputcacheByRegionDelete(region: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = OutputCacheApiFetchParamCreator(configuration).outputcacheByRegionDelete(region, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+    }
+};
+
+/**
+ * OutputCacheApi - factory interface
+ * @export
+ */
+export const OutputCacheApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         * 
+         * @param {string} region 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        outputcacheByRegionDelete(region: string, options?: any) {
+            return OutputCacheApiFp(configuration).outputcacheByRegionDelete(region, options)(fetch, basePath);
+        },
+    };
+};
+
+/**
+ * OutputCacheApi - object-oriented interface
+ * @export
+ * @class OutputCacheApi
+ * @extends {BaseAPI}
+ */
+export class OutputCacheApi extends BaseAPI {
+    /**
+     * 
+     * @param {string} region 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof OutputCacheApi
+     */
+    public outputcacheByRegionDelete(region: string, options?: any) {
+        return OutputCacheApiFp(this.configuration).outputcacheByRegionDelete(region, options)(this.fetch, this.basePath);
+    }
+
+}
+
+/**
+ * SolutionsApi - fetch parameter creator
+ * @export
+ */
+export const SolutionsApiFetchParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {number} solutionId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsBySolutionIdGet(solutionId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'solutionId' is not null or undefined
+            if (solutionId === null || solutionId === undefined) {
+                throw new RequiredError('solutionId','Required parameter solutionId was null or undefined when calling apiSolutionsBySolutionIdGet.');
+            }
+            const localVarPath = `/api/Solutions/{solutionId}`
+                .replace(`{${"solutionId"}}`, encodeURIComponent(String(solutionId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} taskId 
+         * @param {SolutionViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsByTaskIdPost(taskId: number, model?: SolutionViewModel, options: any = {}): FetchArgs {
+            // verify required parameter 'taskId' is not null or undefined
+            if (taskId === null || taskId === undefined) {
+                throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling apiSolutionsByTaskIdPost.');
+            }
+            const localVarPath = `/api/Solutions/{taskId}`
+                .replace(`{${"taskId"}}`, encodeURIComponent(String(taskId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"SolutionViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} solutionId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsDeleteBySolutionIdDelete(solutionId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'solutionId' is not null or undefined
+            if (solutionId === null || solutionId === undefined) {
+                throw new RequiredError('solutionId','Required parameter solutionId was null or undefined when calling apiSolutionsDeleteBySolutionIdDelete.');
+            }
+            const localVarPath = `/api/Solutions/delete/{solutionId}`
+                .replace(`{${"solutionId"}}`, encodeURIComponent(String(solutionId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsGet(options: any = {}): FetchArgs {
+            const localVarPath = `/api/Solutions`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} solutionId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsMarkSolutionFinalBySolutionIdPost(solutionId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'solutionId' is not null or undefined
+            if (solutionId === null || solutionId === undefined) {
+                throw new RequiredError('solutionId','Required parameter solutionId was null or undefined when calling apiSolutionsMarkSolutionFinalBySolutionIdPost.');
+            }
+            const localVarPath = `/api/Solutions/markSolutionFinal/{solutionId}`
+                .replace(`{${"solutionId"}}`, encodeURIComponent(String(solutionId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} solutionId 
+         * @param {number} newRating 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsRateSolutionBySolutionIdByNewRatingPost(solutionId: number, newRating: number, options: any = {}): FetchArgs {
+            // verify required parameter 'solutionId' is not null or undefined
+            if (solutionId === null || solutionId === undefined) {
+                throw new RequiredError('solutionId','Required parameter solutionId was null or undefined when calling apiSolutionsRateSolutionBySolutionIdByNewRatingPost.');
+            }
+            // verify required parameter 'newRating' is not null or undefined
+            if (newRating === null || newRating === undefined) {
+                throw new RequiredError('newRating','Required parameter newRating was null or undefined when calling apiSolutionsRateSolutionBySolutionIdByNewRatingPost.');
+            }
+            const localVarPath = `/api/Solutions/rateSolution/{solutionId}/{newRating}`
+                .replace(`{${"solutionId"}}`, encodeURIComponent(String(solutionId)))
+                .replace(`{${"newRating"}}`, encodeURIComponent(String(newRating)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} solutionId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsTaskSolutionBySolutionIdGet(solutionId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'solutionId' is not null or undefined
+            if (solutionId === null || solutionId === undefined) {
+                throw new RequiredError('solutionId','Required parameter solutionId was null or undefined when calling apiSolutionsTaskSolutionBySolutionIdGet.');
+            }
+            const localVarPath = `/api/Solutions/taskSolution/{solutionId}`
+                .replace(`{${"solutionId"}}`, encodeURIComponent(String(solutionId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * SolutionsApi - functional programming interface
+ * @export
+ */
+export const SolutionsApiFp = function(configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {number} solutionId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsBySolutionIdGet(solutionId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Solution> {
+            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsBySolutionIdGet(solutionId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} taskId 
+         * @param {SolutionViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsByTaskIdPost(taskId: number, model?: SolutionViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
+            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsByTaskIdPost(taskId, model, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} solutionId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsDeleteBySolutionIdDelete(solutionId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsDeleteBySolutionIdDelete(solutionId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<Solution>> {
+            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsGet(options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} solutionId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsMarkSolutionFinalBySolutionIdPost(solutionId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsMarkSolutionFinalBySolutionIdPost(solutionId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} solutionId 
+         * @param {number} newRating 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsRateSolutionBySolutionIdByNewRatingPost(solutionId: number, newRating: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsRateSolutionBySolutionIdByNewRatingPost(solutionId, newRating, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} solutionId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsTaskSolutionBySolutionIdGet(solutionId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<Solution>> {
+            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsTaskSolutionBySolutionIdGet(solutionId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+    }
+};
+
+/**
+ * SolutionsApi - factory interface
+ * @export
+ */
+export const SolutionsApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         * 
+         * @param {number} solutionId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsBySolutionIdGet(solutionId: number, options?: any) {
+            return SolutionsApiFp(configuration).apiSolutionsBySolutionIdGet(solutionId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} taskId 
+         * @param {SolutionViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsByTaskIdPost(taskId: number, model?: SolutionViewModel, options?: any) {
+            return SolutionsApiFp(configuration).apiSolutionsByTaskIdPost(taskId, model, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} solutionId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsDeleteBySolutionIdDelete(solutionId: number, options?: any) {
+            return SolutionsApiFp(configuration).apiSolutionsDeleteBySolutionIdDelete(solutionId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsGet(options?: any) {
+            return SolutionsApiFp(configuration).apiSolutionsGet(options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} solutionId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsMarkSolutionFinalBySolutionIdPost(solutionId: number, options?: any) {
+            return SolutionsApiFp(configuration).apiSolutionsMarkSolutionFinalBySolutionIdPost(solutionId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} solutionId 
+         * @param {number} newRating 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsRateSolutionBySolutionIdByNewRatingPost(solutionId: number, newRating: number, options?: any) {
+            return SolutionsApiFp(configuration).apiSolutionsRateSolutionBySolutionIdByNewRatingPost(solutionId, newRating, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} solutionId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsTaskSolutionBySolutionIdGet(solutionId: number, options?: any) {
+            return SolutionsApiFp(configuration).apiSolutionsTaskSolutionBySolutionIdGet(solutionId, options)(fetch, basePath);
+        },
+    };
+};
+
+/**
+ * SolutionsApi - object-oriented interface
+ * @export
+ * @class SolutionsApi
+ * @extends {BaseAPI}
+ */
+export class SolutionsApi extends BaseAPI {
+    /**
+     * 
+     * @param {number} solutionId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SolutionsApi
+     */
+    public apiSolutionsBySolutionIdGet(solutionId: number, options?: any) {
+        return SolutionsApiFp(this.configuration).apiSolutionsBySolutionIdGet(solutionId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} taskId 
+     * @param {SolutionViewModel} [model] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SolutionsApi
+     */
+    public apiSolutionsByTaskIdPost(taskId: number, model?: SolutionViewModel, options?: any) {
+        return SolutionsApiFp(this.configuration).apiSolutionsByTaskIdPost(taskId, model, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} solutionId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SolutionsApi
+     */
+    public apiSolutionsDeleteBySolutionIdDelete(solutionId: number, options?: any) {
+        return SolutionsApiFp(this.configuration).apiSolutionsDeleteBySolutionIdDelete(solutionId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SolutionsApi
+     */
+    public apiSolutionsGet(options?: any) {
+        return SolutionsApiFp(this.configuration).apiSolutionsGet(options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} solutionId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SolutionsApi
+     */
+    public apiSolutionsMarkSolutionFinalBySolutionIdPost(solutionId: number, options?: any) {
+        return SolutionsApiFp(this.configuration).apiSolutionsMarkSolutionFinalBySolutionIdPost(solutionId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} solutionId 
+     * @param {number} newRating 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SolutionsApi
+     */
+    public apiSolutionsRateSolutionBySolutionIdByNewRatingPost(solutionId: number, newRating: number, options?: any) {
+        return SolutionsApiFp(this.configuration).apiSolutionsRateSolutionBySolutionIdByNewRatingPost(solutionId, newRating, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} solutionId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SolutionsApi
+     */
+    public apiSolutionsTaskSolutionBySolutionIdGet(solutionId: number, options?: any) {
+        return SolutionsApiFp(this.configuration).apiSolutionsTaskSolutionBySolutionIdGet(solutionId, options)(this.fetch, this.basePath);
+    }
+
+}
+
