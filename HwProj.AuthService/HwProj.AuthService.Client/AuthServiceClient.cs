@@ -27,8 +27,7 @@ namespace HwProj.AuthService.Client
                 _authServiceUri + $"api/account/getUserData/{userId}");
 
             var response = await _httpClient.SendAsync(httpRequest);
-            var data = await response.DeserializeAsync<AccountDataDto>().ConfigureAwait(false);
-            return data;
+            return await response.DeserializeAsync<AccountDataDto>().ConfigureAwait(false);
         }
 
         public async Task<Result<TokenCredentials>> Register(RegisterViewModel model)

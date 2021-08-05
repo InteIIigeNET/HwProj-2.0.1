@@ -33,7 +33,7 @@ namespace HwProj.APIGateway.API.Controllers
 
         [HttpGet("{solutionId}")]
         [ProducesResponseType(typeof(Solution), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetSolutionData(long solutionId)
+        public async Task<IActionResult> GetSolutionById(long solutionId)
         {
             var result = await _solutionsClient.GetSolutionById(solutionId);
             return result == null
@@ -54,6 +54,7 @@ namespace HwProj.APIGateway.API.Controllers
         }
         
         [HttpPost("{taskId}")]
+        [Authorize]
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> PostSolution(SolutionViewModel model, long taskId)
         {

@@ -58,7 +58,7 @@ namespace HwProj.APIGateway.API.Controllers
 
         [HttpPost("register")]
         [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Register([FromBody] RegisterViewModel model)
+        public async Task<IActionResult> Register(RegisterViewModel model)
         {
             var result = await _authClient.Register(model);
             return Ok(result);
@@ -66,7 +66,7 @@ namespace HwProj.APIGateway.API.Controllers
 
         [HttpPost("login")]
         [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Login([FromBody] LoginViewModel model)
+        public async Task<IActionResult> Login(LoginViewModel model)
         {
             var tokenMeta = await _authClient.Login(model).ConfigureAwait(false);
             return Ok(tokenMeta);
@@ -75,7 +75,7 @@ namespace HwProj.APIGateway.API.Controllers
         [HttpPut("edit")]
         [Authorize]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Edit([FromBody] EditAccountViewModel model)
+        public async Task<IActionResult> Edit(EditAccountViewModel model)
         {
             var userId = Request.GetUserId();
             var result = await _authClient.Edit(model, userId).ConfigureAwait(false);
@@ -85,7 +85,7 @@ namespace HwProj.APIGateway.API.Controllers
         [HttpPost("inviteNewLecturer")]
         [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> InviteNewLecturer([FromBody] InviteLecturerViewModel model)
+        public async Task<IActionResult> InviteNewLecturer(InviteLecturerViewModel model)
         {
             var result = await _authClient.InviteNewLecturer(model).ConfigureAwait(false);
             return Ok(result);

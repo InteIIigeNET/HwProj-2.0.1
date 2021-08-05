@@ -42,8 +42,7 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPut("update/{homeworkId}")]
-        public async Task UpdateHomework(long homeworkId,
-            [FromBody] CreateHomeworkViewModel homeworkViewModel)
+        public async Task UpdateHomework(long homeworkId, [FromBody] CreateHomeworkViewModel homeworkViewModel)
         {
             await _homeworksService.UpdateHomeworkAsync(homeworkId, new Homework
             {
