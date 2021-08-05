@@ -4,7 +4,6 @@ import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
-import ApiSingleton from "api/ApiSingleton";
 import Avatar from "@material-ui/core/Avatar";
 import Box from "@material-ui/core/Box";
 

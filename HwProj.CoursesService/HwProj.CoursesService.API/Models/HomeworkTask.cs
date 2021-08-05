@@ -1,4 +1,5 @@
-﻿using HwProj.Repositories;
+﻿using System;
+using HwProj.Repositories;
 
 namespace HwProj.CoursesService.API.Models
 {
@@ -12,6 +13,10 @@ namespace HwProj.CoursesService.API.Models
         
         public int MaxRating { get; set; }
         
+        public DateTime DeadlineDate { get; set; }
+        
+        public DateTime PublicationDate { get; set; } 
+
         public long HomeworkId { get; set; }
         
         public Homework Homework { get; set; }

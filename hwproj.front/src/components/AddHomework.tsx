@@ -4,9 +4,6 @@ import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import ApiSingleton from "../api/ApiSingleton";
 import { CreateTaskViewModel } from "../api";
-import DateTimePicker from "@material-ui/lab/DateTimePicker";
-import MuiPickersUtilsProvider from "@material-ui/pickers/MuiPickersUtilsProvider";
-import DateFnsUtils from "@material-ui/lab/AdapterDateFns";
 
 interface IAddHomeworkProps {
   id: number;
@@ -33,8 +30,8 @@ export default class AddHomework extends React.Component<
       tasks: [{ title: "",
                 description: "",
                 maxRating: 10,
-                // publicationDate: new Date(),
-                // deadlineDate: new Date(new Date().setDate(7))
+                publicationDate: new Date(),
+                deadlineDate: new Date()
               }],
       added: false,
     };
@@ -57,7 +54,6 @@ export default class AddHomework extends React.Component<
             multiline
             fullWidth
             rows="4"
-            //rowsMax="15"
             label="Описание домашки"
             variant="outlined"
             margin="normal"
@@ -100,7 +96,7 @@ export default class AddHomework extends React.Component<
                     variant="outlined"
                     type="number"
                     margin="normal"
-                    value={task.maxRating}
+                    defaultValue={task.maxRating}
                     onChange={(e) => (task.maxRating = +e.target.value)}
                   />
                   <br />
@@ -108,23 +104,22 @@ export default class AddHomework extends React.Component<
                     multiline
                     fullWidth
                     rows="4"
-                    //rowsMax="15"
                     label="Условие задачи"
                     variant="outlined"
                     margin="normal"
                     name={task.description}
                     onChange={(e) => (task.description = e.target.value)}
                   />
-                  {/* <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                    <DateTimePicker
-                      renderInput={(props) => <TextField {...props} />}
-                      label="Крайний срок решения задачи"
-                      value={task.deadlineDate}
-                      onChange={(newValue) => {
-                        task.deadlineDate = newValue
-                      }}
-                    />
-                  </MuiPickersUtilsProvider> */}
+                  <TextField
+                    id="datetime-local"
+                    label="Дедлайн задачи"
+                    type="datetime-local"
+                    defaultValue={task.deadlineDate}
+                    onChange={(e) => { task.deadlineDate = new Date(e.target.value) }}
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                  />
                 </li>
               ))}
             </ol>
@@ -138,8 +133,8 @@ export default class AddHomework extends React.Component<
                     title: "",
                     description: "",
                     maxRating: 10,
-                    // publicationDate: new Date(),
-                    // deadlineDate: new Date(new Date().setDate(7))
+                    publicationDate: new Date(),
+                    deadlineDate: new Date(new Date().setDate(7))
                   }],
                 })
               }

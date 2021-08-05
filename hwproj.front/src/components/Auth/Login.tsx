@@ -53,7 +53,6 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
     if (this.state.isLogin){
       this.props.onLogin?.();
     }
-    debugger
     return (
       <div className="page">
         <Typography component="h1" variant="h5">
