@@ -20,7 +20,7 @@ namespace HwProj.CoursesService.API.Controllers
             _groupsService = groupsService;
         }
 
-        [HttpGet("{groupId}")]
+        [HttpGet("get/{groupId}")]
         public async Task<IActionResult> Get(long groupId)
         {
             var group = await _groupsService.GetGroupAsync(groupId);
@@ -30,10 +30,10 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
 
-        [HttpGet("get_tasks/{groupId}")]
+        [HttpGet("getTasks/{groupId}")]
         public async Task<IActionResult> GetGroupTasks(long groupId)
         {
-            var ids = await _groupsService.GetTasksIds(groupId).ConfigureAwait(false);
+            var ids = await _groupsService.GetTasksIds(groupId);
             return Ok(ids);
         }
     }

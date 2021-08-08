@@ -235,5 +235,23 @@ namespace HwProj.APIGateway.API.Controllers
             await _coursesClient.RemoveStudentFromGroup(courseId, groupId, userId);
             return Ok();
         }
+
+        [HttpGet("get/{groupId}")]
+        [ProducesResponseType(typeof(GroupViewModel), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetGroup(long groupId)
+        {
+            var result = await _coursesClient.GetGroupById(groupId);
+            return result == null
+                ? NotFound()
+                : Ok(result) as IActionResult;
+        }
+        
+        [HttpGet("getTasks/{groupId}")]
+        [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetGroupTasks(long groupId)
+        {
+            var result = await _coursesClient.GetGroupTasks(groupId);
+            return Ok(result);
+        }
     }
 }

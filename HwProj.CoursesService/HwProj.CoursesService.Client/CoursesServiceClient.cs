@@ -294,5 +294,25 @@ namespace HwProj.CoursesService.Client
             
             await _httpClient.SendAsync(httpRequest);
         }
+        
+        public async Task<GroupViewModel> GetGroupById(long groupId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get, 
+                _coursesServiceUri + $"api/Courses/get/{groupId}");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<GroupViewModel>();
+        }
+        
+        public async Task<long> GetGroupTasks(long groupId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get, 
+                _coursesServiceUri + $"api/Courses/getTasks/{groupId}");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<long>();
+        }
     }
 }
