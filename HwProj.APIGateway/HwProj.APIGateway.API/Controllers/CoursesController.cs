@@ -184,7 +184,7 @@ namespace HwProj.APIGateway.API.Controllers
         [HttpPost("{courseId}/create")]
         [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> CreateCourseGroup(CreateCourseViewModel model, long courseId)
+        public async Task<IActionResult> CreateCourseGroup(CreateGroupViewModel model, long courseId)
         {
             var result = await _coursesClient.CreateCourseGroup(model, courseId);
             return Ok(result);
@@ -220,18 +220,16 @@ namespace HwProj.APIGateway.API.Controllers
         
         [HttpPost("{courseId}/addStudentInGroup/{groupId}")]
         [Authorize(Roles = Roles.LecturerRole)]
-        public async Task<IActionResult> AddStudentInGroup(long courseId, long groupId)
+        public async Task<IActionResult> AddStudentInGroup(long courseId, long groupId, [FromQuery] string userId)
         {
-            var userId = Request.GetUserId();
             await _coursesClient.AddStudentInGroup(courseId, groupId, userId);
             return Ok();
         }
         
         [HttpPost("{courseId}/removeStudentFromGroup/{groupId}")]
         [Authorize(Roles = Roles.LecturerRole)]
-        public async Task<IActionResult> RemoveStudentFromGroup(long courseId, long groupId)
+        public async Task<IActionResult> RemoveStudentFromGroup(long courseId, long groupId, [FromQuery] string userId)
         {
-            var userId = Request.GetUserId();
             await _coursesClient.RemoveStudentFromGroup(courseId, groupId, userId);
             return Ok();
         }

@@ -221,17 +221,17 @@ namespace HwProj.CoursesService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get, 
-                _coursesServiceUri + $"api/Courses/{courseId}/getAll");
+                _coursesServiceUri + $"api/CourseGroups/{courseId}/getAll");
 
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<GroupViewModel[]>();
         }
         
-        public async Task<long> CreateCourseGroup(CreateCourseViewModel model, long courseId)
+        public async Task<long> CreateCourseGroup(CreateGroupViewModel model, long courseId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _coursesServiceUri + $"api/Courses/{courseId}/create")
+                _coursesServiceUri + $"api/CourseGroups/{courseId}/create")
             {
                 Content = new StringContent(
                     JsonConvert.SerializeObject(model),
@@ -247,7 +247,7 @@ namespace HwProj.CoursesService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Delete,
-                _coursesServiceUri + $"api/Courses/{courseId}/delete/{groupId}");
+                _coursesServiceUri + $"api/CourseGroups/{courseId}/delete/{groupId}");
             
             await _httpClient.SendAsync(httpRequest);
         }
@@ -256,7 +256,7 @@ namespace HwProj.CoursesService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _coursesServiceUri + $"api/Courses/{courseId}/update/{groupId}")
+                _coursesServiceUri + $"api/CourseGroups/{courseId}/update/{groupId}")
             {
                 Content = new StringContent(
                     JsonConvert.SerializeObject(model),
@@ -271,7 +271,7 @@ namespace HwProj.CoursesService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get, 
-                _coursesServiceUri + $"api/Courses/{courseId}/get?userId={userId}");
+                _coursesServiceUri + $"api/CourseGroups/{courseId}/get?userId={userId}");
 
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<GroupViewModel>();
@@ -281,7 +281,7 @@ namespace HwProj.CoursesService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _coursesServiceUri + $"api/Courses/{courseId}/addStudentInGroup/{groupId}?userId={userId}");
+                _coursesServiceUri + $"api/CourseGroups/{courseId}/addStudentInGroup/{groupId}?userId={userId}");
             
             await _httpClient.SendAsync(httpRequest);
         }
@@ -290,7 +290,7 @@ namespace HwProj.CoursesService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _coursesServiceUri + $"api/Courses/{courseId}/removeStudentFromGroup/{groupId}?userId={userId}");
+                _coursesServiceUri + $"api/CourseGroups/{courseId}/removeStudentFromGroup/{groupId}?userId={userId}");
             
             await _httpClient.SendAsync(httpRequest);
         }
@@ -299,7 +299,7 @@ namespace HwProj.CoursesService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get, 
-                _coursesServiceUri + $"api/Courses/get/{groupId}");
+                _coursesServiceUri + $"api/Groups/get/{groupId}");
 
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<GroupViewModel>();
@@ -309,7 +309,7 @@ namespace HwProj.CoursesService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get, 
-                _coursesServiceUri + $"api/Courses/getTasks/{groupId}");
+                _coursesServiceUri + $"api/Groups/getTasks/{groupId}");
 
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<long>();
