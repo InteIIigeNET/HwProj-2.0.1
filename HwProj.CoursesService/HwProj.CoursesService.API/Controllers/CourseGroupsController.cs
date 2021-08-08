@@ -21,14 +21,14 @@ namespace HwProj.CoursesService.API.Controllers
             _groupsService = groupsService;
         }
 
-        [HttpGet("get_all")]
+        [HttpGet("getAll")]
         public async Task<GroupViewModel[]> GetAll(long courseId)
         {
-            var groups = await _groupsService.GetAllAsync(courseId).ConfigureAwait(false);
+            var groups = await _groupsService.GetAllAsync(courseId);
             return _mapper.Map<GroupViewModel[]>(groups);
         }
 
-        [HttpPost]
+        [HttpPost("create")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> CreateGroup([FromBody] CreateGroupViewModel groupViewModel)
         {
@@ -37,7 +37,7 @@ namespace HwProj.CoursesService.API.Controllers
             return Ok(id);
         }
 
-        [HttpDelete("{groupId}")]
+        [HttpDelete("delete/{groupId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> DeleteGroup(long groupId)
         {
@@ -49,30 +49,30 @@ namespace HwProj.CoursesService.API.Controllers
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> UpdateGroup(long groupId, [FromBody] UpdateGroupViewModel groupViewModel)
         {
-            await _groupsService.UpdateAsync(groupId, _mapper.Map<Group>(groupViewModel)).ConfigureAwait(false);
+            await _groupsService.UpdateAsync(groupId, _mapper.Map<Group>(groupViewModel));
             return Ok();
         }
 
-        [HttpGet("{userId}")]
-        public async Task<IActionResult> GetCoursesGroups(long courseId, string userId)
+        [HttpGet("get")]
+        public async Task<IActionResult> GetCoursesGroups(long courseId, [FromQuery] string userId)
         {
-            var groups = await _groupsService.GetStudentGroupsAsync(courseId, userId).ConfigureAwait(false);
+            var groups = await _groupsService.GetStudentGroupsAsync(courseId, userId);
             return Ok(groups);
         }
 
-        [HttpPost("add_student_in_group/{groupId}")]
+        [HttpPost("addStudentInGroup/{groupId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        public async Task<IActionResult> AddStudentInGroup(long groupId, [FromBody] string studentId)
+        public async Task<IActionResult> AddStudentInGroup(long groupId, [FromQuery] string userId)
         {
-            await _groupsService.AddGroupMateAsync(groupId, studentId).ConfigureAwait(false);
-            return Ok() as IActionResult;
+            await _groupsService.AddGroupMateAsync(groupId, userId);
+            return Ok();
         }
 
-        [HttpPost("remove_student_from_group/{groupId}")]
+        [HttpPost("removeStudentFromGroup/{groupId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        public async Task<IActionResult> RemoveStudentFromGroup(long groupId, string studentId)
+        public async Task<IActionResult> RemoveStudentFromGroup(long groupId, [FromQuery] string userId)
         {
-            return await _groupsService.DeleteGroupMateAsync(groupId, studentId).ConfigureAwait(false)
+            return await _groupsService.DeleteGroupMateAsync(groupId, userId)
                 ? Ok()
                 : NotFound() as IActionResult;
         }

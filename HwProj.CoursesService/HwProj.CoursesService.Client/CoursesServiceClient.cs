@@ -216,5 +216,83 @@ namespace HwProj.CoursesService.Client
             };  
             await _httpClient.SendAsync(httpRequest);
         }
+
+        public async Task<GroupViewModel[]> GetAllCourseGroups(long courseId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get, 
+                _coursesServiceUri + $"api/Courses/{courseId}/getAll");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<GroupViewModel[]>();
+        }
+        
+        public async Task<long> CreateCourseGroup(CreateCourseViewModel model, long courseId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _coursesServiceUri + $"api/Courses/{courseId}/create")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(model),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<long>();;
+        }
+        
+        public async Task DeleteCourseGroup(long courseId, long groupId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Delete,
+                _coursesServiceUri + $"api/Courses/{courseId}/delete/{groupId}");
+            
+            await _httpClient.SendAsync(httpRequest);
+        }
+        
+        public async Task UpdateCourseGroup(UpdateGroupViewModel model, long courseId, long groupId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _coursesServiceUri + $"api/Courses/{courseId}/update/{groupId}")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(model),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+            
+            await _httpClient.SendAsync(httpRequest);
+        }
+        
+        public async Task<GroupViewModel> GetCourseGroupsById(long courseId, string userId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get, 
+                _coursesServiceUri + $"api/Courses/{courseId}/get?userId={userId}");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<GroupViewModel>();
+        }
+        
+        public async Task AddStudentInGroup(long courseId, long groupId, string userId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _coursesServiceUri + $"api/Courses/{courseId}/addStudentInGroup/{groupId}?userId={userId}");
+            
+            await _httpClient.SendAsync(httpRequest);
+        }
+        
+        public async Task RemoveStudentFromGroup(long courseId, long groupId, string userId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _coursesServiceUri + $"api/Courses/{courseId}/removeStudentFromGroup/{groupId}?userId={userId}");
+            
+            await _httpClient.SendAsync(httpRequest);
+        }
     }
 }
