@@ -115,7 +115,7 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                       courseMates={this.state.acceptedStudents}
                       homeworks={this.state.courseHomework}
                       userId={userId as string}
-                      forMentor={isMentor}
+                      isMentor={isMentor}
                       course={this.state.course}
                     />
                     <br />
@@ -145,7 +145,7 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                       courseMates={this.state.acceptedStudents}
                       homeworks={this.state.courseHomework}
                       userId={userId as string}
-                      forMentor={isMentor}
+                      isMentor={isMentor}
                       course={this.state.course}
                     />
                     <br />
@@ -179,7 +179,7 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                   courseMates={this.state.acceptedStudents}
                   homeworks={this.state.courseHomework}
                   userId={userId as string}
-                  forMentor={isMentor}
+                  isMentor={isMentor}
                   course={this.state.course}
                 />
                 )}

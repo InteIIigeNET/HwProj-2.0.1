@@ -23,16 +23,8 @@ export default class AddSolution extends React.Component<IAddSolutionProps, Solu
 
     public async handleSubmit(e: any) {
         e.preventDefault();
-
-        await ApiSingleton.solutionService.addSolution({
-            taskId: this.props.taskId,
-            studentId: this.state.studentId,
-            githubUrl: this.state.githubUrl,
-            comment: this.state.comment,
-            state: "posted",
-            point: 0,
-            date: new Date()
-        })
+        const token = ApiSingleton.authService.getToken();
+        await ApiSingleton.solutionsApi.apiSolutionsByTaskIdPost(this.props.taskId, this.state, { headers: {"Authorization": `Bearer ${token}`} })
         this.props.onAdding()
     }
 
