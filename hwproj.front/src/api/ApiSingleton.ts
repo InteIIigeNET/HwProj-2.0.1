@@ -1,7 +1,4 @@
-import { AccountApi, NotificationsApi, CoursesApi } from ".";
-
-// Fake api
-import { SolutionsApi } from "./solutions";
+import { AccountApi, NotificationsApi, CoursesApi, SolutionsApi } from ".";
 
 import AuthService from "../services/AuthService";
 import CourseService from "../services/CourseService";

@@ -123,16 +123,12 @@ export default class TaskSolutionsPage extends React.Component<
             ApiSingleton.coursesApi
               .apiCoursesByCourseIdGet(homework.courseId!)
               .then((course) =>
-              {
-
                 this.setState({
                   isLoaded: true,
                   addSolution: false,
                   task: task,
                   course: course,
                 })
-                debugger;
-              }
               )
           )
       );

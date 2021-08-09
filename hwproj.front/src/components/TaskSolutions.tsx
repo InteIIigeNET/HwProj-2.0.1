@@ -2,6 +2,7 @@ import * as React from 'react';
 import SolutionComponent from './Solution'
 import Typography from '@material-ui/core/Typography'
 import ApiSingleton from "../api/ApiSingleton";
+import { Solution } from '../api';
 
 interface ITaskSolutionsProps {
     taskId: number,
@@ -11,7 +12,7 @@ interface ITaskSolutionsProps {
 
 interface ITaskSolutionsState {
     isLoaded: boolean,
-    solutions: number[]
+    solutions: Solution[]
 }
 
 export default class TaskSolutions extends React.Component<ITaskSolutionsProps, ITaskSolutionsState> {
@@ -27,8 +28,8 @@ export default class TaskSolutions extends React.Component<ITaskSolutionsProps, 
         const { isLoaded, solutions } = this.state;
 
         if (isLoaded) {
-            let solutionList = solutions.map(id => <li key={id}>
-                <SolutionComponent forMentor={this.props.forMentor} id={id} />
+            let solutionList = solutions.map(s => <li key={s.id}>
+                <SolutionComponent forMentor={this.props.forMentor} solution={s} />
             </li>)
 
             return (
@@ -46,20 +47,12 @@ export default class TaskSolutions extends React.Component<ITaskSolutionsProps, 
         return "";
     }
 
-    // componentDidMount() {
-    //     ApiSingleton.solutionsApi.getTaskSolutionsFromStudent(this.props.taskId, this.props.studentId)
-    //         .then(solutions => this.setState({
-    //             isLoaded: true,
-    //             solutions: solutions.map(s => s.id!)
-    //         }));
-    // }
-
-    async componentDidMount() {
-        const solutions = await ApiSingleton.solutionService.getSolutionsByTaskIdAndStudentId(this.props.taskId, +this.props.studentId)
-        this.setState({ 
-            isLoaded: true,
-            solutions: solutions.map((s: any) => s.id!)
-        })
-        console.log(solutions)
+    componentDidMount() {
+        ApiSingleton.solutionsApi.apiSolutionsGet()
+            .then(solutions => solutions.filter(s => s.taskId == this.props.taskId && s.studentId == this.props.studentId))
+            .then(solutions => this.setState({
+                isLoaded: true,
+                solutions: solutions
+            }));
     }
 }

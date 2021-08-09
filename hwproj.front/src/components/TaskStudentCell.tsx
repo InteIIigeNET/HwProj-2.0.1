@@ -2,7 +2,7 @@ import * as React from "react";
 import TableCell from "@material-ui/core/TableCell";
 import { Redirect } from "react-router-dom";
 import ApiSingleton from "../api/ApiSingleton";
-import { Solution } from "api/solutions";
+import { Solution } from "api";
 
 interface ITaskStudentCellProps {
   studentId: string;
@@ -86,10 +86,10 @@ export default class TaskStudentCell extends React.Component<
     let maxPoints = 0
     let selectedSolution = null
     solutions
-      .filter((solution) => solution.state === "checked")
+      .filter((solution) => solution.state?.toString() == "Posted")
       .map((solution) => {
-        if (solution.points! >= maxPoints) {
-          maxPoints = solution.points!
+        if (solution.rating! >= maxPoints) {
+          maxPoints = solution.rating!
           selectedSolution = solution
         }
       })
@@ -97,7 +97,7 @@ export default class TaskStudentCell extends React.Component<
   }
 
   async componentDidMount() {
-    const solutions = await ApiSingleton.solutionService.getSolutionsByTaskIdAndStudentId(this.props.taskId, +this.props.studentId)
+    const solutions = (await ApiSingleton.solutionsApi.apiSolutionsGet()).filter(s => s.taskId == this.props.taskId && s.studentId == this.props.studentId)
     const solution = this.getTheLastAssessedSolution(solutions)
     if (solution === null){
       this.setState({
@@ -105,10 +105,9 @@ export default class TaskStudentCell extends React.Component<
       })
       return
     }
-    debugger
     this.setState({
       isLoaded: true,
-      result: solution.points!
+      result: solution.rating!
     })
   }
 }
