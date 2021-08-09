@@ -9,7 +9,5 @@ namespace HwProj.CoursesService.API.Repositories.Groups
             : base(context)
         {
         }
-        
-        
     }
 }
