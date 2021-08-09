@@ -1996,6 +1996,704 @@ export class AccountApi extends BaseAPI {
 }
 
 /**
+ * CourseGroupsApi - fetch parameter creator
+ * @export
+ */
+export const CourseGroupsApiFetchParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {number} groupId 
+         * @param {string} [userId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseGroupsByCourseIdAddStudentInGroupByGroupIdPost(courseId: number, groupId: number, userId?: string, options: any = {}): FetchArgs {
+            // verify required parameter 'courseId' is not null or undefined
+            if (courseId === null || courseId === undefined) {
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCourseGroupsByCourseIdAddStudentInGroupByGroupIdPost.');
+            }
+            // verify required parameter 'groupId' is not null or undefined
+            if (groupId === null || groupId === undefined) {
+                throw new RequiredError('groupId','Required parameter groupId was null or undefined when calling apiCourseGroupsByCourseIdAddStudentInGroupByGroupIdPost.');
+            }
+            const localVarPath = `/api/CourseGroups/{courseId}/addStudentInGroup/{groupId}`
+                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)))
+                .replace(`{${"groupId"}}`, encodeURIComponent(String(groupId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (userId !== undefined) {
+                localVarQueryParameter['userId'] = userId;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {CreateGroupViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseGroupsByCourseIdCreatePost(courseId: number, model?: CreateGroupViewModel, options: any = {}): FetchArgs {
+            // verify required parameter 'courseId' is not null or undefined
+            if (courseId === null || courseId === undefined) {
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCourseGroupsByCourseIdCreatePost.');
+            }
+            const localVarPath = `/api/CourseGroups/{courseId}/create`
+                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"CreateGroupViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {number} groupId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseGroupsByCourseIdDeleteByGroupIdDelete(courseId: number, groupId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'courseId' is not null or undefined
+            if (courseId === null || courseId === undefined) {
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCourseGroupsByCourseIdDeleteByGroupIdDelete.');
+            }
+            // verify required parameter 'groupId' is not null or undefined
+            if (groupId === null || groupId === undefined) {
+                throw new RequiredError('groupId','Required parameter groupId was null or undefined when calling apiCourseGroupsByCourseIdDeleteByGroupIdDelete.');
+            }
+            const localVarPath = `/api/CourseGroups/{courseId}/delete/{groupId}`
+                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)))
+                .replace(`{${"groupId"}}`, encodeURIComponent(String(groupId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseGroupsByCourseIdGetAllGet(courseId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'courseId' is not null or undefined
+            if (courseId === null || courseId === undefined) {
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCourseGroupsByCourseIdGetAllGet.');
+            }
+            const localVarPath = `/api/CourseGroups/{courseId}/getAll`
+                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseGroupsByCourseIdGetGet(courseId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'courseId' is not null or undefined
+            if (courseId === null || courseId === undefined) {
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCourseGroupsByCourseIdGetGet.');
+            }
+            const localVarPath = `/api/CourseGroups/{courseId}/get`
+                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {number} groupId 
+         * @param {string} [userId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseGroupsByCourseIdRemoveStudentFromGroupByGroupIdPost(courseId: number, groupId: number, userId?: string, options: any = {}): FetchArgs {
+            // verify required parameter 'courseId' is not null or undefined
+            if (courseId === null || courseId === undefined) {
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCourseGroupsByCourseIdRemoveStudentFromGroupByGroupIdPost.');
+            }
+            // verify required parameter 'groupId' is not null or undefined
+            if (groupId === null || groupId === undefined) {
+                throw new RequiredError('groupId','Required parameter groupId was null or undefined when calling apiCourseGroupsByCourseIdRemoveStudentFromGroupByGroupIdPost.');
+            }
+            const localVarPath = `/api/CourseGroups/{courseId}/removeStudentFromGroup/{groupId}`
+                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)))
+                .replace(`{${"groupId"}}`, encodeURIComponent(String(groupId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (userId !== undefined) {
+                localVarQueryParameter['userId'] = userId;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {number} groupId 
+         * @param {UpdateGroupViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseGroupsByCourseIdUpdateByGroupIdPost(courseId: number, groupId: number, model?: UpdateGroupViewModel, options: any = {}): FetchArgs {
+            // verify required parameter 'courseId' is not null or undefined
+            if (courseId === null || courseId === undefined) {
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCourseGroupsByCourseIdUpdateByGroupIdPost.');
+            }
+            // verify required parameter 'groupId' is not null or undefined
+            if (groupId === null || groupId === undefined) {
+                throw new RequiredError('groupId','Required parameter groupId was null or undefined when calling apiCourseGroupsByCourseIdUpdateByGroupIdPost.');
+            }
+            const localVarPath = `/api/CourseGroups/{courseId}/update/{groupId}`
+                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)))
+                .replace(`{${"groupId"}}`, encodeURIComponent(String(groupId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"UpdateGroupViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} groupId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseGroupsGetByGroupIdGet(groupId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'groupId' is not null or undefined
+            if (groupId === null || groupId === undefined) {
+                throw new RequiredError('groupId','Required parameter groupId was null or undefined when calling apiCourseGroupsGetByGroupIdGet.');
+            }
+            const localVarPath = `/api/CourseGroups/get/{groupId}`
+                .replace(`{${"groupId"}}`, encodeURIComponent(String(groupId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} groupId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseGroupsGetTasksByGroupIdGet(groupId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'groupId' is not null or undefined
+            if (groupId === null || groupId === undefined) {
+                throw new RequiredError('groupId','Required parameter groupId was null or undefined when calling apiCourseGroupsGetTasksByGroupIdGet.');
+            }
+            const localVarPath = `/api/CourseGroups/getTasks/{groupId}`
+                .replace(`{${"groupId"}}`, encodeURIComponent(String(groupId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * CourseGroupsApi - functional programming interface
+ * @export
+ */
+export const CourseGroupsApiFp = function(configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {number} groupId 
+         * @param {string} [userId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseGroupsByCourseIdAddStudentInGroupByGroupIdPost(courseId: number, groupId: number, userId?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = CourseGroupsApiFetchParamCreator(configuration).apiCourseGroupsByCourseIdAddStudentInGroupByGroupIdPost(courseId, groupId, userId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {CreateGroupViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseGroupsByCourseIdCreatePost(courseId: number, model?: CreateGroupViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
+            const localVarFetchArgs = CourseGroupsApiFetchParamCreator(configuration).apiCourseGroupsByCourseIdCreatePost(courseId, model, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {number} groupId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseGroupsByCourseIdDeleteByGroupIdDelete(courseId: number, groupId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = CourseGroupsApiFetchParamCreator(configuration).apiCourseGroupsByCourseIdDeleteByGroupIdDelete(courseId, groupId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseGroupsByCourseIdGetAllGet(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<GroupViewModel>> {
+            const localVarFetchArgs = CourseGroupsApiFetchParamCreator(configuration).apiCourseGroupsByCourseIdGetAllGet(courseId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseGroupsByCourseIdGetGet(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<GroupViewModel> {
+            const localVarFetchArgs = CourseGroupsApiFetchParamCreator(configuration).apiCourseGroupsByCourseIdGetGet(courseId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {number} groupId 
+         * @param {string} [userId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseGroupsByCourseIdRemoveStudentFromGroupByGroupIdPost(courseId: number, groupId: number, userId?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = CourseGroupsApiFetchParamCreator(configuration).apiCourseGroupsByCourseIdRemoveStudentFromGroupByGroupIdPost(courseId, groupId, userId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {number} groupId 
+         * @param {UpdateGroupViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseGroupsByCourseIdUpdateByGroupIdPost(courseId: number, groupId: number, model?: UpdateGroupViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = CourseGroupsApiFetchParamCreator(configuration).apiCourseGroupsByCourseIdUpdateByGroupIdPost(courseId, groupId, model, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} groupId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseGroupsGetByGroupIdGet(groupId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<GroupViewModel> {
+            const localVarFetchArgs = CourseGroupsApiFetchParamCreator(configuration).apiCourseGroupsGetByGroupIdGet(groupId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} groupId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseGroupsGetTasksByGroupIdGet(groupId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<number>> {
+            const localVarFetchArgs = CourseGroupsApiFetchParamCreator(configuration).apiCourseGroupsGetTasksByGroupIdGet(groupId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+    }
+};
+
+/**
+ * CourseGroupsApi - factory interface
+ * @export
+ */
+export const CourseGroupsApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {number} groupId 
+         * @param {string} [userId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseGroupsByCourseIdAddStudentInGroupByGroupIdPost(courseId: number, groupId: number, userId?: string, options?: any) {
+            return CourseGroupsApiFp(configuration).apiCourseGroupsByCourseIdAddStudentInGroupByGroupIdPost(courseId, groupId, userId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {CreateGroupViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseGroupsByCourseIdCreatePost(courseId: number, model?: CreateGroupViewModel, options?: any) {
+            return CourseGroupsApiFp(configuration).apiCourseGroupsByCourseIdCreatePost(courseId, model, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {number} groupId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseGroupsByCourseIdDeleteByGroupIdDelete(courseId: number, groupId: number, options?: any) {
+            return CourseGroupsApiFp(configuration).apiCourseGroupsByCourseIdDeleteByGroupIdDelete(courseId, groupId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseGroupsByCourseIdGetAllGet(courseId: number, options?: any) {
+            return CourseGroupsApiFp(configuration).apiCourseGroupsByCourseIdGetAllGet(courseId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseGroupsByCourseIdGetGet(courseId: number, options?: any) {
+            return CourseGroupsApiFp(configuration).apiCourseGroupsByCourseIdGetGet(courseId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {number} groupId 
+         * @param {string} [userId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseGroupsByCourseIdRemoveStudentFromGroupByGroupIdPost(courseId: number, groupId: number, userId?: string, options?: any) {
+            return CourseGroupsApiFp(configuration).apiCourseGroupsByCourseIdRemoveStudentFromGroupByGroupIdPost(courseId, groupId, userId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {number} groupId 
+         * @param {UpdateGroupViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseGroupsByCourseIdUpdateByGroupIdPost(courseId: number, groupId: number, model?: UpdateGroupViewModel, options?: any) {
+            return CourseGroupsApiFp(configuration).apiCourseGroupsByCourseIdUpdateByGroupIdPost(courseId, groupId, model, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} groupId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseGroupsGetByGroupIdGet(groupId: number, options?: any) {
+            return CourseGroupsApiFp(configuration).apiCourseGroupsGetByGroupIdGet(groupId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} groupId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCourseGroupsGetTasksByGroupIdGet(groupId: number, options?: any) {
+            return CourseGroupsApiFp(configuration).apiCourseGroupsGetTasksByGroupIdGet(groupId, options)(fetch, basePath);
+        },
+    };
+};
+
+/**
+ * CourseGroupsApi - object-oriented interface
+ * @export
+ * @class CourseGroupsApi
+ * @extends {BaseAPI}
+ */
+export class CourseGroupsApi extends BaseAPI {
+    /**
+     * 
+     * @param {number} courseId 
+     * @param {number} groupId 
+     * @param {string} [userId] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CourseGroupsApi
+     */
+    public apiCourseGroupsByCourseIdAddStudentInGroupByGroupIdPost(courseId: number, groupId: number, userId?: string, options?: any) {
+        return CourseGroupsApiFp(this.configuration).apiCourseGroupsByCourseIdAddStudentInGroupByGroupIdPost(courseId, groupId, userId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} courseId 
+     * @param {CreateGroupViewModel} [model] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CourseGroupsApi
+     */
+    public apiCourseGroupsByCourseIdCreatePost(courseId: number, model?: CreateGroupViewModel, options?: any) {
+        return CourseGroupsApiFp(this.configuration).apiCourseGroupsByCourseIdCreatePost(courseId, model, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} courseId 
+     * @param {number} groupId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CourseGroupsApi
+     */
+    public apiCourseGroupsByCourseIdDeleteByGroupIdDelete(courseId: number, groupId: number, options?: any) {
+        return CourseGroupsApiFp(this.configuration).apiCourseGroupsByCourseIdDeleteByGroupIdDelete(courseId, groupId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} courseId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CourseGroupsApi
+     */
+    public apiCourseGroupsByCourseIdGetAllGet(courseId: number, options?: any) {
+        return CourseGroupsApiFp(this.configuration).apiCourseGroupsByCourseIdGetAllGet(courseId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} courseId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CourseGroupsApi
+     */
+    public apiCourseGroupsByCourseIdGetGet(courseId: number, options?: any) {
+        return CourseGroupsApiFp(this.configuration).apiCourseGroupsByCourseIdGetGet(courseId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} courseId 
+     * @param {number} groupId 
+     * @param {string} [userId] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CourseGroupsApi
+     */
+    public apiCourseGroupsByCourseIdRemoveStudentFromGroupByGroupIdPost(courseId: number, groupId: number, userId?: string, options?: any) {
+        return CourseGroupsApiFp(this.configuration).apiCourseGroupsByCourseIdRemoveStudentFromGroupByGroupIdPost(courseId, groupId, userId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} courseId 
+     * @param {number} groupId 
+     * @param {UpdateGroupViewModel} [model] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CourseGroupsApi
+     */
+    public apiCourseGroupsByCourseIdUpdateByGroupIdPost(courseId: number, groupId: number, model?: UpdateGroupViewModel, options?: any) {
+        return CourseGroupsApiFp(this.configuration).apiCourseGroupsByCourseIdUpdateByGroupIdPost(courseId, groupId, model, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} groupId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CourseGroupsApi
+     */
+    public apiCourseGroupsGetByGroupIdGet(groupId: number, options?: any) {
+        return CourseGroupsApiFp(this.configuration).apiCourseGroupsGetByGroupIdGet(groupId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} groupId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CourseGroupsApi
+     */
+    public apiCourseGroupsGetTasksByGroupIdGet(groupId: number, options?: any) {
+        return CourseGroupsApiFp(this.configuration).apiCourseGroupsGetTasksByGroupIdGet(groupId, options)(this.fetch, this.basePath);
+    }
+
+}
+
+/**
  * CoursesApi - fetch parameter creator
  * @export
  */
@@ -2038,78 +2736,6 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
         /**
          * 
          * @param {number} courseId 
-         * @param {number} groupId 
-         * @param {string} [userId] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesByCourseIdAddStudentInGroupByGroupIdPost(courseId: number, groupId: number, userId?: string, options: any = {}): FetchArgs {
-            // verify required parameter 'courseId' is not null or undefined
-            if (courseId === null || courseId === undefined) {
-                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesByCourseIdAddStudentInGroupByGroupIdPost.');
-            }
-            // verify required parameter 'groupId' is not null or undefined
-            if (groupId === null || groupId === undefined) {
-                throw new RequiredError('groupId','Required parameter groupId was null or undefined when calling apiCoursesByCourseIdAddStudentInGroupByGroupIdPost.');
-            }
-            const localVarPath = `/api/Courses/{courseId}/addStudentInGroup/{groupId}`
-                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)))
-                .replace(`{${"groupId"}}`, encodeURIComponent(String(groupId)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            if (userId !== undefined) {
-                localVarQueryParameter['userId'] = userId;
-            }
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @param {number} courseId 
-         * @param {CreateGroupViewModel} [model] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesByCourseIdCreatePost(courseId: number, model?: CreateGroupViewModel, options: any = {}): FetchArgs {
-            // verify required parameter 'courseId' is not null or undefined
-            if (courseId === null || courseId === undefined) {
-                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesByCourseIdCreatePost.');
-            }
-            const localVarPath = `/api/Courses/{courseId}/create`
-                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-            const needsSerialization = (<any>"CreateGroupViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @param {number} courseId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -2120,40 +2746,6 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             }
             const localVarPath = `/api/Courses/{courseId}`
                 .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @param {number} courseId 
-         * @param {number} groupId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesByCourseIdDeleteByGroupIdDelete(courseId: number, groupId: number, options: any = {}): FetchArgs {
-            // verify required parameter 'courseId' is not null or undefined
-            if (courseId === null || courseId === undefined) {
-                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesByCourseIdDeleteByGroupIdDelete.');
-            }
-            // verify required parameter 'groupId' is not null or undefined
-            if (groupId === null || groupId === undefined) {
-                throw new RequiredError('groupId','Required parameter groupId was null or undefined when calling apiCoursesByCourseIdDeleteByGroupIdDelete.');
-            }
-            const localVarPath = `/api/Courses/{courseId}/delete/{groupId}`
-                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)))
-                .replace(`{${"groupId"}}`, encodeURIComponent(String(groupId)));
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
             const localVarHeaderParameter = {} as any;
@@ -2191,140 +2783,6 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @param {number} courseId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesByCourseIdGetAllGet(courseId: number, options: any = {}): FetchArgs {
-            // verify required parameter 'courseId' is not null or undefined
-            if (courseId === null || courseId === undefined) {
-                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesByCourseIdGetAllGet.');
-            }
-            const localVarPath = `/api/Courses/{courseId}/getAll`
-                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @param {number} courseId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesByCourseIdGetGet(courseId: number, options: any = {}): FetchArgs {
-            // verify required parameter 'courseId' is not null or undefined
-            if (courseId === null || courseId === undefined) {
-                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesByCourseIdGetGet.');
-            }
-            const localVarPath = `/api/Courses/{courseId}/get`
-                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @param {number} courseId 
-         * @param {number} groupId 
-         * @param {string} [userId] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesByCourseIdRemoveStudentFromGroupByGroupIdPost(courseId: number, groupId: number, userId?: string, options: any = {}): FetchArgs {
-            // verify required parameter 'courseId' is not null or undefined
-            if (courseId === null || courseId === undefined) {
-                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesByCourseIdRemoveStudentFromGroupByGroupIdPost.');
-            }
-            // verify required parameter 'groupId' is not null or undefined
-            if (groupId === null || groupId === undefined) {
-                throw new RequiredError('groupId','Required parameter groupId was null or undefined when calling apiCoursesByCourseIdRemoveStudentFromGroupByGroupIdPost.');
-            }
-            const localVarPath = `/api/Courses/{courseId}/removeStudentFromGroup/{groupId}`
-                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)))
-                .replace(`{${"groupId"}}`, encodeURIComponent(String(groupId)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            if (userId !== undefined) {
-                localVarQueryParameter['userId'] = userId;
-            }
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @param {number} courseId 
-         * @param {number} groupId 
-         * @param {UpdateGroupViewModel} [model] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesByCourseIdUpdateByGroupIdPost(courseId: number, groupId: number, model?: UpdateGroupViewModel, options: any = {}): FetchArgs {
-            // verify required parameter 'courseId' is not null or undefined
-            if (courseId === null || courseId === undefined) {
-                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesByCourseIdUpdateByGroupIdPost.');
-            }
-            // verify required parameter 'groupId' is not null or undefined
-            if (groupId === null || groupId === undefined) {
-                throw new RequiredError('groupId','Required parameter groupId was null or undefined when calling apiCoursesByCourseIdUpdateByGroupIdPost.');
-            }
-            const localVarPath = `/api/Courses/{courseId}/update/{groupId}`
-                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)))
-                .replace(`{${"groupId"}}`, encodeURIComponent(String(groupId)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-            const needsSerialization = (<any>"UpdateGroupViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -2374,306 +2832,6 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @param {number} groupId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesGetByGroupIdGet(groupId: number, options: any = {}): FetchArgs {
-            // verify required parameter 'groupId' is not null or undefined
-            if (groupId === null || groupId === undefined) {
-                throw new RequiredError('groupId','Required parameter groupId was null or undefined when calling apiCoursesGetByGroupIdGet.');
-            }
-            const localVarPath = `/api/Courses/get/{groupId}`
-                .replace(`{${"groupId"}}`, encodeURIComponent(String(groupId)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @param {number} groupId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesGetTasksByGroupIdGet(groupId: number, options: any = {}): FetchArgs {
-            // verify required parameter 'groupId' is not null or undefined
-            if (groupId === null || groupId === undefined) {
-                throw new RequiredError('groupId','Required parameter groupId was null or undefined when calling apiCoursesGetTasksByGroupIdGet.');
-            }
-            const localVarPath = `/api/Courses/getTasks/{groupId}`
-                .replace(`{${"groupId"}}`, encodeURIComponent(String(groupId)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @param {number} courseId 
-         * @param {CreateHomeworkViewModel} [homeworkViewModel] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesHomeworksByCourseIdAddPost(courseId: number, homeworkViewModel?: CreateHomeworkViewModel, options: any = {}): FetchArgs {
-            // verify required parameter 'courseId' is not null or undefined
-            if (courseId === null || courseId === undefined) {
-                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesHomeworksByCourseIdAddPost.');
-            }
-            const localVarPath = `/api/Courses/Homeworks/{courseId}/add`
-                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-            const needsSerialization = (<any>"CreateHomeworkViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(homeworkViewModel || {}) : (homeworkViewModel || "");
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @param {number} homeworkId 
-         * @param {CreateTaskViewModel} [taskViewModel] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesHomeworksByHomeworkIdTasksAddPost(homeworkId: number, taskViewModel?: CreateTaskViewModel, options: any = {}): FetchArgs {
-            // verify required parameter 'homeworkId' is not null or undefined
-            if (homeworkId === null || homeworkId === undefined) {
-                throw new RequiredError('homeworkId','Required parameter homeworkId was null or undefined when calling apiCoursesHomeworksByHomeworkIdTasksAddPost.');
-            }
-            const localVarPath = `/api/Courses/Homeworks/{homeworkId}/Tasks/add`
-                .replace(`{${"homeworkId"}}`, encodeURIComponent(String(homeworkId)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-            const needsSerialization = (<any>"CreateTaskViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(taskViewModel || {}) : (taskViewModel || "");
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @param {number} homeworkId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesHomeworksDeleteByHomeworkIdDelete(homeworkId: number, options: any = {}): FetchArgs {
-            // verify required parameter 'homeworkId' is not null or undefined
-            if (homeworkId === null || homeworkId === undefined) {
-                throw new RequiredError('homeworkId','Required parameter homeworkId was null or undefined when calling apiCoursesHomeworksDeleteByHomeworkIdDelete.');
-            }
-            const localVarPath = `/api/Courses/Homeworks/delete/{homeworkId}`
-                .replace(`{${"homeworkId"}}`, encodeURIComponent(String(homeworkId)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @param {number} homeworkId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesHomeworksGetByHomeworkIdGet(homeworkId: number, options: any = {}): FetchArgs {
-            // verify required parameter 'homeworkId' is not null or undefined
-            if (homeworkId === null || homeworkId === undefined) {
-                throw new RequiredError('homeworkId','Required parameter homeworkId was null or undefined when calling apiCoursesHomeworksGetByHomeworkIdGet.');
-            }
-            const localVarPath = `/api/Courses/Homeworks/get/{homeworkId}`
-                .replace(`{${"homeworkId"}}`, encodeURIComponent(String(homeworkId)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @param {number} taskId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesHomeworksTasksDeleteByTaskIdDelete(taskId: number, options: any = {}): FetchArgs {
-            // verify required parameter 'taskId' is not null or undefined
-            if (taskId === null || taskId === undefined) {
-                throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling apiCoursesHomeworksTasksDeleteByTaskIdDelete.');
-            }
-            const localVarPath = `/api/Courses/Homeworks/Tasks/delete/{taskId}`
-                .replace(`{${"taskId"}}`, encodeURIComponent(String(taskId)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @param {number} taskId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesHomeworksTasksGetByTaskIdGet(taskId: number, options: any = {}): FetchArgs {
-            // verify required parameter 'taskId' is not null or undefined
-            if (taskId === null || taskId === undefined) {
-                throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling apiCoursesHomeworksTasksGetByTaskIdGet.');
-            }
-            const localVarPath = `/api/Courses/Homeworks/Tasks/get/{taskId}`
-                .replace(`{${"taskId"}}`, encodeURIComponent(String(taskId)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @param {number} taskId 
-         * @param {CreateTaskViewModel} [taskViewModel] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesHomeworksTasksUpdateByTaskIdPut(taskId: number, taskViewModel?: CreateTaskViewModel, options: any = {}): FetchArgs {
-            // verify required parameter 'taskId' is not null or undefined
-            if (taskId === null || taskId === undefined) {
-                throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling apiCoursesHomeworksTasksUpdateByTaskIdPut.');
-            }
-            const localVarPath = `/api/Courses/Homeworks/Tasks/update/{taskId}`
-                .replace(`{${"taskId"}}`, encodeURIComponent(String(taskId)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-            const needsSerialization = (<any>"CreateTaskViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(taskViewModel || {}) : (taskViewModel || "");
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @param {number} homeworkId 
-         * @param {CreateHomeworkViewModel} [homeworkViewModel] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesHomeworksUpdateByHomeworkIdPut(homeworkId: number, homeworkViewModel?: CreateHomeworkViewModel, options: any = {}): FetchArgs {
-            // verify required parameter 'homeworkId' is not null or undefined
-            if (homeworkId === null || homeworkId === undefined) {
-                throw new RequiredError('homeworkId','Required parameter homeworkId was null or undefined when calling apiCoursesHomeworksUpdateByHomeworkIdPut.');
-            }
-            const localVarPath = `/api/Courses/Homeworks/update/{homeworkId}`
-                .replace(`{${"homeworkId"}}`, encodeURIComponent(String(homeworkId)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-            const needsSerialization = (<any>"CreateHomeworkViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(homeworkViewModel || {}) : (homeworkViewModel || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -2828,69 +2986,11 @@ export const CoursesApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @param {number} courseId 
-         * @param {number} groupId 
-         * @param {string} [userId] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesByCourseIdAddStudentInGroupByGroupIdPost(courseId: number, groupId: number, userId?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesByCourseIdAddStudentInGroupByGroupIdPost(courseId, groupId, userId, options);
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response;
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
-         * @param {number} courseId 
-         * @param {CreateGroupViewModel} [model] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesByCourseIdCreatePost(courseId: number, model?: CreateGroupViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
-            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesByCourseIdCreatePost(courseId, model, options);
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
-         * @param {number} courseId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
         apiCoursesByCourseIdDelete(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
             const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesByCourseIdDelete(courseId, options);
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response;
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
-         * @param {number} courseId 
-         * @param {number} groupId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesByCourseIdDeleteByGroupIdDelete(courseId: number, groupId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesByCourseIdDeleteByGroupIdDelete(courseId, groupId, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -2913,82 +3013,6 @@ export const CoursesApiFp = function(configuration?: Configuration) {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
                         return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
-         * @param {number} courseId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesByCourseIdGetAllGet(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<GroupViewModel>> {
-            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesByCourseIdGetAllGet(courseId, options);
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
-         * @param {number} courseId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesByCourseIdGetGet(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<GroupViewModel> {
-            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesByCourseIdGetGet(courseId, options);
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
-         * @param {number} courseId 
-         * @param {number} groupId 
-         * @param {string} [userId] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesByCourseIdRemoveStudentFromGroupByGroupIdPost(courseId: number, groupId: number, userId?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesByCourseIdRemoveStudentFromGroupByGroupIdPost(courseId, groupId, userId, options);
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response;
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
-         * @param {number} courseId 
-         * @param {number} groupId 
-         * @param {UpdateGroupViewModel} [model] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesByCourseIdUpdateByGroupIdPost(courseId: number, groupId: number, model?: UpdateGroupViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesByCourseIdUpdateByGroupIdPost(courseId, groupId, model, options);
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response;
                     } else {
                         throw response;
                     }
@@ -3024,190 +3048,6 @@ export const CoursesApiFp = function(configuration?: Configuration) {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
                         return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
-         * @param {number} groupId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesGetByGroupIdGet(groupId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<GroupViewModel> {
-            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesGetByGroupIdGet(groupId, options);
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
-         * @param {number} groupId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesGetTasksByGroupIdGet(groupId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<number>> {
-            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesGetTasksByGroupIdGet(groupId, options);
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
-         * @param {number} courseId 
-         * @param {CreateHomeworkViewModel} [homeworkViewModel] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesHomeworksByCourseIdAddPost(courseId: number, homeworkViewModel?: CreateHomeworkViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
-            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesHomeworksByCourseIdAddPost(courseId, homeworkViewModel, options);
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
-         * @param {number} homeworkId 
-         * @param {CreateTaskViewModel} [taskViewModel] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesHomeworksByHomeworkIdTasksAddPost(homeworkId: number, taskViewModel?: CreateTaskViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
-            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesHomeworksByHomeworkIdTasksAddPost(homeworkId, taskViewModel, options);
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
-         * @param {number} homeworkId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesHomeworksDeleteByHomeworkIdDelete(homeworkId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesHomeworksDeleteByHomeworkIdDelete(homeworkId, options);
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response;
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
-         * @param {number} homeworkId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesHomeworksGetByHomeworkIdGet(homeworkId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<HomeworkViewModel> {
-            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesHomeworksGetByHomeworkIdGet(homeworkId, options);
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
-         * @param {number} taskId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesHomeworksTasksDeleteByTaskIdDelete(taskId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesHomeworksTasksDeleteByTaskIdDelete(taskId, options);
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response;
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
-         * @param {number} taskId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesHomeworksTasksGetByTaskIdGet(taskId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<HomeworkTaskViewModel> {
-            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesHomeworksTasksGetByTaskIdGet(taskId, options);
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
-         * @param {number} taskId 
-         * @param {CreateTaskViewModel} [taskViewModel] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesHomeworksTasksUpdateByTaskIdPut(taskId: number, taskViewModel?: CreateTaskViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesHomeworksTasksUpdateByTaskIdPut(taskId, taskViewModel, options);
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response;
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
-         * @param {number} homeworkId 
-         * @param {CreateHomeworkViewModel} [homeworkViewModel] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesHomeworksUpdateByHomeworkIdPut(homeworkId: number, homeworkViewModel?: CreateHomeworkViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesHomeworksUpdateByHomeworkIdPut(homeworkId, homeworkViewModel, options);
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response;
                     } else {
                         throw response;
                     }
@@ -3309,27 +3149,6 @@ export const CoursesApiFactory = function (configuration?: Configuration, fetch?
         /**
          * 
          * @param {number} courseId 
-         * @param {number} groupId 
-         * @param {string} [userId] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesByCourseIdAddStudentInGroupByGroupIdPost(courseId: number, groupId: number, userId?: string, options?: any) {
-            return CoursesApiFp(configuration).apiCoursesByCourseIdAddStudentInGroupByGroupIdPost(courseId, groupId, userId, options)(fetch, basePath);
-        },
-        /**
-         * 
-         * @param {number} courseId 
-         * @param {CreateGroupViewModel} [model] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesByCourseIdCreatePost(courseId: number, model?: CreateGroupViewModel, options?: any) {
-            return CoursesApiFp(configuration).apiCoursesByCourseIdCreatePost(courseId, model, options)(fetch, basePath);
-        },
-        /**
-         * 
-         * @param {number} courseId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3339,61 +3158,11 @@ export const CoursesApiFactory = function (configuration?: Configuration, fetch?
         /**
          * 
          * @param {number} courseId 
-         * @param {number} groupId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesByCourseIdDeleteByGroupIdDelete(courseId: number, groupId: number, options?: any) {
-            return CoursesApiFp(configuration).apiCoursesByCourseIdDeleteByGroupIdDelete(courseId, groupId, options)(fetch, basePath);
-        },
-        /**
-         * 
-         * @param {number} courseId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
         apiCoursesByCourseIdGet(courseId: number, options?: any) {
             return CoursesApiFp(configuration).apiCoursesByCourseIdGet(courseId, options)(fetch, basePath);
-        },
-        /**
-         * 
-         * @param {number} courseId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesByCourseIdGetAllGet(courseId: number, options?: any) {
-            return CoursesApiFp(configuration).apiCoursesByCourseIdGetAllGet(courseId, options)(fetch, basePath);
-        },
-        /**
-         * 
-         * @param {number} courseId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesByCourseIdGetGet(courseId: number, options?: any) {
-            return CoursesApiFp(configuration).apiCoursesByCourseIdGetGet(courseId, options)(fetch, basePath);
-        },
-        /**
-         * 
-         * @param {number} courseId 
-         * @param {number} groupId 
-         * @param {string} [userId] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesByCourseIdRemoveStudentFromGroupByGroupIdPost(courseId: number, groupId: number, userId?: string, options?: any) {
-            return CoursesApiFp(configuration).apiCoursesByCourseIdRemoveStudentFromGroupByGroupIdPost(courseId, groupId, userId, options)(fetch, basePath);
-        },
-        /**
-         * 
-         * @param {number} courseId 
-         * @param {number} groupId 
-         * @param {UpdateGroupViewModel} [model] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesByCourseIdUpdateByGroupIdPost(courseId: number, groupId: number, model?: UpdateGroupViewModel, options?: any) {
-            return CoursesApiFp(configuration).apiCoursesByCourseIdUpdateByGroupIdPost(courseId, groupId, model, options)(fetch, basePath);
         },
         /**
          * 
@@ -3411,100 +3180,6 @@ export const CoursesApiFactory = function (configuration?: Configuration, fetch?
          */
         apiCoursesGet(options?: any) {
             return CoursesApiFp(configuration).apiCoursesGet(options)(fetch, basePath);
-        },
-        /**
-         * 
-         * @param {number} groupId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesGetByGroupIdGet(groupId: number, options?: any) {
-            return CoursesApiFp(configuration).apiCoursesGetByGroupIdGet(groupId, options)(fetch, basePath);
-        },
-        /**
-         * 
-         * @param {number} groupId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesGetTasksByGroupIdGet(groupId: number, options?: any) {
-            return CoursesApiFp(configuration).apiCoursesGetTasksByGroupIdGet(groupId, options)(fetch, basePath);
-        },
-        /**
-         * 
-         * @param {number} courseId 
-         * @param {CreateHomeworkViewModel} [homeworkViewModel] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesHomeworksByCourseIdAddPost(courseId: number, homeworkViewModel?: CreateHomeworkViewModel, options?: any) {
-            return CoursesApiFp(configuration).apiCoursesHomeworksByCourseIdAddPost(courseId, homeworkViewModel, options)(fetch, basePath);
-        },
-        /**
-         * 
-         * @param {number} homeworkId 
-         * @param {CreateTaskViewModel} [taskViewModel] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesHomeworksByHomeworkIdTasksAddPost(homeworkId: number, taskViewModel?: CreateTaskViewModel, options?: any) {
-            return CoursesApiFp(configuration).apiCoursesHomeworksByHomeworkIdTasksAddPost(homeworkId, taskViewModel, options)(fetch, basePath);
-        },
-        /**
-         * 
-         * @param {number} homeworkId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesHomeworksDeleteByHomeworkIdDelete(homeworkId: number, options?: any) {
-            return CoursesApiFp(configuration).apiCoursesHomeworksDeleteByHomeworkIdDelete(homeworkId, options)(fetch, basePath);
-        },
-        /**
-         * 
-         * @param {number} homeworkId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesHomeworksGetByHomeworkIdGet(homeworkId: number, options?: any) {
-            return CoursesApiFp(configuration).apiCoursesHomeworksGetByHomeworkIdGet(homeworkId, options)(fetch, basePath);
-        },
-        /**
-         * 
-         * @param {number} taskId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesHomeworksTasksDeleteByTaskIdDelete(taskId: number, options?: any) {
-            return CoursesApiFp(configuration).apiCoursesHomeworksTasksDeleteByTaskIdDelete(taskId, options)(fetch, basePath);
-        },
-        /**
-         * 
-         * @param {number} taskId 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesHomeworksTasksGetByTaskIdGet(taskId: number, options?: any) {
-            return CoursesApiFp(configuration).apiCoursesHomeworksTasksGetByTaskIdGet(taskId, options)(fetch, basePath);
-        },
-        /**
-         * 
-         * @param {number} taskId 
-         * @param {CreateTaskViewModel} [taskViewModel] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesHomeworksTasksUpdateByTaskIdPut(taskId: number, taskViewModel?: CreateTaskViewModel, options?: any) {
-            return CoursesApiFp(configuration).apiCoursesHomeworksTasksUpdateByTaskIdPut(taskId, taskViewModel, options)(fetch, basePath);
-        },
-        /**
-         * 
-         * @param {number} homeworkId 
-         * @param {CreateHomeworkViewModel} [homeworkViewModel] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiCoursesHomeworksUpdateByHomeworkIdPut(homeworkId: number, homeworkViewModel?: CreateHomeworkViewModel, options?: any) {
-            return CoursesApiFp(configuration).apiCoursesHomeworksUpdateByHomeworkIdPut(homeworkId, homeworkViewModel, options)(fetch, basePath);
         },
         /**
          * 
@@ -3568,31 +3243,6 @@ export class CoursesApi extends BaseAPI {
     /**
      * 
      * @param {number} courseId 
-     * @param {number} groupId 
-     * @param {string} [userId] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof CoursesApi
-     */
-    public apiCoursesByCourseIdAddStudentInGroupByGroupIdPost(courseId: number, groupId: number, userId?: string, options?: any) {
-        return CoursesApiFp(this.configuration).apiCoursesByCourseIdAddStudentInGroupByGroupIdPost(courseId, groupId, userId, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     * 
-     * @param {number} courseId 
-     * @param {CreateGroupViewModel} [model] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof CoursesApi
-     */
-    public apiCoursesByCourseIdCreatePost(courseId: number, model?: CreateGroupViewModel, options?: any) {
-        return CoursesApiFp(this.configuration).apiCoursesByCourseIdCreatePost(courseId, model, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     * 
-     * @param {number} courseId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CoursesApi
@@ -3604,72 +3254,12 @@ export class CoursesApi extends BaseAPI {
     /**
      * 
      * @param {number} courseId 
-     * @param {number} groupId 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof CoursesApi
-     */
-    public apiCoursesByCourseIdDeleteByGroupIdDelete(courseId: number, groupId: number, options?: any) {
-        return CoursesApiFp(this.configuration).apiCoursesByCourseIdDeleteByGroupIdDelete(courseId, groupId, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     * 
-     * @param {number} courseId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CoursesApi
      */
     public apiCoursesByCourseIdGet(courseId: number, options?: any) {
         return CoursesApiFp(this.configuration).apiCoursesByCourseIdGet(courseId, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     * 
-     * @param {number} courseId 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof CoursesApi
-     */
-    public apiCoursesByCourseIdGetAllGet(courseId: number, options?: any) {
-        return CoursesApiFp(this.configuration).apiCoursesByCourseIdGetAllGet(courseId, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     * 
-     * @param {number} courseId 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof CoursesApi
-     */
-    public apiCoursesByCourseIdGetGet(courseId: number, options?: any) {
-        return CoursesApiFp(this.configuration).apiCoursesByCourseIdGetGet(courseId, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     * 
-     * @param {number} courseId 
-     * @param {number} groupId 
-     * @param {string} [userId] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof CoursesApi
-     */
-    public apiCoursesByCourseIdRemoveStudentFromGroupByGroupIdPost(courseId: number, groupId: number, userId?: string, options?: any) {
-        return CoursesApiFp(this.configuration).apiCoursesByCourseIdRemoveStudentFromGroupByGroupIdPost(courseId, groupId, userId, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     * 
-     * @param {number} courseId 
-     * @param {number} groupId 
-     * @param {UpdateGroupViewModel} [model] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof CoursesApi
-     */
-    public apiCoursesByCourseIdUpdateByGroupIdPost(courseId: number, groupId: number, model?: UpdateGroupViewModel, options?: any) {
-        return CoursesApiFp(this.configuration).apiCoursesByCourseIdUpdateByGroupIdPost(courseId, groupId, model, options)(this.fetch, this.basePath);
     }
 
     /**
@@ -3691,120 +3281,6 @@ export class CoursesApi extends BaseAPI {
      */
     public apiCoursesGet(options?: any) {
         return CoursesApiFp(this.configuration).apiCoursesGet(options)(this.fetch, this.basePath);
-    }
-
-    /**
-     * 
-     * @param {number} groupId 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof CoursesApi
-     */
-    public apiCoursesGetByGroupIdGet(groupId: number, options?: any) {
-        return CoursesApiFp(this.configuration).apiCoursesGetByGroupIdGet(groupId, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     * 
-     * @param {number} groupId 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof CoursesApi
-     */
-    public apiCoursesGetTasksByGroupIdGet(groupId: number, options?: any) {
-        return CoursesApiFp(this.configuration).apiCoursesGetTasksByGroupIdGet(groupId, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     * 
-     * @param {number} courseId 
-     * @param {CreateHomeworkViewModel} [homeworkViewModel] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof CoursesApi
-     */
-    public apiCoursesHomeworksByCourseIdAddPost(courseId: number, homeworkViewModel?: CreateHomeworkViewModel, options?: any) {
-        return CoursesApiFp(this.configuration).apiCoursesHomeworksByCourseIdAddPost(courseId, homeworkViewModel, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     * 
-     * @param {number} homeworkId 
-     * @param {CreateTaskViewModel} [taskViewModel] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof CoursesApi
-     */
-    public apiCoursesHomeworksByHomeworkIdTasksAddPost(homeworkId: number, taskViewModel?: CreateTaskViewModel, options?: any) {
-        return CoursesApiFp(this.configuration).apiCoursesHomeworksByHomeworkIdTasksAddPost(homeworkId, taskViewModel, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     * 
-     * @param {number} homeworkId 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof CoursesApi
-     */
-    public apiCoursesHomeworksDeleteByHomeworkIdDelete(homeworkId: number, options?: any) {
-        return CoursesApiFp(this.configuration).apiCoursesHomeworksDeleteByHomeworkIdDelete(homeworkId, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     * 
-     * @param {number} homeworkId 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof CoursesApi
-     */
-    public apiCoursesHomeworksGetByHomeworkIdGet(homeworkId: number, options?: any) {
-        return CoursesApiFp(this.configuration).apiCoursesHomeworksGetByHomeworkIdGet(homeworkId, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     * 
-     * @param {number} taskId 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof CoursesApi
-     */
-    public apiCoursesHomeworksTasksDeleteByTaskIdDelete(taskId: number, options?: any) {
-        return CoursesApiFp(this.configuration).apiCoursesHomeworksTasksDeleteByTaskIdDelete(taskId, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     * 
-     * @param {number} taskId 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof CoursesApi
-     */
-    public apiCoursesHomeworksTasksGetByTaskIdGet(taskId: number, options?: any) {
-        return CoursesApiFp(this.configuration).apiCoursesHomeworksTasksGetByTaskIdGet(taskId, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     * 
-     * @param {number} taskId 
-     * @param {CreateTaskViewModel} [taskViewModel] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof CoursesApi
-     */
-    public apiCoursesHomeworksTasksUpdateByTaskIdPut(taskId: number, taskViewModel?: CreateTaskViewModel, options?: any) {
-        return CoursesApiFp(this.configuration).apiCoursesHomeworksTasksUpdateByTaskIdPut(taskId, taskViewModel, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     * 
-     * @param {number} homeworkId 
-     * @param {CreateHomeworkViewModel} [homeworkViewModel] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof CoursesApi
-     */
-    public apiCoursesHomeworksUpdateByHomeworkIdPut(homeworkId: number, homeworkViewModel?: CreateHomeworkViewModel, options?: any) {
-        return CoursesApiFp(this.configuration).apiCoursesHomeworksUpdateByHomeworkIdPut(homeworkId, homeworkViewModel, options)(this.fetch, this.basePath);
     }
 
     /**
@@ -4008,6 +3484,322 @@ export class FileConfigurationApi extends BaseAPI {
      */
     public configurationPost(fileConfiguration?: FileConfiguration, options?: any) {
         return FileConfigurationApiFp(this.configuration).configurationPost(fileConfiguration, options)(this.fetch, this.basePath);
+    }
+
+}
+
+/**
+ * HomeworksApi - fetch parameter creator
+ * @export
+ */
+export const HomeworksApiFetchParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {CreateHomeworkViewModel} [homeworkViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiHomeworksByCourseIdAddPost(courseId: number, homeworkViewModel?: CreateHomeworkViewModel, options: any = {}): FetchArgs {
+            // verify required parameter 'courseId' is not null or undefined
+            if (courseId === null || courseId === undefined) {
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiHomeworksByCourseIdAddPost.');
+            }
+            const localVarPath = `/api/Homeworks/{courseId}/add`
+                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"CreateHomeworkViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(homeworkViewModel || {}) : (homeworkViewModel || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} homeworkId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiHomeworksDeleteByHomeworkIdDelete(homeworkId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'homeworkId' is not null or undefined
+            if (homeworkId === null || homeworkId === undefined) {
+                throw new RequiredError('homeworkId','Required parameter homeworkId was null or undefined when calling apiHomeworksDeleteByHomeworkIdDelete.');
+            }
+            const localVarPath = `/api/Homeworks/delete/{homeworkId}`
+                .replace(`{${"homeworkId"}}`, encodeURIComponent(String(homeworkId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} homeworkId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiHomeworksGetByHomeworkIdGet(homeworkId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'homeworkId' is not null or undefined
+            if (homeworkId === null || homeworkId === undefined) {
+                throw new RequiredError('homeworkId','Required parameter homeworkId was null or undefined when calling apiHomeworksGetByHomeworkIdGet.');
+            }
+            const localVarPath = `/api/Homeworks/get/{homeworkId}`
+                .replace(`{${"homeworkId"}}`, encodeURIComponent(String(homeworkId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} homeworkId 
+         * @param {CreateHomeworkViewModel} [homeworkViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiHomeworksUpdateByHomeworkIdPut(homeworkId: number, homeworkViewModel?: CreateHomeworkViewModel, options: any = {}): FetchArgs {
+            // verify required parameter 'homeworkId' is not null or undefined
+            if (homeworkId === null || homeworkId === undefined) {
+                throw new RequiredError('homeworkId','Required parameter homeworkId was null or undefined when calling apiHomeworksUpdateByHomeworkIdPut.');
+            }
+            const localVarPath = `/api/Homeworks/update/{homeworkId}`
+                .replace(`{${"homeworkId"}}`, encodeURIComponent(String(homeworkId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"CreateHomeworkViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(homeworkViewModel || {}) : (homeworkViewModel || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * HomeworksApi - functional programming interface
+ * @export
+ */
+export const HomeworksApiFp = function(configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {CreateHomeworkViewModel} [homeworkViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiHomeworksByCourseIdAddPost(courseId: number, homeworkViewModel?: CreateHomeworkViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
+            const localVarFetchArgs = HomeworksApiFetchParamCreator(configuration).apiHomeworksByCourseIdAddPost(courseId, homeworkViewModel, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} homeworkId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiHomeworksDeleteByHomeworkIdDelete(homeworkId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = HomeworksApiFetchParamCreator(configuration).apiHomeworksDeleteByHomeworkIdDelete(homeworkId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} homeworkId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiHomeworksGetByHomeworkIdGet(homeworkId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<HomeworkViewModel> {
+            const localVarFetchArgs = HomeworksApiFetchParamCreator(configuration).apiHomeworksGetByHomeworkIdGet(homeworkId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} homeworkId 
+         * @param {CreateHomeworkViewModel} [homeworkViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiHomeworksUpdateByHomeworkIdPut(homeworkId: number, homeworkViewModel?: CreateHomeworkViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = HomeworksApiFetchParamCreator(configuration).apiHomeworksUpdateByHomeworkIdPut(homeworkId, homeworkViewModel, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+    }
+};
+
+/**
+ * HomeworksApi - factory interface
+ * @export
+ */
+export const HomeworksApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {CreateHomeworkViewModel} [homeworkViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiHomeworksByCourseIdAddPost(courseId: number, homeworkViewModel?: CreateHomeworkViewModel, options?: any) {
+            return HomeworksApiFp(configuration).apiHomeworksByCourseIdAddPost(courseId, homeworkViewModel, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} homeworkId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiHomeworksDeleteByHomeworkIdDelete(homeworkId: number, options?: any) {
+            return HomeworksApiFp(configuration).apiHomeworksDeleteByHomeworkIdDelete(homeworkId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} homeworkId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiHomeworksGetByHomeworkIdGet(homeworkId: number, options?: any) {
+            return HomeworksApiFp(configuration).apiHomeworksGetByHomeworkIdGet(homeworkId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} homeworkId 
+         * @param {CreateHomeworkViewModel} [homeworkViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiHomeworksUpdateByHomeworkIdPut(homeworkId: number, homeworkViewModel?: CreateHomeworkViewModel, options?: any) {
+            return HomeworksApiFp(configuration).apiHomeworksUpdateByHomeworkIdPut(homeworkId, homeworkViewModel, options)(fetch, basePath);
+        },
+    };
+};
+
+/**
+ * HomeworksApi - object-oriented interface
+ * @export
+ * @class HomeworksApi
+ * @extends {BaseAPI}
+ */
+export class HomeworksApi extends BaseAPI {
+    /**
+     * 
+     * @param {number} courseId 
+     * @param {CreateHomeworkViewModel} [homeworkViewModel] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof HomeworksApi
+     */
+    public apiHomeworksByCourseIdAddPost(courseId: number, homeworkViewModel?: CreateHomeworkViewModel, options?: any) {
+        return HomeworksApiFp(this.configuration).apiHomeworksByCourseIdAddPost(courseId, homeworkViewModel, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} homeworkId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof HomeworksApi
+     */
+    public apiHomeworksDeleteByHomeworkIdDelete(homeworkId: number, options?: any) {
+        return HomeworksApiFp(this.configuration).apiHomeworksDeleteByHomeworkIdDelete(homeworkId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} homeworkId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof HomeworksApi
+     */
+    public apiHomeworksGetByHomeworkIdGet(homeworkId: number, options?: any) {
+        return HomeworksApiFp(this.configuration).apiHomeworksGetByHomeworkIdGet(homeworkId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} homeworkId 
+     * @param {CreateHomeworkViewModel} [homeworkViewModel] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof HomeworksApi
+     */
+    public apiHomeworksUpdateByHomeworkIdPut(homeworkId: number, homeworkViewModel?: CreateHomeworkViewModel, options?: any) {
+        return HomeworksApiFp(this.configuration).apiHomeworksUpdateByHomeworkIdPut(homeworkId, homeworkViewModel, options)(this.fetch, this.basePath);
     }
 
 }
@@ -4774,6 +4566,322 @@ export class SolutionsApi extends BaseAPI {
      */
     public apiSolutionsTaskSolutionBySolutionIdGet(solutionId: number, options?: any) {
         return SolutionsApiFp(this.configuration).apiSolutionsTaskSolutionBySolutionIdGet(solutionId, options)(this.fetch, this.basePath);
+    }
+
+}
+
+/**
+ * TasksApi - fetch parameter creator
+ * @export
+ */
+export const TasksApiFetchParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {number} homeworkId 
+         * @param {CreateTaskViewModel} [taskViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiTasksAddByHomeworkIdPost(homeworkId: number, taskViewModel?: CreateTaskViewModel, options: any = {}): FetchArgs {
+            // verify required parameter 'homeworkId' is not null or undefined
+            if (homeworkId === null || homeworkId === undefined) {
+                throw new RequiredError('homeworkId','Required parameter homeworkId was null or undefined when calling apiTasksAddByHomeworkIdPost.');
+            }
+            const localVarPath = `/api/Tasks/add/{homeworkId}`
+                .replace(`{${"homeworkId"}}`, encodeURIComponent(String(homeworkId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"CreateTaskViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(taskViewModel || {}) : (taskViewModel || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} taskId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiTasksDeleteByTaskIdDelete(taskId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'taskId' is not null or undefined
+            if (taskId === null || taskId === undefined) {
+                throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling apiTasksDeleteByTaskIdDelete.');
+            }
+            const localVarPath = `/api/Tasks/delete/{taskId}`
+                .replace(`{${"taskId"}}`, encodeURIComponent(String(taskId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} taskId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiTasksGetByTaskIdGet(taskId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'taskId' is not null or undefined
+            if (taskId === null || taskId === undefined) {
+                throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling apiTasksGetByTaskIdGet.');
+            }
+            const localVarPath = `/api/Tasks/get/{taskId}`
+                .replace(`{${"taskId"}}`, encodeURIComponent(String(taskId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} taskId 
+         * @param {CreateTaskViewModel} [taskViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiTasksUpdateByTaskIdPut(taskId: number, taskViewModel?: CreateTaskViewModel, options: any = {}): FetchArgs {
+            // verify required parameter 'taskId' is not null or undefined
+            if (taskId === null || taskId === undefined) {
+                throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling apiTasksUpdateByTaskIdPut.');
+            }
+            const localVarPath = `/api/Tasks/update/{taskId}`
+                .replace(`{${"taskId"}}`, encodeURIComponent(String(taskId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"CreateTaskViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(taskViewModel || {}) : (taskViewModel || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * TasksApi - functional programming interface
+ * @export
+ */
+export const TasksApiFp = function(configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {number} homeworkId 
+         * @param {CreateTaskViewModel} [taskViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiTasksAddByHomeworkIdPost(homeworkId: number, taskViewModel?: CreateTaskViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
+            const localVarFetchArgs = TasksApiFetchParamCreator(configuration).apiTasksAddByHomeworkIdPost(homeworkId, taskViewModel, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} taskId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiTasksDeleteByTaskIdDelete(taskId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = TasksApiFetchParamCreator(configuration).apiTasksDeleteByTaskIdDelete(taskId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} taskId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiTasksGetByTaskIdGet(taskId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<HomeworkTaskViewModel> {
+            const localVarFetchArgs = TasksApiFetchParamCreator(configuration).apiTasksGetByTaskIdGet(taskId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} taskId 
+         * @param {CreateTaskViewModel} [taskViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiTasksUpdateByTaskIdPut(taskId: number, taskViewModel?: CreateTaskViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = TasksApiFetchParamCreator(configuration).apiTasksUpdateByTaskIdPut(taskId, taskViewModel, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+    }
+};
+
+/**
+ * TasksApi - factory interface
+ * @export
+ */
+export const TasksApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         * 
+         * @param {number} homeworkId 
+         * @param {CreateTaskViewModel} [taskViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiTasksAddByHomeworkIdPost(homeworkId: number, taskViewModel?: CreateTaskViewModel, options?: any) {
+            return TasksApiFp(configuration).apiTasksAddByHomeworkIdPost(homeworkId, taskViewModel, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} taskId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiTasksDeleteByTaskIdDelete(taskId: number, options?: any) {
+            return TasksApiFp(configuration).apiTasksDeleteByTaskIdDelete(taskId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} taskId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiTasksGetByTaskIdGet(taskId: number, options?: any) {
+            return TasksApiFp(configuration).apiTasksGetByTaskIdGet(taskId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} taskId 
+         * @param {CreateTaskViewModel} [taskViewModel] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiTasksUpdateByTaskIdPut(taskId: number, taskViewModel?: CreateTaskViewModel, options?: any) {
+            return TasksApiFp(configuration).apiTasksUpdateByTaskIdPut(taskId, taskViewModel, options)(fetch, basePath);
+        },
+    };
+};
+
+/**
+ * TasksApi - object-oriented interface
+ * @export
+ * @class TasksApi
+ * @extends {BaseAPI}
+ */
+export class TasksApi extends BaseAPI {
+    /**
+     * 
+     * @param {number} homeworkId 
+     * @param {CreateTaskViewModel} [taskViewModel] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof TasksApi
+     */
+    public apiTasksAddByHomeworkIdPost(homeworkId: number, taskViewModel?: CreateTaskViewModel, options?: any) {
+        return TasksApiFp(this.configuration).apiTasksAddByHomeworkIdPost(homeworkId, taskViewModel, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} taskId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof TasksApi
+     */
+    public apiTasksDeleteByTaskIdDelete(taskId: number, options?: any) {
+        return TasksApiFp(this.configuration).apiTasksDeleteByTaskIdDelete(taskId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} taskId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof TasksApi
+     */
+    public apiTasksGetByTaskIdGet(taskId: number, options?: any) {
+        return TasksApiFp(this.configuration).apiTasksGetByTaskIdGet(taskId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} taskId 
+     * @param {CreateTaskViewModel} [taskViewModel] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof TasksApi
+     */
+    public apiTasksUpdateByTaskIdPut(taskId: number, taskViewModel?: CreateTaskViewModel, options?: any) {
+        return TasksApiFp(this.configuration).apiTasksUpdateByTaskIdPut(taskId, taskViewModel, options)(this.fetch, this.basePath);
     }
 
 }

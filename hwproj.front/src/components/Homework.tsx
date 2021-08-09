@@ -74,7 +74,7 @@ export default class Homework extends React.Component<IHomeworkProps, IHomeworkS
 
     deleteHomework(): void {
         const token = ApiSingleton.authService.getToken()
-        ApiSingleton.coursesApi.apiCoursesHomeworksDeleteByHomeworkIdDelete(this.props.homework.id!, { headers: {"Authorization": `Bearer ${token}`} })
+        ApiSingleton.homeworksApi.apiHomeworksDeleteByHomeworkIdDelete(this.props.homework.id!, { headers: {"Authorization": `Bearer ${token}`} })
             .then(res => this.props.onDeleteClick());
     }
 

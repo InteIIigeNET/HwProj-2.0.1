@@ -43,8 +43,8 @@ export default class EditHomework extends React.Component<
       description: this.state.description,
     };
     const token = ApiSingleton.authService.getToken();
-    ApiSingleton.coursesApi
-      .apiCoursesHomeworksUpdateByHomeworkIdPut(
+    ApiSingleton.homeworksApi
+      .apiHomeworksUpdateByHomeworkIdPut(
         +this.props.match.params.homeworkId,
         homeworkViewModel,
         { headers: {"Authorization": `Bearer ${token}`} }
@@ -120,8 +120,8 @@ export default class EditHomework extends React.Component<
 
   componentDidMount() {
     const token = ApiSingleton.authService.getToken();
-    ApiSingleton.coursesApi
-      .apiCoursesHomeworksGetByHomeworkIdGet(+this.props.match.params.homeworkId, { headers: {"Authorization": `Bearer ${token}`} })
+    ApiSingleton.homeworksApi
+      .apiHomeworksGetByHomeworkIdGet(+this.props.match.params.homeworkId, { headers: {"Authorization": `Bearer ${token}`} })
       .then((homework) =>
         ApiSingleton.coursesApi
           .apiCoursesByCourseIdGet(homework.courseId!)

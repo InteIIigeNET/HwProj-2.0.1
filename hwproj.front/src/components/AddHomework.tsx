@@ -179,7 +179,7 @@ export default class AddHomework extends React.Component<
     homework.tasks.forEach(task => task.publicationDate = new Date(task.publicationDate!.setHours(task.publicationDate!.getHours() + 3)))
     
     const token = ApiSingleton.authService.getToken()
-    await ApiSingleton.coursesApi.apiCoursesHomeworksByCourseIdAddPost(this.props.id, homework, { headers: {"Authorization": `Bearer ${token}`} })
+    await ApiSingleton.homeworksApi.apiHomeworksByCourseIdAddPost(this.props.id, homework, { headers: {"Authorization": `Bearer ${token}`} })
     this.setState({ added: true })
     this.props.onSubmit()
   }
