@@ -15,7 +15,6 @@ interface IStudentSolutionsPageState {
   task: HomeworkTaskViewModel;
   isLoaded: boolean;
   course: CourseViewModel;
-  courseId: number
 }
 
 export default class StudentSolutionsPage extends React.Component<
@@ -28,7 +27,6 @@ export default class StudentSolutionsPage extends React.Component<
       task: {},
       isLoaded: false,
       course: {},
-      courseId: 0
     };
   }
 
@@ -45,11 +43,10 @@ export default class StudentSolutionsPage extends React.Component<
       ) {
         return <Typography variant="h6">Страница не найдена</Typography>;
       }
-
       return (
         <div>
           &nbsp;{" "}
-          <Link to={"/courses/" + this.state.courseId!.toString()}>
+          <Link to={"/courses/" + this.state.course.id!.toString()}>
             Назад к курсу
           </Link>
           <br />
