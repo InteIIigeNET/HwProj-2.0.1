@@ -123,7 +123,7 @@ namespace HwProj.CoursesService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _coursesServiceUri + $"api/Courses/Homeworks/{courseId}/add")
+                _coursesServiceUri + $"api/Homeworks/{courseId}/add")
             {
                 Content = new StringContent(
                     JsonConvert.SerializeObject(model),
@@ -139,7 +139,7 @@ namespace HwProj.CoursesService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
-                _coursesServiceUri + $"api/Courses/Homeworks/get/{homeworkId}");
+                _coursesServiceUri + $"api/Homeworks/get/{homeworkId}");
 
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<HomeworkViewModel>();
@@ -149,7 +149,7 @@ namespace HwProj.CoursesService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Put,
-                _coursesServiceUri + $"api/Courses/Homeworks/update/{homeworkId}")
+                _coursesServiceUri + $"api/Homeworks/update/{homeworkId}")
             {
                 Content = new StringContent(
                     JsonConvert.SerializeObject(model),
@@ -164,7 +164,7 @@ namespace HwProj.CoursesService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Delete,
-                _coursesServiceUri + $"api/Courses/Homeworks/delete/{homeworkId}");
+                _coursesServiceUri + $"api/Homeworks/delete/{homeworkId}");
             
             await _httpClient.SendAsync(httpRequest);
         }
@@ -173,7 +173,7 @@ namespace HwProj.CoursesService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get, 
-                _coursesServiceUri + $"api/Courses/Homeworks/Tasks/get/{taskId}");
+                _coursesServiceUri + $"api/Tasks/get/{taskId}");
 
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<HomeworkTaskViewModel>();
@@ -183,7 +183,7 @@ namespace HwProj.CoursesService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _coursesServiceUri + $"api/Courses/Homeworks/Tasks/{homeworkId}/add")
+                _coursesServiceUri + $"api/Tasks/{homeworkId}/add")
             {
                 Content = new StringContent(
                     JsonConvert.SerializeObject(taskViewModel),
@@ -198,7 +198,7 @@ namespace HwProj.CoursesService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Delete,
-                _coursesServiceUri + $"api/Courses/Homeworks/Tasks/delete/{taskId}");
+                _coursesServiceUri + $"api/Tasks/delete/{taskId}");
             
             await _httpClient.SendAsync(httpRequest);
         }
@@ -207,7 +207,7 @@ namespace HwProj.CoursesService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Put,
-                _coursesServiceUri + $"api/Courses/Homeworks/Tasks/update/{taskId}")
+                _coursesServiceUri + $"api/Tasks/update/{taskId}")
             {
                 Content = new StringContent(
                     JsonConvert.SerializeObject(taskViewModel),
@@ -299,7 +299,7 @@ namespace HwProj.CoursesService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get, 
-                _coursesServiceUri + $"api/Groups/get/{groupId}");
+                _coursesServiceUri + $"api/CourseGroups/get/{groupId}");
 
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<GroupViewModel>();
@@ -309,7 +309,7 @@ namespace HwProj.CoursesService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get, 
-                _coursesServiceUri + $"api/Groups/getTasks/{groupId}");
+                _coursesServiceUri + $"api/CourseGroups/getTasks/{groupId}");
 
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<long[]>();
