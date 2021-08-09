@@ -1,6 +1,6 @@
 import ApiSingleton from 'api/ApiSingleton';
 import * as React from 'react';
-import { HomeworkTaskViewModel } from "../api";
+import { HomeworkTaskViewModel } from "../../api";
 import Task from './Task'
 
 interface IHomeworkTasksProps {

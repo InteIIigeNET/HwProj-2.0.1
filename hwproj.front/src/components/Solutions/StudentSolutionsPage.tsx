@@ -1,10 +1,10 @@
 import * as React from "react";
 import { RouteComponentProps, Link } from "react-router-dom";
-import { CourseViewModel, HomeworkTaskViewModel } from "../api/";
+import { CourseViewModel, HomeworkTaskViewModel } from "../../api/";
 import Typography from "@material-ui/core/Typography";
-import Task from "./Task";
+import Task from "../Tasks/Task";
 import TaskSolutions from "./TaskSolutions";
-import ApiSingleton from "../api/ApiSingleton";
+import ApiSingleton from "../../api/ApiSingleton";
 
 interface IStudentSolutionsPageProps {
   taskId: string;
@@ -15,7 +15,6 @@ interface IStudentSolutionsPageState {
   task: HomeworkTaskViewModel;
   isLoaded: boolean;
   course: CourseViewModel;
-  courseId: number
 }
 
 export default class StudentSolutionsPage extends React.Component<
@@ -28,7 +27,6 @@ export default class StudentSolutionsPage extends React.Component<
       task: {},
       isLoaded: false,
       course: {},
-      courseId: 0
     };
   }
 
@@ -45,11 +43,10 @@ export default class StudentSolutionsPage extends React.Component<
       ) {
         return <Typography variant="h6">Страница не найдена</Typography>;
       }
-
       return (
         <div>
           &nbsp;{" "}
-          <Link to={"/courses/" + this.state.courseId!.toString()}>
+          <Link to={"/courses/" + this.state.course.id!.toString()}>
             Назад к курсу
           </Link>
           <br />
@@ -76,11 +73,11 @@ export default class StudentSolutionsPage extends React.Component<
 
   componentDidMount() {
     const token = ApiSingleton.authService.getToken();
-    ApiSingleton.coursesApi
-      .apiCoursesHomeworksTasksGetByTaskIdGet(+this.props.match.params.taskId)
+    ApiSingleton.tasksApi
+      .apiTasksGetByTaskIdGet(+this.props.match.params.taskId)
       .then((task) =>
-        ApiSingleton.coursesApi
-          .apiCoursesHomeworksGetByHomeworkIdGet(task.homeworkId!, { headers: {"Authorization": `Bearer ${token}`} })
+        ApiSingleton.homeworksApi
+          .apiHomeworksGetByHomeworkIdGet(task.homeworkId!, { headers: {"Authorization": `Bearer ${token}`} })
           .then((homework) =>
             ApiSingleton.coursesApi
               .apiCoursesByCourseIdGet(homework.courseId!)

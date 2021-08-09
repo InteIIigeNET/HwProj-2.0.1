@@ -1,12 +1,12 @@
 import * as React from "react";
 import { RouteComponentProps, Link } from "react-router-dom";
-import Task from "./Task";
+import Task from "../Tasks/Task";
 import Typography from "@material-ui/core/Typography";
 import AddSolution from "./AddSolution";
 import Button from "@material-ui/core/Button";
 import TaskSolutions from "./TaskSolutions";
-import { CourseViewModel, HomeworkTaskViewModel } from "../api/";
-import ApiSingleton from "../api/ApiSingleton";
+import { CourseViewModel, HomeworkTaskViewModel } from "../../api/";
+import ApiSingleton from "../../api/ApiSingleton";
 
 interface ITaskSolutionsProps {
   taskId: string;
@@ -114,11 +114,11 @@ export default class TaskSolutionsPage extends React.Component<
 
   componentDidMount() {
     const token = ApiSingleton.authService.getToken();
-    ApiSingleton.coursesApi
-      .apiCoursesHomeworksTasksGetByTaskIdGet(+this.props.match.params.taskId)
+    ApiSingleton.tasksApi
+      .apiTasksGetByTaskIdGet(+this.props.match.params.taskId)
       .then((task) =>
-        ApiSingleton.coursesApi
-          .apiCoursesHomeworksGetByHomeworkIdGet(task.homeworkId!, { headers: {"Authorization": `Bearer ${token}`} })
+        ApiSingleton.homeworksApi
+          .apiHomeworksGetByHomeworkIdGet(task.homeworkId!, { headers: {"Authorization": `Bearer ${token}`} })
           .then((homework) =>
             ApiSingleton.coursesApi
               .apiCoursesByCourseIdGet(homework.courseId!)

@@ -1,8 +1,8 @@
 import * as React from 'react';
 import SolutionComponent from './Solution'
 import Typography from '@material-ui/core/Typography'
-import ApiSingleton from "../api/ApiSingleton";
-import { Solution } from '../api';
+import ApiSingleton from "../../api/ApiSingleton";
+import { Solution } from '../../api';
 
 interface ITaskSolutionsProps {
     taskId: number,

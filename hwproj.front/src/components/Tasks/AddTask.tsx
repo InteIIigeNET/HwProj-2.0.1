@@ -2,8 +2,8 @@ import * as React from "react";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
-import ApiSingleton from "../api/ApiSingleton";
-import { CreateTaskViewModel } from "../api";
+import ApiSingleton from "../../api/ApiSingleton";
+import { CreateTaskViewModel } from "../../api";
 
 interface IAddTaskProps {
   id: number;
@@ -37,7 +37,7 @@ export default class AddTask extends React.Component<
       publicationDate: new Date(this.state.publicationDate!.setHours(this.state.publicationDate!.getHours() + 3)),
     })
     
-    await ApiSingleton.coursesApi.apiCoursesHomeworksByHomeworkIdTasksAddPost(this.props.id, this.state, { headers: {"Authorization": `Bearer ${token}`} });
+    await ApiSingleton.tasksApi.apiTasksAddByHomeworkIdPost(this.props.id, this.state, { headers: {"Authorization": `Bearer ${token}`} });
     this.props.onAdding()
   }
 

@@ -4,7 +4,7 @@ import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import { Redirect, Link } from "react-router-dom";
 import { RouteComponentProps } from "react-router-dom";
-import ApiSingleton from "../api/ApiSingleton";
+import ApiSingleton from "../../api/ApiSingleton";
 
 interface IEditTaskState {
   isLoaded: boolean;
@@ -50,11 +50,12 @@ export default class EditTask extends React.Component<
     };
 
     // ReDo
-    taskViewModel.deadlineDate = new Date(taskViewModel.deadlineDate!.setHours(taskViewModel.deadlineDate!.getHours() + 3))
+    let deadline = new Date(taskViewModel.deadlineDate!).setHours(new Date(taskViewModel.deadlineDate!).getHours() + 3)
+    taskViewModel.deadlineDate = new Date(deadline)
 
     const token = ApiSingleton.authService.getToken();
-    ApiSingleton.coursesApi
-      .apiCoursesHomeworksTasksUpdateByTaskIdPut(+this.props.match.params.taskId, taskViewModel, { headers: {"Authorization": `Bearer ${token}`} })
+    ApiSingleton.tasksApi
+      .apiTasksUpdateByTaskIdPut(+this.props.match.params.taskId, taskViewModel, { headers: {"Authorization": `Bearer ${token}`} })
       .then((res) => {
         this.setState({ edited: true })
       });
@@ -150,10 +151,10 @@ export default class EditTask extends React.Component<
 
   async componentDidMount() {
     const token = ApiSingleton.authService.getToken();
-    await ApiSingleton.coursesApi.apiCoursesHomeworksTasksGetByTaskIdGet(+this.props.match.params.taskId)
+    await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+this.props.match.params.taskId)
       .then(async (task) =>
-        await ApiSingleton.coursesApi
-        .apiCoursesHomeworksGetByHomeworkIdGet(task.homeworkId!, { headers: {"Authorization": `Bearer ${token}`} })
+        await ApiSingleton.homeworksApi
+        .apiHomeworksGetByHomeworkIdGet(task.homeworkId!, { headers: {"Authorization": `Bearer ${token}`} })
         .then(async (homework) =>
           await ApiSingleton.coursesApi
           .apiCoursesByCourseIdGet(homework.courseId!)

@@ -2,8 +2,8 @@ import * as React from "react";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
-import ApiSingleton from "../api/ApiSingleton";
-import { CreateTaskViewModel } from "../api";
+import ApiSingleton from "../../api/ApiSingleton";
+import { CreateTaskViewModel } from "../../api";
 
 interface IAddHomeworkProps {
   id: number;
@@ -179,7 +179,7 @@ export default class AddHomework extends React.Component<
     homework.tasks.forEach(task => task.publicationDate = new Date(task.publicationDate!.setHours(task.publicationDate!.getHours() + 3)))
     
     const token = ApiSingleton.authService.getToken()
-    await ApiSingleton.coursesApi.apiCoursesHomeworksByCourseIdAddPost(this.props.id, homework, { headers: {"Authorization": `Bearer ${token}`} })
+    await ApiSingleton.homeworksApi.apiHomeworksByCourseIdAddPost(this.props.id, homework, { headers: {"Authorization": `Bearer ${token}`} })
     this.setState({ added: true })
     this.props.onSubmit()
   }
