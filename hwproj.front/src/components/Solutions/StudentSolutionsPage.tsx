@@ -1,10 +1,10 @@
 import * as React from "react";
 import { RouteComponentProps, Link } from "react-router-dom";
-import { CourseViewModel, HomeworkTaskViewModel } from "../api/";
+import { CourseViewModel, HomeworkTaskViewModel } from "../../api/";
 import Typography from "@material-ui/core/Typography";
-import Task from "./Task";
+import Task from "../Tasks/Task";
 import TaskSolutions from "./TaskSolutions";
-import ApiSingleton from "../api/ApiSingleton";
+import ApiSingleton from "../../api/ApiSingleton";
 
 interface IStudentSolutionsPageProps {
   taskId: string;

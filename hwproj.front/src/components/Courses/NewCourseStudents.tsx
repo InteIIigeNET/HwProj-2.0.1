@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { CourseViewModel } from '../api/';
+import { CourseViewModel } from '../../api/';
 import Button from '@material-ui/core/Button'
-import ApiSingleton from "../api/ApiSingleton";
+import ApiSingleton from "../../api/ApiSingleton";
 import { runInThisContext } from 'vm';
 
 interface ICourseMate {

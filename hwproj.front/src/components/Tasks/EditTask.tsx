@@ -4,7 +4,7 @@ import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import { Redirect, Link } from "react-router-dom";
 import { RouteComponentProps } from "react-router-dom";
-import ApiSingleton from "../api/ApiSingleton";
+import ApiSingleton from "../../api/ApiSingleton";
 
 interface IEditTaskState {
   isLoaded: boolean;
@@ -50,7 +50,8 @@ export default class EditTask extends React.Component<
     };
 
     // ReDo
-    taskViewModel.deadlineDate = new Date(taskViewModel.deadlineDate!.setHours(taskViewModel.deadlineDate!.getHours() + 3))
+    let deadline = new Date(taskViewModel.deadlineDate!).setHours(new Date(taskViewModel.deadlineDate!).getHours() + 3)
+    taskViewModel.deadlineDate = new Date(deadline)
 
     const token = ApiSingleton.authService.getToken();
     ApiSingleton.tasksApi

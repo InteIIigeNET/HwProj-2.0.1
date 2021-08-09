@@ -1,7 +1,7 @@
 import * as React from "react";
 import TableCell from "@material-ui/core/TableCell";
 import { Redirect } from "react-router-dom";
-import ApiSingleton from "../api/ApiSingleton";
+import ApiSingleton from "../../api/ApiSingleton";
 import { Solution } from "api";
 
 interface ITaskStudentCellProps {
@@ -86,7 +86,7 @@ export default class TaskStudentCell extends React.Component<
     let maxPoints = 0
     let selectedSolution = null
     solutions
-      .filter((solution) => solution.state?.toString() == "Posted")
+      // .filter((solution) => solution.state?.toString() == "Posted")
       .map((solution) => {
         if (solution.rating! >= maxPoints) {
           maxPoints = solution.rating!

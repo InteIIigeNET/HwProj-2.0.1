@@ -1,9 +1,9 @@
 import React from "react";
 import { Table, TableBody, TableCell, TableHead, TableRow } from "@material-ui/core";
-import { CourseViewModel, HomeworkViewModel } from "../api/";
+import { CourseViewModel, HomeworkViewModel } from "../../api/";
 import { Paper, createStyles, Theme } from "@material-ui/core";
-import TaskStudentCell from "./TaskStudentCell";
-import ApiSingleton from "../api/ApiSingleton";
+import TaskStudentCell from "../Tasks/TaskStudentCell";
+import ApiSingleton from "../../api/ApiSingleton";
 import { withStyles } from '@material-ui/styles';
 
 interface ICourseMate {
