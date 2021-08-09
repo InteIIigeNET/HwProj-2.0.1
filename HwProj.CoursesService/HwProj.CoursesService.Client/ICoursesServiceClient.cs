@@ -31,6 +31,6 @@ namespace HwProj.CoursesService.Client
         Task AddStudentInGroup(long courseId, long groupId, string userId);
         Task RemoveStudentFromGroup(long courseId, long groupId, string userId);
         Task<GroupViewModel> GetGroupById(long groupId);
-        Task<long> GetGroupTasks(long groupId);
+        Task<long[]> GetGroupTasks(long groupId);
     }
 }

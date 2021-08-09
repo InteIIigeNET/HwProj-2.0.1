@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.API.Models;
@@ -120,8 +121,8 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<long[]> GetTasksIds(long groupId)
         {
-            var getGroupTask = await _groupsRepository.GetAsync(groupId);
-            return getGroupTask.Tasks.Select(cm => cm.TaskId).ToArray();
+            var group = await GetGroupAsync(groupId);
+            return group.Tasks.Select(cm => cm.TaskId).ToArray();
         }
     }
 }

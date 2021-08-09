@@ -245,7 +245,7 @@ namespace HwProj.APIGateway.API.Controllers
         }
         
         [HttpGet("getTasks/{groupId}")]
-        [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(long[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetGroupTasks(long groupId)
         {
             var result = await _coursesClient.GetGroupTasks(groupId);

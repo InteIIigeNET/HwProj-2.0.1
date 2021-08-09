@@ -305,14 +305,14 @@ namespace HwProj.CoursesService.Client
             return await response.DeserializeAsync<GroupViewModel>();
         }
         
-        public async Task<long> GetGroupTasks(long groupId)
+        public async Task<long[]> GetGroupTasks(long groupId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get, 
                 _coursesServiceUri + $"api/Groups/getTasks/{groupId}");
 
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<long>();
+            return await response.DeserializeAsync<long[]>();
         }
     }
 }
