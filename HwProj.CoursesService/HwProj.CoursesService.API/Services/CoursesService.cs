@@ -2,9 +2,11 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.API.Models;
-using HwProj.CoursesService.API.Models.DTO;
 using HwProj.CoursesService.API.Repositories;
+using HwProj.EventBus.Client.Interfaces;
+using HwProj.Models.CoursesService.DTO;
 using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.CoursesService.API.Services
@@ -13,20 +15,23 @@ namespace HwProj.CoursesService.API.Services
     {
         private readonly ICoursesRepository _coursesRepository;
         private readonly ICourseMatesRepository _courseMatesRepository;
+        private readonly IEventBus _eventBus;
         private readonly IMapper _mapper;
 
         public CoursesService(ICoursesRepository coursesRepository,
             ICourseMatesRepository courseMatesRepository,
+            IEventBus eventBus,
             IMapper mapper)
         {
             _coursesRepository = coursesRepository;
             _courseMatesRepository = courseMatesRepository;
+            _eventBus = eventBus;
             _mapper = mapper;
         }
 
         public async Task<Course[]> GetAllAsync()
         {
-            return await _coursesRepository.GetAllWithCourseMates().ToArrayAsync();
+            return await _coursesRepository.GetAllWithCourseMatesAndHomeworks().ToArrayAsync();
         }
 
         public async Task<Course> GetAsync(long id)
@@ -64,7 +69,8 @@ namespace HwProj.CoursesService.API.Services
                 _courseMatesRepository.FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
             await Task.WhenAll(getCourseTask, getCourseMateTask);
 
-            if (getCourseTask.Result == null || getCourseMateTask.Result != null)
+            var course = getCourseTask.Result;
+            if (course == null || getCourseMateTask.Result != null)
             {
                 return false;
             }
@@ -73,10 +79,19 @@ namespace HwProj.CoursesService.API.Services
             {
                 CourseId = courseId,
                 StudentId = studentId,
-                IsAccepted = getCourseTask.Result.IsOpen
+                IsAccepted = false
             };
 
             await _courseMatesRepository.AddAsync(courseMate);
+            _eventBus.Publish(new NewCourseMateEvent
+            {
+                CourseId = courseId,
+                CourseName = course.Name,
+                MentorId = course.MentorId,
+                StudentId = studentId,
+                IsAccepted = false
+            });
+
             return true;
         }
 
@@ -94,7 +109,7 @@ namespace HwProj.CoursesService.API.Services
 
             await _courseMatesRepository.UpdateAsync(
                 getCourseMateTask.Result.Id,
-                cm => new CourseMate {IsAccepted = true}
+                cm => new CourseMate { IsAccepted = true }
             );
             return true;
         }

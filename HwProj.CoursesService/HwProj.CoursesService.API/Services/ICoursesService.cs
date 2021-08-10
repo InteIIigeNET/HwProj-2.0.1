@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
-using HwProj.CoursesService.API.Models.DTO;
+using HwProj.Models.CoursesService.DTO;
 
 namespace HwProj.CoursesService.API.Services
 {

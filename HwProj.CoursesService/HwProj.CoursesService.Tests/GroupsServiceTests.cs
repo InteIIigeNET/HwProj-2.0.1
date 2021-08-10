@@ -8,10 +8,8 @@ using HwProj.CoursesService.API;
 using AutoMapper;
 using System.Threading.Tasks;
 using System.Linq;
-using HwProj.CoursesService.API.Models.ViewModels;
 using HwProj.CoursesService.API.Repositories.Groups;
 using FluentAssertions;
-using HwProj.CoursesService.API.Models.DTO;
 
 namespace HwProj.CoursesService.Tests
 {

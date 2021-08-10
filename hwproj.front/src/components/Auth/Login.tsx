@@ -3,6 +3,7 @@ import { RouteComponentProps } from "react-router-dom";
 import { TextField, Button, Typography } from "@material-ui/core";
 import ApiSingleton from "../../api/ApiSingleton";
 import "./Styles/Login.css";
+import { LoginViewModel } from "../../api/"
 
 interface LoginProps extends Partial<RouteComponentProps> {
   onLogin: () => void;
@@ -11,7 +12,7 @@ interface LoginProps extends Partial<RouteComponentProps> {
 interface ILoginState {
   email: string;
   password: string;
-  error: string;
+  error: string[] | null;
   isLogin: boolean;
 }
 
@@ -21,48 +22,24 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
     this.state = {
       email: "",
       password: "",
-      error: "",
+      error: [],
       isLogin: false,
     };
   }
 
-  // handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-
-  //   try {
-  //     await ApiSingleton.authService.login(
-  //       this.state.email,
-  //       this.state.password
-  //     );
-  //     this.props.onLogin?.();
-  //   } catch (err) {
-  //     if (typeof err === "string") {
-  //       this.setState({ error: err });
-  //     } else {
-  //       console.log(err);
-  //       //throw new Error("Unhandled eror." + JSON.stringify(err));
-  //     }
-  //   }
-  // };
 
   handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
-    const users = await ApiSingleton.authService.getAllUsersFake()
-    users.map((item: any) => {
-      if (item.password === this.state.password &&
-        item.email === this.state.email) {
-        this.setState({ isLogin: true });
-        ApiSingleton.authService.setUserIdFake(item.id);
-        if (item.isLecturer) {
-          ApiSingleton.authService.setRoleFake("lecturer");
-        }
-        else {
-          ApiSingleton.authService.setRoleFake("student");
-        }
-        this.props.onLogin?.();
-        return;
-      }
+
+    const userData : LoginViewModel = {
+      email: this.state.email,
+      password: this.state.password,
+      rememberMe: false
+    }
+    const result = await ApiSingleton.authService.login(userData)
+    this.setState({
+      error: result!.error,
+      isLogin: result.isLogin
     })
   }
 
@@ -73,13 +50,9 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
       headerStyles.marginBottom = "-1.5rem";
     }
 
-    //if (ApiSingleton.authService.isLoggedIn()) {
-    //  this.props.onLogin?.()
-    //}
     if (this.state.isLogin){
       this.props.onLogin?.();
     }
-
     return (
       <div className="page">
         <Typography component="h1" variant="h5">

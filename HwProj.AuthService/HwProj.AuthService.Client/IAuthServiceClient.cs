@@ -1,10 +1,15 @@
-﻿using System.Threading.Tasks;
-using HwProj.AuthService.API.Models.DTO;
+﻿using HwProj.Models.AuthService.DTO;
+using HwProj.Models.AuthService.ViewModels;
+using System.Threading.Tasks;
 
 namespace HwProj.AuthService.Client
 {
     public interface IAuthServiceClient
     {
-        Task<AccountDataDTO> GetAccountData(string accountId);
+        Task<AccountDataDto> GetAccountData(string accountId);
+        Task<Result<TokenCredentials>> Register(RegisterViewModel model);
+        Task<Result<TokenCredentials>> Login(LoginViewModel model);
+        Task<Result> Edit(EditAccountViewModel model, string userId);
+        Task<Result> InviteNewLecturer(InviteLecturerViewModel model);
     }
 }

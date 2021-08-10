@@ -15,5 +15,6 @@ namespace HwProj.CoursesService.API.Models
         public bool IsCompleted { get; set; }
         public string MentorId { get; set; }
         public List<CourseMate> CourseMates { get; set; } = new List<CourseMate>();
+        public List<Homework> Homeworks { get; set; } = new List<Homework>();
     }
 }

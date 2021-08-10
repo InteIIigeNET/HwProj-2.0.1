@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System.Net;
 using System.Threading.Tasks;
-using HwProj.NotificationsService.API.Models;
+using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Services;
-using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.NotificationsService.API.Controllers
@@ -18,18 +17,17 @@ namespace HwProj.NotificationsService.API.Controllers
             _notificationsService = notificationsService;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Get([FromBody] NotificationFilter filter)
+        [HttpPost("get/{userId}")]
+        [ProducesResponseType(typeof(NotificationViewModel[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> Get(string userId, [FromBody] NotificationFilter filter)
         {
-            var userId = Request.GetUserId();
-            await _notificationsService.GetAsync(userId, filter);
-            return Ok();
+            var notifications = await _notificationsService.GetAsync(userId, filter);
+            return Ok(notifications ?? new NotificationViewModel[] { });
         }
 
-        [HttpPut("mark_as_seen")]
-        public async Task<IActionResult> MarkNotifications([FromBody] long[] notificationIds)
+        [HttpPut("markAsSeen/{userId}")]
+        public async Task<IActionResult> MarkNotifications([FromBody] long[] notificationIds, string userId)
         {
-            var userId = Request.GetUserId();
             await _notificationsService.MarkAsSeenAsync(userId, notificationIds);
             return Ok();
         }

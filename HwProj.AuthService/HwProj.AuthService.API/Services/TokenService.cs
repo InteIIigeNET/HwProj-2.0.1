@@ -1,5 +1,4 @@
-﻿using HwProj.AuthService.API.Models;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.IdentityModel.Tokens.Jwt;
@@ -7,9 +6,10 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using HwProj.AuthService.API.Models.DTO;
 using HwProj.Models.Roles;
 using Microsoft.Extensions.Configuration;
+using HwProj.Models.AuthService.DTO;
+using HwProj.AuthService.API.Models;
 
 namespace HwProj.AuthService.API.Services
 {
@@ -39,8 +39,8 @@ namespace HwProj.AuthService.API.Services
                 {
                     new Claim("_userName", user.UserName),
                     new Claim("_id", user.Id),
-                    new Claim("_email", user.Email),
-                    new Claim("_role", userRoles.FirstOrDefault() ?? Roles.StudentRole)
+                    new Claim(ClaimTypes.Email, user.Email),
+                    new Claim(ClaimTypes.Role, userRoles.FirstOrDefault() ?? Roles.StudentRole)
                 },
                 signingCredentials: new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256));
 

@@ -2,14 +2,14 @@
 using AutoMapper;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
-using HwProj.CoursesService.API.Models.ViewModels;
 using HwProj.CoursesService.API.Services;
+using HwProj.Models.CoursesService.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.CoursesService.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]/{courseId}")]
+    [Route("api/[controller]")]
     public class CourseGroupsController : Controller
     {
         private readonly IGroupsService _groupsService;
@@ -21,14 +21,14 @@ namespace HwProj.CoursesService.API.Controllers
             _groupsService = groupsService;
         }
 
-        [HttpGet("get_all")]
+        [HttpGet("{courseId}/getAll")]
         public async Task<GroupViewModel[]> GetAll(long courseId)
         {
-            var groups = await _groupsService.GetAllAsync(courseId).ConfigureAwait(false);
+            var groups = await _groupsService.GetAllAsync(courseId);
             return _mapper.Map<GroupViewModel[]>(groups);
         }
 
-        [HttpPost]
+        [HttpPost("{courseId}/create")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> CreateGroup([FromBody] CreateGroupViewModel groupViewModel)
         {
@@ -37,7 +37,7 @@ namespace HwProj.CoursesService.API.Controllers
             return Ok(id);
         }
 
-        [HttpDelete("{groupId}")]
+        [HttpDelete("{courseId}/delete/{groupId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> DeleteGroup(long groupId)
         {
@@ -45,36 +45,53 @@ namespace HwProj.CoursesService.API.Controllers
             return Ok();
         }
 
-        [HttpPost("update/{groupId}")]
+        [HttpPost("{courseId}/update/{groupId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> UpdateGroup(long groupId, [FromBody] UpdateGroupViewModel groupViewModel)
         {
-            await _groupsService.UpdateAsync(groupId, _mapper.Map<Group>(groupViewModel)).ConfigureAwait(false);
+            await _groupsService.UpdateAsync(groupId, _mapper.Map<Group>(groupViewModel));
             return Ok();
         }
 
-        [HttpGet("{userId}")]
-        public async Task<IActionResult> GetCoursesGroups(long courseId, string userId)
+        [HttpGet("{courseId}/get")]
+        public async Task<IActionResult> GetCoursesGroups(long courseId, [FromQuery] string userId)
         {
-            var groups = await _groupsService.GetStudentGroupsAsync(courseId, userId).ConfigureAwait(false);
+            var groups = await _groupsService.GetStudentGroupsAsync(courseId, userId);
             return Ok(groups);
         }
 
-        [HttpPost("add_student_in_group/{groupId}")]
+        [HttpPost("{courseId}/addStudentInGroup/{groupId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        public async Task<IActionResult> AddStudentInGroup(long groupId, [FromBody] string studentId)
+        public async Task<IActionResult> AddStudentInGroup(long groupId, [FromQuery] string userId)
         {
-            await _groupsService.AddGroupMateAsync(groupId, studentId).ConfigureAwait(false);
-            return Ok() as IActionResult;
+            await _groupsService.AddGroupMateAsync(groupId, userId);
+            return Ok();
         }
 
-        [HttpPost("remove_student_from_group/{groupId}")]
+        [HttpPost("{courseId}/removeStudentFromGroup/{groupId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        public async Task<IActionResult> RemoveStudentFromGroup(long groupId, string studentId)
+        public async Task<IActionResult> RemoveStudentFromGroup(long groupId, [FromQuery] string userId)
         {
-            return await _groupsService.DeleteGroupMateAsync(groupId, studentId).ConfigureAwait(false)
+            return await _groupsService.DeleteGroupMateAsync(groupId, userId)
                 ? Ok()
                 : NotFound() as IActionResult;
+        }
+        
+        [HttpGet("get/{groupId}")]
+        public async Task<IActionResult> Get(long groupId)
+        {
+            var group = await _groupsService.GetGroupAsync(groupId);
+            return group == null
+                ? NotFound()
+                : Ok(_mapper.Map<GroupViewModel>(group)) as IActionResult;
+        }
+
+
+        [HttpGet("getTasks/{groupId}")]
+        public async Task<IActionResult> GetGroupTasks(long groupId)
+        {
+            var ids = await _groupsService.GetTasksIds(groupId);
+            return Ok(ids);
         }
     }
 }

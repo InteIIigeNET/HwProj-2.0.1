@@ -1,10 +1,10 @@
-﻿using HwProj.Repositories;
-using HwProj.CoursesService.API.Models;
+﻿using System.Linq;
 using System.Threading.Tasks;
+using HwProj.CoursesService.API.Models;
+using HwProj.Repositories;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 
-namespace HwProj.CoursesService.API.Repositories
+namespace HwProj.CoursesService.API.Repositories.Groups
 {
     public class GroupsRepository : CrudRepository<Group, long>, IGroupsRepository
     {

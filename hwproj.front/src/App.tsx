@@ -7,18 +7,19 @@ import {
 } from "react-router-dom";
 
 import "./App.css";
-import "./components/Course";
-import Course from "./components/Course";
+import "./components/Courses/Course";
+import Course from "./components/Courses/Course";
 import Courses from "./components/Courses/Courses";
-import CreateCourse from "./components/CreateCourse";
-import TaskSolutionsPage from "./components/TaskSolutionsPage";
-import AppBar from "./components/AppBar";
+import CreateCourse from "./components/Courses/CreateCourse";
+import Profile from "./components/Profile";
+import TaskSolutionsPage from "./components/Solutions/TaskSolutionsPage";
+import { Header } from "./components/AppBar";
 import Login from "./components/Auth/Login";
-import EditCourse from "./components/EditCourse";
-import EditTask from "./components/EditTask";
-import EditHomework from "./components/EditHomework";
+import EditCourse from "./components/Courses/EditCourse";
+import EditTask from "./components/Tasks/EditTask";
+import EditHomework from "./components/Homeworks/EditHomework";
 import { Register } from "./components/Auth/Register";
-import StudentSolutionsPage from "./components/StudentSolutionsPage";
+import StudentSolutionsPage from "./components/Solutions/StudentSolutionsPage";
 import EditProfile from "./components/EditProfile";
 import InviteNewLecturer from "./components/InviteNewLecturer";
 import ApiSingleton from "./api/ApiSingleton";
@@ -34,39 +35,35 @@ class App extends Component<AppProps, AppState> {
   constructor(props: AppProps) {
     super(props);
     this.state = {
-      loggedIn: ApiSingleton.authService.getLogginStateFake(),
-      isLecturer: ApiSingleton.authService.getRoleFake()
+      loggedIn: ApiSingleton.authService.loggedIn(),
+      isLecturer: ApiSingleton.authService.isLecturer()
     };
-
-    this.login = this.login.bind(this);
-    this.logout = this.logout.bind(this);
   }
 
-  login() {
-    ApiSingleton.authService.loginFake();
-    this.setState({loggedIn: true})
-    if (ApiSingleton.authService.getRoleFake()){
-      this.setState({isLecturer: true})
-    }
+  login = () => {
+    this.setState({
+      loggedIn: true,
+      isLecturer: ApiSingleton.authService.isLecturer()
+    })
     this.props.history.push("/");
   }
 
-  logout() {
-    ApiSingleton.authService.logoutFake();
-    ApiSingleton.authService.setRoleFake("");
-    ApiSingleton.authService.setUserIdFake(-1);
+  logout = () => {
+    ApiSingleton.authService.logout();
     this.setState({loggedIn: false});
     this.setState({isLecturer: false});
-    this.props.history.push("/");
+    this.props.history.push("/login");
   }
 
   render() {
     return (
       <>
-        <AppBar loggedIn={this.state.loggedIn} isLecturer={this.state.isLecturer} onLogout={this.logout} />
+        <Header loggedIn={this.state.loggedIn} isLecturer={this.state.isLecturer} onLogout={this.logout} />
         <Route exact path="/invite_lecturer" component={InviteNewLecturer} />
         <Route exact path="/user/edit" component={EditProfile} />
         <Route exact path="/" component={Courses} />
+        <Route exact path="/profile" component={Profile} />
+        <Route exact path="/profile/:id" component={Profile} />
         <Route exact path="/create_course" component={CreateCourse} />
         <Route exact path="/courses/:id" component={Course} />
         <Route exact path="/courses/:courseId/edit" component={EditCourse} />

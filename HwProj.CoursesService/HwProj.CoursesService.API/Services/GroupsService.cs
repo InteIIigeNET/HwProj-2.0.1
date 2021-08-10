@@ -2,9 +2,8 @@
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.API.Models;
-using HwProj.CoursesService.API.Models.DTO;
-using HwProj.CoursesService.API.Repositories;
 using HwProj.CoursesService.API.Repositories.Groups;
+using HwProj.Models.CoursesService.DTO;
 using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.CoursesService.API.Services
@@ -20,7 +19,6 @@ namespace HwProj.CoursesService.API.Services
             IGroupMatesRepository groupMatesRepository,
             ITaskModelsRepository taskModelsRepository,
             IMapper mapper)
-       
         {
             _groupsRepository = groupsRepository;
             _groupMatesRepository = groupMatesRepository;
@@ -120,8 +118,8 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<long[]> GetTasksIds(long groupId)
         {
-            var getGroupTask = await _groupsRepository.GetAsync(groupId);
-            return getGroupTask.Tasks.Select(cm => cm.TaskId).ToArray();
+            var group = await GetGroupAsync(groupId);
+            return group.Tasks.Select(cm => cm.TaskId).ToArray();
         }
     }
 }

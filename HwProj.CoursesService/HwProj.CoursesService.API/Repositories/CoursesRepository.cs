@@ -15,15 +15,20 @@ namespace HwProj.CoursesService.API.Repositories
 
         public async Task<Course> GetWithCourseMatesAsync(long id)
         {
-            return await Context.Set<Course>().Include(c => c.CourseMates)
+            return await Context.Set<Course>()
+                .Include(c => c.CourseMates)
+                .Include(c => c.Homeworks)
+                .ThenInclude(c => c.Tasks)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
 
-        public IQueryable<Course> GetAllWithCourseMates()
+        public IQueryable<Course> GetAllWithCourseMatesAndHomeworks()
         {
             return Context.Set<Course>()
                 .Include(c => c.CourseMates)
+                .Include(c => c.Homeworks)
+                .ThenInclude(c => c.Tasks)
                 .AsNoTracking();
         }
     }

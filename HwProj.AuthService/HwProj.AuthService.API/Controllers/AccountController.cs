@@ -1,11 +1,12 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
-using HwProj.AuthService.API.Models.DTO;
+using HwProj.AuthService.API.Events;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using HwProj.AuthService.API.Models.ViewModels;
 using HwProj.AuthService.API.Services;
-using HwProj.Utils.Authorization;
+using HwProj.EventBus.Client.Interfaces;
+using HwProj.Models.AuthService.DTO;
+using HwProj.Models.AuthService.ViewModels;
 
 namespace HwProj.AuthService.API.Controllers
 {
@@ -14,14 +15,16 @@ namespace HwProj.AuthService.API.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService;
+        private readonly IEventBus _eventBus;
 
-        public AccountController(IAccountService accountService)
+        public AccountController(IAccountService accountService, IEventBus eventBus)
         {
             _accountService = accountService;
+            _eventBus = eventBus;
         }
 
         [HttpGet("getUserData/{userId}")]
-        [ProducesResponseType(typeof(AccountDataDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(AccountDataDto), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetUserDataById(string userId)
         {
             var accountData = await _accountService.GetAccountDataAsync(userId).ConfigureAwait(false);
@@ -31,39 +34,32 @@ namespace HwProj.AuthService.API.Controllers
                 : NotFound() as IActionResult;
         }
 
-        [Authorize]
-        [HttpGet("getCurrentUserData")]
-        public IActionResult GetCurrentUserData()
-        {
-            var userId = Request.GetUserId();
-            return RedirectToAction("GetUserDataById", new { userId });
-        }
-
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterViewModel model)
+        [ProducesResponseType(typeof(TokenCredentials), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> Register([FromBody] RegisterViewModel model)
         {
             var result = await _accountService.RegisterUserAsync(model).ConfigureAwait(false);
-
             return Ok(result);
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginViewModel model)
+        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> Login([FromBody] LoginViewModel model)
         {
             var tokenMeta = await _accountService.LoginUserAsync(model).ConfigureAwait(false);
             return Ok(tokenMeta);
         }
-
-        [Authorize]
-        [HttpPut("edit")]
-        public async Task<IActionResult> Edit(EditAccountViewModel model)
+        
+        [HttpPut("edit/{userId}")]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> Edit([FromBody] EditAccountViewModel model, string userId)
         {
-            var result = await _accountService.EditAccountAsync(Request.GetUserId(), model).ConfigureAwait(false);
+            var result = await _accountService.EditAccountAsync(userId, model).ConfigureAwait(false);
             return Ok(result);
         }
-
-        [Authorize]
-        [HttpPost("invitenewlecturer")]
+        
+        [HttpPost("inviteNewLecturer")]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> InviteNewLecturer(InviteLecturerViewModel model)
         {
             var result = await _accountService.InviteNewLecturer(model.Email).ConfigureAwait(false);

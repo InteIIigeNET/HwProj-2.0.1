@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	<OutputType>Library</OutputType>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+	<ApplicationIcon />
+	<StartupObject />
+	<LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\HwProj.Common\HwProj.HttpUtils\HwProj.HttpUtils.csproj" />
+    <ProjectReference Include="..\..\HwProj.Common\HwProj.Models\HwProj.Models.csproj" />
+  </ItemGroup>
+
+</Project>

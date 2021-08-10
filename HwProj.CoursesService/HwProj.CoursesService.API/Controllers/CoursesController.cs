@@ -3,10 +3,8 @@ using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
-using HwProj.CoursesService.API.Models.ViewModels;
 using HwProj.CoursesService.API.Services;
-using HwProj.Utils.Authorization;
-using Microsoft.AspNetCore.Authorization;
+using HwProj.Models.CoursesService.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.CoursesService.API.Controllers
@@ -42,9 +40,8 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> AddCourse([FromBody] CreateCourseViewModel courseViewModel)
+        public async Task<IActionResult> AddCourse([FromBody] CreateCourseViewModel courseViewModel, [FromQuery] string mentorId)
         {
-            var mentorId = Request.GetUserId();
             var course = _mapper.Map<Course>(courseViewModel);
             var id = await _coursesService.AddAsync(course, mentorId);
             return Ok(id);
@@ -73,16 +70,15 @@ namespace HwProj.CoursesService.API.Controllers
             return Ok();
         }
 
-        [HttpPost("sign_in_course/{courseId}")]
-        public async Task<IActionResult> SignInCourse(long courseId)
+        [HttpPost("signInCourse/{courseId}")]
+        public async Task<IActionResult> SignInCourse(long courseId, [FromQuery] string studentId)
         {
-            var studentId = Request.GetUserId();
             return await _coursesService.AddStudentAsync(courseId, studentId)
                 ? Ok()
                 : NotFound() as IActionResult;
         }
 
-        [HttpPost("accept_student/{courseId}")]
+        [HttpPost("acceptStudent/{courseId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> AcceptStudent(long courseId, [FromQuery] string studentId)
         {
@@ -91,7 +87,7 @@ namespace HwProj.CoursesService.API.Controllers
                 : NotFound() as IActionResult;
         }
 
-        [HttpPost("reject_student/{courseId}")]
+        [HttpPost("rejectStudent/{courseId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> RejectStudent(long courseId, [FromQuery] string studentId)
         {
@@ -100,7 +96,7 @@ namespace HwProj.CoursesService.API.Controllers
                 : NotFound() as IActionResult;
         }
 
-        [HttpGet("user_courses/{userId}")]
+        [HttpGet("userCourses/{userId}")]
         public async Task<IActionResult> GetCourses(string userId)
         {
             var courses = await _coursesService.GetUserCoursesAsync(userId);

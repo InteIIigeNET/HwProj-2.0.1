@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using HwProj.NotificationsService.API.Models;
+using HwProj.Models.NotificationsService;
 
 namespace HwProj.NotificationsService.API
 {
@@ -7,6 +7,7 @@ namespace HwProj.NotificationsService.API
     {
         public AutomapperProfile()
         {
+            CreateMap<Notification, NotificationViewModel>().ReverseMap();
         }
     }
 }

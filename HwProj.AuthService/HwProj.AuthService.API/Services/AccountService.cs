@@ -1,14 +1,14 @@
-﻿using HwProj.AuthService.API.Models;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
-using HwProj.AuthService.API.Models.ViewModels;
 using System.Linq;
 using AutoMapper;
 using HwProj.AuthService.API.Extensions;
-using HwProj.AuthService.API.Models.DTO;
 using HwProj.Models.Roles;
 using HwProj.AuthService.API.Events;
 using HwProj.EventBus.Client.Interfaces;
+using HwProj.Models.AuthService.DTO;
+using HwProj.Models.AuthService.ViewModels;
+using HwProj.AuthService.API.Models;
 
 namespace HwProj.AuthService.API.Services
 {
@@ -33,7 +33,7 @@ namespace HwProj.AuthService.API.Services
             _mapper = mapper;
         }
 
-        public async Task<AccountDataDTO> GetAccountDataAsync(string userId)
+        public async Task<AccountDataDto> GetAccountDataAsync(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId).ConfigureAwait(false);
             if (user == null)
@@ -43,20 +43,20 @@ namespace HwProj.AuthService.API.Services
 
             var userRoles = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
             var userRole = userRoles.FirstOrDefault() ?? Roles.StudentRole;
-            return new AccountDataDTO(user.Name, user.Surname, user.Email, userRole, user.MiddleName);
+            return new AccountDataDto(user.Name, user.Surname, user.Email, userRole, user.MiddleName);
         }
 
-        public async Task<IdentityResult> EditAccountAsync(string id, EditAccountViewModel model)
+        public async Task<Result> EditAccountAsync(string id, EditAccountViewModel model)
         {
             var user = await _userManager.FindByIdAsync(id).ConfigureAwait(false);
             if (user == null)
             {
-                return IdentityResults.UserNotFound;
+                return Result.Failed("User not found");
             }
 
             if (!await _userManager.CheckPasswordAsync(user, model.CurrentPassword))
             {
-                return IdentityResults.WrongPassword;
+                return Result.Failed("Wrong current password");
             }
 
             var result = await ChangeUserNameTask(user, model)
@@ -68,22 +68,23 @@ namespace HwProj.AuthService.API.Services
                 var editEvent = new EditEvent(id, model.Name,
                     model.Surname, model.MiddleName);
                 _eventBus.Publish(editEvent);
+                return Result.Success();
             }
 
-            return result;
+            return Result.Failed();
         }
 
-        public async Task<IdentityResult<TokenCredentials>> LoginUserAsync(LoginViewModel model)
+        public async Task<Result<TokenCredentials>> LoginUserAsync(LoginViewModel model)
         {
             if (await _userManager.FindByEmailAsync(model.Email).ConfigureAwait(false)
                     is var user && user == null)
             {
-                return IdentityResult<TokenCredentials>.Failed(IdentityErrors.UserNotFound);
+                return Result<TokenCredentials>.Failed("User not found");
             }
 
             if (!await _userManager.IsEmailConfirmedAsync(user).ConfigureAwait(false))
             {
-                return IdentityResult<TokenCredentials>.Failed(IdentityErrors.EmailNotConfirmed);
+                return Result<TokenCredentials>.Failed("Email not confirmed");
             }
 
             var result = await _signInManager.PasswordSignInAsync(
@@ -94,18 +95,18 @@ namespace HwProj.AuthService.API.Services
 
             if (!result.Succeeded)
             {
-                return IdentityResult<TokenCredentials>.Failed(result.TryGetIdentityError());
+                return Result<TokenCredentials>.Failed(result.TryGetIdentityError());
             }
 
             var token = await _tokenService.GetTokenAsync(user).ConfigureAwait(false);
-            return IdentityResult<TokenCredentials>.Success(token);
+            return Result<TokenCredentials>.Success(token);
         }
 
-        public async Task<IdentityResult> RegisterUserAsync(RegisterViewModel model)
+        public async Task<Result<TokenCredentials>> RegisterUserAsync(RegisterViewModel model)
         {
             if (await _userManager.FindByEmailAsync(model.Email).ConfigureAwait(false) != null)
             {
-                return IdentityResults.UserExists;
+                return Result<TokenCredentials>.Failed("User exist");
             }
 
             var user = _mapper.Map<User>(model);
@@ -125,18 +126,25 @@ namespace HwProj.AuthService.API.Services
                 var registerEvent = new StudentRegisterEvent(newUser.Id, newUser.Email, newUser.Name,
                     newUser.Surname, newUser.MiddleName);
                 _eventBus.Publish(registerEvent);
+                await _signInManager.PasswordSignInAsync(
+                    user,
+                    model.Password,
+                    false,
+                    false).ConfigureAwait(false);
+                var token = await _tokenService.GetTokenAsync(user).ConfigureAwait(false);
+                return Result<TokenCredentials>.Success(token);
             }
 
-            return result;
+            return Result<TokenCredentials>.Failed(result.Errors.Select(errors => errors.Description).ToArray());
         }
 
-        public async Task<IdentityResult> InviteNewLecturer(string emailOfInvitedUser)
+        public async Task<Result> InviteNewLecturer(string emailOfInvitedUser)
         {
             var invitedUser = await _userManager.FindByEmailAsync(emailOfInvitedUser).ConfigureAwait(false);
 
             if (invitedUser == null)
             {
-                return IdentityResults.UserNotFound;
+                return Result.Failed("User not found");
             }
 
             var result = await _userManager.AddToRoleAsync(invitedUser, Roles.LecturerRole)
@@ -146,9 +154,10 @@ namespace HwProj.AuthService.API.Services
             {
                 var inviteEvent = new InviteLecturerEvent(invitedUser.Id);
                 _eventBus.Publish(inviteEvent);
+                return Result.Success();
             }
 
-            return result;
+            return Result.Failed();
         }
 
         private Task<IdentityResult> ChangeUserNameTask(User user, EditAccountViewModel model)

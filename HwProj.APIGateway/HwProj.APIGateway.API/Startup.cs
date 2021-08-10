@@ -1,11 +1,15 @@
-﻿using HwProj.Utils.Configuration;
+﻿using System;
+using System.Net.Http;
+using HwProj.AuthService.Client;
+using HwProj.CoursesService.Client;
+using HwProj.NotificationsService.Client;
+using HwProj.SolutionsService.Client;
+using HwProj.Utils.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using Ocelot.DependencyInjection;
-using Ocelot.Middleware;
 using HwProj.Utils.Authorization;
 
 namespace HwProj.APIGateway.API
@@ -40,13 +44,16 @@ namespace HwProj.APIGateway.API
                     };
                 });
 
-            services.AddOcelot();
+            var httpClient = new HttpClient();
+            services.AddAuthServiceClient(httpClient, "http://localhost:5001");
+            services.AddCoursesServiceClient(httpClient, "http://localhost:5002");
+            services.AddSolutionServiceClient(httpClient, "http://localhost:5007");
+            services.AddNotificationsServiceClient(httpClient, "http://localhost:5006");
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.ConfigureHwProj(env, "API Gateway")
-                .UseOcelot();
+            app.ConfigureHwProj(env, "API Gateway");
         }
     }
 }

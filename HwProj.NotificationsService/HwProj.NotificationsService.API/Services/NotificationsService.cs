@@ -1,6 +1,7 @@
-﻿using System.Linq.Expressions;
+﻿using System.Linq;
 using System.Threading.Tasks;
-using HwProj.NotificationsService.API.Models;
+using AutoMapper;
+using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
 
 namespace HwProj.NotificationsService.API.Services
@@ -8,10 +9,12 @@ namespace HwProj.NotificationsService.API.Services
     public class NotificationsService : INotificationsService
     {
         private readonly INotificationsRepository _repository;
+        private readonly IMapper _mapper;
 
-        public NotificationsService(INotificationsRepository repository)
+        public NotificationsService(INotificationsRepository repository, IMapper mapper)
         {
             _repository = repository;
+            _mapper = mapper;
         }
 
         public async Task<long> AddNotificationAsync(Notification notification)
@@ -20,13 +23,14 @@ namespace HwProj.NotificationsService.API.Services
             return id;
         }
 
-        public async Task<Notification[]> GetAsync(string userId, NotificationFilter filter = null)
+        public async Task<NotificationViewModel[]> GetAsync(string userId, NotificationFilter filter = null)
         {
             filter = filter ?? new NotificationFilter
             {
                 MaxCount = 50, 
             };
-            return await _repository.GetAllByUserAsync(userId, filter);
+            var notifications = await _repository.GetAllByUserAsync(userId, filter);
+            return notifications.Select(notification => _mapper.Map<NotificationViewModel>(notification)).ToArray();
         }
 
         public async Task MarkAsSeenAsync(string userId, long[] notificationIds)
