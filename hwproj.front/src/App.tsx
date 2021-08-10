@@ -38,12 +38,9 @@ class App extends Component<AppProps, AppState> {
       loggedIn: ApiSingleton.authService.loggedIn(),
       isLecturer: ApiSingleton.authService.isLecturer()
     };
-
-    this.login = this.login.bind(this);
-    this.logout = this.logout.bind(this);
   }
 
-  login() {
+  login = () => {
     this.setState({
       loggedIn: true,
       isLecturer: ApiSingleton.authService.isLecturer()
@@ -51,7 +48,7 @@ class App extends Component<AppProps, AppState> {
     this.props.history.push("/");
   }
 
-  logout() {
+  logout = () => {
     ApiSingleton.authService.logout();
     this.setState({loggedIn: false});
     this.setState({isLecturer: false});

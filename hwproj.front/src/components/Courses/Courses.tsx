@@ -1,6 +1,5 @@
 import * as React from "react";
 import { Tab, Tabs, CircularProgress } from "@material-ui/core";
-
 import { CoursesList } from "./CoursesList";
 import { CourseViewModel } from "../../api/";
 import ApiSingleton from "../../api/ApiSingleton";
@@ -35,7 +34,7 @@ export default class Courses extends React.Component<{}, ICoursesState> {
 
         let activeCourses = courses.filter((course) => !course.isCompleted);
         let completedCourses = courses.filter((course) => course.isCompleted);
-
+        debugger
         return (
             <div className="container">
                 <Tabs
@@ -53,21 +52,23 @@ export default class Courses extends React.Component<{}, ICoursesState> {
         );
     }
 
-    componentDidMount(): void {
+    async componentDidMount(){
         if (!ApiSingleton.authService.isLoggedIn()) {
             window.location.assign("/login");
         }
         const token = ApiSingleton.authService.getToken();
-        ApiSingleton.coursesApi
-            .apiCoursesUserCoursesGet({ headers: {"Authorization": `Bearer ${token}`} })
-            .then((courses) =>
-                this.setState({
-                    isLoaded: true,
-                    courses: courses,
-                })
-            )
-            .catch((err) => {
-                this.setState({ isLoaded: true });
-            });
+        try {
+            const courses = await ApiSingleton.coursesApi.apiCoursesUserCoursesGet({ headers: {"Authorization": `Bearer ${token}`}})
+            this.setState({
+                isLoaded: true,
+                courses: courses
+            })
+        }
+        catch(error)
+        {
+            this.setState({
+                isLoaded: true
+            })
+        }
     }
 }
