@@ -85,5 +85,25 @@ namespace HwProj.APIGateway.API.Controllers
             await _solutionsClient.DeleteSolution(solutionId);
             return Ok();
         }
+
+        [HttpPost("{groupId}/{taskId}")]
+        [Authorize]
+        [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> PostGroupSolution(SolutionViewModel model, long taskId, long groupId)
+        {
+            var result = await _solutionsClient.PostGroupSolution(model, taskId, groupId);
+            return Ok(result);
+        }
+        
+        [HttpGet("{groupId}/taskSolutions/{taskId}")]
+        [Authorize]
+        [ProducesResponseType(typeof(Solution[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetGroupSolutions(long groupId, long taskId)
+        {
+            var result = await _solutionsClient.GetTaskSolutions(groupId, taskId);
+            return result == null
+                ? NotFound()
+                : Ok(result) as IActionResult;
+        }
     }
 }

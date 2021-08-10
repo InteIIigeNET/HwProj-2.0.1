@@ -91,5 +91,31 @@ namespace HwProj.SolutionsService.Client
             
             await _httpClient.SendAsync(httpRequest);
         }
+        
+        public async Task<long> PostGroupSolution(SolutionViewModel model, long taskId, long groupId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _solutionServiceUri + $"api/Solutions/{groupId}/{taskId}")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(model),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<long>();;
+        }
+        
+        public async Task<Solution[]> GetTaskSolutions(long groupId, long taskId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get, 
+                _solutionServiceUri + $"api/Solutions/{groupId}/taskSolutions/{taskId}");
+
+            var response = await _httpClient.SendAsync(httpRequest); 
+            return await response.DeserializeAsync<Solution[]>();
+        }
     }
 }

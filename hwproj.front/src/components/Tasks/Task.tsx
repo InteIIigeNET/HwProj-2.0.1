@@ -4,9 +4,9 @@ import IconButton from '@material-ui/core/IconButton'
 import DeleteIcon from '@material-ui/icons/Delete'
 import EditIcon from '@material-ui/icons/Edit'
 import ReactMarkdown from 'react-markdown'
-import { HomeworkTaskViewModel } from "../api";
+import { HomeworkTaskViewModel } from "../../api";
 import {Link as RouterLink} from 'react-router-dom'
-import ApiSingleton from "../api/ApiSingleton";
+import ApiSingleton from "../../api/ApiSingleton";
 
 interface ITaskProp {
     task: HomeworkTaskViewModel,

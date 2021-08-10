@@ -1,8 +1,8 @@
 import * as React from 'react';
-import {Solution} from '../api'
+import {Solution} from '../../api'
 import Button from '@material-ui/core/Button'
 import Link from '@material-ui/core/Link'
-import ApiSingleton from "../api/ApiSingleton";
+import ApiSingleton from "../../api/ApiSingleton";
 import { TextField, Typography } from '@material-ui/core';
 
 interface ISolutionProps {

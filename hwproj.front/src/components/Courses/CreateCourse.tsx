@@ -8,7 +8,7 @@ import {
 } from "@material-ui/core";
 import { Redirect } from "react-router-dom";
 
-import ApiSingleton from "../api/ApiSingleton";
+import ApiSingleton from "../../api/ApiSingleton";
 import './Styles/CreateCourse.css';
 
 interface ICreateCourseState {

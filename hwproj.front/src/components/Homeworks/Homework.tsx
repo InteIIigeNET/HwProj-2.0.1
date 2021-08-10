@@ -3,11 +3,11 @@ import { Button, IconButton } from '@material-ui/core'
 import DeleteIcon from '@material-ui/icons/Delete'
 import EditIcon from '@material-ui/icons/Edit'
 import ReactMarkdown from 'react-markdown';
-import { HomeworkViewModel } from "../api";
-import AddTask from'./AddTask'
-import HomeworkTasks from './HomeworkTasks'
+import { HomeworkViewModel } from "../../api";
+import AddTask from'../Tasks/AddTask'
+import HomeworkTasks from '../Tasks/HomeworkTasks'
 import {Link as RouterLink} from 'react-router-dom'
-import ApiSingleton from 'api/ApiSingleton';
+import ApiSingleton from '../../api/ApiSingleton';
 
 interface IHomeworkProps {
     homework: HomeworkViewModel,

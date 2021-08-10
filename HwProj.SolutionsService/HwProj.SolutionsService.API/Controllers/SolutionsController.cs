@@ -66,5 +66,20 @@ namespace HwProj.SolutionsService.API.Controllers
         {
             await _solutionsService.DeleteSolutionAsync(solutionId);
         }
+        
+        [HttpPost("{groupId}/{taskId}")]
+        public async Task<long> PostSolution(long groupId, long taskId, [FromBody] SolutionViewModel solutionViewModel)
+        {
+            var solution = _mapper.Map<Solution>(solutionViewModel);
+            solution.GroupId = groupId;
+            var solutionId = await _solutionsService.AddSolutionAsync(taskId, solution);
+            return solutionId;
+        }
+
+        [HttpGet("{groupId}/taskSolutions/{taskId}")]
+        public async Task<Solution[]> GetTaskSolutionsFromGroup(long groupId, long taskId)
+        {
+            return await _solutionsService.GetTaskSolutionsFromGroupAsync(taskId, groupId);
+        }
     }
 }

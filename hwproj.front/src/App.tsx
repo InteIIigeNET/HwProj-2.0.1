@@ -7,19 +7,19 @@ import {
 } from "react-router-dom";
 
 import "./App.css";
-import "./components/Course";
-import Course from "./components/Course";
+import "./components/Courses/Course";
+import Course from "./components/Courses/Course";
 import Courses from "./components/Courses/Courses";
-import CreateCourse from "./components/CreateCourse";
+import CreateCourse from "./components/Courses/CreateCourse";
 import Profile from "./components/Profile";
-import TaskSolutionsPage from "./components/TaskSolutionsPage";
+import TaskSolutionsPage from "./components/Solutions/TaskSolutionsPage";
 import { Header } from "./components/AppBar";
 import Login from "./components/Auth/Login";
-import EditCourse from "./components/EditCourse";
-import EditTask from "./components/EditTask";
-import EditHomework from "./components/EditHomework";
+import EditCourse from "./components/Courses/EditCourse";
+import EditTask from "./components/Tasks/EditTask";
+import EditHomework from "./components/Homeworks/EditHomework";
 import { Register } from "./components/Auth/Register";
-import StudentSolutionsPage from "./components/StudentSolutionsPage";
+import StudentSolutionsPage from "./components/Solutions/StudentSolutionsPage";
 import EditProfile from "./components/EditProfile";
 import InviteNewLecturer from "./components/InviteNewLecturer";
 import ApiSingleton from "./api/ApiSingleton";
