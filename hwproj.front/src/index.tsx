@@ -5,11 +5,27 @@ import App from "./App";
 import * as serviceWorker from "./serviceWorker";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { BrowserRouter } from "react-router-dom";
+import ThemeProvider from "@material-ui/styles/ThemeProvider";
+import { createTheme } from "@material-ui/core/styles";
+
+const theme = createTheme({
+  typography: {
+    fontFamily: [
+      'Helvetica',
+      'Arial',
+      'sans-serif',
+      'Roboto',
+      '"Helvetica Neue"',
+    ].join(','),
+  }
+});
 
 ReactDOM.render(
-  <BrowserRouter>
-    <App />
-  </BrowserRouter>,
+  <ThemeProvider theme={theme}>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </ThemeProvider>,
   document.getElementById("root")
 );
 
