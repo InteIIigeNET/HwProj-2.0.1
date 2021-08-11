@@ -1,4 +1,7 @@
-﻿using System.Net;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using HwProj.CoursesService.Client;
 using HwProj.Models.CoursesService.DTO;
@@ -34,6 +37,21 @@ namespace HwProj.APIGateway.API.Controllers
         public async Task<IActionResult> GetCourseData(long courseId)
         {
             var result = await _coursesClient.GetCourseById(courseId);
+            string role = null;
+            try
+            {
+                role = Request.GetUserRole();
+            }
+            catch (Exception e)
+            {
+                role = null;
+            }
+
+            if (role == null || role == Roles.StudentRole)
+            {
+                var currentDate = DateTime.Now;
+                result.Homeworks.ForEach(hw => hw.Tasks = new List<HomeworkTaskViewModel>(hw.Tasks.Where(t => currentDate >= t.PublicationDate)));
+            }
             return result == null
                 ? NotFound()
                 : Ok(result) as IActionResult;

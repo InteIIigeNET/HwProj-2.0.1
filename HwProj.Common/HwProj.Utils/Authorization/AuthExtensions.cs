@@ -19,7 +19,8 @@ namespace HwProj.Utils.Authorization
 
         public static string GetUserRole(this HttpRequest request)
         {
-            return request.Query.First(x => x.Key == "_role").Value.ToString();
+            return request.HttpContext.User.FindFirst("http://schemas.microsoft.com/ws/2008/06/identity/claims/role")
+                .Value;
         }
 
         public static bool IsLecturer(this string role)
