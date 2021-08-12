@@ -14,6 +14,8 @@ namespace HwProj.CoursesService.API.Models
         public int MaxRating { get; set; }
 
         public DateTime DeadlineDate { get; set; }
+        
+        public bool IsDeadlineStrict { get; set; }
 
         public DateTime PublicationDate { get; set; }
 

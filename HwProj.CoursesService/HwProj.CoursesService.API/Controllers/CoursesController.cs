@@ -6,6 +6,7 @@ using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Services;
 using HwProj.Models.CoursesService.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 
 namespace HwProj.CoursesService.API.Controllers
 {
@@ -26,17 +27,31 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpGet]
         public async Task<CourseViewModel[]> GetAll()
         {
-            var courses = await _coursesService.GetAllAsync().ConfigureAwait(false);
-            return _mapper.Map<CourseViewModel[]>(courses);
+            var coursesFromDb = await _coursesService.GetAllAsync().ConfigureAwait(false);
+            var courses = _mapper.Map<CourseViewModel[]>(coursesFromDb);
+
+            foreach (var course in courses)
+            {
+                course.Homeworks.ForEach(h => h.Tasks.ForEach(t => t.PutPossibilityForSendingSolution()));
+            }
+
+            return courses;
         }
 
         [HttpGet("{courseId}")]
         public async Task<IActionResult> Get(long courseId)
         {
-            var course = await _coursesService.GetAsync(courseId);
-            return course == null
-                ? NotFound()
-                : Ok(_mapper.Map<CourseViewModel>(course)) as IActionResult;
+            var courseFromDb = await _coursesService.GetAsync(courseId);
+
+            if (courseFromDb == null)
+            {
+                return NotFound();
+            }
+
+            var course = _mapper.Map<CourseViewModel>(courseFromDb);
+            course.Homeworks.ForEach(h => h.Tasks.ForEach(t => t.PutPossibilityForSendingSolution()));
+
+            return Ok(course);
         }
 
         [HttpPost("create")]
