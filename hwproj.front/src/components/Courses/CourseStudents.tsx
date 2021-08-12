@@ -1,10 +1,11 @@
 import React from "react";
 import { Table, TableBody, TableCell, TableHead, TableRow } from "@material-ui/core";
-import { CourseViewModel, HomeworkViewModel } from "../../api/";
+import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api/";
 import { Paper, createStyles, Theme } from "@material-ui/core";
 import TaskStudentCell from "../Tasks/TaskStudentCell";
 import ApiSingleton from "../../api/ApiSingleton";
 import { withStyles } from '@material-ui/styles';
+import {RouteComponentProps} from "react-router-dom";
 
 interface ICourseMate {
   name: string;
@@ -22,6 +23,11 @@ interface ICourseStudentsProps {
   courseMates: ICourseMate[];
 }
 
+interface ICourseStudentsState {
+  stat: StatisticsCourseMatesModel[];
+  isLoaded: boolean;
+}
+
 const styles = (theme: Theme) =>
   createStyles({
     paper: {
@@ -31,11 +37,19 @@ const styles = (theme: Theme) =>
     },
   });
 
-class CourseStudents extends React.Component<ICourseStudentsProps, {}> {
+class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStudentsState> {
+  constructor(props: ICourseStudentsProps) {
+    super(props);
+    this.state = {
+      stat: [],
+      isLoaded: false,
+    };
+  }
 
   public render() {
     return (
       <div>
+        { this.state.isLoaded &&
         <Paper className="paper">
           <Table>
             <TableHead>
@@ -80,6 +94,7 @@ class CourseStudents extends React.Component<ICourseStudentsProps, {}> {
                     {this.props.homeworks.map((homework) =>
                       homework.tasks!.map((task) => (
                         <TaskStudentCell
+                          solutions={this.state.stat.find(s => s.studentId == cm.id)!.mateHomeworks!.find(h => h.homeworkId == homework.id)!.homeworkTasks!.find(t => t.taskId == task.id)!.taskSolution}
                           userId={this.props.userId}
                           forMentor={this.props.isMentor}
                           studentId={String(cm.id)}
@@ -92,8 +107,15 @@ class CourseStudents extends React.Component<ICourseStudentsProps, {}> {
             </TableBody>
           </Table>
         </Paper>
+        }
       </div>
     );
+  }
+
+  async componentDidMount() {
+    const stat = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdGet(this.props.course.id!)
+    console.log(stat)
+    this.setState({stat: stat, isLoaded:true})
   }
 }
 
