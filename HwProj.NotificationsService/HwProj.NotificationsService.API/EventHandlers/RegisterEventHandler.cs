@@ -28,16 +28,6 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 HasSeen = false,
                 Owner = @event.UserId
             });
-
-            await _notificationRepository.AddAsync(new Notification
-            {
-                Sender = "AuthService",
-                Body = $"Новый пользователь {@event.Name} {@event.Surname} зарегистрирован. Email: {@event.Email}. UserId: {@event.UserId}",
-                Category = "AuthService",
-                Date = DateTime.UtcNow,
-                HasSeen = false,
-                Owner = "b26fa7ef-401d-45e0-a0f0-9e656b2bc16d" // Admin (admin@gmail.com) UserId
-            });
         }
     }
 }
