@@ -2,8 +2,12 @@ import * as React from "react";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
+import Tooltip from '@material-ui/core/Tooltip';
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import ApiSingleton from "../../api/ApiSingleton";
 import { CreateTaskViewModel } from "../../api";
+import ReactMarkdown from "react-markdown";
+import { Zoom } from "@material-ui/core";
 
 interface IAddHomeworkProps {
   id: number;
@@ -16,6 +20,7 @@ interface IAddHomeworkState {
   description: string;
   tasks: CreateTaskViewModel[];
   added: boolean;
+  isPreview: boolean;
 }
 
 export default class AddHomework extends React.Component<
@@ -34,6 +39,7 @@ export default class AddHomework extends React.Component<
                 deadlineDate: new Date()
               }],
       added: false,
+      isPreview: false,
     };
   }
 
@@ -60,6 +66,28 @@ export default class AddHomework extends React.Component<
             name={this.state.description}
             onChange={(e) => this.setState({ description: e.target.value })}
           />
+
+          <ClickAwayListener onClickAway={() => this.setState({isPreview: false})}>
+            <div>
+              <Tooltip
+                PopperProps={{
+                  disablePortal: true,
+                }}
+                interactive
+                onClose={() => this.setState({isPreview: false})}
+                open={this.state.isPreview}
+                disableFocusListener
+                disableHoverListener
+                disableTouchListener
+                title={<ReactMarkdown>{this.state.description}</ReactMarkdown>} 
+                placement="bottom" 
+                TransitionComponent={Zoom}
+              >
+                <Button onClick={() => this.setState({isPreview: true})}>Preview</Button>
+              </Tooltip>
+            </div>
+          </ClickAwayListener>
+
           <div className="container">
             <ol>
               {this.state.tasks.map((task, index) => (

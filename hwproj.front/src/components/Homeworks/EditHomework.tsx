@@ -4,7 +4,11 @@ import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import { Redirect, Link } from "react-router-dom";
 import { RouteComponentProps } from "react-router-dom";
+import Tooltip from '@material-ui/core/Tooltip';
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import ApiSingleton from "../../api/ApiSingleton";
+import ReactMarkdown from "react-markdown";
+import { Zoom, Box } from "@material-ui/core";
 
 interface IEditHomeworkState {
   isLoaded: boolean;
@@ -13,6 +17,7 @@ interface IEditHomeworkState {
   courseId: number;
   courseMentorId: string;
   edited: boolean;
+  isPreview: boolean;
 }
 
 interface IEditHomeworkProps {
@@ -32,6 +37,7 @@ export default class EditHomework extends React.Component<
       courseId: 0,
       courseMentorId: "",
       edited: false,
+      isPreview: false,
     };
   }
 
@@ -101,14 +107,36 @@ export default class EditHomework extends React.Component<
                 onChange={(e) => this.setState({ description: e.target.value })}
               />
               <br />
-              <Button
-                size="small"
-                variant="contained"
-                color="primary"
-                type="submit"
-              >
-                Редактировать домашку
-              </Button>
+              <Box display="flex" flexDirection="row">
+                <Button
+                  size="small"
+                  variant="contained"
+                  color="primary"
+                  type="submit"
+                  >
+                  Редактировать домашку
+                </Button>
+                <ClickAwayListener onClickAway={() => this.setState({isPreview: false})}>
+                  <div>
+                    <Tooltip
+                      PopperProps={{
+                        disablePortal: true,
+                      }}
+                      interactive
+                      onClose={() => this.setState({isPreview: false})}
+                      open={this.state.isPreview}
+                      disableFocusListener
+                      disableHoverListener
+                      disableTouchListener
+                      title={<ReactMarkdown>{this.state.description}</ReactMarkdown>} 
+                      placement="bottom" 
+                      TransitionComponent={Zoom}
+                      >
+                      <Button onClick={() => this.setState({isPreview: true})}>Preview</Button>
+                    </Tooltip>
+                  </div>
+                </ClickAwayListener>
+              </Box>
             </form>
           </div>
         </div>
