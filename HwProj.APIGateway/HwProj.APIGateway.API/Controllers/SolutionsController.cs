@@ -41,13 +41,12 @@ namespace HwProj.APIGateway.API.Controllers
                 : Ok(result) as IActionResult;
         }
         
-        [HttpGet("taskSolution/{solutionId}")]
+        [HttpGet("taskSolution/{taskId}/{studentId}")]
         [Authorize]
-        [ProducesResponseType(typeof(Solution[]), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetAllStudentSolutions(long solutionId)
+        [ProducesResponseType(typeof(Solution), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetStudentSolution(long taskId, string studentId)
         {
-            var studentId = Request.GetUserId();
-            var result = await _solutionsClient.GetAllUserSolutions(solutionId, studentId);
+            var result = await _solutionsClient.GetUserSolution(taskId, studentId);
             return result == null
                 ? NotFound()
                 : Ok(result) as IActionResult;

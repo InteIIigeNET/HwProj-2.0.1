@@ -36,7 +36,7 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpGet("taskSolutions/{taskId}/{studentId}")]
-        public async Task<Solution[]> GetTaskSolutionsFromStudent(long taskId, string studentId)
+        public async Task<Solution> GetTaskSolutionsFromStudent(long taskId, string studentId)
         {
             return await _solutionsService.GetTaskSolutionsFromStudentAsync(taskId, studentId);
         }
@@ -45,7 +45,7 @@ namespace HwProj.SolutionsService.API.Controllers
         public async Task<long> PostSolution(long taskId, [FromBody] SolutionViewModel solutionViewModel)
         {
             var solution = _mapper.Map<Solution>(solutionViewModel);
-            var solutionId = await _solutionsService.AddSolutionAsync(taskId, solution);
+            var solutionId = await _solutionsService.PostOrUpdateAsync(taskId, solution);
             return solutionId;
         }
 
@@ -72,7 +72,7 @@ namespace HwProj.SolutionsService.API.Controllers
         {
             var solution = _mapper.Map<Solution>(solutionViewModel);
             solution.GroupId = groupId;
-            var solutionId = await _solutionsService.AddSolutionAsync(taskId, solution);
+            var solutionId = await _solutionsService.PostOrUpdateAsync(taskId, solution);
             return solutionId;
         }
 

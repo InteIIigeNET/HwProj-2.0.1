@@ -5,7 +5,6 @@ using HwProj.Models.SolutionsService;
 using HwProj.Repositories;
 using HwProj.SolutionsService.API.Models;
 using Microsoft.EntityFrameworkCore;
-using Z.EntityFramework.Plus;
 
 namespace HwProj.SolutionsService.API.Repositories
 {
@@ -34,8 +33,6 @@ namespace HwProj.SolutionsService.API.Repositories
                 
                 if (solution.Rating == newMaxRating)
                     solution.State = SolutionState.Final;
-                else if (solution.Rating > newMaxRating)
-                    solution.State = SolutionState.Overrated;
                 else if (solution.State != SolutionState.Posted && solution.Rating < newMaxRating) 
                     solution.State = SolutionState.Rated;
             }
@@ -50,8 +47,6 @@ namespace HwProj.SolutionsService.API.Repositories
             
             if (solution.Rating == newMaxRating)
                 solution.State = SolutionState.Final;
-            else if (solution.Rating > newMaxRating)
-                solution.State = SolutionState.Overrated;
             else if (solution.State == SolutionState.Posted && solution.Rating < newMaxRating) 
                 solution.State = SolutionState.Rated;
             

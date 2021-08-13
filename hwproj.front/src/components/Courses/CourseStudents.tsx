@@ -86,7 +86,7 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
                     {cm.mateHomeworks!.map((homework) =>
                       homework.homeworkTasks!.map((task) => (
                         <TaskStudentCell
-                          solutions={this.state.stat.find(s => s.studentId == cm.studentId)!.mateHomeworks!.find(h => h.homeworkId == homework.homeworkId)!.homeworkTasks!.find(t => t.taskId == task.taskId)!.taskSolution}
+                          solutions={this.state.stat.find(s => s.studentId == cm.studentId)!.mateHomeworks!.find(h => h.homeworkId == homework.homeworkId)!.homeworkTasks!.find(t => t.taskId == task.taskId)!.taskSolution![0]}
                           userId={this.props.userId}
                           forMentor={this.props.isMentor}
                           studentId={String(cm.studentId)}

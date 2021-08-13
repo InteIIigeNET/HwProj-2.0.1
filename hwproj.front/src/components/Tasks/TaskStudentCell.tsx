@@ -8,7 +8,7 @@ interface ITaskStudentCellProps {
   taskId: number;
   forMentor: boolean;
   userId: string;
-  solutions?: StatisticsTaskSolutionModel[];
+  solutions?: StatisticsTaskSolutionModel;
 }
 
 interface ITaskStudentCellState {
@@ -58,7 +58,6 @@ export default class TaskStudentCell extends React.Component<
         : this.props.userId === this.props.studentId
         ? () => this.onStudentCellClick()
         : () => 0;
-      debugger
       const result = this.state.solution === undefined || this.state.solution.state! === Solution.StateEnum.NUMBER_0
         ? ""
         : this.state.solution.rating!.toString()
@@ -87,22 +86,6 @@ export default class TaskStudentCell extends React.Component<
     this.setState({ redirectForStudent: true });
   }
 
-  getTheLastAssessedSolution = (solutions: Array<Solution>): Solution | null => {
-    if (solutions.length == 0)
-      return null;
-
-    let maxPoints = 0
-    let selectedSolution = null
-    solutions
-      // .filter((solution) => solution.state?.toString() == "Posted")
-      .map((solution) => {
-        if (solution.rating! >= maxPoints) {
-          maxPoints = solution.rating!
-          selectedSolution = solution
-        }
-      })
-    return selectedSolution
-  }
 
   getCellBackgroundColor = (state: Solution.StateEnum | undefined): string => {
     if (state == Solution.StateEnum.NUMBER_0)
@@ -117,8 +100,8 @@ export default class TaskStudentCell extends React.Component<
   }
 
   async componentDidMount() {
-    const solution = this.getTheLastAssessedSolution(this.props.solutions!)
-    if (solution === null){
+    const solution = this.props.solutions
+    if (solution === undefined){
       this.setState({
         color: "",
         isLoaded: true,
