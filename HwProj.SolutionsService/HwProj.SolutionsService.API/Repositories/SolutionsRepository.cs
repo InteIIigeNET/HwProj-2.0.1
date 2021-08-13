@@ -29,32 +29,13 @@ namespace HwProj.SolutionsService.API.Repositories
                 .ConfigureAwait(false);
 
             foreach (var solution in solutions)
-            {
-                solution.MaxRating = newMaxRating;
-                
+            {                
                 if (solution.Rating == newMaxRating)
                     solution.State = SolutionState.Final;
-                else if (solution.Rating > newMaxRating)
-                    solution.State = SolutionState.Overrated;
                 else if (solution.State != SolutionState.Posted && solution.Rating < newMaxRating) 
                     solution.State = SolutionState.Rated;
             }
 
-            await Context.SaveChangesAsync().ConfigureAwait(false);
-        }
-
-        public async Task ChangeSolutionMaxRatingAsync(long solutionId, int newMaxRating)
-        {
-            var solution = await GetAsync(solutionId);
-            solution.MaxRating = newMaxRating;
-            
-            if (solution.Rating == newMaxRating)
-                solution.State = SolutionState.Final;
-            else if (solution.Rating > newMaxRating)
-                solution.State = SolutionState.Overrated;
-            else if (solution.State == SolutionState.Posted && solution.Rating < newMaxRating) 
-                solution.State = SolutionState.Rated;
-            
             await Context.SaveChangesAsync().ConfigureAwait(false);
         }
         

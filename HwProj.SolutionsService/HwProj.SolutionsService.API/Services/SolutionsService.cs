@@ -1,8 +1,7 @@
 ﻿using System.Threading.Tasks;
+using HwProj.CoursesService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.SolutionsService;
-using HwProj.SolutionsService.API.Events;
-using HwProj.SolutionsService.API.Models;
 using HwProj.SolutionsService.API.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,9 +11,11 @@ namespace HwProj.SolutionsService.API.Services
     {
         private readonly ISolutionsRepository _solutionsRepository;
         private readonly IEventBus _eventBus;
-        public SolutionsService(ISolutionsRepository solutionsRepository, IEventBus eventBus)
+        private readonly ICoursesServiceClient _coursesServiceClient;
+        public SolutionsService(ISolutionsRepository solutionsRepository, ICoursesServiceClient coursesServiceClient, IEventBus eventBus)
         {
             _solutionsRepository = solutionsRepository;
+            _coursesServiceClient = coursesServiceClient;
             _eventBus = eventBus;
         }
 
@@ -39,21 +40,15 @@ namespace HwProj.SolutionsService.API.Services
         {
             solution.TaskId = taskId;
             var id = await _solutionsRepository.AddAsync(solution);
-            _eventBus.Publish(new RequestMaxRatingEvent(taskId, id));
             return id;
         }
 
         public async Task RateSolutionAsync(long solutionId, int newRating)
         {
             var solution = await _solutionsRepository.GetAsync(solutionId);
-            SolutionState state;
-            if (solution.MaxRating < newRating)
-                state = SolutionState.Overrated;
-            else if (solution.MaxRating == newRating)
-                state = SolutionState.Final;
-            else state = SolutionState.Rated;
-
-                await _solutionsRepository.RateSolutionAsync(solutionId, state, newRating);
+            var task = await _coursesServiceClient.GetTask(solution.TaskId);
+            SolutionState state = newRating >= task.MaxRating ? SolutionState.Final : SolutionState.Rated;
+            await _solutionsRepository.RateSolutionAsync(solutionId, state, newRating);
         }
 
         public Task DeleteSolutionAsync(long solutionId)

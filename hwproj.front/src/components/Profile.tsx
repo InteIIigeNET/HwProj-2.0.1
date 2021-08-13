@@ -91,9 +91,7 @@ export default class Profile extends React.Component<RouteComponentProps<IProfil
 		}
 		else {
 			const token = ApiSingleton.authService.getToken();
-			debugger;
 			const data = await ApiSingleton.accountApi.apiAccountGetUserDataGet({ headers: {"Authorization": `Bearer ${token}`} });
-			debugger;
 			this.setState({
 				isLoaded: true,
 				accountData: data.userData!,
