@@ -944,6 +944,12 @@ export interface StatisticsCourseSolutionsModel {
      * @memberof StatisticsCourseSolutionsModel
      */
     rating?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof StatisticsTaskSolutionModel
+     */
+    maxRating?: number;
 }
 
 /**
