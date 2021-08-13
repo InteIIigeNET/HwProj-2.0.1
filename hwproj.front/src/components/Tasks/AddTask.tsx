@@ -69,7 +69,7 @@ export default class AddTask extends React.Component<
             multiline
             fullWidth
             rows="4"
-            //rowsMax="15"
+            rowsMax="10"
             label="Условие задачи"
             variant="outlined"
             margin="normal"

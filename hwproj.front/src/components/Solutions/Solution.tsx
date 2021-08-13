@@ -35,11 +35,6 @@ export default class SolutionComponent extends React.Component<ISolutionProps, I
                     <br />
                     </Typography>
                 }
-                {solution.state?.toString() === "Checked" &&
-                    <Typography>
-                        Текущее количество баллов: {solution.rating}
-                    </Typography>
-                }
                 <Typography>
                     Время отправки решения: {postedSolutionTime}
                 </Typography>

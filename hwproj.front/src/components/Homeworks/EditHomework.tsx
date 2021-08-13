@@ -99,7 +99,7 @@ export default class EditHomework extends React.Component<
                 multiline
                 fullWidth
                 rows="4"
-                //rowsMax="15"
+                rowsMax="20"
                 label="Описание домашки"
                 variant="outlined"
                 margin="normal"
