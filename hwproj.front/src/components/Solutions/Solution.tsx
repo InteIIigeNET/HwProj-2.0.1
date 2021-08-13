@@ -51,8 +51,8 @@ export default class SolutionComponent extends React.Component<ISolutionProps, I
                     type="number"
                     InputProps={{
                         readOnly: !this.props.forMentor,
-                      }}
-                    value={this.state.points}
+                    }}
+                    defaultValue={solution.rating!}
                     onChange={(e) => this.setState({ points: +e.target.value })}
                 />
                 {this.props.forMentor &&
