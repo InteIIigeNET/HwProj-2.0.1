@@ -13,7 +13,7 @@ interface ITaskStudentCellProps {
 
 interface ITaskStudentCellState {
   isLoaded: boolean;
-  result: number;
+  solution?: StatisticsTaskSolutionModel;
   redirectForMentor: boolean;
   redirectForStudent: boolean;
   color: string;
@@ -27,7 +27,7 @@ export default class TaskStudentCell extends React.Component<
     super(props);
     this.state = {
       isLoaded: false,
-      result: -1,
+      solution: {},
       redirectForMentor: false,
       redirectForStudent: false,
       color: "",
@@ -47,6 +47,7 @@ export default class TaskStudentCell extends React.Component<
         />
       );
     }
+
     if (this.state.redirectForStudent) {
       return <Redirect to={"/task/" + this.props.taskId.toString()} />;
     }
@@ -57,9 +58,10 @@ export default class TaskStudentCell extends React.Component<
         : this.props.userId === this.props.studentId
         ? () => this.onStudentCellClick()
         : () => 0;
-      const result = this.state.result !== -1
-        ? this.state.result.toString()
-        : ""
+      debugger
+      const result = this.state.solution === undefined || this.state.solution.state! === Solution.StateEnum.NUMBER_0
+        ? ""
+        : this.state.solution.rating!.toString()
       return (
         <TableCell
           onClick={onClick}
@@ -86,6 +88,9 @@ export default class TaskStudentCell extends React.Component<
   }
 
   getTheLastAssessedSolution = (solutions: Array<Solution>): Solution | null => {
+    if (solutions.length == 0)
+      return null;
+
     let maxPoints = 0
     let selectedSolution = null
     solutions
@@ -99,28 +104,32 @@ export default class TaskStudentCell extends React.Component<
     return selectedSolution
   }
 
-  getCellBackgroundColor = (rating: number|undefined, maxRating: number|undefined, state: Solution.StateEnum|undefined): string => {
-    if (state == undefined || state == Solution.StateEnum.NUMBER_0)
-      return ""
-    if (rating! <= 0)
-      return "#FF6347"
-    if (rating! >= maxRating!)
-      return "#00b600"
-    return "#FFD700"
+  getCellBackgroundColor = (state: Solution.StateEnum | undefined): string => {
+    if (state == Solution.StateEnum.NUMBER_0)
+      return "#d0fcc7"
+    if (state == Solution.StateEnum.NUMBER_1)
+      return "#ffc346"
+    if (state == Solution.StateEnum.NUMBER_2)
+      return "#7ad67a"
+    if (state == Solution.StateEnum.NUMBER_3)
+      return "#ffefa9"
+    return "#ffffff"
   }
 
   async componentDidMount() {
     const solution = this.getTheLastAssessedSolution(this.props.solutions!)
     if (solution === null){
       this.setState({
-        isLoaded: true
+        color: "",
+        isLoaded: true,
+        solution: undefined
       })
       return
     }
     this.setState({
-      color: this.getCellBackgroundColor(solution.rating, solution.maxRating, solution.state),
+      color: this.getCellBackgroundColor(solution.state),
       isLoaded: true,
-      result: solution.rating!
+      solution: solution
     })
   }
 }

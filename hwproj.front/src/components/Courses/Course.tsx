@@ -174,15 +174,6 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                     />
                 </div>
                 )}
-                {isAcceptedStudent && (
-                <CourseStudents
-                  courseMates={this.state.acceptedStudents}
-                  homeworks={this.state.courseHomework}
-                  userId={userId as string}
-                  isMentor={isMentor}
-                  course={this.state.course}
-                />
-                )}
                 {!isMentor && (
                 <div>
                     <CourseHomework

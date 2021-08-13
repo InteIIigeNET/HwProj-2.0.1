@@ -7,20 +7,12 @@ import ApiSingleton from "../../api/ApiSingleton";
 import { withStyles } from '@material-ui/styles';
 import {RouteComponentProps} from "react-router-dom";
 
-interface ICourseMate {
-  name: string;
-  surname: string;
-  middleName: string;
-  email: string;
-  id: string;
-}
 
 interface ICourseStudentsProps {
   course: CourseViewModel;
   homeworks: HomeworkViewModel[];
   isMentor: boolean;
   userId: string;
-  courseMates: ICourseMate[];
 }
 
 interface ICourseStudentsState {
@@ -80,8 +72,8 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
               </TableRow>
             </TableHead>
             <TableBody>
-              {this.props.courseMates
-                .map((cm: any, index) => (
+              {this.state.stat
+                .map((cm, index) => (
                   <TableRow key={index}>
                     <TableCell
                       align="center"
@@ -89,16 +81,16 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
                       component="td"
                       scope="row"
                     >
-                      {cm.name}
+                      {cm.surname} {cm.name}
                     </TableCell>
-                    {this.props.homeworks.map((homework) =>
-                      homework.tasks!.map((task) => (
+                    {cm.mateHomeworks!.map((homework) =>
+                      homework.homeworkTasks!.map((task) => (
                         <TaskStudentCell
-                          solutions={this.state.stat.find(s => s.studentId == cm.id)!.mateHomeworks!.find(h => h.homeworkId == homework.id)!.homeworkTasks!.find(t => t.taskId == task.id)!.taskSolution}
+                          solutions={this.state.stat.find(s => s.studentId == cm.studentId)!.mateHomeworks!.find(h => h.homeworkId == homework.homeworkId)!.homeworkTasks!.find(t => t.taskId == task.taskId)!.taskSolution}
                           userId={this.props.userId}
                           forMentor={this.props.isMentor}
-                          studentId={String(cm.id)}
-                          taskId={task.id!}
+                          studentId={String(cm.studentId)}
+                          taskId={task.taskId!}
                         />
                       ))
                     )}
@@ -114,7 +106,6 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
 
   async componentDidMount() {
     const stat = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdGet(this.props.course.id!)
-    console.log(stat)
     this.setState({stat: stat, isLoaded:true})
   }
 }

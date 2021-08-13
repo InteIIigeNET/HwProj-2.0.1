@@ -879,6 +879,12 @@ export interface StatisticsTaskSolutionModel {
      * @memberof StatisticsTaskSolutionModel
      */
     rating?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof StatisticsTaskSolutionModel
+     */
+    maxRating?: number;
 }
 
 /**
