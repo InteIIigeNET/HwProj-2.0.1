@@ -23,7 +23,8 @@ export default class AddTask extends React.Component<
       description: "",
       maxRating: 10,
       publicationDate: new Date(),
-      deadlineDate: new Date(new Date().setDate(7))
+      deadlineDate: undefined,
+      isDeadlineStrict: false
     };
   }
 
@@ -86,6 +87,7 @@ export default class AddTask extends React.Component<
             }}
             onChange={(e) => this.setState({deadlineDate: new Date(e.target.value)})}
           />
+          <input type="checkbox"/>
           <br />
           <Button
             size="small"
