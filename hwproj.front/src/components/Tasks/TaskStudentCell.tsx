@@ -97,7 +97,12 @@ export default class TaskStudentCell extends React.Component<
   }
 
   async componentDidMount() {
-    const solutions = (await ApiSingleton.solutionsApi.apiSolutionsGet()).filter(s => s.taskId == this.props.taskId && s.studentId == this.props.studentId)
+    const token = ApiSingleton.authService.getToken()
+    const solutions = await ApiSingleton.solutionsApi.apiSolutionsTaskSolutionByTaskIdByStudentIdGet(
+      this.props.taskId, 
+      this.props.studentId,
+      { headers: {"Authorization": `Bearer ${token}`} }
+    )
     const solution = this.getTheLastAssessedSolution(solutions)
     if (solution === null){
       this.setState({

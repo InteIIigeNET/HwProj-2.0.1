@@ -48,8 +48,12 @@ export default class TaskSolutions extends React.Component<ITaskSolutionsProps, 
     }
 
     componentDidMount() {
-        ApiSingleton.solutionsApi.apiSolutionsGet()
-            .then(solutions => solutions.filter(s => s.taskId == this.props.taskId && s.studentId == this.props.studentId))
+        const token = ApiSingleton.authService.getToken()
+        ApiSingleton.solutionsApi.apiSolutionsTaskSolutionByTaskIdByStudentIdGet(
+            this.props.taskId, 
+            this.props.studentId,
+            { headers: {"Authorization": `Bearer ${token}`} }
+        )
             .then(solutions => this.setState({
                 isLoaded: true,
                 solutions: solutions
