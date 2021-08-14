@@ -5,6 +5,7 @@ using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Services;
 using HwProj.Models.CoursesService.ViewModels;
+using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.CoursesService.API.Controllers
@@ -31,9 +32,9 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpGet("{courseId}")]
-        public async Task<IActionResult> Get(long courseId)
+        public async Task<IActionResult> Get(long courseId, [FromBody] string userId)
         {
-            var course = await _coursesService.GetAsync(courseId);
+            var course = await _coursesService.GetAsync(courseId, userId);
             return course == null
                 ? NotFound()
                 : Ok(_mapper.Map<CourseViewModel>(course)) as IActionResult;

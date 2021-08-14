@@ -36,22 +36,7 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(CourseViewModel), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetCourseData(long courseId)
         {
-            var result = await _coursesClient.GetCourseById(courseId);
-            string role = null;
-            try
-            {
-                role = Request.GetUserRole();
-            }
-            catch (Exception e)
-            {
-                role = null;
-            }
-
-            if (role == null || role == Roles.StudentRole)
-            {
-                var currentDate = DateTime.Now;
-                result.Homeworks.ForEach(hw => hw.Tasks = new List<HomeworkTaskViewModel>(hw.Tasks.Where(t => currentDate >= t.PublicationDate)));
-            }
+            var result = await _coursesClient.GetCourseById(courseId, Request.GetUserId());
             return result == null
                 ? NotFound()
                 : Ok(result) as IActionResult;
