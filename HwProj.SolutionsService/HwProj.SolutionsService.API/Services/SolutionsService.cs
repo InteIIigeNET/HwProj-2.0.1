@@ -47,8 +47,11 @@ namespace HwProj.SolutionsService.API.Services
         {
             var solution = await _solutionsRepository.GetAsync(solutionId);
             var task = await _coursesServiceClient.GetTask(solution.TaskId);
-            SolutionState state = newRating >= task.MaxRating ? SolutionState.Final : SolutionState.Rated;
-            await _solutionsRepository.RateSolutionAsync(solutionId, state, newRating);
+            if (0 <= newRating && newRating <= task.MaxRating)
+            {
+                SolutionState state = newRating >= task.MaxRating ? SolutionState.Final : SolutionState.Rated;
+                await _solutionsRepository.RateSolutionAsync(solutionId, state, newRating);
+            }
         }
 
         public Task DeleteSolutionAsync(long solutionId)

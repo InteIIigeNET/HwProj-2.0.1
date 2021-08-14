@@ -1,9 +1,9 @@
 import * as React from 'react';
-import {Solution} from '../../api'
+import {HomeworkTaskViewModel, Solution} from '../../api'
 import Button from '@material-ui/core/Button'
 import Link from '@material-ui/core/Link'
 import ApiSingleton from "../../api/ApiSingleton";
-import { TextField, Typography } from '@material-ui/core';
+import { Box, TextField, Typography } from '@material-ui/core';
 
 interface ISolutionProps {
     solution: Solution,
@@ -11,14 +11,16 @@ interface ISolutionProps {
 }
 
 interface ISolutionState {
-    points: number
+    points: number,
+    task: HomeworkTaskViewModel,
 }
 
 export default class SolutionComponent extends React.Component<ISolutionProps, ISolutionState> {
     constructor(props: ISolutionProps) {
         super(props);
         this.state = {
-            points: 0
+            points: 0,
+            task: {},
         }
     }
 
@@ -38,18 +40,22 @@ export default class SolutionComponent extends React.Component<ISolutionProps, I
                 <Typography>
                     Время отправки решения: {postedSolutionTime}
                 </Typography>
-                <TextField
-                    required
-                    label="Баллы за решение"
-                    variant="outlined"
-                    margin="normal"
-                    type="number"
-                    InputProps={{
-                        readOnly: !this.props.forMentor,
-                    }}
-                    defaultValue={solution.rating!}
-                    onChange={(e) => this.setState({ points: +e.target.value })}
-                />
+                <Box width={1/6}>
+                    <TextField
+                        required
+                        label="Баллы за решение"
+                        variant="outlined"
+                        margin="normal"
+                        type="number"
+                        fullWidth
+                        InputProps={{
+                            readOnly: !this.props.forMentor,
+                            inputProps: { min: 0, max: this.state.task.maxRating },
+                        }}
+                        defaultValue={solution.rating!}
+                        onChange={(e) => this.setState({ points: +e.target.value })}
+                    />
+                </Box>
                 {this.props.forMentor &&
                     <div>
                         <Button onClick={() => this.assignSolution ()} size="small" color="primary" variant="contained">
@@ -59,6 +65,12 @@ export default class SolutionComponent extends React.Component<ISolutionProps, I
                 }
             </div>
         )
+    }
+
+    async componentDidMount() {
+        this.setState({
+            task: await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(this.props.solution.taskId!)
+        })
     }
 
     async assignSolution () {
