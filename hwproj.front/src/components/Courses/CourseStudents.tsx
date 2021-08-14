@@ -83,14 +83,14 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
                     >
                       {cm.surname} {cm.name}
                     </TableCell>
-                    {cm.mateHomeworks!.map((homework) =>
-                      homework.homeworkTasks!.map((task) => (
+                    {cm.homeworks!.map((homework) =>
+                      homework.tasks!.map((task) => (
                         <TaskStudentCell
-                          solutions={this.state.stat.find(s => s.studentId == cm.studentId)!.mateHomeworks!.find(h => h.homeworkId == homework.homeworkId)!.homeworkTasks!.find(t => t.taskId == task.taskId)!.taskSolution![0]}
+                          solutions={this.state.stat.find(s => s.id == cm.id)!.homeworks!.find(h => h.id == homework.id)!.tasks!.find(t => t.id == task.id)!.solution![0]}
                           userId={this.props.userId}
                           forMentor={this.props.isMentor}
-                          studentId={String(cm.studentId)}
-                          taskId={task.taskId!}
+                          studentId={String(cm.id)}
+                          taskId={task.id!}
                         />
                       ))
                     )}

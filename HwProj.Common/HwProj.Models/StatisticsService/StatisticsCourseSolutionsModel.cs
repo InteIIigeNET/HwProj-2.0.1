@@ -2,16 +2,17 @@
 
 namespace HwProj.Models.StatisticsService
 {
-    public class StatisticsTaskSolutionModel
+    public class StatisticsCourseSolutionsModel
     {
-        public StatisticsTaskSolutionModel(Solution model)
+        public StatisticsCourseSolutionsModel(Solution model)
         {
-            SolutionId = model.Id;
+            Id = model.Id;
             State = model.State;
             Rating = model.Rating;
             MaxRating = model.MaxRating;
         }
-        public long? SolutionId { get; set; } 
+        
+        public long? Id { get; set; } 
         public SolutionState? State { get; set; }
         public int? Rating { get; set; }
         public int? MaxRating { get; set; }

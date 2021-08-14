@@ -1,19 +1,19 @@
 import * as React from "react";
 import TableCell from "@material-ui/core/TableCell";
 import {Redirect} from "react-router-dom";
-import {Solution, StatisticsTaskSolutionModel} from "api";
+import {Solution, StatisticsCourseSolutionsModel} from "api";
 
 interface ITaskStudentCellProps {
   studentId: string;
   taskId: number;
   forMentor: boolean;
   userId: string;
-  solutions?: StatisticsTaskSolutionModel;
+  solutions?: StatisticsCourseSolutionsModel;
 }
 
 interface ITaskStudentCellState {
   isLoaded: boolean;
-  solution?: StatisticsTaskSolutionModel;
+  solution?: StatisticsCourseSolutionsModel;
   redirectForMentor: boolean;
   redirectForStudent: boolean;
   color: string;
@@ -85,7 +85,6 @@ export default class TaskStudentCell extends React.Component<
   onStudentCellClick() {
     this.setState({ redirectForStudent: true });
   }
-
 
   getCellBackgroundColor = (state: Solution.StateEnum | undefined): string => {
     if (state == Solution.StateEnum.NUMBER_0)

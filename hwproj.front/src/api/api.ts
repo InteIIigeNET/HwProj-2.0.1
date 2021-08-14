@@ -786,6 +786,26 @@ export interface SolutionViewModel {
 /**
  * 
  * @export
+ * @interface StatisticsCourseHomeworksModel
+ */
+export interface StatisticsCourseHomeworksModel {
+    /**
+     * 
+     * @type {number}
+     * @memberof StatisticsCourseHomeworksModel
+     */
+    id?: number;
+    /**
+     * 
+     * @type {Array<StatisticsCourseTasksModel>}
+     * @memberof StatisticsCourseHomeworksModel
+     */
+    tasks?: Array<StatisticsCourseTasksModel>;
+}
+
+/**
+ * 
+ * @export
  * @interface StatisticsCourseMatesModel
  */
 export interface StatisticsCourseMatesModel {
@@ -794,7 +814,7 @@ export interface StatisticsCourseMatesModel {
      * @type {string}
      * @memberof StatisticsCourseMatesModel
      */
-    studentId?: string;
+    id?: string;
     /**
      * 
      * @type {string}
@@ -809,89 +829,49 @@ export interface StatisticsCourseMatesModel {
     surname?: string;
     /**
      * 
-     * @type {Array<StatisticsMateHomeworksModel>}
+     * @type {Array<StatisticsCourseHomeworksModel>}
      * @memberof StatisticsCourseMatesModel
      */
-    mateHomeworks?: Array<StatisticsMateHomeworksModel>;
+    homeworks?: Array<StatisticsCourseHomeworksModel>;
 }
 
 /**
  * 
  * @export
- * @interface StatisticsHomeworkTasksModel
+ * @interface StatisticsCourseSolutionsModel
  */
-export interface StatisticsHomeworkTasksModel {
+export interface StatisticsCourseSolutionsModel {
     /**
      * 
      * @type {number}
-     * @memberof StatisticsHomeworkTasksModel
+     * @memberof StatisticsCourseSolutionsModel
      */
-    taskId?: number;
-    /**
-     * 
-     * @type {Array<StatisticsTaskSolutionModel>}
-     * @memberof StatisticsHomeworkTasksModel
-     */
-    taskSolution?: Array<StatisticsTaskSolutionModel>;
-}
-
-/**
- * 
- * @export
- * @interface StatisticsMateHomeworksModel
- */
-export interface StatisticsMateHomeworksModel {
+    id?: number;
     /**
      * 
      * @type {number}
-     * @memberof StatisticsMateHomeworksModel
+     * @memberof StatisticsCourseSolutionsModel
      */
-    homeworkId?: number;
-    /**
-     * 
-     * @type {Array<StatisticsHomeworkTasksModel>}
-     * @memberof StatisticsMateHomeworksModel
-     */
-    homeworkTasks?: Array<StatisticsHomeworkTasksModel>;
-}
-
-/**
- * 
- * @export
- * @interface StatisticsTaskSolutionModel
- */
-export interface StatisticsTaskSolutionModel {
+    state?: StatisticsCourseSolutionsModel.StateEnum;
     /**
      * 
      * @type {number}
-     * @memberof StatisticsTaskSolutionModel
-     */
-    solutionId?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof StatisticsTaskSolutionModel
-     */
-    state?: StatisticsTaskSolutionModel.StateEnum;
-    /**
-     * 
-     * @type {number}
-     * @memberof StatisticsTaskSolutionModel
+     * @memberof StatisticsCourseSolutionsModel
      */
     rating?: number;
     /**
      * 
      * @type {number}
-     * @memberof StatisticsTaskSolutionModel
+     * @memberof StatisticsCourseSolutionsModel
      */
     maxRating?: number;
 }
 
 /**
  * @export
- * @namespace StatisticsTaskSolutionModel
+ * @namespace StatisticsCourseSolutionsModel
  */
-export namespace StatisticsTaskSolutionModel {
+export namespace StatisticsCourseSolutionsModel {
     /**
      * @export
      * @enum {string}
@@ -902,6 +882,26 @@ export namespace StatisticsTaskSolutionModel {
         NUMBER_2 = <any> 2,
         NUMBER_3 = <any> 3
     }
+}
+
+/**
+ * 
+ * @export
+ * @interface StatisticsCourseTasksModel
+ */
+export interface StatisticsCourseTasksModel {
+    /**
+     * 
+     * @type {number}
+     * @memberof StatisticsCourseTasksModel
+     */
+    id?: number;
+    /**
+     * 
+     * @type {Array<StatisticsCourseSolutionsModel>}
+     * @memberof StatisticsCourseTasksModel
+     */
+    solution?: Array<StatisticsCourseSolutionsModel>;
 }
 
 /**

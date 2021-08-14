@@ -44,24 +44,24 @@ namespace HwProj.APIGateway.API.Controllers
                 .ToList();
             var result =  course.CourseMates.Select(async m => new StatisticsCourseMatesModel()
             {
-                StudentId = m.StudentId,
+                Id = m.StudentId,
                 Name = (await _authClient.GetAccountData(m.StudentId)).Name,
                 Surname = (await _authClient.GetAccountData(m.StudentId)).Surname,
-                MateHomeworks = new List<StatisticsMateHomeworksModel>(course.Homeworks.Select(h => new StatisticsMateHomeworksModel()
+                Homeworks = new List<StatisticsCourseHomeworksModel>(course.Homeworks.Select(h => new StatisticsCourseHomeworksModel()
                 {
-                    HomeworkId = h.Id,
-                    HomeworkTasks = new List<StatisticsHomeworkTasksModel>(h.Tasks.Select(t =>
+                    Id = h.Id,
+                    Tasks = new List<StatisticsCourseTasksModel>(h.Tasks.Select(t =>
                     {
                         var solution = solutions.FirstOrDefault(s => s.TaskId == t.Id && s.StudentId == m.StudentId);
-                        return new StatisticsHomeworkTasksModel()
+                        return new StatisticsCourseTasksModel()
                         {
-                            TaskId = t.Id,
-                            TaskSolution =
+                            Id = t.Id,
+                            Solution =
                                  solution == null
-                                    ? new List<StatisticsTaskSolutionModel>()
-                                    : new List<StatisticsTaskSolutionModel>()
+                                    ? new List<StatisticsCourseSolutionsModel>()
+                                    : new List<StatisticsCourseSolutionsModel>()
                                     {
-                                        new StatisticsTaskSolutionModel(solution)
+                                        new StatisticsCourseSolutionsModel(solution)
                                     }
                         };
                     }))
