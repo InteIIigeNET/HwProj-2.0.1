@@ -1,14 +1,6 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Net;
-using System.Linq;
+﻿using System.Net;
 using System.Threading.Tasks;
-using HwProj.AuthService.Client;
-using HwProj.CoursesService.Client;
-using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
-using HwProj.Models.SolutionsService;
 using HwProj.Models.StatisticsService;
 using HwProj.SolutionsService.Client;
 using HwProj.Utils.Authorization;

@@ -108,7 +108,8 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
   }
 
   async componentDidMount() {
-    const stat = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdGet(this.props.course.id!)
+    const token = ApiSingleton.authService.getToken()
+    const stat = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdGet(this.props.course.id!,{ headers: {"Authorization": `Bearer ${token}`} })
     this.setState({stat: stat, isLoaded:true})
   }
 }
