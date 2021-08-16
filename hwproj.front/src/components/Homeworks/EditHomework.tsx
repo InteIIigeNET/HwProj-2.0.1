@@ -4,11 +4,9 @@ import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import { Redirect, Link } from "react-router-dom";
 import { RouteComponentProps } from "react-router-dom";
-import Tooltip from '@material-ui/core/Tooltip';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import ApiSingleton from "../../api/ApiSingleton";
 import ReactMarkdown from "react-markdown";
-import { Zoom, Box } from "@material-ui/core";
+import { Tabs, Tab } from "@material-ui/core";
 
 interface IEditHomeworkState {
   isLoaded: boolean;
@@ -95,48 +93,41 @@ export default class EditHomework extends React.Component<
                 onChange={(e) => this.setState({ title: e.target.value })}
               />
               <br />
-              <TextField
-                multiline
-                fullWidth
-                rows="4"
-                //rowsMax="15"
-                label="Описание домашки"
-                variant="outlined"
-                margin="normal"
-                value={this.state.description}
-                onChange={(e) => this.setState({ description: e.target.value })}
-              />
+
+              <Tabs 
+                onChange={(event, newValue) => this.setState({isPreview: newValue === 1})} 
+                indicatorColor="primary"
+                value={this.state.isPreview ? 1 : 0}
+              >
+                <Tab label="Write" id="simple-tab-0" aria-controls="simple-tabpanel-0" />
+                <Tab label="Preview" id="simple-tab-1" aria-controls="simple-tabpanel-1"/>
+              </Tabs>
+
+              <div role="tabpanel" hidden={this.state.isPreview} id="simple-tab-0">
+                <TextField
+                  multiline
+                  fullWidth
+                  rows="4"
+                  rowsMax="20"
+                  label="Описание домашки"
+                  variant="outlined"
+                  margin="normal"
+                  value={this.state.description}
+                  onChange={(e) => this.setState({ description: e.target.value })}
+                />
+              </div>
+              <div role="tabpanel" hidden={!this.state.isPreview} id="simple-tab-1">
+                <p><ReactMarkdown>{this.state.description}</ReactMarkdown></p>
+              </div>
               <br />
-              <Box display="flex" flexDirection="row">
-                <Button
-                  size="small"
-                  variant="contained"
-                  color="primary"
-                  type="submit"
-                  >
-                  Редактировать домашку
-                </Button>
-                <ClickAwayListener onClickAway={() => this.setState({isPreview: false})}>
-                  <div>
-                    <Tooltip
-                      PopperProps={{
-                        disablePortal: true,
-                      }}
-                      interactive
-                      onClose={() => this.setState({isPreview: false})}
-                      open={this.state.isPreview}
-                      disableFocusListener
-                      disableHoverListener
-                      disableTouchListener
-                      title={<ReactMarkdown>{this.state.description}</ReactMarkdown>} 
-                      placement="bottom" 
-                      TransitionComponent={Zoom}
-                      >
-                      <Button onClick={() => this.setState({isPreview: true})}>Preview</Button>
-                    </Tooltip>
-                  </div>
-                </ClickAwayListener>
-              </Box>
+              <Button
+                size="small"
+                variant="contained"
+                color="primary"
+                type="submit"
+                >
+                Редактировать домашку
+              </Button>
             </form>
           </div>
         </div>
