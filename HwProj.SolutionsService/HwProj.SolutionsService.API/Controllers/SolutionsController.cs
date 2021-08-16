@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.AuthService.Client;
@@ -95,9 +96,16 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpGet("getCourseStat/{courseId}")]
-        public async Task<StatisticsCourseMatesModel[]> GetCourseStat(long courseId)
+        [ProducesResponseType(typeof(StatisticsCourseMatesModel[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetCourseStat(long courseId, [FromQuery] string userId)
         {
             var course = await _coursesClient.GetCourseById(courseId);
+
+            if (course.MentorId != userId)
+            {
+                return Forbid();
+            }
+            
             var solutions =  (await _solutionsService.GetAllSolutionsAsync())
                 .Where(s => course.Homeworks
                     .Any(hw => hw.Tasks
@@ -107,7 +115,7 @@ namespace HwProj.SolutionsService.API.Controllers
             var courseMatesData = new Dictionary<string, AccountDataDto>();
 
             //course.CourseMates.ForEach(async cm => courseMatesData.Add(cm.StudentId, await _authClient.GetAccountData(cm.StudentId)));
-
+            
             foreach (var cm in course.CourseMates)
             {
                 courseMatesData.Add(cm.StudentId, await _authClient.GetAccountData(cm.StudentId));
@@ -121,7 +129,7 @@ namespace HwProj.SolutionsService.API.Controllers
             };
 
             var result = SolutionsStatsDomain.GetCourseStatistics(solutionsStatsContext);
-            return result;
+            return Ok(result);
         }
     }
 }
