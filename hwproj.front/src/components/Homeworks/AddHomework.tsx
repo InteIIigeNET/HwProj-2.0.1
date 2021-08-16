@@ -142,6 +142,16 @@ export default class AddHomework extends React.Component<
                       shrink: true,
                     }}
                   />
+                  <TextField
+                      id="datetime-local"
+                      label="Дата публикации"
+                      type="datetime-local"
+                      defaultValue={task.publicationDate}
+                      onChange={(e) => { task.publicationDate = new Date(e.target.value) }}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                  />
                 </li>
               ))}
             </ol>

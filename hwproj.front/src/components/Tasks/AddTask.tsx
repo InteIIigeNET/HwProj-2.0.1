@@ -86,6 +86,16 @@ export default class AddTask extends React.Component<
             }}
             onChange={(e) => this.setState({deadlineDate: new Date(e.target.value)})}
           />
+          <TextField
+              id="datetime-local"
+              label="Дата публикации"
+              type="datetime-local"
+              defaultValue={this.state.publicationDate}
+              onChange={(e) => this.setState({publicationDate: new Date(e.target.value)})}
+              InputLabelProps={{
+                shrink: true,
+              }}
+          />
           <br />
           <Button
             size="small"

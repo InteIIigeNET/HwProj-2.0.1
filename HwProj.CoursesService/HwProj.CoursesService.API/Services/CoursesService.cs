@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -7,6 +8,7 @@ using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.CoursesService.DTO;
+using HwProj.Models.CoursesService.ViewModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.CoursesService.API.Services
@@ -34,9 +36,15 @@ namespace HwProj.CoursesService.API.Services
             return await _coursesRepository.GetAllWithCourseMatesAndHomeworks().ToArrayAsync();
         }
 
-        public async Task<Course> GetAsync(long id)
+        public async Task<Course> GetAsync(long id, string userId)
         {
-            return await _coursesRepository.GetWithCourseMatesAsync(id);
+            var course = await _coursesRepository.GetWithCourseMatesAsync(id);
+            if (course.MentorId != userId)
+            {
+                var currentDate = DateTime.UtcNow.AddHours(3);
+                course.Homeworks.ForEach(hw => hw.Tasks = new List<HomeworkTask>(hw.Tasks.Where(t => currentDate >= t.PublicationDate)));
+            }
+            return course;
         }
 
         public async Task<long> AddAsync(Course course, string mentorId)
