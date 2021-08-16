@@ -1,6 +1,14 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using AutoMapper;
+using HwProj.AuthService.Client;
+using HwProj.CoursesService.Client;
+using HwProj.Models.AuthService.DTO;
+using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.SolutionsService;
+using HwProj.Models.StatisticsService;
+using HwProj.SolutionsService.API.Domains;
 using HwProj.SolutionsService.API.Models;
 using HwProj.SolutionsService.API.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -11,12 +19,16 @@ namespace HwProj.SolutionsService.API.Controllers
     [ApiController]
     public class SolutionsController : Controller
     {
+        private readonly ICoursesServiceClient _coursesClient;
+        private readonly IAuthServiceClient _authClient;
         private readonly ISolutionsService _solutionsService;
         private readonly IMapper _mapper;
 
-        public SolutionsController(ISolutionsService solutionsService, IMapper mapper)
+        public SolutionsController(ISolutionsService solutionsService, IMapper mapper, ICoursesServiceClient coursesClient, IAuthServiceClient authClient)
         {
             _solutionsService = solutionsService;
+            _coursesClient = coursesClient;
+            _authClient = authClient;
             _mapper = mapper;
         }
 
@@ -80,6 +92,36 @@ namespace HwProj.SolutionsService.API.Controllers
         public async Task<Solution[]> GetTaskSolutionsFromGroup(long groupId, long taskId)
         {
             return await _solutionsService.GetTaskSolutionsFromGroupAsync(taskId, groupId);
+        }
+
+        [HttpGet("getCourseStat/{courseId}")]
+        public async Task<StatisticsCourseMatesModel[]> GetCourseStat(long courseId)
+        {
+            var course = await _coursesClient.GetCourseById(courseId);
+            var solutions =  (await _solutionsService.GetAllSolutionsAsync())
+                .Where(s => course.Homeworks
+                    .Any(hw => hw.Tasks
+                        .Any(t => t.Id == s.TaskId)))
+                .ToList();
+            
+            var courseMatesData = new Dictionary<string, AccountDataDto>();
+
+            //course.CourseMates.ForEach(async cm => courseMatesData.Add(cm.StudentId, await _authClient.GetAccountData(cm.StudentId)));
+
+            foreach (var cm in course.CourseMates)
+            {
+                courseMatesData.Add(cm.StudentId, await _authClient.GetAccountData(cm.StudentId));
+            }
+
+            var solutionsStatsContext = new StatisticsAggregateModel()
+            {
+                Course = course,
+                Solutions = solutions,
+                CourseMatesData = courseMatesData
+            };
+
+            var result = SolutionsStatsDomain.GetCourseStatistics(solutionsStatsContext);
+            return result;
         }
     }
 }

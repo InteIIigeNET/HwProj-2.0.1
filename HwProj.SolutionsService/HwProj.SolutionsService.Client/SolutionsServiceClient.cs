@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using HwProj.HttpUtils;
 using HwProj.Models.SolutionsService;
+using HwProj.Models.StatisticsService;
 using Newtonsoft.Json;
 
 namespace HwProj.SolutionsService.Client
@@ -116,6 +117,17 @@ namespace HwProj.SolutionsService.Client
 
             var response = await _httpClient.SendAsync(httpRequest); 
             return await response.DeserializeAsync<Solution[]>();
+        }
+
+        public async Task<StatisticsCourseMatesModel[]> GetCourseStatistics(long courseId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get, 
+                _solutionServiceUri + $"api/Solutions/getCourseStat/{courseId}");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<StatisticsCourseMatesModel[]>();
+            
         }
     }
 }

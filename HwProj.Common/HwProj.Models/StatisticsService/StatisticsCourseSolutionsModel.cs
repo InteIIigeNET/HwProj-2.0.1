@@ -4,12 +4,16 @@ namespace HwProj.Models.StatisticsService
 {
     public class StatisticsCourseSolutionsModel
     {
-        public StatisticsCourseSolutionsModel(Solution model)
+        public StatisticsCourseSolutionsModel(Solution? model)
         {
-            Id = model.Id;
-            State = model.State;
-            Rating = model.Rating;
-            MaxRating = model.MaxRating;
+            if (model != null)
+            {
+                Id = model.Id;
+                State = model.State;
+                Rating = model.Rating;
+                MaxRating = model.MaxRating;
+            }
+            
         }
         
         public long? Id { get; set; } 

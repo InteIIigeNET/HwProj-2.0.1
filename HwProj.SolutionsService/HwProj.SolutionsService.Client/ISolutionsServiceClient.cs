@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using HwProj.Models.SolutionsService;
+using HwProj.Models.StatisticsService;
 
 namespace HwProj.SolutionsService.Client
 {
@@ -14,5 +15,6 @@ namespace HwProj.SolutionsService.Client
         Task DeleteSolution(long solutionId);
         Task<long> PostGroupSolution(SolutionViewModel model, long taskId, long groupId);
         Task<Solution[]> GetTaskSolutions(long groupId, long taskId);
+        Task<StatisticsCourseMatesModel[]> GetCourseStatistics(long courseId);
     }
 }

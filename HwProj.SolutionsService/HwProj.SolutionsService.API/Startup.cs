@@ -1,4 +1,7 @@
-﻿using HwProj.EventBus.Client.Interfaces;
+﻿using System.Net.Http;
+using HwProj.AuthService.Client;
+using HwProj.CoursesService.Client;
+using HwProj.EventBus.Client.Interfaces;
 using HwProj.SolutionsService.API.Events;
 using HwProj.SolutionsService.API.Models;
 using HwProj.SolutionsService.API.Repositories;
@@ -27,6 +30,10 @@ namespace HwProj.SolutionsService.API
             services.AddDbContext<SolutionContext>(options => options.UseSqlServer(connectionString));
             services.AddScoped<ISolutionsRepository, SolutionsRepository>();
             services.AddScoped<ISolutionsService, Services.SolutionsService>();
+            
+            var httpClient = new HttpClient();
+            services.AddAuthServiceClient(httpClient, "http://localhost:5001");
+            services.AddCoursesServiceClient(httpClient, "http://localhost:5002");
 
             services.AddEventBus(Configuration);
 

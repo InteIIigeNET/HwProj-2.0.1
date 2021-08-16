@@ -36,39 +36,8 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(StatisticsCourseMatesModel[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetCourseStatistics(long courseId)
         {
-            var course = await _coursesClient.GetCourseById(courseId);
-            var solutions =  (await _solutionClient.GetAllSolutions())
-                .Where(s => course.Homeworks
-                    .Any(hw => hw.Tasks
-                        .Any(t => t.Id == s.TaskId)))
-                .ToList();
-            var result =  course.CourseMates.Select(async m => new StatisticsCourseMatesModel()
-            {
-                Id = m.StudentId,
-                Name = (await _authClient.GetAccountData(m.StudentId)).Name,
-                Surname = (await _authClient.GetAccountData(m.StudentId)).Surname,
-                Homeworks = new List<StatisticsCourseHomeworksModel>(course.Homeworks.Select(h => new StatisticsCourseHomeworksModel()
-                {
-                    Id = h.Id,
-                    Tasks = new List<StatisticsCourseTasksModel>(h.Tasks.Select(t =>
-                    {
-                        var solution = solutions.FirstOrDefault(s => s.TaskId == t.Id && s.StudentId == m.StudentId);
-                        return new StatisticsCourseTasksModel()
-                        {
-                            Id = t.Id,
-                            Solution =
-                                 solution == null
-                                    ? new List<StatisticsCourseSolutionsModel>()
-                                    : new List<StatisticsCourseSolutionsModel>()
-                                    {
-                                        new StatisticsCourseSolutionsModel(solution)
-                                    }
-                        };
-                    }))
-                }))
-            }).ToArray();
-            await Task.WhenAll(result);
-            return Ok(result.Select(t => t.Result).ToArray());
+            var result = await _solutionClient.GetCourseStatistics(courseId);
+            return Ok(result);
         }
     }
 }
