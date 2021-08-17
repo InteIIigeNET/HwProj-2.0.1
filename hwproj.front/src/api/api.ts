@@ -16,6 +16,7 @@
 import * as url from "url";
 import * as portableFetch from "portable-fetch";
 import { Configuration } from "./configuration";
+import {Token} from "./Token";
 
 const BASE_PATH = "https://localhost".replace(/\/+$/, "");
 
@@ -3274,7 +3275,7 @@ export class CoursesApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof CoursesApi
      */
-    public apiCoursesByCourseIdGet(courseId: number, options?: any) {
+    public apiCoursesByCourseIdGet(courseId: number, options: any = Token.getAuthOption()) {
         return CoursesApiFp(this.configuration).apiCoursesByCourseIdGet(courseId, options)(this.fetch, this.basePath);
     }
 
@@ -3285,13 +3286,14 @@ export class CoursesApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof CoursesApi
      */
-    public apiCoursesCreatePost(model?: CreateCourseViewModel, options?: any) {
+    public apiCoursesCreatePost(model?: CreateCourseViewModel, options: any = Token.getAuthOption()) {
         return CoursesApiFp(this.configuration).apiCoursesCreatePost(model, options)(this.fetch, this.basePath);
     }
 
     /**
      *
      * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
      * @throws {RequiredError}
      * @memberof CoursesApi
      */
