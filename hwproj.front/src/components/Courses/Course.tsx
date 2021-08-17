@@ -7,7 +7,7 @@ import AddHomework from "../Homeworks/AddHomework";
 import CourseStudents from "./CourseStudents";
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
-import { Button, Typography } from "@material-ui/core";
+import { Button, Typography, Checkbox } from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
 
 interface ICourseMate {
@@ -209,7 +209,7 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
     }
 
     async componentDidMount() {
-        const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+this.props.match.params.id);
+        const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+this.props.match.params.id, );
         this.setState({
           isLoaded: true,
           isFound: true,
