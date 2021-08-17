@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using HwProj.HttpUtils;
 using HwProj.Models.SolutionsService;
 using Newtonsoft.Json;
+using HwProj.Models.Result;
 
 namespace HwProj.SolutionsService.Client
 {
@@ -49,11 +50,11 @@ namespace HwProj.SolutionsService.Client
             return await response.DeserializeAsync<Solution[]>();
         }
         
-        public async Task<long> PostSolution(SolutionViewModel model, long taskId)
+        public async Task<Result<NewSolutionInfo>> PostSolution(SolutionViewModel model, long taskId, string studentId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _solutionServiceUri + $"api/Solutions/{taskId}")
+                _solutionServiceUri + $"api/Solutions/{taskId}?studentId={studentId}")
             {
                 Content = new StringContent(
                     JsonConvert.SerializeObject(model),
@@ -62,7 +63,7 @@ namespace HwProj.SolutionsService.Client
             };
 
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<long>();;
+            return await response.DeserializeAsync<Result<NewSolutionInfo>>();;
         }
         
         public async Task RateSolution(long solutionId, int newRating)

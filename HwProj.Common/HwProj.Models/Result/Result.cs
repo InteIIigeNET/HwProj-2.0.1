@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace HwProj.Models.AuthService.DTO
+namespace HwProj.Models.Result
 {
     public sealed class Result<T> where T : class
     {

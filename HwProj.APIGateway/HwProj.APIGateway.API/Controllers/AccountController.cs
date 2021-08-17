@@ -5,6 +5,7 @@ using HwProj.Models.ApiGateway;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.NotificationsService;
+using HwProj.Models.Result;
 using HwProj.Models.Roles;
 using HwProj.NotificationsService.Client;
 using HwProj.Utils.Authorization;
