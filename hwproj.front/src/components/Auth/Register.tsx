@@ -7,6 +7,7 @@ import ApiSingleton from "../../api/ApiSingleton";
 import { RegisterViewModel } from "../../api/";
 import "./Styles/Register.css";
 
+
 interface IRegisterState {
   registerData: RegisterViewModel;
   loggedIn: boolean;
@@ -45,6 +46,14 @@ export class Register extends React.Component<{}, IRegisterState> {
           {this.state.error.length > 0 && (
               <p style={{ color: "red", marginBottom: "0" }}>{this.state.error}</p>
           )}
+          <Button
+              size="small"
+              variant="contained"
+              color="inherit"
+              type="submit"
+          >
+              Войти через гугл
+          </Button>
         <form onSubmit={this.handleSubmit} className="form">
           <TextField
             size="small"
