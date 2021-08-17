@@ -1,6 +1,7 @@
 import * as React from "react";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
+import Checkbox from "@material-ui/core/Checkbox";
 import Typography from "@material-ui/core/Typography";
 import ApiSingleton from "../../api/ApiSingleton";
 import { CreateTaskViewModel } from "../../api";
@@ -31,8 +32,9 @@ export default class AddHomework extends React.Component<
                 description: "",
                 maxRating: 10,
                 publicationDate: new Date(),
+                hasDeadline: false,
                 deadlineDate: undefined,
-                isDeadlineStrict: false
+                isDeadlineStrict: false,
               }],
       added: false,
     };
@@ -111,20 +113,40 @@ export default class AddHomework extends React.Component<
                     name={task.description}
                     onChange={(e) => (task.description = e.target.value)}
                   />
-                  <TextField
-                    id="datetime-local"
-                    label="Дедлайн задачи"
-                    type="datetime-local"
-                    defaultValue={task.deadlineDate}
-                    onChange={(e) => { task.deadlineDate = new Date(e.target.value) }}
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                  />
                   <label>
-                    <input type="checkbox" onChange={(e) => task.isDeadlineStrict = e.target.checked}/>
-                    Запретить отправлять решения после дедлайна
+                    <Checkbox
+                        color="primary"
+                        onChange={(e) =>
+                        {
+                          task.hasDeadline = e.target.checked;
+                          task.deadlineDate = undefined;
+                          task.isDeadlineStrict = false;
+                          this.setState({added: false});
+                        }}
+                    />
+                    Добавить дедлайн
                   </label>
+                  {task.hasDeadline && (
+                    <div>
+                      <TextField
+                        id="datetime-local"
+                        label="Дедлайн задачи"
+                        type="datetime-local"
+                        defaultValue={task.deadlineDate}
+                        onChange={(e) => { task.deadlineDate = new Date(e.target.value) }}
+                        InputLabelProps={{
+                          shrink: true,
+                        }}
+                      />
+                      <label>
+                        <Checkbox
+                            color="primary"
+                            onChange = {(e) => {task.isDeadlineStrict = e.target.checked}}
+                        />
+                        Запретить отправку заданий после дедлайна
+                      </label>
+                    </div>
+                    )}
                 </li>
               ))}
             </ol>
@@ -139,6 +161,7 @@ export default class AddHomework extends React.Component<
                     description: "",
                     maxRating: 10,
                     publicationDate: new Date(),
+                    hasDeadline: false,
                     deadlineDate: undefined,
                     isDeadlineStrict: false
                   }],
@@ -170,7 +193,7 @@ export default class AddHomework extends React.Component<
       </div>
     );
   }
-
+  
   async handleSubmit(e: any) {
     e.preventDefault();
   
@@ -180,8 +203,12 @@ export default class AddHomework extends React.Component<
       tasks: this.state.tasks,
     }
     // ReDo
-    homework.tasks.forEach(task => task.deadlineDate = new Date(task.deadlineDate!.setHours(task.deadlineDate!.getHours() + 3)))
-    homework.tasks.forEach(task => task.publicationDate = new Date(task.publicationDate!.setHours(task.publicationDate!.getHours() + 3)))
+    homework.tasks.forEach(task => {
+      if (task.hasDeadline) {
+        task.deadlineDate = new Date(task.deadlineDate!.setHours(task.deadlineDate!.getHours() + 3))
+      }
+      task.publicationDate = new Date(task.publicationDate!.setHours(task.publicationDate!.getHours() + 3))
+    })
     
     const token = ApiSingleton.authService.getToken()
     await ApiSingleton.homeworksApi.apiHomeworksByCourseIdAddPost(this.props.id, homework, { headers: {"Authorization": `Bearer ${token}`} })
