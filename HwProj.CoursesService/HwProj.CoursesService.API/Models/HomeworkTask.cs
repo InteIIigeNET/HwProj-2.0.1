@@ -12,7 +12,9 @@ namespace HwProj.CoursesService.API.Models
         public string Description { get; set; }
 
         public int MaxRating { get; set; }
-
+        
+        public bool HasDeadline { get; set; }
+        
         public DateTime? DeadlineDate { get; set; }
         
         public bool IsDeadlineStrict { get; set; }

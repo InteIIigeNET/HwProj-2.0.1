@@ -11,7 +11,9 @@ namespace HwProj.Models.CoursesService.ViewModels
         public string Description { get; set; }
 
         public int MaxRating { get; set; }
-
+        
+        public bool HasDeadline { get; set; }
+        
         public DateTime? DeadlineDate { get; set; }
         
         public bool IsDeadlineStrict { get; set; }
@@ -35,7 +37,9 @@ namespace HwProj.Models.CoursesService.ViewModels
     {
         public string Title { get; set; }
         public string Description { get; set; }
-
+        
+        public bool HasDeadline { get; set; }
+        
         public DateTime? DeadlineDate { get; set; }
         
         public bool IsDeadlineStrict { get; set; }
