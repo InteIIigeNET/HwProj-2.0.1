@@ -1,9 +1,12 @@
 ﻿using System.Threading.Tasks;
 using AutoMapper;
+using HwProj.CoursesService.Client;
 using HwProj.Models.SolutionsService;
 using HwProj.SolutionsService.API.Models;
 using HwProj.SolutionsService.API.Services;
+using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using HwProj.Models.Result;
 
 namespace HwProj.SolutionsService.API.Controllers
 {
@@ -12,11 +15,13 @@ namespace HwProj.SolutionsService.API.Controllers
     public class SolutionsController : Controller
     {
         private readonly ISolutionsService _solutionsService;
+        private readonly ICoursesServiceClient _coursesServiceClient;
         private readonly IMapper _mapper;
 
-        public SolutionsController(ISolutionsService solutionsService, IMapper mapper)
+        public SolutionsController(ISolutionsService solutionsService, ICoursesServiceClient coursesServiceClient, IMapper mapper)
         {
             _solutionsService = solutionsService;
+            _coursesServiceClient = coursesServiceClient;
             _mapper = mapper;
         }
 
@@ -42,11 +47,30 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpPost("{taskId}")]
-        public async Task<long> PostSolution(long taskId, [FromBody] SolutionViewModel solutionViewModel)
+        public async Task<Result<NewSolutionInfo>> PostSolution(long taskId, [FromBody] SolutionViewModel solutionViewModel, [FromQuery] string studentId)
         {
+            var task = await _coursesServiceClient.GetTask(taskId);
+            var homework = await _coursesServiceClient.GetHomework(task.HomeworkId);
+            var course = await _coursesServiceClient.GetCourseById(homework.CourseId);
+
+            var student = course.CourseMates.Find(x => x.StudentId == studentId && x.IsAccepted);
+            if (student == null)
+            {
+                return Result<NewSolutionInfo>.Failed("The student is not a member of the course");
+            }
+
+            if (!task.CanSendSolution)
+            {
+                return Result<NewSolutionInfo>.Failed("Sending solutions is prohibited");
+            }
+            
             var solution = _mapper.Map<Solution>(solutionViewModel);
             var solutionId = await _solutionsService.AddSolutionAsync(taskId, solution);
-            return solutionId;
+            var info = new NewSolutionInfo()
+            {
+                Id = solutionId
+            };
+            return Result<NewSolutionInfo>.Success(info);
         }
 
         [HttpPost("rateSolution/{solutionId}")]

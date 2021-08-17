@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
+using HwProj.Models.Result;
 using HwProj.Models.Roles;
 using HwProj.Models.SolutionsService;
 using HwProj.NotificationsService.Client;
@@ -55,10 +56,11 @@ namespace HwProj.APIGateway.API.Controllers
         
         [HttpPost("{taskId}")]
         [Authorize]
-        [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Result<NewSolutionInfo>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> PostSolution(SolutionViewModel model, long taskId)
         {
-            var result = await _solutionsClient.PostSolution(model, taskId);
+            var studentId = Request.GetUserId();
+            var result = await _solutionsClient.PostSolution(model, taskId, studentId);
             return Ok(result);
         }
         
