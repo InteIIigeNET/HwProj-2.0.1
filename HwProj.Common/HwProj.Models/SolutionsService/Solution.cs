@@ -1,6 +1,7 @@
 ﻿using HwProj.Repositories;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using System;
 
 namespace HwProj.Models.SolutionsService
 {
@@ -22,5 +23,7 @@ namespace HwProj.Models.SolutionsService
         public long? GroupId { get; set; }
         
         public long TaskId { get; set; }
+
+        public DateTime PublicationDate { get; set; }
     }
 }

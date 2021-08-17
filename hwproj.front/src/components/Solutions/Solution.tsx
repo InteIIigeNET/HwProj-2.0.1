@@ -26,7 +26,7 @@ export default class SolutionComponent extends React.Component<ISolutionProps, I
 
     public render() {
         const { solution } = this.props;
-        const postedSolutionTime = "15.15.15 15:15:15" // new Date(solution.date!.toString()).toLocaleDateString("ru-RU");
+        const postedSolutionTime = new Date(solution.publicationDate!.toString()).toLocaleString("ru-RU");
         return (
             <div>
                 <Link href={solution.githubUrl}>Ссылка на решение</Link>

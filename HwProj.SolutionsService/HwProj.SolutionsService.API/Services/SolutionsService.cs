@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using HwProj.CoursesService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.SolutionsService;
@@ -39,6 +40,7 @@ namespace HwProj.SolutionsService.API.Services
         public async Task<long> AddSolutionAsync(long taskId, Solution solution)
         {
             solution.TaskId = taskId;
+            solution.PublicationDate = DateTime.Now;
             var id = await _solutionsRepository.AddAsync(solution);
             return id;
         }

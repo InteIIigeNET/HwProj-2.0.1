@@ -732,6 +732,12 @@ export interface Solution {
      * @memberof Solution
      */
     taskId?: number;
+    /**
+     * 
+     * @type {Date}
+     * @memberof Solution
+     */
+    publicationDate?: Date;
 }
 
 /**
@@ -774,6 +780,12 @@ export interface SolutionViewModel {
      * @memberof SolutionViewModel
      */
     studentId?: string;
+    /**
+     * 
+     * @type {Date}
+     * @memberof SolutionViewModel
+     */
+    publicationDate?: Date;
 }
 
 /**
