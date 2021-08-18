@@ -4,6 +4,7 @@ import { TextField, Button, Typography } from "@material-ui/core";
 import ApiSingleton from "../../api/ApiSingleton";
 import "./Styles/Login.css";
 import { LoginViewModel } from "../../api/"
+import GoogleLogin, {GoogleLoginResponse, GoogleLoginResponseOffline} from "react-google-login";
 
 interface LoginProps extends Partial<RouteComponentProps> {
   onLogin: () => void;
@@ -92,6 +93,14 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
             Войти
           </Button>
         </form>
+        <div>
+          <GoogleLogin
+              clientId="855587739560-8fpvs996l30mg32100h2dcr4bsnlmmnh.apps.googleusercontent.com"
+              buttonText="Google Login"
+              onSuccess={response => console.log(response)}
+              onFailure={response => console.log(response)}
+          />
+        </div>
       </div>
     );
   }

@@ -11,11 +11,10 @@ using HwProj.EventBus.Client.Interfaces;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using HwProj.Utils.Configuration;
-using HwProj.Utils.Authorization;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Mvc;
+using System.Text;
+
+
 
 namespace HwProj.AuthService.API
 {
@@ -42,11 +41,11 @@ namespace HwProj.AuthService.API
                     x.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidIssuer = "AuthService",
-                        ValidateIssuer = true,
-                        ValidateAudience = false,
                         ValidateLifetime = true,
-                        IssuerSigningKey = AuthorizationKey.SecurityKey,
-                        ValidateIssuerSigningKey = true
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["AppSettings:JwtSecret"])),
+                        ValidateIssuer = false,
+                        ValidateAudience = false
                     };
                 });
 
@@ -72,20 +71,6 @@ namespace HwProj.AuthService.API
             services.AddScoped<IAuthTokenService, AuthTokenService>()
                 .AddScoped<IAccountService, AccountService>()
                 .AddScoped<IUserManager, ProxyUserManager>();
-            
-            services.AddAuthentication(options =>
-                {
-                    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
-                })
-                .AddCookie()
-                .AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
-                {
-                    options.ClientId = Configuration["Authentication:Google:ClientId"];
-                    options.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
-                    options.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
-                });
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

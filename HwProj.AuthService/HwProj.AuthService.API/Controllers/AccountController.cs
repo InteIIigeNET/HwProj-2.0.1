@@ -7,6 +7,10 @@ using HwProj.AuthService.API.Services;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
+using Google.Apis.Auth;
+using HwProj.Models.AuthService;
+using Microsoft.AspNetCore.Authentication.Facebook;
+
 
 namespace HwProj.AuthService.API.Controllers
 {
@@ -63,6 +67,21 @@ namespace HwProj.AuthService.API.Controllers
         public async Task<IActionResult> InviteNewLecturer(InviteLecturerViewModel model)
         {
             var result = await _accountService.InviteNewLecturer(model.Email).ConfigureAwait(false);
+            return Ok(result);
+        }
+        
+        [HttpPost("google")]
+        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GoogleRegister([FromBody] UserView userView)
+        {
+            var payload = GoogleJsonWebSignature.ValidateAsync(userView.tokenId, new GoogleJsonWebSignature.ValidationSettings()).Result;
+            var model = new RegisterViewModel()
+            {
+                Name = payload.GivenName,
+                Surname = payload.FamilyName,
+                Email = payload.Email
+            };
+            var result = await _accountService.RegisterUserAsync(model).ConfigureAwait(false);
             return Ok(result);
         }
     }

@@ -6,6 +6,7 @@ import { Redirect } from "react-router-dom";
 import ApiSingleton from "../../api/ApiSingleton";
 import { RegisterViewModel } from "../../api/";
 import "./Styles/Register.css";
+import GoogleLogin from "react-google-login";
 
 
 interface IRegisterState {
@@ -46,14 +47,12 @@ export class Register extends React.Component<{}, IRegisterState> {
           {this.state.error.length > 0 && (
               <p style={{ color: "red", marginBottom: "0" }}>{this.state.error}</p>
           )}
-          <Button
-              size="small"
-              variant="contained"
-              color="inherit"
-              type="submit"
-          >
-              Войти через гугл
-          </Button>
+          <GoogleLogin
+              clientId="855587739560-8fpvs996l30mg32100h2dcr4bsnlmmnh.apps.googleusercontent.com"
+              buttonText="Зарегистрироваться через Google"
+              onSuccess={response => console.log(response)}
+              onFailure={response => console.log(response)}
+          />
         <form onSubmit={this.handleSubmit} className="form">
           <TextField
             size="small"
