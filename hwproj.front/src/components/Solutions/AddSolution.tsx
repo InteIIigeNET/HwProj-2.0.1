@@ -6,7 +6,6 @@ import {SolutionViewModel} from "../../api";
 
 interface IAddSolutionProps {
     taskId: number,
-    studentId: string,
     onAdding: () => void,
     onCancel: () => void
 }
@@ -17,7 +16,6 @@ export default class AddSolution extends React.Component<IAddSolutionProps, Solu
         this.state = {
             githubUrl: "",
             comment: "",
-            studentId: this.props.studentId
         };
     }
 

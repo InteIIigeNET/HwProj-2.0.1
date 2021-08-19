@@ -57,6 +57,7 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> PostSolution(SolutionViewModel model, long taskId)
         {
+            model.StudentId = Request.GetUserId();
             var result = await _solutionsClient.PostSolution(model, taskId);
             return Ok(result);
         }
