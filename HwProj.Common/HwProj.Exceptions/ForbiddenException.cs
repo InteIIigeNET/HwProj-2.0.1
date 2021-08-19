@@ -1,8 +1,7 @@
 using System;
 
-namespace HwProj.APIGateway.API.ExceptionFilters
+namespace HwProj.Exceptions
 {
-
     public class ForbiddenException : Exception
     {
         public ForbiddenException() : base() { }

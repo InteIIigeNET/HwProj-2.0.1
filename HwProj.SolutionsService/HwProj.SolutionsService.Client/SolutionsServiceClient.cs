@@ -2,7 +2,7 @@
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using HwProj.APIGateway.API.ExceptionFilters;
+using HwProj.Exceptions;
 using HwProj.HttpUtils;
 using HwProj.Models.SolutionsService;
 using Newtonsoft.Json;
