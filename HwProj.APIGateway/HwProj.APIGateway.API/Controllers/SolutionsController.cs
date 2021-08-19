@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
+using HwProj.APIGateway.API.ExceptionFilters;
 using HwProj.Models.Roles;
 using HwProj.Models.SolutionsService;
 using HwProj.NotificationsService.Client;
@@ -12,6 +13,7 @@ namespace HwProj.APIGateway.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ForbiddenExceptionFilter]
     public class SolutionsController : ControllerBase
     {
         private readonly INotificationsServiceClient _notificationsClient;

@@ -1,7 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System.Net;
+using System.Threading.Tasks;
 using AutoMapper;
+using HwProj.CoursesService.Client;
 using HwProj.Models.SolutionsService;
-using HwProj.SolutionsService.API.Models;
 using HwProj.SolutionsService.API.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,11 +14,13 @@ namespace HwProj.SolutionsService.API.Controllers
     {
         private readonly ISolutionsService _solutionsService;
         private readonly IMapper _mapper;
+        private readonly ICoursesServiceClient _coursesClient;
 
-        public SolutionsController(ISolutionsService solutionsService, IMapper mapper)
+        public SolutionsController(ISolutionsService solutionsService, IMapper mapper, ICoursesServiceClient coursesClient)
         {
             _solutionsService = solutionsService;
             _mapper = mapper;
+            _coursesClient = coursesClient;
         }
 
         [HttpGet]
@@ -42,11 +45,20 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpPost("{taskId}")]
-        public async Task<long> PostSolution(long taskId, [FromBody] SolutionViewModel solutionViewModel)
+        [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> PostSolution(long taskId, [FromBody] SolutionViewModel solutionViewModel)
         {
-            var solution = _mapper.Map<Solution>(solutionViewModel);
-            var solutionId = await _solutionsService.AddSolutionAsync(taskId, solution);
-            return solutionId;
+            var task = await _coursesClient.GetTask(taskId);
+            var homework = await _coursesClient.GetHomework(task.HomeworkId);
+            var course = await _coursesClient.GetCourseById(homework.CourseId);
+
+            if (course.CourseMates.Exists(courseMate => courseMate.StudentId == solutionViewModel.StudentId))
+            {
+                var solution = _mapper.Map<Solution>(solutionViewModel);
+                var solutionId = await _solutionsService.AddSolutionAsync(taskId, solution);
+                return Ok(solutionId);
+            }
+            return Forbid();
         }
 
         [HttpPost("rateSolution/{solutionId}")]

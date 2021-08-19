@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using HwProj.APIGateway.API.ExceptionFilters;
 using HwProj.HttpUtils;
 using HwProj.Models.SolutionsService;
 using Newtonsoft.Json;
@@ -62,7 +63,11 @@ namespace HwProj.SolutionsService.Client
             };
 
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<long>();;
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.DeserializeAsync<long>();
+            }
+            throw new ForbiddenException();
         }
         
         public async Task RateSolution(long solutionId, int newRating)
