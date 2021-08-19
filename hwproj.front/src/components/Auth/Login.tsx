@@ -44,6 +44,29 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
     })
   }
 
+  googleResponse = (response) => {
+    console.log(response);
+    if (!response.tokenId) {
+      console.error("Unable to get tokenId from Google", response)
+      return;
+    }
+
+    const tokenBlob = new Blob([JSON.stringify({ tokenId: response.tokenId }, null, 2)], { type: 'application/json' });
+    const options = {
+      method: 'POST',
+      body: tokenBlob,
+      mode: 'cors',
+      cache: 'default'
+    };
+    fetch("", options)
+        .then(r => {
+          r.json().then(user => {
+            const token = user.token;
+            console.log(token);
+            this.props.login(token);
+          });
+        })
+  };
   render() {
     const headerStyles: React.CSSProperties = { marginRight: "9.5rem" };
 
@@ -98,7 +121,6 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
               clientId="855587739560-8fpvs996l30mg32100h2dcr4bsnlmmnh.apps.googleusercontent.com"
               buttonText="Google Login"
               onSuccess={response => console.log(response)}
-              onFailure={response => console.log(response)}
           />
         </div>
       </div>
