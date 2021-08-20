@@ -3,7 +3,7 @@ import { RouteComponentProps } from "react-router-dom";
 import { TextField, Button, Typography } from "@material-ui/core";
 import ApiSingleton from "../../api/ApiSingleton";
 import "./Styles/Login.css";
-import { LoginViewModel } from "../../api/"
+import { LoginViewModel, UserView } from "../../api/"
 import GoogleLogin, {GoogleLoginResponse, GoogleLoginResponseOffline} from "react-google-login";
 
 interface LoginProps extends Partial<RouteComponentProps> {
@@ -44,28 +44,16 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
     })
   }
 
-  googleResponse = (response) => {
-    console.log(response);
-    if (!response.tokenId) {
-      console.error("Unable to get tokenId from Google", response)
-      return;
-    }
+  googleResponse = async (response: any) => {
 
-    const tokenBlob = new Blob([JSON.stringify({ tokenId: response.tokenId }, null, 2)], { type: 'application/json' });
-    const options = {
-      method: 'POST',
-      body: tokenBlob,
-      mode: 'cors',
-      cache: 'default'
-    };
-    fetch("", options)
-        .then(r => {
-          r.json().then(user => {
-            const token = user.token;
-            console.log(token);
-            this.props.login(token);
-          });
-        })
+    const userData : UserView = {
+      tokenId: response.tokenId
+    }
+    const result = await ApiSingleton.authService.loginViaGoogle(userData)
+    this.setState({
+      error: result!.error,
+      isLogin: result.isLogin
+    })
   };
   render() {
     const headerStyles: React.CSSProperties = { marginRight: "9.5rem" };
@@ -118,9 +106,9 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
         </form>
         <div>
           <GoogleLogin
-              clientId="855587739560-8fpvs996l30mg32100h2dcr4bsnlmmnh.apps.googleusercontent.com"
+              clientId="clientId" /*"235915791830-7oaa5kjukfdicjs4rqmamd9mlfak8nss.apps.googleusercontent.com"*/
               buttonText="Google Login"
-              onSuccess={response => console.log(response)}
+              onSuccess={this.googleResponse}
           />
         </div>
       </div>

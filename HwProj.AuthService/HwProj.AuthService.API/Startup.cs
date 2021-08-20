@@ -11,9 +11,7 @@ using HwProj.EventBus.Client.Interfaces;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using HwProj.Utils.Configuration;
-using Microsoft.AspNetCore.Mvc;
 using System.Text;
-
 
 
 namespace HwProj.AuthService.API
@@ -47,6 +45,13 @@ namespace HwProj.AuthService.API
                         ValidateIssuer = false,
                         ValidateAudience = false
                     };
+                })
+                .AddGoogle("Google", options =>
+                {
+                    options.SignInScheme = IdentityConstants.ExternalScheme; //"idsrv.external"
+
+                    options.ClientId = "clientId"; //"235915791830-7oaa5kjukfdicjs4rqmamd9mlfak8nss.apps.googleusercontent.com"
+                    options.ClientSecret = "clientSecret"; //"usCayh5j4uvqWqajXCno-vHU"
                 });
 
             services.AddDbContext<IdentityContext>(options =>

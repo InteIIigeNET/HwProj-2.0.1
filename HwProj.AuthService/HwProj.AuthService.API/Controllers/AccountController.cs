@@ -19,12 +19,14 @@ namespace HwProj.AuthService.API.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService;
+        private readonly IUserManager _userManager;
         private readonly IEventBus _eventBus;
 
-        public AccountController(IAccountService accountService, IEventBus eventBus)
+        public AccountController(IAccountService accountService, IEventBus eventBus, IUserManager userManager)
         {
             _accountService = accountService;
             _eventBus = eventBus;
+            _userManager = userManager;
         }
 
         [HttpGet("getUserData/{userId}")]
@@ -74,14 +76,24 @@ namespace HwProj.AuthService.API.Controllers
         [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GoogleRegister([FromBody] UserView userView)
         {
-            var payload = GoogleJsonWebSignature.ValidateAsync(userView.tokenId, new GoogleJsonWebSignature.ValidationSettings()).Result;
-            var model = new RegisterViewModel()
+            var payload = await GoogleJsonWebSignature.ValidateAsync(userView.tokenId, new GoogleJsonWebSignature.ValidationSettings());
+            if (await _userManager.FindByEmailAsync(payload.Email).ConfigureAwait(false)
+                is var user && user == null)
             {
-                Name = payload.GivenName,
-                Surname = payload.FamilyName,
-                Email = payload.Email
+                var registerModel = new RegisterViewModel()
+                {
+                    Name = payload.GivenName,
+                    Surname = payload.FamilyName,
+                    Email = payload.Email
+                };
+                return Ok(await _accountService.RegisterUserAsync(registerModel).ConfigureAwait(false));
+            }
+            var loginModel = new LoginViewModel()
+            {
+                Email = payload.Email,
+                RememberMe = true
             };
-            var result = await _accountService.RegisterUserAsync(model).ConfigureAwait(false);
+            var result = await _accountService.LoginUserAsync(loginModel).ConfigureAwait(false);
             return Ok(result);
         }
     }

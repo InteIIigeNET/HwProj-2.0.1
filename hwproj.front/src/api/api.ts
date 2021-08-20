@@ -1253,7 +1253,7 @@ export const AccountApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAccountSigninGooglePost(model?: UserView, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<TokenCredentials> {
+        apiAccountSigninGooglePost(model?: UserView, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ResultTokenCredentials> {
             const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountSigninGooglePost(model, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {

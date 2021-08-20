@@ -86,13 +86,27 @@ namespace HwProj.AuthService.API.Services
             {
                 return Result<TokenCredentials>.Failed("Email not confirmed");
             }
+            _signInManager.ConfigureExternalAuthenticationProperties("Google", "null");
 
-            var result = await _signInManager.PasswordSignInAsync(
-                user,
-                model.Password,
-                model.RememberMe,
-                false).ConfigureAwait(false);
-
+            var externalInfo = await _signInManager.GetExternalLoginInfoAsync();
+            SignInResult result;
+            
+            if (model.Password == null)
+            {
+                result = await _signInManager.ExternalLoginSignInAsync(
+                    externalInfo.LoginProvider, 
+                    externalInfo.ProviderKey, 
+                    false).ConfigureAwait(false);
+            }
+            else
+            {
+                result  = await _signInManager.PasswordSignInAsync(
+                    user,
+                    model.Password,
+                    model.RememberMe,
+                    false).ConfigureAwait(false);
+            }
+            
             if (!result.Succeeded)
             {
                 return Result<TokenCredentials>.Failed(result.TryGetIdentityError());
@@ -108,7 +122,7 @@ namespace HwProj.AuthService.API.Services
             {
                 return Result<TokenCredentials>.Failed("User exist");
             }
-
+            
             var user = _mapper.Map<User>(model);
             user.UserName = user.Email.Split('@')[0];
 
@@ -119,18 +133,31 @@ namespace HwProj.AuthService.API.Services
                     user.EmailConfirmed = true;
                     return _userManager.UpdateAsync(user);
                 }).ConfigureAwait(false);
-
+            
             if (result.Succeeded)
             {
                 var newUser = await _userManager.FindByEmailAsync(model.Email).ConfigureAwait(false);
                 var registerEvent = new StudentRegisterEvent(newUser.Id, newUser.Email, newUser.Name,
                     newUser.Surname, newUser.MiddleName);
                 _eventBus.Publish(registerEvent);
+                
+                var externalInfo = await _signInManager.GetExternalLoginInfoAsync();
+
+                if (model.Password == null)
+                {
+                     await _signInManager.ExternalLoginSignInAsync(
+                        externalInfo.LoginProvider, 
+                        externalInfo.ProviderKey, 
+                        true, 
+                        true).ConfigureAwait(false);
+                }
+                
                 await _signInManager.PasswordSignInAsync(
                     user,
                     model.Password,
                     false,
                     false).ConfigureAwait(false);
+
                 var token = await _tokenService.GetTokenAsync(user).ConfigureAwait(false);
                 return Result<TokenCredentials>.Success(token);
             }

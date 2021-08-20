@@ -93,8 +93,8 @@ namespace HwProj.APIGateway.API.Controllers
         }
         
         [HttpPost("signin-google")]
-        [ProducesResponseType(typeof(TokenCredentials), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> RegisterViaGoogle(UserView model)
+        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> LoginViaGoogle(UserView model)
         {
             var tokenMeta = await _authClient.RegisterGoogle(model).ConfigureAwait(false);
             return Ok(tokenMeta);
