@@ -1,10 +1,14 @@
 ﻿using System.Threading.Tasks;
+using AutoMapper;
+using HwProj.CoursesService.Client;
 using HwProj.EventBus.Client.Interfaces;
+using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.SolutionsService;
 using HwProj.SolutionsService.API.Events;
 using HwProj.SolutionsService.API.Models;
 using HwProj.SolutionsService.API.Repositories;
 using Microsoft.EntityFrameworkCore;
+
 
 namespace HwProj.SolutionsService.API.Services
 {
@@ -12,10 +16,14 @@ namespace HwProj.SolutionsService.API.Services
     {
         private readonly ISolutionsRepository _solutionsRepository;
         private readonly IEventBus _eventBus;
-        public SolutionsService(ISolutionsRepository solutionsRepository, IEventBus eventBus)
+        private readonly IMapper _mapper;
+        private readonly ICoursesServiceClient _coursesServiceClient;
+        public SolutionsService(ISolutionsRepository solutionsRepository, IEventBus eventBus, IMapper mapper, ICoursesServiceClient coursesServiceClient)
         {
             _solutionsRepository = solutionsRepository;
             _eventBus = eventBus;
+            _mapper = mapper;
+            _coursesServiceClient = coursesServiceClient;
         }
 
         public async Task<Solution[]> GetAllSolutionsAsync()
@@ -39,7 +47,16 @@ namespace HwProj.SolutionsService.API.Services
         {
             solution.TaskId = taskId;
             var id = await _solutionsRepository.AddAsync(solution);
+
+            var solutionModel = _mapper.Map<SolutionViewModel>(solution);
+            var task = await _coursesServiceClient.GetTask(solution.TaskId);
+            var taskModel = _mapper.Map<HomeworkTaskViewModel>(task);
+            var homework = await _coursesServiceClient.GetHomework(taskModel.HomeworkId);
+            var homeworkModel = _mapper.Map<HomeworkViewModel>(homework);
+            var courses = await _coursesServiceClient.GetCourseById(homeworkModel.CourseId, solution.StudentId);
+            _eventBus.Publish(new StudentPassTaskEvent(courses, solutionModel));
             _eventBus.Publish(new RequestMaxRatingEvent(taskId, id));
+
             return id;
         }
 
@@ -53,7 +70,12 @@ namespace HwProj.SolutionsService.API.Services
                 state = SolutionState.Final;
             else state = SolutionState.Rated;
 
-                await _solutionsRepository.RateSolutionAsync(solutionId, state, newRating);
+            var solutionModel = _mapper.Map<SolutionViewModel>(solution);
+            var task = await _coursesServiceClient.GetTask(solution.TaskId);
+            var taskModel = _mapper.Map<HomeworkTaskViewModel>(task);
+            _eventBus.Publish(new RateEvent(taskModel, solutionModel));
+
+            await _solutionsRepository.RateSolutionAsync(solutionId, state, newRating);
         }
 
         public Task DeleteSolutionAsync(long solutionId)

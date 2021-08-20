@@ -1,4 +1,5 @@
-﻿using HwProj.EventBus.Client.Interfaces;
+﻿using HwProj.CoursesService.Client;
+using HwProj.EventBus.Client.Interfaces;
 using HwProj.SolutionsService.API.Events;
 using HwProj.SolutionsService.API.Models;
 using HwProj.SolutionsService.API.Repositories;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Net.Http;
 
 namespace HwProj.SolutionsService.API
 {
@@ -29,6 +31,9 @@ namespace HwProj.SolutionsService.API
             services.AddScoped<ISolutionsService, Services.SolutionsService>();
 
             services.AddEventBus(Configuration);
+
+            var httpClient = new HttpClient();
+            services.AddCoursesServiceClient(httpClient, "http://localhost:5002");
 
             services.ConfigureHwProjServices("Solutions API");
         }
