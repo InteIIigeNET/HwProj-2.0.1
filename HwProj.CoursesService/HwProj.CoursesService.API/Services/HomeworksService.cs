@@ -28,7 +28,7 @@ namespace HwProj.CoursesService.API.Services
             homework.CourseId = courseId;
             homework.Date = DateTime.Now;
 /*
-            var course = await _corsesServiceClient.GetCourseById(courseId, homework.)
+            var course = await _corsesServiceClient.GetCourseById(courseId, homework.)   как достать UserId
             _eventBus.Publish(new NewTaskEvent(homework.Title, courseId));
 */
             return await _homeworksRepository.AddAsync(homework);
