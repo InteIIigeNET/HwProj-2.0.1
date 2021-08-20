@@ -137,6 +137,7 @@ export default class AddHomework extends React.Component<
                         InputLabelProps={{
                           shrink: true,
                         }}
+                        required
                       />
                       <label>
                         <Checkbox

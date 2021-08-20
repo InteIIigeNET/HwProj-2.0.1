@@ -577,6 +577,20 @@ export interface LoginViewModel {
 /**
  * 
  * @export
+ * @interface NewSolutionInfo
+ */
+export interface NewSolutionInfo {
+    /**
+     * 
+     * @type {number}
+     * @memberof NewSolutionInfo
+     */
+    id?: number;
+}
+
+/**
+ * 
+ * @export
  * @interface NotificationViewModel
  */
 export interface NotificationViewModel {
@@ -678,6 +692,32 @@ export interface Result {
      * 
      * @type {Array<string>}
      * @memberof Result
+     */
+    errors?: Array<string>;
+}
+
+/**
+ * 
+ * @export
+ * @interface ResultNewSolutionInfo
+ */
+export interface ResultNewSolutionInfo {
+    /**
+     * 
+     * @type {NewSolutionInfo}
+     * @memberof ResultNewSolutionInfo
+     */
+    value?: NewSolutionInfo;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof ResultNewSolutionInfo
+     */
+    succeeded?: boolean;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof ResultNewSolutionInfo
      */
     errors?: Array<string>;
 }
@@ -3537,7 +3577,7 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSolutionsByTaskIdPost(taskId: number, model?: SolutionViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
+        apiSolutionsByTaskIdPost(taskId: number, model?: SolutionViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ResultNewSolutionInfo> {
             const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsByTaskIdPost(taskId, model, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {

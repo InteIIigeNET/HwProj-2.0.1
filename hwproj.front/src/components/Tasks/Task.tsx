@@ -19,7 +19,7 @@ export default class Task extends React.Component<ITaskProp, {}> {
     public render() {
         let task = this.props.task;
         let deadlineDate
-        if (task.hasDeadline && task.deadlineDate != undefined) {
+        if (task.hasDeadline) {
             deadlineDate = new Date(task.deadlineDate!.toString()).toLocaleString("ru-RU")   
         }
         let publicationDate = new Date(task.publicationDate!.toString()).toLocaleString("ru-RU")
@@ -51,7 +51,7 @@ export default class Task extends React.Component<ITaskProp, {}> {
                 <Typography>
                     Дата публикации: {publicationDate}
                 </Typography>
-                {(task.hasDeadline && task.deadlineDate != undefined) &&
+                {(task.hasDeadline) &&
         
                     <Typography>
                         Дедлайн: {deadlineDate}

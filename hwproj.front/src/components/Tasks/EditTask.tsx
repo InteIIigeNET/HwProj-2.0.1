@@ -5,6 +5,7 @@ import Typography from "@material-ui/core/Typography";
 import { Redirect, Link } from "react-router-dom";
 import { RouteComponentProps } from "react-router-dom";
 import ApiSingleton from "../../api/ApiSingleton";
+import Checkbox from "@material-ui/core/Checkbox";
 
 interface IEditTaskState {
   isLoaded: boolean;
@@ -14,7 +15,9 @@ interface IEditTaskState {
   courseId: number;
   courseMentorId: string;
   edited: boolean;
-  deadlineDate: Date;
+  hasDeadline: boolean;
+  deadlineDate: Date | undefined;
+  isDeadlineStrict: boolean;
 }
 
 interface IEditTaskProps {
@@ -35,27 +38,23 @@ export default class EditTask extends React.Component<
       courseId: 0,
       courseMentorId: "",
       edited: false,
-      deadlineDate: new Date()
+      hasDeadline: false,
+      deadlineDate: new Date(),
+      isDeadlineStrict: false
     };
   }
 
   public async handleSubmit(e: any) {
     e.preventDefault();
-
-    let taskViewModel = {
-      title: this.state.title,
-      description: this.state.description,
-      maxRating: this.state.maxRating,
-      deadlineDate: this.state.deadlineDate,
-    };
-
     // ReDo
-    let deadline = new Date(taskViewModel.deadlineDate!).setHours(new Date(taskViewModel.deadlineDate!).getHours() + 3)
-    taskViewModel.deadlineDate = new Date(deadline)
-
+    if (this.state.hasDeadline) {
+      this.setState({
+        deadlineDate: new Date(this.state.deadlineDate!.setHours(this.state.deadlineDate!.getHours() + 3))
+      })
+    }
     const token = ApiSingleton.authService.getToken();
     ApiSingleton.tasksApi
-      .apiTasksUpdateByTaskIdPut(+this.props.match.params.taskId, taskViewModel, { headers: {"Authorization": `Bearer ${token}`} })
+      .apiTasksUpdateByTaskIdPut(+this.props.match.params.taskId, this.state, { headers: {"Authorization": `Bearer ${token}`} })
       .then((res) => {
         this.setState({ edited: true })
       });
@@ -121,16 +120,42 @@ export default class EditTask extends React.Component<
                 onChange={(e) => this.setState({ description: e.target.value })}
               />
               <br />
-              <TextField
-                id="datetime-local"
-                label="Дедлайн задачи"
-                type="datetime-local"
-                defaultValue={this.state.deadlineDate}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                onChange={(e) => this.setState({deadlineDate: new Date(e.target.value)})}
-              />
+              <label>
+                <Checkbox
+                    color="primary"
+                    checked={this.state.hasDeadline}
+                    onChange={(e) =>
+                    {
+                      this.setState({
+                        hasDeadline: e.target.checked,
+                        deadlineDate: undefined,
+                      })
+                    }}
+                />
+                Добавить дедлайн
+              </label>
+              {this.state.hasDeadline &&
+              <div>
+                <TextField
+                    id="datetime-local"
+                    label="Дедлайн задачи"
+                    type="datetime-local"
+                    defaultValue={this.state.deadlineDate}
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    required
+                    onChange={(e) => this.setState({deadlineDate: new Date(e.target.value)})}
+                />
+                <label>
+                  <Checkbox
+                      color="primary"
+                      onChange={(e) => this.setState({isDeadlineStrict: e.target.checked})}
+                  />
+                  Запретить отправку заданий после дедлайна
+                </label>
+              </div>
+              }
               <br />
               <Button
                 size="small"
@@ -166,7 +191,9 @@ export default class EditTask extends React.Component<
               maxRating: task.maxRating!,
               courseId: homework.courseId!,
               courseMentorId: course.mentorId!,
-              deadlineDate: task.deadlineDate!
+              hasDeadline: task.hasDeadline!,
+              deadlineDate: task.deadlineDate!,
+              isDeadlineStrict: task.isDeadlineStrict!
             })
           )
         )
