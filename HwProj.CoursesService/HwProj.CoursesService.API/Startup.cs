@@ -4,6 +4,7 @@ using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.CoursesService.API.Repositories.Groups;
 using HwProj.CoursesService.API.Services;
+using HwProj.CoursesService.Client;
 using HwProj.Utils.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -39,6 +40,9 @@ namespace HwProj.CoursesService.API
             services.AddScoped<IHomeworksService, HomeworksService>();
             services.AddScoped<ITasksService, TasksService>();
             services.AddScoped<CourseMentorOnlyAttribute>();
+
+            var httpClient = new HttpClient();
+            services.AddCoursesServiceClient(httpClient, "http://localhost:5002");
 
             services.AddEventBus(Configuration);
 
