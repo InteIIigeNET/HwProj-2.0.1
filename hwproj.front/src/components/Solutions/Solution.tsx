@@ -86,8 +86,9 @@ export default class SolutionComponent extends React.Component<ISolutionProps, I
     }
 
     async componentDidMount() {
+        const token = ApiSingleton.authService.getToken();
         this.setState({
-            task: await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(this.props.solution.taskId!),
+            task: await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(this.props.solution.taskId!, { headers: {"Authorization": `Bearer ${token}`} }),
             lecturerComment: this.props.solution.lecturerComment!,
             points: this.props.solution.rating!,
         })
