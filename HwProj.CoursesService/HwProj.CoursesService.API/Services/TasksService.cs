@@ -42,6 +42,7 @@ namespace HwProj.CoursesService.API.Services
                 Description = update.Description,
                 MaxRating = update.MaxRating,
                 DeadlineDate = update.DeadlineDate,
+                PublicationDate = update.PublicationDate
             });
             _eventBus.Publish(new UpdateTaskMaxRatingEvent(taskId, update.MaxRating));
         }

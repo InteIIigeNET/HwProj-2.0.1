@@ -14,6 +14,7 @@ interface IEditTaskState {
   courseId: number;
   courseMentorId: string;
   edited: boolean;
+  publicationDate: Date,
   deadlineDate: Date;
 }
 
@@ -35,6 +36,7 @@ export default class EditTask extends React.Component<
       courseId: 0,
       courseMentorId: "",
       edited: false,
+      publicationDate: new Date(),
       deadlineDate: new Date()
     };
   }
@@ -47,12 +49,15 @@ export default class EditTask extends React.Component<
       description: this.state.description,
       maxRating: this.state.maxRating,
       deadlineDate: this.state.deadlineDate,
+      publicationDate: this.state.publicationDate
     };
 
     // ReDo
     let deadline = new Date(taskViewModel.deadlineDate!).setHours(new Date(taskViewModel.deadlineDate!).getHours() + 3)
+    let publicationDate = new Date(taskViewModel.publicationDate!).setHours(new Date(taskViewModel.publicationDate).getHours() + 3)
     taskViewModel.deadlineDate = new Date(deadline)
-
+    taskViewModel.publicationDate = new Date(publicationDate)
+    debugger
     const token = ApiSingleton.authService.getToken();
     ApiSingleton.tasksApi
       .apiTasksUpdateByTaskIdPut(+this.props.match.params.taskId, taskViewModel, { headers: {"Authorization": `Bearer ${token}`} })
@@ -131,6 +136,16 @@ export default class EditTask extends React.Component<
                 }}
                 onChange={(e) => this.setState({deadlineDate: new Date(e.target.value)})}
               />
+              <TextField
+                  id="datetime-local"
+                  label="Дата публикации"
+                  type="datetime-local"
+                  defaultValue={this.state.publicationDate}
+                  onChange={(e) => this.setState({publicationDate: new Date(e.target.value)})}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+              />
               <br />
               <Button
                 size="small"
@@ -166,10 +181,11 @@ export default class EditTask extends React.Component<
               maxRating: task.maxRating!,
               courseId: homework.courseId!,
               courseMentorId: course.mentorId!,
-              deadlineDate: task.deadlineDate!
+              deadlineDate: task.deadlineDate!,
+              publicationDate: task.publicationDate!
             })
           )
         )
-    );  
+    );
   }
 }

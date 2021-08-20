@@ -209,7 +209,8 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
     }
 
     async componentDidMount() {
-        const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+this.props.match.params.id);
+        const token = ApiSingleton.authService.getToken();
+        const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+this.props.match.params.id, { headers: {"Authorization": `Bearer ${token}`}});
         this.setState({
           isLoaded: true,
           isFound: true,
