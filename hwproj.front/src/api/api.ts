@@ -630,6 +630,20 @@ export interface NewSolutionInfo {
 /**
  * 
  * @export
+ * @interface NewSolutionInfo
+ */
+export interface NewSolutionInfo {
+    /**
+     * 
+     * @type {number}
+     * @memberof NewSolutionInfo
+     */
+    id?: number;
+}
+
+/**
+ * 
+ * @export
  * @interface NotificationViewModel
  */
 export interface NotificationViewModel {
@@ -737,6 +751,32 @@ export interface Result {
 
 /**
  *
+ * @export
+ * @interface ResultNewSolutionInfo
+ */
+export interface ResultNewSolutionInfo {
+    /**
+     * 
+     * @type {NewSolutionInfo}
+     * @memberof ResultNewSolutionInfo
+     */
+    value?: NewSolutionInfo;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof ResultNewSolutionInfo
+     */
+    succeeded?: boolean;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof ResultNewSolutionInfo
+     */
+    errors?: Array<string>;
+}
+
+/**
+ * 
  * @export
  * @interface ResultNewSolutionInfo
  */
