@@ -74,13 +74,13 @@ export default class StudentSolutionsPage extends React.Component<
   componentDidMount() {
     const token = ApiSingleton.authService.getToken();
     ApiSingleton.tasksApi
-      .apiTasksGetByTaskIdGet(+this.props.match.params.taskId)
+      .apiTasksGetByTaskIdGet(+this.props.match.params.taskId, { headers: {"Authorization": `Bearer ${token}`} })
       .then((task) =>
         ApiSingleton.homeworksApi
           .apiHomeworksGetByHomeworkIdGet(task.homeworkId!, { headers: {"Authorization": `Bearer ${token}`} })
           .then((homework) =>
             ApiSingleton.coursesApi
-              .apiCoursesByCourseIdGet(homework.courseId!)
+              .apiCoursesByCourseIdGet(homework.courseId!, { headers: {"Authorization": `Bearer ${token}`} })
               .then((course) =>
                 this.setState({
                   task: task,

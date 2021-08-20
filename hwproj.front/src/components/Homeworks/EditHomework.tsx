@@ -142,7 +142,7 @@ export default class EditHomework extends React.Component<
       .apiHomeworksGetByHomeworkIdGet(+this.props.match.params.homeworkId, { headers: {"Authorization": `Bearer ${token}`} })
       .then((homework) =>
         ApiSingleton.coursesApi
-          .apiCoursesByCourseIdGet(homework.courseId!)
+          .apiCoursesByCourseIdGet(homework.courseId!, { headers: {"Authorization": `Bearer ${token}`} })
           .then((course) =>
             this.setState({
               isLoaded: true,

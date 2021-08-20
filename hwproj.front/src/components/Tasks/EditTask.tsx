@@ -166,13 +166,13 @@ export default class EditTask extends React.Component<
 
   async componentDidMount() {
     const token = ApiSingleton.authService.getToken();
-    await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+this.props.match.params.taskId)
+    await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+this.props.match.params.taskId, { headers: {"Authorization": `Bearer ${token}`} })
       .then(async (task) =>
         await ApiSingleton.homeworksApi
         .apiHomeworksGetByHomeworkIdGet(task.homeworkId!, { headers: {"Authorization": `Bearer ${token}`} })
         .then(async (homework) =>
           await ApiSingleton.coursesApi
-          .apiCoursesByCourseIdGet(homework.courseId!)
+          .apiCoursesByCourseIdGet(homework.courseId!, { headers: {"Authorization": `Bearer ${token}`} })
           .then((course) =>
             this.setState({
               isLoaded: true,
