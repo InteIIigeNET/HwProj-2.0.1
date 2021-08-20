@@ -92,7 +92,7 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok(result);
         }
         
-        [HttpPost("signin-google")]
+        [HttpPost("externalLoginCallback")]
         [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> LoginViaGoogle(UserView model)
         {
