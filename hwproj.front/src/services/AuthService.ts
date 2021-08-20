@@ -36,7 +36,7 @@ export default class AuthService {
   }
 
   async loginViaGoogle(user: UserView) {
-    const token = await ApiSingleton.accountApi.apiAccountSigninGooglePost(user)
+    const token = await ApiSingleton.accountApi.apiAccountExternalLoginCallbackPost(user)
     if (token.errors) {
       return {
         error: token.errors,
