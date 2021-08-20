@@ -66,9 +66,9 @@ namespace HwProj.APIGateway.API.Controllers
         
         [HttpPost("rateSolution/{solutionId}/{newRating}")]
         [Authorize(Roles = Roles.LecturerRole)]
-        public async Task<IActionResult> RateSolution(long solutionId, int newRating)
+        public async Task<IActionResult> RateSolution(long solutionId, int newRating, [FromQuery] string lecturerComment)
         {
-            await _solutionsClient.RateSolution(solutionId, newRating);
+            await _solutionsClient.RateSolution(solutionId, newRating, lecturerComment);
             return Ok();
         }
         

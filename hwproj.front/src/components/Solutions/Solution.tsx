@@ -13,6 +13,7 @@ interface ISolutionProps {
 interface ISolutionState {
     points: number,
     task: HomeworkTaskViewModel,
+    lecturerComment: string,
 }
 
 export default class SolutionComponent extends React.Component<ISolutionProps, ISolutionState> {
@@ -21,6 +22,7 @@ export default class SolutionComponent extends React.Component<ISolutionProps, I
         this.state = {
             points: 0,
             task: {},
+            lecturerComment: "",
         }
     }
 
@@ -56,6 +58,22 @@ export default class SolutionComponent extends React.Component<ISolutionProps, I
                         onChange={(e) => this.setState({ points: +e.target.value })}
                     />
                 </Box>
+                {(this.props.forMentor || (!this.props.forMentor && this.state.lecturerComment)) &&
+                <TextField
+                    multiline
+                    fullWidth
+                    InputProps={{
+                        readOnly: !this.props.forMentor,
+                    }}
+                    rows="4"
+                    rowsMax="15"
+                    label="Комментарий лектора"
+                    variant="outlined"
+                    margin="normal"
+                    value={this.state.lecturerComment}
+                    onChange={(e) => this.setState({ lecturerComment: e.target.value })}
+                />
+                }
                 {this.props.forMentor &&
                     <div>
                         <Button onClick={() => this.assignSolution ()} size="small" color="primary" variant="contained">
@@ -69,13 +87,14 @@ export default class SolutionComponent extends React.Component<ISolutionProps, I
 
     async componentDidMount() {
         this.setState({
-            task: await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(this.props.solution.taskId!)
+            task: await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(this.props.solution.taskId!),
+            lecturerComment: this.props.solution.lecturerComment!,
         })
     }
 
     async assignSolution () {
         const token = ApiSingleton.authService.getToken();
-        await ApiSingleton.solutionsApi.apiSolutionsRateSolutionBySolutionIdByNewRatingPost(this.props.solution.id!, this.state.points, { headers: {"Authorization": `Bearer ${token}`} })
+        await ApiSingleton.solutionsApi.apiSolutionsRateSolutionBySolutionIdByNewRatingPost(this.props.solution.id!, this.state.points, this.state.lecturerComment, { headers: {"Authorization": `Bearer ${token}`} })
         window.location.reload()
     }
 }

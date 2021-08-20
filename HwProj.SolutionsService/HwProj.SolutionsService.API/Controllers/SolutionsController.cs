@@ -62,9 +62,9 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpPost("rateSolution/{solutionId}")]
-        public async Task RateSolution(long solutionId, [FromQuery] int newRating)
+        public async Task RateSolution(long solutionId, [FromQuery] int newRating, [FromQuery] string lecturerComment)
         {
-            await _solutionsService.RateSolutionAsync(solutionId, newRating);
+            await _solutionsService.RateSolutionAsync(solutionId, newRating, lecturerComment);
         }
         
         [HttpPost("markSolutionFinal/{solutionId}")]

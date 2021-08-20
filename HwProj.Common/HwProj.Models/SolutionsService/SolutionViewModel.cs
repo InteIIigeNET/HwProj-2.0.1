@@ -11,5 +11,7 @@ namespace HwProj.Models.SolutionsService
         public string StudentId { get; set; }
 
         public DateTime PublicationDate { get; set; }
+
+        public string LecturerComment { get; set; }
     }
 }

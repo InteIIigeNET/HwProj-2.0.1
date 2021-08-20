@@ -17,9 +17,14 @@ namespace HwProj.SolutionsService.API.Repositories
         {
         }
 
-        public async Task RateSolutionAsync(long solutionId, SolutionState newState, int newRating)
+        public async Task RateSolutionAsync(long solutionId, SolutionState newState, int newRating, string lecturerComment)
         {
-            await UpdateAsync(solutionId, solution => new Solution {State = newState, Rating = newRating});
+            await UpdateAsync(solutionId, solution => new Solution
+            {
+                State = newState, 
+                Rating = newRating, 
+                LecturerComment = lecturerComment 
+            });
         }
         
         public async Task ChangeTaskSolutionsMaxRatingAsync(long taskId, int newMaxRating)

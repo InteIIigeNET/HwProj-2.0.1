@@ -45,14 +45,14 @@ namespace HwProj.SolutionsService.API.Services
             return id;
         }
 
-        public async Task RateSolutionAsync(long solutionId, int newRating)
+        public async Task RateSolutionAsync(long solutionId, int newRating, string lecturerComment)
         {
             var solution = await _solutionsRepository.GetAsync(solutionId);
             var task = await _coursesServiceClient.GetTask(solution.TaskId);
             if (0 <= newRating && newRating <= task.MaxRating)
             {
                 SolutionState state = newRating >= task.MaxRating ? SolutionState.Final : SolutionState.Rated;
-                await _solutionsRepository.RateSolutionAsync(solutionId, state, newRating);
+                await _solutionsRepository.RateSolutionAsync(solutionId, state, newRating, lecturerComment);
             }
         }
 

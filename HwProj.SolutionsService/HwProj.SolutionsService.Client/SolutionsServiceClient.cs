@@ -70,11 +70,11 @@ namespace HwProj.SolutionsService.Client
             throw new ForbiddenException();
         }
         
-        public async Task RateSolution(long solutionId, int newRating)
+        public async Task RateSolution(long solutionId, int newRating, string lecturerComment)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _solutionServiceUri + $"api/Solutions/rateSolution/{solutionId}?newRating={newRating}");
+                _solutionServiceUri + $"api/Solutions/rateSolution/{solutionId}?newRating={newRating}&lecturerComment={lecturerComment}");
 
             await _httpClient.SendAsync(httpRequest);
         }
