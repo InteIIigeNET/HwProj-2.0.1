@@ -70,13 +70,17 @@ namespace HwProj.SolutionsService.Client
             throw new ForbiddenException();
         }
         
-        public async Task RateSolution(long solutionId, int newRating, string lecturerComment)
+        public async Task RateSolution(long solutionId, int newRating, string lecturerComment, string lecturerId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _solutionServiceUri + $"api/Solutions/rateSolution/{solutionId}?newRating={newRating}&lecturerComment={lecturerComment}");
+                _solutionServiceUri + $"api/Solutions/rateSolution/{solutionId}?newRating={newRating}&lecturerComment={lecturerComment}&lecturerId={lecturerId}");
 
-            await _httpClient.SendAsync(httpRequest);
+            var response = await _httpClient.SendAsync(httpRequest);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new ForbiddenException();
+            }
         }
         
         public async Task MarkSolution(long solutionId)

@@ -62,9 +62,19 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpPost("rateSolution/{solutionId}")]
-        public async Task RateSolution(long solutionId, [FromQuery] int newRating, [FromQuery] string lecturerComment)
+        public async Task<IActionResult> RateSolution(long solutionId, [FromQuery] int newRating, [FromQuery] string lecturerComment, [FromQuery] string lecturerId)
         {
-            await _solutionsService.RateSolutionAsync(solutionId, newRating, lecturerComment);
+            var solution = await _solutionsService.GetSolutionAsync(solutionId);
+            var task = await _coursesClient.GetTask(solution.TaskId);
+            var homework = await _coursesClient.GetHomework(task.HomeworkId);
+            var course = await _coursesClient.GetCourseById(homework.CourseId, "");
+
+            if (course.MentorId == lecturerId)
+            {
+                await _solutionsService.RateSolutionAsync(solutionId, newRating, lecturerComment);
+                return Ok();
+            }
+            return Forbid();
         }
         
         [HttpPost("markSolutionFinal/{solutionId}")]
