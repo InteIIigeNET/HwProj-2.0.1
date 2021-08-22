@@ -44,7 +44,9 @@ export default class AddTask extends React.Component<
   public render() {
     return (
       <div>
-        <Typography variant="subtitle1">Добавить задачу</Typography>
+        <Typography variant="subtitle1" style={{ marginTop: "15px" }}>
+          Добавить задачу
+        </Typography>
         <form onSubmit={(e) => this.handleSubmit(e)}>
           <TextField
             required
@@ -54,7 +56,6 @@ export default class AddTask extends React.Component<
             value={this.state.title}
             onChange={(e) => this.setState({ title: e.target.value })}
           />
-          <br />
           <TextField
             required
             label="Баллы"
@@ -69,7 +70,6 @@ export default class AddTask extends React.Component<
             multiline
             fullWidth
             rows="4"
-            //rowsMax="15"
             label="Условие задачи"
             variant="outlined"
             margin="normal"
@@ -96,24 +96,25 @@ export default class AddTask extends React.Component<
                 shrink: true,
               }}
           />
-          <br />
-          <Button
-            size="small"
-            variant="contained"
-            color="primary"
-            type="submit"
-          >
-            Добавить задачу
-          </Button>
-          &nbsp;
-          <Button
-            onClick={() => this.props.onCancel()}
-            size="small"
-            variant="contained"
-            color="primary"
-          >
-            Отменить
-          </Button>
+          <div style={{ marginTop: "15px" }}>
+            <Button
+              size="small"
+              variant="contained"
+              color="primary"
+              type="submit"
+            >
+              Добавить задачу
+            </Button>
+            &nbsp;
+            <Button
+              onClick={() => this.props.onCancel()}
+              size="small"
+              variant="contained"
+              color="primary"
+            >
+              Отменить
+            </Button>
+          </div>
         </form>
       </div>
     );

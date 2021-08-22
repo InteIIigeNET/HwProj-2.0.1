@@ -7,8 +7,10 @@ import AddHomework from "../Homeworks/AddHomework";
 import CourseStudents from "./CourseStudents";
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
-import { Button, Typography } from "@material-ui/core";
+import { Button, Container, Grid, Paper, Typography } from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
+import { useEffect, useState } from "react";
+import { makeStyles } from "@material-ui/styles";
 
 interface ICourseMate {
     name: string;
@@ -19,7 +21,6 @@ interface ICourseMate {
 }
 
 interface ICourseState {
-    isLoaded: boolean;
     isFound: boolean;
     course: CourseViewModel;
     courseHomework: HomeworkViewModel[];
@@ -33,186 +34,41 @@ interface ICourseProps {
     id: string;
 }
 
-export default class Course extends React.Component<RouteComponentProps<ICourseProps>, ICourseState> {
-    constructor(props: RouteComponentProps<ICourseProps>) {
-        super(props);
-        this.state = {
-            isLoaded: false,
-            isFound: false,
-            course: {
-                mentorId: "",
-            },
-            courseHomework: [],
-            createHomework: false,
-            mentor: {
-                name: "",
-                surname: "",
-                middleName: "",
-                email: "",
-                role: "",
-            },
-            acceptedStudents: [],
-            newStudents: [],
-        };
+const styles = makeStyles( theme => ({
+    info: {
+        display: "flex",
+        justifyContent: "space-between",
+        flexWrap: "nowrap",
+    },
+    item: {
     }
+  }));
 
-    public render() {
-        const { isLoaded, isFound, course, createHomework, mentor } = this.state;
-        if (isLoaded) {
-        if (isFound) {
-            let isLogged = ApiSingleton.authService.isLoggedIn()
-            let userId = isLogged
-            ? ApiSingleton.authService.getUserId()
-            : undefined;
-            let isMentor = isLogged && userId === String(course.mentorId);
-            let isSignedInCourse =
-            isLogged && this.state.newStudents!.some((cm: any) => cm.id === userId);
-            let isAcceptedStudent = isLogged && this.state.acceptedStudents!.some(
-                (cm: any) => cm.id === userId
-            );
-            return (
-            <div className="container">
-                <div className="d-flex justify-content-between">
-                <div>
-                    <Typography variant="h5">
-                    {course.name} &nbsp;
-                    {isMentor && (
-                        <RouterLink to={"./" + this.props.match.params.id + "/edit"}>
-                        <EditIcon fontSize="small"/>
-                        </RouterLink>
-                    )}
-                    </Typography>
-                    <Typography variant="subtitle1" gutterBottom>
-                    {course.groupName}
-                    </Typography>
-                </div>
-                <div>
-                    <Typography variant="h5">
-                    {mentor.name}&nbsp;{mentor.surname}
-                    </Typography>
-                    {(isMentor || isAcceptedStudent) && (
-                    <Typography variant="subtitle1">{mentor.email}</Typography>
-                    )}
-                    {isLogged && !isSignedInCourse && !isMentor && !isAcceptedStudent &&(
-                    <Button
-                        size="small"
-                        variant="contained"
-                        color="primary"
-                        onClick={() => this.joinCourse()}
-                    >
-                        Записаться
-                    </Button>
-                    )}
-                    {isLogged &&
-                    isSignedInCourse &&
-                    !isAcceptedStudent &&
-                    "Ваша заявка рассматривается."}
-                </div>
-                </div>
-                {createHomework && (
-                <div>
-                    <CourseStudents
-                      courseMates={this.state.acceptedStudents}
-                      homeworks={this.state.courseHomework}
-                      userId={userId as string}
-                      isMentor={isMentor}
-                      course={this.state.course}
-                    />
-                    <br />
-                    <NewCourseStudents
-                      onUpdate={() => this.componentDidMount()}
-                      course={this.state.course}
-                      students={this.state.newStudents}
-                      courseId={this.props.match.params.id}
-                    />
-                    <br />
-                    <AddHomework
-                      id={+this.props.match.params.id}
-                      onCancel={() => this.componentDidMount()}
-                      onSubmit={() => this.componentDidMount()}
-                    />
-                    <CourseHomework
-                      onDelete={() => this.componentDidMount()}
-                      isStudent={isAcceptedStudent}
-                      isMentor={isMentor}
-                      homework={this.state.courseHomework}
-                    />
-                </div>
-                )}
-                {isMentor && !createHomework && (
-                <div>
-                    <CourseStudents
-                      courseMates={this.state.acceptedStudents}
-                      homeworks={this.state.courseHomework}
-                      userId={userId as string}
-                      isMentor={isMentor}
-                      course={this.state.course}
-                    />
-                    <br />
-                    <NewCourseStudents
-                      onUpdate={() => this.componentDidMount()}
-                      course={this.state.course}
-                      students={this.state.newStudents}
-                      courseId={this.props.match.params.id}
-                    />
-                    <br />
-                    <Button
-                      size="small"
-                      variant="contained"
-                      color="primary"
-                      onClick={() => {
-                          this.setState({ createHomework: true });
-                      }}
-                    >
-                    Добавить домашку
-                    </Button>
-                    <CourseHomework
-                      onDelete={() => this.componentDidMount()}
-                      isStudent={isAcceptedStudent}
-                      isMentor={isMentor}
-                      homework={this.state.courseHomework}
-                    />
-                </div>
-                )}
-                {isAcceptedStudent && (
-                <CourseStudents
-                  courseMates={this.state.acceptedStudents}
-                  homeworks={this.state.courseHomework}
-                  userId={userId as string}
-                  isMentor={isMentor}
-                  course={this.state.course}
-                />
-                )}
-                {!isMentor && (
-                <div>
-                    <CourseHomework
-                      onDelete={() => this.componentDidMount()}
-                      homework={this.state.courseHomework}
-                      isStudent={isAcceptedStudent}
-                      isMentor={isMentor}
-                    />
-                </div>
-                )}
-            </div>
-            );
-        }
-        return <Typography variant="h3">Не удалось найти курс.</Typography>;
-        }
-        return <h1> </h1>;
-    }
+const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
 
-    joinCourse() {
-        const token = ApiSingleton.authService.getToken();
-        ApiSingleton.coursesApi
-            .apiCoursesSignInCourseByCourseIdPost(+this.props.match.params.id, { headers: {"Authorization": `Bearer ${token}`} })
-            .then((res) => this.componentDidMount());
-    }
+    const courseId = props.match.params.id
+    const classes = styles()
 
-    async componentDidMount() {
-        const token = ApiSingleton.authService.getToken();
-        const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+this.props.match.params.id, { headers: {"Authorization": `Bearer ${token}`}});
-        this.setState({
-          isLoaded: true,
+    const [ courseState, setCourseState ] = useState<ICourseState>({
+        isFound: false,
+        course: {},
+        courseHomework: [],
+        createHomework: false,
+        mentor: {
+            name: "",
+            surname: "",
+            middleName: "",
+            email: "",
+            role: "",
+        },
+        acceptedStudents: [],
+        newStudents: [],
+    })
+
+    const setCurrentState = async () => {
+        const token = ApiSingleton.authService.getToken()
+        const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+courseId, { headers: {"Authorization": `Bearer ${token}`}})
+        setCourseState({
           isFound: true,
           course: course,
           courseHomework: course.homeworks!,
@@ -243,5 +99,190 @@ export default class Course extends React.Component<RouteComponentProps<ICourseP
                 }
             })),
         })
-      }
+    }
+
+    useEffect(() => {
+        setCurrentState()
+    }, [])
+
+    const joinCourse = async () => {
+        const token = ApiSingleton.authService.getToken();
+        await ApiSingleton.coursesApi
+            .apiCoursesSignInCourseByCourseIdPost(+courseId, { headers: {"Authorization": `Bearer ${token}`} })
+            .then((res) => setCurrentState());
+    }
+
+    const { isFound, course, createHomework, mentor, newStudents, acceptedStudents } = courseState;
+    if (isFound) {
+        const isLogged = ApiSingleton.authService.isLoggedIn()
+        const userId = isLogged
+            ? ApiSingleton.authService.getUserId()
+            : undefined;
+        const isMentor = isLogged && userId === String(course.mentorId);
+        const isSignedInCourse =
+            isLogged && newStudents!.some((cm: any) => cm.id === userId);
+        const isAcceptedStudent = isLogged && acceptedStudents!.some(
+            (cm: any) => cm.id === userId
+        );
+        return (
+            <Grid>
+                <Grid container justify="center" style={{ marginTop: "15px" }}>
+                    <Grid item xs={11} className={classes.info}>
+                        <div>
+                            <Typography variant="h5">
+                                {course.name} &nbsp;
+                                {isMentor && (
+                                    <RouterLink to={"./" + courseId! + "/edit"}>
+                                        <EditIcon fontSize="small"/>
+                                    </RouterLink>
+                                )}
+                            </Typography>
+                            <Typography variant="subtitle1" gutterBottom>
+                                Группа: {course.groupName}
+                            </Typography>
+                        </div>              
+                        <div>
+                            <Typography variant="h5">
+                                {mentor.name}&nbsp;{mentor.surname}
+                            </Typography>
+                            {(isMentor || isAcceptedStudent) && (
+                            <Typography variant="subtitle1">
+                                {mentor.email}
+                            </Typography>
+                            )}
+                            {isLogged && !isSignedInCourse && !isMentor && !isAcceptedStudent &&(
+                            <Button
+                                size="small"
+                                variant="contained"
+                                color="primary"
+                                onClick={() => joinCourse()}
+                            >
+                                Записаться
+                            </Button>
+                            )}
+                            {isLogged && isSignedInCourse && !isAcceptedStudent &&
+                            <Typography>
+                                Ваша заявка рассматривается
+                            </Typography>}
+                        </div>
+                    </Grid>
+                </Grid>
+                {createHomework && (
+                <div>
+                    <Grid container justifyContent="center" style={{ marginTop: "15px", marginBottom: "15px" }}>
+                        <Grid item xs={11}>
+                            <CourseStudents
+                                courseMates={courseState.acceptedStudents}
+                                homeworks={courseState.courseHomework}
+                                userId={userId as string}
+                                isMentor={isMentor}
+                                course={courseState.course}
+                            />
+                        </Grid>
+                        <Grid item xs={11}>
+                            <NewCourseStudents
+                                onUpdate={() => setCurrentState()}
+                                course={course}
+                                students={newStudents}
+                                courseId={courseId}
+                            />
+                        </Grid>
+                        <Grid item xs={11} style={{ marginTop: "15px" }}>
+                            <AddHomework
+                                id={+courseId}
+                                onCancel={() => setCurrentState()}
+                                onSubmit={() => setCurrentState()}
+                            />
+                        </Grid>
+                        <Grid item xs={11} style={{ marginTop: "15px" }}>
+                            <CourseHomework
+                                onDelete={() => setCurrentState()}
+                                isStudent={isAcceptedStudent}
+                                isMentor={isMentor}
+                                homework={courseState.courseHomework}
+                            />
+                        </Grid>
+                    </Grid>
+                </div>
+                )}
+                {isMentor && !createHomework && (
+                <div>
+                    <Grid container justifyContent="center" style={{ marginTop: "15px", marginBottom: "15px" }}>
+                        <Grid item xs={11}>
+                            <CourseStudents
+                                courseMates={courseState.acceptedStudents}
+                                homeworks={courseState.courseHomework}
+                                userId={userId as string}
+                                isMentor={isMentor}
+                                course={courseState.course}
+                            />
+                        </Grid>
+                    </Grid>
+                    <Grid container className={classes.item} justifyContent="center">
+                        <Grid item xs={11}>
+                            <NewCourseStudents
+                                onUpdate={() => setCurrentState()}
+                                course={courseState.course}
+                                students={courseState.newStudents}
+                                courseId={courseId}
+                            />
+                        </Grid>
+                        <Grid item xs={11} style={{ marginTop: "15px" }}>
+                            <Button
+                                size="small"
+                                variant="contained"
+                                color="primary"
+                                onClick={() => {
+                                    setCourseState(prevState => ({
+                                        ...prevState,
+                                        createHomework: true 
+                                    }));
+                                }}
+                            >
+                                Добавить домашку
+                            </Button>
+                        </Grid>
+                        <Grid item xs={11} style={{ marginTop: "15px" }}>
+                            <CourseHomework
+                                onDelete={() => setCurrentState()}
+                                isStudent={isAcceptedStudent}
+                                isMentor={isMentor}
+                                homework={courseState.courseHomework}
+                            />
+                        </Grid>
+                    </Grid>
+                </div>
+                )}
+                {isAcceptedStudent && (
+                    <Grid container justifyContent="center" style={{ marginTop: "15px", marginBottom: "15px" }}>
+                        <Grid item xs={11}>
+                            <CourseStudents
+                                courseMates={courseState.acceptedStudents}
+                                homeworks={courseState.courseHomework}
+                                userId={userId as string}
+                                isMentor={isMentor}
+                                course={courseState.course}
+                            />
+                        </Grid>
+                    </Grid>
+                )}
+                {!isMentor && (
+                <div>
+                    <CourseHomework
+                        onDelete={() => setCurrentState()}
+                        homework={courseState.courseHomework}
+                        isStudent={isAcceptedStudent}
+                        isMentor={isMentor}
+                    />
+                </div>
+                )}
+            </Grid>
+        );
+    }
+    return (
+        <Typography>
+        </Typography>
+    )
 }
+
+export default Course

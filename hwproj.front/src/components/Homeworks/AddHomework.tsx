@@ -7,7 +7,7 @@ import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import ApiSingleton from "../../api/ApiSingleton";
 import { CreateTaskViewModel } from "../../api";
 import ReactMarkdown from "react-markdown";
-import { Tab, Tabs, Zoom } from "@material-ui/core";
+import { Grid, Tab, Tabs, Zoom } from "@material-ui/core";
 
 interface IAddHomeworkProps {
   id: number;
@@ -46,9 +46,9 @@ export default class AddHomework extends React.Component<
   render() {
     return (
       <div>
-        <Typography variant="subtitle1">Добавить домашку</Typography>
-        <form onSubmit={(e) => this.handleSubmit(e)}>
+        <form onSubmit={(e) => this.handleSubmit(e)} style={{ maxWidth: "100%"}}>
           <TextField
+            size="small"
             required
             label="Название домашки"
             variant="outlined"
@@ -56,7 +56,6 @@ export default class AddHomework extends React.Component<
             name={this.state.title}
             onChange={(e) => this.setState({ title: e.target.value })}
           />
-
           <Tabs 
             onChange={(event, newValue) => this.setState({isPreview: newValue === 1})} 
             indicatorColor="primary"
@@ -70,7 +69,7 @@ export default class AddHomework extends React.Component<
             <TextField
               multiline
               fullWidth
-              rows="4"
+              rows="10"
               label="Описание домашки"
               variant="outlined"
               margin="normal"
@@ -81,78 +80,91 @@ export default class AddHomework extends React.Component<
           <div role="tabpanel" hidden={!this.state.isPreview} id="simple-tab-1">
             <p><ReactMarkdown>{this.state.description}</ReactMarkdown></p>
           </div>
-
-          <div className="container">
+          <div>
             <ol>
               {this.state.tasks.map((task, index) => (
-                <li key={index}>
-                  <Typography variant="subtitle2">Задача</Typography>
-                  <Button
-                    size="small"
-                    variant="contained"
-                    color="primary"
-                    onClick={() =>
-                      this.setState({
-                        tasks: this.state.tasks.slice(
-                          0,
-                          this.state.tasks.length - 1
-                        ),
-                      })
-                    }
-                  >
-                    Убрать задачу
-                  </Button>
-
-                  <br />
-                  <TextField
-                    required
-                    label="Название задачи"
-                    variant="outlined"
-                    margin="normal"
-                    name={task.title}
-                    onChange={(e) => (task.title = e.target.value)}
-                  />
-                  <TextField
-                    required
-                    label="Баллы"
-                    variant="outlined"
-                    type="number"
-                    margin="normal"
-                    defaultValue={task.maxRating}
-                    onChange={(e) => (task.maxRating = +e.target.value)}
-                  />
-                  <br />
-                  <TextField
-                    multiline
-                    fullWidth
-                    rows="4"
-                    label="Условие задачи"
-                    variant="outlined"
-                    margin="normal"
-                    name={task.description}
-                    onChange={(e) => (task.description = e.target.value)}
-                  />
-                  <TextField
-                    id="datetime-local"
-                    label="Дедлайн задачи"
-                    type="datetime-local"
-                    defaultValue={task.deadlineDate}
-                    onChange={(e) => { task.deadlineDate = new Date(e.target.value) }}
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                  />
-                  <TextField
-                      id="datetime-local"
-                      label="Дата публикации"
-                      type="datetime-local"
-                      defaultValue={task.publicationDate}
-                      onChange={(e) => { task.publicationDate = new Date(e.target.value) }}
-                      InputLabelProps={{
-                        shrink: true,
-                      }}
-                  />
-                </li>
+                <Grid container style={{ marginTop: "15px"}} xs={12}>
+                  <li key={index} style={{ width: "100vw" }}>
+                    <Typography variant="subtitle2" style={{ fontSize: "1rem" }}>
+                      Задача
+                    </Typography>
+                    <Grid item>
+                      <Button
+                        style={{ marginTop: "10px" }}
+                        size="small"
+                        variant="contained"
+                        color="primary"
+                        onClick={() =>
+                          this.setState({
+                            tasks: this.state.tasks.slice(
+                              0,
+                              this.state.tasks.length - 1
+                            ),
+                          })
+                        }
+                      >
+                        Убрать задачу
+                      </Button>
+                    </Grid>
+                    <Grid container>
+                      <TextField
+                        size="small"
+                        required
+                        label="Название задачи"
+                        variant="outlined"
+                        margin="normal"
+                        name={task.title}
+                        onChange={(e) => (task.title = e.target.value)}
+                      />
+                      <TextField
+                        size="small"
+                        required
+                        label="Баллы"
+                        variant="outlined"
+                        type="number"
+                        margin="normal"
+                        defaultValue={task.maxRating}
+                        onChange={(e) => (task.maxRating = +e.target.value)}
+                      />
+                    </Grid>
+                    <Grid>
+                      <TextField
+                        multiline
+                        fullWidth
+                        rows="4"
+                        label="Условие задачи"
+                        variant="outlined"
+                        margin="normal"
+                        name={task.description}
+                        onChange={(e) => (task.description = e.target.value)}
+                      />
+                    </Grid>
+                    <Grid container>
+                      <TextField
+                        size="small"
+                        id="datetime-local"
+                        label="Дата публикации"
+                        type="datetime-local"
+                        defaultValue={task.publicationDate}
+                        onChange={(e) => { task.publicationDate = new Date(e.target.value) }}
+                        InputLabelProps={{
+                          shrink: true,
+                        }}
+                      />
+                      <TextField
+                        size="small"
+                        id="datetime-local"
+                        label="Дедлайн задачи"
+                        type="datetime-local"
+                        defaultValue={task.deadlineDate}
+                        onChange={(e) => { task.deadlineDate = new Date(e.target.value) }}
+                        InputLabelProps={{
+                          shrink: true,
+                        }}
+                      />
+                    </Grid>
+                  </li>
+                </Grid>
               ))}
             </ol>
             <Button
@@ -174,24 +186,25 @@ export default class AddHomework extends React.Component<
               Ещё задачу
             </Button>
           </div>
-          <br />
-          <Button
-            size="small"
-            variant="contained"
-            color="primary"
-            type="submit"
-          >
-            Добавить домашку
-          </Button>
-          &nbsp;
-          <Button
-            onClick={() => this.props.onCancel()}
-            size="small"
-            variant="contained"
-            color="primary"
-          >
-            Отменить
-          </Button>
+          <Grid container style={{ marginTop: "15px"}}>
+            <Button
+              size="small"
+              variant="contained"
+              color="primary"
+              type="submit"
+            >
+              Добавить домашку
+            </Button>
+            &nbsp;
+            <Button
+              onClick={() => this.props.onCancel()}
+              size="small"
+              variant="contained"
+              color="primary"
+            >
+              Отменить
+            </Button>
+          </Grid>
         </form>
       </div>
     );
