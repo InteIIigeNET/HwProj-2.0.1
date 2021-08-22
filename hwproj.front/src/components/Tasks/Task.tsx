@@ -57,8 +57,7 @@ export default class Task extends React.Component<ITaskProp, {}> {
     }
 
     deleteTask(): void {
-        const token = ApiSingleton.authService.getToken()
-        ApiSingleton.tasksApi.apiTasksDeleteByTaskIdDelete(this.props.task.id!, { headers: {"Authorization": `Bearer ${token}`} })
+        ApiSingleton.tasksApi.apiTasksDeleteByTaskIdDelete(this.props.task.id!)
             .then(res => this.props.onDeleteClick())
     }
 }

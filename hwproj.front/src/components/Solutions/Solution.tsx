@@ -67,7 +67,6 @@ export default class SolutionComponent extends React.Component<ISolutionProps, I
     }
 
     async assignSolution () {
-        const token = ApiSingleton.authService.getToken();
-        await ApiSingleton.solutionsApi.apiSolutionsRateSolutionBySolutionIdByNewRatingPost(this.props.solution.id!, this.state.points, { headers: {"Authorization": `Bearer ${token}`} })
+        await ApiSingleton.solutionsApi.apiSolutionsRateSolutionBySolutionIdByNewRatingPost(this.props.solution.id!, this.state.points)
     }
 }

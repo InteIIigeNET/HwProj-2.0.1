@@ -57,10 +57,9 @@ export default class EditTask extends React.Component<
     let publicationDate = new Date(taskViewModel.publicationDate!).setHours(new Date(taskViewModel.publicationDate).getHours() + 3)
     taskViewModel.deadlineDate = new Date(deadline)
     taskViewModel.publicationDate = new Date(publicationDate)
-    debugger
-    const token = ApiSingleton.authService.getToken();
+
     ApiSingleton.tasksApi
-      .apiTasksUpdateByTaskIdPut(+this.props.match.params.taskId, taskViewModel, { headers: {"Authorization": `Bearer ${token}`} })
+      .apiTasksUpdateByTaskIdPut(+this.props.match.params.taskId, taskViewModel)
       .then((res) => {
         this.setState({ edited: true })
       });
@@ -165,11 +164,10 @@ export default class EditTask extends React.Component<
   }
 
   async componentDidMount() {
-    const token = ApiSingleton.authService.getToken();
     await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+this.props.match.params.taskId)
       .then(async (task) =>
         await ApiSingleton.homeworksApi
-        .apiHomeworksGetByHomeworkIdGet(task.homeworkId!, { headers: {"Authorization": `Bearer ${token}`} })
+        .apiHomeworksGetByHomeworkIdGet(task.homeworkId!)
         .then(async (homework) =>
           await ApiSingleton.coursesApi
           .apiCoursesByCourseIdGet(homework.courseId!)

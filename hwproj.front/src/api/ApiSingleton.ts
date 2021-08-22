@@ -32,14 +32,15 @@ class Api {
 
 const basePath = "http://localhost:5000";
 
+const aService = new AuthService();
 let ApiSingleton: Api;
 ApiSingleton = new Api(
-  new AccountApi({ basePath }),
-  new CoursesApi({ basePath: basePath }),
-  new SolutionsApi({ basePath: basePath }),
-  new NotificationsApi({basePath: basePath }),
-  new HomeworksApi({basePath: basePath }),
-  new TasksApi({ basePath: basePath }),
-  new AuthService(),
+  new AccountApi({ basePath: basePath, apiKey: () => "Bearer " + aService.getToken()! }),
+  new CoursesApi({ basePath: basePath, apiKey: () => "Bearer " + aService.getToken()! }),
+  new SolutionsApi({ basePath: basePath, apiKey: () => "Bearer " + aService.getToken()! }),
+  new NotificationsApi({basePath: basePath, apiKey: () => "Bearer " + aService.getToken()! }),
+  new HomeworksApi({basePath: basePath, apiKey: () => "Bearer " + aService.getToken()! }),
+  new TasksApi({ basePath: basePath, apiKey: () => "Bearer " + aService.getToken()! }),
+  aService,
 );
 export default ApiSingleton;
