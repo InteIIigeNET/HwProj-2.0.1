@@ -51,7 +51,7 @@ namespace HwProj.SolutionsService.API.Controllers
         {
             var task = await _coursesServiceClient.GetTask(taskId);
             var homework = await _coursesServiceClient.GetHomework(task.HomeworkId);
-            var course = await _coursesServiceClient.GetCourseById(homework.CourseId);
+            var course = await _coursesServiceClient.GetCourseById(homework.CourseId, studentId);
 
             var student = course.CourseMates.Find(x => x.StudentId == studentId && x.IsAccepted);
             if (student == null)

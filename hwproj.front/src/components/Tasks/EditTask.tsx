@@ -47,21 +47,13 @@ export default class EditTask extends React.Component<
   }
 
   public async handleSubmit(e: any) {
-    e.preventDefault();
-    if (this.state.hasDeadline) {
-      this.setState({
-        deadlineDate: new Date(this.state.deadlineDate!.setHours(this.state.deadlineDate!.getHours() + 3))
-      })
-    }
-    this.setState({
-        publicationDate: new Date(this.state.publicationDate!.setHours(this.state.publicationDate!.getHours() + 3))
-    })
-    const token = ApiSingleton.authService.getToken();
-    ApiSingleton.tasksApi
-      .apiTasksUpdateByTaskIdPut(+this.props.match.params.taskId, this.state, { headers: {"Authorization": `Bearer ${token}`} })
-      .then((res) => {
-        this.setState({ edited: true })
-      });
+      e.preventDefault();
+      const token = ApiSingleton.authService.getToken();
+      ApiSingleton.tasksApi
+        .apiTasksUpdateByTaskIdPut(+this.props.match.params.taskId, this.state, { headers: {"Authorization": `Bearer ${token}`} })
+        .then((res) => {
+          this.setState({ edited: true })
+        });
   }
 
   public render() {
@@ -124,6 +116,22 @@ export default class EditTask extends React.Component<
                 onChange={(e) => this.setState({ description: e.target.value })}
               />
               <br />
+              <div>
+                  <TextField
+                      id="datetime-local"
+                      label="Дата публикации"
+                      type="datetime-local"
+                      defaultValue={this.state.publicationDate}
+                      onChange={(e) => {
+                          let date = new Date(e.target.value)
+                          date = new Date(date.setHours(date.getHours() + 3))
+                          this.setState({publicationDate: date})
+                      }}
+                      InputLabelProps={{
+                          shrink: true,
+                      }}
+                  />
+              </div>  
               <label>
                 <Checkbox
                     color="primary"
@@ -149,7 +157,11 @@ export default class EditTask extends React.Component<
                       shrink: true,
                     }}
                     required
-                    onChange={(e) => this.setState({deadlineDate: new Date(e.target.value)})}
+                    onChange={(e) => {
+                        let date = new Date(e.target.value)
+                        date = new Date(date.setHours(date.getHours() + 3))
+                        this.setState({deadlineDate: date})
+                    }}
                 />
                 <label>
                   <Checkbox
@@ -160,16 +172,6 @@ export default class EditTask extends React.Component<
                 </label>
               </div>
               }
-              <TextField
-                  id="datetime-local"
-                  label="Дата публикации"
-                  type="datetime-local"
-                  defaultValue={this.state.publicationDate}
-                  onChange={(e) => this.setState({publicationDate: new Date(e.target.value)})}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-              />
               <br />
               <Button
                 size="small"
@@ -190,13 +192,13 @@ export default class EditTask extends React.Component<
 
   async componentDidMount() {
     const token = ApiSingleton.authService.getToken();
-    await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+this.props.match.params.taskId)
+    await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+this.props.match.params.taskId, { headers: {"Authorization": `Bearer ${token}`}})
       .then(async (task) =>
         await ApiSingleton.homeworksApi
         .apiHomeworksGetByHomeworkIdGet(task.homeworkId!, { headers: {"Authorization": `Bearer ${token}`} })
         .then(async (homework) =>
           await ApiSingleton.coursesApi
-          .apiCoursesByCourseIdGet(homework.courseId!)
+          .apiCoursesByCourseIdGet(homework.courseId!, { headers: {"Authorization": `Bearer ${token}`} })
           .then((course) =>
             this.setState({
               isLoaded: true,
@@ -208,7 +210,7 @@ export default class EditTask extends React.Component<
               hasDeadline: task.hasDeadline!,
               deadlineDate: task.deadlineDate!,
               isDeadlineStrict: task.isDeadlineStrict!,
-              publicationDate: task.publicationDate!
+              publicationDate: task.publicationDate! as Date
             })
           )
         )

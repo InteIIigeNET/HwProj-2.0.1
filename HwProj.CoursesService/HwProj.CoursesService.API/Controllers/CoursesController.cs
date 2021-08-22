@@ -42,7 +42,7 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpGet("{courseId}")]
         public async Task<IActionResult> Get(long courseId, [FromBody] string userId)
         {
-            var courseFromDb = await _coursesService.GetAsync(courseId);
+            var courseFromDb = await _coursesService.GetAsync(courseId, userId);
 
             if (courseFromDb == null)
             {

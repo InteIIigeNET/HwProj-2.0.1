@@ -133,7 +133,8 @@ export default class EditCourse extends React.Component<RouteComponentProps<IEdi
     }
 
     async componentDidMount() {
-        const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+this.props.match.params.courseId)
+        const token = ApiSingleton.authService.getToken()
+        const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+this.props.match.params.courseId, { headers: {"Authorization": `Bearer ${token}`}})
         this.setState({
             isLoaded: true,
             name: course.name!,

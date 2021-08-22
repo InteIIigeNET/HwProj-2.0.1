@@ -135,6 +135,18 @@ export default class AddHomework extends React.Component<
                     name={task.description}
                     onChange={(e) => (task.description = e.target.value)}
                   />
+                  <div>
+                    <TextField
+                        id="datetime-local"
+                        label="Дата публикации"
+                        type="datetime-local"
+                        defaultValue={task.publicationDate}
+                        onChange={(e) => { task.publicationDate = new Date(e.target.value) }}
+                        InputLabelProps={{
+                          shrink: true,
+                        }}
+                    />
+                  </div>
                   <label>
                     <Checkbox
                         color="primary"
@@ -170,16 +182,6 @@ export default class AddHomework extends React.Component<
                       </label>
                     </div>
                     )}
-                  <TextField
-                      id="datetime-local"
-                      label="Дата публикации"
-                      type="datetime-local"
-                      defaultValue={task.publicationDate}
-                      onChange={(e) => { task.publicationDate = new Date(e.target.value) }}
-                      InputLabelProps={{
-                        shrink: true,
-                      }}
-                  />
                 </li>
               ))}
             </ol>

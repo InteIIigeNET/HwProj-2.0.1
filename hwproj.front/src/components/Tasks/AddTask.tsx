@@ -81,6 +81,18 @@ export default class AddTask extends React.Component<
             value={this.state.description}
             onChange={(e) => this.setState({ description: e.target.value })}
           />
+          <div>
+            <TextField
+                id="datetime-local"
+                label="Дата публикации"
+                type="datetime-local"
+                defaultValue={this.state.publicationDate}
+                onChange={(e) => this.setState({publicationDate: new Date(e.target.value)})}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+            />
+          </div>
           <label>
             <Checkbox
                 color="primary"
@@ -116,16 +128,6 @@ export default class AddTask extends React.Component<
                 </label>
               </div>
           }
-          <TextField
-              id="datetime-local"
-              label="Дата публикации"
-              type="datetime-local"
-              defaultValue={this.state.publicationDate}
-              onChange={(e) => this.setState({publicationDate: new Date(e.target.value)})}
-              InputLabelProps={{
-                shrink: true,
-              }}
-          />
           <br />
           <Button
             size="small"
