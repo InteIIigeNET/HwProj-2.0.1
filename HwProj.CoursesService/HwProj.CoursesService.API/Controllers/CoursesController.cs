@@ -5,6 +5,7 @@ using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Services;
 using HwProj.Models.CoursesService.ViewModels;
+using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 
@@ -39,7 +40,7 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpGet("{courseId}")]
-        public async Task<IActionResult> Get(long courseId)
+        public async Task<IActionResult> Get(long courseId, [FromBody] string userId)
         {
             var courseFromDb = await _coursesService.GetAsync(courseId);
 

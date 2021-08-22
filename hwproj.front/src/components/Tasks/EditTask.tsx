@@ -18,6 +18,7 @@ interface IEditTaskState {
   hasDeadline: boolean;
   deadlineDate: Date | undefined;
   isDeadlineStrict: boolean;
+  publicationDate: Date;
 }
 
 interface IEditTaskProps {
@@ -40,18 +41,21 @@ export default class EditTask extends React.Component<
       edited: false,
       hasDeadline: false,
       deadlineDate: new Date(),
-      isDeadlineStrict: false
+      isDeadlineStrict: false,
+      publicationDate: new Date()
     };
   }
 
   public async handleSubmit(e: any) {
     e.preventDefault();
-    // ReDo
     if (this.state.hasDeadline) {
       this.setState({
         deadlineDate: new Date(this.state.deadlineDate!.setHours(this.state.deadlineDate!.getHours() + 3))
       })
     }
+    this.setState({
+        publicationDate: new Date(this.state.publicationDate!.setHours(this.state.publicationDate!.getHours() + 3))
+    })
     const token = ApiSingleton.authService.getToken();
     ApiSingleton.tasksApi
       .apiTasksUpdateByTaskIdPut(+this.props.match.params.taskId, this.state, { headers: {"Authorization": `Bearer ${token}`} })
@@ -156,6 +160,16 @@ export default class EditTask extends React.Component<
                 </label>
               </div>
               }
+              <TextField
+                  id="datetime-local"
+                  label="Дата публикации"
+                  type="datetime-local"
+                  defaultValue={this.state.publicationDate}
+                  onChange={(e) => this.setState({publicationDate: new Date(e.target.value)})}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+              />
               <br />
               <Button
                 size="small"
@@ -193,10 +207,11 @@ export default class EditTask extends React.Component<
               courseMentorId: course.mentorId!,
               hasDeadline: task.hasDeadline!,
               deadlineDate: task.deadlineDate!,
-              isDeadlineStrict: task.isDeadlineStrict!
+              isDeadlineStrict: task.isDeadlineStrict!,
+              publicationDate: task.publicationDate!
             })
           )
         )
-    );  
+    );
   }
 }

@@ -4,6 +4,7 @@ import { Card, Typography, CardContent, Checkbox, CircularProgress, TextField, B
 import ApiSingleton from "api/ApiSingleton";
 import { AccountDataDto, NotificationViewModel } from "../api/";
 import "./Styles/Profile.css";
+import parse from 'html-react-parser';
 
 interface IProfileState {
   isLoaded: boolean;
@@ -108,7 +109,7 @@ export default class Profile extends React.Component<RouteComponentProps<IProfil
 				<Card style={{backgroundColor: "AliceBlue"}}>
 					<CardContent >
 						<Typography variant="body1" component="p">
-							{n.body}
+							{parse(n.body!)}
 						</Typography>
 					</CardContent>
 	

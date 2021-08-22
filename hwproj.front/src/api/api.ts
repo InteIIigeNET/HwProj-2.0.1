@@ -16,6 +16,7 @@
 import * as url from "url";
 import * as portableFetch from "portable-fetch";
 import { Configuration } from "./configuration";
+import ApiSingleton from "./ApiSingleton";
 
 const BASE_PATH = "https://localhost".replace(/\/+$/, "");
 

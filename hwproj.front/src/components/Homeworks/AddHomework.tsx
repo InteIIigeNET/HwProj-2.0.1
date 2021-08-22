@@ -3,8 +3,12 @@ import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Checkbox from "@material-ui/core/Checkbox";
 import Typography from "@material-ui/core/Typography";
+import Tooltip from '@material-ui/core/Tooltip';
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import ApiSingleton from "../../api/ApiSingleton";
 import { CreateTaskViewModel } from "../../api";
+import ReactMarkdown from "react-markdown";
+import { Tab, Tabs, Zoom } from "@material-ui/core";
 
 interface IAddHomeworkProps {
   id: number;
@@ -17,6 +21,7 @@ interface IAddHomeworkState {
   description: string;
   tasks: CreateTaskViewModel[];
   added: boolean;
+  isPreview: boolean;
 }
 
 export default class AddHomework extends React.Component<
@@ -37,6 +42,7 @@ export default class AddHomework extends React.Component<
                 isDeadlineStrict: false,
               }],
       added: false,
+      isPreview: false,
     };
   }
 
@@ -53,16 +59,32 @@ export default class AddHomework extends React.Component<
             name={this.state.title}
             onChange={(e) => this.setState({ title: e.target.value })}
           />
-          <TextField
-            multiline
-            fullWidth
-            rows="4"
-            label="Описание домашки"
-            variant="outlined"
-            margin="normal"
-            name={this.state.description}
-            onChange={(e) => this.setState({ description: e.target.value })}
-          />
+
+          <Tabs 
+            onChange={(event, newValue) => this.setState({isPreview: newValue === 1})} 
+            indicatorColor="primary"
+            value={this.state.isPreview ? 1 : 0}
+          >
+            <Tab label="Write" id="simple-tab-0" aria-controls="simple-tabpanel-0" />
+            <Tab label="Preview" id="simple-tab-1" aria-controls="simple-tabpanel-1"/>
+          </Tabs>
+
+          <div role="tabpanel" hidden={this.state.isPreview} id="simple-tab-0">
+            <TextField
+              multiline
+              fullWidth
+              rows="4"
+              label="Описание домашки"
+              variant="outlined"
+              margin="normal"
+              name={this.state.description}
+              onChange={(e) => this.setState({ description: e.target.value })}
+            />
+          </div>
+          <div role="tabpanel" hidden={!this.state.isPreview} id="simple-tab-1">
+            <p><ReactMarkdown>{this.state.description}</ReactMarkdown></p>
+          </div>
+
           <div className="container">
             <ol>
               {this.state.tasks.map((task, index) => (
@@ -148,6 +170,16 @@ export default class AddHomework extends React.Component<
                       </label>
                     </div>
                     )}
+                  <TextField
+                      id="datetime-local"
+                      label="Дата публикации"
+                      type="datetime-local"
+                      defaultValue={task.publicationDate}
+                      onChange={(e) => { task.publicationDate = new Date(e.target.value) }}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                  />
                 </li>
               ))}
             </ol>

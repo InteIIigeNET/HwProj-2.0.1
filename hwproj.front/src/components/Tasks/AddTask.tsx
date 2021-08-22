@@ -116,6 +116,16 @@ export default class AddTask extends React.Component<
                 </label>
               </div>
           }
+          <TextField
+              id="datetime-local"
+              label="Дата публикации"
+              type="datetime-local"
+              defaultValue={this.state.publicationDate}
+              onChange={(e) => this.setState({publicationDate: new Date(e.target.value)})}
+              InputLabelProps={{
+                shrink: true,
+              }}
+          />
           <br />
           <Button
             size="small"

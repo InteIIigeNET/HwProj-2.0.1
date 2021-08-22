@@ -1,4 +1,7 @@
-﻿using System.Net;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using HwProj.CoursesService.Client;
 using HwProj.Models.CoursesService.DTO;
@@ -33,7 +36,7 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(CourseViewModel), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetCourseData(long courseId)
         {
-            var result = await _coursesClient.GetCourseById(courseId);
+            var result = await _coursesClient.GetCourseById(courseId, Request.GetUserId());
             return result == null
                 ? NotFound()
                 : Ok(result) as IActionResult;

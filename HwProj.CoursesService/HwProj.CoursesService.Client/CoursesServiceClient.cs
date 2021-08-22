@@ -31,13 +31,18 @@ namespace HwProj.CoursesService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<CourseViewModel[]>();
         }
-        
-        public async Task<CourseViewModel> GetCourseById(long courseId)
+
+        public async Task<CourseViewModel> GetCourseById(long courseId, string userId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
-                _coursesServiceUri + $"api/Courses/{courseId}");
-
+                _coursesServiceUri + $"api/Courses/{courseId}")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(userId),
+                    Encoding.UTF8,
+                    "application/json")
+            };
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<CourseViewModel>();
         }
