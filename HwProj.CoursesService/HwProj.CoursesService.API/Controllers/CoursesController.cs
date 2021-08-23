@@ -29,14 +29,10 @@ namespace HwProj.CoursesService.API.Controllers
         public async Task<CourseViewModel[]> GetAll()
         {
             var coursesFromDb = await _coursesService.GetAllAsync().ConfigureAwait(false);
-            var courses = _mapper.Map<CourseViewModel[]>(coursesFromDb);
+            var courses = _mapper.Map<CourseViewModel[]>(coursesFromDb).ToList();
+            courses.ForEach(c => c.Homeworks.ForEach(h => h.Tasks.ForEach(t => t.PutPossibilityForSendingSolution())));
 
-            foreach (var course in courses)
-            {
-                course.Homeworks.ForEach(h => h.Tasks.ForEach(t => t.PutPossibilityForSendingSolution()));
-            }
-
-            return courses;
+            return courses.ToArray();
         }
 
         [HttpGet("{courseId}")]
