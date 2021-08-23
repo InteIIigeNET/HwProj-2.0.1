@@ -6,7 +6,6 @@ using HwProj.SolutionsService.API.Models;
 using HwProj.SolutionsService.API.Services;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using HwProj.Models.Result;
 
 namespace HwProj.SolutionsService.API.Controllers
 {
@@ -47,30 +46,18 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpPost("{taskId}")]
-        public async Task<Result<NewSolutionInfo>> PostSolution(long taskId, [FromBody] SolutionViewModel solutionViewModel, [FromQuery] string studentId)
+        public async Task<IActionResult> PostSolution(long taskId, [FromBody] SolutionViewModel solutionViewModel)
         {
             var task = await _coursesServiceClient.GetTask(taskId);
-            var homework = await _coursesServiceClient.GetHomework(task.HomeworkId);
-            var course = await _coursesServiceClient.GetCourseById(homework.CourseId, studentId);
 
-            var student = course.CourseMates.Find(x => x.StudentId == studentId && x.IsAccepted);
-            if (student == null)
+            if (task.CanSendSolution)
             {
-                return Result<NewSolutionInfo>.Failed("The student is not a member of the course");
+                var solution = _mapper.Map<Solution>(solutionViewModel);
+                var solutionId = await _solutionsService.AddSolutionAsync(taskId, solution);
+                return Ok(solutionId);
             }
 
-            if (!task.CanSendSolution)
-            {
-                return Result<NewSolutionInfo>.Failed("Sending solutions is prohibited");
-            }
-            
-            var solution = _mapper.Map<Solution>(solutionViewModel);
-            var solutionId = await _solutionsService.AddSolutionAsync(taskId, solution);
-            var info = new NewSolutionInfo()
-            {
-                Id = solutionId
-            };
-            return Result<NewSolutionInfo>.Success(info);
+            return Forbid();
         }
 
         [HttpPost("rateSolution/{solutionId}")]

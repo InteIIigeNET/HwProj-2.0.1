@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using HwProj.Exceptions;
 using HwProj.HttpUtils;
 using HwProj.Models.SolutionsService;
 using Newtonsoft.Json;
@@ -50,11 +51,11 @@ namespace HwProj.SolutionsService.Client
             return await response.DeserializeAsync<Solution[]>();
         }
         
-        public async Task<Result<NewSolutionInfo>> PostSolution(SolutionViewModel model, long taskId, string studentId)
+        public async Task<long> PostSolution(SolutionViewModel model, long taskId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _solutionServiceUri + $"api/Solutions/{taskId}?studentId={studentId}")
+                _solutionServiceUri + $"api/Solutions/{taskId}")
             {
                 Content = new StringContent(
                     JsonConvert.SerializeObject(model),
@@ -63,7 +64,13 @@ namespace HwProj.SolutionsService.Client
             };
 
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<Result<NewSolutionInfo>>();;
+
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.DeserializeAsync<long>();
+            }
+
+            throw new ForbiddenException();
         }
         
         public async Task RateSolution(long solutionId, int newRating)
