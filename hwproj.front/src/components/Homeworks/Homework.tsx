@@ -59,6 +59,7 @@ export default class Homework extends React.Component<IHomeworkProps, IHomeworkS
                     <div>
                         <HomeworkTasks onDelete={() => this.props.onDeleteClick()} tasks={this.props.homework.tasks!} forStudent={this.props.forStudent} forMentor={this.props.forMentor} />
                         <Button
+                            style={{ marginTop: "10px" }}
                             size="small"
                             variant="contained"
                             color="primary"
