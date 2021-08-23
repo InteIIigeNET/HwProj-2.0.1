@@ -17,9 +17,7 @@ namespace HwProj.AuthService.API.Services
 
         public Task<IdentityResult> CreateAsync(User user, string password)
         {
-            if (password == null)
-                return _aspUserManager.CreateAsync(user);
-            return _aspUserManager.CreateAsync(user, password);
+            return password == null ? _aspUserManager.CreateAsync(user) : _aspUserManager.CreateAsync(user, password);
         }
 
         public Task<User> FindByIdAsync(string id)

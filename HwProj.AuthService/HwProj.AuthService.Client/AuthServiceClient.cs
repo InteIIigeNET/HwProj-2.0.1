@@ -95,7 +95,7 @@ namespace HwProj.AuthService.Client
             return await response.DeserializeAsync<Result>();
         }
         
-        public async Task<Result<TokenCredentials>> RegisterGoogle(UserView model)
+        public async Task<Result<TokenCredentials>> LoginByGoogle(UserViewModel model)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
@@ -109,7 +109,8 @@ namespace HwProj.AuthService.Client
 
 
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<Result<TokenCredentials>>();
+            var result = await response.DeserializeAsync<Result<TokenCredentials>>();
+            return result;
         }
     }
 }

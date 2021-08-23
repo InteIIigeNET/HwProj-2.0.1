@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using System.Linq;
 using AutoMapper;
+using Google.Apis.Auth;
 using HwProj.AuthService.API.Extensions;
 using HwProj.Models.Roles;
 using HwProj.AuthService.API.Events;
@@ -46,7 +47,7 @@ namespace HwProj.AuthService.API.Services
             return new AccountDataDto(user.Name, user.Surname, user.Email, userRole, user.MiddleName);
         }
 
-        public async Task<Result> EditAccountAsync(string id, EditAccountViewModel model)
+        public async Task<Result> EditAccountAsync(string id, EditDataDTO model)
         {
             var user = await _userManager.FindByIdAsync(id).ConfigureAwait(false);
             if (user == null)
@@ -86,27 +87,13 @@ namespace HwProj.AuthService.API.Services
             {
                 return Result<TokenCredentials>.Failed("Email not confirmed");
             }
-            _signInManager.ConfigureExternalAuthenticationProperties("Google", "null");
 
-            var externalInfo = await _signInManager.GetExternalLoginInfoAsync();
-            SignInResult result;
-            
-            if (model.Password == null)
-            {
-                result = await _signInManager.ExternalLoginSignInAsync(
-                    externalInfo.LoginProvider, 
-                    externalInfo.ProviderKey, 
-                    false).ConfigureAwait(false);
-            }
-            else
-            {
-                result  = await _signInManager.PasswordSignInAsync(
-                    user,
-                    model.Password,
-                    model.RememberMe,
-                    false).ConfigureAwait(false);
-            }
-            
+            var result = await _signInManager.PasswordSignInAsync(
+                user,
+                model.Password,
+                model.RememberMe,
+                false).ConfigureAwait(false);
+
             if (!result.Succeeded)
             {
                 return Result<TokenCredentials>.Failed(result.TryGetIdentityError());
@@ -115,14 +102,38 @@ namespace HwProj.AuthService.API.Services
             var token = await _tokenService.GetTokenAsync(user).ConfigureAwait(false);
             return Result<TokenCredentials>.Success(token);
         }
+        
+        public async Task<Result<TokenCredentials>> LoginUserByGoogleAsync(GoogleJsonWebSignature.Payload payload)
+        {
+            if (await _userManager.FindByEmailAsync(payload.Email).ConfigureAwait(false)
+                is var user && user == null)
+            {
+                var userModel = new RegisterDataDTO()
+                {
+                    Email = payload.Email,
+                    Name = payload.GivenName,
+                    Surname = payload.GivenName
+                };
 
-        public async Task<Result<TokenCredentials>> RegisterUserAsync(RegisterViewModel model)
+                return await RegisterUserAsync(userModel);
+            }
+
+            await EditAccountAsync(user.Id, new EditDataDTO()
+            {
+                Name = payload.GivenName,
+                Surname = payload.FamilyName
+            });
+            
+            return await GetToken(user);
+        }
+
+        public async Task<Result<TokenCredentials>> RegisterUserAsync(RegisterDataDTO model)
         {
             if (await _userManager.FindByEmailAsync(model.Email).ConfigureAwait(false) != null)
             {
                 return Result<TokenCredentials>.Failed("User exist");
             }
-            
+
             var user = _mapper.Map<User>(model);
             user.UserName = user.Email.Split('@')[0];
 
@@ -133,7 +144,7 @@ namespace HwProj.AuthService.API.Services
                     user.EmailConfirmed = true;
                     return _userManager.UpdateAsync(user);
                 }).ConfigureAwait(false);
-            
+
             if (result.Succeeded)
             {
                 var newUser = await _userManager.FindByEmailAsync(model.Email).ConfigureAwait(false);
@@ -141,25 +152,12 @@ namespace HwProj.AuthService.API.Services
                     newUser.Surname, newUser.MiddleName);
                 _eventBus.Publish(registerEvent);
                 
-                var externalInfo = await _signInManager.GetExternalLoginInfoAsync();
-
-                if (model.Password == null)
+                if (model.Password != null)
                 {
-                     await _signInManager.ExternalLoginSignInAsync(
-                        externalInfo.LoginProvider, 
-                        externalInfo.ProviderKey, 
-                        true, 
-                        true).ConfigureAwait(false);
+                    await SignIn(user, model.Password);
                 }
-                
-                await _signInManager.PasswordSignInAsync(
-                    user,
-                    model.Password,
-                    false,
-                    false).ConfigureAwait(false);
 
-                var token = await _tokenService.GetTokenAsync(user).ConfigureAwait(false);
-                return Result<TokenCredentials>.Success(token);
+                return await GetToken(user);
             }
 
             return Result<TokenCredentials>.Failed(result.Errors.Select(errors => errors.Description).ToArray());
@@ -187,7 +185,7 @@ namespace HwProj.AuthService.API.Services
             return Result.Failed();
         }
 
-        private Task<IdentityResult> ChangeUserNameTask(User user, EditAccountViewModel model)
+        private Task<IdentityResult> ChangeUserNameTask(User user, EditDataDTO model)
         {
             if (!string.IsNullOrWhiteSpace(model.Name))
             {
@@ -205,11 +203,25 @@ namespace HwProj.AuthService.API.Services
             return _userManager.UpdateAsync(user);
         }
 
-        private Task<IdentityResult> ChangePasswordAsync(User user, EditAccountViewModel model)
+        private Task<IdentityResult> ChangePasswordAsync(User user, EditDataDTO model)
         {
             return !string.IsNullOrWhiteSpace(model.NewPassword)
                 ? _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword)
                 : Task.FromResult(IdentityResult.Success);
+        }
+
+        private async Task SignIn(User user, string password)
+        {
+            await _signInManager.PasswordSignInAsync(
+                user,
+                password,
+                false,
+                false).ConfigureAwait(false);
+        }
+
+        private async Task<Result<TokenCredentials>> GetToken(User user)
+        {
+            return Result<TokenCredentials>.Success(await _tokenService.GetTokenAsync(user).ConfigureAwait(false));
         }
     }
 }

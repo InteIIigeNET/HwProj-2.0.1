@@ -11,7 +11,8 @@ using HwProj.EventBus.Client.Interfaces;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using HwProj.Utils.Configuration;
-using System.Text;
+using HwProj.Utils.Authorization;
+using Microsoft.AspNetCore.Authentication.Google;
 
 
 namespace HwProj.AuthService.API
@@ -32,26 +33,33 @@ namespace HwProj.AuthService.API
             //var appSettingsSection = Configuration.GetSection("AppSettings");
             //services.Configure<AppSettings>(appSettingsSection);
 
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            
+            
+            services.AddAuthentication(options =>
+                {
+                    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+                })
                 .AddJwtBearer(x =>
                 {
                     x.RequireHttpsMetadata = false; //TODO: dev env setting
                     x.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidIssuer = "AuthService",
+                        ValidateIssuer = true,
+                        ValidateAudience = false,
                         ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["AppSettings:JwtSecret"])),
-                        ValidateIssuer = false,
-                        ValidateAudience = false
+                        IssuerSigningKey = AuthorizationKey.SecurityKey,
+                        ValidateIssuerSigningKey = true
                     };
                 })
+                .AddCookie()
                 .AddGoogle("Google", options =>
                 {
-                    options.SignInScheme = IdentityConstants.ExternalScheme; //"idsrv.external"
+                    //options.SignInScheme = IdentityConstants.ExternalScheme; //"idsrv.external"
 
-                    options.ClientId = "clientId"; //"235915791830-7oaa5kjukfdicjs4rqmamd9mlfak8nss.apps.googleusercontent.com"
-                    options.ClientSecret = "clientSecret"; //"usCayh5j4uvqWqajXCno-vHU"
+                    options.ClientId = "235915791830-7oaa5kjukfdicjs4rqmamd9mlfak8nss.apps.googleusercontent.com"; //"235915791830-7oaa5kjukfdicjs4rqmamd9mlfak8nss.apps.googleusercontent.com"
+                    options.ClientSecret = "usCayh5j4uvqWqajXCno-vHU"; //"usCayh5j4uvqWqajXCno-vHU"
                 });
 
             services.AddDbContext<IdentityContext>(options =>

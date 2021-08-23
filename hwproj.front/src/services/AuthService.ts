@@ -1,4 +1,4 @@
-import {LoginViewModel, AccountApi, RegisterViewModel, UserView} from './../api/';
+import { LoginViewModel, AccountApi, RegisterViewModel, UserViewModel } from './../api/';
 import ApiSingleton from "../api/ApiSingleton";
 import decode from "jwt-decode";
 
@@ -35,8 +35,8 @@ export default class AuthService {
     }
   }
 
-  async loginViaGoogle(user: UserView) {
-    const token = await ApiSingleton.accountApi.apiAccountExternalLoginCallbackPost(user)
+  async loginByGoogle(user: UserViewModel) {
+    const token = await ApiSingleton.accountApi.apiAccountGooglePost(user)
     if (token.errors) {
       return {
         error: token.errors,

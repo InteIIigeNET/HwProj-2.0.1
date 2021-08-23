@@ -3,7 +3,7 @@ import { RouteComponentProps } from "react-router-dom";
 import { TextField, Button, Typography } from "@material-ui/core";
 import ApiSingleton from "../../api/ApiSingleton";
 import "./Styles/Login.css";
-import { LoginViewModel, UserView } from "../../api/"
+import { LoginViewModel, UserViewModel } from "../../api/"
 import GoogleLogin, {GoogleLoginResponse, GoogleLoginResponseOffline} from "react-google-login";
 
 interface LoginProps extends Partial<RouteComponentProps> {
@@ -46,10 +46,10 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
 
   googleResponse = async (response: any) => {
 
-    const userData : UserView = {
+    const userData : UserViewModel = {
       tokenId: response.tokenId
     }
-    const result = await ApiSingleton.authService.loginViaGoogle(userData)
+    const result = await ApiSingleton.authService.loginByGoogle(userData)
     this.setState({
       error: result!.error,
       isLogin: result.isLogin
@@ -106,7 +106,7 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
         </form>
         <div>
           <GoogleLogin
-              clientId="clientId" /*"235915791830-7oaa5kjukfdicjs4rqmamd9mlfak8nss.apps.googleusercontent.com"*/
+              clientId="235915791830-7oaa5kjukfdicjs4rqmamd9mlfak8nss.apps.googleusercontent.com" /*"235915791830-7oaa5kjukfdicjs4rqmamd9mlfak8nss.apps.googleusercontent.com"*/
               buttonText="Google Login"
               onSuccess={this.googleResponse}
           />

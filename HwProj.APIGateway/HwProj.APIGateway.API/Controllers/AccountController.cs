@@ -92,11 +92,11 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok(result);
         }
         
-        [HttpPost("externalLoginCallback")]
+        [HttpPost("google")]
         [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> LoginViaGoogle(UserView model)
+        public async Task<IActionResult> LoginByGoogle(UserViewModel model)
         {
-            var tokenMeta = await _authClient.RegisterGoogle(model).ConfigureAwait(false);
+            var tokenMeta = await _authClient.LoginByGoogle(model).ConfigureAwait(false);
             return Ok(tokenMeta);
         }
     }
