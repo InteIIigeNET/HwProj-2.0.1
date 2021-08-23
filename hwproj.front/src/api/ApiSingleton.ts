@@ -32,15 +32,15 @@ class Api {
 
 const basePath = "http://localhost:5000";
 
-const aService = new AuthService();
+const authService = new AuthService();
 let ApiSingleton: Api;
 ApiSingleton = new Api(
-  new AccountApi({ basePath: basePath, apiKey: () => "Bearer " + aService.getToken()! }),
-  new CoursesApi({ basePath: basePath, apiKey: () => "Bearer " + aService.getToken()! }),
-  new SolutionsApi({ basePath: basePath, apiKey: () => "Bearer " + aService.getToken()! }),
-  new NotificationsApi({basePath: basePath, apiKey: () => "Bearer " + aService.getToken()! }),
-  new HomeworksApi({basePath: basePath, apiKey: () => "Bearer " + aService.getToken()! }),
-  new TasksApi({ basePath: basePath, apiKey: () => "Bearer " + aService.getToken()! }),
-  aService,
+  new AccountApi({ basePath: basePath, apiKey: () => "Bearer " + authService.getToken()! }),
+  new CoursesApi({ basePath: basePath, apiKey: () => "Bearer " + authService.getToken()! }),
+  new SolutionsApi({ basePath: basePath, apiKey: () => "Bearer " + authService.getToken()! }),
+  new NotificationsApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()! }),
+  new HomeworksApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()! }),
+  new TasksApi({ basePath: basePath, apiKey: () => "Bearer " + authService.getToken()! }),
+  authService,
 );
 export default ApiSingleton;
