@@ -6,7 +6,6 @@ using HwProj.Exceptions;
 using HwProj.HttpUtils;
 using HwProj.Models.SolutionsService;
 using Newtonsoft.Json;
-using HwProj.Models.Result;
 
 namespace HwProj.SolutionsService.Client
 {

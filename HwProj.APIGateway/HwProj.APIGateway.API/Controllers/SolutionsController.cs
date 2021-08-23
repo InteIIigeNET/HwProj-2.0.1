@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
 using HwProj.APIGateway.API.ExceptionFilters;
-using HwProj.Models.Result;
 using HwProj.Models.Roles;
 using HwProj.Models.SolutionsService;
 using HwProj.NotificationsService.Client;
