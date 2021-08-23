@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using AutoMapper;
@@ -33,7 +34,25 @@ namespace HwProj.Utils.Configuration
                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore)
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new Info {Title = serviceName, Version = "v1"}); });
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info { Title = serviceName, Version = "v1" });
+
+                if (serviceName == "API Gateway")
+                {
+                    c.AddSecurityDefinition("Bearer",
+                        new ApiKeyScheme
+                        {
+                            In = "header",
+                            Description = "Please enter into field the word 'Bearer' following by space and JWT",
+                            Name = "Authorization",
+                            Type = "apiKey"
+                        });
+                    c.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>> {
+                        { "Bearer", Enumerable.Empty<string>() },
+                    });
+                }
+            });
 
             if (serviceName != "AuthService API")
             {

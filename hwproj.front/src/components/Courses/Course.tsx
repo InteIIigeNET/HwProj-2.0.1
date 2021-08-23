@@ -66,8 +66,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
     })
 
     const setCurrentState = async () => {
-        const token = ApiSingleton.authService.getToken()
-        const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+courseId, { headers: {"Authorization": `Bearer ${token}`}})
+        const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+courseId)
         setCourseState({
           isFound: true,
           course: course,
@@ -106,9 +105,8 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
     }, [])
 
     const joinCourse = async () => {
-        const token = ApiSingleton.authService.getToken();
         await ApiSingleton.coursesApi
-            .apiCoursesSignInCourseByCourseIdPost(+courseId, { headers: {"Authorization": `Bearer ${token}`} })
+            .apiCoursesSignInCourseByCourseIdPost(+courseId)
             .then((res) => setCurrentState());
     }
 

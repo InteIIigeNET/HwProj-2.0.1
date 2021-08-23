@@ -47,14 +47,12 @@ export default class EditCourse extends React.Component<RouteComponentProps<IEdi
             isComplete: this.state.isComplete
         };
 
-        const token = ApiSingleton.authService.getToken()
-        await ApiSingleton.coursesApi.apiCoursesUpdateByCourseIdPost(+this.props.match.params.courseId, courseViewModel, { headers: {"Authorization": `Bearer ${token}`} })
+        ApiSingleton.coursesApi.apiCoursesUpdateByCourseIdPost(+this.props.match.params.courseId, courseViewModel)
             .then(res => this.setState({edited: true}))
     }
 
-    public async onDelete() {
-        const token = ApiSingleton.authService.getToken()
-        await ApiSingleton.coursesApi.apiCoursesByCourseIdDelete(+this.props.match.params.courseId, { headers: {"Authorization": `Bearer ${token}`} })
+    public onDelete() {
+        ApiSingleton.coursesApi.apiCoursesByCourseIdDelete(+this.props.match.params.courseId)
             .then(res => this.setState({deleted: true}));
     }
 

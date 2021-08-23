@@ -29,7 +29,6 @@ export default class AddTask extends React.Component<
 
   public async handleSubmit(e: any) {
     e.preventDefault();
-    const token = ApiSingleton.authService.getToken()
 
     // ReDo
     this.setState({ 
@@ -37,7 +36,7 @@ export default class AddTask extends React.Component<
       publicationDate: new Date(this.state.publicationDate!.setHours(this.state.publicationDate!.getHours() + 3)),
     })
     
-    await ApiSingleton.tasksApi.apiTasksAddByHomeworkIdPost(this.props.id, this.state, { headers: {"Authorization": `Bearer ${token}`} });
+    await ApiSingleton.tasksApi.apiTasksAddByHomeworkIdPost(this.props.id, this.state);
     this.props.onAdding()
   }
 

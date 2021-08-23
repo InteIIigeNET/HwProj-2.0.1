@@ -16,7 +16,6 @@
 import * as url from "url";
 import * as portableFetch from "portable-fetch";
 import { Configuration } from "./configuration";
-import ApiSingleton from "./ApiSingleton";
 
 const BASE_PATH = "https://localhost".replace(/\/+$/, "");
 
@@ -115,32 +114,6 @@ export interface AccountDataDto {
      * @memberof AccountDataDto
      */
     role?: string;
-}
-
-/**
- * 
- * @export
- * @interface AggregateReRouteConfig
- */
-export interface AggregateReRouteConfig {
-    /**
-     * 
-     * @type {string}
-     * @memberof AggregateReRouteConfig
-     */
-    reRouteKey?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof AggregateReRouteConfig
-     */
-    parameter?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof AggregateReRouteConfig
-     */
-    jsonPath?: string;
 }
 
 /**
@@ -383,630 +356,6 @@ export interface EditAccountViewModel {
      * @memberof EditAccountViewModel
      */
     newPassword?: string;
-}
-
-/**
- * 
- * @export
- * @interface FileAggregateReRoute
- */
-export interface FileAggregateReRoute {
-    /**
-     * 
-     * @type {Array<string>}
-     * @memberof FileAggregateReRoute
-     */
-    reRouteKeys?: Array<string>;
-    /**
-     * 
-     * @type {Array<AggregateReRouteConfig>}
-     * @memberof FileAggregateReRoute
-     */
-    reRouteKeysConfig?: Array<AggregateReRouteConfig>;
-    /**
-     * 
-     * @type {string}
-     * @memberof FileAggregateReRoute
-     */
-    upstreamPathTemplate?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof FileAggregateReRoute
-     */
-    upstreamHost?: string;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof FileAggregateReRoute
-     */
-    reRouteIsCaseSensitive?: boolean;
-    /**
-     * 
-     * @type {string}
-     * @memberof FileAggregateReRoute
-     */
-    aggregator?: string;
-    /**
-     * 
-     * @type {Array<string>}
-     * @memberof FileAggregateReRoute
-     */
-    upstreamHttpMethod?: Array<string>;
-    /**
-     * 
-     * @type {number}
-     * @memberof FileAggregateReRoute
-     */
-    priority?: number;
-}
-
-/**
- * 
- * @export
- * @interface FileAuthenticationOptions
- */
-export interface FileAuthenticationOptions {
-    /**
-     * 
-     * @type {string}
-     * @memberof FileAuthenticationOptions
-     */
-    authenticationProviderKey?: string;
-    /**
-     * 
-     * @type {Array<string>}
-     * @memberof FileAuthenticationOptions
-     */
-    allowedScopes?: Array<string>;
-}
-
-/**
- * 
- * @export
- * @interface FileCacheOptions
- */
-export interface FileCacheOptions {
-    /**
-     * 
-     * @type {number}
-     * @memberof FileCacheOptions
-     */
-    ttlSeconds?: number;
-    /**
-     * 
-     * @type {string}
-     * @memberof FileCacheOptions
-     */
-    region?: string;
-}
-
-/**
- * 
- * @export
- * @interface FileConfiguration
- */
-export interface FileConfiguration {
-    /**
-     * 
-     * @type {Array<FileReRoute>}
-     * @memberof FileConfiguration
-     */
-    reRoutes?: Array<FileReRoute>;
-    /**
-     * 
-     * @type {Array<FileDynamicReRoute>}
-     * @memberof FileConfiguration
-     */
-    dynamicReRoutes?: Array<FileDynamicReRoute>;
-    /**
-     * 
-     * @type {Array<FileAggregateReRoute>}
-     * @memberof FileConfiguration
-     */
-    aggregates?: Array<FileAggregateReRoute>;
-    /**
-     * 
-     * @type {FileGlobalConfiguration}
-     * @memberof FileConfiguration
-     */
-    globalConfiguration?: FileGlobalConfiguration;
-}
-
-/**
- * 
- * @export
- * @interface FileDynamicReRoute
- */
-export interface FileDynamicReRoute {
-    /**
-     * 
-     * @type {string}
-     * @memberof FileDynamicReRoute
-     */
-    serviceName?: string;
-    /**
-     * 
-     * @type {FileRateLimitRule}
-     * @memberof FileDynamicReRoute
-     */
-    rateLimitRule?: FileRateLimitRule;
-}
-
-/**
- * 
- * @export
- * @interface FileGlobalConfiguration
- */
-export interface FileGlobalConfiguration {
-    /**
-     * 
-     * @type {string}
-     * @memberof FileGlobalConfiguration
-     */
-    requestIdKey?: string;
-    /**
-     * 
-     * @type {FileServiceDiscoveryProvider}
-     * @memberof FileGlobalConfiguration
-     */
-    serviceDiscoveryProvider?: FileServiceDiscoveryProvider;
-    /**
-     * 
-     * @type {FileRateLimitOptions}
-     * @memberof FileGlobalConfiguration
-     */
-    rateLimitOptions?: FileRateLimitOptions;
-    /**
-     * 
-     * @type {FileQoSOptions}
-     * @memberof FileGlobalConfiguration
-     */
-    qoSOptions?: FileQoSOptions;
-    /**
-     * 
-     * @type {string}
-     * @memberof FileGlobalConfiguration
-     */
-    baseUrl?: string;
-    /**
-     * 
-     * @type {FileLoadBalancerOptions}
-     * @memberof FileGlobalConfiguration
-     */
-    loadBalancerOptions?: FileLoadBalancerOptions;
-    /**
-     * 
-     * @type {string}
-     * @memberof FileGlobalConfiguration
-     */
-    downstreamScheme?: string;
-    /**
-     * 
-     * @type {FileHttpHandlerOptions}
-     * @memberof FileGlobalConfiguration
-     */
-    httpHandlerOptions?: FileHttpHandlerOptions;
-}
-
-/**
- * 
- * @export
- * @interface FileHostAndPort
- */
-export interface FileHostAndPort {
-    /**
-     * 
-     * @type {string}
-     * @memberof FileHostAndPort
-     */
-    host?: string;
-    /**
-     * 
-     * @type {number}
-     * @memberof FileHostAndPort
-     */
-    port?: number;
-}
-
-/**
- * 
- * @export
- * @interface FileHttpHandlerOptions
- */
-export interface FileHttpHandlerOptions {
-    /**
-     * 
-     * @type {boolean}
-     * @memberof FileHttpHandlerOptions
-     */
-    allowAutoRedirect?: boolean;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof FileHttpHandlerOptions
-     */
-    useCookieContainer?: boolean;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof FileHttpHandlerOptions
-     */
-    useTracing?: boolean;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof FileHttpHandlerOptions
-     */
-    useProxy?: boolean;
-}
-
-/**
- * 
- * @export
- * @interface FileLoadBalancerOptions
- */
-export interface FileLoadBalancerOptions {
-    /**
-     * 
-     * @type {string}
-     * @memberof FileLoadBalancerOptions
-     */
-    type?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof FileLoadBalancerOptions
-     */
-    key?: string;
-    /**
-     * 
-     * @type {number}
-     * @memberof FileLoadBalancerOptions
-     */
-    expiry?: number;
-}
-
-/**
- * 
- * @export
- * @interface FileQoSOptions
- */
-export interface FileQoSOptions {
-    /**
-     * 
-     * @type {number}
-     * @memberof FileQoSOptions
-     */
-    exceptionsAllowedBeforeBreaking?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof FileQoSOptions
-     */
-    durationOfBreak?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof FileQoSOptions
-     */
-    timeoutValue?: number;
-}
-
-/**
- * 
- * @export
- * @interface FileRateLimitOptions
- */
-export interface FileRateLimitOptions {
-    /**
-     * 
-     * @type {string}
-     * @memberof FileRateLimitOptions
-     */
-    clientIdHeader?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof FileRateLimitOptions
-     */
-    quotaExceededMessage?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof FileRateLimitOptions
-     */
-    rateLimitCounterPrefix?: string;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof FileRateLimitOptions
-     */
-    disableRateLimitHeaders?: boolean;
-    /**
-     * 
-     * @type {number}
-     * @memberof FileRateLimitOptions
-     */
-    httpStatusCode?: number;
-}
-
-/**
- * 
- * @export
- * @interface FileRateLimitRule
- */
-export interface FileRateLimitRule {
-    /**
-     * 
-     * @type {Array<string>}
-     * @memberof FileRateLimitRule
-     */
-    clientWhitelist?: Array<string>;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof FileRateLimitRule
-     */
-    enableRateLimiting?: boolean;
-    /**
-     * 
-     * @type {string}
-     * @memberof FileRateLimitRule
-     */
-    period?: string;
-    /**
-     * 
-     * @type {number}
-     * @memberof FileRateLimitRule
-     */
-    periodTimespan?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof FileRateLimitRule
-     */
-    limit?: number;
-}
-
-/**
- * 
- * @export
- * @interface FileReRoute
- */
-export interface FileReRoute {
-    /**
-     * 
-     * @type {string}
-     * @memberof FileReRoute
-     */
-    downstreamPathTemplate?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof FileReRoute
-     */
-    upstreamPathTemplate?: string;
-    /**
-     * 
-     * @type {Array<string>}
-     * @memberof FileReRoute
-     */
-    upstreamHttpMethod?: Array<string>;
-    /**
-     * 
-     * @type {{ [key: string]: string; }}
-     * @memberof FileReRoute
-     */
-    addHeadersToRequest?: { [key: string]: string; };
-    /**
-     * 
-     * @type {{ [key: string]: string; }}
-     * @memberof FileReRoute
-     */
-    upstreamHeaderTransform?: { [key: string]: string; };
-    /**
-     * 
-     * @type {{ [key: string]: string; }}
-     * @memberof FileReRoute
-     */
-    downstreamHeaderTransform?: { [key: string]: string; };
-    /**
-     * 
-     * @type {{ [key: string]: string; }}
-     * @memberof FileReRoute
-     */
-    addClaimsToRequest?: { [key: string]: string; };
-    /**
-     * 
-     * @type {{ [key: string]: string; }}
-     * @memberof FileReRoute
-     */
-    routeClaimsRequirement?: { [key: string]: string; };
-    /**
-     * 
-     * @type {{ [key: string]: string; }}
-     * @memberof FileReRoute
-     */
-    addQueriesToRequest?: { [key: string]: string; };
-    /**
-     * 
-     * @type {string}
-     * @memberof FileReRoute
-     */
-    requestIdKey?: string;
-    /**
-     * 
-     * @type {FileCacheOptions}
-     * @memberof FileReRoute
-     */
-    fileCacheOptions?: FileCacheOptions;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof FileReRoute
-     */
-    reRouteIsCaseSensitive?: boolean;
-    /**
-     * 
-     * @type {string}
-     * @memberof FileReRoute
-     */
-    serviceName?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof FileReRoute
-     */
-    downstreamScheme?: string;
-    /**
-     * 
-     * @type {FileQoSOptions}
-     * @memberof FileReRoute
-     */
-    qoSOptions?: FileQoSOptions;
-    /**
-     * 
-     * @type {FileLoadBalancerOptions}
-     * @memberof FileReRoute
-     */
-    loadBalancerOptions?: FileLoadBalancerOptions;
-    /**
-     * 
-     * @type {FileRateLimitRule}
-     * @memberof FileReRoute
-     */
-    rateLimitOptions?: FileRateLimitRule;
-    /**
-     * 
-     * @type {FileAuthenticationOptions}
-     * @memberof FileReRoute
-     */
-    authenticationOptions?: FileAuthenticationOptions;
-    /**
-     * 
-     * @type {FileHttpHandlerOptions}
-     * @memberof FileReRoute
-     */
-    httpHandlerOptions?: FileHttpHandlerOptions;
-    /**
-     * 
-     * @type {Array<FileHostAndPort>}
-     * @memberof FileReRoute
-     */
-    downstreamHostAndPorts?: Array<FileHostAndPort>;
-    /**
-     * 
-     * @type {string}
-     * @memberof FileReRoute
-     */
-    upstreamHost?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof FileReRoute
-     */
-    key?: string;
-    /**
-     * 
-     * @type {Array<string>}
-     * @memberof FileReRoute
-     */
-    delegatingHandlers?: Array<string>;
-    /**
-     * 
-     * @type {number}
-     * @memberof FileReRoute
-     */
-    priority?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof FileReRoute
-     */
-    timeout?: number;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof FileReRoute
-     */
-    dangerousAcceptAnyServerCertificateValidator?: boolean;
-    /**
-     * 
-     * @type {FileSecurityOptions}
-     * @memberof FileReRoute
-     */
-    securityOptions?: FileSecurityOptions;
-}
-
-/**
- * 
- * @export
- * @interface FileSecurityOptions
- */
-export interface FileSecurityOptions {
-    /**
-     * 
-     * @type {Array<string>}
-     * @memberof FileSecurityOptions
-     */
-    ipAllowedList?: Array<string>;
-    /**
-     * 
-     * @type {Array<string>}
-     * @memberof FileSecurityOptions
-     */
-    ipBlockedList?: Array<string>;
-}
-
-/**
- * 
- * @export
- * @interface FileServiceDiscoveryProvider
- */
-export interface FileServiceDiscoveryProvider {
-    /**
-     * 
-     * @type {string}
-     * @memberof FileServiceDiscoveryProvider
-     */
-    host?: string;
-    /**
-     * 
-     * @type {number}
-     * @memberof FileServiceDiscoveryProvider
-     */
-    port?: number;
-    /**
-     * 
-     * @type {string}
-     * @memberof FileServiceDiscoveryProvider
-     */
-    type?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof FileServiceDiscoveryProvider
-     */
-    token?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof FileServiceDiscoveryProvider
-     */
-    configurationKey?: string;
-    /**
-     * 
-     * @type {number}
-     * @memberof FileServiceDiscoveryProvider
-     */
-    pollingInterval?: number;
-    /**
-     * 
-     * @type {string}
-     * @memberof FileServiceDiscoveryProvider
-     */
-    namespace?: string;
 }
 
 /**
@@ -1596,6 +945,14 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
@@ -1628,6 +985,14 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
@@ -1649,6 +1014,14 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -1672,6 +1045,14 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
 
@@ -1700,6 +1081,14 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
@@ -1726,6 +1115,14 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
 
@@ -2027,6 +1424,14 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             if (userId !== undefined) {
                 localVarQueryParameter['userId'] = userId;
             }
@@ -2059,6 +1464,14 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
 
@@ -2098,6 +1511,14 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
@@ -2126,6 +1547,14 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
@@ -2153,6 +1582,14 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -2188,6 +1625,14 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             if (userId !== undefined) {
                 localVarQueryParameter['userId'] = userId;
@@ -2228,6 +1673,14 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
@@ -2260,6 +1713,14 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
@@ -2287,6 +1748,14 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -2724,6 +2193,14 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
@@ -2751,6 +2228,14 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -2780,6 +2265,14 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
@@ -2802,6 +2295,14 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
 
@@ -2828,6 +2329,14 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -2863,6 +2372,14 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
@@ -2890,6 +2407,14 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -2920,6 +2445,14 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
@@ -2945,6 +2478,14 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -3333,164 +2874,6 @@ export class CoursesApi extends BaseAPI {
 }
 
 /**
- * FileConfigurationApi - fetch parameter creator
- * @export
- */
-export const FileConfigurationApiFetchParamCreator = function (configuration?: Configuration) {
-    return {
-        /**
-         * 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        configurationGet(options: any = {}): FetchArgs {
-            const localVarPath = `/configuration`;
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @param {FileConfiguration} [fileConfiguration] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        configurationPost(fileConfiguration?: FileConfiguration, options: any = {}): FetchArgs {
-            const localVarPath = `/configuration`;
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-            const needsSerialization = (<any>"FileConfiguration" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(fileConfiguration || {}) : (fileConfiguration || "");
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-    }
-};
-
-/**
- * FileConfigurationApi - functional programming interface
- * @export
- */
-export const FileConfigurationApiFp = function(configuration?: Configuration) {
-    return {
-        /**
-         * 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        configurationGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = FileConfigurationApiFetchParamCreator(configuration).configurationGet(options);
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response;
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
-         * @param {FileConfiguration} [fileConfiguration] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        configurationPost(fileConfiguration?: FileConfiguration, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = FileConfigurationApiFetchParamCreator(configuration).configurationPost(fileConfiguration, options);
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response;
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-    }
-};
-
-/**
- * FileConfigurationApi - factory interface
- * @export
- */
-export const FileConfigurationApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
-    return {
-        /**
-         * 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        configurationGet(options?: any) {
-            return FileConfigurationApiFp(configuration).configurationGet(options)(fetch, basePath);
-        },
-        /**
-         * 
-         * @param {FileConfiguration} [fileConfiguration] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        configurationPost(fileConfiguration?: FileConfiguration, options?: any) {
-            return FileConfigurationApiFp(configuration).configurationPost(fileConfiguration, options)(fetch, basePath);
-        },
-    };
-};
-
-/**
- * FileConfigurationApi - object-oriented interface
- * @export
- * @class FileConfigurationApi
- * @extends {BaseAPI}
- */
-export class FileConfigurationApi extends BaseAPI {
-    /**
-     * 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof FileConfigurationApi
-     */
-    public configurationGet(options?: any) {
-        return FileConfigurationApiFp(this.configuration).configurationGet(options)(this.fetch, this.basePath);
-    }
-
-    /**
-     * 
-     * @param {FileConfiguration} [fileConfiguration] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof FileConfigurationApi
-     */
-    public configurationPost(fileConfiguration?: FileConfiguration, options?: any) {
-        return FileConfigurationApiFp(this.configuration).configurationPost(fileConfiguration, options)(this.fetch, this.basePath);
-    }
-
-}
-
-/**
  * HomeworksApi - fetch parameter creator
  * @export
  */
@@ -3514,6 +2897,14 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
 
@@ -3547,6 +2938,14 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
@@ -3574,6 +2973,14 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -3603,6 +3010,14 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
             const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
 
@@ -3824,6 +3239,14 @@ export const NotificationsApiFetchParamCreator = function (configuration?: Confi
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
@@ -3846,6 +3269,14 @@ export const NotificationsApiFetchParamCreator = function (configuration?: Confi
             const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
 
@@ -3965,28 +3396,89 @@ export class NotificationsApi extends BaseAPI {
 }
 
 /**
- * OutputCacheApi - fetch parameter creator
+ * SolutionsApi - fetch parameter creator
  * @export
  */
-export const OutputCacheApiFetchParamCreator = function (configuration?: Configuration) {
+export const SolutionsApiFetchParamCreator = function (configuration?: Configuration) {
     return {
         /**
          * 
-         * @param {string} region 
+         * @param {number} taskId 
+         * @param {number} groupId 
+         * @param {SolutionViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        outputcacheByRegionDelete(region: string, options: any = {}): FetchArgs {
-            // verify required parameter 'region' is not null or undefined
-            if (region === null || region === undefined) {
-                throw new RequiredError('region','Required parameter region was null or undefined when calling outputcacheByRegionDelete.');
+        apiSolutionsByGroupIdByTaskIdPost(taskId: number, groupId: number, model?: SolutionViewModel, options: any = {}): FetchArgs {
+            // verify required parameter 'taskId' is not null or undefined
+            if (taskId === null || taskId === undefined) {
+                throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling apiSolutionsByGroupIdByTaskIdPost.');
             }
-            const localVarPath = `/outputcache/{region}`
-                .replace(`{${"region"}}`, encodeURIComponent(String(region)));
+            // verify required parameter 'groupId' is not null or undefined
+            if (groupId === null || groupId === undefined) {
+                throw new RequiredError('groupId','Required parameter groupId was null or undefined when calling apiSolutionsByGroupIdByTaskIdPost.');
+            }
+            const localVarPath = `/api/Solutions/{groupId}/{taskId}`
+                .replace(`{${"taskId"}}`, encodeURIComponent(String(taskId)))
+                .replace(`{${"groupId"}}`, encodeURIComponent(String(groupId)));
             const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"SolutionViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} groupId 
+         * @param {number} taskId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsByGroupIdTaskSolutionsByTaskIdGet(groupId: number, taskId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'groupId' is not null or undefined
+            if (groupId === null || groupId === undefined) {
+                throw new RequiredError('groupId','Required parameter groupId was null or undefined when calling apiSolutionsByGroupIdTaskSolutionsByTaskIdGet.');
+            }
+            // verify required parameter 'taskId' is not null or undefined
+            if (taskId === null || taskId === undefined) {
+                throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling apiSolutionsByGroupIdTaskSolutionsByTaskIdGet.');
+            }
+            const localVarPath = `/api/Solutions/{groupId}/taskSolutions/{taskId}`
+                .replace(`{${"groupId"}}`, encodeURIComponent(String(groupId)))
+                .replace(`{${"taskId"}}`, encodeURIComponent(String(taskId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -3998,80 +3490,6 @@ export const OutputCacheApiFetchParamCreator = function (configuration?: Configu
                 options: localVarRequestOptions,
             };
         },
-    }
-};
-
-/**
- * OutputCacheApi - functional programming interface
- * @export
- */
-export const OutputCacheApiFp = function(configuration?: Configuration) {
-    return {
-        /**
-         * 
-         * @param {string} region 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        outputcacheByRegionDelete(region: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = OutputCacheApiFetchParamCreator(configuration).outputcacheByRegionDelete(region, options);
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response;
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-    }
-};
-
-/**
- * OutputCacheApi - factory interface
- * @export
- */
-export const OutputCacheApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
-    return {
-        /**
-         * 
-         * @param {string} region 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        outputcacheByRegionDelete(region: string, options?: any) {
-            return OutputCacheApiFp(configuration).outputcacheByRegionDelete(region, options)(fetch, basePath);
-        },
-    };
-};
-
-/**
- * OutputCacheApi - object-oriented interface
- * @export
- * @class OutputCacheApi
- * @extends {BaseAPI}
- */
-export class OutputCacheApi extends BaseAPI {
-    /**
-     * 
-     * @param {string} region 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof OutputCacheApi
-     */
-    public outputcacheByRegionDelete(region: string, options?: any) {
-        return OutputCacheApiFp(this.configuration).outputcacheByRegionDelete(region, options)(this.fetch, this.basePath);
-    }
-
-}
-
-/**
- * SolutionsApi - fetch parameter creator
- * @export
- */
-export const SolutionsApiFetchParamCreator = function (configuration?: Configuration) {
-    return {
         /**
          * 
          * @param {number} solutionId 
@@ -4089,6 +3507,14 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -4118,6 +3544,14 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
 
@@ -4151,6 +3585,14 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
@@ -4172,6 +3614,14 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -4200,6 +3650,14 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -4235,6 +3693,14 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
@@ -4263,6 +3729,14 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
@@ -4282,6 +3756,45 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
  */
 export const SolutionsApiFp = function(configuration?: Configuration) {
     return {
+        /**
+         * 
+         * @param {number} taskId 
+         * @param {number} groupId 
+         * @param {SolutionViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsByGroupIdByTaskIdPost(taskId: number, groupId: number, model?: SolutionViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
+            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsByGroupIdByTaskIdPost(taskId, groupId, model, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} groupId 
+         * @param {number} taskId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsByGroupIdTaskSolutionsByTaskIdGet(groupId: number, taskId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<Solution>> {
+            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsByGroupIdTaskSolutionsByTaskIdGet(groupId, taskId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
         /**
          * 
          * @param {number} solutionId 
@@ -4420,6 +3933,27 @@ export const SolutionsApiFactory = function (configuration?: Configuration, fetc
     return {
         /**
          * 
+         * @param {number} taskId 
+         * @param {number} groupId 
+         * @param {SolutionViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsByGroupIdByTaskIdPost(taskId: number, groupId: number, model?: SolutionViewModel, options?: any) {
+            return SolutionsApiFp(configuration).apiSolutionsByGroupIdByTaskIdPost(taskId, groupId, model, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} groupId 
+         * @param {number} taskId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsByGroupIdTaskSolutionsByTaskIdGet(groupId: number, taskId: number, options?: any) {
+            return SolutionsApiFp(configuration).apiSolutionsByGroupIdTaskSolutionsByTaskIdGet(groupId, taskId, options)(fetch, basePath);
+        },
+        /**
+         * 
          * @param {number} solutionId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -4492,6 +4026,31 @@ export const SolutionsApiFactory = function (configuration?: Configuration, fetc
  * @extends {BaseAPI}
  */
 export class SolutionsApi extends BaseAPI {
+    /**
+     * 
+     * @param {number} taskId 
+     * @param {number} groupId 
+     * @param {SolutionViewModel} [model] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SolutionsApi
+     */
+    public apiSolutionsByGroupIdByTaskIdPost(taskId: number, groupId: number, model?: SolutionViewModel, options?: any) {
+        return SolutionsApiFp(this.configuration).apiSolutionsByGroupIdByTaskIdPost(taskId, groupId, model, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} groupId 
+     * @param {number} taskId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SolutionsApi
+     */
+    public apiSolutionsByGroupIdTaskSolutionsByTaskIdGet(groupId: number, taskId: number, options?: any) {
+        return SolutionsApiFp(this.configuration).apiSolutionsByGroupIdTaskSolutionsByTaskIdGet(groupId, taskId, options)(this.fetch, this.basePath);
+    }
+
     /**
      * 
      * @param {number} solutionId 
@@ -4597,6 +4156,14 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
@@ -4629,6 +4196,14 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
@@ -4656,6 +4231,14 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -4685,6 +4268,14 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
             const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
 
