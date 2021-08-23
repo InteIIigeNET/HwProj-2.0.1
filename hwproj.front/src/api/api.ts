@@ -2812,6 +2812,7 @@ export class CoursesApi extends BaseAPI {
      * @memberof CoursesApi
      */
     public apiCoursesCreatePost(model?: CreateCourseViewModel, options?: any) {
+        debugger
         return CoursesApiFp(this.configuration).apiCoursesCreatePost(model, options)(this.fetch, this.basePath);
     }
 

@@ -1,8 +1,10 @@
+import { Configuration } from './configuration';
 import { AccountApi, NotificationsApi, CoursesApi, SolutionsApi, HomeworksApi, TasksApi } from ".";
-
 import AuthService from "../services/AuthService";
 
+
 class Api {
+  auth = new AuthService()
   readonly accountApi: AccountApi;
   readonly coursesApi: CoursesApi;
   readonly solutionsApi: SolutionsApi;
@@ -30,6 +32,10 @@ class Api {
   }
 }
 
+const currentToken = (new AuthService()).getToken()
+const token = typeof currentToken === "string"
+  ? currentToken
+  : undefined
 const basePath = "http://localhost:5000";
 
 const authService = new AuthService();

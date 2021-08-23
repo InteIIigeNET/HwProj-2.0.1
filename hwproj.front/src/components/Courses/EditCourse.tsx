@@ -38,7 +38,7 @@ export default class EditCourse extends React.Component<RouteComponentProps<IEdi
         };
     }
 
-    public handleSubmit(e: any) {
+    public async handleSubmit(e: any) {
         e.preventDefault();
         let courseViewModel = {
             name: this.state.name,
@@ -67,6 +67,7 @@ export default class EditCourse extends React.Component<RouteComponentProps<IEdi
             }
 
             if (!ApiSingleton.authService.isLoggedIn() || ApiSingleton.authService.getUserId() != this.state.mentorId) {
+                debugger
                 return <Typography variant='h6' gutterBottom>Только преподаватель может редактировать курс</Typography>
             }
 
@@ -131,7 +132,9 @@ export default class EditCourse extends React.Component<RouteComponentProps<IEdi
     }
 
     async componentDidMount() {
-        const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+this.props.match.params.courseId)
+        const token = ApiSingleton.authService.getToken()
+        const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+this.props.match.params.courseId, { headers: {"Authorization": `Bearer ${token}`}})
+        debugger
         this.setState({
             isLoaded: true,
             name: course.name!,

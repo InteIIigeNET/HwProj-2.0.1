@@ -34,7 +34,6 @@ export default class Courses extends React.Component<{}, ICoursesState> {
 
         let activeCourses = courses.filter((course) => !course.isCompleted);
         let completedCourses = courses.filter((course) => course.isCompleted);
-        debugger
         return (
             <div className="container">
                 <Tabs
