@@ -106,7 +106,7 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
         </form>
         <div>
           <GoogleLogin
-              clientId="235915791830-7oaa5kjukfdicjs4rqmamd9mlfak8nss.apps.googleusercontent.com" /*"235915791830-7oaa5kjukfdicjs4rqmamd9mlfak8nss.apps.googleusercontent.com"*/
+              clientId="" /*"235915791830-7oaa5kjukfdicjs4rqmamd9mlfak8nss.apps.googleusercontent.com"*/
               buttonText="Google Login"
               onSuccess={this.googleResponse}
           />

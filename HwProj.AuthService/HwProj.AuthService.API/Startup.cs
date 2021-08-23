@@ -58,8 +58,8 @@ namespace HwProj.AuthService.API
                 {
                     //options.SignInScheme = IdentityConstants.ExternalScheme; //"idsrv.external"
 
-                    options.ClientId = "235915791830-7oaa5kjukfdicjs4rqmamd9mlfak8nss.apps.googleusercontent.com"; //"235915791830-7oaa5kjukfdicjs4rqmamd9mlfak8nss.apps.googleusercontent.com"
-                    options.ClientSecret = "usCayh5j4uvqWqajXCno-vHU"; //"usCayh5j4uvqWqajXCno-vHU"
+                    options.ClientId = ""; //"235915791830-7oaa5kjukfdicjs4rqmamd9mlfak8nss.apps.googleusercontent.com"
+                    options.ClientSecret = ""; //"usCayh5j4uvqWqajXCno-vHU"
                 });
 
             services.AddDbContext<IdentityContext>(options =>
