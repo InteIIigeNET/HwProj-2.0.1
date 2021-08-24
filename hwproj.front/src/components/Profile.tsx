@@ -90,8 +90,7 @@ export default class Profile extends React.Component<RouteComponentProps<IProfil
 			});
 		}
 		else {
-			const token = ApiSingleton.authService.getToken();
-			const data = await ApiSingleton.accountApi.apiAccountGetUserDataGet({ headers: {"Authorization": `Bearer ${token}`} });
+			const data = await ApiSingleton.accountApi.apiAccountGetUserDataGet();
 			this.setState({
 				isLoaded: true,
 				accountData: data.userData!,
@@ -118,9 +117,8 @@ export default class Profile extends React.Component<RouteComponentProps<IProfil
 							id={n.id?.toString()}
 							checked={n.hasSeen}
 							onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-								const token = ApiSingleton.authService.getToken();
 								const id = parseInt(event.target.id);
-								ApiSingleton.notificationsApi.apiNotificationsMarkAsSeenPut([ id ], { headers: {"Authorization": `Bearer ${token}`} });
+								ApiSingleton.notificationsApi.apiNotificationsMarkAsSeenPut([ id ]);
 								
 								const notifications = this.state.notifications;
 								notifications.find(not => not.id === id)!.hasSeen = true;
