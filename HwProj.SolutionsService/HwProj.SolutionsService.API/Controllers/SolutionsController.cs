@@ -52,7 +52,7 @@ namespace HwProj.SolutionsService.API.Controllers
             var homework = await _coursesClient.GetHomework(task.HomeworkId);
             var course = await _coursesClient.GetCourseById(homework.CourseId, solutionViewModel.StudentId);
 
-            if (course.CourseMates.Exists(courseMate => courseMate.StudentId == solutionViewModel.StudentId))
+            if (course.CourseMates.Exists(courseMate => courseMate.StudentId == solutionViewModel.StudentId && courseMate.IsAccepted))
             {
                 var solution = _mapper.Map<Solution>(solutionViewModel);
                 var solutionId = await _solutionsService.AddSolutionAsync(taskId, solution);
