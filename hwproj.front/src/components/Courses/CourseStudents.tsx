@@ -1,5 +1,5 @@
 import React from "react";
-import { Table, TableBody, TableCell, TableHead, TableRow } from "@material-ui/core";
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@material-ui/core";
 import { CourseViewModel, HomeworkViewModel } from "../../api/";
 import { Paper, createStyles, Theme } from "@material-ui/core";
 import TaskStudentCell from "../Tasks/TaskStudentCell";
@@ -25,7 +25,7 @@ interface ICourseStudentsProps {
 const styles = (theme: Theme) =>
   createStyles({
     paper: {
-      width: "100%",
+      //width: "100%",
       // marginTop: theme.spacing.unit * 3,
       overflowX: "auto",
     },
@@ -36,8 +36,8 @@ class CourseStudents extends React.Component<ICourseStudentsProps, {}> {
   public render() {
     return (
       <div>
-        <Paper className="paper">
-          <Table>
+        <TableContainer component={Paper}>
+          <Table aria-label="simple table">
             <TableHead>
               <TableRow>
                 <TableCell align="center" padding="none" component="td">
@@ -91,7 +91,7 @@ class CourseStudents extends React.Component<ICourseStudentsProps, {}> {
                 ))}
             </TableBody>
           </Table>
-        </Paper>
+        </TableContainer>
       </div>
     );
   }
