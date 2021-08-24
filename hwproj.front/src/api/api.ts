@@ -3710,14 +3710,16 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-            if (lecturerComment !== undefined) {
-                localVarQueryParameter['lecturerComment'] = lecturerComment;
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
 					? configuration.apiKey("Authorization")
 					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            if (lecturerComment !== undefined) {
+                localVarQueryParameter['lecturerComment'] = lecturerComment;
             }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
