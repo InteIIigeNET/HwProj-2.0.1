@@ -1,7 +1,8 @@
 import * as React from "react";
 import ListItem from "@material-ui/core/ListItem";
 import List from "@material-ui/core/List";
-import { Grid, Typography } from "@material-ui/core";
+import { Accordion, AccordionDetails, AccordionSummary, Grid, Typography } from "@material-ui/core";
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { HomeworkViewModel } from "../../api";
 import Homework from "./Homework";
 
@@ -18,12 +19,24 @@ export default class CourseHomework extends React.Component<ICourseHomeworkProps
     const homeworkList = this.props.homework
       .map((hw) => (
         <ListItem key={hw.id}>
-          <Homework
-            homework={hw}
-            forStudent={this.props.isStudent}
-            forMentor={this.props.isMentor}
-            onDeleteClick={() => this.props.onDelete()}
-          />
+          <Accordion>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1a-content"
+              id="panel1a-header"
+              style={{backgroundColor: "AliceBlue"}}
+            >
+              <Typography>{hw.title}</Typography>
+            </AccordionSummary>
+            <AccordionDetails >
+              <Homework
+                homework={hw}
+                forStudent={this.props.isStudent}
+                forMentor={this.props.isMentor}
+                onDeleteClick={() => this.props.onDelete()}
+              />
+            </AccordionDetails>
+          </Accordion>
         </ListItem>
       ))
       .reverse();
