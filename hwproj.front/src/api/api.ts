@@ -925,6 +925,20 @@ export interface UserDataDto {
     notifications?: Array<NotificationViewModel>;
 }
 
+/**
+ * 
+ * @export
+ * @interface UserViewModel
+ */
+export interface UserViewModel {
+    /**
+     * 
+     * @type {string}
+     * @memberof UserViewModel
+     */
+    tokenId?: string;
+}
+
 
 /**
  * AccountApi - fetch parameter creator
@@ -1011,25 +1025,25 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
         },
         /**
          * 
-         * @param {string} [tokenId] 
+         * @param {UserViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAccountGooglePost(tokenId?: string, options: any = {}): FetchArgs {
+        apiAccountGooglePost(model?: UserViewModel, options: any = {}): FetchArgs {
             const localVarPath = `/api/Account/google`;
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-            if (tokenId !== undefined) {
-                localVarQueryParameter['tokenId'] = tokenId;
-            }
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"UserViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -1181,12 +1195,12 @@ export const AccountApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @param {string} [tokenId] 
+         * @param {UserViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAccountGooglePost(tokenId?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ResultTokenCredentials> {
-            const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountGooglePost(tokenId, options);
+        apiAccountGooglePost(model?: UserViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ResultTokenCredentials> {
+            const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountGooglePost(model, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -1288,12 +1302,12 @@ export const AccountApiFactory = function (configuration?: Configuration, fetch?
         },
         /**
          * 
-         * @param {string} [tokenId] 
+         * @param {UserViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAccountGooglePost(tokenId?: string, options?: any) {
-            return AccountApiFp(configuration).apiAccountGooglePost(tokenId, options)(fetch, basePath);
+        apiAccountGooglePost(model?: UserViewModel, options?: any) {
+            return AccountApiFp(configuration).apiAccountGooglePost(model, options)(fetch, basePath);
         },
         /**
          * 
@@ -1366,13 +1380,13 @@ export class AccountApi extends BaseAPI {
 
     /**
      * 
-     * @param {string} [tokenId] 
+     * @param {UserViewModel} [model] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AccountApi
      */
-    public apiAccountGooglePost(tokenId?: string, options?: any) {
-        return AccountApiFp(this.configuration).apiAccountGooglePost(tokenId, options)(this.fetch, this.basePath);
+    public apiAccountGooglePost(model?: UserViewModel, options?: any) {
+        return AccountApiFp(this.configuration).apiAccountGooglePost(model, options)(this.fetch, this.basePath);
     }
 
     /**

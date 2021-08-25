@@ -46,13 +46,8 @@ export default class EditHomework extends React.Component<
       title: this.state.title,
       description: this.state.description,
     };
-    const token = ApiSingleton.authService.getToken();
     ApiSingleton.homeworksApi
-      .apiHomeworksUpdateByHomeworkIdPut(
-        +this.props.match.params.homeworkId,
-        homeworkViewModel,
-        { headers: {"Authorization": `Bearer ${token}`} }
-      )
+      .apiHomeworksUpdateByHomeworkIdPut(+this.props.match.params.homeworkId, homeworkViewModel)
       .then((res) => this.setState({ edited: true }));
   }
 
@@ -138,9 +133,8 @@ export default class EditHomework extends React.Component<
   }
 
   componentDidMount() {
-    const token = ApiSingleton.authService.getToken();
     ApiSingleton.homeworksApi
-      .apiHomeworksGetByHomeworkIdGet(+this.props.match.params.homeworkId, { headers: {"Authorization": `Bearer ${token}`} })
+      .apiHomeworksGetByHomeworkIdGet(+this.props.match.params.homeworkId)
       .then((homework) =>
         ApiSingleton.coursesApi
           .apiCoursesByCourseIdGet(homework.courseId!)

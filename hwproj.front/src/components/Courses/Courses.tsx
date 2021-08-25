@@ -34,7 +34,6 @@ export default class Courses extends React.Component<{}, ICoursesState> {
 
         let activeCourses = courses.filter((course) => !course.isCompleted);
         let completedCourses = courses.filter((course) => course.isCompleted);
-        debugger
         return (
             <div className="container">
                 <Tabs
@@ -56,9 +55,8 @@ export default class Courses extends React.Component<{}, ICoursesState> {
         if (!ApiSingleton.authService.isLoggedIn()) {
             window.location.assign("/login");
         }
-        const token = ApiSingleton.authService.getToken();
         try {
-            const courses = await ApiSingleton.coursesApi.apiCoursesUserCoursesGet({ headers: {"Authorization": `Bearer ${token}`}})
+            const courses = await ApiSingleton.coursesApi.apiCoursesUserCoursesGet()
             this.setState({
                 isLoaded: true,
                 courses: courses

@@ -56,14 +56,12 @@ export default class NewCourseStudents extends React.Component<INewCourseStudent
     }
 
     acceptStudent(studentId: string) {
-        const token = ApiSingleton.authService.getToken();
-        ApiSingleton.coursesApi.apiCoursesAcceptStudentByCourseIdByStudentIdPost(this.props.course.id!, studentId, { headers: {"Authorization": `Bearer ${token}`} })
+        ApiSingleton.coursesApi.apiCoursesAcceptStudentByCourseIdByStudentIdPost(this.props.course.id!, studentId)
             .then(res => this.props.onUpdate());
     }
 
     rejectStudent(studentId: string) {
-        const token = ApiSingleton.authService.getToken();
-        ApiSingleton.coursesApi.apiCoursesRejectStudentByCourseIdByStudentIdPost(this.props.course.id!, studentId, { headers: {"Authorization": `Bearer ${token}`} })
+        ApiSingleton.coursesApi.apiCoursesRejectStudentByCourseIdByStudentIdPost(this.props.course.id!, studentId)
             .then(res => this.props.onUpdate());
     }
 }
