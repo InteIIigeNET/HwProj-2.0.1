@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using AutoMapper;
 using Google.Apis.Auth;
+using Google.Apis.Util;
 using HwProj.AuthService.API.Extensions;
 using HwProj.Models.Roles;
 using HwProj.AuthService.API.Events;
@@ -129,7 +130,7 @@ namespace HwProj.AuthService.API.Services
 
         public async Task<Result<TokenCredentials>> RegisterUserAsync(RegisterDataDTO model)
         {
-            if (await _userManager.FindByEmailAsync(model.Email).ConfigureAwait(false) != null)
+            if (await _userManager.FindByEmailAsync(model.Email) != null)
             {
                 return Result<TokenCredentials>.Failed("User exist");
             }
@@ -137,21 +138,17 @@ namespace HwProj.AuthService.API.Services
             var user = _mapper.Map<User>(model);
             user.UserName = user.Email.Split('@')[0];
 
-            var result = model.Password != null
-                ? await _userManager.CreateAsync(user, model.Password)
-                    .Then(() => _userManager.AddToRoleAsync(user, Roles.StudentRole))
-                    .Then(() =>
-                    {
-                        user.EmailConfirmed = true;
-                        return _userManager.UpdateAsync(user);
-                    }).ConfigureAwait(false)
-                : await _userManager.CreateAsync(user)
-                    .Then(() => _userManager.AddToRoleAsync(user, Roles.StudentRole))
-                    .Then(() =>
-                    {
-                        user.EmailConfirmed = true;
-                        return _userManager.UpdateAsync(user);
-                    }).ConfigureAwait(false);
+            var createUserTask = model.Password != null
+                ? _userManager.CreateAsync(user, model.Password)
+                : _userManager.CreateAsync(user);
+            
+            var result = await createUserTask
+                .Then(() => _userManager.AddToRoleAsync(user, Roles.StudentRole))
+                .Then(() =>
+                {
+                    user.EmailConfirmed = true;
+                    return _userManager.UpdateAsync(user);
+                });
 
             if (result.Succeeded)
             {
