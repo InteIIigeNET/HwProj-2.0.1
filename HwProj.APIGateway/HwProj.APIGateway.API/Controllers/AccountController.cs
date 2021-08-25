@@ -94,9 +94,9 @@ namespace HwProj.APIGateway.API.Controllers
         
         [HttpPost("google")]
         [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> LoginByGoogle(UserViewModel model)
+        public async Task<IActionResult> LoginByGoogle(string tokenId)
         {
-            var tokenMeta = await _authClient.LoginByGoogle(model).ConfigureAwait(false);
+            var tokenMeta = await _authClient.LoginByGoogle(tokenId).ConfigureAwait(false);
             return Ok(tokenMeta);
         }
     }

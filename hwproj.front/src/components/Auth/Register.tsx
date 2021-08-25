@@ -7,7 +7,6 @@ import ApiSingleton from "../../api/ApiSingleton";
 import { RegisterViewModel } from "../../api/";
 import "./Styles/Register.css";
 
-
 interface IRegisterState {
   registerData: RegisterViewModel;
   loggedIn: boolean;

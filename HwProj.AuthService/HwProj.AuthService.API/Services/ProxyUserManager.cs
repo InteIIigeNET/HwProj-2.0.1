@@ -14,10 +14,15 @@ namespace HwProj.AuthService.API.Services
         {
             _aspUserManager = aspUserManager;
         }
+        
+        public Task<IdentityResult> CreateAsync(User user)
+        {
+            return _aspUserManager.CreateAsync(user);
+        }
 
         public Task<IdentityResult> CreateAsync(User user, string password)
         {
-            return password == null ? _aspUserManager.CreateAsync(user) : _aspUserManager.CreateAsync(user, password);
+            return _aspUserManager.CreateAsync(user, password);
         }
 
         public Task<User> FindByIdAsync(string id)

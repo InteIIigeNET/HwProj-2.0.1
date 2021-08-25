@@ -112,7 +112,7 @@ namespace HwProj.AuthService.API.Services
                 {
                     Email = payload.Email,
                     Name = payload.GivenName,
-                    Surname = payload.GivenName
+                    Surname = payload.FamilyName
                 };
 
                 return await RegisterUserAsync(userModel);
@@ -137,13 +137,21 @@ namespace HwProj.AuthService.API.Services
             var user = _mapper.Map<User>(model);
             user.UserName = user.Email.Split('@')[0];
 
-            var result = await _userManager.CreateAsync(user, model.Password)
-                .Then(() => _userManager.AddToRoleAsync(user, Roles.StudentRole))
-                .Then(() =>
-                {
-                    user.EmailConfirmed = true;
-                    return _userManager.UpdateAsync(user);
-                }).ConfigureAwait(false);
+            var result = model.Password != null
+                ? await _userManager.CreateAsync(user, model.Password)
+                    .Then(() => _userManager.AddToRoleAsync(user, Roles.StudentRole))
+                    .Then(() =>
+                    {
+                        user.EmailConfirmed = true;
+                        return _userManager.UpdateAsync(user);
+                    }).ConfigureAwait(false)
+                : await _userManager.CreateAsync(user)
+                    .Then(() => _userManager.AddToRoleAsync(user, Roles.StudentRole))
+                    .Then(() =>
+                    {
+                        user.EmailConfirmed = true;
+                        return _userManager.UpdateAsync(user);
+                    }).ConfigureAwait(false);
 
             if (result.Succeeded)
             {
@@ -212,11 +220,8 @@ namespace HwProj.AuthService.API.Services
 
         private async Task SignIn(User user, string password)
         {
-            await _signInManager.PasswordSignInAsync(
-                user,
-                password,
-                false,
-                false).ConfigureAwait(false);
+            await _signInManager.PasswordSignInAsync(user, password, false, false)
+                .ConfigureAwait(false);
         }
 
         private async Task<Result<TokenCredentials>> GetToken(User user)

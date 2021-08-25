@@ -76,11 +76,11 @@ namespace HwProj.AuthService.API.Controllers
             return Ok(result);
         }
         
-        [HttpPost("google")]
+        [HttpPost("google/{tokenId}")]
         [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GoogleRegister([FromBody] UserViewModel userView)
+        public async Task<IActionResult> GoogleRegister(string tokenId)
         {
-            var payload = await GoogleJsonWebSignature.ValidateAsync(userView.TokenId, new GoogleJsonWebSignature.ValidationSettings());
+            var payload = await GoogleJsonWebSignature.ValidateAsync(tokenId, new GoogleJsonWebSignature.ValidationSettings());
             var result = await _accountService.LoginUserByGoogleAsync(payload).ConfigureAwait(false);
             return Ok(result);
         }

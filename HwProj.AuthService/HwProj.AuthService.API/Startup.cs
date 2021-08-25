@@ -14,7 +14,6 @@ using HwProj.Utils.Configuration;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Authentication.Google;
 
-
 namespace HwProj.AuthService.API
 {
     public class Startup
@@ -32,8 +31,6 @@ namespace HwProj.AuthService.API
 
             //var appSettingsSection = Configuration.GetSection("AppSettings");
             //services.Configure<AppSettings>(appSettingsSection);
-
-            
             
             services.AddAuthentication(options =>
                 {
@@ -54,12 +51,13 @@ namespace HwProj.AuthService.API
                     };
                 })
                 .AddCookie()
-                .AddGoogle("Google", options =>
+                .AddGoogle(options =>
                 {
-                    //options.SignInScheme = IdentityConstants.ExternalScheme; //"idsrv.external"
+                    IConfigurationSection googleAuthNSection =
+                        Configuration.GetSection("Authentication:Google");
 
-                    options.ClientId = ""; //"235915791830-7oaa5kjukfdicjs4rqmamd9mlfak8nss.apps.googleusercontent.com"
-                    options.ClientSecret = ""; //"usCayh5j4uvqWqajXCno-vHU"
+                    options.ClientId = googleAuthNSection["ClientId"];
+                    options.ClientSecret = googleAuthNSection["ClientSecret"];
                 });
 
             services.AddDbContext<IdentityContext>(options =>

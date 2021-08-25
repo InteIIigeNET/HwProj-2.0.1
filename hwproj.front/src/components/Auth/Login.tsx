@@ -3,7 +3,7 @@ import { RouteComponentProps } from "react-router-dom";
 import { TextField, Button, Typography } from "@material-ui/core";
 import ApiSingleton from "../../api/ApiSingleton";
 import "./Styles/Login.css";
-import { LoginViewModel, UserViewModel } from "../../api/"
+import { LoginViewModel } from "../../api/"
 import GoogleLogin, {GoogleLoginResponse, GoogleLoginResponseOffline} from "react-google-login";
 
 interface LoginProps extends Partial<RouteComponentProps> {
@@ -28,7 +28,6 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
     };
   }
 
-
   handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -45,11 +44,7 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
   }
 
   googleResponse = async (response: any) => {
-
-    const userData : UserViewModel = {
-      tokenId: response.tokenId
-    }
-    const result = await ApiSingleton.authService.loginByGoogle(userData)
+    const result = await ApiSingleton.authService.loginByGoogle(response.tokenId)
     this.setState({
       error: result!.error,
       isLogin: result.isLogin
@@ -104,10 +99,13 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
             Войти
           </Button>
         </form>
+        <Typography>
+          <hr/>Или войдите с помощью других сервисов<hr/>
+        </Typography>
         <div>
           <GoogleLogin
-              clientId="" /*"235915791830-7oaa5kjukfdicjs4rqmamd9mlfak8nss.apps.googleusercontent.com"*/
-              buttonText="Google Login"
+              clientId="235915791830-7oaa5kjukfdicjs4rqmamd9mlfak8nss.apps.googleusercontent.com"
+              buttonText=""
               onSuccess={this.googleResponse}
           />
         </div>

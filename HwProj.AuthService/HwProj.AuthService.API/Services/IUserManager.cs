@@ -7,7 +7,8 @@ namespace HwProj.AuthService.API.Services
 {
     public interface IUserManager
     {
-        Task<IdentityResult> CreateAsync(User user, string password = null);
+        Task<IdentityResult> CreateAsync(User user);
+        Task<IdentityResult> CreateAsync(User user, string password);
         Task<User> FindByIdAsync(string id);
         Task<User> FindByEmailAsync(string email);
         Task<IdentityResult> UpdateAsync(User user);
