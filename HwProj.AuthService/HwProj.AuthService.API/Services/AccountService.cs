@@ -2,6 +2,8 @@
 using System.Threading.Tasks;
 using System.Linq;
 using AutoMapper;
+using Google.Apis.Auth;
+using Google.Apis.Util;
 using HwProj.AuthService.API.Extensions;
 using HwProj.Models.Roles;
 using HwProj.AuthService.API.Events;
@@ -46,7 +48,7 @@ namespace HwProj.AuthService.API.Services
             return new AccountDataDto(user.Name, user.Surname, user.Email, userRole, user.MiddleName);
         }
 
-        public async Task<Result> EditAccountAsync(string id, EditAccountViewModel model)
+        public async Task<Result> EditAccountAsync(string id, EditDataDTO model)
         {
             var user = await _userManager.FindByIdAsync(id).ConfigureAwait(false);
             if (user == null)
@@ -101,10 +103,34 @@ namespace HwProj.AuthService.API.Services
             var token = await _tokenService.GetTokenAsync(user).ConfigureAwait(false);
             return Result<TokenCredentials>.Success(token);
         }
-
-        public async Task<Result<TokenCredentials>> RegisterUserAsync(RegisterViewModel model)
+        
+        public async Task<Result<TokenCredentials>> LoginUserByGoogleAsync(GoogleJsonWebSignature.Payload payload)
         {
-            if (await _userManager.FindByEmailAsync(model.Email).ConfigureAwait(false) != null)
+            if (await _userManager.FindByEmailAsync(payload.Email).ConfigureAwait(false)
+                is var user && user == null)
+            {
+                var userModel = new RegisterDataDTO()
+                {
+                    Email = payload.Email,
+                    Name = payload.GivenName,
+                    Surname = payload.FamilyName
+                };
+
+                return await RegisterUserAsync(userModel);
+            }
+
+            await EditAccountAsync(user.Id, new EditDataDTO()
+            {
+                Name = payload.GivenName,
+                Surname = payload.FamilyName
+            });
+            
+            return await GetToken(user);
+        }
+
+        public async Task<Result<TokenCredentials>> RegisterUserAsync(RegisterDataDTO model)
+        {
+            if (await _userManager.FindByEmailAsync(model.Email) != null)
             {
                 return Result<TokenCredentials>.Failed("User exist");
             }
@@ -112,13 +138,17 @@ namespace HwProj.AuthService.API.Services
             var user = _mapper.Map<User>(model);
             user.UserName = user.Email.Split('@')[0];
 
-            var result = await _userManager.CreateAsync(user, model.Password)
+            var createUserTask = model.Password != null
+                ? _userManager.CreateAsync(user, model.Password)
+                : _userManager.CreateAsync(user);
+            
+            var result = await createUserTask
                 .Then(() => _userManager.AddToRoleAsync(user, Roles.StudentRole))
                 .Then(() =>
                 {
                     user.EmailConfirmed = true;
                     return _userManager.UpdateAsync(user);
-                }).ConfigureAwait(false);
+                });
 
             if (result.Succeeded)
             {
@@ -126,13 +156,13 @@ namespace HwProj.AuthService.API.Services
                 var registerEvent = new StudentRegisterEvent(newUser.Id, newUser.Email, newUser.Name,
                     newUser.Surname, newUser.MiddleName);
                 _eventBus.Publish(registerEvent);
-                await _signInManager.PasswordSignInAsync(
-                    user,
-                    model.Password,
-                    false,
-                    false).ConfigureAwait(false);
-                var token = await _tokenService.GetTokenAsync(user).ConfigureAwait(false);
-                return Result<TokenCredentials>.Success(token);
+                
+                if (model.Password != null)
+                {
+                    await SignIn(user, model.Password);
+                }
+
+                return await GetToken(user);
             }
 
             return Result<TokenCredentials>.Failed(result.Errors.Select(errors => errors.Description).ToArray());
@@ -160,7 +190,7 @@ namespace HwProj.AuthService.API.Services
             return Result.Failed();
         }
 
-        private Task<IdentityResult> ChangeUserNameTask(User user, EditAccountViewModel model)
+        private Task<IdentityResult> ChangeUserNameTask(User user, EditDataDTO model)
         {
             if (!string.IsNullOrWhiteSpace(model.Name))
             {
@@ -178,11 +208,22 @@ namespace HwProj.AuthService.API.Services
             return _userManager.UpdateAsync(user);
         }
 
-        private Task<IdentityResult> ChangePasswordAsync(User user, EditAccountViewModel model)
+        private Task<IdentityResult> ChangePasswordAsync(User user, EditDataDTO model)
         {
             return !string.IsNullOrWhiteSpace(model.NewPassword)
                 ? _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword)
                 : Task.FromResult(IdentityResult.Success);
+        }
+
+        private async Task SignIn(User user, string password)
+        {
+            await _signInManager.PasswordSignInAsync(user, password, false, false)
+                .ConfigureAwait(false);
+        }
+
+        private async Task<Result<TokenCredentials>> GetToken(User user)
+        {
+            return Result<TokenCredentials>.Success(await _tokenService.GetTokenAsync(user).ConfigureAwait(false));
         }
     }
 }

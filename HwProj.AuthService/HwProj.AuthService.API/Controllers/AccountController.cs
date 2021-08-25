@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
+using AutoMapper;
 using HwProj.AuthService.API.Events;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
@@ -7,6 +8,9 @@ using HwProj.AuthService.API.Services;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
+using Google.Apis.Auth;
+using HwProj.Models.AuthService;
+
 
 namespace HwProj.AuthService.API.Controllers
 {
@@ -15,12 +19,16 @@ namespace HwProj.AuthService.API.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService;
+        private readonly IUserManager _userManager;
         private readonly IEventBus _eventBus;
+        private readonly IMapper _mapper;
 
-        public AccountController(IAccountService accountService, IEventBus eventBus)
+        public AccountController(IAccountService accountService, IEventBus eventBus, IUserManager userManager, IMapper mapper)
         {
             _accountService = accountService;
             _eventBus = eventBus;
+            _userManager = userManager;
+            _mapper = mapper;
         }
 
         [HttpGet("getUserData/{userId}")]
@@ -38,7 +46,8 @@ namespace HwProj.AuthService.API.Controllers
         [ProducesResponseType(typeof(TokenCredentials), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Register([FromBody] RegisterViewModel model)
         {
-            var result = await _accountService.RegisterUserAsync(model).ConfigureAwait(false);
+            var newModel = _mapper.Map<RegisterDataDTO>(model);
+            var result = await _accountService.RegisterUserAsync(newModel).ConfigureAwait(false);
             return Ok(result);
         }
 
@@ -54,7 +63,8 @@ namespace HwProj.AuthService.API.Controllers
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Edit([FromBody] EditAccountViewModel model, string userId)
         {
-            var result = await _accountService.EditAccountAsync(userId, model).ConfigureAwait(false);
+            var newModel = _mapper.Map<EditDataDTO>(model);
+            var result = await _accountService.EditAccountAsync(userId, newModel).ConfigureAwait(false);
             return Ok(result);
         }
         
@@ -63,6 +73,15 @@ namespace HwProj.AuthService.API.Controllers
         public async Task<IActionResult> InviteNewLecturer(InviteLecturerViewModel model)
         {
             var result = await _accountService.InviteNewLecturer(model.Email).ConfigureAwait(false);
+            return Ok(result);
+        }
+        
+        [HttpPost("google/{tokenId}")]
+        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GoogleRegister(string tokenId)
+        {
+            var payload = await GoogleJsonWebSignature.ValidateAsync(tokenId, new GoogleJsonWebSignature.ValidationSettings());
+            var result = await _accountService.LoginUserByGoogleAsync(payload).ConfigureAwait(false);
             return Ok(result);
         }
     }
