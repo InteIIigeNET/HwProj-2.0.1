@@ -25,7 +25,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 await _notificationRepository.AddAsync(new Notification
                 {
                     Sender = "SolutionService",
-                    Body = $"Задача {@event.Homework} опубликована.",
+                    Body = $"В курсе <a href='courses/{@event.Course.Id}'>{@event.Course.Name}</a> задача {@event.Homework} опубликована.",
                     Category = "SolutionService",
                     Date = DateTime.UtcNow,
                     HasSeen = false,
