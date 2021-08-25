@@ -19,24 +19,13 @@ export default class CourseHomework extends React.Component<ICourseHomeworkProps
     const homeworkList = this.props.homework
       .map((hw) => (
         <ListItem key={hw.id}>
-          <Accordion>
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel1a-content"
-              id="panel1a-header"
-              style={{backgroundColor: "AliceBlue"}}
-            >
-              <Typography>{hw.title}</Typography>
-            </AccordionSummary>
-            <AccordionDetails >
-              <Homework
-                homework={hw}
-                forStudent={this.props.isStudent}
-                forMentor={this.props.isMentor}
-                onDeleteClick={() => this.props.onDelete()}
-              />
-            </AccordionDetails>
-          </Accordion>
+          <Homework
+            homework={hw}
+            forStudent={this.props.isStudent}
+            forMentor={this.props.isMentor}
+            onDeleteClick={() => this.props.onDelete()}
+          />
+
         </ListItem>
       ))
       .reverse();

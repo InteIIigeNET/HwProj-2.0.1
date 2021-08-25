@@ -57,6 +57,7 @@ export default class StudentSolutionsPage extends React.Component<
               forStudent={false}
               forMentor={true}
               onDeleteClick={() => 0}
+              isExpanded={true}
             />
             <TaskSolutions
               forMentor={true}
