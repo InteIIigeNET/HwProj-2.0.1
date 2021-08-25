@@ -6,12 +6,12 @@ namespace HwProj.SolutionsService.API.Events
 {
     public class StudentPassTaskEvent : Event
     {
-        public CourseViewModel Courses { get; set; }
+        public CourseViewModel Course { get; set; }
         public SolutionViewModel Solution { get; set; }
 
-        public StudentPassTaskEvent(CourseViewModel courses, SolutionViewModel solution)
+        public StudentPassTaskEvent(CourseViewModel course, SolutionViewModel solution)
         {
-            Courses = courses;
+            Course = course;
             Solution = solution;
         }
     }

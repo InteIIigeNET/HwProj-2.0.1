@@ -6,6 +6,7 @@ using HwProj.CoursesService.API.Repositories;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.Client;
+using HwProj.Models.CoursesService.ViewModels;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -27,10 +28,10 @@ namespace HwProj.CoursesService.API.Services
         {
             homework.CourseId = courseId;
             homework.Date = DateTime.Now;
-/*
-            var course = await _corsesServiceClient.GetCourseById(courseId, homework.)   как достать UserId
-            _eventBus.Publish(new NewTaskEvent(homework.Title, courseId));
-*/
+
+            var course = await _corsesServiceClient.GetCourseById(courseId, "");
+            _eventBus.Publish(new NewTaskEvent(homework.Title, course));
+
             return await _homeworksRepository.AddAsync(homework);
         }
 
@@ -45,7 +46,12 @@ namespace HwProj.CoursesService.API.Services
         }
 
         public async Task UpdateHomeworkAsync(long homeworkId, Homework update)
-        {
+        { 
+            var course = await _corsesServiceClient.GetCourseById(update.CourseId, "");
+            var courseModel = _mapper.Map<CourseViewModel>(course);
+            var homeworkModel = _mapper.Map<HomeworkViewModel>(update);
+            _eventBus.Publish(new UpdateHomeworkEvent(homeworkModel, course));
+
             await _homeworksRepository.UpdateAsync(homeworkId, homework => new Homework()
             {
                 Title = update.Title,
