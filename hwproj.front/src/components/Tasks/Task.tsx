@@ -45,6 +45,10 @@ export default class Task extends React.Component<ITaskProp, {}> {
                 <Typography variant="body1">
                     <ReactMarkdown source={task.description} />
                 </Typography>
+
+                <Typography>
+                    Максимальный балл: {task.maxRating}
+                </Typography>
                 <Typography>
                     Дата публикации: {publicationDate}
                 </Typography>

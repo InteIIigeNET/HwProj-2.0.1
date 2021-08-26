@@ -1,4 +1,5 @@
-﻿using HwProj.EventBus.Client.Interfaces;
+﻿using HwProj.CoursesService.Client;
+using HwProj.EventBus.Client.Interfaces;
 using HwProj.SolutionsService.API.Events;
 using HwProj.SolutionsService.API.Models;
 using HwProj.SolutionsService.API.Repositories;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Net.Http;
 
 namespace HwProj.SolutionsService.API
 {
@@ -30,13 +32,15 @@ namespace HwProj.SolutionsService.API
 
             services.AddEventBus(Configuration);
 
+            var httpClient = new HttpClient();
+            services.AddCoursesServiceClient(httpClient, "http://localhost:5002");
+
             services.ConfigureHwProjServices("Solutions API");
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IEventBus eventBus)
         {
             eventBus.Subscribe<UpdateTaskMaxRatingEvent>();
-            eventBus.Subscribe<UpdateSolutionMaxRatingEvent>();
             app.ConfigureHwProj(env, "Solutions API");
         }
     }
