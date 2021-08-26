@@ -160,7 +160,6 @@ export class Register extends React.Component<{}, IRegisterState> {
 
   private handleSubmit = async (e: any) => {
     e.preventDefault();
-    debugger
     const result = await ApiSingleton.authService.register(this.state.registerData)
     this.setState({
       error: result!.error!,

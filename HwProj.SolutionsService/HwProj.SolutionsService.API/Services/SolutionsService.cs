@@ -4,8 +4,6 @@ using HwProj.CoursesService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.SolutionsService;
-using HwProj.SolutionsService.API.Events;
-using HwProj.SolutionsService.API.Models;
 using HwProj.SolutionsService.API.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,6 +19,7 @@ namespace HwProj.SolutionsService.API.Services
         public SolutionsService(ISolutionsRepository solutionsRepository, IEventBus eventBus, IMapper mapper, ICoursesServiceClient coursesServiceClient)
         {
             _solutionsRepository = solutionsRepository;
+            _coursesServiceClient = coursesServiceClient;
             _eventBus = eventBus;
             _mapper = mapper;
             _coursesServiceClient = coursesServiceClient;
@@ -46,6 +45,7 @@ namespace HwProj.SolutionsService.API.Services
         public async Task<long> AddSolutionAsync(long taskId, Solution solution)
         {
             solution.TaskId = taskId;
+            solution.PublicationDate = DateTime.Now;
             var id = await _solutionsRepository.AddAsync(solution);
 
             var solutionModel = _mapper.Map<SolutionViewModel>(solution);
@@ -60,7 +60,7 @@ namespace HwProj.SolutionsService.API.Services
             return id;
         }
 
-        public async Task RateSolutionAsync(long solutionId, int newRating)
+        public async Task RateSolutionAsync(long solutionId, int newRating, string lecturerComment)
         {
             var solution = await _solutionsRepository.GetAsync(solutionId);
             SolutionState state;

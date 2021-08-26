@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http;
-using HwProj.CoursesService.Client;
 using HwProj.CoursesService.API.Events;
 using HwProj.SolutionsService.API.Events;
 using HwProj.SolutionsService.Client;
