@@ -23,10 +23,17 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpGet("get/{taskId}")]
         public async Task<IActionResult> GetTask(long taskId)
         {
-            var task = await _tasksService.GetTaskAsync(taskId);
-            return task == null
-                ? NotFound()
-                : Ok(_mapper.Map<HomeworkTaskViewModel>(task)) as IActionResult;
+            var taskFromDb = await _tasksService.GetTaskAsync(taskId);
+
+            if (taskFromDb == null)
+            {
+                return NotFound();
+            }
+
+            var task = _mapper.Map<HomeworkTaskViewModel>(taskFromDb);
+            task.PutPossibilityForSendingSolution();
+            
+            return Ok(task);
         }
         
         [HttpPost("{homeworkId}/add")]
@@ -52,6 +59,8 @@ namespace HwProj.CoursesService.API.Controllers
                 Description = taskViewModel.Description,
                 MaxRating = taskViewModel.MaxRating,
                 DeadlineDate = taskViewModel.DeadlineDate,
+                HasDeadline = taskViewModel.HasDeadline,
+                IsDeadlineStrict = taskViewModel.IsDeadlineStrict,
                 PublicationDate = taskViewModel.PublicationDate
             });
         }

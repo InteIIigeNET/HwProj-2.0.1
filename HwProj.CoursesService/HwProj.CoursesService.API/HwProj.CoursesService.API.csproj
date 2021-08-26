@@ -3,6 +3,7 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <Folder Include="EventHandlers\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
   <ItemGroup>

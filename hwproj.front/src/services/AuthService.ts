@@ -35,6 +35,21 @@ export default class AuthService {
     }
   }
 
+  async loginByGoogle(tokenId: string) {
+    const token = await ApiSingleton.accountApi.apiAccountGooglePost(tokenId)
+    if (token.errors) {
+      return {
+        error: token.errors,
+        isLogin: false
+      }
+    }
+    this.setToken(token.value?.accessToken!)
+    return {
+      error: null,
+      isLogin: true
+    }
+  }
+
   async register(user: RegisterViewModel){
     const token = await ApiSingleton.accountApi.apiAccountRegisterPost(user) 
     if (!token.succeeded) {

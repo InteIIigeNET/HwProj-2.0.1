@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using HwProj.AuthService.API.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal;
 
 namespace HwProj.AuthService.API.Services
 {
@@ -12,6 +13,11 @@ namespace HwProj.AuthService.API.Services
         public ProxyUserManager(UserManager<User> aspUserManager)
         {
             _aspUserManager = aspUserManager;
+        }
+        
+        public Task<IdentityResult> CreateAsync(User user)
+        {
+            return _aspUserManager.CreateAsync(user);
         }
 
         public Task<IdentityResult> CreateAsync(User user, string password)
