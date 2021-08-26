@@ -1,4 +1,5 @@
-﻿using HwProj.CoursesService.Client;
+using System.Net.Http;
+using HwProj.CoursesService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.SolutionsService.API.Events;
 using HwProj.SolutionsService.API.Models;
@@ -36,6 +37,9 @@ namespace HwProj.SolutionsService.API
             services.AddCoursesServiceClient(httpClient, "http://localhost:5002");
 
             services.ConfigureHwProjServices("Solutions API");
+
+            var httpClient = new HttpClient();
+            services.AddCoursesServiceClient(httpClient, "http://localhost:5002");
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IEventBus eventBus)

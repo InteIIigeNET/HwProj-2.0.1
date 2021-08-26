@@ -4,6 +4,7 @@ using AutoMapper;
 using HwProj.CoursesService.Client;
 using HwProj.Models.SolutionsService;
 using HwProj.SolutionsService.API.Services;
+using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.SolutionsService.API.Controllers
@@ -13,12 +14,14 @@ namespace HwProj.SolutionsService.API.Controllers
     public class SolutionsController : Controller
     {
         private readonly ISolutionsService _solutionsService;
+        private readonly ICoursesServiceClient _coursesServiceClient;
         private readonly IMapper _mapper;
         private readonly ICoursesServiceClient _coursesClient;
 
         public SolutionsController(ISolutionsService solutionsService, IMapper mapper, ICoursesServiceClient coursesClient)
         {
             _solutionsService = solutionsService;
+            _coursesServiceClient = coursesServiceClient;
             _mapper = mapper;
             _coursesClient = coursesClient;
         }
@@ -52,7 +55,7 @@ namespace HwProj.SolutionsService.API.Controllers
             var homework = await _coursesClient.GetHomework(task.HomeworkId);
             var course = await _coursesClient.GetCourseById(homework.CourseId, solutionViewModel.StudentId);
 
-            if (course.CourseMates.Exists(courseMate => courseMate.StudentId == solutionViewModel.StudentId && courseMate.IsAccepted))
+            if (course.CourseMates.Exists(courseMate => courseMate.StudentId == solutionViewModel.StudentId && courseMate.IsAccepted) && task.CanSendSolution)
             {
                 var solution = _mapper.Map<Solution>(solutionViewModel);
                 var solutionId = await _solutionsService.AddSolutionAsync(taskId, solution);

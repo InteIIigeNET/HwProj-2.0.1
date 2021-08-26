@@ -18,7 +18,10 @@ interface ITaskProp {
 export default class Task extends React.Component<ITaskProp, {}> {
     public render() {
         let task = this.props.task;
-        let deadlineDate = new Date(task.deadlineDate!.toString()).toLocaleString("ru-RU")
+        let deadlineDate
+        if (task.hasDeadline) {
+            deadlineDate = new Date(task.deadlineDate!.toString()).toLocaleString("ru-RU")   
+        }
         let publicationDate = new Date(task.publicationDate!.toString()).toLocaleString("ru-RU")
         return (
             <div>
@@ -52,10 +55,17 @@ export default class Task extends React.Component<ITaskProp, {}> {
                 <Typography>
                     Дата публикации: {publicationDate}
                 </Typography>
-
+                {(task.hasDeadline) &&
+        
+                    <Typography>
+                        Дедлайн: {deadlineDate}
+                    </Typography>
+                }
+                {!task.hasDeadline  &&
                 <Typography>
-                    Дедлайн: {deadlineDate}
+                    Дедлайн: Отсутствует
                 </Typography>
+                }
             </div>
         );
     }

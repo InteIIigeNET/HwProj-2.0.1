@@ -2,6 +2,8 @@
 using Google.Apis.Auth;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
+using HwProj.Models.Result;
+using Microsoft.AspNetCore.Identity;
 
 namespace HwProj.AuthService.API.Services
 {
