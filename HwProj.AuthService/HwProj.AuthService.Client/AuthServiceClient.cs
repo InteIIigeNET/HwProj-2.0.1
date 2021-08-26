@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using HwProj.HttpUtils;
+using HwProj.Models.AuthService;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.AuthService.DTO;
 using Newtonsoft.Json;
@@ -42,8 +43,7 @@ namespace HwProj.AuthService.Client
                     Encoding.UTF8,
                     "application/json")
             };
-
-
+            
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Result<TokenCredentials>>();
         }
@@ -94,6 +94,16 @@ namespace HwProj.AuthService.Client
             
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Result>();
+        }
+        
+        public async Task<Result<TokenCredentials>> LoginByGoogle(string tokenId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _authServiceUri + $"api/account/google/{tokenId}");
+            
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<Result<TokenCredentials>>();;
         }
     }
 }

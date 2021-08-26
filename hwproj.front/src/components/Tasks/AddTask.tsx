@@ -32,7 +32,6 @@ export default class AddTask extends React.Component<
 
   public async handleSubmit(e: any) {
     e.preventDefault();
-    const token = ApiSingleton.authService.getToken()
     // ReDo
     this.setState({
       publicationDate: new Date(this.state.publicationDate!.setHours(this.state.publicationDate!.getHours() + 3)),
@@ -42,14 +41,16 @@ export default class AddTask extends React.Component<
         deadlineDate: new Date(this.state.deadlineDate!.setHours(this.state.deadlineDate!.getHours() + 3))
       })
     }
-    await ApiSingleton.tasksApi.apiTasksAddByHomeworkIdPost(this.props.id, this.state, { headers: {"Authorization": `Bearer ${token}`} });
+    await ApiSingleton.tasksApi.apiTasksAddByHomeworkIdPost(this.props.id, this.state);
     this.props.onAdding()
   }
 
   public render() {
     return (
       <div>
-        <Typography variant="subtitle1">Добавить задачу</Typography>
+        <Typography variant="subtitle1" style={{ marginTop: "15px" }}>
+          Добавить задачу
+        </Typography>
         <form onSubmit={(e) => this.handleSubmit(e)}>
           <TextField
             required
@@ -59,7 +60,6 @@ export default class AddTask extends React.Component<
             value={this.state.title}
             onChange={(e) => this.setState({ title: e.target.value })}
           />
-          <br />
           <TextField
             required
             label="Баллы"
@@ -74,7 +74,6 @@ export default class AddTask extends React.Component<
             multiline
             fullWidth
             rows="4"
-            //rowsMax="15"
             label="Условие задачи"
             variant="outlined"
             margin="normal"

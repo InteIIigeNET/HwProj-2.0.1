@@ -48,9 +48,8 @@ export default class EditTask extends React.Component<
 
   public async handleSubmit(e: any) {
       e.preventDefault();
-      const token = ApiSingleton.authService.getToken();
       ApiSingleton.tasksApi
-        .apiTasksUpdateByTaskIdPut(+this.props.match.params.taskId, this.state, { headers: {"Authorization": `Bearer ${token}`} })
+        .apiTasksUpdateByTaskIdPut(+this.props.match.params.taskId, this.state)
         .then((res) => {
           this.setState({ edited: true })
         });
@@ -191,11 +190,10 @@ export default class EditTask extends React.Component<
   }
 
   async componentDidMount() {
-    const token = ApiSingleton.authService.getToken();
-    await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+this.props.match.params.taskId, { headers: {"Authorization": `Bearer ${token}`}})
+    await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+this.props.match.params.taskId)
       .then(async (task) =>
         await ApiSingleton.homeworksApi
-        .apiHomeworksGetByHomeworkIdGet(task.homeworkId!, { headers: {"Authorization": `Bearer ${token}`} })
+        .apiHomeworksGetByHomeworkIdGet(task.homeworkId!)
         .then(async (homework) =>
           await ApiSingleton.coursesApi
           .apiCoursesByCourseIdGet(homework.courseId!, { headers: {"Authorization": `Bearer ${token}`} })

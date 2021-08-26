@@ -47,7 +47,6 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) =>  {
   const classes = styles()
   const isMobileLecturer = useMediaQuery('(min-width:850px)');
   const isMobileStudent = useMediaQuery('(min-width:560px)');
-  console.log(isMobileStudent)
   
   return (
     <div>

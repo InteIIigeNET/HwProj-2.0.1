@@ -34,7 +34,6 @@ export default class EditProfile extends React.Component<{}, IEditProfileState> 
 
     handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault();
-      const token = ApiSingleton.authService.getToken();
       const editForm = {
           name: this.state.name,
           surname: this.state.surname,
@@ -43,7 +42,7 @@ export default class EditProfile extends React.Component<{}, IEditProfileState> 
           newPassword: this.state.newPassword,
       }
       ApiSingleton.accountApi
-        .apiAccountEditPut(editForm, {headers: {"Authorization": `Bearer ${token}`}})
+        .apiAccountEditPut(editForm)
         .then((res) => {
             if (res.succeeded) {
                 this.setState({ edited: true });
@@ -135,8 +134,7 @@ export default class EditProfile extends React.Component<{}, IEditProfileState> 
     }
 
     async componentDidMount() {
-        const token = ApiSingleton.authService.getToken();
-        const currentUser = await (await ApiSingleton.accountApi.apiAccountGetUserDataGet({headers: {"Authorization": `Bearer ${token}`}})).userData!;
+        const currentUser = await (await ApiSingleton.accountApi.apiAccountGetUserDataGet()).userData!
         this.setState({
             isLoaded: true,
             name: currentUser.name!,
