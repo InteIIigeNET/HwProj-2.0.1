@@ -16,7 +16,7 @@ namespace HwProj.SolutionsService.API.Services
 
         Task<long> AddSolutionAsync(long taskId, Solution solution);
 
-        Task RateSolutionAsync(long solutionId, int newRating);
+        Task RateSolutionAsync(long solutionId, int newRating, string lecturerComment);
 
         Task DeleteSolutionAsync(long solutionId);
         

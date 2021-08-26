@@ -1,8 +1,7 @@
-﻿using System;
+using System;
 
 namespace HwProj.Exceptions
 {
-
     public class ForbiddenException : Exception
     {
         public ForbiddenException() : base() { }

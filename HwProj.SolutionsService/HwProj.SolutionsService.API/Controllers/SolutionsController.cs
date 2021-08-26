@@ -1,8 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System.Net;
+using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.Client;
 using HwProj.Models.SolutionsService;
-using HwProj.SolutionsService.API.Models;
 using HwProj.SolutionsService.API.Services;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,12 +16,14 @@ namespace HwProj.SolutionsService.API.Controllers
         private readonly ISolutionsService _solutionsService;
         private readonly ICoursesServiceClient _coursesServiceClient;
         private readonly IMapper _mapper;
+        private readonly ICoursesServiceClient _coursesClient;
 
-        public SolutionsController(ISolutionsService solutionsService, ICoursesServiceClient coursesServiceClient, IMapper mapper)
+        public SolutionsController(ISolutionsService solutionsService, IMapper mapper, ICoursesServiceClient coursesClient)
         {
             _solutionsService = solutionsService;
             _coursesServiceClient = coursesServiceClient;
             _mapper = mapper;
+            _coursesClient = coursesClient;
         }
 
         [HttpGet]
@@ -46,24 +48,36 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpPost("{taskId}")]
+        [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> PostSolution(long taskId, [FromBody] SolutionViewModel solutionViewModel)
         {
-            var task = await _coursesServiceClient.GetTask(taskId);
+            var task = await _coursesClient.GetTask(taskId);
+            var homework = await _coursesClient.GetHomework(task.HomeworkId);
+            var course = await _coursesClient.GetCourseById(homework.CourseId, solutionViewModel.StudentId);
 
-            if (task.CanSendSolution)
+            if (course.CourseMates.Exists(courseMate => courseMate.StudentId == solutionViewModel.StudentId && courseMate.IsAccepted) && task.CanSendSolution)
             {
                 var solution = _mapper.Map<Solution>(solutionViewModel);
                 var solutionId = await _solutionsService.AddSolutionAsync(taskId, solution);
                 return Ok(solutionId);
             }
-
             return Forbid();
         }
 
         [HttpPost("rateSolution/{solutionId}")]
-        public async Task RateSolution(long solutionId, [FromQuery] int newRating)
+        public async Task<IActionResult> RateSolution(long solutionId, [FromQuery] int newRating, [FromQuery] string lecturerComment, [FromQuery] string lecturerId)
         {
-            await _solutionsService.RateSolutionAsync(solutionId, newRating);
+            var solution = await _solutionsService.GetSolutionAsync(solutionId);
+            var task = await _coursesClient.GetTask(solution.TaskId);
+            var homework = await _coursesClient.GetHomework(task.HomeworkId);
+            var course = await _coursesClient.GetCourseById(homework.CourseId, "");
+
+            if (course.MentorId == lecturerId)
+            {
+                await _solutionsService.RateSolutionAsync(solutionId, newRating, lecturerComment);
+                return Ok();
+            }
+            return Forbid();
         }
         
         [HttpPost("markSolutionFinal/{solutionId}")]

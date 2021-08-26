@@ -786,12 +786,6 @@ export interface Solution {
     rating?: number;
     /**
      * 
-     * @type {number}
-     * @memberof Solution
-     */
-    maxRating?: number;
-    /**
-     * 
      * @type {string}
      * @memberof Solution
      */
@@ -808,6 +802,18 @@ export interface Solution {
      * @memberof Solution
      */
     taskId?: number;
+    /**
+     * 
+     * @type {Date}
+     * @memberof Solution
+     */
+    publicationDate?: Date;
+    /**
+     * 
+     * @type {string}
+     * @memberof Solution
+     */
+    lecturerComment?: string;
 }
 
 /**
@@ -822,8 +828,7 @@ export namespace Solution {
     export enum StateEnum {
         NUMBER_0 = <any> 0,
         NUMBER_1 = <any> 1,
-        NUMBER_2 = <any> 2,
-        NUMBER_3 = <any> 3
+        NUMBER_2 = <any> 2
     }
 }
 
@@ -851,6 +856,18 @@ export interface SolutionViewModel {
      * @memberof SolutionViewModel
      */
     studentId?: string;
+    /**
+     * 
+     * @type {Date}
+     * @memberof SolutionViewModel
+     */
+    publicationDate?: Date;
+    /**
+     * 
+     * @type {string}
+     * @memberof SolutionViewModel
+     */
+    lecturerComment?: string;
 }
 
 /**
@@ -3814,10 +3831,11 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
          * 
          * @param {number} solutionId 
          * @param {number} newRating 
+         * @param {string} [lecturerComment] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSolutionsRateSolutionBySolutionIdByNewRatingPost(solutionId: number, newRating: number, options: any = {}): FetchArgs {
+        apiSolutionsRateSolutionBySolutionIdByNewRatingPost(solutionId: number, newRating: number, lecturerComment?: string, options: any = {}): FetchArgs {
             // verify required parameter 'solutionId' is not null or undefined
             if (solutionId === null || solutionId === undefined) {
                 throw new RequiredError('solutionId','Required parameter solutionId was null or undefined when calling apiSolutionsRateSolutionBySolutionIdByNewRatingPost.');
@@ -3842,6 +3860,10 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
+            if (lecturerComment !== undefined) {
+                localVarQueryParameter['lecturerComment'] = lecturerComment;
+            }
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
@@ -3854,17 +3876,23 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
         },
         /**
          * 
-         * @param {number} solutionId 
+         * @param {number} taskId 
+         * @param {string} studentId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSolutionsTaskSolutionBySolutionIdGet(solutionId: number, options: any = {}): FetchArgs {
-            // verify required parameter 'solutionId' is not null or undefined
-            if (solutionId === null || solutionId === undefined) {
-                throw new RequiredError('solutionId','Required parameter solutionId was null or undefined when calling apiSolutionsTaskSolutionBySolutionIdGet.');
+        apiSolutionsTaskSolutionByTaskIdByStudentIdGet(taskId: number, studentId: string, options: any = {}): FetchArgs {
+            // verify required parameter 'taskId' is not null or undefined
+            if (taskId === null || taskId === undefined) {
+                throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling apiSolutionsTaskSolutionByTaskIdByStudentIdGet.');
             }
-            const localVarPath = `/api/Solutions/taskSolution/{solutionId}`
-                .replace(`{${"solutionId"}}`, encodeURIComponent(String(solutionId)));
+            // verify required parameter 'studentId' is not null or undefined
+            if (studentId === null || studentId === undefined) {
+                throw new RequiredError('studentId','Required parameter studentId was null or undefined when calling apiSolutionsTaskSolutionByTaskIdByStudentIdGet.');
+            }
+            const localVarPath = `/api/Solutions/taskSolution/{taskId}/{studentId}`
+                .replace(`{${"taskId"}}`, encodeURIComponent(String(taskId)))
+                .replace(`{${"studentId"}}`, encodeURIComponent(String(studentId)));
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
@@ -4030,11 +4058,12 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
          * 
          * @param {number} solutionId 
          * @param {number} newRating 
+         * @param {string} [lecturerComment] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSolutionsRateSolutionBySolutionIdByNewRatingPost(solutionId: number, newRating: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsRateSolutionBySolutionIdByNewRatingPost(solutionId, newRating, options);
+        apiSolutionsRateSolutionBySolutionIdByNewRatingPost(solutionId: number, newRating: number, lecturerComment?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsRateSolutionBySolutionIdByNewRatingPost(solutionId, newRating, lecturerComment, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -4047,12 +4076,13 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @param {number} solutionId 
+         * @param {number} taskId 
+         * @param {string} studentId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSolutionsTaskSolutionBySolutionIdGet(solutionId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<Solution>> {
-            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsTaskSolutionBySolutionIdGet(solutionId, options);
+        apiSolutionsTaskSolutionByTaskIdByStudentIdGet(taskId: number, studentId: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<Solution>> {
+            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsTaskSolutionByTaskIdByStudentIdGet(taskId, studentId, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -4142,20 +4172,22 @@ export const SolutionsApiFactory = function (configuration?: Configuration, fetc
          * 
          * @param {number} solutionId 
          * @param {number} newRating 
+         * @param {string} [lecturerComment] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSolutionsRateSolutionBySolutionIdByNewRatingPost(solutionId: number, newRating: number, options?: any) {
-            return SolutionsApiFp(configuration).apiSolutionsRateSolutionBySolutionIdByNewRatingPost(solutionId, newRating, options)(fetch, basePath);
+        apiSolutionsRateSolutionBySolutionIdByNewRatingPost(solutionId: number, newRating: number, lecturerComment?: string, options?: any) {
+            return SolutionsApiFp(configuration).apiSolutionsRateSolutionBySolutionIdByNewRatingPost(solutionId, newRating, lecturerComment, options)(fetch, basePath);
         },
         /**
          * 
-         * @param {number} solutionId 
+         * @param {number} taskId 
+         * @param {string} studentId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSolutionsTaskSolutionBySolutionIdGet(solutionId: number, options?: any) {
-            return SolutionsApiFp(configuration).apiSolutionsTaskSolutionBySolutionIdGet(solutionId, options)(fetch, basePath);
+        apiSolutionsTaskSolutionByTaskIdByStudentIdGet(taskId: number, studentId: string, options?: any) {
+            return SolutionsApiFp(configuration).apiSolutionsTaskSolutionByTaskIdByStudentIdGet(taskId, studentId, options)(fetch, basePath);
         },
     };
 };
@@ -4251,23 +4283,25 @@ export class SolutionsApi extends BaseAPI {
      * 
      * @param {number} solutionId 
      * @param {number} newRating 
+     * @param {string} [lecturerComment] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof SolutionsApi
      */
-    public apiSolutionsRateSolutionBySolutionIdByNewRatingPost(solutionId: number, newRating: number, options?: any) {
-        return SolutionsApiFp(this.configuration).apiSolutionsRateSolutionBySolutionIdByNewRatingPost(solutionId, newRating, options)(this.fetch, this.basePath);
+    public apiSolutionsRateSolutionBySolutionIdByNewRatingPost(solutionId: number, newRating: number, lecturerComment?: string, options?: any) {
+        return SolutionsApiFp(this.configuration).apiSolutionsRateSolutionBySolutionIdByNewRatingPost(solutionId, newRating, lecturerComment, options)(this.fetch, this.basePath);
     }
 
     /**
      * 
-     * @param {number} solutionId 
+     * @param {number} taskId 
+     * @param {string} studentId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof SolutionsApi
      */
-    public apiSolutionsTaskSolutionBySolutionIdGet(solutionId: number, options?: any) {
-        return SolutionsApiFp(this.configuration).apiSolutionsTaskSolutionBySolutionIdGet(solutionId, options)(this.fetch, this.basePath);
+    public apiSolutionsTaskSolutionByTaskIdByStudentIdGet(taskId: number, studentId: string, options?: any) {
+        return SolutionsApiFp(this.configuration).apiSolutionsTaskSolutionByTaskIdByStudentIdGet(taskId, studentId, options)(this.fetch, this.basePath);
     }
 
 }

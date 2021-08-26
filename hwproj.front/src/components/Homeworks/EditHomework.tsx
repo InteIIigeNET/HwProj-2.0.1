@@ -88,7 +88,6 @@ export default class EditHomework extends React.Component<
                 onChange={(e) => this.setState({ title: e.target.value })}
               />
               <br />
-
               <Tabs 
                 onChange={(event, newValue) => this.setState({isPreview: newValue === 1})} 
                 indicatorColor="primary"
