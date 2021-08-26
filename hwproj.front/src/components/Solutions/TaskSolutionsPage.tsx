@@ -66,6 +66,7 @@ export default class TaskSolutionsPage extends React.Component<
               forStudent={true}
               forMentor={false}
               onDeleteClick={() => 3}
+              isExpanded={true}
             />
             {!this.state.addSolution && (
               <div>
