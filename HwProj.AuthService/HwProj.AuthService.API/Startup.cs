@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using HwProj.Utils.Configuration;
 using HwProj.Utils.Authorization;
+using Microsoft.AspNetCore.Authentication.Google;
 
 namespace HwProj.AuthService.API
 {
@@ -29,8 +31,12 @@ namespace HwProj.AuthService.API
 
             //var appSettingsSection = Configuration.GetSection("AppSettings");
             //services.Configure<AppSettings>(appSettingsSection);
-
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            
+            services.AddAuthentication(options =>
+                {
+                    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+                })
                 .AddJwtBearer(x =>
                 {
                     x.RequireHttpsMetadata = false; //TODO: dev env setting
@@ -43,6 +49,15 @@ namespace HwProj.AuthService.API
                         IssuerSigningKey = AuthorizationKey.SecurityKey,
                         ValidateIssuerSigningKey = true
                     };
+                })
+                .AddCookie()
+                .AddGoogle(options =>
+                {
+                    IConfigurationSection googleAuthNSection =
+                        Configuration.GetSection("Authentication:Google");
+
+                    options.ClientId = googleAuthNSection["ClientId"];
+                    options.ClientSecret = googleAuthNSection["ClientSecret"];
                 });
 
             services.AddDbContext<IdentityContext>(options =>

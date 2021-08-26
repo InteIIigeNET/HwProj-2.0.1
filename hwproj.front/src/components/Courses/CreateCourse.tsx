@@ -39,8 +39,7 @@ export default class CreateCourse extends React.Component<
       groupName: this.state.groupName,
       isOpen: this.state.isOpen,
     };
-    const token = ApiSingleton.authService.getToken();
-    const id = await ApiSingleton.coursesApi.apiCoursesCreatePost(courseViewModel, { headers: {"Authorization": `Bearer ${token}`} })
+    const id = await ApiSingleton.coursesApi.apiCoursesCreatePost(courseViewModel)
     if (id) {
       window.location.assign("/")
     }

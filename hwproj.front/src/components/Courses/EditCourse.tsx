@@ -38,7 +38,7 @@ export default class EditCourse extends React.Component<RouteComponentProps<IEdi
         };
     }
 
-    public handleSubmit(e: any) {
+    public async handleSubmit(e: any) {
         e.preventDefault();
         let courseViewModel = {
             name: this.state.name,
@@ -47,14 +47,12 @@ export default class EditCourse extends React.Component<RouteComponentProps<IEdi
             isComplete: this.state.isComplete
         };
 
-        const token = ApiSingleton.authService.getToken()
-        ApiSingleton.coursesApi.apiCoursesUpdateByCourseIdPost(+this.props.match.params.courseId, courseViewModel, { headers: {"Authorization": `Bearer ${token}`} })
+        ApiSingleton.coursesApi.apiCoursesUpdateByCourseIdPost(+this.props.match.params.courseId, courseViewModel)
             .then(res => this.setState({edited: true}))
     }
 
     public onDelete() {
-        const token = ApiSingleton.authService.getToken()
-        ApiSingleton.coursesApi.apiCoursesByCourseIdDelete(+this.props.match.params.courseId, { headers: {"Authorization": `Bearer ${token}`} })
+        ApiSingleton.coursesApi.apiCoursesByCourseIdDelete(+this.props.match.params.courseId)
             .then(res => this.setState({deleted: true}));
     }
 
@@ -69,6 +67,7 @@ export default class EditCourse extends React.Component<RouteComponentProps<IEdi
             }
 
             if (!ApiSingleton.authService.isLoggedIn() || ApiSingleton.authService.getUserId() != this.state.mentorId) {
+                debugger
                 return <Typography variant='h6' gutterBottom>Только преподаватель может редактировать курс</Typography>
             }
 
@@ -133,7 +132,9 @@ export default class EditCourse extends React.Component<RouteComponentProps<IEdi
     }
 
     async componentDidMount() {
-        const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+this.props.match.params.courseId)
+        const token = ApiSingleton.authService.getToken()
+        const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+this.props.match.params.courseId, { headers: {"Authorization": `Bearer ${token}`}})
+        debugger
         this.setState({
             isLoaded: true,
             name: course.name!,
