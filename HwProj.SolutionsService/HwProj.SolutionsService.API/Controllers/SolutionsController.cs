@@ -21,10 +21,8 @@ namespace HwProj.SolutionsService.API.Controllers
     [ApiController]
     public class SolutionsController : Controller
     {
-        private readonly ICoursesServiceClient _coursesClient;
         private readonly IAuthServiceClient _authClient;
         private readonly ISolutionsService _solutionsService;
-        private readonly ICoursesServiceClient _coursesServiceClient;
         private readonly IMapper _mapper;
         private readonly ICoursesServiceClient _coursesClient;
 
