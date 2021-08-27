@@ -57,6 +57,7 @@ export default class StudentSolutionsPage extends React.Component<
               forStudent={false}
               forMentor={true}
               onDeleteClick={() => 0}
+              isExpanded={true}
             />
             <TaskSolutions
               forMentor={true}
@@ -72,12 +73,11 @@ export default class StudentSolutionsPage extends React.Component<
   }
 
   componentDidMount() {
-    const token = ApiSingleton.authService.getToken();
     ApiSingleton.tasksApi
       .apiTasksGetByTaskIdGet(+this.props.match.params.taskId)
       .then((task) =>
         ApiSingleton.homeworksApi
-          .apiHomeworksGetByHomeworkIdGet(task.homeworkId!, { headers: {"Authorization": `Bearer ${token}`} })
+          .apiHomeworksGetByHomeworkIdGet(task.homeworkId!)
           .then((homework) =>
             ApiSingleton.coursesApi
               .apiCoursesByCourseIdGet(homework.courseId!)

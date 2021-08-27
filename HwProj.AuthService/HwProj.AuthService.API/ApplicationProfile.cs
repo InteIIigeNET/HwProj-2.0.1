@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using HwProj.AuthService.API.Models;
+using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
 
 namespace HwProj.AuthService.API
@@ -8,7 +9,9 @@ namespace HwProj.AuthService.API
     {
         public ApplicationProfile()
         {
-            CreateMap<RegisterViewModel, User>();
+            CreateMap<RegisterDataDTO, User>();
+            CreateMap<EditAccountViewModel, EditDataDTO>();
+            CreateMap<RegisterViewModel, RegisterDataDTO>();
         }
     }
 }

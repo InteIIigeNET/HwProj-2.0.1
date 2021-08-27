@@ -48,8 +48,10 @@ export default class TaskSolutions extends React.Component<ITaskSolutionsProps, 
     }
 
     componentDidMount() {
-        ApiSingleton.solutionsApi.apiSolutionsGet()
-            .then(solutions => solutions.filter(s => s.taskId == this.props.taskId && s.studentId == this.props.studentId))
+        ApiSingleton.solutionsApi.apiSolutionsTaskSolutionByTaskIdByStudentIdGet(
+            this.props.taskId, 
+            this.props.studentId,
+        )
             .then(solutions => this.setState({
                 isLoaded: true,
                 solutions: solutions

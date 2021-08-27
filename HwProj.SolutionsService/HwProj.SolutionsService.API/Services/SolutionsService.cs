@@ -1,8 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
+using HwProj.CoursesService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.SolutionsService;
-using HwProj.SolutionsService.API.Events;
-using HwProj.SolutionsService.API.Models;
 using HwProj.SolutionsService.API.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,9 +12,11 @@ namespace HwProj.SolutionsService.API.Services
     {
         private readonly ISolutionsRepository _solutionsRepository;
         private readonly IEventBus _eventBus;
-        public SolutionsService(ISolutionsRepository solutionsRepository, IEventBus eventBus)
+        private readonly ICoursesServiceClient _coursesServiceClient;
+        public SolutionsService(ISolutionsRepository solutionsRepository, ICoursesServiceClient coursesServiceClient, IEventBus eventBus)
         {
             _solutionsRepository = solutionsRepository;
+            _coursesServiceClient = coursesServiceClient;
             _eventBus = eventBus;
         }
 
@@ -58,12 +60,15 @@ namespace HwProj.SolutionsService.API.Services
             return solution.Id;
         }
 
-        public async Task RateSolutionAsync(long solutionId, int newRating)
+        public async Task RateSolutionAsync(long solutionId, int newRating, string lecturerComment)
         {
             var solution = await _solutionsRepository.GetAsync(solutionId);
-            var state = solution.MaxRating == newRating ? SolutionState.Final : SolutionState.Rated;
-            
-            await _solutionsRepository.RateSolutionAsync(solutionId, state, newRating);
+            var task = await _coursesServiceClient.GetTask(solution.TaskId);
+            if (0 <= newRating && newRating <= task.MaxRating)
+            {
+                SolutionState state = newRating >= task.MaxRating ? SolutionState.Final : SolutionState.Rated;
+                await _solutionsRepository.RateSolutionAsync(solutionId, state, newRating, lecturerComment);
+            }
         }
 
         public Task DeleteSolutionAsync(long solutionId)

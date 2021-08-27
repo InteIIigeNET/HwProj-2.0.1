@@ -4,6 +4,7 @@ import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import ApiSingleton from "../../api/ApiSingleton";
 import { CreateTaskViewModel } from "../../api";
+import Checkbox from "@material-ui/core/Checkbox";
 
 interface IAddTaskProps {
   id: number;
@@ -23,28 +24,33 @@ export default class AddTask extends React.Component<
       description: "",
       maxRating: 10,
       publicationDate: new Date(),
-      deadlineDate: new Date(new Date().setDate(7))
+      hasDeadline: false,
+      deadlineDate: undefined,
+      isDeadlineStrict: false
     };
   }
 
   public async handleSubmit(e: any) {
     e.preventDefault();
-    const token = ApiSingleton.authService.getToken()
-
     // ReDo
-    this.setState({ 
-      deadlineDate: new Date(this.state.deadlineDate!.setHours(this.state.deadlineDate!.getHours() + 3)),
+    this.setState({
       publicationDate: new Date(this.state.publicationDate!.setHours(this.state.publicationDate!.getHours() + 3)),
     })
-    
-    await ApiSingleton.tasksApi.apiTasksAddByHomeworkIdPost(this.props.id, this.state, { headers: {"Authorization": `Bearer ${token}`} });
+    if (this.state.hasDeadline) {
+      this.setState({
+        deadlineDate: new Date(this.state.deadlineDate!.setHours(this.state.deadlineDate!.getHours() + 3))
+      })
+    }
+    await ApiSingleton.tasksApi.apiTasksAddByHomeworkIdPost(this.props.id, this.state);
     this.props.onAdding()
   }
 
   public render() {
     return (
       <div>
-        <Typography variant="subtitle1">Добавить задачу</Typography>
+        <Typography variant="subtitle1" style={{ marginTop: "15px" }}>
+          Добавить задачу
+        </Typography>
         <form onSubmit={(e) => this.handleSubmit(e)}>
           <TextField
             required
@@ -54,7 +60,6 @@ export default class AddTask extends React.Component<
             value={this.state.title}
             onChange={(e) => this.setState({ title: e.target.value })}
           />
-          <br />
           <TextField
             required
             label="Баллы"
@@ -69,23 +74,60 @@ export default class AddTask extends React.Component<
             multiline
             fullWidth
             rows="4"
-            //rowsMax="15"
+            rowsMax="10"
             label="Условие задачи"
             variant="outlined"
             margin="normal"
             value={this.state.description}
             onChange={(e) => this.setState({ description: e.target.value })}
           />
-          <TextField
-            id="datetime-local"
-            label="Дедлайн задачи"
-            type="datetime-local"
-            defaultValue={this.state.deadlineDate}
-            InputLabelProps={{
-              shrink: true,
-            }}
-            onChange={(e) => this.setState({deadlineDate: new Date(e.target.value)})}
-          />
+          <div>
+            <TextField
+                id="datetime-local"
+                label="Дата публикации"
+                type="datetime-local"
+                defaultValue={this.state.publicationDate}
+                onChange={(e) => this.setState({publicationDate: new Date(e.target.value)})}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+            />
+          </div>
+          <label>
+            <Checkbox
+                color="primary"
+                onChange={(e) =>
+                {
+                  this.setState({
+                    hasDeadline: e.target.checked,
+                    deadlineDate: undefined,
+                  })
+                }}
+            />
+            Добавить дедлайн
+          </label>
+          {this.state.hasDeadline &&
+              <div>
+                <TextField
+                  id="datetime-local"
+                  label="Дедлайн задачи"
+                  type="datetime-local"
+                  defaultValue={this.state.deadlineDate}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  required
+                  onChange={(e) => this.setState({deadlineDate: new Date(e.target.value)})}
+                />
+                <label>
+                  <Checkbox
+                      color="primary"
+                      onChange = {(e) => this.setState({isDeadlineStrict: e.target.checked})}
+                  />
+                  Запретить отправку заданий после дедлайна
+                </label>
+              </div>
+          }
           <br />
           <Button
             size="small"

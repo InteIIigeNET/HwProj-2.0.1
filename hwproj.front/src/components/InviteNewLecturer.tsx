@@ -23,9 +23,8 @@ export default class InviteNewLecturer extends React.Component<{}, IEditTaskStat
 
     public handleSubmit(e: any) {
         e.preventDefault();
-        const token = ApiSingleton.authService.getToken();
         ApiSingleton.accountApi
-            .apiAccountInviteNewLecturerPost({ email: this.state.userEmail }, { headers: {"Authorization": `Bearer ${token}`} })
+            .apiAccountInviteNewLecturerPost({ email: this.state.userEmail })
             .then((res) => {
                 this.setState(
                     {

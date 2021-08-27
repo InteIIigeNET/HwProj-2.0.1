@@ -1,4 +1,4 @@
-﻿using System.Net.Http;
+using System.Net.Http;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.EventBus.Client.Interfaces;
@@ -37,13 +37,15 @@ namespace HwProj.SolutionsService.API
 
             services.AddEventBus(Configuration);
 
+            var httpClient = new HttpClient();
+            services.AddCoursesServiceClient(httpClient, "http://localhost:5002");
+
             services.ConfigureHwProjServices("Solutions API");
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IEventBus eventBus)
         {
             eventBus.Subscribe<UpdateTaskMaxRatingEvent>();
-            eventBus.Subscribe<UpdateSolutionMaxRatingEvent>();
             app.ConfigureHwProj(env, "Solutions API");
         }
     }

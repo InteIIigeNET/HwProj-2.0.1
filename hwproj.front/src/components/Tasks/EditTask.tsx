@@ -5,6 +5,7 @@ import Typography from "@material-ui/core/Typography";
 import { Redirect, Link } from "react-router-dom";
 import { RouteComponentProps } from "react-router-dom";
 import ApiSingleton from "../../api/ApiSingleton";
+import Checkbox from "@material-ui/core/Checkbox";
 
 interface IEditTaskState {
   isLoaded: boolean;
@@ -14,7 +15,10 @@ interface IEditTaskState {
   courseId: number;
   courseMentorId: string;
   edited: boolean;
-  deadlineDate: Date;
+  hasDeadline: boolean;
+  deadlineDate: Date | undefined;
+  isDeadlineStrict: boolean;
+  publicationDate: Date;
 }
 
 interface IEditTaskProps {
@@ -35,30 +39,20 @@ export default class EditTask extends React.Component<
       courseId: 0,
       courseMentorId: "",
       edited: false,
-      deadlineDate: new Date()
+      hasDeadline: false,
+      deadlineDate: new Date(),
+      isDeadlineStrict: false,
+      publicationDate: new Date()
     };
   }
 
   public async handleSubmit(e: any) {
-    e.preventDefault();
-
-    let taskViewModel = {
-      title: this.state.title,
-      description: this.state.description,
-      maxRating: this.state.maxRating,
-      deadlineDate: this.state.deadlineDate,
-    };
-
-    // ReDo
-    let deadline = new Date(taskViewModel.deadlineDate!).setHours(new Date(taskViewModel.deadlineDate!).getHours() + 3)
-    taskViewModel.deadlineDate = new Date(deadline)
-
-    const token = ApiSingleton.authService.getToken();
-    ApiSingleton.tasksApi
-      .apiTasksUpdateByTaskIdPut(+this.props.match.params.taskId, taskViewModel, { headers: {"Authorization": `Bearer ${token}`} })
-      .then((res) => {
-        this.setState({ edited: true })
-      });
+      e.preventDefault();
+      ApiSingleton.tasksApi
+        .apiTasksUpdateByTaskIdPut(+this.props.match.params.taskId, this.state)
+        .then((res) => {
+          this.setState({ edited: true })
+        });
   }
 
   public render() {
@@ -113,7 +107,7 @@ export default class EditTask extends React.Component<
                 multiline
                 fullWidth
                 rows="4"
-                //rowsMax="15"
+                rowsMax="10"
                 label="Условие задачи"
                 variant="outlined"
                 margin="normal"
@@ -121,16 +115,62 @@ export default class EditTask extends React.Component<
                 onChange={(e) => this.setState({ description: e.target.value })}
               />
               <br />
-              <TextField
-                id="datetime-local"
-                label="Дедлайн задачи"
-                type="datetime-local"
-                defaultValue={this.state.deadlineDate}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                onChange={(e) => this.setState({deadlineDate: new Date(e.target.value)})}
-              />
+              <div>
+                  <TextField
+                      id="datetime-local"
+                      label="Дата публикации"
+                      type="datetime-local"
+                      defaultValue={this.state.publicationDate}
+                      onChange={(e) => {
+                          let date = new Date(e.target.value)
+                          date = new Date(date.setHours(date.getHours() + 3))
+                          this.setState({publicationDate: date})
+                      }}
+                      InputLabelProps={{
+                          shrink: true,
+                      }}
+                  />
+              </div>  
+              <label>
+                <Checkbox
+                    color="primary"
+                    checked={this.state.hasDeadline}
+                    onChange={(e) =>
+                    {
+                      this.setState({
+                        hasDeadline: e.target.checked,
+                        deadlineDate: undefined,
+                      })
+                    }}
+                />
+                Добавить дедлайн
+              </label>
+              {this.state.hasDeadline &&
+              <div>
+                <TextField
+                    id="datetime-local"
+                    label="Дедлайн задачи"
+                    type="datetime-local"
+                    defaultValue={this.state.deadlineDate}
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    required
+                    onChange={(e) => {
+                        let date = new Date(e.target.value)
+                        date = new Date(date.setHours(date.getHours() + 3))
+                        this.setState({deadlineDate: date})
+                    }}
+                />
+                <label>
+                  <Checkbox
+                      color="primary"
+                      onChange={(e) => this.setState({isDeadlineStrict: e.target.checked})}
+                  />
+                  Запретить отправку заданий после дедлайна
+                </label>
+              </div>
+              }
               <br />
               <Button
                 size="small"
@@ -150,11 +190,10 @@ export default class EditTask extends React.Component<
   }
 
   async componentDidMount() {
-    const token = ApiSingleton.authService.getToken();
     await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+this.props.match.params.taskId)
       .then(async (task) =>
         await ApiSingleton.homeworksApi
-        .apiHomeworksGetByHomeworkIdGet(task.homeworkId!, { headers: {"Authorization": `Bearer ${token}`} })
+        .apiHomeworksGetByHomeworkIdGet(task.homeworkId!)
         .then(async (homework) =>
           await ApiSingleton.coursesApi
           .apiCoursesByCourseIdGet(homework.courseId!)
@@ -166,10 +205,13 @@ export default class EditTask extends React.Component<
               maxRating: task.maxRating!,
               courseId: homework.courseId!,
               courseMentorId: course.mentorId!,
-              deadlineDate: task.deadlineDate!
+              hasDeadline: task.hasDeadline!,
+              deadlineDate: task.deadlineDate!,
+              isDeadlineStrict: task.isDeadlineStrict!,
+              publicationDate: task.publicationDate! as Date
             })
           )
         )
-    );  
+    );
   }
 }

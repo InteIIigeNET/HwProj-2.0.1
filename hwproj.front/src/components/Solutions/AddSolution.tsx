@@ -6,7 +6,6 @@ import {SolutionViewModel} from "../../api";
 
 interface IAddSolutionProps {
     taskId: number,
-    studentId: string,
     onAdding: () => void,
     onCancel: () => void
 }
@@ -17,14 +16,12 @@ export default class AddSolution extends React.Component<IAddSolutionProps, Solu
         this.state = {
             githubUrl: "",
             comment: "",
-            studentId: this.props.studentId
         };
     }
 
     public async handleSubmit(e: any) {
         e.preventDefault();
-        const token = ApiSingleton.authService.getToken();
-        await ApiSingleton.solutionsApi.apiSolutionsByTaskIdPost(this.props.taskId, this.state, { headers: {"Authorization": `Bearer ${token}`} })
+        await ApiSingleton.solutionsApi.apiSolutionsByTaskIdPost(this.props.taskId, this.state)
         this.props.onAdding()
     }
 

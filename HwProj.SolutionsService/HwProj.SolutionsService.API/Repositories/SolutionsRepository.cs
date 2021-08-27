@@ -16,9 +16,14 @@ namespace HwProj.SolutionsService.API.Repositories
         {
         }
 
-        public async Task RateSolutionAsync(long solutionId, SolutionState newState, int newRating)
+        public async Task RateSolutionAsync(long solutionId, SolutionState newState, int newRating, string lecturerComment)
         {
-            await UpdateAsync(solutionId, solution => new Solution {State = newState, Rating = newRating});
+            await UpdateAsync(solutionId, solution => new Solution
+            {
+                State = newState, 
+                Rating = newRating, 
+                LecturerComment = lecturerComment 
+            });
         }
         
         public async Task ChangeTaskSolutionsMaxRatingAsync(long taskId, int newMaxRating)
@@ -28,9 +33,7 @@ namespace HwProj.SolutionsService.API.Repositories
                 .ConfigureAwait(false);
 
             foreach (var solution in solutions)
-            {
-                solution.MaxRating = newMaxRating;
-                
+            {                
                 if (solution.Rating == newMaxRating)
                     solution.State = SolutionState.Final;
                 else if (solution.State != SolutionState.Posted && solution.Rating < newMaxRating) 

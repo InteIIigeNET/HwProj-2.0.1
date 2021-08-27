@@ -2,9 +2,11 @@ using System.Net;
 using System.Threading.Tasks;
 using HwProj.AuthService.Client;
 using HwProj.Models.ApiGateway;
+using HwProj.Models.AuthService;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.NotificationsService;
+using HwProj.Models.Result;
 using HwProj.Models.Roles;
 using HwProj.NotificationsService.Client;
 using HwProj.Utils.Authorization;
@@ -89,6 +91,14 @@ namespace HwProj.APIGateway.API.Controllers
         {
             var result = await _authClient.InviteNewLecturer(model).ConfigureAwait(false);
             return Ok(result);
+        }
+        
+        [HttpPost("google")]
+        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> LoginByGoogle(string tokenId)
+        {
+            var tokenMeta = await _authClient.LoginByGoogle(tokenId).ConfigureAwait(false);
+            return Ok(tokenMeta);
         }
     }
 }

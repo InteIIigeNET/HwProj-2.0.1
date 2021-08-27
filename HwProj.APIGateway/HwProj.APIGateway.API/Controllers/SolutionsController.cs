@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
+using HwProj.APIGateway.API.ExceptionFilters;
 using HwProj.Models.Roles;
 using HwProj.Models.SolutionsService;
 using HwProj.NotificationsService.Client;
@@ -12,6 +13,7 @@ namespace HwProj.APIGateway.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ForbiddenExceptionFilter]
     public class SolutionsController : ControllerBase
     {
         private readonly INotificationsServiceClient _notificationsClient;
@@ -57,15 +59,16 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> PostSolution(SolutionViewModel model, long taskId)
         {
+            model.StudentId = Request.GetUserId();
             var result = await _solutionsClient.PostSolution(model, taskId);
             return Ok(result);
         }
         
         [HttpPost("rateSolution/{solutionId}/{newRating}")]
         [Authorize(Roles = Roles.LecturerRole)]
-        public async Task<IActionResult> RateSolution(long solutionId, int newRating)
+        public async Task<IActionResult> RateSolution(long solutionId, int newRating, [FromQuery] string lecturerComment)
         {
-            await _solutionsClient.RateSolution(solutionId, newRating);
+            await _solutionsClient.RateSolution(solutionId, newRating, lecturerComment, Request.GetUserId());
             return Ok();
         }
         

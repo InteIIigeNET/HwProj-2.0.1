@@ -5,6 +5,8 @@ import Typography from "@material-ui/core/Typography";
 import { Redirect, Link } from "react-router-dom";
 import { RouteComponentProps } from "react-router-dom";
 import ApiSingleton from "../../api/ApiSingleton";
+import ReactMarkdown from "react-markdown";
+import { Tabs, Tab } from "@material-ui/core";
 
 interface IEditHomeworkState {
   isLoaded: boolean;
@@ -13,6 +15,7 @@ interface IEditHomeworkState {
   courseId: number;
   courseMentorId: string;
   edited: boolean;
+  isPreview: boolean;
 }
 
 interface IEditHomeworkProps {
@@ -32,6 +35,7 @@ export default class EditHomework extends React.Component<
       courseId: 0,
       courseMentorId: "",
       edited: false,
+      isPreview: false,
     };
   }
 
@@ -42,13 +46,8 @@ export default class EditHomework extends React.Component<
       title: this.state.title,
       description: this.state.description,
     };
-    const token = ApiSingleton.authService.getToken();
     ApiSingleton.homeworksApi
-      .apiHomeworksUpdateByHomeworkIdPut(
-        +this.props.match.params.homeworkId,
-        homeworkViewModel,
-        { headers: {"Authorization": `Bearer ${token}`} }
-      )
+      .apiHomeworksUpdateByHomeworkIdPut(+this.props.match.params.homeworkId, homeworkViewModel)
       .then((res) => this.setState({ edited: true }));
   }
 
@@ -89,24 +88,38 @@ export default class EditHomework extends React.Component<
                 onChange={(e) => this.setState({ title: e.target.value })}
               />
               <br />
-              <TextField
-                multiline
-                fullWidth
-                rows="4"
-                //rowsMax="15"
-                label="Описание домашки"
-                variant="outlined"
-                margin="normal"
-                value={this.state.description}
-                onChange={(e) => this.setState({ description: e.target.value })}
-              />
+              <Tabs 
+                onChange={(event, newValue) => this.setState({isPreview: newValue === 1})} 
+                indicatorColor="primary"
+                value={this.state.isPreview ? 1 : 0}
+              >
+                <Tab label="Write" id="simple-tab-0" aria-controls="simple-tabpanel-0" />
+                <Tab label="Preview" id="simple-tab-1" aria-controls="simple-tabpanel-1"/>
+              </Tabs>
+
+              <div role="tabpanel" hidden={this.state.isPreview} id="simple-tab-0">
+                <TextField
+                  multiline
+                  fullWidth
+                  rows="4"
+                  rowsMax="20"
+                  label="Описание домашки"
+                  variant="outlined"
+                  margin="normal"
+                  value={this.state.description}
+                  onChange={(e) => this.setState({ description: e.target.value })}
+                />
+              </div>
+              <div role="tabpanel" hidden={!this.state.isPreview} id="simple-tab-1">
+                <p><ReactMarkdown>{this.state.description}</ReactMarkdown></p>
+              </div>
               <br />
               <Button
                 size="small"
                 variant="contained"
                 color="primary"
                 type="submit"
-              >
+                >
                 Редактировать домашку
               </Button>
             </form>
@@ -119,9 +132,8 @@ export default class EditHomework extends React.Component<
   }
 
   componentDidMount() {
-    const token = ApiSingleton.authService.getToken();
     ApiSingleton.homeworksApi
-      .apiHomeworksGetByHomeworkIdGet(+this.props.match.params.homeworkId, { headers: {"Authorization": `Bearer ${token}`} })
+      .apiHomeworksGetByHomeworkIdGet(+this.props.match.params.homeworkId)
       .then((homework) =>
         ApiSingleton.coursesApi
           .apiCoursesByCourseIdGet(homework.courseId!)

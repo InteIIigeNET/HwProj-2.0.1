@@ -13,6 +13,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\HwProj.Common\HwProj.Exceptions\HwProj.Exceptions.csproj" />
       <ProjectReference Include="..\..\HwProj.Common\HwProj.HttpUtils\HwProj.HttpUtils.csproj" />
       <ProjectReference Include="..\..\HwProj.Common\HwProj.Models\HwProj.Models.csproj" />
     </ItemGroup>
