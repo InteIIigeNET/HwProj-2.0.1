@@ -154,45 +154,49 @@ export default class AddHomework extends React.Component<
                         InputLabelProps={{
                           shrink: true,
                         }}
-                    />
-                  <label>
-                    <Checkbox
-                        color="primary"
-                        onChange={(e) =>
-                        {
-                          task.hasDeadline = e.target.checked;
-                          task.deadlineDate = undefined;
-                          task.isDeadlineStrict = false;
-                          this.setState({added: false});
-                        }}
-                    />
-                    Добавить дедлайн
-                  </label>
-                  {task.hasDeadline && (
-                    <div>
-                      <TextField
-                        size="small"
-                        id="datetime-local"
-                        label="Дедлайн задачи"
-                        type="datetime-local"
-                        defaultValue={task.deadlineDate}
-                        onChange={(e) => { task.deadlineDate = new Date(e.target.value) }}
-                        InputLabelProps={{
-                          shrink: true,
-                        }}
-                        required
                       />
+                    </Grid>
+                    <Grid>
                       <label>
                         <Checkbox
                             color="primary"
-                            onChange = {(e) => {task.isDeadlineStrict = e.target.checked}}
+                            onChange={(e) =>
+                            {
+                              task.hasDeadline = e.target.checked;
+                              task.deadlineDate = undefined;
+                              task.isDeadlineStrict = false;
+                              this.setState({added: false});
+                            }}
                         />
-                        Запретить отправку заданий после дедлайна
+                        Добавить дедлайн
                       </label>
-                    </div>
-                    )}
                     </Grid>
-                </li>
+                    <Grid container>
+                      {task.hasDeadline && (
+                        <div>
+                          <TextField
+                            size="small"
+                            id="datetime-local"
+                            label="Дедлайн задачи"
+                            type="datetime-local"
+                            defaultValue={task.deadlineDate}
+                            onChange={(e) => { task.deadlineDate = new Date(e.target.value) }}
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                            required
+                          />
+                          <label>
+                            <Checkbox
+                                color="primary"
+                                onChange = {(e) => {task.isDeadlineStrict = e.target.checked}}
+                            />
+                            Запретить отправку заданий после дедлайна
+                          </label>
+                        </div>
+                        )}
+                    </Grid>
+                  </li>
                 </Grid>
               ))}
             </ol>

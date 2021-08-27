@@ -25,6 +25,7 @@ namespace HwProj.SolutionsService.API.Controllers
         private readonly ISolutionsService _solutionsService;
         private readonly IMapper _mapper;
         private readonly ICoursesServiceClient _coursesClient;
+        
         public SolutionsController(ISolutionsService solutionsService, IMapper mapper, ICoursesServiceClient coursesClient, IAuthServiceClient authClient)
         {
             _solutionsService = solutionsService;
