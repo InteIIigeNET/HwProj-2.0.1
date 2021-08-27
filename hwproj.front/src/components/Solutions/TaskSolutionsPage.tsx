@@ -68,7 +68,7 @@ export default class TaskSolutionsPage extends React.Component<
               onDeleteClick={() => 3}
               isExpanded={true}
             />
-            {!this.state.addSolution && (
+            {(!this.state.addSolution && this.state.task.canSendSolution) && (
               <div>
                 <Button
                   size="small"
@@ -80,7 +80,10 @@ export default class TaskSolutionsPage extends React.Component<
                 >
                   Добавить решение
                 </Button>
-                <br />
+              </div>
+            )}
+            {!this.state.addSolution && (
+              <div>
                 <TaskSolutions
                   forMentor={false}
                   taskId={+this.props.match.params.taskId}
