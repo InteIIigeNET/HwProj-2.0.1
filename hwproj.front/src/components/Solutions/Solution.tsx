@@ -95,5 +95,6 @@ export default class SolutionComponent extends React.Component<ISolutionProps, I
 
     async assignSolution () {
         await ApiSingleton.solutionsApi.apiSolutionsRateSolutionBySolutionIdByNewRatingPost(this.props.solution.id!, this.state.points, this.state.lecturerComment)
+        window.location.reload()
     }
 }
