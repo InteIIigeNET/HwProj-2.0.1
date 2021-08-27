@@ -8,9 +8,9 @@ using HwProj.AuthService.API.Services;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
+using HwProj.Models.Result;
 using Google.Apis.Auth;
 using HwProj.Models.AuthService;
-
 
 namespace HwProj.AuthService.API.Controllers
 {

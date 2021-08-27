@@ -133,7 +133,6 @@ export default class EditCourse extends React.Component<RouteComponentProps<IEdi
 
     async componentDidMount() {
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+this.props.match.params.courseId)
-        debugger
         this.setState({
             isLoaded: true,
             name: course.name!,

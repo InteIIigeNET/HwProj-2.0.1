@@ -1,4 +1,5 @@
-﻿using HwProj.CoursesService.Client;
+using System.Net.Http;
+using HwProj.CoursesService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.SolutionsService.API.Events;
 using HwProj.SolutionsService.API.Models;
@@ -10,7 +11,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Net.Http;
 
 namespace HwProj.SolutionsService.API
 {

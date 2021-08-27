@@ -302,10 +302,22 @@ export interface CreateTaskViewModel {
     description?: string;
     /**
      * 
+     * @type {boolean}
+     * @memberof CreateTaskViewModel
+     */
+    hasDeadline?: boolean;
+    /**
+     * 
      * @type {Date}
      * @memberof CreateTaskViewModel
      */
     deadlineDate?: Date;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof CreateTaskViewModel
+     */
+    isDeadlineStrict?: boolean;
     /**
      * 
      * @type {Date}
@@ -442,10 +454,28 @@ export interface HomeworkTaskViewModel {
     maxRating?: number;
     /**
      * 
+     * @type {boolean}
+     * @memberof HomeworkTaskViewModel
+     */
+    hasDeadline?: boolean;
+    /**
+     * 
      * @type {Date}
      * @memberof HomeworkTaskViewModel
      */
     deadlineDate?: Date;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof HomeworkTaskViewModel
+     */
+    isDeadlineStrict?: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof HomeworkTaskViewModel
+     */
+    canSendSolution?: boolean;
     /**
      * 
      * @type {Date}
@@ -542,6 +572,20 @@ export interface LoginViewModel {
      * @memberof LoginViewModel
      */
     rememberMe: boolean;
+}
+
+/**
+ * 
+ * @export
+ * @interface NewSolutionInfo
+ */
+export interface NewSolutionInfo {
+    /**
+     * 
+     * @type {number}
+     * @memberof NewSolutionInfo
+     */
+    id?: number;
 }
 
 /**
@@ -648,6 +692,32 @@ export interface Result {
      * 
      * @type {Array<string>}
      * @memberof Result
+     */
+    errors?: Array<string>;
+}
+
+/**
+ * 
+ * @export
+ * @interface ResultNewSolutionInfo
+ */
+export interface ResultNewSolutionInfo {
+    /**
+     * 
+     * @type {NewSolutionInfo}
+     * @memberof ResultNewSolutionInfo
+     */
+    value?: NewSolutionInfo;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof ResultNewSolutionInfo
+     */
+    succeeded?: boolean;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof ResultNewSolutionInfo
      */
     errors?: Array<string>;
 }
@@ -2937,7 +3007,6 @@ export class CoursesApi extends BaseAPI {
     public apiCoursesSignInCourseByCourseIdPost(courseId: number, options?: any) {
         return CoursesApiFp(this.configuration).apiCoursesSignInCourseByCourseIdPost(courseId, options)(this.fetch, this.basePath);
     }
-
     /**
      * 
      * @param {number} courseId 
@@ -3563,7 +3632,6 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -3924,7 +3992,7 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSolutionsByTaskIdPost(taskId: number, model?: SolutionViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
+        apiSolutionsByTaskIdPost(taskId: number, model?: SolutionViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ResultNewSolutionInfo> {
             const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsByTaskIdPost(taskId, model, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {

@@ -7,6 +7,7 @@ using HwProj.Models.AuthService;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.AuthService.DTO;
 using Newtonsoft.Json;
+using HwProj.Models.Result;
 
 namespace HwProj.AuthService.Client
 {

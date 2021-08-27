@@ -1,6 +1,7 @@
-using HwProj.Exceptions;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System;
+using HwProj.Exceptions;
+
 
 namespace HwProj.APIGateway.API.ExceptionFilters
 {
@@ -15,5 +16,4 @@ namespace HwProj.APIGateway.API.ExceptionFilters
             }
         }
     }
-
 }

@@ -1,6 +1,7 @@
 import * as React from "react";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
+import Checkbox from "@material-ui/core/Checkbox";
 import Typography from "@material-ui/core/Typography";
 import Tooltip from '@material-ui/core/Tooltip';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
@@ -36,7 +37,9 @@ export default class AddHomework extends React.Component<
                 description: "",
                 maxRating: 10,
                 publicationDate: new Date(),
-                deadlineDate: new Date()
+                hasDeadline: false,
+                deadlineDate: undefined,
+                isDeadlineStrict: false,
               }],
       added: false,
       isPreview: false,
@@ -151,7 +154,22 @@ export default class AddHomework extends React.Component<
                         InputLabelProps={{
                           shrink: true,
                         }}
-                      />
+                    />
+                  <label>
+                    <Checkbox
+                        color="primary"
+                        onChange={(e) =>
+                        {
+                          task.hasDeadline = e.target.checked;
+                          task.deadlineDate = undefined;
+                          task.isDeadlineStrict = false;
+                          this.setState({added: false});
+                        }}
+                    />
+                    Добавить дедлайн
+                  </label>
+                  {task.hasDeadline && (
+                    <div>
                       <TextField
                         size="small"
                         id="datetime-local"
@@ -162,9 +180,19 @@ export default class AddHomework extends React.Component<
                         InputLabelProps={{
                           shrink: true,
                         }}
+                        required
                       />
+                      <label>
+                        <Checkbox
+                            color="primary"
+                            onChange = {(e) => {task.isDeadlineStrict = e.target.checked}}
+                        />
+                        Запретить отправку заданий после дедлайна
+                      </label>
+                    </div>
+                    )}
                     </Grid>
-                  </li>
+                </li>
                 </Grid>
               ))}
             </ol>
@@ -179,7 +207,9 @@ export default class AddHomework extends React.Component<
                     description: "",
                     maxRating: 10,
                     publicationDate: new Date(),
-                    deadlineDate: new Date(new Date().setDate(7))
+                    hasDeadline: false,
+                    deadlineDate: undefined,
+                    isDeadlineStrict: false
                   }],
                 })
               }
@@ -210,19 +240,22 @@ export default class AddHomework extends React.Component<
       </div>
     );
   }
-
+  
   async handleSubmit(e: any) {
     e.preventDefault();
-
+  
     const homework = {
       title: this.state.title,
       description: this.state.description,
       tasks: this.state.tasks,
     }
-
     // ReDo
-    homework.tasks.forEach(task => task.deadlineDate = new Date(task.deadlineDate!.setHours(task.deadlineDate!.getHours() + 3)))
-    homework.tasks.forEach(task => task.publicationDate = new Date(task.publicationDate!.setHours(task.publicationDate!.getHours() + 3)))
+    homework.tasks.forEach(task => {
+      if (task.hasDeadline) {
+        task.deadlineDate = new Date(task.deadlineDate!.setHours(task.deadlineDate!.getHours() + 3))
+      }
+      task.publicationDate = new Date(task.publicationDate!.setHours(task.publicationDate!.getHours() + 3))
+    })
     
     await ApiSingleton.homeworksApi.apiHomeworksByCourseIdAddPost(this.props.id, homework)
     this.setState({ added: true })

@@ -11,6 +11,7 @@ using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.AuthService.API.Models;
+using HwProj.Models.Result;
 
 namespace HwProj.AuthService.API.Services
 {

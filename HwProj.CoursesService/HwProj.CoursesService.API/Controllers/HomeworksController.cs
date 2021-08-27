@@ -31,8 +31,10 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpGet("get/{homeworkId}")]
         public async Task<HomeworkViewModel> GetHomework(long homeworkId)
         {
-            var homework = await _homeworksService.GetHomeworkAsync(homeworkId);
-            return _mapper.Map<HomeworkViewModel>(homework);
+            var homeworkFromDb = await _homeworksService.GetHomeworkAsync(homeworkId);
+            var homework = _mapper.Map<HomeworkViewModel>(homeworkFromDb);
+            homework.Tasks.ForEach(t => t.PutPossibilityForSendingSolution());
+            return homework;
         }
 
         [HttpDelete("delete/{homeworkId}")]
