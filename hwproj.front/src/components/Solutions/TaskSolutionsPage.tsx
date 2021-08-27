@@ -120,7 +120,7 @@ export default class TaskSolutionsPage extends React.Component<
           .apiHomeworksGetByHomeworkIdGet(task.homeworkId!)
           .then((homework) =>
             ApiSingleton.coursesApi
-              .apiCoursesByCourseIdGet(homework.courseId!)
+                  .apiCoursesByCourseIdGet(homework.courseId!, { headers: { "Authorization": `Bearer ${token}` } })
               .then((course) =>
                 this.setState({
                   isLoaded: true,

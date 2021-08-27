@@ -17,6 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\HwProj.Common\HwProj.Repositories\HwProj.Repositories.csproj" />
     <ProjectReference Include="..\..\HwProj.Common\HwProj.Utils\HwProj.Utils.csproj" />
+    <ProjectReference Include="..\HwProj.CoursesService.Client\HwProj.CoursesService.Client.csproj" />
   </ItemGroup>
   <ProjectExtensions><VisualStudio><UserProperties properties_4launchsettings_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
 </Project>
