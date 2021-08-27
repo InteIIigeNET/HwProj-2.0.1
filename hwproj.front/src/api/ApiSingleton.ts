@@ -35,10 +35,6 @@ class Api {
   }
 }
 
-const currentToken = (new AuthService()).getToken()
-const token = typeof currentToken === "string"
-  ? currentToken
-  : undefined
 const basePath = "http://localhost:5000";
 
 const authService = new AuthService();
