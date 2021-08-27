@@ -1,5 +1,5 @@
+import { AccountApi, NotificationsApi, CoursesApi, SolutionsApi, HomeworksApi, TasksApi, StatisticsApi} from ".";
 import { Configuration } from './configuration';
-import { AccountApi, NotificationsApi, CoursesApi, SolutionsApi, HomeworksApi, TasksApi } from ".";
 import AuthService from "../services/AuthService";
 
 
@@ -11,6 +11,7 @@ class Api {
   readonly notificationsApi: NotificationsApi;
   readonly homeworksApi: HomeworksApi;
   readonly tasksApi: TasksApi;
+  readonly statisticsApi: StatisticsApi;
   readonly authService: AuthService;
 
   constructor(
@@ -20,6 +21,7 @@ class Api {
     notificationsApi: NotificationsApi,
     homeworksApi: HomeworksApi,
     tasksApi: TasksApi,
+    statisticsApi: StatisticsApi,
     authService: AuthService,
   ) {
     this.accountApi = accountApi;
@@ -28,6 +30,7 @@ class Api {
     this.notificationsApi = notificationsApi;
     this.homeworksApi = homeworksApi;
     this.tasksApi = tasksApi;
+    this.statisticsApi = statisticsApi;
     this.authService = authService;
   }
 }
@@ -47,6 +50,7 @@ ApiSingleton = new Api(
   new NotificationsApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()! }),
   new HomeworksApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()! }),
   new TasksApi({ basePath: basePath, apiKey: () => "Bearer " + authService.getToken()! }),
+  new StatisticsApi({ basePath: basePath, apiKey: () => "Bearer " + authService.getToken()! }),
   authService,
 );
 export default ApiSingleton;

@@ -45,7 +45,6 @@ const styles = makeStyles( theme => ({
   }));
 
 const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
-
     const courseId = props.match.params.id
     const classes = styles()
 

@@ -9,7 +9,6 @@ namespace HwProj.SolutionsService.API.Models
     {
         public DbSet<Solution> Solutions { get; set; }
         
-
         public SolutionContext(DbContextOptions options)
             : base(options)
         {
