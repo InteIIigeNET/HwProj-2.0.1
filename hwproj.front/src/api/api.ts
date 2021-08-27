@@ -114,6 +114,12 @@ export interface AccountDataDto {
      * @memberof AccountDataDto
      */
     role?: string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof AccountDataDto
+     */
+    isExternalAuth?: boolean;
 }
 
 /**
@@ -3661,7 +3667,6 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -3669,7 +3674,6 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
 					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
 
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
 
