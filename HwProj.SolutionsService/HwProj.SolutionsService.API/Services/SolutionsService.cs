@@ -46,7 +46,13 @@ namespace HwProj.SolutionsService.API.Services
         public async Task<long> PostOrUpdateAsync(long taskId, Solution solution)
         {
             var currentSolution = await GetTaskSolutionsFromStudentAsync(taskId, solution.StudentId);
-            
+
+            var solutionModel = _mapper.Map<SolutionViewModel>(solution);
+            var task = await _coursesServiceClient.GetTask(solution.TaskId);
+            var homework = await _coursesServiceClient.GetHomework(task.HomeworkId);
+            var courses = await _coursesServiceClient.GetCourseById(homework.CourseId, solution.StudentId);
+            _eventBus.Publish(new StudentPassTaskEvent(courses, solutionModel));
+
             if (currentSolution == null)
             {
                 solution.TaskId = taskId;
@@ -58,27 +64,12 @@ namespace HwProj.SolutionsService.API.Services
                 {
                     State = SolutionState.Reposted,
                     Comment = solution.Comment,
-                    GithubUrl = solution.GithubUrl
+                    GithubUrl = solution.GithubUrl,
+                    PublicationDate = solution.PublicationDate,
                 }
             );
 
             return solution.Id;
-        }
-
-        public async Task<long> AddSolutionAsync(long taskId, Solution solution)
-        {
-            solution.TaskId = taskId;
-            var id = await _solutionsRepository.AddAsync(solution);
-
-            var solutionModel = _mapper.Map<SolutionViewModel>(solution);
-            var task = await _coursesServiceClient.GetTask(solution.TaskId);
-            var taskModel = _mapper.Map<HomeworkTaskViewModel>(task);
-            var homework = await _coursesServiceClient.GetHomework(taskModel.HomeworkId);
-            var homeworkModel = _mapper.Map<HomeworkViewModel>(homework);
-            var courses = await _coursesServiceClient.GetCourseById(homeworkModel.CourseId, solution.StudentId);
-            _eventBus.Publish(new StudentPassTaskEvent(courses, solutionModel));
-
-            return id;
         }
 
         public async Task RateSolutionAsync(long solutionId, int newRating, string lecturerComment)

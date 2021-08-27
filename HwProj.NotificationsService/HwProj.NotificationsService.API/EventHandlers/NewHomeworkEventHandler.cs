@@ -9,23 +9,23 @@ using HwProj.CoursesService.API.Events;
 namespace HwProj.NotificationsService.API.EventHandlers
 {
     // ReSharper disable once UnusedType.Global
-    public class NewTaskEventHandler : IEventHandler<NewTaskEvent>
+    public class NewHomeworkEventHandler : IEventHandler<NewHomeworkEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
 
-        public NewTaskEventHandler(INotificationsRepository notificationRepository)
+        public NewHomeworkEventHandler(INotificationsRepository notificationRepository)
         {
             _notificationRepository = notificationRepository;
         }
 
-        public async Task HandleAsync(NewTaskEvent @event)
+        public async Task HandleAsync(NewHomeworkEvent @event)
         {
             foreach(var student in @event.Course.CourseMates)
             {
                 await _notificationRepository.AddAsync(new Notification
                 {
                     Sender = "SolutionService",
-                    Body = $"В курсе <a href='courses/{@event.Course.Id}'>{@event.Course.Name}</a> задача {@event.Homework} опубликована.",
+                    Body = $"В курсе <a href='courses/{@event.Course.Id}'>{@event.Course.Name}</a> опубликована новая домашка <i>{@event.Homework}</i>.",
                     Category = "SolutionService",
                     Date = DateTime.UtcNow,
                     HasSeen = false,

@@ -28,9 +28,9 @@ namespace HwProj.CoursesService.API.Services
             homework.CourseId = courseId;
             homework.Date = DateTime.Now;
 
-            var course = await _coursesRepository.GetAsync(courseId);
+            var course = await _coursesRepository.GetWithCourseMatesAsync(courseId);
             var courseModel = _mapper.Map<CourseViewModel>(course);
-            _eventBus.Publish(new NewTaskEvent(homework.Title, courseModel));
+            _eventBus.Publish(new NewHomeworkEvent(homework.Title, courseModel));
 
             return await _homeworksRepository.AddAsync(homework);
         }
