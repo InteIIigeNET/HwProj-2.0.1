@@ -24,9 +24,7 @@ namespace HwProj.SolutionsService.API.Controllers
         private readonly ICoursesServiceClient _coursesClient;
         private readonly IAuthServiceClient _authClient;
         private readonly ISolutionsService _solutionsService;
-        private readonly ICoursesServiceClient _coursesServiceClient;
         private readonly IMapper _mapper;
-        private readonly ICoursesServiceClient _coursesClient;
 
         public SolutionsController(ISolutionsService solutionsService, IMapper mapper, ICoursesServiceClient coursesClient, IAuthServiceClient authClient)
         {
@@ -34,7 +32,6 @@ namespace HwProj.SolutionsService.API.Controllers
             _coursesClient = coursesClient;
             _authClient = authClient;
             _mapper = mapper;
-            _coursesClient = coursesClient;
         }
 
         [HttpGet]
@@ -122,7 +119,7 @@ namespace HwProj.SolutionsService.API.Controllers
         [ProducesResponseType(typeof(StatisticsCourseMatesModel[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetCourseStat(long courseId, [FromQuery] string userId)
         {
-            var course = await _coursesClient.GetCourseById(courseId);
+            var course = await _coursesClient.GetCourseById(courseId, userId);
 
             if (course.MentorId != userId)
             {

@@ -46,7 +46,7 @@ namespace HwProj.SolutionsService.API.Repositories
         public async Task ChangeSolutionMaxRatingAsync(long solutionId, int newMaxRating)
         {
             var solution = await GetAsync(solutionId);
-            solution.MaxRating = newMaxRating;
+            //solution.MaxRating = newMaxRating;
             
             if (solution.Rating == newMaxRating)
                 solution.State = SolutionState.Final;

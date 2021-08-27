@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
+using AutoMapper;
 using HwProj.CoursesService.Client;
 using HwProj.EventBus.Client.Interfaces;
+using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.SolutionsService;
 using HwProj.SolutionsService.API.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -12,12 +14,14 @@ namespace HwProj.SolutionsService.API.Services
     {
         private readonly ISolutionsRepository _solutionsRepository;
         private readonly IEventBus _eventBus;
+        private readonly IMapper _mapper;
         private readonly ICoursesServiceClient _coursesServiceClient;
-        public SolutionsService(ISolutionsRepository solutionsRepository, ICoursesServiceClient coursesServiceClient, IEventBus eventBus)
+        public SolutionsService(ISolutionsRepository solutionsRepository, ICoursesServiceClient coursesServiceClient, IEventBus eventBus, IMapper mapper)
         {
             _solutionsRepository = solutionsRepository;
             _coursesServiceClient = coursesServiceClient;
             _eventBus = eventBus;
+            _mapper = mapper;
         }
 
         public async Task<Solution[]> GetAllSolutionsAsync()
@@ -45,7 +49,6 @@ namespace HwProj.SolutionsService.API.Services
             {
                 solution.TaskId = taskId;
                 var id = await _solutionsRepository.AddAsync(solution);
-                _eventBus.Publish(new RequestMaxRatingEvent(taskId, id));
                 return id;
             }
     
@@ -60,12 +63,31 @@ namespace HwProj.SolutionsService.API.Services
             return solution.Id;
         }
 
+        public async Task<long> AddSolutionAsync(long taskId, Solution solution)
+        {
+            solution.TaskId = taskId;
+            var id = await _solutionsRepository.AddAsync(solution);
+
+            var solutionModel = _mapper.Map<SolutionViewModel>(solution);
+            var task = await _coursesServiceClient.GetTask(solution.TaskId);
+            var taskModel = _mapper.Map<HomeworkTaskViewModel>(task);
+            var homework = await _coursesServiceClient.GetHomework(taskModel.HomeworkId);
+            var homeworkModel = _mapper.Map<HomeworkViewModel>(homework);
+            var courses = await _coursesServiceClient.GetCourseById(homeworkModel.CourseId, solution.StudentId);
+            //_eventBus.Publish(new StudentPassTaskEvent(courses, solutionModel));
+
+            return id;
+        }
+
         public async Task RateSolutionAsync(long solutionId, int newRating, string lecturerComment)
         {
             var solution = await _solutionsRepository.GetAsync(solutionId);
             var task = await _coursesServiceClient.GetTask(solution.TaskId);
             if (0 <= newRating && newRating <= task.MaxRating)
             {
+                var solutionModel = _mapper.Map<SolutionViewModel>(solution);
+                var taskModel = _mapper.Map<HomeworkTaskViewModel>(task);
+                //_eventBus.Publish(new RateEvent(taskModel, solutionModel));
                 SolutionState state = newRating >= task.MaxRating ? SolutionState.Final : SolutionState.Rated;
                 await _solutionsRepository.RateSolutionAsync(solutionId, state, newRating, lecturerComment);
             }

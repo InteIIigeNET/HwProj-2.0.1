@@ -101,7 +101,7 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
                 ))}
             </TableBody>
           </Table>
-        </TableContainer>
+        </TableContainer>}
       </div>
     );
   }
