@@ -196,7 +196,7 @@ export default class EditTask extends React.Component<
         .apiHomeworksGetByHomeworkIdGet(task.homeworkId!)
         .then(async (homework) =>
           await ApiSingleton.coursesApi
-          .apiCoursesByCourseIdGet(homework.courseId!, { headers: {"Authorization": `Bearer ${token}`} })
+          .apiCoursesByCourseIdGet(homework.courseId!)
           .then((course) =>
             this.setState({
               isLoaded: true,

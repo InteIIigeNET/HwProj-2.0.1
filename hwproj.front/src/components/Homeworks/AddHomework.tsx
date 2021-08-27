@@ -155,7 +155,6 @@ export default class AddHomework extends React.Component<
                           shrink: true,
                         }}
                     />
-                  </div>
                   <label>
                     <Checkbox
                         color="primary"

@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Net.Http;
 
 namespace HwProj.SolutionsService.API
 {
@@ -37,9 +36,6 @@ namespace HwProj.SolutionsService.API
             services.AddCoursesServiceClient(httpClient, "http://localhost:5002");
 
             services.ConfigureHwProjServices("Solutions API");
-
-            var httpClient = new HttpClient();
-            services.AddCoursesServiceClient(httpClient, "http://localhost:5002");
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IEventBus eventBus)

@@ -21,7 +21,7 @@ namespace HwProj.SolutionsService.API.Controllers
         public SolutionsController(ISolutionsService solutionsService, IMapper mapper, ICoursesServiceClient coursesClient)
         {
             _solutionsService = solutionsService;
-            _coursesServiceClient = coursesServiceClient;
+            _coursesServiceClient = coursesClient;
             _mapper = mapper;
             _coursesClient = coursesClient;
         }

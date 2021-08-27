@@ -57,7 +57,7 @@ export default class Task extends React.Component<ITaskProp, {}> {
             </Typography>
             </AccordionSummary>
             <AccordionDetails>
-              <Typography >
+              <Typography>
                 <Typography variant="body1">
                   <ReactMarkdown source={task.description} />
                 </Typography>
@@ -69,15 +69,15 @@ export default class Task extends React.Component<ITaskProp, {}> {
                   Дата публикации: {publicationDate}
                 </Typography>
                 {(task.hasDeadline) &&
-        
-                    <Typography>
-                        Дедлайн: {deadlineDate}
-                    </Typography>
+                  <Typography>
+                      Дедлайн: {deadlineDate}
+                  </Typography>
                 }
                 {!task.hasDeadline  &&
                 <Typography>
                   Дедлайн: Отсутствует
                 </Typography>
+                }
               </Typography>
             </AccordionDetails>
         </Accordion>
