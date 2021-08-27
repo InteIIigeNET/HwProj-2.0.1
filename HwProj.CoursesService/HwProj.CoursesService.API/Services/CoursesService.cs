@@ -119,6 +119,24 @@ namespace HwProj.CoursesService.API.Services
                 getCourseMateTask.Result.Id,
                 cm => new CourseMate { IsAccepted = true }
             );
+
+            var course = getCourseTask.Result;
+            var courseMate = new CourseMate
+            {
+                CourseId = courseId,
+                StudentId = studentId,
+                IsAccepted = false
+            };
+
+            _eventBus.Publish(new LecturerAcceptToCourseEvent
+            {
+                CourseId = courseId,
+                CourseName = course.Name,
+                MentorId = course.MentorId,
+                StudentId = studentId,
+                IsAccepted = false
+            });
+
             return true;
         }
 

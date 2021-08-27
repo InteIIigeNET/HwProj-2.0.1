@@ -8,6 +8,7 @@ using HwProj.Models.SolutionsService;
 using HwProj.SolutionsService.API.Repositories;
 using Microsoft.EntityFrameworkCore;
 
+
 namespace HwProj.SolutionsService.API.Services
 {
     public class SolutionsService : ISolutionsService
@@ -16,12 +17,12 @@ namespace HwProj.SolutionsService.API.Services
         private readonly IEventBus _eventBus;
         private readonly IMapper _mapper;
         private readonly ICoursesServiceClient _coursesServiceClient;
-        public SolutionsService(ISolutionsRepository solutionsRepository, ICoursesServiceClient coursesServiceClient, IEventBus eventBus, IMapper mapper)
+        public SolutionsService(ISolutionsRepository solutionsRepository, IEventBus eventBus, IMapper mapper, ICoursesServiceClient coursesServiceClient)
         {
             _solutionsRepository = solutionsRepository;
-            _coursesServiceClient = coursesServiceClient;
             _eventBus = eventBus;
             _mapper = mapper;
+            _coursesServiceClient = coursesServiceClient;
         }
 
         public async Task<Solution[]> GetAllSolutionsAsync()
@@ -74,8 +75,7 @@ namespace HwProj.SolutionsService.API.Services
             var homework = await _coursesServiceClient.GetHomework(taskModel.HomeworkId);
             var homeworkModel = _mapper.Map<HomeworkViewModel>(homework);
             var courses = await _coursesServiceClient.GetCourseById(homeworkModel.CourseId, solution.StudentId);
-            //_eventBus.Publish(new StudentPassTaskEvent(courses, solutionModel));
-
+            _eventBus.Publish(new StudentPassTaskEvent(courses, solutionModel));
             return id;
         }
 
