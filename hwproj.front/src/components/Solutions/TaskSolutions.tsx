@@ -12,7 +12,7 @@ interface ITaskSolutionsProps {
 
 interface ITaskSolutionsState {
     isLoaded: boolean,
-    solutions: Solution[]
+    solution: Solution,
 }
 
 export default class TaskSolutions extends React.Component<ITaskSolutionsProps, ITaskSolutionsState> {
@@ -20,24 +20,20 @@ export default class TaskSolutions extends React.Component<ITaskSolutionsProps, 
         super(props);
         this.state = {
             isLoaded: false,
-            solutions: []
+            solution: {},
         }
     }
 
     public render() {
-        const { isLoaded, solutions } = this.state;
+        const { isLoaded, solution } = this.state;
 
         if (isLoaded) {
-            let solutionList = solutions.map(s => <li key={s.id}>
-                <SolutionComponent forMentor={this.props.forMentor} solution={s} />
-            </li>)
-
             return (
                 <div>
-                    {solutionList.length > 0 &&
+                    {solution &&
                         <div>
-                            <Typography variant='h6'>Решения: </Typography>
-                            <ol reversed>{solutionList.reverse()}</ol>
+                            <Typography variant='h6'>Решение: </Typography>
+                            <SolutionComponent forMentor={this.props.forMentor} solution={solution} />
                         </div>
                     }
                 </div>
@@ -52,9 +48,9 @@ export default class TaskSolutions extends React.Component<ITaskSolutionsProps, 
             this.props.taskId, 
             this.props.studentId,
         )
-            .then(solutions => this.setState({
+            .then(solution => this.setState({
                 isLoaded: true,
-                solutions: [solutions]
+                solution: solution
             }));
     }
 }

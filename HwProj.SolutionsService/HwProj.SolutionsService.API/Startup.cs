@@ -2,7 +2,6 @@ using System.Net.Http;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.EventBus.Client.Interfaces;
-using HwProj.SolutionsService.API.Events;
 using HwProj.SolutionsService.API.Models;
 using HwProj.SolutionsService.API.Repositories;
 using HwProj.SolutionsService.API.Services;
@@ -41,7 +40,6 @@ namespace HwProj.SolutionsService.API
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IEventBus eventBus)
         {
-            eventBus.Subscribe<UpdateTaskMaxRatingEvent>();
             app.ConfigureHwProj(env, "Solutions API");
         }
     }
