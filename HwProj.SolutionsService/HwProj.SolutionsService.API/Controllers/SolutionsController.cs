@@ -66,7 +66,7 @@ namespace HwProj.SolutionsService.API.Controllers
             if (course.CourseMates.Exists(courseMate => courseMate.StudentId == solutionViewModel.StudentId && courseMate.IsAccepted) && task.CanSendSolution)
             {
                 var solution = _mapper.Map<Solution>(solutionViewModel);
-                var solutionId = await _solutionsService.AddSolutionAsync(taskId, solution);
+                var solutionId = await _solutionsService.PostOrUpdateAsync(taskId, solution);
                 return Ok(solutionId);
             }
             return Forbid();
