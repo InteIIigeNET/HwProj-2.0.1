@@ -30,19 +30,34 @@ namespace HwProj.SolutionsService.API.Services
             return _solutionsRepository.GetAsync(solutionId);
         }
 
-        public async Task<Solution[]> GetTaskSolutionsFromStudentAsync(long taskId, string studentId)
+        public async Task<Solution> GetTaskSolutionsFromStudentAsync(long taskId, string studentId)
         {
             return await _solutionsRepository
-                .FindAll(solution => solution.TaskId == taskId && solution.StudentId == studentId)
-                .ToArrayAsync();
+                .FindAsync(solution => solution.TaskId == taskId && solution.StudentId == studentId);
         }
-
-        public async Task<long> AddSolutionAsync(long taskId, Solution solution)
+        
+        
+        public async Task<long> PostOrUpdateAsync(long taskId, Solution solution)
         {
-            solution.TaskId = taskId;
-            solution.PublicationDate = DateTime.Now;
-            var id = await _solutionsRepository.AddAsync(solution);
-            return id;
+            var currentSolution = await GetTaskSolutionsFromStudentAsync(taskId, solution.StudentId);
+            
+            if (currentSolution == null)
+            {
+                solution.TaskId = taskId;
+                var id = await _solutionsRepository.AddAsync(solution);
+                _eventBus.Publish(new RequestMaxRatingEvent(taskId, id));
+                return id;
+            }
+    
+            await _solutionsRepository.UpdateAsync(currentSolution.Id, s => new Solution()
+                {
+                    State = SolutionState.Reposted,
+                    Comment = solution.Comment,
+                    GithubUrl = solution.GithubUrl
+                }
+            );
+
+            return solution.Id;
         }
 
         public async Task RateSolutionAsync(long solutionId, int newRating, string lecturerComment)

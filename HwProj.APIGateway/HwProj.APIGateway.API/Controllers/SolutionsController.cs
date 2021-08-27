@@ -45,10 +45,10 @@ namespace HwProj.APIGateway.API.Controllers
         
         [HttpGet("taskSolution/{taskId}/{studentId}")]
         [Authorize]
-        [ProducesResponseType(typeof(Solution[]), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetAllStudentSolutions(long taskId, string studentId)
+        [ProducesResponseType(typeof(Solution), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetStudentSolution(long taskId, string studentId)
         {
-            var result = await _solutionsClient.GetAllUserSolutions(taskId, studentId);
+            var result = await _solutionsClient.GetUserSolution(taskId, studentId);
             return result == null
                 ? NotFound()
                 : Ok(result) as IActionResult;
