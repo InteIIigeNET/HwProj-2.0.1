@@ -11,7 +11,6 @@ namespace HwProj.Models.StatisticsService
                 Id = model.Id;
                 State = model.State;
                 Rating = model.Rating;
-                MaxRating = model.MaxRating;
             }
             
         }
@@ -19,6 +18,5 @@ namespace HwProj.Models.StatisticsService
         public long? Id { get; set; } 
         public SolutionState? State { get; set; }
         public int? Rating { get; set; }
-        public int? MaxRating { get; set; }
     }
 }
