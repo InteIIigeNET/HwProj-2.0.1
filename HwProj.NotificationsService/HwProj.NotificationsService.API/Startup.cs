@@ -16,6 +16,7 @@ using HwProj.CoursesService.API.Events;
 using HwProj.SolutionsService.API.Events;
 using HwProj.SolutionsService.Client;
 using UpdateTaskMaxRatingEvent = HwProj.CoursesService.API.Events.UpdateTaskMaxRatingEvent;
+using HwProj.CoursesService.Client;
 
 namespace HwProj.NotificationsService.API
 {

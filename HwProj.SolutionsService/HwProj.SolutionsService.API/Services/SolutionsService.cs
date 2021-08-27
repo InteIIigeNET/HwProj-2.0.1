@@ -5,6 +5,7 @@ using HwProj.CoursesService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.SolutionsService;
+using HwProj.SolutionsService.API.Events;
 using HwProj.SolutionsService.API.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -76,6 +77,7 @@ namespace HwProj.SolutionsService.API.Services
             var homeworkModel = _mapper.Map<HomeworkViewModel>(homework);
             var courses = await _coursesServiceClient.GetCourseById(homeworkModel.CourseId, solution.StudentId);
             _eventBus.Publish(new StudentPassTaskEvent(courses, solutionModel));
+
             return id;
         }
 
@@ -87,7 +89,7 @@ namespace HwProj.SolutionsService.API.Services
             {
                 var solutionModel = _mapper.Map<SolutionViewModel>(solution);
                 var taskModel = _mapper.Map<HomeworkTaskViewModel>(task);
-                //_eventBus.Publish(new RateEvent(taskModel, solutionModel));
+                _eventBus.Publish(new RateEvent(taskModel, solutionModel));
                 SolutionState state = newRating >= task.MaxRating ? SolutionState.Final : SolutionState.Rated;
                 await _solutionsRepository.RateSolutionAsync(solutionId, state, newRating, lecturerComment);
             }
