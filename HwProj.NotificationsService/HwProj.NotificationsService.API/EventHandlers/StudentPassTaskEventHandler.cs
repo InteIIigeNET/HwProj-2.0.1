@@ -22,9 +22,9 @@ namespace HwProj.NotificationsService.API.EventHandlers
         {
             await _notificationRepository.AddAsync(new Notification
             {
-                Sender = "SolutionService",
+                Sender = "CourseService",
                 Body = $"Добавлено новое <a href={@event.Solution.GithubUrl}>решение</a> в курсе <a href='courses/{@event.Course.Id}'>{@event.Course.Name}</a>.",
-                Category = "SolutionService",
+                Category = "CourseService",
                 Date = DateTime.UtcNow,
                 HasSeen = false,
                 Owner = @event.Course.MentorId
