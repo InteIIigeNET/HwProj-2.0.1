@@ -47,5 +47,14 @@ namespace HwProj.Models.CoursesService.ViewModels
         public DateTime PublicationDate { get; set; }
 
         public int MaxRating { get; set; }
+        
+        public void InitializeDeadline()
+        {
+            if (!HasDeadline || DeadlineDate == null)
+            {
+                HasDeadline = false;
+                DeadlineDate = null;
+            }
+        }
     }
 }
