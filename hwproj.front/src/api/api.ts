@@ -577,20 +577,6 @@ export interface LoginViewModel {
 /**
  * 
  * @export
- * @interface NewSolutionInfo
- */
-export interface NewSolutionInfo {
-    /**
-     * 
-     * @type {number}
-     * @memberof NewSolutionInfo
-     */
-    id?: number;
-}
-
-/**
- * 
- * @export
  * @interface NotificationViewModel
  */
 export interface NotificationViewModel {
@@ -692,32 +678,6 @@ export interface Result {
      * 
      * @type {Array<string>}
      * @memberof Result
-     */
-    errors?: Array<string>;
-}
-
-/**
- * 
- * @export
- * @interface ResultNewSolutionInfo
- */
-export interface ResultNewSolutionInfo {
-    /**
-     * 
-     * @type {NewSolutionInfo}
-     * @memberof ResultNewSolutionInfo
-     */
-    value?: NewSolutionInfo;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof ResultNewSolutionInfo
-     */
-    succeeded?: boolean;
-    /**
-     * 
-     * @type {Array<string>}
-     * @memberof ResultNewSolutionInfo
      */
     errors?: Array<string>;
 }
@@ -828,7 +788,8 @@ export namespace Solution {
     export enum StateEnum {
         NUMBER_0 = <any> 0,
         NUMBER_1 = <any> 1,
-        NUMBER_2 = <any> 2
+        NUMBER_2 = <any> 2,
+        NUMBER_3 = <any> 3
     }
 }
 
@@ -843,7 +804,7 @@ export interface SolutionViewModel {
      * @type {string}
      * @memberof SolutionViewModel
      */
-    githubUrl?: string;
+    githubUrl: string;
     /**
      * 
      * @type {string}
@@ -946,12 +907,6 @@ export interface StatisticsCourseSolutionsModel {
      * @memberof StatisticsCourseSolutionsModel
      */
     rating?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof StatisticsCourseSolutionsModel
-     */
-    maxRating?: number;
 }
 
 /**
@@ -3128,7 +3083,7 @@ export class CoursesApi extends BaseAPI {
     public apiCoursesSignInCourseByCourseIdPost(courseId: number, options?: any) {
         return CoursesApiFp(this.configuration).apiCoursesSignInCourseByCourseIdPost(courseId, options)(this.fetch, this.basePath);
     }
-  
+
     /**
      * 
      * @param {number} courseId 
@@ -3751,6 +3706,7 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -4110,7 +4066,7 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSolutionsByTaskIdPost(taskId: number, model?: SolutionViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ResultNewSolutionInfo> {
+        apiSolutionsByTaskIdPost(taskId: number, model?: SolutionViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
             const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsByTaskIdPost(taskId, model, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
@@ -4450,6 +4406,14 @@ export const StatisticsApiFetchParamCreator = function (configuration?: Configur
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943

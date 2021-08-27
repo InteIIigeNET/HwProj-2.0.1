@@ -54,7 +54,7 @@ export default class TaskSolutions extends React.Component<ITaskSolutionsProps, 
         )
             .then(solutions => this.setState({
                 isLoaded: true,
-                solutions: solutions
+                solutions: [solutions]
             }));
     }
 }
