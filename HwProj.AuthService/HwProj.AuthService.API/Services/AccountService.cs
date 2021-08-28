@@ -120,12 +120,6 @@ namespace HwProj.AuthService.API.Services
 
                 return await RegisterUserAsync(userModel);
             }
-
-            await EditAccountAsync(user.Id, new EditDataDTO()
-            {
-                Name = payload.GivenName,
-                Surname = payload.FamilyName
-            });
             
             return await GetToken(user);
         }
