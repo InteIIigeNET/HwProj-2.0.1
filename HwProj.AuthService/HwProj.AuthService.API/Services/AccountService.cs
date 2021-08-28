@@ -57,14 +57,14 @@ namespace HwProj.AuthService.API.Services
                 return Result.Failed("User not found");
             }
 
-            if (!await _userManager.CheckPasswordAsync(user, model.CurrentPassword))
+            if (!user.IsExternalAuth && !await _userManager.CheckPasswordAsync(user, model.CurrentPassword))
             {
                 return Result.Failed("Wrong current password");
             }
 
-            var result = await ChangeUserNameTask(user, model)
-                .Then(() => ChangePasswordAsync(user, model))
-                .ConfigureAwait(false);
+            var result = user.IsExternalAuth
+                ? await ChangeUserNameTask(user, model)
+                : await ChangeUserNameTask(user, model).Then(() => ChangePasswordAsync(user, model));
 
             if (result.Succeeded)
             {

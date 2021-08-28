@@ -43,16 +43,32 @@ export default class EditProfile extends React.Component<{}, IEditProfileState> 
           currentPassword: this.state.currentPassword,
           newPassword: this.state.newPassword,
       }
-      ApiSingleton.accountApi
-        .apiAccountEditPut(editForm)
-        .then((res) => {
+      if (this.state.isExternalAuth)
+      {
+          ApiSingleton.accountApi
+              .apiAccountEditExternalPut(editForm)
+              .then((res) => {
+                  if (res.succeeded) {
+                      this.setState({ edited: true });
+                  }
+                  else {
+                      this.setState({ errors: res.errors! });
+                  }
+              });
+      }
+      else
+      {
+        ApiSingleton.accountApi
+          .apiAccountEditPut(editForm)
+          .then((res) => {
             if (res.succeeded) {
                 this.setState({ edited: true });
             }
             else {
                 this.setState({ errors: res.errors! });
             }
-        });
+          });
+      }
     }
 
     public render() {
