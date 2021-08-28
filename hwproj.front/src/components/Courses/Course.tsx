@@ -169,7 +169,6 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                     <Grid container justifyContent="center" style={{ marginTop: "15px", marginBottom: "15px" }}>
                         <Grid item xs={11}>
                             <CourseStudents
-                                courseMates={courseState.acceptedStudents}
                                 homeworks={courseState.courseHomework}
                                 userId={userId as string}
                                 isMentor={isMentor}
@@ -207,7 +206,6 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                     <Grid container justifyContent="center" style={{ marginTop: "15px", marginBottom: "15px" }}>
                         <Grid item xs={11}>
                             <CourseStudents
-                                courseMates={courseState.acceptedStudents}
                                 homeworks={courseState.courseHomework}
                                 userId={userId as string}
                                 isMentor={isMentor}
@@ -254,7 +252,6 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                     <Grid container justifyContent="center" style={{ marginTop: "15px", marginBottom: "15px" }}>
                         <Grid item xs={11}>
                             <CourseStudents
-                                courseMates={courseState.acceptedStudents}
                                 homeworks={courseState.courseHomework}
                                 userId={userId as string}
                                 isMentor={isMentor}
