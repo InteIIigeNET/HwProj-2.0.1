@@ -42,6 +42,7 @@ namespace HwProj.NotificationsService.API
             services.AddTransient<IEventHandler<UpdateHomeworkEvent>, UpdateHomeworkEventHandler>();
             services.AddTransient<IEventHandler<UpdateTaskMaxRatingEvent>, UpdateTaskMaxRatingEventHandler>();
             services.AddTransient<IEventHandler<LecturerAcceptToCourseEvent>, LecturerAcceptToCourseEventHandler>();
+            services.AddTransient<IEventHandler<LecturerRejectToCourseEvent>, LecturerRejectToCourseEventHandler>();
             services.AddTransient<IEventHandler<NewHomeworkEvent>, NewHomeworkEventHandler>();
             services.AddTransient<IEventHandler<InviteLecturerEvent>, InviteLecturerEventHandler>();
             services.AddTransient<IEventHandler<NewCourseMateEvent>, NewCourseMateHandler>();
@@ -63,6 +64,7 @@ namespace HwProj.NotificationsService.API
             eventBus.Subscribe<StudentPassTaskEvent>();
             eventBus.Subscribe<UpdateTaskMaxRatingEvent>();
             eventBus.Subscribe<LecturerAcceptToCourseEvent>();
+            eventBus.Subscribe<LecturerRejectToCourseEvent>();
             eventBus.Subscribe<NewHomeworkEvent>();
             eventBus.Subscribe<NewCourseMateEvent>();
             app.ConfigureHwProj(env, "Notifications API");

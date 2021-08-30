@@ -23,7 +23,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             await _notificationRepository.AddAsync(new Notification
             {
                 Sender = "SolutionService",
-                Body = $"Задача <a href='task/{@event.Task.Id}'>{@event.Task.Title}</a> оценена.",
+                Body = $"Задача <a href='task/{@event.Task.Id}' target='_blank'>{@event.Task.Title}</a> оценена.",
                 Category = "SolutionService",
                 Date = DateTime.UtcNow,
                 HasSeen = false,
