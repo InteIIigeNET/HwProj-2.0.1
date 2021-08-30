@@ -50,9 +50,10 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
       isLogin: result.isLogin
     })
   };
+  
   render() {
     const headerStyles: React.CSSProperties = { marginRight: "9.5rem" };
-
+    const client_id = process.env.googleClientId!
     if (this.state.error) {
       headerStyles.marginBottom = "-1.5rem";
     }
@@ -104,8 +105,8 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
         </Typography>
         <div>
           <GoogleLogin
-              clientId="235915791830-7oaa5kjukfdicjs4rqmamd9mlfak8nss.apps.googleusercontent.com"
-              buttonText=""
+              clientId={client_id}
+              buttonText=''
               onSuccess={this.googleResponse}
           />
         </div>

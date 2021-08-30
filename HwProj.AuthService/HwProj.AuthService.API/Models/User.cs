@@ -11,6 +11,8 @@ namespace HwProj.AuthService.API.Models
         public string Surname { get; set; }
 
         public string MiddleName { get; set; }
+        
+        public bool IsExternalAuth { get; set; }
 
         public User()
         {

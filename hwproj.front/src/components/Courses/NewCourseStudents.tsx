@@ -37,7 +37,7 @@ export default class NewCourseStudents extends React.Component<INewCourseStudent
                     {this.props.students.map((cm, index) => (
                         <li>
                             <div>
-                                {cm.name}
+                                {cm.surname} {cm.name}
                                 <br />
                                 <Button onClick={() => this.acceptStudent(cm.id)} color="primary" variant="contained" size="small">
                                     Принять

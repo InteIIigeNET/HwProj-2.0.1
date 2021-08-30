@@ -32,7 +32,7 @@ export default class CourseHomework extends React.Component<ICourseHomeworkProps
 
     return (
       homeworkList.length > 0 && (
-      <Grid container direction="column">
+      <Grid container direction="column" alignItems="center" justify="center">
           <Grid item>
             <Typography variant="h6">
               Домашки

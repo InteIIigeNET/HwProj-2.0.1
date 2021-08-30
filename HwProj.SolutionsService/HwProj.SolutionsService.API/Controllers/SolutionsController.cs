@@ -121,6 +121,7 @@ namespace HwProj.SolutionsService.API.Controllers
         public async Task<IActionResult> GetCourseStat(long courseId, [FromQuery] string userId)
         {
             var course = await _coursesClient.GetCourseById(courseId, userId);
+            course.CourseMates.RemoveAll(cm => !cm.IsAccepted);
 
             if (course.MentorId != userId)
             {
