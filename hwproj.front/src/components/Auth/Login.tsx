@@ -4,7 +4,7 @@ import { TextField, Button, Typography } from "@material-ui/core";
 import ApiSingleton from "../../api/ApiSingleton";
 import "./Styles/Login.css";
 import { LoginViewModel } from "../../api/"
-import GoogleLogin, {GoogleLoginResponse, GoogleLoginResponseOffline} from "react-google-login";
+import GoogleLogin from "react-google-login";
 
 interface LoginProps extends Partial<RouteComponentProps> {
   onLogin: () => void;
@@ -53,7 +53,8 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
   
   render() {
     const headerStyles: React.CSSProperties = { marginRight: "9.5rem" };
-    const client_id = process.env.googleClientId!
+    const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID!
+    
     if (this.state.error) {
       headerStyles.marginBottom = "-1.5rem";
     }
@@ -61,6 +62,7 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
     if (this.state.isLogin){
       this.props.onLogin?.();
     }
+    
     return (
       <div className="page">
         <Typography component="h1" variant="h5">
@@ -105,7 +107,7 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
         </Typography>
         <div>
           <GoogleLogin
-              clientId={client_id}
+              clientId={clientId}
               buttonText=''
               onSuccess={this.googleResponse}
           />
