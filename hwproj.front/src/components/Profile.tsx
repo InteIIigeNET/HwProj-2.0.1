@@ -81,7 +81,6 @@ export default class Profile extends React.Component<RouteComponentProps<IProfil
 		if (!ApiSingleton.authService.isLoggedIn()) {
 			window.location.assign("/login");
 		}
-		debugger
 		if (this.props.match.params.id) {
 			const data = await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(this.props.match.params.id);
 			this.setState({
