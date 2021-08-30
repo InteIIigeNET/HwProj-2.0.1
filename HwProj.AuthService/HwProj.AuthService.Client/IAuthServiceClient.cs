@@ -13,5 +13,6 @@ namespace HwProj.AuthService.Client
         Task<Result> Edit(EditAccountViewModel model, string userId);
         Task<Result> InviteNewLecturer(InviteLecturerViewModel model);
         Task<Result<TokenCredentials>> LoginByGoogle(string tokenId);
+        Task<Result> EditExternal(EditExternalViewModel model, string userId);
     }
 }

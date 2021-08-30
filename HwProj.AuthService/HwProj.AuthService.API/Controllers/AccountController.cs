@@ -84,5 +84,14 @@ namespace HwProj.AuthService.API.Controllers
             var result = await _accountService.LoginUserByGoogleAsync(payload).ConfigureAwait(false);
             return Ok(result);
         }
+        
+        [HttpPut("editExternal/{userId}")]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> EditExternal([FromBody] EditExternalViewModel model, string userId)
+        {
+            var newModel = _mapper.Map<EditDataDTO>(model);
+            var result = await _accountService.EditAccountAsync(userId, newModel).ConfigureAwait(false);
+            return Ok(result);
+        }
     }
 }

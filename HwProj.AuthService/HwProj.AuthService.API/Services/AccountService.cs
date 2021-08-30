@@ -45,7 +45,7 @@ namespace HwProj.AuthService.API.Services
 
             var userRoles = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
             var userRole = userRoles.FirstOrDefault() ?? Roles.StudentRole;
-            return new AccountDataDto(user.Name, user.Surname, user.Email, userRole, user.MiddleName);
+            return new AccountDataDto(user.Name, user.Surname, user.Email, userRole, user.IsExternalAuth, user.MiddleName);
         }
 
         public async Task<Result> EditAccountAsync(string id, EditDataDTO model)
@@ -56,14 +56,14 @@ namespace HwProj.AuthService.API.Services
                 return Result.Failed("User not found");
             }
 
-            if (!await _userManager.CheckPasswordAsync(user, model.CurrentPassword))
+            if (!user.IsExternalAuth && !await _userManager.CheckPasswordAsync(user, model.CurrentPassword))
             {
                 return Result.Failed("Wrong current password");
             }
 
-            var result = await ChangeUserNameTask(user, model)
-                .Then(() => ChangePasswordAsync(user, model))
-                .ConfigureAwait(false);
+            var result = user.IsExternalAuth
+                ? await ChangeUserNameTask(user, model)
+                : await ChangeUserNameTask(user, model).Then(() => ChangePasswordAsync(user, model));
 
             if (result.Succeeded)
             {
@@ -113,17 +113,12 @@ namespace HwProj.AuthService.API.Services
                 {
                     Email = payload.Email,
                     Name = payload.GivenName,
-                    Surname = payload.FamilyName
+                    Surname = payload.FamilyName,
+                    IsExternalAuth = true
                 };
 
                 return await RegisterUserAsync(userModel);
             }
-
-            await EditAccountAsync(user.Id, new EditDataDTO()
-            {
-                Name = payload.GivenName,
-                Surname = payload.FamilyName
-            });
             
             return await GetToken(user);
         }
@@ -138,9 +133,9 @@ namespace HwProj.AuthService.API.Services
             var user = _mapper.Map<User>(model);
             user.UserName = user.Email.Split('@')[0];
 
-            var createUserTask = model.Password != null
-                ? _userManager.CreateAsync(user, model.Password)
-                : _userManager.CreateAsync(user);
+            var createUserTask = model.IsExternalAuth
+                ? _userManager.CreateAsync(user)
+                : _userManager.CreateAsync(user, model.Password);
             
             var result = await createUserTask
                 .Then(() => _userManager.AddToRoleAsync(user, Roles.StudentRole))
@@ -157,7 +152,7 @@ namespace HwProj.AuthService.API.Services
                     newUser.Surname, newUser.MiddleName);
                 _eventBus.Publish(registerEvent);
                 
-                if (model.Password != null)
+                if (!model.IsExternalAuth)
                 {
                     await SignIn(user, model.Password);
                 }

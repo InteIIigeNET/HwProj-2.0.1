@@ -99,5 +99,15 @@ namespace HwProj.APIGateway.API.Controllers
             var tokenMeta = await _authClient.LoginByGoogle(tokenId).ConfigureAwait(false);
             return Ok(tokenMeta);
         }
+        
+        [HttpPut("editExternal")]
+        [Authorize]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> EditExternal(EditExternalViewModel model)
+        {
+            var userId = Request.GetUserId();
+            var result = await _authClient.EditExternal(model, userId).ConfigureAwait(false);
+            return Ok(result);
+        }
     }
 }
