@@ -153,6 +153,17 @@ namespace HwProj.CoursesService.API.Services
             }
 
             await _courseMatesRepository.DeleteAsync(getCourseMateTask.Result.Id);
+
+            var course = getCourseTask.Result;
+            _eventBus.Publish(new LecturerRejectToCourseEvent
+            {
+                CourseId = courseId,
+                CourseName = course.Name,
+                MentorId = course.MentorId,
+                StudentId = studentId,
+                IsAccepted = false
+            });
+
             return true;
         }
 

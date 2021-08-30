@@ -4,31 +4,29 @@ using HwProj.AuthService.API.Events;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
-using HwProj.SolutionsService.API.Events;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {
-    // ReSharper disable once UnusedType.Global
-    public class RateEventHandler : IEventHandler<RateEvent>
+    public class EditProfileEventHandler : IEventHandler<EditProfileEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
 
-        public RateEventHandler(INotificationsRepository notificationRepository)
+        public EditProfileEventHandler(INotificationsRepository notificationRepository)
         {
             _notificationRepository = notificationRepository;
         }
 
-        public async Task HandleAsync(RateEvent @event)
+        public async Task HandleAsync(EditProfileEvent @event)
         {
             await _notificationRepository.AddAsync(new Notification
             {
-                Sender = "SolutionService",
-                Body = $"Задача <a href='task/{@event.Task.Id}' target='_blank'>{@event.Task.Title}</a> оценена.",
-                Category = "SolutionService",
+                Sender = "AuthService",
+                Body = "Ваш профиль был успешно отредактирован.",
+                Category = "AuthService",
                 Date = DateTime.UtcNow,
                 HasSeen = false,
-                Owner = @event.Solution.StudentId
-            }); ;
+                Owner = @event.UserId
+            });
         }
     }
 }
