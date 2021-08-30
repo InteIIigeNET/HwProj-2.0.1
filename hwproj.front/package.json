@@ -23,6 +23,7 @@
     "classnames": "^2.3.1",
     "date-fns": "^2.23.0",
     "dayjs": "^1.10.6",
+    "dotenv": "^10.0.0",
     "es6-promise": "^4.2.8",
     "html-react-parser": "^1.2.8",
     "jwt-decode": "^3.1.2",
