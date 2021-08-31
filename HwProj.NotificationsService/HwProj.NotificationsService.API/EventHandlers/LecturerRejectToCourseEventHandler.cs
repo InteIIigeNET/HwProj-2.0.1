@@ -1,34 +1,35 @@
 using System;
 using System.Threading.Tasks;
-using HwProj.AuthService.API.Events;
+using HwProj.AuthService.Client;
+using HwProj.CoursesService.API.Events;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
-using HwProj.SolutionsService.API.Events;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {
-    // ReSharper disable once UnusedType.Global
-    public class StudentPassTaskEventHandler : IEventHandler<StudentPassTaskEvent>
+    public class LecturerRejectToCourseEventHandler : IEventHandler<LecturerRejectToCourseEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
+        private readonly IAuthServiceClient _authClient;
 
-        public StudentPassTaskEventHandler(INotificationsRepository notificationRepository)
+        public LecturerRejectToCourseEventHandler(INotificationsRepository notificationRepository, IAuthServiceClient authClient)
         {
             _notificationRepository = notificationRepository;
+            _authClient = authClient;
         }
 
-        public async Task HandleAsync(StudentPassTaskEvent @event)
+        public async Task HandleAsync(LecturerRejectToCourseEvent @event)
         {
             await _notificationRepository.AddAsync(new Notification
             {
                 Sender = "CourseService",
-                Body = $"Добавлено новое <a href='{@event.Solution.GithubUrl}' target='_blank'>решение</a> в курсе <a href='courses/{@event.Course.Id}'>{@event.Course.Name}</a>.",
+                Body = $"Вас не приняли на курс <a href='/courses/{@event.CourseId}'>{@event.CourseName}</a>",
                 Category = "CourseService",
                 Date = DateTime.UtcNow,
                 HasSeen = false,
-                Owner = @event.Course.MentorId
-            }); ;
+                Owner = @event.StudentId
+            });
         }
     }
 }
