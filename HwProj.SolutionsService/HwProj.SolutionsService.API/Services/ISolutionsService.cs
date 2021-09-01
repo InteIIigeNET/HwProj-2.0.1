@@ -10,7 +10,7 @@ namespace HwProj.SolutionsService.API.Services
 
         Task<Solution> GetSolutionAsync(long solutionId);
 
-        Task<Solution[]> GetTaskSolutionsFromStudentAsync(long taskId, string studentId);
+        Task<Solution> GetTaskSolutionsFromStudentAsync(long taskId, string studentId);
 
         Task<Solution[]> GetTaskSolutionsFromGroupAsync(long taskId, long groupId);
 

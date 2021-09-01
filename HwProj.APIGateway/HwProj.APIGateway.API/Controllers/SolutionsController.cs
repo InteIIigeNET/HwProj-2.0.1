@@ -43,7 +43,7 @@ namespace HwProj.APIGateway.API.Controllers
         
         [HttpGet("taskSolution/{solutionId}")]
         [Authorize]
-        [ProducesResponseType(typeof(Solution[]), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Solution), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetAllStudentSolutions(long solutionId)
         {
             var studentId = Request.GetUserId();
