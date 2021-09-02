@@ -1269,8 +1269,8 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -1309,8 +1309,8 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -1339,8 +1339,8 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -1370,8 +1370,8 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -1405,8 +1405,8 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -1440,8 +1440,8 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -1475,8 +1475,8 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -1859,8 +1859,8 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -1900,8 +1900,8 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -1946,8 +1946,8 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -1982,8 +1982,8 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -2018,8 +2018,8 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -2061,8 +2061,8 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -2108,8 +2108,8 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -2148,8 +2148,8 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -2184,8 +2184,8 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -2670,8 +2670,8 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -2706,8 +2706,8 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -2742,8 +2742,8 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -2773,8 +2773,8 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -2807,8 +2807,8 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -2849,8 +2849,8 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -2885,8 +2885,8 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -2922,8 +2922,8 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -2956,8 +2956,8 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -3416,8 +3416,8 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -3456,8 +3456,8 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -3492,8 +3492,8 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -3529,8 +3529,8 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -3757,8 +3757,8 @@ export const NotificationsApiFetchParamCreator = function (configuration?: Confi
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -3788,8 +3788,8 @@ export const NotificationsApiFetchParamCreator = function (configuration?: Confi
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -3944,8 +3944,8 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -3990,8 +3990,8 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -4026,8 +4026,8 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -4063,8 +4063,8 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -4103,8 +4103,8 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -4133,8 +4133,8 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -4169,8 +4169,8 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -4212,8 +4212,8 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -4258,8 +4258,8 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -4690,8 +4690,8 @@ export const StatisticsApiFetchParamCreator = function (configuration?: Configur
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -4801,8 +4801,8 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -4841,8 +4841,8 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -4877,8 +4877,8 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -4914,8 +4914,8 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
