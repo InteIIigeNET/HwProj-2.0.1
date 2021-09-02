@@ -50,7 +50,7 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpGet("taskSolutions/{taskId}/{studentId}")]
-        public async Task<Solution> GetTaskSolutionsFromStudent(long taskId, string studentId)
+        public async Task<Solution[]> GetTaskSolutionsFromStudent(long taskId, string studentId)
         {
             return await _solutionsService.GetTaskSolutionsFromStudentAsync(taskId, studentId);
         }

@@ -19,17 +19,14 @@ namespace HwProj.SolutionsService.API.Domains
                     Id = h.Id,
                     Tasks = new List<StatisticsCourseTasksModel>(h.Tasks.Select(t =>
                     {
-                        var solution = model.Solutions.FirstOrDefault(s => s.TaskId == t.Id && s.StudentId == m.StudentId);
+                        var solutions = model.Solutions.Where(s => s.TaskId == t.Id && s.StudentId == m.StudentId);
+                        var solutionsInRightModel =
+                            new List<StatisticsCourseSolutionsModel>(solutions.Select(s =>
+                                new StatisticsCourseSolutionsModel(s)));
                         return new StatisticsCourseTasksModel()
                         {
                             Id = t.Id,
-                            Solution =
-                                solution == null
-                                    ? new List<StatisticsCourseSolutionsModel>()
-                                    : new List<StatisticsCourseSolutionsModel>()
-                                    {
-                                        new StatisticsCourseSolutionsModel(solution)
-                                    }
+                            Solution = solutionsInRightModel
                         };
                     }))
                 }))

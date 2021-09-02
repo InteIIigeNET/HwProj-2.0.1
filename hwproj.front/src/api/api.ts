@@ -818,10 +818,9 @@ export namespace Solution {
      * @enum {string}
      */
     export enum StateEnum {
-        NUMBER_0 = <any>0,
-        NUMBER_1 = <any>1,
-        NUMBER_2 = <any>2,
-        NUMBER_3 = <any>3
+        NUMBER_0 = <any> 0,
+        NUMBER_1 = <any> 1,
+        NUMBER_2 = <any> 2
     }
 }
 
@@ -951,10 +950,9 @@ export namespace StatisticsCourseSolutionsModel {
      * @enum {string}
      */
     export enum StateEnum {
-        NUMBER_0 = <any>0,
-        NUMBER_1 = <any>1,
-        NUMBER_2 = <any>2,
-        NUMBER_3 = <any>3
+        NUMBER_0 = <any> 0,
+        NUMBER_1 = <any> 1,
+        NUMBER_2 = <any> 2
     }
 }
 
@@ -1178,8 +1176,8 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -1190,7 +1188,7 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             delete localVarUrlObj.search;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"EditAccountViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body = needsSerialization ? JSON.stringify(model || {}) : (model || "");
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -1206,7 +1204,7 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
         apiAccountGetUserDataByUserIdGet(userId: string, options: any = {}): FetchArgs {
             // verify required parameter 'userId' is not null or undefined
             if (userId === null || userId === undefined) {
-                throw new RequiredError('userId', 'Required parameter userId was null or undefined when calling apiAccountGetUserDataByUserIdGet.');
+                throw new RequiredError('userId','Required parameter userId was null or undefined when calling apiAccountGetUserDataByUserIdGet.');
             }
             const localVarPath = `/api/Account/getUserData/{userId}`
                 .replace(`{${"userId"}}`, encodeURIComponent(String(userId)));
@@ -1218,8 +1216,8 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -1248,8 +1246,8 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -1279,8 +1277,8 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -1314,8 +1312,8 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -1326,7 +1324,7 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             delete localVarUrlObj.search;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"InviteLecturerViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body = needsSerialization ? JSON.stringify(model || {}) : (model || "");
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -1349,8 +1347,8 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -1361,7 +1359,7 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             delete localVarUrlObj.search;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"LoginViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body = needsSerialization ? JSON.stringify(model || {}) : (model || "");
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -1384,8 +1382,8 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -1396,7 +1394,7 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             delete localVarUrlObj.search;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"RegisterViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body = needsSerialization ? JSON.stringify(model || {}) : (model || "");
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -1410,7 +1408,7 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
  * AccountApi - functional programming interface
  * @export
  */
-export const AccountApiFp = function (configuration?: Configuration) {
+export const AccountApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
@@ -1751,11 +1749,11 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
         apiCourseGroupsByCourseIdAddStudentInGroupByGroupIdPost(courseId: number, groupId: number, userId?: string, options: any = {}): FetchArgs {
             // verify required parameter 'courseId' is not null or undefined
             if (courseId === null || courseId === undefined) {
-                throw new RequiredError('courseId', 'Required parameter courseId was null or undefined when calling apiCourseGroupsByCourseIdAddStudentInGroupByGroupIdPost.');
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCourseGroupsByCourseIdAddStudentInGroupByGroupIdPost.');
             }
             // verify required parameter 'groupId' is not null or undefined
             if (groupId === null || groupId === undefined) {
-                throw new RequiredError('groupId', 'Required parameter groupId was null or undefined when calling apiCourseGroupsByCourseIdAddStudentInGroupByGroupIdPost.');
+                throw new RequiredError('groupId','Required parameter groupId was null or undefined when calling apiCourseGroupsByCourseIdAddStudentInGroupByGroupIdPost.');
             }
             const localVarPath = `/api/CourseGroups/{courseId}/addStudentInGroup/{groupId}`
                 .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)))
@@ -1768,8 +1766,8 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -1797,7 +1795,7 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
         apiCourseGroupsByCourseIdCreatePost(courseId: number, model?: CreateGroupViewModel, options: any = {}): FetchArgs {
             // verify required parameter 'courseId' is not null or undefined
             if (courseId === null || courseId === undefined) {
-                throw new RequiredError('courseId', 'Required parameter courseId was null or undefined when calling apiCourseGroupsByCourseIdCreatePost.');
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCourseGroupsByCourseIdCreatePost.');
             }
             const localVarPath = `/api/CourseGroups/{courseId}/create`
                 .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
@@ -1809,8 +1807,8 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -1821,7 +1819,7 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             delete localVarUrlObj.search;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"CreateGroupViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body = needsSerialization ? JSON.stringify(model || {}) : (model || "");
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -1838,11 +1836,11 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
         apiCourseGroupsByCourseIdDeleteByGroupIdDelete(courseId: number, groupId: number, options: any = {}): FetchArgs {
             // verify required parameter 'courseId' is not null or undefined
             if (courseId === null || courseId === undefined) {
-                throw new RequiredError('courseId', 'Required parameter courseId was null or undefined when calling apiCourseGroupsByCourseIdDeleteByGroupIdDelete.');
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCourseGroupsByCourseIdDeleteByGroupIdDelete.');
             }
             // verify required parameter 'groupId' is not null or undefined
             if (groupId === null || groupId === undefined) {
-                throw new RequiredError('groupId', 'Required parameter groupId was null or undefined when calling apiCourseGroupsByCourseIdDeleteByGroupIdDelete.');
+                throw new RequiredError('groupId','Required parameter groupId was null or undefined when calling apiCourseGroupsByCourseIdDeleteByGroupIdDelete.');
             }
             const localVarPath = `/api/CourseGroups/{courseId}/delete/{groupId}`
                 .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)))
@@ -1855,8 +1853,8 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -1879,7 +1877,7 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
         apiCourseGroupsByCourseIdGetAllGet(courseId: number, options: any = {}): FetchArgs {
             // verify required parameter 'courseId' is not null or undefined
             if (courseId === null || courseId === undefined) {
-                throw new RequiredError('courseId', 'Required parameter courseId was null or undefined when calling apiCourseGroupsByCourseIdGetAllGet.');
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCourseGroupsByCourseIdGetAllGet.');
             }
             const localVarPath = `/api/CourseGroups/{courseId}/getAll`
                 .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
@@ -1891,8 +1889,8 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -1915,7 +1913,7 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
         apiCourseGroupsByCourseIdGetGet(courseId: number, options: any = {}): FetchArgs {
             // verify required parameter 'courseId' is not null or undefined
             if (courseId === null || courseId === undefined) {
-                throw new RequiredError('courseId', 'Required parameter courseId was null or undefined when calling apiCourseGroupsByCourseIdGetGet.');
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCourseGroupsByCourseIdGetGet.');
             }
             const localVarPath = `/api/CourseGroups/{courseId}/get`
                 .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
@@ -1927,8 +1925,8 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -1953,11 +1951,11 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
         apiCourseGroupsByCourseIdRemoveStudentFromGroupByGroupIdPost(courseId: number, groupId: number, userId?: string, options: any = {}): FetchArgs {
             // verify required parameter 'courseId' is not null or undefined
             if (courseId === null || courseId === undefined) {
-                throw new RequiredError('courseId', 'Required parameter courseId was null or undefined when calling apiCourseGroupsByCourseIdRemoveStudentFromGroupByGroupIdPost.');
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCourseGroupsByCourseIdRemoveStudentFromGroupByGroupIdPost.');
             }
             // verify required parameter 'groupId' is not null or undefined
             if (groupId === null || groupId === undefined) {
-                throw new RequiredError('groupId', 'Required parameter groupId was null or undefined when calling apiCourseGroupsByCourseIdRemoveStudentFromGroupByGroupIdPost.');
+                throw new RequiredError('groupId','Required parameter groupId was null or undefined when calling apiCourseGroupsByCourseIdRemoveStudentFromGroupByGroupIdPost.');
             }
             const localVarPath = `/api/CourseGroups/{courseId}/removeStudentFromGroup/{groupId}`
                 .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)))
@@ -1970,8 +1968,8 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -2000,11 +1998,11 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
         apiCourseGroupsByCourseIdUpdateByGroupIdPost(courseId: number, groupId: number, model?: UpdateGroupViewModel, options: any = {}): FetchArgs {
             // verify required parameter 'courseId' is not null or undefined
             if (courseId === null || courseId === undefined) {
-                throw new RequiredError('courseId', 'Required parameter courseId was null or undefined when calling apiCourseGroupsByCourseIdUpdateByGroupIdPost.');
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCourseGroupsByCourseIdUpdateByGroupIdPost.');
             }
             // verify required parameter 'groupId' is not null or undefined
             if (groupId === null || groupId === undefined) {
-                throw new RequiredError('groupId', 'Required parameter groupId was null or undefined when calling apiCourseGroupsByCourseIdUpdateByGroupIdPost.');
+                throw new RequiredError('groupId','Required parameter groupId was null or undefined when calling apiCourseGroupsByCourseIdUpdateByGroupIdPost.');
             }
             const localVarPath = `/api/CourseGroups/{courseId}/update/{groupId}`
                 .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)))
@@ -2017,8 +2015,8 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -2029,7 +2027,7 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             delete localVarUrlObj.search;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"UpdateGroupViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body = needsSerialization ? JSON.stringify(model || {}) : (model || "");
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -2045,7 +2043,7 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
         apiCourseGroupsGetByGroupIdGet(groupId: number, options: any = {}): FetchArgs {
             // verify required parameter 'groupId' is not null or undefined
             if (groupId === null || groupId === undefined) {
-                throw new RequiredError('groupId', 'Required parameter groupId was null or undefined when calling apiCourseGroupsGetByGroupIdGet.');
+                throw new RequiredError('groupId','Required parameter groupId was null or undefined when calling apiCourseGroupsGetByGroupIdGet.');
             }
             const localVarPath = `/api/CourseGroups/get/{groupId}`
                 .replace(`{${"groupId"}}`, encodeURIComponent(String(groupId)));
@@ -2057,8 +2055,8 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -2081,7 +2079,7 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
         apiCourseGroupsGetTasksByGroupIdGet(groupId: number, options: any = {}): FetchArgs {
             // verify required parameter 'groupId' is not null or undefined
             if (groupId === null || groupId === undefined) {
-                throw new RequiredError('groupId', 'Required parameter groupId was null or undefined when calling apiCourseGroupsGetTasksByGroupIdGet.');
+                throw new RequiredError('groupId','Required parameter groupId was null or undefined when calling apiCourseGroupsGetTasksByGroupIdGet.');
             }
             const localVarPath = `/api/CourseGroups/getTasks/{groupId}`
                 .replace(`{${"groupId"}}`, encodeURIComponent(String(groupId)));
@@ -2093,8 +2091,8 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -2115,7 +2113,7 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
  * CourseGroupsApi - functional programming interface
  * @export
  */
-export const CourseGroupsApiFp = function (configuration?: Configuration) {
+export const CourseGroupsApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
@@ -2520,11 +2518,11 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
         apiCoursesAcceptStudentByCourseIdByStudentIdPost(courseId: number, studentId: string, options: any = {}): FetchArgs {
             // verify required parameter 'courseId' is not null or undefined
             if (courseId === null || courseId === undefined) {
-                throw new RequiredError('courseId', 'Required parameter courseId was null or undefined when calling apiCoursesAcceptStudentByCourseIdByStudentIdPost.');
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesAcceptStudentByCourseIdByStudentIdPost.');
             }
             // verify required parameter 'studentId' is not null or undefined
             if (studentId === null || studentId === undefined) {
-                throw new RequiredError('studentId', 'Required parameter studentId was null or undefined when calling apiCoursesAcceptStudentByCourseIdByStudentIdPost.');
+                throw new RequiredError('studentId','Required parameter studentId was null or undefined when calling apiCoursesAcceptStudentByCourseIdByStudentIdPost.');
             }
             const localVarPath = `/api/Courses/acceptStudent/{courseId}/{studentId}`
                 .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)))
@@ -2537,8 +2535,8 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -2561,7 +2559,7 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
         apiCoursesByCourseIdDelete(courseId: number, options: any = {}): FetchArgs {
             // verify required parameter 'courseId' is not null or undefined
             if (courseId === null || courseId === undefined) {
-                throw new RequiredError('courseId', 'Required parameter courseId was null or undefined when calling apiCoursesByCourseIdDelete.');
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesByCourseIdDelete.');
             }
             const localVarPath = `/api/Courses/{courseId}`
                 .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
@@ -2573,8 +2571,8 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -2597,7 +2595,7 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
         apiCoursesByCourseIdGet(courseId: number, options: any = {}): FetchArgs {
             // verify required parameter 'courseId' is not null or undefined
             if (courseId === null || courseId === undefined) {
-                throw new RequiredError('courseId', 'Required parameter courseId was null or undefined when calling apiCoursesByCourseIdGet.');
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesByCourseIdGet.');
             }
             const localVarPath = `/api/Courses/{courseId}`
                 .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
@@ -2609,8 +2607,8 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -2640,8 +2638,8 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -2652,7 +2650,7 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             delete localVarUrlObj.search;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"CreateCourseViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body = needsSerialization ? JSON.stringify(model || {}) : (model || "");
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -2674,8 +2672,8 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -2699,11 +2697,11 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
         apiCoursesRejectStudentByCourseIdByStudentIdPost(courseId: number, studentId: string, options: any = {}): FetchArgs {
             // verify required parameter 'courseId' is not null or undefined
             if (courseId === null || courseId === undefined) {
-                throw new RequiredError('courseId', 'Required parameter courseId was null or undefined when calling apiCoursesRejectStudentByCourseIdByStudentIdPost.');
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesRejectStudentByCourseIdByStudentIdPost.');
             }
             // verify required parameter 'studentId' is not null or undefined
             if (studentId === null || studentId === undefined) {
-                throw new RequiredError('studentId', 'Required parameter studentId was null or undefined when calling apiCoursesRejectStudentByCourseIdByStudentIdPost.');
+                throw new RequiredError('studentId','Required parameter studentId was null or undefined when calling apiCoursesRejectStudentByCourseIdByStudentIdPost.');
             }
             const localVarPath = `/api/Courses/rejectStudent/{courseId}/{studentId}`
                 .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)))
@@ -2716,8 +2714,8 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -2740,7 +2738,7 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
         apiCoursesSignInCourseByCourseIdPost(courseId: number, options: any = {}): FetchArgs {
             // verify required parameter 'courseId' is not null or undefined
             if (courseId === null || courseId === undefined) {
-                throw new RequiredError('courseId', 'Required parameter courseId was null or undefined when calling apiCoursesSignInCourseByCourseIdPost.');
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesSignInCourseByCourseIdPost.');
             }
             const localVarPath = `/api/Courses/signInCourse/{courseId}`
                 .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
@@ -2752,8 +2750,8 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -2777,7 +2775,7 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
         apiCoursesUpdateByCourseIdPost(courseId: number, model?: UpdateCourseViewModel, options: any = {}): FetchArgs {
             // verify required parameter 'courseId' is not null or undefined
             if (courseId === null || courseId === undefined) {
-                throw new RequiredError('courseId', 'Required parameter courseId was null or undefined when calling apiCoursesUpdateByCourseIdPost.');
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesUpdateByCourseIdPost.');
             }
             const localVarPath = `/api/Courses/update/{courseId}`
                 .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
@@ -2789,8 +2787,8 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -2801,7 +2799,7 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             delete localVarUrlObj.search;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"UpdateCourseViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body = needsSerialization ? JSON.stringify(model || {}) : (model || "");
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -2823,8 +2821,8 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -2845,7 +2843,7 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
  * CoursesApi - functional programming interface
  * @export
  */
-export const CoursesApiFp = function (configuration?: Configuration) {
+export const CoursesApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
@@ -3229,7 +3227,7 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
         apiHomeworksByCourseIdAddPost(courseId: number, homeworkViewModel?: CreateHomeworkViewModel, options: any = {}): FetchArgs {
             // verify required parameter 'courseId' is not null or undefined
             if (courseId === null || courseId === undefined) {
-                throw new RequiredError('courseId', 'Required parameter courseId was null or undefined when calling apiHomeworksByCourseIdAddPost.');
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiHomeworksByCourseIdAddPost.');
             }
             const localVarPath = `/api/Homeworks/{courseId}/add`
                 .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
@@ -3241,8 +3239,8 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -3253,7 +3251,7 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
             delete localVarUrlObj.search;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"CreateHomeworkViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body = needsSerialization ? JSON.stringify(homeworkViewModel || {}) : (homeworkViewModel || "");
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(homeworkViewModel || {}) : (homeworkViewModel || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -3269,7 +3267,7 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
         apiHomeworksDeleteByHomeworkIdDelete(homeworkId: number, options: any = {}): FetchArgs {
             // verify required parameter 'homeworkId' is not null or undefined
             if (homeworkId === null || homeworkId === undefined) {
-                throw new RequiredError('homeworkId', 'Required parameter homeworkId was null or undefined when calling apiHomeworksDeleteByHomeworkIdDelete.');
+                throw new RequiredError('homeworkId','Required parameter homeworkId was null or undefined when calling apiHomeworksDeleteByHomeworkIdDelete.');
             }
             const localVarPath = `/api/Homeworks/delete/{homeworkId}`
                 .replace(`{${"homeworkId"}}`, encodeURIComponent(String(homeworkId)));
@@ -3281,8 +3279,8 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -3305,7 +3303,7 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
         apiHomeworksGetByHomeworkIdGet(homeworkId: number, options: any = {}): FetchArgs {
             // verify required parameter 'homeworkId' is not null or undefined
             if (homeworkId === null || homeworkId === undefined) {
-                throw new RequiredError('homeworkId', 'Required parameter homeworkId was null or undefined when calling apiHomeworksGetByHomeworkIdGet.');
+                throw new RequiredError('homeworkId','Required parameter homeworkId was null or undefined when calling apiHomeworksGetByHomeworkIdGet.');
             }
             const localVarPath = `/api/Homeworks/get/{homeworkId}`
                 .replace(`{${"homeworkId"}}`, encodeURIComponent(String(homeworkId)));
@@ -3317,8 +3315,8 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -3342,7 +3340,7 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
         apiHomeworksUpdateByHomeworkIdPut(homeworkId: number, homeworkViewModel?: CreateHomeworkViewModel, options: any = {}): FetchArgs {
             // verify required parameter 'homeworkId' is not null or undefined
             if (homeworkId === null || homeworkId === undefined) {
-                throw new RequiredError('homeworkId', 'Required parameter homeworkId was null or undefined when calling apiHomeworksUpdateByHomeworkIdPut.');
+                throw new RequiredError('homeworkId','Required parameter homeworkId was null or undefined when calling apiHomeworksUpdateByHomeworkIdPut.');
             }
             const localVarPath = `/api/Homeworks/update/{homeworkId}`
                 .replace(`{${"homeworkId"}}`, encodeURIComponent(String(homeworkId)));
@@ -3354,8 +3352,8 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -3366,7 +3364,7 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
             delete localVarUrlObj.search;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"CreateHomeworkViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body = needsSerialization ? JSON.stringify(homeworkViewModel || {}) : (homeworkViewModel || "");
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(homeworkViewModel || {}) : (homeworkViewModel || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -3380,7 +3378,7 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
  * HomeworksApi - functional programming interface
  * @export
  */
-export const HomeworksApiFp = function (configuration?: Configuration) {
+export const HomeworksApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
@@ -3582,8 +3580,8 @@ export const NotificationsApiFetchParamCreator = function (configuration?: Confi
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -3613,8 +3611,8 @@ export const NotificationsApiFetchParamCreator = function (configuration?: Confi
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -3625,7 +3623,7 @@ export const NotificationsApiFetchParamCreator = function (configuration?: Confi
             delete localVarUrlObj.search;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"Array&lt;number&gt;" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body = needsSerialization ? JSON.stringify(notificationIds || {}) : (notificationIds || "");
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(notificationIds || {}) : (notificationIds || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -3639,7 +3637,7 @@ export const NotificationsApiFetchParamCreator = function (configuration?: Confi
  * NotificationsApi - functional programming interface
  * @export
  */
-export const NotificationsApiFp = function (configuration?: Configuration) {
+export const NotificationsApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
@@ -3752,11 +3750,11 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
         apiSolutionsByGroupIdByTaskIdPost(taskId: number, groupId: number, model?: SolutionViewModel, options: any = {}): FetchArgs {
             // verify required parameter 'taskId' is not null or undefined
             if (taskId === null || taskId === undefined) {
-                throw new RequiredError('taskId', 'Required parameter taskId was null or undefined when calling apiSolutionsByGroupIdByTaskIdPost.');
+                throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling apiSolutionsByGroupIdByTaskIdPost.');
             }
             // verify required parameter 'groupId' is not null or undefined
             if (groupId === null || groupId === undefined) {
-                throw new RequiredError('groupId', 'Required parameter groupId was null or undefined when calling apiSolutionsByGroupIdByTaskIdPost.');
+                throw new RequiredError('groupId','Required parameter groupId was null or undefined when calling apiSolutionsByGroupIdByTaskIdPost.');
             }
             const localVarPath = `/api/Solutions/{groupId}/{taskId}`
                 .replace(`{${"taskId"}}`, encodeURIComponent(String(taskId)))
@@ -3769,8 +3767,8 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -3781,7 +3779,7 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             delete localVarUrlObj.search;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"SolutionViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body = needsSerialization ? JSON.stringify(model || {}) : (model || "");
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -3798,11 +3796,11 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
         apiSolutionsByGroupIdTaskSolutionsByTaskIdGet(groupId: number, taskId: number, options: any = {}): FetchArgs {
             // verify required parameter 'groupId' is not null or undefined
             if (groupId === null || groupId === undefined) {
-                throw new RequiredError('groupId', 'Required parameter groupId was null or undefined when calling apiSolutionsByGroupIdTaskSolutionsByTaskIdGet.');
+                throw new RequiredError('groupId','Required parameter groupId was null or undefined when calling apiSolutionsByGroupIdTaskSolutionsByTaskIdGet.');
             }
             // verify required parameter 'taskId' is not null or undefined
             if (taskId === null || taskId === undefined) {
-                throw new RequiredError('taskId', 'Required parameter taskId was null or undefined when calling apiSolutionsByGroupIdTaskSolutionsByTaskIdGet.');
+                throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling apiSolutionsByGroupIdTaskSolutionsByTaskIdGet.');
             }
             const localVarPath = `/api/Solutions/{groupId}/taskSolutions/{taskId}`
                 .replace(`{${"groupId"}}`, encodeURIComponent(String(groupId)))
@@ -3815,8 +3813,8 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -3839,7 +3837,7 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
         apiSolutionsBySolutionIdGet(solutionId: number, options: any = {}): FetchArgs {
             // verify required parameter 'solutionId' is not null or undefined
             if (solutionId === null || solutionId === undefined) {
-                throw new RequiredError('solutionId', 'Required parameter solutionId was null or undefined when calling apiSolutionsBySolutionIdGet.');
+                throw new RequiredError('solutionId','Required parameter solutionId was null or undefined when calling apiSolutionsBySolutionIdGet.');
             }
             const localVarPath = `/api/Solutions/{solutionId}`
                 .replace(`{${"solutionId"}}`, encodeURIComponent(String(solutionId)));
@@ -3851,8 +3849,8 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -3876,7 +3874,7 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
         apiSolutionsByTaskIdPost(taskId: number, model?: SolutionViewModel, options: any = {}): FetchArgs {
             // verify required parameter 'taskId' is not null or undefined
             if (taskId === null || taskId === undefined) {
-                throw new RequiredError('taskId', 'Required parameter taskId was null or undefined when calling apiSolutionsByTaskIdPost.');
+                throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling apiSolutionsByTaskIdPost.');
             }
             const localVarPath = `/api/Solutions/{taskId}`
                 .replace(`{${"taskId"}}`, encodeURIComponent(String(taskId)));
@@ -3888,8 +3886,8 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -3900,7 +3898,7 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             delete localVarUrlObj.search;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"SolutionViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body = needsSerialization ? JSON.stringify(model || {}) : (model || "");
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -3916,7 +3914,7 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
         apiSolutionsDeleteBySolutionIdDelete(solutionId: number, options: any = {}): FetchArgs {
             // verify required parameter 'solutionId' is not null or undefined
             if (solutionId === null || solutionId === undefined) {
-                throw new RequiredError('solutionId', 'Required parameter solutionId was null or undefined when calling apiSolutionsDeleteBySolutionIdDelete.');
+                throw new RequiredError('solutionId','Required parameter solutionId was null or undefined when calling apiSolutionsDeleteBySolutionIdDelete.');
             }
             const localVarPath = `/api/Solutions/delete/{solutionId}`
                 .replace(`{${"solutionId"}}`, encodeURIComponent(String(solutionId)));
@@ -3928,8 +3926,8 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -3958,8 +3956,8 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -3982,7 +3980,7 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
         apiSolutionsMarkSolutionFinalBySolutionIdPost(solutionId: number, options: any = {}): FetchArgs {
             // verify required parameter 'solutionId' is not null or undefined
             if (solutionId === null || solutionId === undefined) {
-                throw new RequiredError('solutionId', 'Required parameter solutionId was null or undefined when calling apiSolutionsMarkSolutionFinalBySolutionIdPost.');
+                throw new RequiredError('solutionId','Required parameter solutionId was null or undefined when calling apiSolutionsMarkSolutionFinalBySolutionIdPost.');
             }
             const localVarPath = `/api/Solutions/markSolutionFinal/{solutionId}`
                 .replace(`{${"solutionId"}}`, encodeURIComponent(String(solutionId)));
@@ -3994,8 +3992,8 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -4020,11 +4018,11 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
         apiSolutionsRateSolutionBySolutionIdByNewRatingPost(solutionId: number, newRating: number, lecturerComment?: string, options: any = {}): FetchArgs {
             // verify required parameter 'solutionId' is not null or undefined
             if (solutionId === null || solutionId === undefined) {
-                throw new RequiredError('solutionId', 'Required parameter solutionId was null or undefined when calling apiSolutionsRateSolutionBySolutionIdByNewRatingPost.');
+                throw new RequiredError('solutionId','Required parameter solutionId was null or undefined when calling apiSolutionsRateSolutionBySolutionIdByNewRatingPost.');
             }
             // verify required parameter 'newRating' is not null or undefined
             if (newRating === null || newRating === undefined) {
-                throw new RequiredError('newRating', 'Required parameter newRating was null or undefined when calling apiSolutionsRateSolutionBySolutionIdByNewRatingPost.');
+                throw new RequiredError('newRating','Required parameter newRating was null or undefined when calling apiSolutionsRateSolutionBySolutionIdByNewRatingPost.');
             }
             const localVarPath = `/api/Solutions/rateSolution/{solutionId}/{newRating}`
                 .replace(`{${"solutionId"}}`, encodeURIComponent(String(solutionId)))
@@ -4037,8 +4035,8 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -4066,11 +4064,11 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
         apiSolutionsTaskSolutionByTaskIdByStudentIdGet(taskId: number, studentId: string, options: any = {}): FetchArgs {
             // verify required parameter 'taskId' is not null or undefined
             if (taskId === null || taskId === undefined) {
-                throw new RequiredError('taskId', 'Required parameter taskId was null or undefined when calling apiSolutionsTaskSolutionByTaskIdByStudentIdGet.');
+                throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling apiSolutionsTaskSolutionByTaskIdByStudentIdGet.');
             }
             // verify required parameter 'studentId' is not null or undefined
             if (studentId === null || studentId === undefined) {
-                throw new RequiredError('studentId', 'Required parameter studentId was null or undefined when calling apiSolutionsTaskSolutionByTaskIdByStudentIdGet.');
+                throw new RequiredError('studentId','Required parameter studentId was null or undefined when calling apiSolutionsTaskSolutionByTaskIdByStudentIdGet.');
             }
             const localVarPath = `/api/Solutions/taskSolution/{taskId}/{studentId}`
                 .replace(`{${"taskId"}}`, encodeURIComponent(String(taskId)))
@@ -4083,8 +4081,8 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -4105,7 +4103,7 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
  * SolutionsApi - functional programming interface
  * @export
  */
-export const SolutionsApiFp = function (configuration?: Configuration) {
+export const SolutionsApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
@@ -4263,7 +4261,7 @@ export const SolutionsApiFp = function (configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSolutionsTaskSolutionByTaskIdByStudentIdGet(taskId: number, studentId: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Solution> {
+        apiSolutionsTaskSolutionByTaskIdByStudentIdGet(taskId: number, studentId: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<Solution>> {
             const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsTaskSolutionByTaskIdByStudentIdGet(taskId, studentId, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
@@ -4503,7 +4501,7 @@ export const StatisticsApiFetchParamCreator = function (configuration?: Configur
         apiStatisticsByCourseIdGet(courseId: number, options: any = {}): FetchArgs {
             // verify required parameter 'courseId' is not null or undefined
             if (courseId === null || courseId === undefined) {
-                throw new RequiredError('courseId', 'Required parameter courseId was null or undefined when calling apiStatisticsByCourseIdGet.');
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiStatisticsByCourseIdGet.');
             }
             const localVarPath = `/api/Statistics/{courseId}`
                 .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
@@ -4515,8 +4513,8 @@ export const StatisticsApiFetchParamCreator = function (configuration?: Configur
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -4537,7 +4535,7 @@ export const StatisticsApiFetchParamCreator = function (configuration?: Configur
  * StatisticsApi - functional programming interface
  * @export
  */
-export const StatisticsApiFp = function (configuration?: Configuration) {
+export const StatisticsApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
@@ -4614,7 +4612,7 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
         apiTasksAddByHomeworkIdPost(homeworkId: number, taskViewModel?: CreateTaskViewModel, options: any = {}): FetchArgs {
             // verify required parameter 'homeworkId' is not null or undefined
             if (homeworkId === null || homeworkId === undefined) {
-                throw new RequiredError('homeworkId', 'Required parameter homeworkId was null or undefined when calling apiTasksAddByHomeworkIdPost.');
+                throw new RequiredError('homeworkId','Required parameter homeworkId was null or undefined when calling apiTasksAddByHomeworkIdPost.');
             }
             const localVarPath = `/api/Tasks/add/{homeworkId}`
                 .replace(`{${"homeworkId"}}`, encodeURIComponent(String(homeworkId)));
@@ -4626,8 +4624,8 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -4638,7 +4636,7 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
             delete localVarUrlObj.search;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"CreateTaskViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body = needsSerialization ? JSON.stringify(taskViewModel || {}) : (taskViewModel || "");
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(taskViewModel || {}) : (taskViewModel || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -4654,7 +4652,7 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
         apiTasksDeleteByTaskIdDelete(taskId: number, options: any = {}): FetchArgs {
             // verify required parameter 'taskId' is not null or undefined
             if (taskId === null || taskId === undefined) {
-                throw new RequiredError('taskId', 'Required parameter taskId was null or undefined when calling apiTasksDeleteByTaskIdDelete.');
+                throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling apiTasksDeleteByTaskIdDelete.');
             }
             const localVarPath = `/api/Tasks/delete/{taskId}`
                 .replace(`{${"taskId"}}`, encodeURIComponent(String(taskId)));
@@ -4666,8 +4664,8 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -4690,7 +4688,7 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
         apiTasksGetByTaskIdGet(taskId: number, options: any = {}): FetchArgs {
             // verify required parameter 'taskId' is not null or undefined
             if (taskId === null || taskId === undefined) {
-                throw new RequiredError('taskId', 'Required parameter taskId was null or undefined when calling apiTasksGetByTaskIdGet.');
+                throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling apiTasksGetByTaskIdGet.');
             }
             const localVarPath = `/api/Tasks/get/{taskId}`
                 .replace(`{${"taskId"}}`, encodeURIComponent(String(taskId)));
@@ -4702,8 +4700,8 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -4727,7 +4725,7 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
         apiTasksUpdateByTaskIdPut(taskId: number, taskViewModel?: CreateTaskViewModel, options: any = {}): FetchArgs {
             // verify required parameter 'taskId' is not null or undefined
             if (taskId === null || taskId === undefined) {
-                throw new RequiredError('taskId', 'Required parameter taskId was null or undefined when calling apiTasksUpdateByTaskIdPut.');
+                throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling apiTasksUpdateByTaskIdPut.');
             }
             const localVarPath = `/api/Tasks/update/{taskId}`
                 .replace(`{${"taskId"}}`, encodeURIComponent(String(taskId)));
@@ -4739,8 +4737,8 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -4751,7 +4749,7 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
             delete localVarUrlObj.search;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"CreateTaskViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body = needsSerialization ? JSON.stringify(taskViewModel || {}) : (taskViewModel || "");
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(taskViewModel || {}) : (taskViewModel || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -4765,7 +4763,7 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
  * TasksApi - functional programming interface
  * @export
  */
-export const TasksApiFp = function (configuration?: Configuration) {
+export const TasksApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
