@@ -24,7 +24,6 @@ export default class HomeworkTasks extends React.Component<IHomeworkTasksProps, 
                             forMentor={this.props.forMentor}
                             onDeleteClick={() => this.props.onDelete()}
                             isExpanded={false}
-                            showForCourse={true}
                         />
                     )
                 })}

@@ -8,15 +8,14 @@ import ReactMarkdown from 'react-markdown'
 import { HomeworkTaskViewModel } from "../../api";
 import {Link as RouterLink} from 'react-router-dom'
 import ApiSingleton from "../../api/ApiSingleton";
-import { Accordion, AccordionDetails, AccordionSummary, Button } from '@material-ui/core';
+import { Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
 
 interface ITaskProp {
   task: HomeworkTaskViewModel,
   forMentor: boolean,
   forStudent: boolean,
   isExpanded: boolean,
-  onDeleteClick: () => void,
-  showForCourse: boolean
+  onDeleteClick: () => void
 }
 
 export default class Task extends React.Component<ITaskProp, {}> {
@@ -78,16 +77,6 @@ export default class Task extends React.Component<ITaskProp, {}> {
                 <Typography>
                   Дедлайн: Отсутствует
                 </Typography>
-                }
-                { this.props.showForCourse && this.props.forStudent &&
-                  <Button
-                      size="small"
-                      variant="contained"
-                      color="primary"
-                      onClick={() => window.location.assign("/task/" + task.id!.toString())}
-                  >
-                    Отправить решение
-                  </Button>
                 }
               </Typography>
             </AccordionDetails>
