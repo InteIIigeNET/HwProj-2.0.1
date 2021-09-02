@@ -1,25 +1,22 @@
 import React from "react";
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@material-ui/core";
-import { CourseViewModel, HomeworkViewModel } from "../../api/";
+import { CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api/";
 import { Paper, createStyles, Theme } from "@material-ui/core";
 import TaskStudentCell from "../Tasks/TaskStudentCell";
 import ApiSingleton from "../../api/ApiSingleton";
 import { withStyles } from '@material-ui/styles';
-
-interface ICourseMate {
-  name: string;
-  surname: string;
-  middleName: string;
-  email: string;
-  id: string;
-}
+import {RouteComponentProps} from "react-router-dom";
 
 interface ICourseStudentsProps {
   course: CourseViewModel;
   homeworks: HomeworkViewModel[];
   isMentor: boolean;
   userId: string;
-  courseMates: ICourseMate[];
+}
+
+interface ICourseStudentsState {
+  stat: StatisticsCourseMatesModel[];
+  isLoaded: boolean;
 }
 
 const styles = (theme: Theme) =>
@@ -31,69 +28,87 @@ const styles = (theme: Theme) =>
     },
   });
 
-class CourseStudents extends React.Component<ICourseStudentsProps, {}> {
+class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStudentsState> {
+  constructor(props: ICourseStudentsProps) {
+    super(props);
+    this.state = {
+      stat: [],
+      isLoaded: false,
+    };
+  }
 
   public render() {
     return (
       <div>
-        <TableContainer component={Paper}>
-          <Table aria-label="simple table">
-            <TableHead>
-              <TableRow>
-                <TableCell align="center" padding="none" component="td">
-                  <b>Студент</b>
-                </TableCell>
-                {this.props.homeworks.map((homework, index) => (
-                  <TableCell
-                    padding="none"
-                    component="td"
-                    align="center"
-                    colSpan={homework.tasks!.length}
-                  >
-                    {index + 1}
+        { this.state.isLoaded &&
+          <TableContainer component={Paper}>
+            <Table aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  <TableCell align="center" padding="none" component="td">
+                    <b>Студент</b>
                   </TableCell>
-                ))}
-              </TableRow>
-              <TableRow>
-                <TableCell component="td"></TableCell>
-                {this.props.homeworks.map((homework) =>
-                  homework.tasks!.map((task) => (
-                    <TableCell padding="none" component="td" align="center">
-                      {task.title}
-                    </TableCell>
-                  ))
-                )}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {this.props.courseMates
-                .map((cm: any, index) => (
-                  <TableRow key={index}>
+                  {this.props.homeworks.map((homework, index) => (
                     <TableCell
-                      align="center"
                       padding="none"
                       component="td"
-                      scope="row"
+                      align="center"
+                      colSpan={homework.tasks!.length}
                     >
-                      {cm.name}
+                      {index + 1}
                     </TableCell>
-                    {this.props.homeworks.map((homework) =>
-                      homework.tasks!.map((task) => (
-                        <TaskStudentCell
-                          userId={this.props.userId}
-                          forMentor={this.props.isMentor}
-                          studentId={String(cm.id)}
-                          taskId={task.id!}
-                        />
-                      ))
-                    )}
-                  </TableRow>
-                ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+                  ))}
+                </TableRow>
+                <TableRow>
+                  <TableCell component="td"></TableCell>
+                  {this.props.homeworks.map((homework) =>
+                    homework.tasks!.map((task) => (
+                      <TableCell padding="none" component="td" align="center">
+                        {task.title}
+                      </TableCell>
+                    ))
+                  )}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {this.state.stat
+                    .map((cm, index) => (
+                    <TableRow key={index}>
+                      <TableCell
+                        align="center"
+                        padding="none"
+                        component="td"
+                        scope="row"
+                      >
+                        {cm.surname} {cm.name}
+                      </TableCell>
+                      {cm.homeworks!.map((homework) =>
+                          homework.tasks!.map((task) => (
+                            <TaskStudentCell
+                              solutions={this.state.stat
+                                  .find(s => s.id == cm.id)!.homeworks!
+                                  .find(h => h.id == homework.id)!.tasks!
+                                  .find(t => t.id == task.id)!.solution}
+                            userId={this.props.userId}
+                            forMentor={this.props.isMentor}
+                            studentId={String(cm.id)}
+                            taskId={task.id!}
+                          />
+                        ))
+                      )}
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+          </TableContainer>}
       </div>
     );
+  }
+
+  async componentDidMount() {
+  const token = ApiSingleton.authService.getToken()
+  const stat = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdGet(this.props.course.id!)
+  this.setState({stat: stat, isLoaded: true})
   }
 }
 

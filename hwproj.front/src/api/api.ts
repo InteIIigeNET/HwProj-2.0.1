@@ -786,6 +786,127 @@ export interface SolutionViewModel {
 /**
  * 
  * @export
+ * @interface StatisticsCourseHomeworksModel
+ */
+export interface StatisticsCourseHomeworksModel {
+    /**
+     * 
+     * @type {number}
+     * @memberof StatisticsCourseHomeworksModel
+     */
+    id?: number;
+    /**
+     * 
+     * @type {Array<StatisticsCourseTasksModel>}
+     * @memberof StatisticsCourseHomeworksModel
+     */
+    tasks?: Array<StatisticsCourseTasksModel>;
+}
+
+/**
+ * 
+ * @export
+ * @interface StatisticsCourseMatesModel
+ */
+export interface StatisticsCourseMatesModel {
+    /**
+     * 
+     * @type {string}
+     * @memberof StatisticsCourseMatesModel
+     */
+    id?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof StatisticsCourseMatesModel
+     */
+    name?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof StatisticsCourseMatesModel
+     */
+    surname?: string;
+    /**
+     * 
+     * @type {Array<StatisticsCourseHomeworksModel>}
+     * @memberof StatisticsCourseMatesModel
+     */
+    homeworks?: Array<StatisticsCourseHomeworksModel>;
+}
+
+/**
+ * 
+ * @export
+ * @interface StatisticsCourseSolutionsModel
+ */
+export interface StatisticsCourseSolutionsModel {
+    /**
+     * 
+     * @type {number}
+     * @memberof StatisticsCourseSolutionsModel
+     */
+    id?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof StatisticsCourseSolutionsModel
+     */
+    state?: StatisticsCourseSolutionsModel.StateEnum;
+    /**
+     * 
+     * @type {number}
+     * @memberof StatisticsCourseSolutionsModel
+     */
+    rating?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof StatisticsCourseSolutionsModel
+     */
+    maxRating?: number;
+}
+
+/**
+ * @export
+ * @namespace StatisticsCourseSolutionsModel
+ */
+export namespace StatisticsCourseSolutionsModel {
+    /**
+     * @export
+     * @enum {string}
+     */
+    export enum StateEnum {
+        NUMBER_0 = <any> 0,
+        NUMBER_1 = <any> 1,
+        NUMBER_2 = <any> 2,
+        NUMBER_3 = <any> 3
+    }
+}
+
+/**
+ * 
+ * @export
+ * @interface StatisticsCourseTasksModel
+ */
+export interface StatisticsCourseTasksModel {
+    /**
+     * 
+     * @type {number}
+     * @memberof StatisticsCourseTasksModel
+     */
+    id?: number;
+    /**
+     * 
+     * @type {Array<StatisticsCourseSolutionsModel>}
+     * @memberof StatisticsCourseTasksModel
+     */
+    solution?: Array<StatisticsCourseSolutionsModel>;
+}
+
+/**
+ * 
+ * @export
  * @interface TokenCredentials
  */
 export interface TokenCredentials {
@@ -3982,7 +4103,7 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSolutionsTaskSolutionBySolutionIdGet(solutionId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<Solution>> {
+        apiSolutionsTaskSolutionBySolutionIdGet(solutionId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Solution> {
             const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsTaskSolutionBySolutionIdGet(solutionId, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
@@ -4199,6 +4320,116 @@ export class SolutionsApi extends BaseAPI {
      */
     public apiSolutionsTaskSolutionBySolutionIdGet(solutionId: number, options?: any) {
         return SolutionsApiFp(this.configuration).apiSolutionsTaskSolutionBySolutionIdGet(solutionId, options)(this.fetch, this.basePath);
+    }
+
+}
+
+/**
+ * StatisticsApi - fetch parameter creator
+ * @export
+ */
+export const StatisticsApiFetchParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiStatisticsByCourseIdGet(courseId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'courseId' is not null or undefined
+            if (courseId === null || courseId === undefined) {
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiStatisticsByCourseIdGet.');
+            }
+            const localVarPath = `/api/Statistics/{courseId}`
+                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * StatisticsApi - functional programming interface
+ * @export
+ */
+export const StatisticsApiFp = function(configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiStatisticsByCourseIdGet(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<StatisticsCourseMatesModel>> {
+            const localVarFetchArgs = StatisticsApiFetchParamCreator(configuration).apiStatisticsByCourseIdGet(courseId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+    }
+};
+
+/**
+ * StatisticsApi - factory interface
+ * @export
+ */
+export const StatisticsApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiStatisticsByCourseIdGet(courseId: number, options?: any) {
+            return StatisticsApiFp(configuration).apiStatisticsByCourseIdGet(courseId, options)(fetch, basePath);
+        },
+    };
+};
+
+/**
+ * StatisticsApi - object-oriented interface
+ * @export
+ * @class StatisticsApi
+ * @extends {BaseAPI}
+ */
+export class StatisticsApi extends BaseAPI {
+    /**
+     * 
+     * @param {number} courseId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StatisticsApi
+     */
+    public apiStatisticsByCourseIdGet(courseId: number, options?: any) {
+        return StatisticsApiFp(this.configuration).apiStatisticsByCourseIdGet(courseId, options)(this.fetch, this.basePath);
     }
 
 }
