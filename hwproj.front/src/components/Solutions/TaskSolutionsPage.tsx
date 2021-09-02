@@ -67,6 +67,7 @@ export default class TaskSolutionsPage extends React.Component<
               forMentor={false}
               onDeleteClick={() => 3}
               isExpanded={true}
+              showForCourse={false}
             />
             {(!this.state.addSolution && this.state.task.canSendSolution) && (
               <div>
