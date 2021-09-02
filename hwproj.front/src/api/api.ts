@@ -114,6 +114,12 @@ export interface AccountDataDto {
      * @memberof AccountDataDto
      */
     role?: string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof AccountDataDto
+     */
+    isExternalAuth?: boolean;
 }
 
 /**
@@ -331,13 +337,13 @@ export interface EditAccountViewModel {
      * @type {string}
      * @memberof EditAccountViewModel
      */
-    name?: string;
+    name: string;
     /**
      * 
      * @type {string}
      * @memberof EditAccountViewModel
      */
-    surname?: string;
+    surname: string;
     /**
      * 
      * @type {string}
@@ -355,7 +361,33 @@ export interface EditAccountViewModel {
      * @type {string}
      * @memberof EditAccountViewModel
      */
-    newPassword?: string;
+    newPassword: string;
+}
+
+/**
+ * 
+ * @export
+ * @interface EditExternalViewModel
+ */
+export interface EditExternalViewModel {
+    /**
+     * 
+     * @type {string}
+     * @memberof EditExternalViewModel
+     */
+    name: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof EditExternalViewModel
+     */
+    surname: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof EditExternalViewModel
+     */
+    middleName?: string;
 }
 
 /**
@@ -934,6 +966,41 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
     return {
         /**
          * 
+         * @param {EditExternalViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountEditExternalPut(model?: EditExternalViewModel, options: any = {}): FetchArgs {
+            const localVarPath = `/api/Account/editExternal`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"EditExternalViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {EditAccountViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -1184,6 +1251,24 @@ export const AccountApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
+         * @param {EditExternalViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountEditExternalPut(model?: EditExternalViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Result> {
+            const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountEditExternalPut(model, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
          * @param {EditAccountViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -1318,6 +1403,15 @@ export const AccountApiFactory = function (configuration?: Configuration, fetch?
     return {
         /**
          * 
+         * @param {EditExternalViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountEditExternalPut(model?: EditExternalViewModel, options?: any) {
+            return AccountApiFp(configuration).apiAccountEditExternalPut(model, options)(fetch, basePath);
+        },
+        /**
+         * 
          * @param {EditAccountViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -1388,6 +1482,17 @@ export const AccountApiFactory = function (configuration?: Configuration, fetch?
  * @extends {BaseAPI}
  */
 export class AccountApi extends BaseAPI {
+    /**
+     * 
+     * @param {EditExternalViewModel} [model] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AccountApi
+     */
+    public apiAccountEditExternalPut(model?: EditExternalViewModel, options?: any) {
+        return AccountApiFp(this.configuration).apiAccountEditExternalPut(model, options)(this.fetch, this.basePath);
+    }
+
     /**
      * 
      * @param {EditAccountViewModel} [model] 

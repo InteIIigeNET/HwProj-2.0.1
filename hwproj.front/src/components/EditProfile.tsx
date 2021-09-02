@@ -15,6 +15,7 @@ interface IEditProfileState {
     middleName?: string;
     currentPassword: string;
     newPassword: string;
+    isExternalAuth?: boolean;
 }
 
 export default class EditProfile extends React.Component<{}, IEditProfileState> {
@@ -29,6 +30,7 @@ export default class EditProfile extends React.Component<{}, IEditProfileState> 
             middleName: "",
             currentPassword: "",
             newPassword: "",
+            isExternalAuth: false,
         };
     }
 
@@ -41,16 +43,29 @@ export default class EditProfile extends React.Component<{}, IEditProfileState> 
           currentPassword: this.state.currentPassword,
           newPassword: this.state.newPassword,
       }
-      ApiSingleton.accountApi
-        .apiAccountEditPut(editForm)
-        .then((res) => {
-            if (res.succeeded) {
-                this.setState({ edited: true });
-            }
-            else {
-                this.setState({ errors: res.errors! });
-            }
-        });
+        if (this.state.isExternalAuth) {
+            ApiSingleton.accountApi
+                .apiAccountEditExternalPut(editForm)
+                .then((res) => {
+                    if (res.succeeded) {
+                        this.setState({ edited: true });
+                    }
+                    else {
+                        this.setState({ errors: res.errors! });
+                    }
+                });
+        }
+        else {
+            ApiSingleton.accountApi
+                .apiAccountEditPut(editForm)
+                .then((res) => {
+                    if (res.succeeded) {
+                        this.setState({edited: true});
+                    } else {
+                        this.setState({errors: res.errors!});
+                    }
+                });
+        }
     }
 
     public render() {
@@ -68,65 +83,106 @@ export default class EditProfile extends React.Component<{}, IEditProfileState> 
 
             return (
                 <div>
-                <div className="page">
-                    <Typography variant="h6" gutterBottom>
-                        Редактировать профиль
-                    </Typography>
-                    <form onSubmit={(e) => this.handleSubmit(e)} className="form">
+                {!this.state.isExternalAuth && (
+                    <div className="page">
+                        <Typography variant="h6" gutterBottom>
+                            Редактировать профиль
+                        </Typography>
+                        <form onSubmit={(e) => this.handleSubmit(e)} className="form">
+                            <TextField
+                                required
+                                label="Имя"
+                                variant="outlined"
+                                margin="normal"
+                                value={this.state.name}
+                                onChange={(e) => this.setState({ name: e.target.value })}
+                            />
                         <TextField
                             required
-                            label="Имя"
+                            label="Фамилия"
                             variant="outlined"
                             margin="normal"
-                            value={this.state.name}
-                            onChange={(e) => this.setState({ name: e.target.value })}
+                            value={this.state.surname}
+                            onChange={(e) => this.setState({ surname: e.target.value })}
                         />
-                    <TextField
-                        required
-                        label="Фамилия"
-                        variant="outlined"
-                        margin="normal"
-                        value={this.state.surname}
-                        onChange={(e) => this.setState({ surname: e.target.value })}
-                    />
-                    <TextField
-                        label="Отчество"
-                        variant="outlined"
-                        margin="normal"
-                        value={this.state.middleName}
-                        onChange={(e) => this.setState({ middleName: e.target.value })}
-                    />
-                    <TextField
-                        required
-                        label="Пароль"
-                        variant="outlined"
-                        margin="normal"
-                        value={this.state.currentPassword}
-                        onChange={(e) => this.setState({ currentPassword: e.target.value })}
-                    />
-                    <TextField
-                        required
-                        label="Новый пароль"
-                        variant="outlined"
-                        margin="normal"
-                        value={this.state.newPassword}
-                        onChange={(e) => this.setState({ newPassword: e.target.value })}
-                    />
-                    <Button
-                        size="small"
-                        variant="contained"
-                        color="primary"
-                        type="submit"
-                    >
-                        Редактировать профиль
-                    </Button>
-                    </form>
-                    {this.state.errors && (
-                        <p style={{ color: "red", marginBottom: "0" }}>{this.state.errors}</p>
-                    )}
-                </div>
-
-
+                        <TextField
+                            label="Отчество"
+                            variant="outlined"
+                            margin="normal"
+                            value={this.state.middleName}
+                            onChange={(e) => this.setState({ middleName: e.target.value })}
+                        />
+                        <TextField
+                            required
+                            label="Пароль"
+                            variant="outlined"
+                            margin="normal"
+                            value={this.state.currentPassword}
+                            onChange={(e) => this.setState({ currentPassword: e.target.value })}
+                        />
+                        <TextField
+                            required
+                            label="Новый пароль"
+                            variant="outlined"
+                            margin="normal"
+                            value={this.state.newPassword}
+                            onChange={(e) => this.setState({ newPassword: e.target.value })}
+                        />
+                        <Button
+                            size="small"
+                            variant="contained"
+                            color="primary"
+                            type="submit"
+                        >
+                            Редактировать профиль
+                        </Button>
+                        </form>
+                        {this.state.errors && (
+                            <p style={{ color: "red", marginBottom: "0" }}>{this.state.errors}</p>
+                        )}
+                    </div>)}
+                {this.state.isExternalAuth && (
+                    <div className="page">
+                        <Typography variant="h6" gutterBottom>
+                            Редактировать профиль
+                        </Typography>
+                        <form onSubmit={(e) => this.handleSubmit(e)} className="form">
+                            <TextField
+                                required
+                                label="Имя"
+                                variant="outlined"
+                                margin="normal"
+                                value={this.state.name}
+                                onChange={(e) => this.setState({ name: e.target.value })}
+                            />
+                            <TextField
+                                required
+                                label="Фамилия"
+                                variant="outlined"
+                                margin="normal"
+                                value={this.state.surname}
+                                onChange={(e) => this.setState({ surname: e.target.value })}
+                            />
+                            <TextField
+                                label="Отчество"
+                                variant="outlined"
+                                margin="normal"
+                                value={this.state.middleName}
+                                onChange={(e) => this.setState({ middleName: e.target.value })}
+                            />
+                            <Button
+                                size="small"
+                                variant="contained"
+                                color="primary"
+                                type="submit"
+                            >
+                                Редактировать профиль
+                            </Button>
+                        </form>
+                        {this.state.errors && (
+                            <p style={{ color: "red", marginBottom: "0" }}>{this.state.errors}</p>
+                        )}
+                    </div>)}
                 </div>
             );
         }
@@ -140,6 +196,7 @@ export default class EditProfile extends React.Component<{}, IEditProfileState> 
             name: currentUser.name!,
             surname: currentUser.surname!,
             middleName: currentUser.middleName!,
+            isExternalAuth: currentUser.isExternalAuth,
         });
     }
 }

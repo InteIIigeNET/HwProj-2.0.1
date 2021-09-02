@@ -104,5 +104,21 @@ namespace HwProj.AuthService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Result<TokenCredentials>>();;
         }
+        
+        public async Task<Result> EditExternal(EditExternalViewModel model, string userId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Put,
+                _authServiceUri + $"api/account/editExternal/{userId}")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(model),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<Result>();
+        }
     }
 }
