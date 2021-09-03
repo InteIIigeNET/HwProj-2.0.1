@@ -3,6 +3,8 @@ import SolutionComponent from './Solution'
 import Typography from '@material-ui/core/Typography'
 import ApiSingleton from "../../api/ApiSingleton";
 import { Solution } from '../../api';
+import {Grid, ListItem} from "@material-ui/core";
+import List from "@material-ui/core/List";
 
 interface ITaskSolutionsProps {
     taskId: number,
@@ -12,7 +14,7 @@ interface ITaskSolutionsProps {
 
 interface ITaskSolutionsState {
     isLoaded: boolean,
-    solution: Solution,
+    solutions: Solution[],
 }
 
 export default class TaskSolutions extends React.Component<ITaskSolutionsProps, ITaskSolutionsState> {
@@ -20,22 +22,42 @@ export default class TaskSolutions extends React.Component<ITaskSolutionsProps, 
         super(props);
         this.state = {
             isLoaded: false,
-            solution: {},
+            solutions:[],
         }
     }
 
     public render() {
-        const { isLoaded, solution } = this.state;
-
+        const { isLoaded, solutions } = this.state;
+        const arrayOfNonRatedSolutions = solutions.filter(solution => solution.state == Solution.StateEnum.NUMBER_0);
+        const arrayOfRatedSolutions = solutions.filter(solution => solution.state != Solution.StateEnum.NUMBER_0);
+        const componentsOfNonRatedSolutions = arrayOfNonRatedSolutions.map((sol) => (
+            <ListItem key={sol.id}>
+                <SolutionComponent forMentor={this.props.forMentor} solution={sol}/>
+            </ListItem>
+            )
+        )
+        const componentsOfRatedSolutions = arrayOfRatedSolutions.map((sol) => (
+                <ListItem key={sol.id}>
+                    <SolutionComponent forMentor={this.props.forMentor} solution={sol}/>
+                </ListItem>
+            )
+        )
+        debugger
         if (isLoaded) {
             return (
                 <div>
-                    {solution &&
-                        <div>
-                            <Typography variant='h6'>Решение: </Typography>
-                            <SolutionComponent forMentor={this.props.forMentor} solution={solution} />
-                        </div>
-                    }
+                    <Typography variant="h6">
+                        Непроверенные решения
+                    </Typography>
+                    <List>
+                        {componentsOfNonRatedSolutions}
+                    </List>
+                    <Typography variant="h6">
+                        Проверенные решения
+                    </Typography>
+                    <List>
+                        {componentsOfRatedSolutions}
+                    </List>
                 </div>
             )
         }
@@ -43,14 +65,15 @@ export default class TaskSolutions extends React.Component<ITaskSolutionsProps, 
         return "";
     }
 
-    componentDidMount() {
-        ApiSingleton.solutionsApi.apiSolutionsTaskSolutionByTaskIdByStudentIdGet(
-            this.props.taskId, 
+    async componentDidMount() {
+        const solutions = await ApiSingleton.solutionsApi.apiSolutionsTaskSolutionByTaskIdByStudentIdGet(
+            this.props.taskId,
             this.props.studentId,
         )
-            .then(solution => this.setState({
-                isLoaded: true,
-                solution: solution
-            }));
+        this.setState({
+            isLoaded: true,
+            solutions: solutions
+        })
+        debugger
     }
 }
