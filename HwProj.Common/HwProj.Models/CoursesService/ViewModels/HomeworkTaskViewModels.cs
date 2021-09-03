@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace HwProj.Models.CoursesService.ViewModels
 {
@@ -21,6 +22,8 @@ namespace HwProj.Models.CoursesService.ViewModels
 
     public class CreateTaskViewModel
     {
+        [Required]
+        [RegularExpression(@"^\S+.*", ErrorMessage = "Name shouldn't start with white spaces.")]
         public string Title { get; set; }
         public string Description { get; set; }
 
@@ -28,6 +31,7 @@ namespace HwProj.Models.CoursesService.ViewModels
 
         public DateTime PublicationDate { get; set; }
 
+        [Required]
         public int MaxRating { get; set; }
     }
 }
