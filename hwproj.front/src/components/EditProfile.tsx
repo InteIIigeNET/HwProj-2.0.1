@@ -88,10 +88,10 @@ export default class EditProfile extends React.Component<{}, IEditProfileState> 
                 <div>
                 {!this.state.isExternalAuth && (
                     <div className="page">
-                    <Typography variant="h6" gutterBottom>
-                        Редактировать профиль
-                    </Typography>
-                    <form onSubmit={(e) => this.handleSubmit(e)} className="form">
+                        <Typography variant="h6" gutterBottom>
+                            Редактировать профиль
+                        </Typography>
+                        <form onSubmit={(e) => this.handleSubmit(e)} className="form">
                         <TextField
                             required
                             label="Имя"
