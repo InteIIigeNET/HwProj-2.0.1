@@ -1,8 +1,10 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
+using MimeKit;
 
 namespace HwProj.NotificationsService.API.Services
 {
@@ -37,6 +39,28 @@ namespace HwProj.NotificationsService.API.Services
         {
             await _repository.UpdateBatchAsync(userId, notificationIds,
                 t => new Notification {HasSeen = true});
+        }
+
+        public async Task SendEmailAsync(Notification notification, string email)
+        {
+            var emailMessage = new MimeMessage();
+
+            emailMessage.From.Add(new MailboxAddress("Администрация сайта", "mike088080@gmail.com"));
+            emailMessage.To.Add(new MailboxAddress("", email));
+            emailMessage.Subject = notification.Category;
+            emailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Html)
+            {
+                Text = notification.Body
+            };
+
+            using (var client = new MailKit.Net.Smtp.SmtpClient())
+            {
+                await client.ConnectAsync("smtp.gmail.com", 465, true);
+                await client.AuthenticateAsync("@gmail.com", "password");
+                await client.SendAsync(emailMessage);
+
+                await client.DisconnectAsync(true);
+            }
         }
     }
 }
