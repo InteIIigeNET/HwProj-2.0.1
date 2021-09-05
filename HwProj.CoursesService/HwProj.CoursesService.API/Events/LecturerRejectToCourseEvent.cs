@@ -10,5 +10,7 @@ namespace HwProj.CoursesService.API.Events
         public string MentorIds { get; set; }
         public string StudentId { get; set; }
         public bool IsAccepted { get; set; }
+
+        public AccountDataDto student { get; set; }
     }
 }
