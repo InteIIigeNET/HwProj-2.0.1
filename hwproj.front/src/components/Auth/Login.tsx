@@ -1,10 +1,13 @@
-import React, { FormEvent } from "react";
+import React, {FormEvent, useContext, useState} from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { TextField, Button, Typography } from "@material-ui/core";
 import ApiSingleton from "../../api/ApiSingleton";
 import "./Styles/Login.css";
 import { LoginViewModel } from "../../api/"
-import GoogleLogin, {GoogleLoginResponse, GoogleLoginResponseOffline} from "react-google-login";
+import { GoogleLoginButton, GithubLoginButton } from "react-social-login-buttons";
+import GoogleLogin, {useGoogleLogin} from "react-google-login";
+// @ts-ignore
+import LoginGithub, {onBtnClick} from 'react-login-github';
 
 interface LoginProps extends Partial<RouteComponentProps> {
   onLogin: () => void;
@@ -43,13 +46,92 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
     })
   }
 
+  githubResponse = (response: any) => {
+   /* console.log(response)
+    debugger
+
+    let headers = new Headers();
+
+    headers.append('Content-Type', 'application/json');
+    headers.append('Accept', 'application/json');
+    headers.append('Origin','http://localhost:3000');
+
+    const requestData = {
+      client_id: "27d042ccd106df905d84",
+      client_secret: "5f08d5250023f0739741341216ade2c498c2e18c",
+      code: response.code! as string
+    };
+    const data = new FormData();
+    data.append("client_id", "27d042ccd106df905d84");
+    data.append("client_secret", "5f08d5250023f0739741341216ade2c498c2e18c");
+    data.append("code", response.code! as string);
+
+    console.log(requestData.code)
+    debugger
+    const proxy_url = "https://github.com/login/oauth/access_token";
+
+    // Use code parameter and other parameters to make POST request to proxy_server
+  fetch(proxy_url, {
+    mode: 'cors',
+    credentials: 'include',
+    method: "POST",
+    headers: headers,
+    body: data
+  })
+  .then(response => {
+    response.json()
+    debugger
+  })
+        /!*.then(data => {console.log(data)})
+        .catch(error => {
+          this.setState({
+            error: error,
+            isLogin: false
+          });
+        });
+
+    /!*const data = new FormData();
+    data.append("client_id", "27d042ccd106df905d84");
+    data.append("client_secret", "5f08d5250023f0739741341216ade2c498c2e18c");
+    data.append("code", response.code! as string);
+
+    // Request to exchange code for an access token
+    fetch(`https://github.com/login/oauth/access_token`, {
+      method: "POST",
+      body: data,
+    })
+        .then((response) => response.text())
+        .then((paramsString) => {
+          debugger
+          let params = new URLSearchParams(paramsString);
+          const access_token = params.get("access_token");
+
+          // Request to return data of a user that has been authenticated
+          return fetch(`https://api.github.com/user`, {
+            headers: {
+              Authorization: `token ${access_token}`,
+            },
+          });
+        })
+        .then((response) => response.json())
+        /!*.then((response) => {
+          return res.status(200).json(response);
+        })
+        .catch((error) => {
+          return res.status(400).json(error);
+        })*!/;*!/*/
+  }
+
   googleResponse = async (response: any) => {
+    console.log(response)
+    debugger
     const result = await ApiSingleton.authService.loginByGoogle(response.tokenId)
     this.setState({
       error: result!.error,
       isLogin: result.isLogin
     })
-  };
+  }
+
   render() {
     const headerStyles: React.CSSProperties = { marginRight: "9.5rem" };
 
@@ -60,6 +142,7 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
     if (this.state.isLogin){
       this.props.onLogin?.();
     }
+
     return (
       <div className="page">
         <Typography component="h1" variant="h5">
@@ -103,11 +186,21 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
           <hr/>Или войдите с помощью других сервисов<hr/>
         </Typography>
         <div>
-          <GoogleLogin
+          {/*<GoogleLoginButton onClick={()=>useGoogleLogin({
+                clientId:"235915791830-7oaa5kjukfdicjs4rqmamd9mlfak8nss.apps.googleusercontent.com",
+                onSuccess: this.googleResponse}
+          )}/>
+          <GithubLoginButton  onClick={()=>onBtnClick({clientId:"27d042ccd106df905d84",
+            onSuccess: this.githubResponse})}/>*/}
+          {/*<GoogleLogin
               clientId="235915791830-7oaa5kjukfdicjs4rqmamd9mlfak8nss.apps.googleusercontent.com"
-              buttonText=""
               onSuccess={this.googleResponse}
+              buttonText=""
           />
+          <LoginGithub
+              clientId="27d042ccd106df905d84"
+              onSuccess={this.githubResponse}
+          />*/}
         </div>
       </div>
     );
