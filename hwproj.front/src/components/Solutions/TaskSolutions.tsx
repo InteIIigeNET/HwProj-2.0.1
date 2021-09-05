@@ -33,7 +33,11 @@ export default class TaskSolutions extends React.Component<ITaskSolutionsProps, 
         const arrayOfRatedSolutions = solutions.filter(solution => solution.state!.toString() != 'Posted');
         const componentsOfNonRatedSolutions = arrayOfNonRatedSolutions.map((sol) => (
             <ListItem key={sol.id}>
-                <SolutionComponent forMentor={this.props.forMentor} solution={sol}/>
+                <NonRatedSolutionComponent
+                    forMentor={this.props.forMentor}
+                    solution={sol}
+                    isExpanded={true}
+                />
             </ListItem>
             )
         ).reverse()
