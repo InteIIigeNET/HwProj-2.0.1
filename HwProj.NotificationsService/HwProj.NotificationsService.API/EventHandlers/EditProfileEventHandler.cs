@@ -18,7 +18,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
         public async Task HandleAsync(EditProfileEvent @event)
         {
-            await _notificationRepository.AddAsync(new Notification
+            var notification = new Notification
             {
                 Sender = "AuthService",
                 Body = "Ваш профиль был успешно отредактирован.",
@@ -26,7 +26,8 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 Date = DateTime.UtcNow,
                 HasSeen = false,
                 Owner = @event.UserId
-            });
+            };
+            await _notificationRepository.AddAsync(notification);
         }
     }
 }

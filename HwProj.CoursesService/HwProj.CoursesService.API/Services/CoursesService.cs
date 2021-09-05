@@ -8,6 +8,7 @@ using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.EventBus.Client.Interfaces;
+using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
 using Microsoft.EntityFrameworkCore;
 
@@ -157,6 +158,8 @@ namespace HwProj.CoursesService.API.Services
             }
 
             await _courseMatesRepository.DeleteAsync(getCourseMateTask.Result.Id);
+            var student = _authServiceClient.GetAccountData(studentId);
+            var studentModel = _mapper.Map<AccountDataDto>(student);
 
             var course = getCourseTask.Result;
             _eventBus.Publish(new LecturerRejectToCourseEvent
@@ -165,7 +168,8 @@ namespace HwProj.CoursesService.API.Services
                 CourseName = course.Name,
                 MentorIds = course.MentorIds,
                 StudentId = studentId,
-                IsAccepted = false
+                IsAccepted = false,
+                student = studentModel
             });
 
             return true;
@@ -186,7 +190,7 @@ namespace HwProj.CoursesService.API.Services
             var studentCourses = await Task.WhenAll(getStudentCoursesTasks).ConfigureAwait(false);
 
             var getMentorCoursesTask = _coursesRepository
-                .FindAll(c => c.MentorIds.Contains(userId))
+                .FindAll(c => c.MentorId == userId)
                 .ToArrayAsync();
 
             var mentorCourses = await getMentorCoursesTask.ConfigureAwait(false);
@@ -196,7 +200,7 @@ namespace HwProj.CoursesService.API.Services
                 .Select(c =>
                 {
                     var userCourseDescription = _mapper.Map<UserCourseDescription>(c);
-                    userCourseDescription.UserIsMentor = c.MentorIds.Contains(userId);
+                    userCourseDescription.UserIsMentor = c.MentorId == userId;
                     return userCourseDescription;
                 })
                 .OrderBy(c => c.UserIsMentor).ThenBy(c => c.Name)
