@@ -1,5 +1,6 @@
 import * as React from 'react';
 import SolutionComponent from './Solution'
+import NonRatedSolutionComponent from "./NonRatedSolutions";
 import Typography from '@material-ui/core/Typography'
 import ApiSingleton from "../../api/ApiSingleton";
 import { Solution } from '../../api';
@@ -35,13 +36,13 @@ export default class TaskSolutions extends React.Component<ITaskSolutionsProps, 
                 <SolutionComponent forMentor={this.props.forMentor} solution={sol}/>
             </ListItem>
             )
-        )
+        ).reverse()
         const componentsOfRatedSolutions = arrayOfRatedSolutions.map((sol) => (
                 <ListItem key={sol.id}>
-                    <SolutionComponent forMentor={this.props.forMentor} solution={sol}/>
+                    <NonRatedSolutionComponent forMentor={this.props.forMentor} solution={sol}/>
                 </ListItem>
             )
-        )
+        ).reverse()
         debugger
         if (isLoaded) {
             return (
