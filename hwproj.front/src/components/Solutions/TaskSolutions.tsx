@@ -3,8 +3,8 @@ import SolutionComponent from './Solution'
 import NonRatedSolutionComponent from "./NonRatedSolutions";
 import Typography from '@material-ui/core/Typography'
 import ApiSingleton from "../../api/ApiSingleton";
-import { Solution } from '../../api';
-import {Grid, ListItem} from "@material-ui/core";
+import {Solution} from '../../api';
+import {ListItem} from "@material-ui/core";
 import List from "@material-ui/core/List";
 
 interface ITaskSolutionsProps {
@@ -29,8 +29,8 @@ export default class TaskSolutions extends React.Component<ITaskSolutionsProps, 
 
     public render() {
         const { isLoaded, solutions } = this.state;
-        const arrayOfNonRatedSolutions = solutions.filter(solution => solution.state == Solution.StateEnum.NUMBER_0);
-        const arrayOfRatedSolutions = solutions.filter(solution => solution.state != Solution.StateEnum.NUMBER_0);
+        const arrayOfNonRatedSolutions = solutions.filter(solution => solution.state!.toString() == 'Posted');
+        const arrayOfRatedSolutions = solutions.filter(solution => solution.state!.toString() != 'Posted');
         const componentsOfNonRatedSolutions = arrayOfNonRatedSolutions.map((sol) => (
             <ListItem key={sol.id}>
                 <SolutionComponent forMentor={this.props.forMentor} solution={sol}/>
@@ -39,7 +39,7 @@ export default class TaskSolutions extends React.Component<ITaskSolutionsProps, 
         ).reverse()
         const componentsOfRatedSolutions = arrayOfRatedSolutions.map((sol) => (
                 <ListItem key={sol.id}>
-                    <NonRatedSolutionComponent forMentor={this.props.forMentor} solution={sol}/>
+                    <SolutionComponent forMentor={this.props.forMentor} solution={sol}/>
                 </ListItem>
             )
         ).reverse()
