@@ -10,6 +10,7 @@ using HwProj.CoursesService.API.Repositories;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
+using HwProj.Models.CoursesService.ViewModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.CoursesService.API.Services

@@ -6,9 +6,12 @@ namespace HwProj.AuthService.API.Events
     {
         public string UserId { get; set; }
 
-        public InviteLecturerEvent(string id)
+        public string Email { get; set; }
+
+        public InviteLecturerEvent(string userId, string email)
         {
-            UserId = id;
+            UserId = userId;
+            Email = email;
         }
     }
 }
