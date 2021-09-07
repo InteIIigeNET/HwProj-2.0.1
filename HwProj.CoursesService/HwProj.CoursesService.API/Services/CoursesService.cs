@@ -19,15 +19,15 @@ namespace HwProj.CoursesService.API.Services
     {
         private readonly ICoursesRepository _coursesRepository;
         private readonly ICourseMatesRepository _courseMatesRepository;
-        private readonly IAuthServiceClient _authServiceClient;
+        /*private readonly IAuthServiceClient _authServiceClient;*/
         private readonly IEventBus _eventBus;
         private readonly IMapper _mapper;
 
-        public CoursesService(ICoursesRepository coursesRepository, ICourseMatesRepository courseMatesRepository, IEventBus eventBus, IMapper mapper, IAuthServiceClient authServiceClient)
+        public CoursesService(ICoursesRepository coursesRepository, ICourseMatesRepository courseMatesRepository, IEventBus eventBus, IMapper mapper/*, IAuthServiceClient authServiceClient*/)
         {
             _coursesRepository = coursesRepository;
             _courseMatesRepository = courseMatesRepository;
-            _authServiceClient = authServiceClient;
+/*            _authServiceClient = authServiceClient;*/
             _eventBus = eventBus;
             _mapper = mapper;
         }
@@ -92,6 +92,8 @@ namespace HwProj.CoursesService.API.Services
             };
 
             await _courseMatesRepository.AddAsync(courseMate);
+           /* var student = _authServiceClient.GetAccountData(studentId);
+            var studentModel = _mapper.Map<AccountDataDto>(student);*/
             _eventBus.Publish(new NewCourseMateEvent
             {
                 CourseId = courseId,
@@ -99,6 +101,7 @@ namespace HwProj.CoursesService.API.Services
                 MentorId = course.MentorId,
                 StudentId = studentId,
                 IsAccepted = false
+                /*Student = studentModel*/
             });
 
             return true;
@@ -129,6 +132,8 @@ namespace HwProj.CoursesService.API.Services
                 IsAccepted = false
             };
 
+            /*var student = _authServiceClient.GetAccountData(studentId);
+            var studentModel = _mapper.Map<AccountDataDto>(student);*/
             _eventBus.Publish(new LecturerAcceptToCourseEvent
             {
                 CourseId = courseId,
@@ -136,6 +141,7 @@ namespace HwProj.CoursesService.API.Services
                 MentorId = course.MentorId,
                 StudentId = studentId,
                 IsAccepted = false
+                /*Student = studentModel*/
             });
 
             return true;
@@ -154,8 +160,8 @@ namespace HwProj.CoursesService.API.Services
             }
 
             await _courseMatesRepository.DeleteAsync(getCourseMateTask.Result.Id);
-            var student = _authServiceClient.GetAccountData(studentId);
-            var studentModel = _mapper.Map<AccountDataDto>(student);
+/*            var student = _authServiceClient.GetAccountData(studentId);
+            var studentModel = _mapper.Map<AccountDataDto>(student);*/
 
             var course = getCourseTask.Result;
             _eventBus.Publish(new LecturerRejectToCourseEvent
@@ -164,8 +170,8 @@ namespace HwProj.CoursesService.API.Services
                 CourseName = course.Name,
                 MentorId = course.MentorId,
                 StudentId = studentId,
-                IsAccepted = false,
-                student = studentModel
+                IsAccepted = false/*,
+                Student = studentModel*/
             });
 
             return true;
