@@ -45,7 +45,7 @@ namespace HwProj.NotificationsService.API.Services
         {
             var emailMessage = new MimeMessage();
 
-            emailMessage.From.Add(new MailboxAddress("Администрация сайта", "mike088080@gmail.com"));
+            emailMessage.From.Add(new MailboxAddress("HwProj-2.0.1", "testhwproj@gmail.com"));
             emailMessage.To.Add(new MailboxAddress("", email));
             emailMessage.Subject = notification.Category;
             emailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Html)
@@ -56,7 +56,7 @@ namespace HwProj.NotificationsService.API.Services
             using (var client = new MailKit.Net.Smtp.SmtpClient())
             {
                 await client.ConnectAsync("smtp.gmail.com", 465, true);
-                await client.AuthenticateAsync("@gmail.com", "password");
+                await client.AuthenticateAsync("testhwproj@gmail.com", "HwProj-2.0.1");
                 await client.SendAsync(emailMessage);
 
                 await client.DisconnectAsync(true);

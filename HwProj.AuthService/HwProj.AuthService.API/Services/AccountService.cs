@@ -176,8 +176,8 @@ namespace HwProj.AuthService.API.Services
 
             if (result.Succeeded)
             {
-                var inviteEvent = new InviteLecturerEvent(invitedUser.Id);
-                _eventBus.Publish(inviteEvent);
+                /*var inviteEvent = new InviteLecturerEvent(invitedUser.Id);
+                _eventBus.Publish(inviteEvent);*/
                 return Result.Success();
             }
 
