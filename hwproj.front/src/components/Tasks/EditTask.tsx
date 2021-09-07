@@ -204,7 +204,7 @@ export default class EditTask extends React.Component<
               description: task.description!,
               maxRating: task.maxRating!,
               courseId: homework.courseId!,
-              courseMentorId: course.mentorId!,
+              courseMentorId: course.mentors!,
               hasDeadline: task.hasDeadline!,
               deadlineDate: task.deadlineDate!,
               isDeadlineStrict: task.isDeadlineStrict!,

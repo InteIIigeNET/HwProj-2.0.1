@@ -71,7 +71,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
           course: course,
           courseHomework: course.homeworks!,
           createHomework: false,
-          mentor: await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(course.mentorId!),
+          mentor: await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(course.mentors!),
           acceptedStudents: await Promise.all(course.courseMates!
             .filter(cm => cm.isAccepted)
             .map(async (cm) => {
@@ -115,7 +115,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
         const userId = isLogged
             ? ApiSingleton.authService.getUserId()
             : undefined;
-        const isMentor = isLogged && userId === String(course.mentorId);
+        const isMentor = isLogged && userId === String(course.mentors);
         const isSignedInCourse =
             isLogged && newStudents!.some((cm: any) => cm.id === userId);
         const isAcceptedStudent = isLogged && acceptedStudents!.some(

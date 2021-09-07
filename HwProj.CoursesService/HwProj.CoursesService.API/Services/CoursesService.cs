@@ -39,7 +39,7 @@ namespace HwProj.CoursesService.API.Services
         public async Task<Course> GetAsync(long id, string userId)
         {
             var course = await _coursesRepository.GetWithCourseMatesAsync(id);
-            if (course.MentorId != userId)
+            if (!course.Mentors.Contains(userId))
             {
                 var currentDate = DateTime.UtcNow.AddHours(3);
                 course.Homeworks.ForEach(hw => hw.Tasks = new List<HomeworkTask>(hw.Tasks.Where(t => currentDate >= t.PublicationDate)));
@@ -49,7 +49,7 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<long> AddAsync(Course course, string mentorId)
         {
-            course.MentorId = mentorId;
+            course.Mentors = mentorId;
             course.InviteCode = Guid.NewGuid().ToString();
             return await _coursesRepository.AddAsync(course);
         }
@@ -95,7 +95,7 @@ namespace HwProj.CoursesService.API.Services
             {
                 CourseId = courseId,
                 CourseName = course.Name,
-                MentorId = course.MentorId,
+                Mentors = course.Mentors,
                 StudentId = studentId,
                 IsAccepted = false
             });
@@ -132,7 +132,7 @@ namespace HwProj.CoursesService.API.Services
             {
                 CourseId = courseId,
                 CourseName = course.Name,
-                MentorId = course.MentorId,
+                Mentors = course.Mentors,
                 StudentId = studentId,
                 IsAccepted = false
             });
@@ -159,7 +159,7 @@ namespace HwProj.CoursesService.API.Services
             {
                 CourseId = courseId,
                 CourseName = course.Name,
-                MentorId = course.MentorId,
+                Mentors = course.Mentors,
                 StudentId = studentId,
                 IsAccepted = false
             });
@@ -182,7 +182,7 @@ namespace HwProj.CoursesService.API.Services
             var studentCourses = await Task.WhenAll(getStudentCoursesTasks).ConfigureAwait(false);
 
             var getMentorCoursesTask = _coursesRepository
-                .FindAll(c => c.MentorId == userId)
+                .FindAll(c => c.Mentors.Contains(userId))
                 .ToArrayAsync();
 
             var mentorCourses = await getMentorCoursesTask.ConfigureAwait(false);
@@ -192,7 +192,7 @@ namespace HwProj.CoursesService.API.Services
                 .Select(c =>
                 {
                     var userCourseDescription = _mapper.Map<UserCourseDescription>(c);
-                    userCourseDescription.UserIsMentor = c.MentorId == userId;
+                    userCourseDescription.UserIsMentor = c.Mentors.Contains(userId);
                     return userCourseDescription;
                 })
                 .OrderBy(c => c.UserIsMentor).ThenBy(c => c.Name)

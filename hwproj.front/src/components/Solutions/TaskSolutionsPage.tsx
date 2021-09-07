@@ -30,7 +30,7 @@ export default class TaskSolutionsPage extends React.Component<
       task: {},
       addSolution: false,
       course: {
-        mentorId: "",
+        mentors: "",
       },
     };
   }
@@ -44,7 +44,7 @@ export default class TaskSolutionsPage extends React.Component<
     if (isLoaded) {
       if (
         !ApiSingleton.authService.isLoggedIn() ||
-        userId == this.state.course.mentorId ||
+        userId == this.state.course.mentors ||
         !this.state.course.courseMates!.some(
           (cm) => cm.isAccepted! && cm.studentId == userId
         )

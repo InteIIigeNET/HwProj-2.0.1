@@ -20,15 +20,18 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
         public async Task HandleAsync(StudentPassTaskEvent @event)
         {
-            await _notificationRepository.AddAsync(new Notification
+            foreach (var m in @event.Course.Mentors.Split('/'))
             {
-                Sender = "SolutionService",
-                Body = $"{@event.Student.Name} {@event.Student.Surname} добавил новое <a href='{@event.Solution.GithubUrl}' target='_blank'>решение</a> задачи <a href='task/{@event.Task.Id}'>{@event.Task.Title}</a> из курса <a href='courses/{@event.Course.Id}'>{@event.Course.Name}</a>.",
-                Category = "SolutionService",
-                Date = DateTime.UtcNow,
-                HasSeen = false,
-                Owner = @event.Course.MentorId
-            }); ;
+                await _notificationRepository.AddAsync(new Notification
+                {
+                    Sender = "SolutionService",
+                    Body = $"{@event.Student.Name} {@event.Student.Surname} добавил новое <a href='{@event.Solution.GithubUrl}' target='_blank'>решение</a> задачи <a href='task/{@event.Task.Id}'>{@event.Task.Title}</a> из курса <a href='courses/{@event.Course.Id}'>{@event.Course.Name}</a>.",
+                    Category = "SolutionService",
+                    Date = DateTime.UtcNow,
+                    HasSeen = false,
+                    Owner = m,
+                });
+            }
         }
     }
 }
