@@ -198,5 +198,14 @@ namespace HwProj.CoursesService.API.Services
                 .OrderBy(c => c.UserIsMentor).ThenBy(c => c.Name)
                 .ToArray();
         }
+
+        public async Task<bool> AcceptLecturerAsync(long courseId, string lecturerId)
+        {
+            await _coursesRepository.UpdateAsync(courseId, course => new Course()
+            {
+                Mentors = course.Mentors + '/' + lecturerId,
+            });
+            return true;
+        }
     }
 }

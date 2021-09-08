@@ -114,5 +114,14 @@ namespace HwProj.CoursesService.API.Controllers
             var courses = await _coursesService.GetUserCoursesAsync(userId);
             return Ok(courses);
         }
+
+        [HttpGet("acceptLecturer/{courseId}")]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        public async Task<IActionResult> AcceptLecturer(long courseId, [FromQuery] string lecturerId)
+        {
+            return await _coursesService.AcceptLecturerAsync(courseId, lecturerId)
+                ? Ok()
+                : NotFound() as IActionResult;
+        }
     }
 }

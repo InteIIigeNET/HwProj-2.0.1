@@ -319,5 +319,14 @@ namespace HwProj.CoursesService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<long[]>();
         }
+
+        public async Task AcceptLecturer(long courseId, string lecturerId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + $"api/Courses/acceptLecturer/{courseId}?lecturerId={lecturerId}");
+
+            await _httpClient.SendAsync(httpRequest);
+        }
     }
 }
