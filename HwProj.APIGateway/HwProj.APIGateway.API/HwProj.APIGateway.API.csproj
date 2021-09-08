@@ -8,6 +8,9 @@
     <PackageReference Include="Microsoft.AspNetCore.All" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.3" />
+    <PackageReference Include="Octokit">
+      <Version>0.2.2</Version>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>

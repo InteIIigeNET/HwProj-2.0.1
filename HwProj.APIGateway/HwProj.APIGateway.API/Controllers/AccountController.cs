@@ -11,6 +11,7 @@ using HwProj.NotificationsService.Client;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Octokit;
 
 namespace HwProj.APIGateway.API.Controllers
 {
@@ -97,6 +98,19 @@ namespace HwProj.APIGateway.API.Controllers
         public async Task<IActionResult> LoginByGoogle(string tokenId)
         {
             var tokenMeta = await _authClient.LoginByGoogle(tokenId).ConfigureAwait(false);
+            return Ok(tokenMeta);
+        }
+        
+        [HttpPost("github")]
+        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> LoginByGithub(string tokenId)
+        {
+
+            /*var client = new GitHubClient(new ProductHeaderValue("HwProj"));
+            
+            client.Credentials = new Credentials(tokenId);
+            var user = await client.User.Current();*/
+            var tokenMeta = await _authClient.LoginByGithub(tokenId).ConfigureAwait(false);
             return Ok(tokenMeta);
         }
     }

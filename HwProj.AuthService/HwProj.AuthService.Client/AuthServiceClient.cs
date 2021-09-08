@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using HwProj.HttpUtils;
@@ -103,6 +104,21 @@ namespace HwProj.AuthService.Client
             
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Result<TokenCredentials>>();;
+        }
+        
+        public async Task<Result<TokenCredentials>> LoginByGithub(string tokenId)
+        {
+
+            // Get the GitHub user
+            var request = new HttpRequestMessage(HttpMethod.Get, "https://api.github.com/user");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", tokenId);
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            request.Headers.Add("User-Agent", "HwProj/1");
+            
+            var response = await _httpClient.SendAsync(request);
+            var result = await response.DeserializeAsync<RegisterViewModel>();
+            var Mike = 20;
+            return null;
         }
     }
 }

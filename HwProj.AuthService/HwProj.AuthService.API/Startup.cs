@@ -58,6 +58,11 @@ namespace HwProj.AuthService.API
 
                     options.ClientId = googleAuthNSection["ClientId"];
                     options.ClientSecret = googleAuthNSection["ClientSecret"];
+                })
+                .AddOAuth("Github", options =>
+                {
+                    options.ClientId = "";
+                    options.ClientSecret = "";
                 });
 
             services.AddDbContext<IdentityContext>(options =>

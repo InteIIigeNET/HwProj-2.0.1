@@ -46,7 +46,22 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
     })
   }
 
-  githubResponse = (response: any) => {
+  githubResponse = async (response: any) => {
+
+    debugger
+    const token = (await (await fetch(`http://localhost:9999/authenticate/`+response.code.toString())).json()).token
+    debugger
+
+    let headers = new Headers();
+
+    headers.append('Content-Type', 'application/json');
+    headers.append('Accept', 'application/json');
+    headers.append('Bearer', token);
+      const result = await fetch("https://api.github.com/user",{
+      mode: 'same-origin',
+      headers: headers
+    })
+    debugger
    /* console.log(response)
     debugger
 
@@ -57,13 +72,13 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
     headers.append('Origin','http://localhost:3000');
 
     const requestData = {
-      client_id: "27d042ccd106df905d84",
-      client_secret: "5f08d5250023f0739741341216ade2c498c2e18c",
+      client_id: "",
+      client_secret: "",
       code: response.code! as string
     };
     const data = new FormData();
-    data.append("client_id", "27d042ccd106df905d84");
-    data.append("client_secret", "5f08d5250023f0739741341216ade2c498c2e18c");
+    data.append("client_id", "");
+    data.append("client_secret", "");
     data.append("code", response.code! as string);
 
     console.log(requestData.code)
@@ -91,8 +106,8 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
         });
 
     /!*const data = new FormData();
-    data.append("client_id", "27d042ccd106df905d84");
-    data.append("client_secret", "5f08d5250023f0739741341216ade2c498c2e18c");
+    data.append("client_id", "");
+    data.append("client_secret", "");
     data.append("code", response.code! as string);
 
     // Request to exchange code for an access token
@@ -187,20 +202,20 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
         </Typography>
         <div>
           {/*<GoogleLoginButton onClick={()=>useGoogleLogin({
-                clientId:"235915791830-7oaa5kjukfdicjs4rqmamd9mlfak8nss.apps.googleusercontent.com",
+                clientId:"",
                 onSuccess: this.googleResponse}
           )}/>
-          <GithubLoginButton  onClick={()=>onBtnClick({clientId:"27d042ccd106df905d84",
+          <GithubLoginButton  onClick={()=>onBtnClick({clientId:"",
             onSuccess: this.githubResponse})}/>*/}
           {/*<GoogleLogin
-              clientId="235915791830-7oaa5kjukfdicjs4rqmamd9mlfak8nss.apps.googleusercontent.com"
+              clientId=""
               onSuccess={this.googleResponse}
               buttonText=""
-          />
-          <LoginGithub
-              clientId="27d042ccd106df905d84"
-              onSuccess={this.githubResponse}
           />*/}
+          <LoginGithub
+              clientId=""
+              onSuccess={this.githubResponse}
+          />
         </div>
       </div>
     );
