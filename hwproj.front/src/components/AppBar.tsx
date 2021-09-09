@@ -43,10 +43,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) =>  {
   const handleClose = () => {
     setAnchorEl(null);
   };
-
   const classes = styles()
-  const isMobileLecturer = useMediaQuery('(min-width:850px)');
-  const isMobileStudent = useMediaQuery('(min-width:560px)');
   
   return (
     <div>
@@ -67,155 +64,66 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) =>  {
           {props.loggedIn && props.isLecturer &&
             (
               <div className={classes.tools}>
-                {isMobileLecturer && 
-                (
-                  <div>
-                    <Link 
-                      component="button"
-                      color="inherit"
-                      onClick={() => window.location.assign("/invite_lecturer")}
-                      className={classes.item}
-                      style={{ marginLeft: "10px" }}
-                    >
-                      Пригласить преподавателя
-                    </Link>
-                    <Link
-                      onClick={() => window.location.assign("/create_course")}
-                      component="button"
-                      color="inherit"
-                      className={classes.item}
-                      style={{ marginLeft: "10px" }}
-                    >
-                      Создать курс
-                    </Link>
-                    <Link
-                      onClick={() => window.location.assign("/profile")}
-                      component="button"
-                      color="inherit"
-                      className={classes.item}
-                      style={{ marginLeft: "10px" }}
-                    >
-                      Профиль
-                    </Link>
-                    <Link
-                      component="button"
-                      color="inherit"
-                      className={classes.item}
-                      onClick={() => window.location.assign("/user/edit")}
-                      style={{ marginLeft: "10px" }}
-                    >
-                      Редактировать данные
-                    </Link>
-                    <Link 
-                      onClick={props.onLogout}
-                      component="button"
-                      color="inherit"
-                      className={classes.item}
-                      style={{ marginLeft: "10px" }}
-                    >
-                      Выйти
-                    </Link>
-                  </div>
-                )}
-                {!isMobileLecturer && (
-                  <div> 
-                    <IconButton
-                      edge="start"
-                      color="inherit"
-                      aria-label="menu"
-                      onClick={handleClick}
-                    >
-                      <MenuIcon />
-                    </IconButton>
-                    <Menu
-                      id="simple-menu"
-                      anchorEl={anchorEl}
-                      keepMounted
-                      open={Boolean(anchorEl)}
-                      onClose={handleClose}
-                    >
-                      <MenuItem onClick={() => window.location.assign("/invite_lecturer")}>
-                        Пригласить преподавателя
-                      </MenuItem>
-                      <MenuItem onClick={() => window.location.assign("/create_course")}>
-                        Создать курс
-                      </MenuItem>
-                      <MenuItem  onClick={() => window.location.assign("/profile")}>
-                        Профиль
-                      </MenuItem>
-                      <MenuItem onClick={() => window.location.assign("/user/edit")}>
-                        Редактировать данные
-                      </MenuItem>
-                      <MenuItem onClick={props.onLogout}>
-                        Выйти
-                      </MenuItem>
-                    </Menu>
-                  </div>
-                )}
-              </div>
-            )}
-          {props.loggedIn && !props.isLecturer && (
-            <div className={classes.tools}>
-              {isMobileStudent && (
-                <div>
-                  <Link
-                    onClick={() => window.location.assign("/profile")}
-                    component="button"
-                    color="inherit"
-                    className={classes.item}
-                    style={{ marginLeft: "10px" }}
-                  >
-                    Профиль
-                  </Link>
-                  <Link
-                    component="button"
-                    color="inherit"
-                    className={classes.item}
-                    onClick={() => window.location.assign("/user/edit")}
-                    style={{ marginLeft: "10px" }}
-                  >
-                    Редактировать данные
-                  </Link>
-                  <Link 
-                    onClick={props.onLogout}
-                    component="button"
-                    color="inherit"
-                    className={classes.item}
-                    style={{ marginLeft: "10px" }}
-                  >
-                    Выйти
-                  </Link>
-                </div>
-              )}
-              { !isMobileStudent && (
-                <div>
-                  <IconButton
+                <IconButton
                     edge="start"
                     color="inherit"
                     aria-label="menu"
                     onClick={handleClick}
-                  >
-                    <MenuIcon />
-                  </IconButton>
-                  <Menu
+                >
+                  <MenuIcon/>
+                </IconButton>
+                <Menu
                     id="simple-menu"
                     anchorEl={anchorEl}
                     keepMounted
                     open={Boolean(anchorEl)}
                     onClose={handleClose}
-                  >
-                    <MenuItem  onClick={() => window.location.assign("/profile")}>
-                      Профиль
-                    </MenuItem>
-                    <MenuItem onClick={() => window.location.assign("/user/edit")}>
-                      Редактировать данные
-                    </MenuItem>
-                    <MenuItem onClick={props.onLogout}>
-                      Выйти
-                    </MenuItem>
-                  </Menu>
-                </div>
-              )}
+                >
+                  <MenuItem onClick={() => window.location.assign("/invite_lecturer")}>
+                    Пригласить преподавателя
+                  </MenuItem>
+                  <MenuItem onClick={() => window.location.assign("/create_course")}>
+                    Создать курс
+                  </MenuItem>
+                  <MenuItem onClick={() => window.location.assign("/profile")}>
+                    Профиль
+                  </MenuItem>
+                  <MenuItem onClick={() => window.location.assign("/user/edit")}>
+                    Редактировать данные
+                  </MenuItem>
+                  <MenuItem onClick={props.onLogout}>
+                    Выйти
+                  </MenuItem>
+                </Menu>
+              </div>
+            )}
+          {props.loggedIn && !props.isLecturer && (
+            <div className={classes.tools}>
+              <IconButton
+                  edge="start"
+                  color="inherit"
+                  aria-label="menu"
+                  onClick={handleClick}
+              >
+                <MenuIcon/>
+              </IconButton>
+              <Menu
+                  id="simple-menu"
+                  anchorEl={anchorEl}
+                  keepMounted
+                  open={Boolean(anchorEl)}
+                  onClose={handleClose}
+              >
+                <MenuItem onClick={() => window.location.assign("/profile")}>
+                  Профиль
+                </MenuItem>
+                <MenuItem onClick={() => window.location.assign("/user/edit")}>
+                  Редактировать данные
+                </MenuItem>
+                <MenuItem onClick={props.onLogout}>
+                  Выйти
+                </MenuItem>
+              </Menu>
             </div>
           )}
           {!props.loggedIn && (

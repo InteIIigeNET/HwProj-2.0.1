@@ -62,6 +62,12 @@ const Login: FC<LoginProps> = (props) => {
     }
     try{
       const result = await ApiSingleton.authService.login(userData)
+      debugger
+      setLoginState(prevState => ({
+        ...prevState,
+        error: result.error,
+        isLogin: result.isLogin,
+      }))
     }
     catch (e){
       setLoginState(prevState => ({
