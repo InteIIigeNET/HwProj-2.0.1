@@ -18,25 +18,24 @@ import ApiSingleton from "../../api/ApiSingleton";
 
 interface ISolutionProps {
     solution: Solution,
-    forMentor: boolean,
-    isExpanded: boolean
+    forMentor: boolean
 }
 
 interface ISolutionState {
     points: number,
     task: HomeworkTaskViewModel,
     lecturerComment: string,
-    clickedForRate: boolean,
+    clickedForEdit: boolean,
 }
 
-export default class NonRatedSolutionComponent extends React.Component<ISolutionProps, ISolutionState> {
+export default class RatedSolutionComponent extends React.Component<ISolutionProps, ISolutionState> {
     constructor(props: ISolutionProps) {
         super(props);
         this.state = {
             points: 0,
             task: {},
             lecturerComment: "",
-            clickedForRate: false,
+            clickedForEdit: false,
         }
     }
 
@@ -55,30 +54,59 @@ export default class NonRatedSolutionComponent extends React.Component<ISolution
                     </Typography>
                 </AccordionSummary>
                 <AccordionDetails>
-                    <Grid container direction="column">
+                    <Grid container direction="column" justifyContent={"flex-end"} xs={12}>
                         <Grid item>
-                            <Link href={solution.githubUrl} target="_blank">Ссылка на решение</Link>
+                            <Accordion>
+                                <AccordionSummary
+                                    expandIcon={<ExpandMoreIcon />}
+                                >
+                                    <Typography>
+                                        Информация о решении
+                                    </Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    <Grid container direction="column">
+                                        <Grid item>
+                                            <Link href={solution.githubUrl} target="_blank">Ссылка на решение</Link>
+                                        </Grid>
+                                        {solution.comment &&
+                                        <Grid item>
+                                            <Typography className="antiLongWords">
+                                                Комментарий к решению: {solution.comment}
+                                            </Typography>
+                                        </Grid>
+                                        }
+                                    </Grid>
+                                </AccordionDetails>
+                            </Accordion>
                         </Grid>
-                        {solution.comment &&
+                        {!this.state.clickedForEdit &&
+                            <Grid item>
+                                <Typography>
+                                    Оценка за решение: {solution.rating}
+                                </Typography>
+                            </Grid>
+                        }
+                        {!this.state.clickedForEdit && solution.lecturerComment &&
                         <Grid item>
                             <Typography className="antiLongWords">
-                                Комментарий к решению: {solution.comment}
+                                Комментарий преподавателя: {solution.lecturerComment}
                             </Typography>
                         </Grid>
                         }
-                        {this.props.forMentor && !this.state.clickedForRate &&
+                        {!this.state.clickedForEdit && this.props.forMentor &&
                         <Grid item style={{paddingTop:5}}>
                             <Button
-                            size="small"
-                            variant="contained"
-                            color="primary"
-                            onClick={() => this.setState({clickedForRate: true})}
+                                size="small"
+                                variant="contained"
+                                color="primary"
+                                onClick={() => this.setState({clickedForEdit: true})}
                             >
-                                Оценить решение
+                                Изменить оценку
                             </Button>
                         </Grid>
                         }
-                        {this.props.forMentor && this.state.clickedForRate &&
+                        {this.state.clickedForEdit && this.props.forMentor &&
                         <Grid item>
                             <Box width={1/6}>
                                 <TextField
@@ -112,7 +140,7 @@ export default class NonRatedSolutionComponent extends React.Component<ISolution
                             />
                         </Grid>
                         }
-                        {this.props.forMentor && this.state.clickedForRate &&
+                        {this.state.clickedForEdit && this.props.forMentor &&
                         <Grid container item spacing={1}>
                             <Grid item>
                                 <Button
@@ -129,7 +157,7 @@ export default class NonRatedSolutionComponent extends React.Component<ISolution
                                     size="small"
                                     variant="contained"
                                     color="secondary"
-                                    onClick={() => this.setState({clickedForRate: false})}
+                                    onClick={() => this.setState({clickedForEdit: false})}
                                 >
                                     Отмена
                                 </Button>
@@ -140,6 +168,14 @@ export default class NonRatedSolutionComponent extends React.Component<ISolution
                 </AccordionDetails>
             </Accordion>
         )
+    }
+
+    async componentDidMount() {
+        this.setState({
+            task: await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(this.props.solution.taskId!),
+            lecturerComment: this.props.solution.lecturerComment!,
+            points: this.props.solution.rating!,
+        })
     }
 
     async assignSolution () {
