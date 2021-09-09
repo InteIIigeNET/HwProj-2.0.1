@@ -124,7 +124,7 @@ const Login: FC<LoginProps> = (props) => {
           )}
         </Grid>
         <form onSubmit={(e) => handleSubmit(e)} className={classes.form}>
-          <Grid container direction="column">
+          <Grid container direction="column" justifyContent="center">
             <Grid>
               <TextField
                   required

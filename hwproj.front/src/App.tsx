@@ -18,7 +18,7 @@ import Login from "./components/Auth/Login";
 import EditCourse from "./components/Courses/EditCourse";
 import EditTask from "./components/Tasks/EditTask";
 import EditHomework from "./components/Homeworks/EditHomework";
-import { Register } from "./components/Auth/Register";
+import Register from "./components/Auth/Register";
 import StudentSolutionsPage from "./components/Solutions/StudentSolutionsPage";
 import EditProfile from "./components/EditProfile";
 import InviteNewLecturer from "./components/InviteNewLecturer";
