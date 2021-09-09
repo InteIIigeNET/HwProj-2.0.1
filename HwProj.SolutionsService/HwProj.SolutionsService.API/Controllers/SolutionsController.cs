@@ -81,7 +81,7 @@ namespace HwProj.SolutionsService.API.Controllers
             var homework = await _coursesClient.GetHomework(task.HomeworkId);
             var course = await _coursesClient.GetCourseById(homework.CourseId, "");
 
-            if (course.Mentors.Contains(lecturerId))
+            if (course.MentorIds.Contains(lecturerId))
             {
                 await _solutionsService.RateSolutionAsync(solutionId, newRating, lecturerComment);
                 return Ok();
@@ -123,7 +123,7 @@ namespace HwProj.SolutionsService.API.Controllers
             var course = await _coursesClient.GetCourseById(courseId, userId);
             course.CourseMates.RemoveAll(cm => !cm.IsAccepted);
 
-            if (!course.Mentors.Contains(userId))
+            if (!course.MentorIds.Contains(userId))
             {
                 return Forbid();
             }

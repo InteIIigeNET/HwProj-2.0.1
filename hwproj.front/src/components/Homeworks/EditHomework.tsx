@@ -143,7 +143,7 @@ export default class EditHomework extends React.Component<
               title: homework.title!,
               description: homework.description!,
               courseId: homework.courseId!,
-              courseMentorId: course.mentors!,
+              courseMentorId: course.mentorIds!,
             })
           )
       );

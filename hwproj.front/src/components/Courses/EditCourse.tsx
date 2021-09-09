@@ -139,7 +139,7 @@ export default class EditCourse extends React.Component<RouteComponentProps<IEdi
             groupName: course.groupName!,
             isOpen: course.isOpen!,
             isComplete: course.isCompleted!,
-            mentorId: course.mentors!
+            mentorId: course.mentorIds!
         })
     }
 }

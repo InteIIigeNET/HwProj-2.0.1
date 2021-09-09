@@ -183,7 +183,7 @@ export interface CourseViewModel {
      * @type {string}
      * @memberof CourseViewModel
      */
-    mentors?: string;
+    mentorIds?: string;
     /**
      * 
      * @type {string}

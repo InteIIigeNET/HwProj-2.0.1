@@ -68,7 +68,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
           course: course,
           courseHomework: course.homeworks!,
           createHomework: false,
-          mentors: await Promise.all(course.mentors!.split('/').map(mentor => ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(mentor))),
+          mentors: await Promise.all(course.mentorIds!.split('/').map(mentor => ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(mentor))),
           acceptedStudents: await Promise.all(course.courseMates!
             .filter(cm => cm.isAccepted)
             .map(async (cm) => {
@@ -117,7 +117,8 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
           setCourseState(prevState => ({ ...prevState, isOpenDialog: false }))
           
         })
-        
+      setCurrentState()
+    
     }
 
     const { isFound, course, createHomework, mentors, newStudents, acceptedStudents } = courseState;
@@ -126,7 +127,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
         const userId = isLogged
             ? ApiSingleton.authService.getUserId()
             : undefined;
-        const isMentor = isLogged && userId === String(course.mentors);
+        const isMentor = isLogged && course.mentorIds!.includes(userId!);
         const isSignedInCourse =
             isLogged && newStudents!.some((cm: any) => cm.id === userId);
         const isAcceptedStudent = isLogged && acceptedStudents!.some(
@@ -150,8 +151,9 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                             </Typography>
                         </div>              
                         <div>
+                          <Grid container>
                             {mentors.map(mentor => 
-                                <div>
+                              <Grid item style={{marginLeft: "5px"}}>
                                     <Typography variant="h5">
                                         {mentor.name}&nbsp;{mentor.surname}
                                     </Typography>
@@ -160,8 +162,9 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                         {mentor.email}
                                     </Typography>
                                     )}
-                                </div>
+                              </Grid>
                             )}
+                          </Grid>
                             {isLogged && !isSignedInCourse && !isMentor && !isAcceptedStudent &&(
                             <Button
                                 size="small"
@@ -301,16 +304,23 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                   open={courseState.isOpenDialog}
                 >
                     <DialogTitle id="simple-dialog-title">Введите ID лектора</DialogTitle>
-                    <form onSubmit={e => acceptLecturer(e)}>
-                        <TextField
-                            required
-                            label="ID лектора"
-                            variant="outlined"
-                            margin="normal"
-                            value={courseState.lecturerId}
-                            onChange={e => setCourseState(prevState => ({...prevState, lecturerId: e.target.value }))}
-                        />
-                    </form>
+                    <Grid container direction="column" justifyContent="space-evenly" alignItems="center">
+                      <Grid item>
+                        <form onSubmit={e => acceptLecturer(e)}>
+                            <TextField
+                                required
+                                label="ID лектора"
+                                variant="outlined"
+                                margin="normal"
+                                value={courseState.lecturerId}
+                                onChange={e => {
+                                    console.log(e.target.value)
+                                    setCourseState(prevState => ({...prevState, lecturerId: e.target?.value }))
+                                }}
+                            />
+                        </form>
+                      </Grid>
+                    </Grid>
                 </Dialog>
 
             </Grid>

@@ -20,7 +20,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
         public async Task HandleAsync(StudentPassTaskEvent @event)
         {
-            foreach (var m in @event.Course.Mentors.Split('/'))
+            foreach (var m in @event.Course.MentorIds.Split('/'))
             {
                 await _notificationRepository.AddAsync(new Notification
                 {

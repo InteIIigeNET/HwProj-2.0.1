@@ -23,7 +23,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
         {
             var user = await _authClient.GetAccountData(@event.StudentId);
 
-            foreach (var m in @event.Mentors.Split('/'))
+            foreach (var m in @event.MentorIds.Split('/'))
             {
                 await _notificationRepository.AddAsync(new Notification
                 {
