@@ -4,5 +4,5 @@ import Register from "./Register";
 
 storiesOf("Register page", module)
   .add("simple", () =>
-    <Register/>
+    <Register onLogin={() => {}}/>
     );

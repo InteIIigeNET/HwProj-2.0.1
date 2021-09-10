@@ -2,7 +2,7 @@ import React, {FC, FormEvent, useState} from "react";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
-import { Redirect } from "react-router-dom";
+import {Redirect, RouteComponentProps} from "react-router-dom";
 import ApiSingleton from "../../api/ApiSingleton";
 import { RegisterViewModel } from "../../api/";
 import "./Styles/Register.css";
@@ -15,6 +15,10 @@ import Avatar from "@material-ui/core/Avatar";
 interface  ICommonState {
     loggedIn: boolean;
     error: string[];
+}
+
+interface LoginProps extends Partial<RouteComponentProps> {
+    onLogin: () => void;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -36,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }))
 
-const Register: FC = () => {
+const Register: FC<LoginProps> = (props) => {
 
     const classes = useStyles()
     const [registerState, setRegisterState] = useState<RegisterViewModel>({
@@ -62,6 +66,7 @@ const Register: FC = () => {
                 error: result!.error!,
                 loggedIn: result.loggedIn
             }))
+            props.onLogin()
         }
         catch (e) {
             setCommonState((prevState) => ({

@@ -1,7 +1,7 @@
 import React, {FC, FormEvent} from "react";
 import Avatar from '@material-ui/core/Avatar';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
-import { RouteComponentProps } from "react-router-dom";
+import {Redirect, RouteComponentProps} from "react-router-dom";
 import { TextField, Button, Typography, CssBaseline } from "@material-ui/core";
 import Grid from '@material-ui/core/Grid';
 import ApiSingleton from "../../api/ApiSingleton";
@@ -49,7 +49,7 @@ const Login: FC<LoginProps> = (props) => {
     email: '',
     password: '',
     error: [],
-    isLogin: false,
+    isLogin: ApiSingleton.authService.loggedIn(),
   })
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -62,12 +62,12 @@ const Login: FC<LoginProps> = (props) => {
     }
     try{
       const result = await ApiSingleton.authService.login(userData)
-      debugger
       setLoginState(prevState => ({
         ...prevState,
         error: result.error,
         isLogin: result.isLogin,
       }))
+      props.onLogin?.()
     }
     catch (e){
       setLoginState(prevState => ({
@@ -101,17 +101,18 @@ const Login: FC<LoginProps> = (props) => {
       error: result!.error,
       isLogin: result.isLogin
     }))
+    props.onLogin?.()
   }
 
   const headerStyles: React.CSSProperties = { marginRight: "9.5rem" };
   const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID!
 
-  if (loginState.error) {
-    headerStyles.marginBottom = "-1.5rem";
+  if (loginState.isLogin){
+    return <Redirect to={"/"} />;
   }
 
-  if (loginState.isLogin){
-    props.onLogin?.()
+  if (loginState.error) {
+    headerStyles.marginBottom = "-1.5rem";
   }
 
   return (
