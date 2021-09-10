@@ -106,11 +106,11 @@ namespace HwProj.APIGateway.API.Controllers
                 : Ok(result) as IActionResult;
         }
 
-        [HttpGet("acceptLecturer/{courseId}/{lecturerId}")]
+        [HttpGet("acceptLecturer/{courseId}/{lecturerEmail}")]
         [Authorize(Roles = Roles.LecturerRole)]
-        public async Task<IActionResult> AcceptLecturer(long courseId, string lecturerId)
+        public async Task<IActionResult> AcceptLecturer(long courseId, string lecturerEmail)
         {
-            await _coursesClient.AcceptLecturer(courseId, lecturerId);
+            await _coursesClient.AcceptLecturer(courseId, lecturerEmail);
             return Ok();
         }
     }

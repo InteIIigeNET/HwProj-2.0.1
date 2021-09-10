@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using HwProj.Models.Roles;
 using Microsoft.Extensions.Configuration;
 using HwProj.Models.AuthService.DTO;
-using HwProj.AuthService.API.Models;
+using HwProj.Models.AuthService.ViewModels;
 
 namespace HwProj.AuthService.API.Services
 {

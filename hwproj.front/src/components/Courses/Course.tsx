@@ -29,7 +29,7 @@ interface ICourseState {
     acceptedStudents: ICourseMate[];
     newStudents: ICourseMate[];
     isOpenDialog: boolean;
-    lecturerId: string;
+    lecturerEmail: string;
 }
 
 interface ICourseProps {
@@ -59,7 +59,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
         acceptedStudents: [],
         newStudents: [],
         isOpenDialog: false,
-        lecturerId: "",
+        lecturerEmail: "",
     })
     const setCurrentState = async () => {
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+courseId)
@@ -94,7 +94,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                 }
             })),
           isOpenDialog: false,
-          lecturerId: "",
+          lecturerEmail: "",
         })
     }
 
@@ -111,12 +111,8 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
     const acceptLecturer = async (e: any) => {
       e.preventDefault()
       await ApiSingleton.coursesApi
-        .apiCoursesAcceptLecturerByCourseIdByLecturerIdGet(+courseId, courseState.lecturerId)
-        .then(res => {
-          
-          setCourseState(prevState => ({ ...prevState, isOpenDialog: false }))
-          
-        })
+        .apiCoursesAcceptLecturerByCourseIdByLecturerEmailGet(+courseId, courseState.lecturerEmail)
+        .then(res => setCourseState(prevState => ({ ...prevState, isOpenDialog: false })))
       setCurrentState()
     
     }
@@ -153,7 +149,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                         <div>
                           <Grid container>
                             {mentors.map(mentor => 
-                              <Grid item style={{marginLeft: "5px"}}>
+                              <Grid item style={{margin: "5px", borderWidth: "1px", border: "solid", backgroundColor: "#eceef8",  borderColor: "Gainsboro", borderRadius: 5, padding: "2px"}}>
                                     <Typography variant="h5">
                                         {mentor.name}&nbsp;{mentor.surname}
                                     </Typography>
@@ -303,19 +299,19 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                   aria-labelledby="simple-dialog-title" 
                   open={courseState.isOpenDialog}
                 >
-                    <DialogTitle id="simple-dialog-title">Введите ID лектора</DialogTitle>
+                    <DialogTitle id="simple-dialog-title">Введите Email лектора</DialogTitle>
                     <Grid container direction="column" justifyContent="space-evenly" alignItems="center">
                       <Grid item>
                         <form onSubmit={e => acceptLecturer(e)}>
                             <TextField
                                 required
-                                label="ID лектора"
+                                label="Email лектора"
                                 variant="outlined"
                                 margin="normal"
-                                value={courseState.lecturerId}
+                                value={courseState.lecturerEmail}
                                 onChange={e => {
-                                    console.log(e.target.value)
-                                    setCourseState(prevState => ({...prevState, lecturerId: e.target?.value }))
+                                    e.persist()
+                                    setCourseState(prevState => ({...prevState, lecturerEmail: e.target.value }))
                                 }}
                             />
                         </form>

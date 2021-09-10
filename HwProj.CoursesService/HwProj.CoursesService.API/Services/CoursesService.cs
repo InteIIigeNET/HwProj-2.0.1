@@ -9,7 +9,6 @@ using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.CoursesService.DTO;
-using HwProj.Models.CoursesService.ViewModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.CoursesService.API.Services
@@ -20,20 +19,20 @@ namespace HwProj.CoursesService.API.Services
         private readonly ICourseMatesRepository _courseMatesRepository;
         private readonly IEventBus _eventBus;
         private readonly IMapper _mapper;
-        private readonly IAuthServiceClient _authService;
+        private readonly IAuthServiceClient _authServiceClient;
 
         public CoursesService(ICoursesRepository coursesRepository,
             ICourseMatesRepository courseMatesRepository,
             IEventBus eventBus,
             IMapper mapper,
-            IAuthServiceClient authService
+            IAuthServiceClient authServiceClient
         )
         {
             _coursesRepository = coursesRepository;
             _courseMatesRepository = courseMatesRepository;
             _eventBus = eventBus;
             _mapper = mapper;
-            _authService = authService;
+            _authServiceClient = authServiceClient;
         }
 
         public async Task<Course[]> GetAllAsync()
@@ -204,13 +203,15 @@ namespace HwProj.CoursesService.API.Services
                 .ToArray();
         }
 
-        public async Task AcceptLecturerAsync(long courseId, string lecturerId)
+        public async Task AcceptLecturerAsync(long courseId, string lecturerEmail)
         {
             var course = await _coursesRepository.GetAsync(courseId);
-            var account = await _authService.GetAccountData(lecturerId);
-            if (account?.Role == "Lecturer" && !course.MentorIds.Contains(lecturerId))
+
+            var user = await _authServiceClient.FindByEmailAsync(lecturerEmail);
+            var role = await _authServiceClient.GetRoleAsync(user);
+            if (role == "Lecturer" && !course.MentorIds.Contains(user.Id))
             {
-                string newMentors = course.MentorIds + "/" + lecturerId;
+                string newMentors = course.MentorIds + "/" + user.Id;
                 await _coursesRepository.UpdateAsync(courseId, с => new Course
                 {
                     MentorIds = newMentors,

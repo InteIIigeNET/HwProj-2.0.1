@@ -3,7 +3,6 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using HwProj.HttpUtils;
-using HwProj.Models.AuthService;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.AuthService.DTO;
 using Newtonsoft.Json;
@@ -120,6 +119,38 @@ namespace HwProj.AuthService.Client
             
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Result>();
+        }
+
+        public async Task<User> FindByEmailAsync(string email)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _authServiceUri + $"api/account/findByEmail/{email}")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(email),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<User>();
+        }
+
+        public async Task<string> GetRoleAsync(User user)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _authServiceUri + $"api/account/getRole")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(user),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<string>();
         }
     }
 }

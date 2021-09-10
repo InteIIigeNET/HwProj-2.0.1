@@ -32,6 +32,6 @@ namespace HwProj.CoursesService.Client
         Task RemoveStudentFromGroup(long courseId, long groupId, string userId);
         Task<GroupViewModel> GetGroupById(long groupId);
         Task<long[]> GetGroupTasks(long groupId);
-        Task AcceptLecturer(long courseId, string lecturerId);
+        Task AcceptLecturer(long courseId, string lecturerEmail);
     }
 }

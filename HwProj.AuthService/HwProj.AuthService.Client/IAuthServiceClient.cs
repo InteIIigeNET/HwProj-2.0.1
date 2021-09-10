@@ -2,7 +2,6 @@
 using HwProj.Models.AuthService.ViewModels;
 using System.Threading.Tasks;
 using HwProj.Models.Result;
-using HwProj.Models.AuthService;
 
 namespace HwProj.AuthService.Client
 {
@@ -15,5 +14,7 @@ namespace HwProj.AuthService.Client
         Task<Result> InviteNewLecturer(InviteLecturerViewModel model);
         Task<Result<TokenCredentials>> LoginByGoogle(string tokenId);
         Task<Result> EditExternal(EditExternalViewModel model, string userId);
+        Task<User> FindByEmailAsync(string email);
+        Task<string> GetRoleAsync(User user);
     }
 }

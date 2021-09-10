@@ -320,11 +320,11 @@ namespace HwProj.CoursesService.Client
             return await response.DeserializeAsync<long[]>();
         }
 
-        public async Task AcceptLecturer(long courseId, string lecturerId)
+        public async Task AcceptLecturer(long courseId, string lecturerEmail)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
-                _coursesServiceUri + $"api/Courses/acceptLecturer/{courseId}?lecturerId={lecturerId}");
+                _coursesServiceUri + $"api/Courses/acceptLecturer/{courseId}?lecturerEmail={lecturerEmail}");
 
             await _httpClient.SendAsync(httpRequest);
         }

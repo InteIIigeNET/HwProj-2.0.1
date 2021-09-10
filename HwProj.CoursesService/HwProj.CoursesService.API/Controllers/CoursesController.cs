@@ -117,9 +117,9 @@ namespace HwProj.CoursesService.API.Controllers
 
         [HttpGet("acceptLecturer/{courseId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        public async Task<IActionResult> AcceptLecturer(long courseId, [FromQuery] string lecturerId)
+        public async Task<IActionResult> AcceptLecturer(long courseId, [FromQuery] string lecturerEmail)
         {
-            await _coursesService.AcceptLecturerAsync(courseId, lecturerId);
+            await _coursesService.AcceptLecturerAsync(courseId, lecturerEmail);
             return Ok();
         }
     }

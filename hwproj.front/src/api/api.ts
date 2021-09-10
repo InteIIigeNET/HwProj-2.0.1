@@ -1059,6 +1059,134 @@ export interface UpdateGroupViewModel {
 /**
  * 
  * @export
+ * @interface User
+ */
+export interface User {
+    /**
+     * 
+     * @type {string}
+     * @memberof User
+     */
+    gitHubId?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof User
+     */
+    name?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof User
+     */
+    surname?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof User
+     */
+    middleName?: string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof User
+     */
+    isExternalAuth?: boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof User
+     */
+    id?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof User
+     */
+    userName?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof User
+     */
+    normalizedUserName?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof User
+     */
+    email?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof User
+     */
+    normalizedEmail?: string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof User
+     */
+    emailConfirmed?: boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof User
+     */
+    passwordHash?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof User
+     */
+    securityStamp?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof User
+     */
+    concurrencyStamp?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof User
+     */
+    phoneNumber?: string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof User
+     */
+    phoneNumberConfirmed?: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof User
+     */
+    twoFactorEnabled?: boolean;
+    /**
+     * 
+     * @type {Date}
+     * @memberof User
+     */
+    lockoutEnd?: Date;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof User
+     */
+    lockoutEnabled?: boolean;
+    /**
+     * 
+     * @type {number}
+     * @memberof User
+     */
+    accessFailedCount?: number;
+}
+
+/**
+ * 
+ * @export
  * @interface UserCourseDescription
  */
 export interface UserCourseDescription {
@@ -1127,6 +1255,88 @@ export interface UserDataDto {
  */
 export const AccountApiFetchParamCreator = function (configuration?: Configuration) {
     return {
+        /**
+         * 
+         * @param {string} userId 
+         * @param {EditAccountViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountEditByUserIdPut(userId: string, model?: EditAccountViewModel, options: any = {}): FetchArgs {
+            // verify required parameter 'userId' is not null or undefined
+            if (userId === null || userId === undefined) {
+                throw new RequiredError('userId','Required parameter userId was null or undefined when calling apiAccountEditByUserIdPut.');
+            }
+            const localVarPath = `/api/account/edit/{userId}`
+                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"EditAccountViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} userId 
+         * @param {EditExternalViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountEditExternalByUserIdPut(userId: string, model?: EditExternalViewModel, options: any = {}): FetchArgs {
+            // verify required parameter 'userId' is not null or undefined
+            if (userId === null || userId === undefined) {
+                throw new RequiredError('userId','Required parameter userId was null or undefined when calling apiAccountEditExternalByUserIdPut.');
+            }
+            const localVarPath = `/api/account/editExternal/{userId}`
+                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"EditExternalViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
         /**
          * 
          * @param {EditExternalViewModel} [model] 
@@ -1199,6 +1409,77 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @param {string} email 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountFindByEmailByEmailGet(email: string, options: any = {}): FetchArgs {
+            // verify required parameter 'email' is not null or undefined
+            if (email === null || email === undefined) {
+                throw new RequiredError('email','Required parameter email was null or undefined when calling apiAccountFindByEmailByEmailGet.');
+            }
+            const localVarPath = `/api/account/findByEmail/{email}`
+                .replace(`{${"email"}}`, encodeURIComponent(String(email)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {User} [user] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountGetRolePost(user?: User, options: any = {}): FetchArgs {
+            const localVarPath = `/api/account/getRole`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"User" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(user || {}) : (user || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {string} userId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -1235,6 +1516,42 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @param {string} userId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountGetUserDataByUserIdGet_1(userId: string, options: any = {}): FetchArgs {
+            // verify required parameter 'userId' is not null or undefined
+            if (userId === null || userId === undefined) {
+                throw new RequiredError('userId','Required parameter userId was null or undefined when calling apiAccountGetUserDataByUserIdGet_1.');
+            }
+            const localVarPath = `/api/account/getUserData/{userId}`
+                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -1242,6 +1559,42 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             const localVarPath = `/api/Account/getUserData`;
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} tokenId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountGoogleByTokenIdPost(tokenId: string, options: any = {}): FetchArgs {
+            // verify required parameter 'tokenId' is not null or undefined
+            if (tokenId === null || tokenId === undefined) {
+                throw new RequiredError('tokenId','Required parameter tokenId was null or undefined when calling apiAccountGoogleByTokenIdPost.');
+            }
+            const localVarPath = `/api/account/google/{tokenId}`
+                .replace(`{${"tokenId"}}`, encodeURIComponent(String(tokenId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
@@ -1335,12 +1688,82 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @param {InviteLecturerViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountInviteNewLecturerPost_2(model?: InviteLecturerViewModel, options: any = {}): FetchArgs {
+            const localVarPath = `/api/account/inviteNewLecturer`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"InviteLecturerViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {LoginViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
         apiAccountLoginPost(model?: LoginViewModel, options: any = {}): FetchArgs {
             const localVarPath = `/api/Account/login`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"LoginViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {LoginViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountLoginPost_3(model?: LoginViewModel, options: any = {}): FetchArgs {
+            const localVarPath = `/api/account/login`;
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
@@ -1403,6 +1826,41 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * 
+         * @param {RegisterViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountRegisterPost_4(model?: RegisterViewModel, options: any = {}): FetchArgs {
+            const localVarPath = `/api/account/register`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"RegisterViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -1412,6 +1870,44 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
  */
 export const AccountApiFp = function(configuration?: Configuration) {
     return {
+        /**
+         * 
+         * @param {string} userId 
+         * @param {EditAccountViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountEditByUserIdPut(userId: string, model?: EditAccountViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Result> {
+            const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountEditByUserIdPut(userId, model, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {string} userId 
+         * @param {EditExternalViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountEditExternalByUserIdPut(userId: string, model?: EditExternalViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Result> {
+            const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountEditExternalByUserIdPut(userId, model, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
         /**
          * 
          * @param {EditExternalViewModel} [model] 
@@ -1450,6 +1946,42 @@ export const AccountApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {string} email 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountFindByEmailByEmailGet(email: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<User> {
+            const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountFindByEmailByEmailGet(email, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {User} [user] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountGetRolePost(user?: User, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<string> {
+            const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountGetRolePost(user, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
          * @param {string} userId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -1468,11 +2000,47 @@ export const AccountApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {string} userId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountGetUserDataByUserIdGet_1(userId: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<AccountDataDto> {
+            const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountGetUserDataByUserIdGet_1(userId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
         apiAccountGetUserDataGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<UserDataDto> {
             const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountGetUserDataGet(options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {string} tokenId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountGoogleByTokenIdPost(tokenId: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ResultTokenCredentials> {
+            const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountGoogleByTokenIdPost(tokenId, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -1521,12 +2089,48 @@ export const AccountApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {InviteLecturerViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountInviteNewLecturerPost_2(model?: InviteLecturerViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Result> {
+            const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountInviteNewLecturerPost_2(model, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
          * @param {LoginViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
         apiAccountLoginPost(model?: LoginViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ResultTokenCredentials> {
             const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountLoginPost(model, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {LoginViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountLoginPost_3(model?: LoginViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ResultTokenCredentials> {
+            const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountLoginPost_3(model, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -1555,6 +2159,24 @@ export const AccountApiFp = function(configuration?: Configuration) {
                 });
             };
         },
+        /**
+         * 
+         * @param {RegisterViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountRegisterPost_4(model?: RegisterViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<TokenCredentials> {
+            const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountRegisterPost_4(model, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
     }
 };
 
@@ -1564,6 +2186,26 @@ export const AccountApiFp = function(configuration?: Configuration) {
  */
 export const AccountApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
     return {
+        /**
+         * 
+         * @param {string} userId 
+         * @param {EditAccountViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountEditByUserIdPut(userId: string, model?: EditAccountViewModel, options?: any) {
+            return AccountApiFp(configuration).apiAccountEditByUserIdPut(userId, model, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {string} userId 
+         * @param {EditExternalViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountEditExternalByUserIdPut(userId: string, model?: EditExternalViewModel, options?: any) {
+            return AccountApiFp(configuration).apiAccountEditExternalByUserIdPut(userId, model, options)(fetch, basePath);
+        },
         /**
          * 
          * @param {EditExternalViewModel} [model] 
@@ -1584,6 +2226,24 @@ export const AccountApiFactory = function (configuration?: Configuration, fetch?
         },
         /**
          * 
+         * @param {string} email 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountFindByEmailByEmailGet(email: string, options?: any) {
+            return AccountApiFp(configuration).apiAccountFindByEmailByEmailGet(email, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {User} [user] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountGetRolePost(user?: User, options?: any) {
+            return AccountApiFp(configuration).apiAccountGetRolePost(user, options)(fetch, basePath);
+        },
+        /**
+         * 
          * @param {string} userId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -1593,11 +2253,29 @@ export const AccountApiFactory = function (configuration?: Configuration, fetch?
         },
         /**
          * 
+         * @param {string} userId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountGetUserDataByUserIdGet_1(userId: string, options?: any) {
+            return AccountApiFp(configuration).apiAccountGetUserDataByUserIdGet_1(userId, options)(fetch, basePath);
+        },
+        /**
+         * 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
         apiAccountGetUserDataGet(options?: any) {
             return AccountApiFp(configuration).apiAccountGetUserDataGet(options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {string} tokenId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountGoogleByTokenIdPost(tokenId: string, options?: any) {
+            return AccountApiFp(configuration).apiAccountGoogleByTokenIdPost(tokenId, options)(fetch, basePath);
         },
         /**
          * 
@@ -1619,6 +2297,15 @@ export const AccountApiFactory = function (configuration?: Configuration, fetch?
         },
         /**
          * 
+         * @param {InviteLecturerViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountInviteNewLecturerPost_2(model?: InviteLecturerViewModel, options?: any) {
+            return AccountApiFp(configuration).apiAccountInviteNewLecturerPost_2(model, options)(fetch, basePath);
+        },
+        /**
+         * 
          * @param {LoginViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -1628,12 +2315,30 @@ export const AccountApiFactory = function (configuration?: Configuration, fetch?
         },
         /**
          * 
+         * @param {LoginViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountLoginPost_3(model?: LoginViewModel, options?: any) {
+            return AccountApiFp(configuration).apiAccountLoginPost_3(model, options)(fetch, basePath);
+        },
+        /**
+         * 
          * @param {RegisterViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
         apiAccountRegisterPost(model?: RegisterViewModel, options?: any) {
             return AccountApiFp(configuration).apiAccountRegisterPost(model, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {RegisterViewModel} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountRegisterPost_4(model?: RegisterViewModel, options?: any) {
+            return AccountApiFp(configuration).apiAccountRegisterPost_4(model, options)(fetch, basePath);
         },
     };
 };
@@ -1645,6 +2350,30 @@ export const AccountApiFactory = function (configuration?: Configuration, fetch?
  * @extends {BaseAPI}
  */
 export class AccountApi extends BaseAPI {
+    /**
+     * 
+     * @param {string} userId 
+     * @param {EditAccountViewModel} [model] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AccountApi
+     */
+    public apiAccountEditByUserIdPut(userId: string, model?: EditAccountViewModel, options?: any) {
+        return AccountApiFp(this.configuration).apiAccountEditByUserIdPut(userId, model, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {string} userId 
+     * @param {EditExternalViewModel} [model] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AccountApi
+     */
+    public apiAccountEditExternalByUserIdPut(userId: string, model?: EditExternalViewModel, options?: any) {
+        return AccountApiFp(this.configuration).apiAccountEditExternalByUserIdPut(userId, model, options)(this.fetch, this.basePath);
+    }
+
     /**
      * 
      * @param {EditExternalViewModel} [model] 
@@ -1669,6 +2398,28 @@ export class AccountApi extends BaseAPI {
 
     /**
      * 
+     * @param {string} email 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AccountApi
+     */
+    public apiAccountFindByEmailByEmailGet(email: string, options?: any) {
+        return AccountApiFp(this.configuration).apiAccountFindByEmailByEmailGet(email, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {User} [user] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AccountApi
+     */
+    public apiAccountGetRolePost(user?: User, options?: any) {
+        return AccountApiFp(this.configuration).apiAccountGetRolePost(user, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
      * @param {string} userId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -1680,12 +2431,34 @@ export class AccountApi extends BaseAPI {
 
     /**
      * 
+     * @param {string} userId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AccountApi
+     */
+    public apiAccountGetUserDataByUserIdGet_1(userId: string, options?: any) {
+        return AccountApiFp(this.configuration).apiAccountGetUserDataByUserIdGet_1(userId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AccountApi
      */
     public apiAccountGetUserDataGet(options?: any) {
         return AccountApiFp(this.configuration).apiAccountGetUserDataGet(options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {string} tokenId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AccountApi
+     */
+    public apiAccountGoogleByTokenIdPost(tokenId: string, options?: any) {
+        return AccountApiFp(this.configuration).apiAccountGoogleByTokenIdPost(tokenId, options)(this.fetch, this.basePath);
     }
 
     /**
@@ -1712,6 +2485,17 @@ export class AccountApi extends BaseAPI {
 
     /**
      * 
+     * @param {InviteLecturerViewModel} [model] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AccountApi
+     */
+    public apiAccountInviteNewLecturerPost_2(model?: InviteLecturerViewModel, options?: any) {
+        return AccountApiFp(this.configuration).apiAccountInviteNewLecturerPost_2(model, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
      * @param {LoginViewModel} [model] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -1723,6 +2507,17 @@ export class AccountApi extends BaseAPI {
 
     /**
      * 
+     * @param {LoginViewModel} [model] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AccountApi
+     */
+    public apiAccountLoginPost_3(model?: LoginViewModel, options?: any) {
+        return AccountApiFp(this.configuration).apiAccountLoginPost_3(model, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
      * @param {RegisterViewModel} [model] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -1730,6 +2525,17 @@ export class AccountApi extends BaseAPI {
      */
     public apiAccountRegisterPost(model?: RegisterViewModel, options?: any) {
         return AccountApiFp(this.configuration).apiAccountRegisterPost(model, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {RegisterViewModel} [model] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AccountApi
+     */
+    public apiAccountRegisterPost_4(model?: RegisterViewModel, options?: any) {
+        return AccountApiFp(this.configuration).apiAccountRegisterPost_4(model, options)(this.fetch, this.basePath);
     }
 
 }
@@ -2513,22 +3319,22 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
         /**
          * 
          * @param {number} courseId 
-         * @param {string} lecturerId 
+         * @param {string} lecturerEmail 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCoursesAcceptLecturerByCourseIdByLecturerIdGet(courseId: number, lecturerId: string, options: any = {}): FetchArgs {
+        apiCoursesAcceptLecturerByCourseIdByLecturerEmailGet(courseId: number, lecturerEmail: string, options: any = {}): FetchArgs {
             // verify required parameter 'courseId' is not null or undefined
             if (courseId === null || courseId === undefined) {
-                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesAcceptLecturerByCourseIdByLecturerIdGet.');
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesAcceptLecturerByCourseIdByLecturerEmailGet.');
             }
-            // verify required parameter 'lecturerId' is not null or undefined
-            if (lecturerId === null || lecturerId === undefined) {
-                throw new RequiredError('lecturerId','Required parameter lecturerId was null or undefined when calling apiCoursesAcceptLecturerByCourseIdByLecturerIdGet.');
+            // verify required parameter 'lecturerEmail' is not null or undefined
+            if (lecturerEmail === null || lecturerEmail === undefined) {
+                throw new RequiredError('lecturerEmail','Required parameter lecturerEmail was null or undefined when calling apiCoursesAcceptLecturerByCourseIdByLecturerEmailGet.');
             }
-            const localVarPath = `/api/Courses/acceptLecturer/{courseId}/{lecturerId}`
+            const localVarPath = `/api/Courses/acceptLecturer/{courseId}/{lecturerEmail}`
                 .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)))
-                .replace(`{${"lecturerId"}}`, encodeURIComponent(String(lecturerId)));
+                .replace(`{${"lecturerEmail"}}`, encodeURIComponent(String(lecturerEmail)));
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
@@ -2892,12 +3698,12 @@ export const CoursesApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @param {number} courseId 
-         * @param {string} lecturerId 
+         * @param {string} lecturerEmail 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCoursesAcceptLecturerByCourseIdByLecturerIdGet(courseId: number, lecturerId: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesAcceptLecturerByCourseIdByLecturerIdGet(courseId, lecturerId, options);
+        apiCoursesAcceptLecturerByCourseIdByLecturerEmailGet(courseId: number, lecturerEmail: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesAcceptLecturerByCourseIdByLecturerEmailGet(courseId, lecturerEmail, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -3083,12 +3889,12 @@ export const CoursesApiFactory = function (configuration?: Configuration, fetch?
         /**
          * 
          * @param {number} courseId 
-         * @param {string} lecturerId 
+         * @param {string} lecturerEmail 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCoursesAcceptLecturerByCourseIdByLecturerIdGet(courseId: number, lecturerId: string, options?: any) {
-            return CoursesApiFp(configuration).apiCoursesAcceptLecturerByCourseIdByLecturerIdGet(courseId, lecturerId, options)(fetch, basePath);
+        apiCoursesAcceptLecturerByCourseIdByLecturerEmailGet(courseId: number, lecturerEmail: string, options?: any) {
+            return CoursesApiFp(configuration).apiCoursesAcceptLecturerByCourseIdByLecturerEmailGet(courseId, lecturerEmail, options)(fetch, basePath);
         },
         /**
          * 
@@ -3185,13 +3991,13 @@ export class CoursesApi extends BaseAPI {
     /**
      * 
      * @param {number} courseId 
-     * @param {string} lecturerId 
+     * @param {string} lecturerEmail 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CoursesApi
      */
-    public apiCoursesAcceptLecturerByCourseIdByLecturerIdGet(courseId: number, lecturerId: string, options?: any) {
-        return CoursesApiFp(this.configuration).apiCoursesAcceptLecturerByCourseIdByLecturerIdGet(courseId, lecturerId, options)(this.fetch, this.basePath);
+    public apiCoursesAcceptLecturerByCourseIdByLecturerEmailGet(courseId: number, lecturerEmail: string, options?: any) {
+        return CoursesApiFp(this.configuration).apiCoursesAcceptLecturerByCourseIdByLecturerEmailGet(courseId, lecturerEmail, options)(this.fetch, this.basePath);
     }
 
     /**
