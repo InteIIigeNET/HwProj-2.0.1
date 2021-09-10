@@ -33,30 +33,26 @@ export default class TaskSolutions extends React.Component<ITaskSolutionsProps, 
         const arrayOfNonRatedSolutions = solutions.filter(solution => solution.state!.toString() == 'Posted');
         const arrayOfRatedSolutions = solutions.filter(solution => solution.state!.toString() != 'Posted');
         const componentsOfNonRatedSolutions = arrayOfNonRatedSolutions.map((sol) => (
-            <ListItem key={sol.id}>
-                <Grid item xs={12}>
-                    <NonRatedSolutionComponent
-                        forMentor={this.props.forMentor}
-                        solution={sol}
-                        isExpanded={true}
-                    />
-                </Grid>
-            </ListItem>
+            <Grid item>
+                <NonRatedSolutionComponent
+                    forMentor={this.props.forMentor}
+                    solution={sol}
+                    isExpanded={true}
+                />
+            </Grid>
             )
         ).reverse()
         const componentsOfRatedSolutions = arrayOfRatedSolutions.map((sol) => (
-                <ListItem key={sol.id}>
-                    <Grid item xs={12}>
-                        <RatedSolutionComponent forMentor={this.props.forMentor} solution={sol}/>
-                    </Grid>
-                </ListItem>
+            <Grid item>
+                <RatedSolutionComponent forMentor={this.props.forMentor} solution={sol}/>
+            </Grid>
             )
         ).reverse()
         debugger
         if (isLoaded) {
             return (
-                <Grid container>
-                    <Grid container item>
+                <Grid container alignItems="stretch" direction="column">
+                    <Grid item>
                         <Accordion>
                             <AccordionSummary
                                 aria-controls="panel1a-content"
@@ -68,13 +64,13 @@ export default class TaskSolutions extends React.Component<ITaskSolutionsProps, 
                                 </Typography>
                             </AccordionSummary>
                             <AccordionDetails>
-                               <List>
-                                   {componentsOfNonRatedSolutions}
-                               </List>
+                                <Grid container direction="column" alignItems="stretch">
+                                    {componentsOfNonRatedSolutions}
+                                </Grid>
                             </AccordionDetails>
                         </Accordion>
                     </Grid>
-                    <Grid container item>
+                    <Grid item>
                         <Accordion>
                             <AccordionSummary
                                 aria-controls="panel1a-content"
@@ -86,9 +82,9 @@ export default class TaskSolutions extends React.Component<ITaskSolutionsProps, 
                                 </Typography>
                             </AccordionSummary>
                             <AccordionDetails>
-                                <List>
+                                <Grid container direction="column" alignItems="stretch">
                                     {componentsOfRatedSolutions}
-                                </List>
+                                </Grid>
                             </AccordionDetails>
                         </Accordion>
                     </Grid>
