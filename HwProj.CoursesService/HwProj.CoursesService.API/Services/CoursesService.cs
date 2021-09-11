@@ -207,15 +207,18 @@ namespace HwProj.CoursesService.API.Services
         {
             var course = await _coursesRepository.GetAsync(courseId);
 
-            var user = await _authServiceClient.FindByEmailAsync(lecturerEmail);
-            var role = await _authServiceClient.GetRoleAsync(user);
-            if (role == "Lecturer" && !course.MentorIds.Contains(user.Id))
+            var userId = await _authServiceClient.FindByEmailAsync(lecturerEmail);
+            if (!(userId is null))
             {
-                string newMentors = course.MentorIds + "/" + user.Id;
-                await _coursesRepository.UpdateAsync(courseId, с => new Course
+                var user = await _authServiceClient.GetAccountData(userId);
+                if (user.Role == "Lecturer" && !course.MentorIds.Contains(userId))
                 {
-                    MentorIds = newMentors,
-                });
+                    string newMentors = course.MentorIds + "/" + userId;
+                    await _coursesRepository.UpdateAsync(courseId, с => new Course
+                    {
+                        MentorIds = newMentors,
+                    });
+                }
             }
         }
     }
