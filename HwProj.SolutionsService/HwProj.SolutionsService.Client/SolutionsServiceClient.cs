@@ -41,14 +41,14 @@ namespace HwProj.SolutionsService.Client
             return await response.DeserializeAsync<Solution>();
         }
         
-        public async Task<Solution> GetUserSolution(long taskId, string studentId)
+        public async Task<Solution[]> GetUserSolution(long taskId, string studentId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get, 
                 _solutionServiceUri + $"api/Solutions/taskSolutions/{taskId}/{studentId}");
 
             var response = await _httpClient.SendAsync(httpRequest); 
-            return await response.DeserializeAsync<Solution>();
+            return await response.DeserializeAsync<Solution[]>();
         }
         
         public async Task<long> PostSolution(SolutionViewModel model, long taskId)

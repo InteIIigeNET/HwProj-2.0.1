@@ -1,8 +1,12 @@
 import * as React from 'react';
 import SolutionComponent from './Solution'
+import NonRatedSolutionComponent from "./NonRatedSolutions";
+import  RatedSolutionComponent from "./RatedSolutions"
 import Typography from '@material-ui/core/Typography'
 import ApiSingleton from "../../api/ApiSingleton";
-import { Solution } from '../../api';
+import {Solution} from '../../api';
+import {ListItem, Grid, Accordion, AccordionDetails, AccordionSummary} from "@material-ui/core";
+import List from "@material-ui/core/List";
 
 interface ITaskSolutionsProps {
     taskId: number,
@@ -12,7 +16,7 @@ interface ITaskSolutionsProps {
 
 interface ITaskSolutionsState {
     isLoaded: boolean,
-    solution: Solution,
+    solutions: Solution[],
 }
 
 export default class TaskSolutions extends React.Component<ITaskSolutionsProps, ITaskSolutionsState> {
@@ -20,37 +24,86 @@ export default class TaskSolutions extends React.Component<ITaskSolutionsProps, 
         super(props);
         this.state = {
             isLoaded: false,
-            solution: {},
+            solutions:[],
         }
     }
 
     public render() {
-        const { isLoaded, solution } = this.state;
-
+        const { isLoaded, solutions } = this.state;
+        const arrayOfNonRatedSolutions = solutions.filter(solution => solution.state!.toString() == 'Posted');
+        const arrayOfRatedSolutions = solutions.filter(solution => solution.state!.toString() != 'Posted');
+        const componentsOfNonRatedSolutions = arrayOfNonRatedSolutions.map((sol) => (
+            <Grid item>
+                <NonRatedSolutionComponent
+                    forMentor={this.props.forMentor}
+                    solution={sol}
+                    isExpanded={true}
+                />
+            </Grid>
+            )
+        ).reverse()
+        const componentsOfRatedSolutions = arrayOfRatedSolutions.map((sol) => (
+            <Grid item>
+                <RatedSolutionComponent forMentor={this.props.forMentor} solution={sol}/>
+            </Grid>
+            )
+        ).reverse()
+        debugger
         if (isLoaded) {
             return (
-                <div>
-                    {solution &&
-                        <div>
-                            <Typography variant='h6'>Решение: </Typography>
-                            <SolutionComponent forMentor={this.props.forMentor} solution={solution} />
-                        </div>
-                    }
-                </div>
+                <Grid container alignItems="stretch" direction="column">
+                    <Grid item>
+                        <Accordion>
+                            <AccordionSummary
+                                aria-controls="panel1a-content"
+                                id="panel1a-header"
+                                style={{backgroundColor: "#c6cceb"}}
+                            >
+                                <Typography>
+                                    Непроверенные решения
+                                </Typography>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                                <Grid container direction="column" alignItems="stretch">
+                                    {componentsOfNonRatedSolutions}
+                                </Grid>
+                            </AccordionDetails>
+                        </Accordion>
+                    </Grid>
+                    <Grid item>
+                        <Accordion>
+                            <AccordionSummary
+                                aria-controls="panel1a-content"
+                                id="panel1a-header"
+                                style={{backgroundColor: "#c6cceb"}}
+                            >
+                                <Typography>
+                                    Проверенные решения
+                                </Typography>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                                <Grid container direction="column" alignItems="stretch">
+                                    {componentsOfRatedSolutions}
+                                </Grid>
+                            </AccordionDetails>
+                        </Accordion>
+                    </Grid>
+                </Grid>
             )
         }
 
         return "";
     }
 
-    componentDidMount() {
-        ApiSingleton.solutionsApi.apiSolutionsTaskSolutionByTaskIdByStudentIdGet(
-            this.props.taskId, 
+    async componentDidMount() {
+        const solutions = await ApiSingleton.solutionsApi.apiSolutionsTaskSolutionByTaskIdByStudentIdGet(
+            this.props.taskId,
             this.props.studentId,
         )
-            .then(solution => this.setState({
-                isLoaded: true,
-                solution: solution
-            }));
+        this.setState({
+            isLoaded: true,
+            solutions: solutions
+        })
+        debugger
     }
 }

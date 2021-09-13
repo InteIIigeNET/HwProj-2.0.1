@@ -93,8 +93,6 @@ export default class TaskStudentCell extends React.Component<
       return "#ffc346"
     if (state == Solution.StateEnum.NUMBER_2)
       return "#7ad67a"
-    if (state == Solution.StateEnum.NUMBER_3)
-      return "#ffefa9"
     return "#ffffff"
   }
 
