@@ -116,7 +116,6 @@ namespace HwProj.AuthService.Client
                     Encoding.UTF8,
                     "application/json")
             };
-            
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Result>();
         }

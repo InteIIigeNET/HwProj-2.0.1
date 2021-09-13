@@ -2,6 +2,6 @@
 {
     public enum SolutionState
     {
-        Posted, Rated, Final, Reposted
+        Posted, Rated, Final
     }
 }

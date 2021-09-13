@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.AuthService.Client;
@@ -40,18 +41,19 @@ namespace HwProj.SolutionsService.API.Services
             return _solutionsRepository.GetAsync(solutionId);
         }
 
-        public async Task<Solution> GetTaskSolutionsFromStudentAsync(long taskId, string studentId)
+        public async Task<Solution[]> GetTaskSolutionsFromStudentAsync(long taskId, string studentId)
         {
             return await _solutionsRepository
-                .FindAsync(solution => solution.TaskId == taskId && solution.StudentId == studentId);
+                .FindAll(solution => solution.TaskId == taskId && solution.StudentId == studentId)
+                .ToArrayAsync();
         }
         
         
         public async Task<long> PostOrUpdateAsync(long taskId, Solution solution)
         {
             solution.PublicationDate = DateTime.Now;
-            var currentSolution = await GetTaskSolutionsFromStudentAsync(taskId, solution.StudentId);
-
+            var allSolutionsForTask= await GetTaskSolutionsFromStudentAsync(taskId, solution.StudentId);
+            var currentSolution = allSolutionsForTask.FirstOrDefault(s => s.Id == solution.Id);
             var solutionModel = _mapper.Map<SolutionViewModel>(solution);
             var task = await _coursesServiceClient.GetTask(solution.TaskId);
             var taskModel = _mapper.Map<HomeworkTaskViewModel>(task);
@@ -70,7 +72,7 @@ namespace HwProj.SolutionsService.API.Services
     
             await _solutionsRepository.UpdateAsync(currentSolution.Id, s => new Solution()
                 {
-                    State = SolutionState.Reposted,
+                    State = SolutionState.Rated,
                     Comment = solution.Comment,
                     GithubUrl = solution.GithubUrl,
                     PublicationDate = solution.PublicationDate,
