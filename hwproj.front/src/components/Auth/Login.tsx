@@ -120,7 +120,7 @@ const Login: FC<LoginProps> = (props) => {
   const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID!
 
   if (loginState.isLogin){
-    return <Redirect to={"/"} />;
+    return <Redirect to={"/"} />
   }
 
   if (loginState.error) {
