@@ -37,14 +37,14 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 var notification = new Notification
                 {
                     Sender = "CourseService",
-                    Body = $"В курсе <a href='courses/{@event.Course.Id}'>{@event.Course.Name}</a> опубликована новая домашка <i>{@event.Homework}</i>.",
-                    Category = "CourseService",
+                    Body = $"В курсе <a href='courses/{@event.Course.Id}'>{@event.Course.Name}</a> опубликована новая домашняя работа <i>{@event.Homework}</i>.",
+                    Category = "Домашние задания",
                     Date = DateTime.UtcNow,
                     HasSeen = false,
                     Owner = student.StudentId
                 };
                 await _notificationRepository.AddAsync(notification);
-                await _notificationsService.SendEmailAsync(notification, studentModel.Email);
+                await _notificationsService.SendEmailAsync(notification, studentModel.Email, "Домашняя работа");
             }
         }
     }

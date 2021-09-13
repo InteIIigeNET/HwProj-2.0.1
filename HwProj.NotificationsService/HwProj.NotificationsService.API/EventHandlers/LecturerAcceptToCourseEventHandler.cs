@@ -38,7 +38,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             };
             await _notificationRepository.AddAsync(notification);
             var student = await _authServiceClient.GetAccountData(notification.Owner);
-            await _notificationsService.SendEmailAsync(notification, student.Email);
+            await _notificationsService.SendEmailAsync(notification, student.Email, "HwProj");
         }
     }
 }
