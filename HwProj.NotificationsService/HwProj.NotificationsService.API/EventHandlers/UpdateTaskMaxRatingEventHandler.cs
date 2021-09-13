@@ -38,13 +38,13 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 {
                     Sender = "CourseService",
                     Body = $"<a href='task/{@event.Task.Id}'>Задача</a> обновлена.",
-                    Category = "CourseService",
+                    Category = "Домашние задания",
                     Date = DateTime.UtcNow,
                     HasSeen = false,
                     Owner = student.StudentId
                 };
                 await _notificationRepository.AddAsync(notification);
-                await _notificationsService.SendEmailAsync(notification, studentModel.Email);
+                await _notificationsService.SendEmailAsync(notification, studentModel.Email, "Домашняя работа");
             }
         }
     }

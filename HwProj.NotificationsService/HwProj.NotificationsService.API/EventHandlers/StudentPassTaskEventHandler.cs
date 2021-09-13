@@ -33,7 +33,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 Owner = @event.Course.MentorId
             };
             await _notificationRepository.AddAsync(notification);
-            await _notificationsService.SendEmailAsync(notification, notification.Owner);
+            await _notificationsService.SendEmailAsync(notification, notification.Owner, "Сдача задачи");
         }
     }
 }

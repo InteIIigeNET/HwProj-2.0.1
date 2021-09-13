@@ -41,7 +41,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             await _notificationRepository.AddAsync(notification);
             var studentAccount = await _authServiceClient.GetAccountData(notification.Owner);
             var studentModel = _mapper.Map<AccountDataDto>(studentAccount);
-            await _notificationsService.SendEmailAsync(notification, studentModel.Email);
+            await _notificationsService.SendEmailAsync(notification, studentModel.Email, "Редактирование профиля");
         }
     }
 }

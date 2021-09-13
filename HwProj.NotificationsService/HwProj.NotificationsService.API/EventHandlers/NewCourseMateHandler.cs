@@ -40,7 +40,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             };
             await _notificationRepository.AddAsync(notification);
             var mentor = await _authServiceClient.GetAccountData(notification.Owner);
-            await _notificationsService.SendEmailAsync(notification, mentor.Email);
+            await _notificationsService.SendEmailAsync(notification, mentor.Email, "HwProj");
         }
     }
 }
