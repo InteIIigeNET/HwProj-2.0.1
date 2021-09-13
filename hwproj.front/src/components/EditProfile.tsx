@@ -88,18 +88,18 @@ export default class EditProfile extends React.Component<{}, IEditProfileState> 
                 <div>
                 {!this.state.isExternalAuth && (
                     <div className="page">
-                    <Typography variant="h6" gutterBottom>
-                        Редактировать профиль
-                    </Typography>
-                    <form onSubmit={(e) => this.handleSubmit(e)} className="form">
-                        <TextField
-                            required
-                            label="Имя"
-                            variant="outlined"
-                            margin="normal"
-                            value={this.state.name}
-                            onChange={(e) => this.setState({ name: e.target.value })}
-                        />
+                        <Typography variant="h6" gutterBottom>
+                            Редактировать профиль
+                        </Typography>
+                        <form onSubmit={(e) => this.handleSubmit(e)} className="form">
+                            <TextField
+                                required
+                                label="Имя"
+                                variant="outlined"
+                                margin="normal"
+                                value={this.state.name}
+                                onChange={(e) => this.setState({ name: e.target.value })}
+                            />
                         <TextField
                             required
                             label="Фамилия"
@@ -139,11 +139,11 @@ export default class EditProfile extends React.Component<{}, IEditProfileState> 
                         >
                             Редактировать профиль
                         </Button>
-                    </form>
-                    {this.state.errors && (
-                        <p style={{ color: "red", marginBottom: "0" }}>{this.state.errors}</p>
-                    )}
-                </div>)}
+                        </form>
+                        {this.state.errors && (
+                            <p style={{ color: "red", marginBottom: "0" }}>{this.state.errors}</p>
+                        )}
+                    </div>)}
                 {this.state.isExternalAuth && (
                     <div className="page">
                         <Typography variant="h6" gutterBottom>

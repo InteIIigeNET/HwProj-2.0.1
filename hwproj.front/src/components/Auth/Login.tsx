@@ -54,7 +54,6 @@ export default class Login extends React.Component<LoginProps, ILoginState> {
   render() {
     const headerStyles: React.CSSProperties = { marginRight: "9.5rem" };
     const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID!
-    
     if (this.state.error) {
       headerStyles.marginBottom = "-1.5rem";
     }
