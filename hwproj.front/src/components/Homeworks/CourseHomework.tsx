@@ -35,10 +35,10 @@ export default class CourseHomework extends React.Component<ICourseHomeworkProps
       <Grid container direction="column" alignItems="center" justify="center">
           <Grid item>
             <Typography variant="h6">
-              Домашки
+                Домашние задания
             </Typography>
           </Grid>
-          <Grid item>
+          <Grid item xs={12}>
             <List>
               {homeworkList}
             </List>

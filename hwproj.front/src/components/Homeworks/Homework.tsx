@@ -32,7 +32,7 @@ export default class Homework extends React.Component<IHomeworkProps, IHomeworkS
   public render() {
     let homeworkDateString = new Date(this.props.homework.date!.toString()).toLocaleDateString("ru-RU");
     return (
-      <div className="container">
+      <div style={{ width: '100%' }}>
         <Accordion>
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
@@ -41,7 +41,7 @@ export default class Homework extends React.Component<IHomeworkProps, IHomeworkS
             style={{backgroundColor: "#c6cceb"}}
           >
             <Typography>
-              <b>{this.props.homework.title}</b> {homeworkDateString}
+              {this.props.homework.title} {homeworkDateString}
               {this.props.forMentor &&
                 <IconButton aria-label="Delete" onClick={() => this.deleteHomework()}>
                   <DeleteIcon fontSize="small" />
@@ -93,8 +93,8 @@ export default class Homework extends React.Component<IHomeworkProps, IHomeworkS
     )
   }
 
-  deleteHomework(): void {
-    ApiSingleton.homeworksApi.apiHomeworksDeleteByHomeworkIdDelete(this.props.homework.id!)
-      .then(res => this.props.onDeleteClick());
+  deleteHomework = async () => {
+    await ApiSingleton.homeworksApi.apiHomeworksDeleteByHomeworkIdDelete(this.props.homework.id!)
+    this.props.onDeleteClick()
   }
 }

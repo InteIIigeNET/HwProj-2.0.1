@@ -1,12 +1,19 @@
 import * as React from "react";
 import {RouteComponentProps} from 'react-router';
-import { Card, Typography, CardContent, Checkbox, CircularProgress, TextField, Box, Tabs, Tab } from "@material-ui/core";
+import { Card,
+	Typography,
+	CardContent,
+	Checkbox,
+	CircularProgress,
+	TextField, Box,
+	Tabs, Tab, Grid } from "@material-ui/core";
 import ApiSingleton from "api/ApiSingleton";
 import { AccountDataDto, NotificationViewModel } from "../api/";
 import "./Styles/Profile.css";
 import parse from 'html-react-parser';
 import {ChangeEvent, FC, useEffect, useState} from "react";
 import {Redirect} from "react-router-dom";
+import {makeStyles} from "@material-ui/styles";
 
 interface IProfileState {
   isLoaded: boolean;
@@ -17,6 +24,13 @@ interface IProfileState {
 interface IProfileProps {
   id: string;
 }
+
+const useStyles = makeStyles( theme => ({
+	info: {
+		display: "flex",
+		justifyContent: "space-between",
+	},
+}));
 
 const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
 	const [profileState, setProfileState] = useState<IProfileState>({
@@ -95,78 +109,54 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
 		)
 	}
 
+	const classes = useStyles()
+
 	if (!ApiSingleton.authService.isLoggedIn()) {
 		return <Redirect to={"/login"}/>;
 	}
 
 	if (profileState.isLoaded) {
+		const fullName = accountState.name + ' ' + accountState.middleName + ' ' + accountState.surname
 		return (
 			<div>
-				<Box m={2}>
-					<TextField
-						id="name"
-						variant="filled"
-						label="Имя"
-						disabled
-						value={accountState.name}
-					/>
-					<TextField
-						id="middleName"
-						variant="filled"
-						label="Отчество"
-						disabled
-						value={accountState.middleName}
-					/>
-					<TextField
-						id="surname"
-						variant="filled"
-						label="Фамилия"
-						disabled
-						value={accountState.surname}
-					/>
-					<TextField
-						id="email"
-						variant="filled"
-						label="Email"
-						disabled
-						value={accountState.email}
-					/>
-					<TextField
-						id="role"
-						variant="filled"
-						label="Роль"
-						disabled
-						value={accountState.role}
-					/>
-				</Box>
-				<hr/>
-				<br/>
-				{!props.match.params.id &&
-				<div>
-					<Tabs
-						indicatorColor="primary"
-						value={profileState.tab}
-						variant="fullWidth"
-						onChange={(e: React.ChangeEvent<{}>, newValue: number) => {
-							e.persist()
-							setProfileState((prevState) => ({
-								...prevState,
-								tab: newValue
-							}))
-						}}
-					>
-						<Tab label="Новые уведомления" id="simple-tab-0" aria-controls="simple-tabpanel-0"/>
-						<Tab label="Все уведомления" id="simple-tab-1" aria-controls="simple-tabpanel-1"/>
-					</Tabs>
+				<Grid container justify="center" style={{ marginTop: "15px" }}>
+					<Grid item xs={11} className={classes.info}>
+						<Typography component="h1" variant="h5">
+							{fullName}
+						</Typography>
+						<Typography component="h1" variant="h5">
+							{accountState.email}
+						</Typography>
+					</Grid>
+					<Grid item xs={12} style={{ marginTop: "15px" }}>
+						{!props.match.params.id &&
+						<div>
+							<Tabs
+								indicatorColor="primary"
+								value={profileState.tab}
+								variant="fullWidth"
+								onChange={(e: React.ChangeEvent<{}>, newValue: number) => {
+									e.persist()
+									setProfileState((prevState) => ({
+										...prevState,
+										tab: newValue
+									}))
+								}}
+							>
+								<Tab label="Новые уведомления" id="simple-tab-0" aria-controls="simple-tabpanel-0"/>
+								<Tab label="Все уведомления" id="simple-tab-1" aria-controls="simple-tabpanel-1"/>
+							</Tabs>
 
-					<div role="tabpanel" hidden={profileState.tab !== 0} id="simple-tab-0">
-						{renderNotifications(profileState.notifications.filter(n => !n.hasSeen))}
-					</div>
-					<div role="tabpanel" hidden={profileState.tab !== 1} id="simple-tab-1">
-						{renderNotifications(profileState.notifications)}
-					</div>
-				</div>
-				}
+							<div role="tabpanel" hidden={profileState.tab !== 0} id="simple-tab-0">
+								{renderNotifications(profileState.notifications.filter(n => !n.hasSeen))}
+							</div>
+							<div role="tabpanel" hidden={profileState.tab !== 1} id="simple-tab-1">
+								{renderNotifications(profileState.notifications)}
+							</div>
+						</div>
+						}
+					</Grid>
+				</Grid>
 			</div>
 		)
 	}

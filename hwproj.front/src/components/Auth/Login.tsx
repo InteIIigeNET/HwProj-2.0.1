@@ -49,7 +49,7 @@ const Login: FC<LoginProps> = (props) => {
     email: '',
     password: '',
     error: [],
-    isLogin: ApiSingleton.authService.loggedIn(),
+    isLogin: ApiSingleton.authService.isLoggedIn(),
   })
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -108,7 +108,7 @@ const Login: FC<LoginProps> = (props) => {
   const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID!
 
   if (loginState.isLogin){
-    return <Redirect to={"/"} />;
+    return <Redirect to={"/"} />
   }
 
   if (loginState.error) {

@@ -41,8 +41,8 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) =>  {
   };
 
   const handleClose = () => {
-    setAnchorEl(null);
-  };
+    setAnchorEl(null)
+  }
   const classes = styles()
   
   return (

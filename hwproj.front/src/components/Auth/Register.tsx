@@ -53,7 +53,7 @@ const Register: FC<LoginProps> = (props) => {
     })
 
     const [commonState, setCommonState] = useState<ICommonState>({
-        loggedIn: ApiSingleton.authService.loggedIn(),
+        loggedIn: ApiSingleton.authService.isLoggedIn(),
         error: [],
     })
 
