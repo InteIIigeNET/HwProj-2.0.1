@@ -33,14 +33,14 @@ namespace HwProj.NotificationsService.API.EventHandlers
             {
                 Sender = "SolutionService",
                 Body = $"Задача <a href='task/{@event.Task.Id}' target='_blank'>{@event.Task.Title}</a> оценена.",
-                Category = "SolutionService",
+                Category = "Оценки",
                 Date = DateTime.UtcNow,
                 HasSeen = false,
                 Owner = @event.Solution.StudentId
             };
             await _notificationRepository.AddAsync(notification);
             var studentModel = await _authServiceClient.GetAccountData(notification.Owner);
-            await _notificationsService.SendEmailAsync(notification, studentModel.Email);
+            await _notificationsService.SendEmailAsync(notification, studentModel.Email, "Оценка");
         }
     }
 }

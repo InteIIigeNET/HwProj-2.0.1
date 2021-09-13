@@ -32,7 +32,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 Owner = @event.UserId
             };
             await _notificationRepository.AddAsync(notification);
-            await _notificationsService.SendEmailAsync(notification, @event.Email);
+            await _notificationsService.SendEmailAsync(notification, @event.Email, "HwProj");
         }
     }
 }

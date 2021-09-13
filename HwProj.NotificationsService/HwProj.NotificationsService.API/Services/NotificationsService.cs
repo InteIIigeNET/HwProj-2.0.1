@@ -41,13 +41,13 @@ namespace HwProj.NotificationsService.API.Services
                 t => new Notification {HasSeen = true});
         }
 
-        public async Task SendEmailAsync(Notification notification, string email)
+        public async Task SendEmailAsync(Notification notification, string email, string topic)
         {
             var emailMessage = new MimeMessage();
 
             emailMessage.From.Add(new MailboxAddress("HwProj-2.0.1", "testhwproj@gmail.com"));
             emailMessage.To.Add(new MailboxAddress("", email));
-            emailMessage.Subject = notification.Category;
+            emailMessage.Subject = topic;
             emailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Html)
             {
                 Text = notification.Body

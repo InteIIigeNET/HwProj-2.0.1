@@ -9,6 +9,6 @@ namespace HwProj.NotificationsService.API.Services
         Task<NotificationViewModel[]> GetAsync(string userId, NotificationFilter filter = null);
         Task MarkAsSeenAsync(string userId, long[] notificationIds);
 
-        Task SendEmailAsync(Notification notification, string email);
+        Task SendEmailAsync(Notification notification, string email, string topic);
     }
 }
