@@ -25,7 +25,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 await _notificationRepository.AddAsync(new Notification
                 {
                     Sender = "CourseService",
-                    Body = $"В курсе <a href='courses/{@event.Course.Id}'>{@event.Course.Name}</a> домашнее задание <i>{@event.Homework.Title}</i> обновлено",
+                    Body = $"В курсе <a href='courses/{@event.Course.Id}'>{@event.Course.Name}</a> домашнее задание <i>{@event.Homework.Title}</i> обновлено.",
                     Category = "CourseService",
                     Date = DateTime.UtcNow,
                     HasSeen = false,

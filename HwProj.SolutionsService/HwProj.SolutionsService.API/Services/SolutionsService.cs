@@ -2,8 +2,10 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.EventBus.Client.Interfaces;
+using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.SolutionsService;
 using HwProj.SolutionsService.API.Events;
@@ -19,12 +21,14 @@ namespace HwProj.SolutionsService.API.Services
         private readonly IEventBus _eventBus;
         private readonly IMapper _mapper;
         private readonly ICoursesServiceClient _coursesServiceClient;
-        public SolutionsService(ISolutionsRepository solutionsRepository, IEventBus eventBus, IMapper mapper, ICoursesServiceClient coursesServiceClient)
+        private readonly IAuthServiceClient _authServiceClient;
+        public SolutionsService(ISolutionsRepository solutionsRepository, IEventBus eventBus, IMapper mapper, ICoursesServiceClient coursesServiceClient, IAuthServiceClient authServiceClient)
         {
             _solutionsRepository = solutionsRepository;
             _eventBus = eventBus;
             _mapper = mapper;
             _coursesServiceClient = coursesServiceClient;
+            _authServiceClient = authServiceClient;
         }
 
         public async Task<Solution[]> GetAllSolutionsAsync()
@@ -52,9 +56,12 @@ namespace HwProj.SolutionsService.API.Services
             var currentSolution = allSolutionsForTask.FirstOrDefault(s => s.Id == solution.Id);
             var solutionModel = _mapper.Map<SolutionViewModel>(solution);
             var task = await _coursesServiceClient.GetTask(solution.TaskId);
+            var taskModel = _mapper.Map<HomeworkTaskViewModel>(task);
             var homework = await _coursesServiceClient.GetHomework(task.HomeworkId);
             var courses = await _coursesServiceClient.GetCourseById(homework.CourseId, solution.StudentId);
-            _eventBus.Publish(new StudentPassTaskEvent(courses, solutionModel));
+            var student = await _authServiceClient.GetAccountData((solutionModel.StudentId));
+            var studentModel = _mapper.Map<AccountDataDto>(student);
+            _eventBus.Publish(new StudentPassTaskEvent(courses, solutionModel, studentModel, taskModel));
 
             if (currentSolution == null)
             {
