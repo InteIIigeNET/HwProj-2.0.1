@@ -20,7 +20,6 @@ import EditHomework from "./components/Homeworks/EditHomework";
 import Register from "./components/Auth/Register";
 import StudentSolutionsPage from "./components/Solutions/StudentSolutionsPage";
 import EditProfile from "./components/EditProfile";
-import InviteNewLecturer from "./components/InviteNewLecturer";
 import ApiSingleton from "./api/ApiSingleton";
 
 type AppProps = RouteComponentProps;
@@ -58,7 +57,6 @@ class App extends Component<AppProps, AppState> {
         return (
             <>
                 <Header loggedIn={this.state.loggedIn} isLecturer={this.state.isLecturer} onLogout={this.logout}/>
-                <Route exact path="/invite_lecturer" component={InviteNewLecturer}/>
                 <Route exact path="/user/edit" component={EditProfile}/>
                 <Route exact path="/" component={Courses}/>
                 <Route exact path="/profile" component={Profile}/>

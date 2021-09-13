@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import { makeStyles } from '@material-ui/styles';
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -7,6 +7,7 @@ import Link from "@material-ui/core/Link";
 import { IconButton, MenuItem, Typography } from "@material-ui/core";
 import MenuIcon from "@material-ui/icons/Menu";
 import Menu from '@material-ui/core/Menu';
+import InviteLecturer from "./InviteLecturer";
 
 const styles = makeStyles( theme => ({
   tools: {
@@ -34,11 +35,22 @@ interface AppBarProps{
 
 export const Header: React.FC<AppBarProps> = (props: AppBarProps) =>  {
 
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
+
+  const [isOpenInviteLecturer, setIsOpenInviteLecturer] = useState<boolean>(false)
+
+  const closeInviteLecturer = () => {
+    setIsOpenInviteLecturer(false)
+  }
+
+  const openInviteLecturer = () => {
+    handleClose()
+    setIsOpenInviteLecturer(true)
+  }
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
-  };
+  }
 
   const handleClose = () => {
     setAnchorEl(null)
@@ -79,7 +91,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) =>  {
                     open={Boolean(anchorEl)}
                     onClose={handleClose}
                 >
-                  <MenuItem onClick={() => window.location.assign("/invite_lecturer")}>
+                  <MenuItem onClick={openInviteLecturer}>
                     Пригласить преподавателя
                   </MenuItem>
                   <MenuItem onClick={() => window.location.assign("/create_course")}>
@@ -150,6 +162,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) =>  {
           )}
         </Toolbar>
       </AppBar>
+      <InviteLecturer isOpen={isOpenInviteLecturer} close={closeInviteLecturer}/>
     </div>
   );
 }
