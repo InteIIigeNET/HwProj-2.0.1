@@ -63,19 +63,10 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task UpdateAsync(long groupId, Group updated)
         {
-            var group = await _groupsRepository.GetAsync(groupId);
-            group.GroupMates.RemoveAll(cm => true);
-            group.Tasks.RemoveAll(cm => true);
-
-            updated.GroupMates.ForEach(cm => cm.GroupId = groupId);
-            updated.Tasks.ForEach(cm => cm.GroupId = groupId);
-            var mateTasks = updated.GroupMates.Select(cm => _groupMatesRepository.AddAsync(cm));
-            var idTasks = updated.Tasks.Select(cm => _taskModelsRepository.AddAsync(cm));
-
-            group.Name = updated.Name;
-
-            await Task.WhenAll(mateTasks);
-            await Task.WhenAll(idTasks);
+            await _groupsRepository.UpdateAsync(groupId, c => new Group()
+            {
+                Name = updated.Name
+            });
         }
 
         public async Task<bool> DeleteGroupMateAsync(long groupId, string studentId)

@@ -30,9 +30,10 @@ namespace HwProj.CoursesService.API.Controllers
 
         [HttpPost("{courseId}/create")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        public async Task<IActionResult> CreateGroup([FromBody] CreateGroupViewModel groupViewModel)
+        public async Task<IActionResult> CreateGroup([FromBody] CreateGroupViewModel groupViewModel, long courseId)
         {
             var group = _mapper.Map<Group>(groupViewModel);
+            group.CourseId = courseId;
             var id = await _groupsService.AddGroupAsync(group);
             return Ok(id);
         }
@@ -47,9 +48,12 @@ namespace HwProj.CoursesService.API.Controllers
 
         [HttpPost("{courseId}/update/{groupId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        public async Task<IActionResult> UpdateGroup(long groupId, [FromBody] UpdateGroupViewModel groupViewModel)
+        public async Task<IActionResult> UpdateGroup([FromBody] UpdateGroupViewModel groupViewModel, long courseId, long groupId)
         {
-            await _groupsService.UpdateAsync(groupId, _mapper.Map<Group>(groupViewModel));
+            var group = _mapper.Map<Group>(groupViewModel);
+            group.Id = groupId;
+            group.CourseId = courseId;
+            await _groupsService.UpdateAsync(groupId, group);
             return Ok();
         }
 
@@ -68,7 +72,7 @@ namespace HwProj.CoursesService.API.Controllers
             return Ok();
         }
 
-        [HttpPost("{courseId}/removeStudentFromGroup/{groupId}")]
+        [HttpDelete("{courseId}/removeStudentFromGroup/{groupId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> RemoveStudentFromGroup(long groupId, [FromQuery] string userId)
         {

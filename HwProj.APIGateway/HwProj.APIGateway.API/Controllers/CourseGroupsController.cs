@@ -75,7 +75,7 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok();
         }
         
-        [HttpPost("{courseId}/removeStudentFromGroup/{groupId}")]
+        [HttpDelete("{courseId}/removeStudentFromGroup/{groupId}")]
         [Authorize(Roles = Roles.LecturerRole)]
         public async Task<IActionResult> RemoveStudentFromGroup(long courseId, long groupId, [FromQuery] string userId)
         {
