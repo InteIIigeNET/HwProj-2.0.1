@@ -11,7 +11,7 @@ import { red } from '@material-ui/core/colors';
 import { LoginViewModel } from "../../api/"
 import makeStyles from "@material-ui/styles/makeStyles";
 import Container from '@material-ui/core/Container';
-//import GoogleLogin from "react-google-login";
+import GoogleLogin from "react-google-login";
 
 interface LoginProps extends Partial<RouteComponentProps> {
   onLogin: () => void;
@@ -171,13 +171,11 @@ const Login: FC<LoginProps> = (props) => {
         <Typography>
           <hr/>Или войдите с помощью других сервисов<hr/>
         </Typography>
-        {/*<div>*/}
-        {/*  <GoogleLogin*/}
-        {/*      clientId={clientId}*/}
-        {/*      buttonText=''*/}
-        {/*      onSuccess={this.googleResponse}*/}
-        {/*  />*/}
-        {/*</div>*/}
+          <GoogleLogin
+              clientId={clientId}
+              buttonText=''
+              onSuccess={googleResponse}
+          />
       </Container>
   );
 };
