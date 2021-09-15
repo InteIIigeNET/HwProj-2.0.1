@@ -7,7 +7,7 @@ import AddHomework from "../Homeworks/AddHomework";
 import CourseStudents from "./CourseStudents";
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
-import { Button, Container, Grid, Paper, Typography, Checkbox } from "@material-ui/core";
+import { Button, Container, Grid, Paper, Typography, Checkbox, Dialog, DialogTitle, TextField } from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
 import { useEffect, useState } from "react";
 import { makeStyles } from "@material-ui/styles";
@@ -25,9 +25,11 @@ interface ICourseState {
     course: CourseViewModel;
     courseHomework: HomeworkViewModel[];
     createHomework: boolean;
-    mentor: AccountDataDto;
+    mentors: AccountDataDto[];
     acceptedStudents: ICourseMate[];
     newStudents: ICourseMate[];
+    isOpenDialog: boolean;
+    lecturerEmail: string;
 }
 
 interface ICourseProps {
@@ -53,17 +55,12 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
         course: {},
         courseHomework: [],
         createHomework: false,
-        mentor: {
-            name: "",
-            surname: "",
-            middleName: "",
-            email: "",
-            role: "",
-        },
+        mentors: [],
         acceptedStudents: [],
         newStudents: [],
+        isOpenDialog: false,
+        lecturerEmail: "",
     })
-
     const setCurrentState = async () => {
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+courseId)
         setCourseState({
@@ -71,7 +68,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
           course: course,
           courseHomework: course.homeworks!,
           createHomework: false,
-          mentor: await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(course.mentorId!),
+          mentors: await Promise.all(course.mentorIds!.split('/').map(mentor => ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(mentor))),
           acceptedStudents: await Promise.all(course.courseMates!
             .filter(cm => cm.isAccepted)
             .map(async (cm) => {
@@ -96,6 +93,8 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                     id: cm.studentId!,
                 }
             })),
+          isOpenDialog: false,
+          lecturerEmail: "",
         })
     }
 
@@ -109,13 +108,22 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
             .then((res) => setCurrentState());
     }
 
-    const { isFound, course, createHomework, mentor, newStudents, acceptedStudents } = courseState;
+    const acceptLecturer = async (e: any) => {
+      e.preventDefault()
+      await ApiSingleton.coursesApi
+        .apiCoursesAcceptLecturerByCourseIdByLecturerEmailGet(+courseId, courseState.lecturerEmail)
+        .then(res => setCourseState(prevState => ({ ...prevState, isOpenDialog: false })))
+      setCurrentState()
+    
+    }
+
+    const { isFound, course, createHomework, mentors, newStudents, acceptedStudents } = courseState;
     if (isFound) {
         const isLogged = ApiSingleton.authService.isLoggedIn()
         const userId = isLogged
             ? ApiSingleton.authService.getUserId()
             : undefined;
-        const isMentor = isLogged && userId === String(course.mentorId);
+        const isMentor = isLogged && course.mentorIds!.includes(userId!);
         const isSignedInCourse =
             isLogged && newStudents!.some((cm: any) => cm.id === userId);
         const isAcceptedStudent = isLogged && acceptedStudents!.some(
@@ -139,14 +147,20 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                             </Typography>
                         </div>              
                         <div>
-                            <Typography variant="h5">
-                                {mentor.name}&nbsp;{mentor.surname}
-                            </Typography>
-                            {(isMentor || isAcceptedStudent) && (
-                            <Typography variant="subtitle1">
-                                {mentor.email}
-                            </Typography>
+                          <Grid container>
+                            {mentors.map(mentor => 
+                              <Grid item style={{margin: "5px", borderWidth: "1px", border: "solid", backgroundColor: "#eceef8",  borderColor: "Gainsboro", borderRadius: 5, padding: "2px"}}>
+                                    <Typography variant="h5">
+                                        {mentor.name}&nbsp;{mentor.surname}
+                                    </Typography>
+                                    {(isMentor || isAcceptedStudent) && (
+                                    <Typography variant="subtitle1">
+                                        {mentor.email}
+                                    </Typography>
+                                    )}
+                              </Grid>
                             )}
+                          </Grid>
                             {isLogged && !isSignedInCourse && !isMentor && !isAcceptedStudent &&(
                             <Button
                                 size="small"
@@ -157,6 +171,15 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                 Записаться
                             </Button>
                             )}
+                            {isLogged && isMentor && 
+                            <Button
+                                size="small"
+                                variant="contained"
+                                color="primary"
+                                onClick={() => setCourseState(prevState => ({...prevState, isOpenDialog: true }))}>
+                                Добавить лектора
+                            </Button>
+                            }
                             {isLogged && isSignedInCourse && !isAcceptedStudent &&
                             <Typography>
                                 Ваша заявка рассматривается
@@ -270,6 +293,32 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                     />
                 </div>
                 )}
+
+                <Dialog 
+                  onClose={() => setCourseState(prevState => ({...prevState, isOpenDialog: false }))} 
+                  aria-labelledby="simple-dialog-title" 
+                  open={courseState.isOpenDialog}
+                >
+                    <DialogTitle id="simple-dialog-title">Введите Email лектора</DialogTitle>
+                    <Grid container direction="column" justifyContent="space-evenly" alignItems="center">
+                      <Grid item>
+                        <form onSubmit={e => acceptLecturer(e)}>
+                            <TextField
+                                required
+                                label="Email лектора"
+                                variant="outlined"
+                                margin="normal"
+                                value={courseState.lecturerEmail}
+                                onChange={e => {
+                                    e.persist()
+                                    setCourseState(prevState => ({...prevState, lecturerEmail: e.target.value }))
+                                }}
+                            />
+                        </form>
+                      </Grid>
+                    </Grid>
+                </Dialog>
+
             </Grid>
         );
     }

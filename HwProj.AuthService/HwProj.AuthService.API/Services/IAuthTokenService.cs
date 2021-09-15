@@ -1,5 +1,5 @@
-﻿using HwProj.AuthService.API.Models;
-using HwProj.Models.AuthService.DTO;
+﻿using HwProj.Models.AuthService.DTO;
+using HwProj.Models.AuthService.ViewModels;
 using System.Threading.Tasks;
 
 namespace HwProj.AuthService.API.Services

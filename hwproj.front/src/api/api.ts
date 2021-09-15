@@ -183,7 +183,7 @@ export interface CourseViewModel {
      * @type {string}
      * @memberof CourseViewModel
      */
-    mentorId?: string;
+    mentorIds?: string;
     /**
      * 
      * @type {string}
@@ -820,7 +820,8 @@ export namespace Solution {
     export enum StateEnum {
         NUMBER_0 = <any> 0,
         NUMBER_1 = <any> 1,
-        NUMBER_2 = <any> 2
+        NUMBER_2 = <any> 2,
+        NUMBER_3 = <any> 3
     }
 }
 
@@ -952,7 +953,8 @@ export namespace StatisticsCourseSolutionsModel {
     export enum StateEnum {
         NUMBER_0 = <any> 0,
         NUMBER_1 = <any> 1,
-        NUMBER_2 = <any> 2
+        NUMBER_2 = <any> 2,
+        NUMBER_3 = <any> 3
     }
 }
 
@@ -2511,6 +2513,48 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
         /**
          * 
          * @param {number} courseId 
+         * @param {string} lecturerEmail 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesAcceptLecturerByCourseIdByLecturerEmailGet(courseId: number, lecturerEmail: string, options: any = {}): FetchArgs {
+            // verify required parameter 'courseId' is not null or undefined
+            if (courseId === null || courseId === undefined) {
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesAcceptLecturerByCourseIdByLecturerEmailGet.');
+            }
+            // verify required parameter 'lecturerEmail' is not null or undefined
+            if (lecturerEmail === null || lecturerEmail === undefined) {
+                throw new RequiredError('lecturerEmail','Required parameter lecturerEmail was null or undefined when calling apiCoursesAcceptLecturerByCourseIdByLecturerEmailGet.');
+            }
+            const localVarPath = `/api/Courses/acceptLecturer/{courseId}/{lecturerEmail}`
+                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)))
+                .replace(`{${"lecturerEmail"}}`, encodeURIComponent(String(lecturerEmail)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} courseId 
          * @param {string} studentId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -2848,6 +2892,25 @@ export const CoursesApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @param {number} courseId 
+         * @param {string} lecturerEmail 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesAcceptLecturerByCourseIdByLecturerEmailGet(courseId: number, lecturerEmail: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesAcceptLecturerByCourseIdByLecturerEmailGet(courseId, lecturerEmail, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} courseId 
          * @param {string} studentId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -3020,6 +3083,16 @@ export const CoursesApiFactory = function (configuration?: Configuration, fetch?
         /**
          * 
          * @param {number} courseId 
+         * @param {string} lecturerEmail 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesAcceptLecturerByCourseIdByLecturerEmailGet(courseId: number, lecturerEmail: string, options?: any) {
+            return CoursesApiFp(configuration).apiCoursesAcceptLecturerByCourseIdByLecturerEmailGet(courseId, lecturerEmail, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} courseId 
          * @param {string} studentId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -3109,6 +3182,18 @@ export const CoursesApiFactory = function (configuration?: Configuration, fetch?
  * @extends {BaseAPI}
  */
 export class CoursesApi extends BaseAPI {
+    /**
+     * 
+     * @param {number} courseId 
+     * @param {string} lecturerEmail 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CoursesApi
+     */
+    public apiCoursesAcceptLecturerByCourseIdByLecturerEmailGet(courseId: number, lecturerEmail: string, options?: any) {
+        return CoursesApiFp(this.configuration).apiCoursesAcceptLecturerByCourseIdByLecturerEmailGet(courseId, lecturerEmail, options)(this.fetch, this.basePath);
+    }
+
     /**
      * 
      * @param {number} courseId 
