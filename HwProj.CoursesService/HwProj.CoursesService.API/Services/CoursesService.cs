@@ -19,15 +19,13 @@ namespace HwProj.CoursesService.API.Services
     {
         private readonly ICoursesRepository _coursesRepository;
         private readonly ICourseMatesRepository _courseMatesRepository;
-        /*private readonly IAuthServiceClient _authServiceClient;*/
         private readonly IEventBus _eventBus;
         private readonly IMapper _mapper;
 
-        public CoursesService(ICoursesRepository coursesRepository, ICourseMatesRepository courseMatesRepository, IEventBus eventBus, IMapper mapper/*, IAuthServiceClient authServiceClient*/)
+        public CoursesService(ICoursesRepository coursesRepository, ICourseMatesRepository courseMatesRepository, IEventBus eventBus, IMapper mapper)
         {
             _coursesRepository = coursesRepository;
             _courseMatesRepository = courseMatesRepository;
-/*            _authServiceClient = authServiceClient;*/
             _eventBus = eventBus;
             _mapper = mapper;
         }
