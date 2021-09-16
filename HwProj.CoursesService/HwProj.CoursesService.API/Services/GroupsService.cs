@@ -1,7 +1,9 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.API.Models;
+using HwProj.CoursesService.API.Repositories;
 using HwProj.CoursesService.API.Repositories.Groups;
 using HwProj.Models.CoursesService.DTO;
 using Microsoft.EntityFrameworkCore;
@@ -13,16 +15,19 @@ namespace HwProj.CoursesService.API.Services
         private readonly IGroupsRepository _groupsRepository;
         private readonly IGroupMatesRepository _groupMatesRepository;
         private readonly ITaskModelsRepository _taskModelsRepository;
+        private readonly ICoursesRepository _coursesRepository;
         private readonly IMapper _mapper;
 
         public GroupsService(IGroupsRepository groupsRepository,
             IGroupMatesRepository groupMatesRepository,
             ITaskModelsRepository taskModelsRepository,
+            ICoursesRepository coursesRepository,
             IMapper mapper)
         {
             _groupsRepository = groupsRepository;
             _groupMatesRepository = groupMatesRepository;
             _taskModelsRepository = taskModelsRepository;
+            _coursesRepository = coursesRepository;
             _mapper = mapper;
         }
 
@@ -85,7 +90,6 @@ namespace HwProj.CoursesService.API.Services
                 return false;
             }
 
-
             await _groupMatesRepository.DeleteAsync(getGroupMateTask.Id);
             return true;
         }
@@ -111,6 +115,17 @@ namespace HwProj.CoursesService.API.Services
         {
             var group = await GetGroupAsync(groupId);
             return group.Tasks.Select(cm => cm.TaskId).ToArray();
+        }
+
+        public async Task<long[]> GetAllStudentWithoutGroup(long courseId)
+        {
+            var groups = (await GetAllAsync(courseId)).ToList();
+            var courseMates = (await _coursesRepository.GetWithCourseMatesAsync(courseId)).CourseMates.Select(cm => cm.Id);
+
+            var hashSet = new HashSet<long>();
+            hashSet.UnionWith(groups.SelectMany(g => g.GroupMates).Select(m => m.Id));
+
+            return courseMates.Where(id => !hashSet.Contains(id)).ToArray();
         }
     }
 }

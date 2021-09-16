@@ -203,6 +203,9 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                 )}
                 {isMentor && !createHomework && (
                 <div>
+                    <Button onClick={() => window.location.assign("/courses/" + courseId + "/courseGroupEditor")}>
+                        Редактор групп
+                    </Button>
                     <Grid container justifyContent="center" style={{ marginTop: "15px", marginBottom: "15px" }}>
                         <Grid item xs={11}>
                             <CourseStudents

@@ -90,12 +90,17 @@ namespace HwProj.CoursesService.API.Controllers
                 : Ok(_mapper.Map<GroupViewModel>(group)) as IActionResult;
         }
 
-
         [HttpGet("getTasks/{groupId}")]
         public async Task<IActionResult> GetGroupTasks(long groupId)
         {
             var ids = await _groupsService.GetTasksIds(groupId);
             return Ok(ids);
+        }
+
+        [HttpGet("getStudents/{groupId}")]
+        public async Task<IActionResult> GetStudentWithoutGroup(long courseId)
+        {
+            return Ok();
         }
     }
 }

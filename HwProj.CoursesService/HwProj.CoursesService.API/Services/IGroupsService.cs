@@ -23,5 +23,7 @@ namespace HwProj.CoursesService.API.Services
         Task<UserGroupDescription[]> GetStudentGroupsAsync(long courseId, string studentId);
         
         Task<long[]> GetTasksIds(long groupId);
+        
+        Task<long[]> GetAllStudentWithoutGroup(long courseId);
     }
 }
