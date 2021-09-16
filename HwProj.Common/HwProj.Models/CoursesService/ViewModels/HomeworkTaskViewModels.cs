@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace HwProj.Models.CoursesService.ViewModels
@@ -13,7 +14,7 @@ namespace HwProj.Models.CoursesService.ViewModels
 
         public int MaxRating { get; set; }
 
-        public DateTime DeadlineDate { get; set; }
+        public List<DeadlineViewModel> Deadlines { get; set; } = new List<DeadlineViewModel>();
 
         public DateTime PublicationDate { get; set; }
 
@@ -27,7 +28,7 @@ namespace HwProj.Models.CoursesService.ViewModels
         public string Title { get; set; }
         public string Description { get; set; }
 
-        public DateTime DeadlineDate { get; set; }
+        public List<DeadlineViewModel> Deadlines { get; set; } = new List<DeadlineViewModel>();
 
         public DateTime PublicationDate { get; set; }
 

@@ -1,8 +1,11 @@
-﻿using HwProj.CoursesService.API.Filters;
+﻿using Hangfire;
+using HwProj.CoursesService.API.Events;
+using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.CoursesService.API.Repositories.Groups;
 using HwProj.CoursesService.API.Services;
+using HwProj.EventBus.Client.Interfaces;
 using HwProj.Utils.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -30,12 +33,14 @@ namespace HwProj.CoursesService.API
             services.AddScoped<IGroupsRepository, GroupsRepository>();
             services.AddScoped<IGroupMatesRepository, GroupMatesRepository>();
             services.AddScoped<ITaskModelsRepository, TaskModelsRepository>();
+            services.AddScoped<IDeadlinesRepository, DeadlinesRepository>();
             services.AddScoped<IHomeworksRepository, HomeworksRepository>();
             services.AddScoped<ITasksRepository, TasksRepository>();
             services.AddScoped<ICoursesService, Services.CoursesService>();
             services.AddScoped<IGroupsService, GroupsService>();
             services.AddScoped<IHomeworksService, HomeworksService>();
             services.AddScoped<ITasksService, TasksService>();
+            services.AddScoped<IDeadlinesService, DeadlinesService>();
             services.AddScoped<CourseMentorOnlyAttribute>();
 
             services.AddEventBus(Configuration);
@@ -43,8 +48,9 @@ namespace HwProj.CoursesService.API
             services.ConfigureHwProjServices("Courses API");
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IEventBus eventBus)
         {
+            eventBus.Subscribe<RequestMaxRatingEvent>();
             app.ConfigureHwProj(env, "Courses API");
         }
     }

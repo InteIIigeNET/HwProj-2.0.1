@@ -1,4 +1,5 @@
-﻿using HwProj.Repositories;
+﻿using System;
+using HwProj.Repositories;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -7,6 +8,8 @@ namespace HwProj.Models.SolutionsService
     public class Solution : IEntity<long>
     {
         public long Id { get; set; }
+
+        public DateTime Date { get; set; }
 
         public string GithubUrl { get; set; }
         

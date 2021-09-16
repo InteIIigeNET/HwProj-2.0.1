@@ -1,8 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.SolutionsService;
 using HwProj.SolutionsService.API.Events;
-using HwProj.SolutionsService.API.Models;
 using HwProj.SolutionsService.API.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -38,8 +38,9 @@ namespace HwProj.SolutionsService.API.Services
         public async Task<long> AddSolutionAsync(long taskId, Solution solution)
         {
             solution.TaskId = taskId;
+            solution.Date = DateTime.Now;
             var id = await _solutionsRepository.AddAsync(solution);
-            _eventBus.Publish(new RequestMaxRatingEvent(taskId, id));
+            _eventBus.Publish(new RequestMaxRatingEvent(taskId, id, solution.StudentId, solution.Date));
             return id;
         }
 

@@ -37,6 +37,9 @@ namespace HwProj.CoursesService.API
             CreateMap<Homework, HomeworkViewModel>();
             CreateMap<HomeworkTask, HomeworkTaskViewModel>().ReverseMap();
             CreateMap<CreateTaskViewModel, HomeworkTask>().ReverseMap();
+
+            CreateMap<AddDeadlineViewModel, Deadline>().ReverseMap();
+            CreateMap<Deadline, DeadlineViewModel>().ReverseMap();
         }
     }
 }
