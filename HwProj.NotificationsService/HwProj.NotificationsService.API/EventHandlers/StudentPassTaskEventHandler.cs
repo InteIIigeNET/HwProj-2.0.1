@@ -1,6 +1,8 @@
 using System;
 using System.Threading.Tasks;
+using AutoMapper;
 using HwProj.AuthService.API.Events;
+using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
@@ -14,11 +16,15 @@ namespace HwProj.NotificationsService.API.EventHandlers
     {
         private readonly INotificationsRepository _notificationRepository;
         private readonly INotificationsService _notificationsService;
+        private readonly IAuthServiceClient _authServiceClient;
+        private readonly IMapper _mapper;
 
-        public StudentPassTaskEventHandler(INotificationsRepository notificationRepository, INotificationsService notificationsService)
+        public StudentPassTaskEventHandler(INotificationsRepository notificationRepository, INotificationsService notificationsService, IMapper mapper, IAuthServiceClient authServiceClient)
         {
             _notificationRepository = notificationRepository;
             _notificationsService = notificationsService;
+            _mapper = mapper;
+            _authServiceClient = authServiceClient;
         }
 
         public async Task HandleAsync(StudentPassTaskEvent @event)
@@ -32,10 +38,11 @@ namespace HwProj.NotificationsService.API.EventHandlers
                     Category = "SolutionService",
                     Date = DateTime.UtcNow,
                     HasSeen = false,
-                    Owner = @event.Course.MentorId
+                    Owner = m
                 };
                 await _notificationRepository.AddAsync(notification);
-                await _notificationsService.SendEmailAsync(notification, notification.Owner, "Hw-proj");
+                var mentor = await _authServiceClient.GetAccountData(notification.Owner);
+                await _notificationsService.SendEmailAsync(notification, mentor.Email, "HwProj");
             }
         }
     }
