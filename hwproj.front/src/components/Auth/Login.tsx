@@ -49,7 +49,7 @@ const Login: FC<LoginProps> = (props) => {
     email: '',
     password: '',
     error: [],
-    isLogin: ApiSingleton.authService.loggedIn(),
+    isLogin: ApiSingleton.authService.isLoggedIn(),
   })
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
