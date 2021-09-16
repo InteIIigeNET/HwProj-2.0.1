@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace HwProj.Models.CoursesService.ViewModels
@@ -12,12 +13,10 @@ namespace HwProj.Models.CoursesService.ViewModels
         public string Description { get; set; }
 
         public int MaxRating { get; set; }
+
+        public List<DeadlineViewModel> Deadlines { get; set; } = new List<DeadlineViewModel>();
         
         public bool HasDeadline { get; set; }
-        
-        public DateTime? DeadlineDate { get; set; }
-        
-        public bool IsDeadlineStrict { get; set; }
         
         public bool CanSendSolution { get; set; }
 
@@ -27,9 +26,12 @@ namespace HwProj.Models.CoursesService.ViewModels
 
         public void PutPossibilityForSendingSolution()
         {
-            if (!IsDeadlineStrict || DateTime.UtcNow <= DeadlineDate)
+            foreach (var deadline in Deadlines)
             {
-                CanSendSolution = true;
+                if (deadline.IsStrict && DateTime.UtcNow >= deadline.DateTime)
+                {
+                    CanSendSolution = false;
+                }
             }
         }
 
@@ -42,13 +44,11 @@ namespace HwProj.Models.CoursesService.ViewModels
         [RegularExpression(@"^\S+.*", ErrorMessage = "Name shouldn't start with white spaces.")]
         public string Title { get; set; }
         public string Description { get; set; }
+
+        public List<DeadlineViewModel> Deadlines { get; set; } = new List<DeadlineViewModel>();
         
         public bool HasDeadline { get; set; }
         
-        public DateTime? DeadlineDate { get; set; }
-        
-        public bool IsDeadlineStrict { get; set; }
-
         public DateTime PublicationDate { get; set; }
 
         [Required]
@@ -56,10 +56,10 @@ namespace HwProj.Models.CoursesService.ViewModels
         
         public void InitializeDeadline()
         {
-            if (!HasDeadline || DeadlineDate == null)
+            if (!HasDeadline || Deadlines == null)
             {
                 HasDeadline = false;
-                DeadlineDate = null;
+                Deadlines = new List<DeadlineViewModel>();
             }
         }
     }

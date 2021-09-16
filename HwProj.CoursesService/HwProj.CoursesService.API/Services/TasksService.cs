@@ -54,9 +54,7 @@ namespace HwProj.CoursesService.API.Services
                 Title = update.Title,
                 Description = update.Description,
                 MaxRating = update.MaxRating,
-                DeadlineDate = update.DeadlineDate,
                 HasDeadline = update.HasDeadline,
-                IsDeadlineStrict = update.IsDeadlineStrict,
                 PublicationDate = update.PublicationDate
             });
         }
