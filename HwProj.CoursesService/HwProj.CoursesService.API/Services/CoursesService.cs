@@ -22,7 +22,7 @@ namespace HwProj.CoursesService.API.Services
         private readonly IEventBus _eventBus;
         private readonly IMapper _mapper;
         private readonly IAuthServiceClient _authServiceClient;
-
+        
         public CoursesService(ICoursesRepository coursesRepository,
             ICourseMatesRepository courseMatesRepository,
             IEventBus eventBus,
