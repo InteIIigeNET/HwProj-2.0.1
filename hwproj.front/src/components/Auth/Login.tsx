@@ -149,7 +149,7 @@ const Login: FC<LoginProps> = (props) => {
                   required
                   type="email"
                   fullWidth
-                  label="Email Address"
+                  label="Электронная почта"
                   variant="outlined"
                   margin="normal"
                   name={loginState.email}
@@ -161,7 +161,7 @@ const Login: FC<LoginProps> = (props) => {
                   required
                   type="password"
                   fullWidth
-                  label="Password"
+                  label="Пароль"
                   variant="outlined"
                   margin="normal"
                   value={loginState.password}
@@ -189,19 +189,19 @@ const Login: FC<LoginProps> = (props) => {
                         onClick={renderProps.onClick}
                     >
                       <Typography>
-                        Google
+                        Войти с помощью Google
                       </Typography>
                     </GoogleLoginButton>
                 )}
             />
-            <GithubLoginButton
-                style={{ height: '36px', marginTop: '15px' }}
-                onClick={() => {}}
-            >
-              <Typography>
-                GitHub
-              </Typography>
-            </GithubLoginButton>
+            {/*<GithubLoginButton*/}
+            {/*    style={{ height: '36px', marginTop: '15px' }}*/}
+            {/*    onClick={() => {}}*/}
+            {/*>*/}
+            {/*  <Typography>*/}
+            {/*    GitHub*/}
+            {/*  </Typography>*/}
+            {/*</GithubLoginButton>*/}
           </div>
         </form>
       </Container>

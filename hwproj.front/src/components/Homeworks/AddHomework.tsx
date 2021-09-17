@@ -135,7 +135,7 @@ export default class AddHomework extends React.Component<
                       <TextField
                         multiline
                         fullWidth
-                        rows="4"
+                        rows="10"
                         label="Условие задачи"
                         variant="outlined"
                         margin="normal"

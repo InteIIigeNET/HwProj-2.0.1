@@ -153,7 +153,7 @@ const Register: FC<LoginProps> = (props) => {
                                 required
                                 fullWidth
                                 type="email"
-                                label="Email"
+                                label="Электронная почта"
                                 variant="outlined"
                                 name={registerState.email}
                                 onChange={(e) =>
