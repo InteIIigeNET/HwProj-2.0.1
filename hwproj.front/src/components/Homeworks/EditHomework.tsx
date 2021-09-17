@@ -57,8 +57,8 @@ export default class EditHomework extends React.Component<
     }
     if (this.state.isLoaded) {
       if (
-        !ApiSingleton.authService.isLoggedIn() ||
-        ApiSingleton.authService.getUserId() != this.state.courseMentorId
+        !ApiSingleton.authService.isLoggedIn() || 
+        !this.state.courseMentorId.includes(ApiSingleton.authService.getUserId())
       ) {
         return (
           <Typography variant="h6" gutterBottom>

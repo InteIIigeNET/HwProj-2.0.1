@@ -39,7 +39,7 @@ export default class StudentSolutionsPage extends React.Component<
     if (isLoaded) {
       if (
         !ApiSingleton.authService.isLoggedIn() ||
-        userId != this.state.course.mentorIds!
+        !this.state.course.mentorIds?.includes(userId!)
       ) {
         return <Typography variant="h6">Страница не найдена</Typography>;
       }

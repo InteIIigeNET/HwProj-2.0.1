@@ -63,7 +63,7 @@ export default class EditTask extends React.Component<
     if (this.state.isLoaded) {
       if (
         !ApiSingleton.authService.isLoggedIn() ||
-        ApiSingleton.authService.getUserId() != this.state.courseMentorId
+        !this.state.courseMentorId.includes(ApiSingleton.authService.getUserId())
       ) {
         return (
           <Typography variant="h6" gutterBottom>

@@ -66,7 +66,7 @@ export default class EditCourse extends React.Component<RouteComponentProps<IEdi
                 return <Redirect to='/' />
             }
 
-            if (!ApiSingleton.authService.isLoggedIn() || ApiSingleton.authService.getUserId() != this.state.mentorId) {
+            if (!ApiSingleton.authService.isLoggedIn() || !this.state.mentorId.includes(ApiSingleton.authService.getUserId())) {
                 debugger
                 return <Typography variant='h6' gutterBottom>Только преподаватель может редактировать курс</Typography>
             }
