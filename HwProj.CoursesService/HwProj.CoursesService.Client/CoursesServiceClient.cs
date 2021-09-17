@@ -319,5 +319,15 @@ namespace HwProj.CoursesService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<long[]>();
         }
+        
+        public async Task<string[]> GetAllStudentsWithoutGroup(long courseId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get, 
+                _coursesServiceUri + $"api/CourseGroups/getStudents?courseId={courseId}");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<string[]>();
+        }
     }
 }

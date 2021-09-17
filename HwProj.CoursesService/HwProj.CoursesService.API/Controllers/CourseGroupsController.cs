@@ -97,10 +97,11 @@ namespace HwProj.CoursesService.API.Controllers
             return Ok(ids);
         }
 
-        [HttpGet("getStudents/{groupId}")]
-        public async Task<IActionResult> GetStudentWithoutGroup(long courseId)
+        [HttpGet("getStudents")]
+        public async Task<IActionResult> GetStudentWithoutGroup([FromQuery] long courseId)
         {
-            return Ok();
+            var ids = await _groupsService.GetAllStudentWithoutGroup(courseId);
+            return Ok(ids);
         }
     }
 }

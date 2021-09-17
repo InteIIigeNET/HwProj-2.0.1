@@ -6,6 +6,7 @@ using HwProj.HttpUtils;
 using HwProj.Models.AuthService;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.AuthService.DTO;
+using HwProj.Models.CoursesService.DTO;
 using Newtonsoft.Json;
 using HwProj.Models.Result;
 
@@ -119,6 +120,22 @@ namespace HwProj.AuthService.Client
             };
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Result>();
+        }
+        
+        public async Task<GroupMateDataDTO[]> GetStudentData(StudentsModel studentsModel)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _authServiceUri + $"api/account/getStudentsData")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(studentsModel),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<GroupMateDataDTO[]>().ConfigureAwait(false);
         }
     }
 }

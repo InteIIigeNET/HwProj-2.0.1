@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.AuthService.API.Events;
@@ -11,6 +13,7 @@ using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.Result;
 using Google.Apis.Auth;
 using HwProj.Models.AuthService;
+using HwProj.Models.CoursesService.DTO;
 
 namespace HwProj.AuthService.API.Controllers
 {
@@ -92,6 +95,21 @@ namespace HwProj.AuthService.API.Controllers
             var newModel = _mapper.Map<EditDataDTO>(model);
             var result = await _accountService.EditAccountAsync(userId, newModel).ConfigureAwait(false);
             return Ok(result);
+        }
+
+        [HttpGet("getStudentsData")]
+        [ProducesResponseType(typeof(GroupMateDataDTO[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetStudentsData([FromBody] StudentsModel studentsModel)
+        {
+            var ids = studentsModel.Students.ToArray();
+            var result = await _accountService.GetStudentsData(ids);
+            var answerList = new List<GroupMateDataDTO>();
+            for (var i = 0; i < ids.Length; i++)
+            {
+                var currentStudent = result[i];
+                answerList.Add(new GroupMateDataDTO(ids[i], currentStudent.Name, currentStudent.Surname, currentStudent.MiddleName));
+            }
+            return Ok(answerList);
         }
     }
 }

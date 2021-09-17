@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
 using System.Linq;
 using AutoMapper;
@@ -182,6 +183,16 @@ namespace HwProj.AuthService.API.Services
             }
 
             return Result.Failed();
+        }
+
+        public async Task<AccountDataDto[]> GetStudentsData(string[] ids)
+        {
+            var allStudents = new List<AccountDataDto>();
+            foreach (var id in ids)
+            {
+                allStudents.Add(await GetAccountDataAsync(id));
+            }
+            return allStudents.ToArray();
         }
 
         private Task<IdentityResult> ChangeUserNameTask(User user, EditDataDTO model)

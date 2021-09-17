@@ -1,6 +1,9 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
+using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
+using HwProj.Models.AuthService;
+using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
 using HwProj.Utils.Authorization;
@@ -14,10 +17,12 @@ namespace HwProj.APIGateway.API.Controllers
     public class CourseGroupsController : ControllerBase
     {
         private readonly ICoursesServiceClient _coursesClient;
+        private readonly IAuthServiceClient _authClient;
 
-        public CourseGroupsController(ICoursesServiceClient coursesClient)
+        public CourseGroupsController(ICoursesServiceClient coursesClient, IAuthServiceClient authClient)
         {
             _coursesClient = coursesClient;
+            _authClient = authClient;
         }
 
         [HttpGet("{courseId}/getAll")]
@@ -99,6 +104,21 @@ namespace HwProj.APIGateway.API.Controllers
         {
             var result = await _coursesClient.GetGroupTasks(groupId);
             return Ok(result);
+        }
+
+        [HttpGet("{courseId}/getCourseData")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        [ProducesResponseType(typeof(CourseGroupDTO), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetGroupData(long courseId)
+        {
+            var cm = await _coursesClient.GetAllStudentsWithoutGroup(courseId);
+            var groups = await _coursesClient.GetAllCourseGroups(courseId);
+            var courseMatesWithoutGroup = await _authClient.GetStudentData(new StudentsModel(cm));
+            return Ok(new CourseGroupDTO()
+            {
+                StudentsWithoutGroup = courseMatesWithoutGroup,
+                Groups = groups
+            });
         }
     }
 }

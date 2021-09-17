@@ -117,13 +117,13 @@ namespace HwProj.CoursesService.API.Services
             return group.Tasks.Select(cm => cm.TaskId).ToArray();
         }
 
-        public async Task<long[]> GetAllStudentWithoutGroup(long courseId)
+        public async Task<string[]> GetAllStudentWithoutGroup(long courseId)
         {
             var groups = (await GetAllAsync(courseId)).ToList();
-            var courseMates = (await _coursesRepository.GetWithCourseMatesAsync(courseId)).CourseMates.Select(cm => cm.Id);
+            var courseMates = (await _coursesRepository.GetWithCourseMatesAsync(courseId)).CourseMates.Select(cm => cm.StudentId);
 
-            var hashSet = new HashSet<long>();
-            hashSet.UnionWith(groups.SelectMany(g => g.GroupMates).Select(m => m.Id));
+            var hashSet = new HashSet<string>();
+            hashSet.UnionWith(groups.SelectMany(g => g.GroupMates).Select(m => m.StudentId));
 
             return courseMates.Where(id => !hashSet.Contains(id)).ToArray();
         }

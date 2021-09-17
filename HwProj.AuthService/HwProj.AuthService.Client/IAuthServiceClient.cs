@@ -3,6 +3,7 @@ using HwProj.Models.AuthService.ViewModels;
 using System.Threading.Tasks;
 using HwProj.Models.Result;
 using HwProj.Models.AuthService;
+using HwProj.Models.CoursesService.DTO;
 
 namespace HwProj.AuthService.Client
 {
@@ -15,5 +16,6 @@ namespace HwProj.AuthService.Client
         Task<Result> InviteNewLecturer(InviteLecturerViewModel model);
         Task<Result<TokenCredentials>> LoginByGoogle(string tokenId);
         Task<Result> EditExternal(EditExternalViewModel model, string userId);
+        Task<GroupMateDataDTO[]> GetStudentData(StudentsModel studentsModel);
     }
 }

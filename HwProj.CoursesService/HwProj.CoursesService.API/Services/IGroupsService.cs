@@ -24,6 +24,6 @@ namespace HwProj.CoursesService.API.Services
         
         Task<long[]> GetTasksIds(long groupId);
         
-        Task<long[]> GetAllStudentWithoutGroup(long courseId);
+        Task<string[]> GetAllStudentWithoutGroup(long courseId);
     }
 }
