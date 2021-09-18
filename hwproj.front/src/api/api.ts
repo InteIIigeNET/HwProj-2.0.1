@@ -273,7 +273,7 @@ export interface CreateHomeworkViewModel {
      * @type {string}
      * @memberof CreateHomeworkViewModel
      */
-    title?: string;
+    title: string;
     /**
      * 
      * @type {string}
@@ -299,7 +299,7 @@ export interface CreateTaskViewModel {
      * @type {string}
      * @memberof CreateTaskViewModel
      */
-    title?: string;
+    title: string;
     /**
      * 
      * @type {string}
@@ -335,7 +335,7 @@ export interface CreateTaskViewModel {
      * @type {number}
      * @memberof CreateTaskViewModel
      */
-    maxRating?: number;
+    maxRating: number;
 }
 
 /**
@@ -820,8 +820,7 @@ export namespace Solution {
     export enum StateEnum {
         NUMBER_0 = <any> 0,
         NUMBER_1 = <any> 1,
-        NUMBER_2 = <any> 2,
-        NUMBER_3 = <any> 3
+        NUMBER_2 = <any> 2
     }
 }
 
@@ -953,8 +952,7 @@ export namespace StatisticsCourseSolutionsModel {
     export enum StateEnum {
         NUMBER_0 = <any> 0,
         NUMBER_1 = <any> 1,
-        NUMBER_2 = <any> 2,
-        NUMBER_3 = <any> 3
+        NUMBER_2 = <any> 2
     }
 }
 
@@ -1143,8 +1141,8 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
@@ -1155,7 +1153,7 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             delete localVarUrlObj.search;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"EditExternalViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body = needsSerialization ? JSON.stringify(model || {}) : (model || "");
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
 
             return {
                 url: url.format(localVarUrlObj),
