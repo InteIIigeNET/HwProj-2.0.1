@@ -137,15 +137,16 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                             <Typography variant="subtitle1" gutterBottom>
                                 Группа: {course.groupName}
                             </Typography>
-                            <Link
+                            <Button
+                                size="small"
+                                variant="contained"
+                                color="primary"
                                 onClick={() => window.location.assign("/courses/" + courseId + "/courseGroupEditor")}
-                                component="button"
-                                color="inherit"
                             >
                                 <Typography>
-                                    Группы
+                                    Редактор групп
                                 </Typography>
-                            </Link>
+                            </Button>
                         </div>              
                         <div>
                             <Typography variant="h5">
