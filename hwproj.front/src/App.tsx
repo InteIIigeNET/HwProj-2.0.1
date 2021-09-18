@@ -21,7 +21,7 @@ import Register from "./components/Auth/Register";
 import StudentSolutionsPage from "./components/Solutions/StudentSolutionsPage";
 import EditProfile from "./components/EditProfile";
 import ApiSingleton from "./api/ApiSingleton";
-import CourseGroupEditor from "./components/Courses/CourseGroupEditor";
+import CourseGroupEditor from "./components/Groups/CourseGroupEditor";
 
 type AppProps = RouteComponentProps;
 

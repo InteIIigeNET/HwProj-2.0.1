@@ -7,7 +7,7 @@ import AddHomework from "../Homeworks/AddHomework";
 import CourseStudents from "./CourseStudents";
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
-import { Button, Container, Grid, Paper, Typography, Checkbox } from "@material-ui/core";
+import { Button, Container, Grid, Paper, Typography, Checkbox, Link } from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
 import { useEffect, useState } from "react";
 import { makeStyles } from "@material-ui/styles";
@@ -137,6 +137,15 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                             <Typography variant="subtitle1" gutterBottom>
                                 Группа: {course.groupName}
                             </Typography>
+                            <Link
+                                onClick={() => window.location.assign("/courses/" + courseId + "/courseGroupEditor")}
+                                component="button"
+                                color="inherit"
+                            >
+                                <Typography>
+                                    Группы
+                                </Typography>
+                            </Link>
                         </div>              
                         <div>
                             <Typography variant="h5">
@@ -160,7 +169,8 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                             {isLogged && isSignedInCourse && !isAcceptedStudent &&
                             <Typography>
                                 Ваша заявка рассматривается
-                            </Typography>}
+                            </Typography>
+                            }
                         </div>
                     </Grid>
                 </Grid>
@@ -190,7 +200,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                 onSubmit={() => setCurrentState()}
                             />
                         </Grid>
-                        <Grid item xs={11} style={{ marginTop: "15px" }}>
+                        <Grid item style={{ marginTop: "15px", width: '96%' }}>
                             <CourseHomework
                                 onDelete={() => setCurrentState()}
                                 isStudent={isAcceptedStudent}
@@ -203,9 +213,6 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                 )}
                 {isMentor && !createHomework && (
                 <div>
-                    <Button onClick={() => window.location.assign("/courses/" + courseId + "/courseGroupEditor")}>
-                        Редактор групп
-                    </Button>
                     <Grid container justifyContent="center" style={{ marginTop: "15px", marginBottom: "15px" }}>
                         <Grid item xs={11}>
                             <CourseStudents
@@ -240,7 +247,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                 Добавить домашку
                             </Button>
                         </Grid>
-                        <Grid item xs={11} style={{ marginTop: "15px" }}>
+                        <Grid item style={{ marginTop: "15px", width: '94%' }}>
                             <CourseHomework
                                 onDelete={() => setCurrentState()}
                                 isStudent={isAcceptedStudent}
