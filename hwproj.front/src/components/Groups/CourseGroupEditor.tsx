@@ -11,6 +11,7 @@ import {makeStyles} from "@material-ui/styles";
 import ApiSingleton from "../../api/ApiSingleton";
 import {Redirect} from "react-router-dom";
 import Group from './Group';
+import AvailableCourseStudents from "./AvailableCourseStudents";
 
 interface ICourseGroupEditorState {
     isLoaded: boolean;
@@ -44,27 +45,7 @@ const CourseGroupEditor: FC<RouteComponentProps<ICourseGroupEditorProps>> = (pro
                 <Grid item xs={4}>
                     <Grid container direction="column" justifyContent="center">
                         <Paper elevation={3}>
-                            <Grid item style={{ marginLeft: '15px', marginTop: '15px' }}>
-                                <Typography variant="h5">
-                                    Студенты без группы
-                                </Typography>
-                            </Grid>
-                            <Grid style={{ marginTop: '10px' }}>
-                                <List
-                                    component="nav"
-                                    aria-label="secondary mailbox folders"
-                                >
-                                    <ListItem button>
-                                        {/*<ListItemIcon>*/}
-                                        {/*    <Avatar style={{ color: 'white', backgroundColor: '#3fcb27' }}/>*/}
-                                        {/*</ListItemIcon>*/}
-                                        <ListItemText primary="Никита Бабич"/>
-                                    </ListItem>
-                                    <ListItem button>
-                                        <ListItemText primary="Артем Вяткин"/>
-                                    </ListItem>
-                                </List>
-                            </Grid>
+                            <AvailableCourseStudents/>
                         </Paper>
                     </Grid>
                 </Grid>

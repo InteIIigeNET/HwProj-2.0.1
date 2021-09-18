@@ -9,6 +9,9 @@ import {IconButton, ListItem, Theme} from "@material-ui/core";
 import List from "@material-ui/core/List";
 import Button from "@material-ui/core/Button";
 import DeleteIcon from "@material-ui/icons/Delete";
+import GroupStudents from "./GroupStudents";
+import GroupHomeworks from "./GroupHomeworks";
+import GroupEdit from "./GroupEdit";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -40,82 +43,9 @@ const Group: FC = () => {
                         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex,
                         sit amet blandit leo lobortis eget.
                     </Typography>*/}
-                    <Accordion>
-                        <AccordionSummary
-                            expandIcon={<ExpandMoreIcon />}
-                            aria-controls="panel1a-content"
-                            id="panel1a-header"
-                        >
-                            <Typography className={classes.heading}>Состав группы:</Typography>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                            <List>
-                                <ListItem>
-                                    Володя Петров
-                                    <IconButton aria-label="Delete" onClick={() => console.log("Hello")}>
-                                        <DeleteIcon fontSize="small" />
-                                    </IconButton>
-                                </ListItem>
-                                <ListItem>
-                                    Володя Петров
-                                    <IconButton aria-label="Delete" onClick={() => console.log("Hello")}>
-                                        <DeleteIcon fontSize="small" />
-                                    </IconButton>
-                                </ListItem>
-                                <ListItem>
-                                    Володя Петров
-                                    <IconButton aria-label="Delete" onClick={() => console.log("Hello")}>
-                                        <DeleteIcon fontSize="small" />
-                                    </IconButton>
-                                </ListItem>
-                                <ListItem>
-                                    Володя Петров
-                                    <IconButton aria-label="Delete" onClick={() => console.log("Hello")}>
-                                        <DeleteIcon fontSize="small" />
-                                    </IconButton>
-                                </ListItem>
-                            </List>
-                        </AccordionDetails>
-                    </Accordion>
-                    <Accordion>
-                        <AccordionSummary
-                            expandIcon={<ExpandMoreIcon />}
-                            aria-controls="panel1a-content"
-                            id="panel1a-header"
-                        >
-                            <Typography className={classes.heading}>Домашние задания:</Typography>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                            <List>
-                                <ListItem>
-                                    Для лоха
-                                    <IconButton aria-label="Delete" onClick={() => console.log("Hello")}>
-                                        <DeleteIcon fontSize="small" />
-                                    </IconButton>
-                                </ListItem>
-                                <ListItem>
-                                    Для лоха
-                                    <IconButton aria-label="Delete" onClick={() => console.log("Hello")}>
-                                        <DeleteIcon fontSize="small" />
-                                    </IconButton>
-                                </ListItem>
-                                <ListItem>
-                                    Для лоха
-                                    <IconButton aria-label="Delete" onClick={() => console.log("Hello")}>
-                                        <DeleteIcon fontSize="small" />
-                                    </IconButton>
-                                </ListItem>
-                                <ListItem>
-                                    Для лоха
-                                    <IconButton aria-label="Delete" onClick={() => console.log("Hello")}>
-                                        <DeleteIcon fontSize="small" />
-                                    </IconButton>
-                                </ListItem>
-                            </List>
-                        </AccordionDetails>
-                    </Accordion>
-                    <Button>Редактировать группу</Button>
-                    <Button>Добавить студента</Button>
+                        <GroupStudents/>
+                        <GroupHomeworks/>
+                        <GroupEdit/>
                 </AccordionDetails>
             </Accordion>
         </div>
