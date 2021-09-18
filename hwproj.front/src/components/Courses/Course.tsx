@@ -7,7 +7,7 @@ import AddHomework from "../Homeworks/AddHomework";
 import CourseStudents from "./CourseStudents";
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
-import {Button, Container, Grid, Paper, Typography, Checkbox, Dialog, DialogTitle, TextField} from "@material-ui/core";
+import {Button, Grid, Typography } from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
 import {useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
@@ -28,8 +28,6 @@ interface ICourseState {
     mentors: AccountDataDto[];
     acceptedStudents: ICourseMate[];
     newStudents: ICourseMate[];
-    isOpenDialog: boolean;
-    lecturerEmail: string;
 }
 
 interface ICourseProps {
@@ -65,8 +63,6 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
         mentors: [],
         acceptedStudents: [],
         newStudents: [],
-        isOpenDialog: false,
-        lecturerEmail: "",
     })
     const setCurrentState = async () => {
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+courseId)
@@ -100,8 +96,6 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                         id: cm.studentId!,
                     }
                 })),
-            isOpenDialog: false,
-            lecturerEmail: "",
         })
     }
 
@@ -113,15 +107,6 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
         await ApiSingleton.coursesApi
             .apiCoursesSignInCourseByCourseIdPost(+courseId)
             .then((res) => setCurrentState());
-    }
-
-    const acceptLecturer = async (e: any) => {
-        e.preventDefault()
-        await ApiSingleton.coursesApi
-            .apiCoursesAcceptLecturerByCourseIdByLecturerEmailGet(+courseId, courseState.lecturerEmail)
-            .then(res => setCourseState(prevState => ({...prevState, isOpenDialog: false})))
-        setCurrentState()
-
     }
 
     const {isFound, course, createHomework, mentors, newStudents, acceptedStudents} = courseState;
@@ -186,16 +171,6 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                     Записаться
                                 </Button>
                             )}
-                            {isLogged && isMentor &&
-                                <Button
-                                    size="small"
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={() => setCourseState(prevState => ({...prevState, isOpenDialog: true}))}
-                                >
-                                    Добавить лектора
-                                </Button>
-                            }
                             {isLogged && isSignedInCourse && !isAcceptedStudent &&
                                 <Typography>
                                     Ваша заявка рассматривается
@@ -310,32 +285,6 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                         />
                     </div>
                 )}
-
-                <Dialog
-                    onClose={() => setCourseState(prevState => ({...prevState, isOpenDialog: false}))}
-                    aria-labelledby="simple-dialog-title"
-                    open={courseState.isOpenDialog}
-                >
-                    <DialogTitle id="simple-dialog-title">Введите Email лектора</DialogTitle>
-                    <Grid container direction="column" justifyContent="space-evenly" alignItems="center">
-                        <Grid item>
-                            <form onSubmit={e => acceptLecturer(e)}>
-                                <TextField
-                                    required
-                                    label="Email лектора"
-                                    variant="outlined"
-                                    margin="normal"
-                                    value={courseState.lecturerEmail}
-                                    onChange={e => {
-                                        e.persist()
-                                        setCourseState(prevState => ({...prevState, lecturerEmail: e.target.value}))
-                                    }}
-                                />
-                            </form>
-                        </Grid>
-                    </Grid>
-                </Dialog>
-
             </Grid>
         );
     }

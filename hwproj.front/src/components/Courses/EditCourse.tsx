@@ -7,6 +7,7 @@ import Typography from '@material-ui/core/Typography'
 import { Redirect } from 'react-router-dom';
 import {RouteComponentProps, Link} from "react-router-dom"
 import ApiSingleton from "../../api/ApiSingleton";
+import { Dialog, DialogTitle, Grid } from '@material-ui/core';
 
 interface IEditCourseState {
     isLoaded: boolean,
@@ -16,7 +17,9 @@ interface IEditCourseState {
     isComplete: boolean,
     mentorId: string,
     edited: boolean,
-    deleted: boolean
+    deleted: boolean,
+    isOpenDialog: boolean;
+    lecturerEmail: string;
 }
 
 interface IEditCourseProps {
@@ -34,7 +37,9 @@ export default class EditCourse extends React.Component<RouteComponentProps<IEdi
             isComplete: false,
             mentorId: "",
             edited: false,
-            deleted: false
+            deleted: false,
+            isOpenDialog: false,
+            lecturerEmail: "",
         };
     }
 
@@ -54,6 +59,13 @@ export default class EditCourse extends React.Component<RouteComponentProps<IEdi
     public onDelete() {
         ApiSingleton.coursesApi.apiCoursesByCourseIdDelete(+this.props.match.params.courseId)
             .then(res => this.setState({deleted: true}));
+    }
+
+    public async acceptLecturer(e: any) {
+        e.preventDefault()
+        await ApiSingleton.coursesApi
+            .apiCoursesAcceptLecturerByCourseIdByLecturerEmailGet(+this.props.match.params.courseId, this.state.lecturerEmail)
+            .then(res => this.setState({ isOpenDialog: false }))
     }
 
     public render() {
@@ -119,11 +131,46 @@ export default class EditCourse extends React.Component<RouteComponentProps<IEdi
                                 label="Завершённый курс"
                             />
                             <br />
+                            <Button
+                                size="small"
+                                variant="contained"
+                                color="primary"
+                                onClick={() => this.setState({ isOpenDialog: true })}
+                            >
+                                Добавить лектора
+                            </Button>
+                            <br /> <br />
                             <Button size="small" variant="contained" color="primary" type="submit">Редактировать курс</Button>
                             <br /> <br /> <br /> <hr />
                             <Button onClick={() => this.onDelete()} size="small" variant="contained" color="secondary">Удалить курс</Button>
                         </form>
                     </div>
+
+                    <Dialog
+                        onClose={() => this.setState({ isOpenDialog: false })}
+                        aria-labelledby="simple-dialog-title"
+                        open={this.state.isOpenDialog}
+                    >
+                        <DialogTitle id="simple-dialog-title">Введите Email лектора</DialogTitle>
+                        <Grid container direction="column" justifyContent="space-evenly" alignItems="center">
+                            <Grid item>
+                                <form onSubmit={e => this.acceptLecturer(e)}>
+                                    <TextField
+                                        required
+                                        label="Email лектора"
+                                        variant="outlined"
+                                        margin="normal"
+                                        value={this.state.lecturerEmail}
+                                        onChange={e => {
+                                            e.persist()
+                                            this.setState({ lecturerEmail: e.target.value })
+                                        }}
+                                    />
+                                </form>
+                            </Grid>
+                        </Grid>
+                    </Dialog>
+
                 </div>
             );
         }
