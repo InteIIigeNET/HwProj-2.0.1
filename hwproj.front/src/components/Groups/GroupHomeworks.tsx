@@ -38,25 +38,25 @@ const GroupHomeworks: FC = () => {
                 <AccordionDetails>
                     <List>
                         <ListItem>
-                            Для лоха
+                            Для Володи
                             <IconButton aria-label="Delete" onClick={() => console.log("Hello")}>
                                 <DeleteIcon fontSize="small" />
                             </IconButton>
                         </ListItem>
                         <ListItem>
-                            Для лоха
+                            Для Володи
                             <IconButton aria-label="Delete" onClick={() => console.log("Hello")}>
                                 <DeleteIcon fontSize="small" />
                             </IconButton>
                         </ListItem>
                         <ListItem>
-                            Для лоха
+                            Для Володи
                             <IconButton aria-label="Delete" onClick={() => console.log("Hello")}>
                                 <DeleteIcon fontSize="small" />
                             </IconButton>
                         </ListItem>
                         <ListItem>
-                            Для лоха
+                            Для Володи
                             <IconButton aria-label="Delete" onClick={() => console.log("Hello")}>
                                 <DeleteIcon fontSize="small" />
                             </IconButton>

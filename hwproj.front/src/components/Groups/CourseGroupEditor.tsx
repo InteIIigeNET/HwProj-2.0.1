@@ -69,7 +69,6 @@ const CourseGroupEditor: FC<RouteComponentProps<ICourseGroupEditorProps>> = (pro
                                         <Group/>
                                     </ListItem>
                                 </List>
-
                             </Grid>
                         </Grid>
                     </Paper>

@@ -12,6 +12,7 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import GroupStudents from "./GroupStudents";
 import GroupHomeworks from "./GroupHomeworks";
 import GroupEdit from "./GroupEdit";
+import EditIcon from "@material-ui/icons/Edit";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -36,16 +37,15 @@ const Group: FC = () => {
                     aria-controls="panel1a-content"
                     id="panel1a-header"
                 >
+                    {/*<GroupEdit/>*/}
                     <Typography className={classes.heading}>Группа 1:</Typography>
+                    <IconButton aria-label="Edit" onClick={() => console.log("Hello")}>
+                        <EditIcon fontSize="small" />
+                    </IconButton>
                 </AccordionSummary>
                 <AccordionDetails>
-                    {/*<Typography>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex,
-                        sit amet blandit leo lobortis eget.
-                    </Typography>*/}
-                        <GroupStudents/>
-                        <GroupHomeworks/>
-                        <GroupEdit/>
+                    <GroupStudents/>
+                    {/*<GroupHomeworks/>*/}
                 </AccordionDetails>
             </Accordion>
         </div>

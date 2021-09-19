@@ -5,7 +5,7 @@ import Typography from '@material-ui/core/Typography'
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import {createStyles, makeStyles} from '@material-ui/core/styles';
-import {IconButton, ListItem, Theme} from "@material-ui/core";
+import {Grid, IconButton, ListItem, Theme} from "@material-ui/core";
 import List from "@material-ui/core/List";
 import Button from "@material-ui/core/Button";
 import DeleteIcon from "@material-ui/icons/Delete";
@@ -27,8 +27,9 @@ const GroupEdit: FC = () => {
 
     return (
         <div>
-            <Button>Редактировать группу</Button>
-            <Button>Добавить студента</Button>
+            <Grid>
+                <Button>Редактировать группу</Button>
+            </Grid>
         </div>
     )
 }

@@ -41,12 +41,25 @@ const AvailableCourseStudents: FC = () => {
                     aria-label="secondary mailbox folders"
                 >
                     <ListItem button>
-                        <ListItemIcon>
-                            <Avatar style={{ color: 'white', backgroundColor: '#3fcb27' }}/>
-                        </ListItemIcon>
+                        <Button
+                            size="small"
+                            variant="contained"
+                            color="primary"
+                            onClick={() => console.log("Hello")}
+                        >
+                            <Typography>+</Typography>
+                        </Button>
                         <ListItemText primary="Никита Бабич"/>
                     </ListItem>
                     <ListItem button>
+                        <Button
+                            size="small"
+                            variant="contained"
+                            color="primary"
+                            onClick={() => console.log("Hello")}
+                        >
+                            <Typography>+</Typography>
+                        </Button>
                         <ListItemText primary="Артем Вяткин"/>
                     </ListItem>
                 </List>
