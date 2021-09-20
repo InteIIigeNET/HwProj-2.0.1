@@ -44,7 +44,33 @@ const Group: FC = () => {
                     </IconButton>
                 </AccordionSummary>
                 <AccordionDetails>
-                    <GroupStudents/>
+                    <List>
+                        <ListItem>
+                            Володя Петров
+                            <IconButton aria-label="Delete" onClick={() => console.log("Hello")}>
+                                <DeleteIcon fontSize="small" />
+                            </IconButton>
+                        </ListItem>
+                        <ListItem>
+                            Володя Петров
+                            <IconButton aria-label="Delete" onClick={() => console.log("Hello")}>
+                                <DeleteIcon fontSize="small" />
+                            </IconButton>
+                        </ListItem>
+                        <ListItem>
+                            Володя Петров
+                            <IconButton aria-label="Delete" onClick={() => console.log("Hello")}>
+                                <DeleteIcon fontSize="small" />
+                            </IconButton>
+                        </ListItem>
+                        <ListItem>
+                            Володя Петров
+                            <IconButton aria-label="Delete" onClick={() => console.log("Hello")}>
+                                <DeleteIcon fontSize="small" />
+                            </IconButton>
+                        </ListItem>
+                    </List>
+                    {/*<GroupStudents/>*/}
                     {/*<GroupHomeworks/>*/}
                 </AccordionDetails>
             </Accordion>

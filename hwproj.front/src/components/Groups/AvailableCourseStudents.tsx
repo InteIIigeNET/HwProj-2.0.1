@@ -41,26 +41,10 @@ const AvailableCourseStudents: FC = () => {
                     aria-label="secondary mailbox folders"
                 >
                     <ListItem button>
-                        <Button
-                            size="small"
-                            variant="contained"
-                            color="primary"
-                            onClick={() => console.log("Hello")}
-                        >
-                            <Typography>+</Typography>
-                        </Button>
-                        <ListItemText primary="Никита Бабич"/>
+                        <ListItemText primary="Володя Петров"/>
                     </ListItem>
                     <ListItem button>
-                        <Button
-                            size="small"
-                            variant="contained"
-                            color="primary"
-                            onClick={() => console.log("Hello")}
-                        >
-                            <Typography>+</Typography>
-                        </Button>
-                        <ListItemText primary="Артем Вяткин"/>
+                        <ListItemText primary="Володя Петров"/>
                     </ListItem>
                 </List>
             </Grid>
