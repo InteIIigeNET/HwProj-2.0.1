@@ -31,7 +31,7 @@ const Group: FC = () => {
 
     return (
         <div>
-            <Accordion>
+            <Accordion style={{backgroundColor: "#c6cceb"}}>
                 <AccordionSummary
                     expandIcon={<ExpandMoreIcon />}
                     aria-controls="panel1a-content"
@@ -70,8 +70,6 @@ const Group: FC = () => {
                             </IconButton>
                         </ListItem>
                     </List>
-                    {/*<GroupStudents/>*/}
-                    {/*<GroupHomeworks/>*/}
                 </AccordionDetails>
             </Accordion>
         </div>

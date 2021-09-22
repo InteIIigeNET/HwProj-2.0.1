@@ -7,8 +7,9 @@ import AddHomework from "../Homeworks/AddHomework";
 import CourseStudents from "./CourseStudents";
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
-import { Button, Container, Grid, Paper, Typography, Checkbox, Link } from "@material-ui/core";
+import {Button, Container, Grid, Paper, Typography, Checkbox, Link, Tab, Tabs} from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
+import CourseGroups from "../Groups/CourseGroups";
 import { useEffect, useState } from "react";
 import { makeStyles } from "@material-ui/styles";
 
@@ -48,6 +49,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
     const courseId = props.match.params.id
     const classes = styles()
 
+    const [ tabState, setTabState ] = useState<number>(0)
     const [ courseState, setCourseState ] = useState<ICourseState>({
         isFound: false,
         course: {},
@@ -120,7 +122,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
             isLogged && newStudents!.some((cm: any) => cm.id === userId);
         const isAcceptedStudent = isLogged && acceptedStudents!.some(
             (cm: any) => cm.id === userId
-        );
+        )
         return (
             <Grid>
                 <Grid container justify="center" style={{ marginTop: "15px" }}>
@@ -137,16 +139,14 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                             <Typography variant="subtitle1" gutterBottom>
                                 Группа: {course.groupName}
                             </Typography>
-                            <Button
-                                size="small"
-                                variant="contained"
-                                color="primary"
-                                onClick={() => window.location.assign("/courses/" + courseId + "/courseGroupEditor")}
+                            <Tabs
+                                value={tabState}
+                                indicatorColor="primary"
+                                onChange={(event, value) => setTabState(value)}
                             >
-                                <Typography>
-                                    Редактор групп
-                                </Typography>
-                            </Button>
+                                <Tab label="Курс" />
+                                <Tab label="Группы" />
+                            </Tabs>
                         </div>              
                         <div>
                             <Typography variant="h5">
@@ -175,112 +175,119 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                         </div>
                     </Grid>
                 </Grid>
-                {createHomework && (
-                <div>
-                    <Grid container justifyContent="center" style={{ marginTop: "15px", marginBottom: "15px" }}>
-                        <Grid item xs={11}>
-                            <CourseStudents
-                                homeworks={courseState.courseHomework}
-                                userId={userId as string}
-                                isMentor={isMentor}
-                                course={courseState.course}
-                            />
-                        </Grid>
-                        <Grid item xs={11}>
-                            <NewCourseStudents
-                                onUpdate={() => setCurrentState()}
-                                course={course}
-                                students={newStudents}
-                                courseId={courseId}
-                            />
-                        </Grid>
-                        <Grid item xs={11} style={{ marginTop: "15px" }}>
-                            <AddHomework
-                                id={+courseId}
-                                onCancel={() => setCurrentState()}
-                                onSubmit={() => setCurrentState()}
-                            />
-                        </Grid>
-                        <Grid item style={{ marginTop: "15px", width: '96%' }}>
-                            <CourseHomework
-                                onDelete={() => setCurrentState()}
-                                isStudent={isAcceptedStudent}
-                                isMentor={isMentor}
-                                homework={courseState.courseHomework}
-                            />
-                        </Grid>
-                    </Grid>
-                </div>
-                )}
-                {isMentor && !createHomework && (
-                <div>
-                    <Grid container justifyContent="center" style={{ marginTop: "15px", marginBottom: "15px" }}>
-                        <Grid item xs={11}>
-                            <CourseStudents
-                                homeworks={courseState.courseHomework}
-                                userId={userId as string}
-                                isMentor={isMentor}
-                                course={courseState.course}
-                            />
-                        </Grid>
-                    </Grid>
-                    <Grid container className={classes.item} justifyContent="center">
-                        <Grid item xs={11}>
-                            <NewCourseStudents
-                                onUpdate={() => setCurrentState()}
-                                course={courseState.course}
-                                students={courseState.newStudents}
-                                courseId={courseId}
-                            />
-                        </Grid>
-                        <Grid item xs={11} style={{ marginTop: "15px" }}>
-                            <Button
-                                size="small"
-                                variant="contained"
-                                color="primary"
-                                onClick={() => {
-                                    setCourseState(prevState => ({
-                                        ...prevState,
-                                        createHomework: true 
-                                    }));
-                                }}
-                            >
-                                Добавить домашку
-                            </Button>
-                        </Grid>
-                        <Grid item style={{ marginTop: "15px", width: '94%' }}>
-                            <CourseHomework
-                                onDelete={() => setCurrentState()}
-                                isStudent={isAcceptedStudent}
-                                isMentor={isMentor}
-                                homework={courseState.courseHomework}
-                            />
-                        </Grid>
-                    </Grid>
-                </div>
-                )}
-                {isAcceptedStudent && (
-                    <Grid container justifyContent="center" style={{ marginTop: "15px", marginBottom: "15px" }}>
-                        <Grid item xs={11}>
-                            <CourseStudents
-                                homeworks={courseState.courseHomework}
-                                userId={userId as string}
-                                isMentor={isMentor}
-                                course={courseState.course}
-                            />
-                        </Grid>
-                    </Grid>
-                )}
-                {!isMentor && (
-                <div>
-                    <CourseHomework
-                        onDelete={() => setCurrentState()}
-                        homework={courseState.courseHomework}
-                        isStudent={isAcceptedStudent}
-                        isMentor={isMentor}
-                    />
-                </div>
-                )}
+                {tabState === 0 &&
+                    <div>
+                        {createHomework && (
+                            <div>
+                                <Grid container justifyContent="center" style={{ marginTop: "15px", marginBottom: "15px" }}>
+                                    <Grid item xs={11}>
+                                        <CourseStudents
+                                            homeworks={courseState.courseHomework}
+                                            userId={userId as string}
+                                            isMentor={isMentor}
+                                            course={courseState.course}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={11}>
+                                        <NewCourseStudents
+                                            onUpdate={() => setCurrentState()}
+                                            course={course}
+                                            students={newStudents}
+                                            courseId={courseId}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={11} style={{ marginTop: "15px" }}>
+                                        <AddHomework
+                                            id={+courseId}
+                                            onCancel={() => setCurrentState()}
+                                            onSubmit={() => setCurrentState()}
+                                        />
+                                    </Grid>
+                                    <Grid item style={{ marginTop: "15px", width: '96%' }}>
+                                        <CourseHomework
+                                            onDelete={() => setCurrentState()}
+                                            isStudent={isAcceptedStudent}
+                                            isMentor={isMentor}
+                                            homework={courseState.courseHomework}
+                                        />
+                                    </Grid>
+                                </Grid>
+                            </div>
+                        )}
+                        {isMentor && !createHomework && (
+                            <div>
+                                <Grid container justifyContent="center" style={{ marginTop: "15px", marginBottom: "15px" }}>
+                                    <Grid item xs={11}>
+                                        <CourseStudents
+                                            homeworks={courseState.courseHomework}
+                                            userId={userId as string}
+                                            isMentor={isMentor}
+                                            course={courseState.course}
+                                        />
+                                    </Grid>
+                                </Grid>
+                                <Grid container className={classes.item} justifyContent="center">
+                                    <Grid item xs={11}>
+                                        <NewCourseStudents
+                                            onUpdate={() => setCurrentState()}
+                                            course={courseState.course}
+                                            students={courseState.newStudents}
+                                            courseId={courseId}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={11} style={{ marginTop: "15px" }}>
+                                        <Button
+                                            size="small"
+                                            variant="contained"
+                                            color="primary"
+                                            onClick={() => {
+                                                setCourseState(prevState => ({
+                                                    ...prevState,
+                                                    createHomework: true
+                                                }));
+                                            }}
+                                        >
+                                            Добавить домашку
+                                        </Button>
+                                    </Grid>
+                                    <Grid item style={{ marginTop: "15px", width: '94%' }}>
+                                        <CourseHomework
+                                            onDelete={() => setCurrentState()}
+                                            isStudent={isAcceptedStudent}
+                                            isMentor={isMentor}
+                                            homework={courseState.courseHomework}
+                                        />
+                                    </Grid>
+                                </Grid>
+                            </div>
+                        )}
+                        {isAcceptedStudent && (
+                            <Grid container justifyContent="center" style={{ marginTop: "15px", marginBottom: "15px" }}>
+                                <Grid item xs={11}>
+                                    <CourseStudents
+                                        homeworks={courseState.courseHomework}
+                                        userId={userId as string}
+                                        isMentor={isMentor}
+                                        course={courseState.course}
+                                    />
+                                </Grid>
+                            </Grid>
+                        )}
+                        {!isMentor && (
+                            <div>
+                                <CourseHomework
+                                    onDelete={() => setCurrentState()}
+                                    homework={courseState.courseHomework}
+                                    isStudent={isAcceptedStudent}
+                                    isMentor={isMentor}
+                                />
+                            </div>
+                        )}
+                    </div>
+                }
+                {tabState === 1 &&
+                    <CourseGroups courseId={courseId}/>
+                }
             </Grid>
         );
     }

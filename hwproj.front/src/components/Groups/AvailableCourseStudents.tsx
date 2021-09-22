@@ -12,6 +12,11 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import Avatar from "@material-ui/core/Avatar";
 import ListItemText from "@material-ui/core/ListItemText";
+import {GroupMateDataDTO} from "../../api";
+
+interface AvailableCourseStudentsProps {
+    studentsWithoutGroup?: Array<GroupMateDataDTO>;
+}
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -25,8 +30,30 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const AvailableCourseStudents: FC = () => {
+const AvailableCourseStudents: FC<AvailableCourseStudentsProps> = (props) => {
     const classes = useStyles()
+
+    const GetStudents = () => {
+        const students = props.studentsWithoutGroup
+        students != undefined && students.map((student: GroupMateDataDTO) => {
+            const fullName = student.middleName
+                ? student.surname + ' ' + student.name + ' ' + student.middleName
+                : student.surname + ' ' + student.name
+            return (
+                <ListItem button>
+                    <ListItemText primary={fullName}/>
+                </ListItem>
+            )
+        })
+        return (
+            <List
+                component="nav"
+                aria-label="secondary mailbox folders"
+            >
+                {students}
+            </List>
+        )
+    }
 
     return (
         <div>
@@ -36,17 +63,7 @@ const AvailableCourseStudents: FC = () => {
                 </Typography>
             </Grid>
             <Grid style={{ marginTop: '10px' }}>
-                <List
-                    component="nav"
-                    aria-label="secondary mailbox folders"
-                >
-                    <ListItem button>
-                        <ListItemText primary="Володя Петров"/>
-                    </ListItem>
-                    <ListItem button>
-                        <ListItemText primary="Володя Петров"/>
-                    </ListItem>
-                </List>
+                <GetStudents/>
             </Grid>
         </div>
     )
