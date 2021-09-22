@@ -18,6 +18,18 @@ storiesOf("Register page", module)
   .add("simple", () => <Register/>);
  ```
 
-# To start the JSON Server, type in the terminal:
+# Что сделать, чтоб заработала авторизация через гугл:
 
-### `json-server --watch data/db.json --port 3001`
+_Backend:_
+
+1. Очистить солюшен, перебилдить проект.
+2. npm install
+3. Перейти в HwProj.AuthService.API и прописать следующее:
+3.1) dotnet user-secrets init
+3.2) dotnet user-secrets set "Authentication:Google:ClientId" "there should be clientId"
+3.3) dotnet user-secrets set "Authentication:Google:ClientSecret" "there should be clientSecret"
+
+_Frontend:_
+
+Для того, чтоб работала авторизация через Google, нужно в корневой папке фронта (hwproj.front) создать файл .env и прописать в нем REACT_APP_GOOGLE_CLIENT_ID= 'there should be clientId'
+
