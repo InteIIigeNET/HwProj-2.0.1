@@ -18,32 +18,30 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import {makeStyles} from "@material-ui/styles";
 import ApiSingleton from "../../api/ApiSingleton";
-import Groups from './Groups';
 import AvailableCourseStudents from "./AvailableCourseStudents";
-import { CourseGroupDTO } from './../../api';
-
-interface ICourseGroupEditorState {
-    isLoaded: boolean;
-}
+import {CourseGroupDTO, GroupMateDataDTO, GroupViewModel, GroupMateViewModel} from './../../api';
+import Groups from './Groups'
+import Group from "./Group";
 
 interface ICourseGroupEditorProps {
     courseId: string;
 }
 
 const useStyles = makeStyles( theme => ({
-    paper: {
-    },
-    info: {
+    groups: {
         display: "flex",
-        alignItems: "center",
-        flexDirection: "column",
+        flexDirection: "row",
+        justifyContent: 'start',
+    },
+    students: {
+      marginRight: '16px',
     },
 }))
 
 const CourseGroups: FC<ICourseGroupEditorProps> = (props) => {
     const [groupState, setGroupState] = useState<CourseGroupDTO>({
         studentsWithoutGroup: [],
-        groups: []
+        groups: [],
     })
     const courseId = props.courseId
     const classes = useStyles()
@@ -54,7 +52,33 @@ const CourseGroups: FC<ICourseGroupEditorProps> = (props) => {
 
     const getGroupsInfo = async () => {
         const group = await ApiSingleton.courseGroupsApi.apiCourseGroupsByCourseIdGetCourseDataGet(+courseId)
-        setGroupState(group)
+        let students = group.studentsWithoutGroup?.map((st) => {
+            return {
+                id: st.id!,
+                name: st.name!,
+                surname: st.surname!,
+                middleName: st.middleName!,
+            }
+        })
+        let groups = group!.groups!.map((g) => {
+            let groupMates = g!.groupMates!.map((gm) => {
+                return {
+                    studentId: gm.studentId,
+                }
+            })
+            return {
+                id: g.id!,
+                courseId: g.courseId!,
+                name: g.name!,
+                tasks: g.tasks!,
+                groupMates: g.groupMates!,
+            }
+        })
+        debugger
+        setGroupState({
+            studentsWithoutGroup: students,
+            groups: groups,
+        })
     }
 
     return (
@@ -72,34 +96,30 @@ const CourseGroups: FC<ICourseGroupEditorProps> = (props) => {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
+                                <TableRow>
+                                    <TableCell>
+                                        <Group/>
+                                    </TableCell>
+                                </TableRow>
                             </TableBody>
                         </Table>
                     </TableContainer>
                 </Grid>
-                {groupState.studentsWithoutGroup?.length != 0 &&
-                    <Grid item xs={12}>
-                        <Grid container direction="column" justifyContent="center">
-                            <Paper elevation={3}>
-                                <AvailableCourseStudents studentsWithoutGroup={groupState.studentsWithoutGroup}/>
-                            </Paper>
+                <Grid item xs={11} className={classes.groups}>
+                    {groupState.studentsWithoutGroup?.length !== 0 &&
+                    <Grid item style={{ marginRight: '16px' }}>
+                        <Grid container>
+                            <AvailableCourseStudents studentsWithoutGroup={groupState.studentsWithoutGroup}/>
                         </Grid>
                     </Grid>
-                }
-                <Grid item xs={11}>
-                    <Paper elevation={3}>
+                    }
+                    <Grid item>
                         <Grid container>
-                            <Grid item className={classes.info}>
-                                <Grid item style={{ marginTop: '15px' }}>
-                                    <Typography variant="h5">
-                                        Группы
-                                    </Typography>
-                                </Grid>
-                                <Grid>
-                                    <Groups/>
-                                </Grid>
+                            <Grid item>
+                                <Groups/>
                             </Grid>
                         </Grid>
-                    </Paper>
+                    </Grid>
                 </Grid>
             </Grid>
         </div>

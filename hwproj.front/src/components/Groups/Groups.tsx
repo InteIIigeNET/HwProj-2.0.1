@@ -27,25 +27,24 @@ const Groups: FC = () => {
     const classes = useStyles()
 
     return (
-        <div>
-            <Accordion style={{backgroundColor: "#c6cceb"}}>
+        <div style={{ width: '100%' }}>
+            <Accordion>
                 <AccordionSummary
+                    style={{backgroundColor: "#c6cceb"}}
                     expandIcon={<ExpandMoreIcon />}
                     aria-controls="panel1a-content"
                     id="panel1a-header"
                 >
-                    <Typography className={classes.heading}>Группы</Typography>
+                    <Typography className={classes.heading}>
+                        Группы
+                    </Typography>
                 </AccordionSummary>
                 <AccordionDetails>
-                    <List>
-                        <ListItem>
-                            <Group/>
-                        </ListItem>
-                    </List>
+                    <Group/>
                 </AccordionDetails>
             </Accordion>
         </div>
     )
 }
 
-export default Group
+export default Groups

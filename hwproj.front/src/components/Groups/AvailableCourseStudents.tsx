@@ -13,9 +13,10 @@ import ListItemIcon from "@material-ui/core/ListItemIcon";
 import Avatar from "@material-ui/core/Avatar";
 import ListItemText from "@material-ui/core/ListItemText";
 import {GroupMateDataDTO} from "../../api";
+import Group from "./Group";
 
 interface AvailableCourseStudentsProps {
-    studentsWithoutGroup?: Array<GroupMateDataDTO>;
+    studentsWithoutGroup?: GroupMateDataDTO[];
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -34,8 +35,8 @@ const AvailableCourseStudents: FC<AvailableCourseStudentsProps> = (props) => {
     const classes = useStyles()
 
     const GetStudents = () => {
-        const students = props.studentsWithoutGroup
-        students != undefined && students.map((student: GroupMateDataDTO) => {
+        debugger
+        let students = props.studentsWithoutGroup!.map((student: GroupMateDataDTO) => {
             const fullName = student.middleName
                 ? student.surname + ' ' + student.name + ' ' + student.middleName
                 : student.surname + ' ' + student.name
@@ -57,14 +58,23 @@ const AvailableCourseStudents: FC<AvailableCourseStudentsProps> = (props) => {
 
     return (
         <div>
-            <Grid item style={{ marginLeft: '15px', marginTop: '15px' }}>
-                <Typography variant="h5">
-                    Студенты без группы
-                </Typography>
-            </Grid>
-            <Grid style={{ marginTop: '10px' }}>
-                <GetStudents/>
-            </Grid>
+            <div className={classes.root}>
+                <Accordion>
+                    <AccordionSummary
+                        style={{backgroundColor: "#c6cceb"}}
+                        expandIcon={<ExpandMoreIcon />}
+                        aria-controls="panel1a-content"
+                        id="panel1a-header"
+                    >
+                        <Typography className={classes.heading}>
+                            Студенты без группы
+                        </Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <GetStudents/>
+                    </AccordionDetails>
+                </Accordion>
+            </div>
         </div>
     )
 }

@@ -128,7 +128,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                 <Grid container justify="center" style={{ marginTop: "15px" }}>
                     <Grid item xs={11} className={classes.info}>
                         <div>
-                            <Typography variant="h5">
+                            <Typography variant="h6">
                                 {course.name} &nbsp;
                                 {isMentor && (
                                     <RouterLink to={"./" + courseId! + "/edit"}>
@@ -149,7 +149,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                             </Tabs>
                         </div>              
                         <div>
-                            <Typography variant="h5">
+                            <Typography variant="h6">
                                 {mentor.name}&nbsp;{mentor.surname}
                             </Typography>
                             {(isMentor || isAcceptedStudent) && (

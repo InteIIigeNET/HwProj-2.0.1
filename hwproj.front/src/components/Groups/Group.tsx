@@ -13,6 +13,7 @@ import GroupStudents from "./GroupStudents";
 import GroupHomeworks from "./GroupHomeworks";
 import GroupEdit from "./GroupEdit";
 import EditIcon from "@material-ui/icons/Edit";
+import Grid from "@material-ui/core/Grid";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -23,6 +24,11 @@ const useStyles = makeStyles((theme: Theme) =>
             fontSize: theme.typography.pxToRem(15),
             fontWeight: theme.typography.fontWeightRegular,
         },
+        tools: {
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+        }
     }),
 );
 
@@ -30,18 +36,23 @@ const Group: FC = () => {
     const classes = useStyles()
 
     return (
-        <div>
-            <Accordion style={{backgroundColor: "#c6cceb"}}>
+        <div className={classes.root}>
+            <Accordion>
                 <AccordionSummary
                     expandIcon={<ExpandMoreIcon />}
                     aria-controls="panel1a-content"
                     id="panel1a-header"
+                    style={{backgroundColor: "#eceef8"}}
                 >
-                    {/*<GroupEdit/>*/}
-                    <Typography className={classes.heading}>Группа 1:</Typography>
-                    <IconButton aria-label="Edit" onClick={() => console.log("Hello")}>
-                        <EditIcon fontSize="small" />
-                    </IconButton>
+                    <div className={classes.tools}>
+                        <Typography className={classes.heading}>Группа 1</Typography>
+                        <IconButton aria-label="Edit" onClick={() => console.log("Hello")}>
+                            <EditIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton aria-label="Delete" onClick={() => console.log("Hello")}>
+                            <DeleteIcon fontSize="small" />
+                        </IconButton>
+                    </div>
                 </AccordionSummary>
                 <AccordionDetails>
                     <List>
