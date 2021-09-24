@@ -31,12 +31,5 @@ namespace HwProj.NotificationsService.API.Controllers
             await _notificationsService.MarkAsSeenAsync(userId, notificationIds);
             return Ok();
         }
-
-        /*[System.Obsolete]
-        public async Task<IActionResult> SendMessage(Notification notification, string email)
-        {
-            await _notificationsService.SendEmailAsync(notification, email);
-            return RedirectToAction("Index");
-        }*/
     }
 }
