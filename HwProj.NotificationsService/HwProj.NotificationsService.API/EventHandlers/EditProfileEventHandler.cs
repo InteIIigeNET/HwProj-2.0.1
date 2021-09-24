@@ -25,8 +25,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             _mapper = mapper;
             _authServiceClient = authServiceClient;
         }
-
-
+        
         public async Task HandleAsync(EditProfileEvent @event)
         {
             var notification = new Notification
@@ -38,9 +37,11 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 HasSeen = false,
                 Owner = @event.UserId
             };
-            await _notificationRepository.AddAsync(notification);
+            
             var studentAccount = await _authServiceClient.GetAccountData(notification.Owner);
             var studentModel = _mapper.Map<AccountDataDto>(studentAccount);
+            
+            await _notificationRepository.AddAsync(notification);
             await _notificationsService.SendEmailAsync(notification, studentModel.Email, "Редактирование профиля");
         }
     }

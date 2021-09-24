@@ -8,6 +8,7 @@ using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
 using HwProj.SolutionsService.API.Events;
+using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {
@@ -18,13 +19,20 @@ namespace HwProj.NotificationsService.API.EventHandlers
         private readonly INotificationsService _notificationsService;
         private readonly IAuthServiceClient _authServiceClient;
         private readonly IMapper _mapper;
+        private readonly IConfigurationSection _configuration;
 
-        public StudentPassTaskEventHandler(INotificationsRepository notificationRepository, INotificationsService notificationsService, IMapper mapper, IAuthServiceClient authServiceClient)
+        public StudentPassTaskEventHandler(INotificationsRepository notificationRepository,
+            INotificationsService notificationsService,
+            IMapper mapper,
+            IAuthServiceClient authServiceClient,
+            IConfiguration configuration
+        )
         {
-            _notificationRepository = notificationRepository;
             _notificationsService = notificationsService;
+            _notificationRepository = notificationRepository;
             _mapper = mapper;
             _authServiceClient = authServiceClient;
+            _configuration = configuration.GetSection("Notification");
         }
 
         public async Task HandleAsync(StudentPassTaskEvent @event)
@@ -34,14 +42,19 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 var notification = new Notification
                 {
                     Sender = "SolutionService",
-                    Body = $"{@event.Student.Name} {@event.Student.Surname} добавил новое <a href='{@event.Solution.GithubUrl}' target='_blank'>решение</a> задачи <a href='task/{@event.Task.Id}'>{@event.Task.Title}</a> из курса <a href='courses/{@event.Course.Id}'>{@event.Course.Name}</a>.",
+                    Body = $"{@event.Student.Name} {@event.Student.Surname} добавил новое " +
+                           $"<a href='{@event.Solution.GithubUrl}' target='_blank'>решение</a>" +
+                           $" задачи <a href='{_configuration["Url"]}/task/{@event.Task.Id}'>{@event.Task.Title}</a>" +
+                           $" из курса <a href='{_configuration["Url"]}/courses/{@event.Course.Id}'>{@event.Course.Name}</a>.",
                     Category = "SolutionService",
                     Date = DateTime.UtcNow,
                     HasSeen = false,
                     Owner = m
                 };
-                await _notificationRepository.AddAsync(notification);
+            
                 var mentor = await _authServiceClient.GetAccountData(notification.Owner);
+                
+                await _notificationRepository.AddAsync(notification);
                 await _notificationsService.SendEmailAsync(notification, mentor.Email, "HwProj");
             }
         }

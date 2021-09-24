@@ -1,5 +1,4 @@
 using HwProj.EventBus.Client;
-using HwProj.Models.AuthService.DTO;
 
 namespace HwProj.CoursesService.API.Events
 {
