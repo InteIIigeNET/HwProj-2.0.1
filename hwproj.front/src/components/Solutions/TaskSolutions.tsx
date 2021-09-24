@@ -115,10 +115,10 @@ export default class TaskSolutions extends React.Component<ITaskSolutionsProps, 
                 groupId,
                 this.props.taskId,
             )
-
+            debugger
             this.setState({
                 isLoaded: true,
-                solutions: groupSolutions
+                solutions: groupSolutions.filter(s => s.taskId == this.props.taskId)
             })
         }
     }
