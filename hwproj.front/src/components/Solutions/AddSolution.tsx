@@ -23,7 +23,6 @@ export default class AddSolution extends React.Component<IAddSolutionProps, Solu
     public async handleSubmit(e: any) {
         e.preventDefault();
         const homework = await ApiSingleton.homeworksApi.apiHomeworksGetByHomeworkIdGet(this.props.homeworkId)
-        debugger
         if (!homework.isGroupHomework!){
             await ApiSingleton.solutionsApi.apiSolutionsByTaskIdPost(this.props.taskId, this.state)
             this.props.onAdding()
