@@ -8,33 +8,28 @@ import {
     TableContainer,
     Table,
     TableCell,
-    TableBody, TableRow, TableHead
+    TableBody, TableRow, TableHead, Button
 } from "@material-ui/core";
 import {ChangeEvent, FC, useEffect, useState} from "react";
-import List from '@material-ui/core/List';
-import ListItem, { ListItemProps } from '@material-ui/core/ListItem';
-import Avatar from '@material-ui/core/Avatar';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
 import {makeStyles} from "@material-ui/styles";
 import ApiSingleton from "../../api/ApiSingleton";
 import AvailableCourseStudents from "./AvailableCourseStudents";
-import {CourseGroupDTO, GroupMateDataDTO, GroupViewModel, GroupMateViewModel} from './../../api';
-import Groups from './Groups'
-import Group from "./Group";
+import {CourseGroupDTO} from './../../api';
+import AddGroup from "./AddGroup";
 
 interface ICourseGroupEditorProps {
     courseId: string;
 }
 
-const useStyles = makeStyles( theme => ({
+const useStyles = makeStyles(theme => ({
     groups: {
         display: "flex",
         flexDirection: "row",
         justifyContent: 'start',
+        alignItems: "start",
     },
     students: {
-      marginRight: '16px',
+        marginRight: '16px',
     },
 }))
 
@@ -43,8 +38,15 @@ const CourseGroups: FC<ICourseGroupEditorProps> = (props) => {
         studentsWithoutGroup: [],
         groups: [],
     })
-    const courseId = props.courseId
-    const classes = useStyles()
+    const [open, setOpen] = React.useState(false);
+
+    const handleOpen = () => {
+        setOpen(true)
+    }
+
+    const handleClose = () => {
+        setOpen(false)
+    }
 
     useEffect(() => {
         getGroupsInfo()
@@ -61,11 +63,6 @@ const CourseGroups: FC<ICourseGroupEditorProps> = (props) => {
             }
         })
         let groups = group!.groups!.map((g) => {
-            let groupMates = g!.groupMates!.map((gm) => {
-                return {
-                    studentId: gm.studentId,
-                }
-            })
             return {
                 id: g.id!,
                 courseId: g.courseId!,
@@ -74,16 +71,21 @@ const CourseGroups: FC<ICourseGroupEditorProps> = (props) => {
                 groupMates: g.groupMates!,
             }
         })
-        debugger
         setGroupState({
             studentsWithoutGroup: students,
             groups: groups,
         })
     }
 
+    const courseId = props.courseId
+    const classes = useStyles()
+
     return (
-        <div style={{ marginTop: '20px' }}>
+        <div style={{marginTop: '20px'}}>
             <Grid container spacing={2} justifyContent="center">
+                <Grid item xs={11}>
+
+                </Grid>
                 <Grid item xs={11}>
                     <TableContainer component={Paper}>
                         <Table aria-label="simple table">
@@ -98,7 +100,7 @@ const CourseGroups: FC<ICourseGroupEditorProps> = (props) => {
                             <TableBody>
                                 <TableRow>
                                     <TableCell>
-                                        <Group/>
+
                                     </TableCell>
                                 </TableRow>
                             </TableBody>
@@ -106,22 +108,26 @@ const CourseGroups: FC<ICourseGroupEditorProps> = (props) => {
                     </TableContainer>
                 </Grid>
                 <Grid item xs={11} className={classes.groups}>
-                    {groupState.studentsWithoutGroup?.length !== 0 &&
-                    <Grid item style={{ marginRight: '16px' }}>
+                    {groupState.studentsWithoutGroup &&
+                    <Grid item style={{marginRight: '16px'}}>
                         <Grid container>
                             <AvailableCourseStudents studentsWithoutGroup={groupState.studentsWithoutGroup}/>
                         </Grid>
                     </Grid>
                     }
-                    <Grid item>
-                        <Grid container>
-                            <Grid item>
-                                <Groups/>
-                            </Grid>
-                        </Grid>
+                    <Grid item style={{marginRight: '16px'}}>
+                        <Button
+                            size="small"
+                            variant="contained"
+                            color="primary"
+                            onClick={handleOpen}
+                        >
+                            Создать группу
+                        </Button>
                     </Grid>
                 </Grid>
             </Grid>
+            <AddGroup isOpen={open} close={handleClose} courseId={courseId}/>
         </div>
     )
 }

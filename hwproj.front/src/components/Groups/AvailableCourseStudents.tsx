@@ -41,7 +41,10 @@ const AvailableCourseStudents: FC<AvailableCourseStudentsProps> = (props) => {
                 ? student.surname + ' ' + student.name + ' ' + student.middleName
                 : student.surname + ' ' + student.name
             return (
-                <ListItem button>
+                <ListItem
+                    button
+                    onClick={() => console.log('hello')}
+                >
                     <ListItemText primary={fullName}/>
                 </ListItem>
             )
