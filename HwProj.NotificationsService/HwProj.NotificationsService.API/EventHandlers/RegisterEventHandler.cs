@@ -31,6 +31,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 HasSeen = false,
                 Owner = @event.UserId
             };
+            
             await _notificationRepository.AddAsync(notification);
             await _notificationsService.SendEmailAsync(notification, @event.Email, "HwProj");
         }

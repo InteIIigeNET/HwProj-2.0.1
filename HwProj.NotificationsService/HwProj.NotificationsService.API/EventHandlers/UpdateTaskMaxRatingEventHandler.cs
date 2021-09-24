@@ -9,6 +9,7 @@ using HwProj.NotificationsService.API.Services;
 using HwProj.AuthService.Client;
 using AutoMapper;
 using HwProj.Models.AuthService.DTO;
+using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {
@@ -19,13 +20,20 @@ namespace HwProj.NotificationsService.API.EventHandlers
         private readonly INotificationsService _notificationsService;
         private readonly IAuthServiceClient _authServiceClient;
         private readonly IMapper _mapper;
+        private readonly IConfigurationSection _configuration;
 
-        public UpdateTaskMaxRatingEventHandler(INotificationsRepository notificationRepository, INotificationsService notificationsService, IMapper mapper, IAuthServiceClient authServiceClient)
+        public UpdateTaskMaxRatingEventHandler(INotificationsRepository notificationRepository,
+            INotificationsService notificationsService,
+            IMapper mapper,
+            IAuthServiceClient authServiceClient,
+            IConfiguration configuration
+        )
         {
-            _notificationRepository = notificationRepository;
             _notificationsService = notificationsService;
+            _notificationRepository = notificationRepository;
             _mapper = mapper;
             _authServiceClient = authServiceClient;
+            _configuration = configuration.GetSection("Notification");
         }
 
         public async Task HandleAsync(UpdateTaskMaxRatingEvent @event)
@@ -37,12 +45,14 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 var notification = new Notification
                 {
                     Sender = "CourseService",
-                    Body = $"<a href='task/{@event.Task.Id}'>{@event.Task.Title}</a> из курса <a href='courses/{@event.Course.Id}>{@event.Course.Name}</a> обновлена.",
-                    Category = "Домашние задания",
+                    Body = $"<a href='{_configuration["Url"]}task/{@event.Task.Id}'>{@event.Task.Title}</a>" +
+                           $" из курса <a href='{_configuration["Url"]}courses/{@event.Course.Id}>{@event.Course.Name}</a> обновлена.",
+                    Category = "CourseService",
                     Date = DateTime.UtcNow,
                     HasSeen = false,
                     Owner = student.StudentId
                 };
+               
                 await _notificationRepository.AddAsync(notification);
                 await _notificationsService.SendEmailAsync(notification, studentModel.Email, "Домашняя работа");
             }

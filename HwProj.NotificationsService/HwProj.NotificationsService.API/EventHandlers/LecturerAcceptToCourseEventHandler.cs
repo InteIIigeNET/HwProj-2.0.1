@@ -7,6 +7,7 @@ using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
+using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {
@@ -16,13 +17,20 @@ namespace HwProj.NotificationsService.API.EventHandlers
         private readonly INotificationsService _notificationsService;
         private readonly IAuthServiceClient _authServiceClient;
         private readonly IMapper _mapper;
-
-        public LecturerAcceptToCourseEventHandler(INotificationsRepository notificationRepository, INotificationsService notificationsService, IMapper mapper, IAuthServiceClient authServiceClient)
+        private readonly IConfigurationSection _configuration;
+        
+        public LecturerAcceptToCourseEventHandler(INotificationsRepository notificationRepository,
+            INotificationsService notificationsService,
+            IMapper mapper,
+            IAuthServiceClient authServiceClient,
+            IConfiguration configuration
+        )
         {
             _notificationRepository = notificationRepository;
             _notificationsService = notificationsService;
             _mapper = mapper;
             _authServiceClient = authServiceClient;
+            _configuration = configuration.GetSection("Notification");
         }
 
         public async Task HandleAsync(LecturerAcceptToCourseEvent @event)
@@ -30,14 +38,16 @@ namespace HwProj.NotificationsService.API.EventHandlers
             var notification = new Notification
             {
                 Sender = "CourseService",
-                Body = $"Вас приняли на курс <a href='http://localhost:3000/courses/{@event.CourseId}'>{@event.CourseName}</a>.",
+                Body = $"Вас приняли на курс <a href='{_configuration["Url"]}/courses/{@event.CourseId}'>{@event.CourseName}</a>.",
                 Category = "CourseService",
                 Date = DateTime.UtcNow,
                 HasSeen = false,
                 Owner = @event.StudentId
             };
-            await _notificationRepository.AddAsync(notification);
+            
             var student = await _authServiceClient.GetAccountData(notification.Owner);
+           
+            await _notificationRepository.AddAsync(notification);
             await _notificationsService.SendEmailAsync(notification, student.Email, "HwProj");
         }
     }

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
+using Microsoft.Extensions.Configuration;
 using MimeKit;
 
 namespace HwProj.NotificationsService.API.Services
@@ -12,11 +13,15 @@ namespace HwProj.NotificationsService.API.Services
     {
         private readonly INotificationsRepository _repository;
         private readonly IMapper _mapper;
+        private readonly IConfigurationSection _configuration;
+        private readonly MailKit.Net.Smtp.SmtpClient _client;
 
-        public NotificationsService(INotificationsRepository repository, IMapper mapper)
+        public NotificationsService(INotificationsRepository repository, IMapper mapper, IConfiguration configuration)
         {
             _repository = repository;
             _mapper = mapper;
+            _configuration = configuration.GetSection("Notification");
+            _client = new MailKit.Net.Smtp.SmtpClient();
         }
 
         public async Task<long> AddNotificationAsync(Notification notification)
@@ -45,7 +50,7 @@ namespace HwProj.NotificationsService.API.Services
         {
             var emailMessage = new MimeMessage();
 
-            emailMessage.From.Add(new MailboxAddress("HwProj-2.0.1", "testhwproj@gmail.com"));
+            emailMessage.From.Add(new MailboxAddress("HwProj-2.0.1", _configuration["Mail"]));
             emailMessage.To.Add(new MailboxAddress("", email));
             emailMessage.Subject = topic;
             emailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Html)
@@ -55,8 +60,8 @@ namespace HwProj.NotificationsService.API.Services
 
             using (var client = new MailKit.Net.Smtp.SmtpClient())
             {
-                await client.ConnectAsync("smtp.gmail.com", 465, true);
-                await client.AuthenticateAsync("testhwproj@gmail.com", "HwProj-2.0.1");
+                await client.ConnectAsync(_configuration["ConnectSite"], 465, true);
+                await client.AuthenticateAsync(_configuration["Mail"], _configuration["Password"]);
                 await client.SendAsync(emailMessage);
 
                 await client.DisconnectAsync(true);
