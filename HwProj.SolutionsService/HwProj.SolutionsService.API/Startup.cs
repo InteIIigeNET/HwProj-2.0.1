@@ -1,5 +1,7 @@
-﻿using HwProj.EventBus.Client.Interfaces;
-using HwProj.SolutionsService.API.Events;
+using System.Net.Http;
+using HwProj.AuthService.Client;
+using HwProj.CoursesService.Client;
+using HwProj.EventBus.Client.Interfaces;
 using HwProj.SolutionsService.API.Models;
 using HwProj.SolutionsService.API.Repositories;
 using HwProj.SolutionsService.API.Services;
@@ -28,15 +30,16 @@ namespace HwProj.SolutionsService.API
             services.AddScoped<ISolutionsRepository, SolutionsRepository>();
             services.AddScoped<ISolutionsService, Services.SolutionsService>();
 
-            services.AddEventBus(Configuration);
+            var httpClient = new HttpClient();
+            services.AddAuthServiceClient(httpClient, "http://localhost:5001");
+            services.AddCoursesServiceClient(httpClient, "http://localhost:5002");
 
+            services.AddEventBus(Configuration);
             services.ConfigureHwProjServices("Solutions API");
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IEventBus eventBus)
         {
-            eventBus.Subscribe<UpdateTaskMaxRatingEvent>();
-            eventBus.Subscribe<UpdateSolutionMaxRatingEvent>();
             app.ConfigureHwProj(env, "Solutions API");
         }
     }

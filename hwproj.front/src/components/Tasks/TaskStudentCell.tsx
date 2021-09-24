@@ -1,21 +1,22 @@
 import * as React from "react";
 import TableCell from "@material-ui/core/TableCell";
-import { Redirect } from "react-router-dom";
-import ApiSingleton from "../../api/ApiSingleton";
-import { Solution } from "api";
+import {Redirect} from "react-router-dom";
+import {Solution, StatisticsCourseSolutionsModel} from "api";
 
 interface ITaskStudentCellProps {
   studentId: string;
   taskId: number;
   forMentor: boolean;
   userId: string;
+  solutions?: StatisticsCourseSolutionsModel;
 }
 
 interface ITaskStudentCellState {
   isLoaded: boolean;
-  result: number;
+  solution?: StatisticsCourseSolutionsModel;
   redirectForMentor: boolean;
   redirectForStudent: boolean;
+  color: string;
 }
 
 export default class TaskStudentCell extends React.Component<
@@ -26,9 +27,10 @@ export default class TaskStudentCell extends React.Component<
     super(props);
     this.state = {
       isLoaded: false,
-      result: -1,
+      solution: {},
       redirectForMentor: false,
       redirectForStudent: false,
+      color: "",
     };
   }
 
@@ -45,6 +47,7 @@ export default class TaskStudentCell extends React.Component<
         />
       );
     }
+
     if (this.state.redirectForStudent) {
       return <Redirect to={"/task/" + this.props.taskId.toString()} />;
     }
@@ -55,9 +58,9 @@ export default class TaskStudentCell extends React.Component<
         : this.props.userId === this.props.studentId
         ? () => this.onStudentCellClick()
         : () => 0;
-      const result = this.state.result !== -1
-        ? this.state.result.toString()
-        : ""
+      const result = this.state.solution === undefined || this.state.solution.state! === Solution.StateEnum.NUMBER_0
+        ? ""
+        : this.state.solution.rating!.toString()
       return (
         <TableCell
           onClick={onClick}
@@ -65,6 +68,7 @@ export default class TaskStudentCell extends React.Component<
           padding="none"
           scope="row"
           align="center"
+          style={{backgroundColor:this.state.color}}
         >
           {result}
         </TableCell>
@@ -82,32 +86,30 @@ export default class TaskStudentCell extends React.Component<
     this.setState({ redirectForStudent: true });
   }
 
-  getTheLastAssessedSolution = (solutions: Array<Solution>): Solution | null => {
-    let maxPoints = 0
-    let selectedSolution = null
-    solutions
-      // .filter((solution) => solution.state?.toString() == "Posted")
-      .map((solution) => {
-        if (solution.rating! >= maxPoints) {
-          maxPoints = solution.rating!
-          selectedSolution = solution
-        }
-      })
-    return selectedSolution
+  getCellBackgroundColor = (state: Solution.StateEnum | undefined): string => {
+    if (state == Solution.StateEnum.NUMBER_0)
+      return "#d0fcc7"
+    if (state == Solution.StateEnum.NUMBER_1)
+      return "#ffc346"
+    if (state == Solution.StateEnum.NUMBER_2)
+      return "#7ad67a"
+    return "#ffffff"
   }
 
   async componentDidMount() {
-    const solutions = (await ApiSingleton.solutionsApi.apiSolutionsGet()).filter(s => s.taskId == this.props.taskId && s.studentId == this.props.studentId)
-    const solution = this.getTheLastAssessedSolution(solutions)
-    if (solution === null){
+    const solution = this.props.solutions
+    if (solution === undefined){
       this.setState({
-        isLoaded: true
+        color: "",
+        isLoaded: true,
+        solution: undefined
       })
       return
     }
     this.setState({
+      color: this.getCellBackgroundColor(solution.state),
       isLoaded: true,
-      result: solution.rating!
+      solution: solution
     })
   }
 }

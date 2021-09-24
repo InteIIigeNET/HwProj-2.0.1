@@ -6,8 +6,10 @@ namespace HwProj.Models.AuthService.ViewModels
     {
         [Required]
         public string Name { get; set; }
+
         [Required]
         public string Surname { get; set; }
+        
         public string MiddleName { get; set; }
         
         [Required]

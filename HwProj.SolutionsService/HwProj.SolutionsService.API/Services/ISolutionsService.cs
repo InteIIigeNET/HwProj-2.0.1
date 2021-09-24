@@ -13,10 +13,10 @@ namespace HwProj.SolutionsService.API.Services
         Task<Solution[]> GetTaskSolutionsFromStudentAsync(long taskId, string studentId);
 
         Task<Solution[]> GetTaskSolutionsFromGroupAsync(long taskId, long groupId);
+        
+        Task<long> PostOrUpdateAsync(long taskId, Solution solution);
 
-        Task<long> AddSolutionAsync(long taskId, Solution solution);
-
-        Task RateSolutionAsync(long solutionId, int newRating);
+        Task RateSolutionAsync(long solutionId, int newRating, string lecturerComment);
 
         Task DeleteSolutionAsync(long solutionId);
         

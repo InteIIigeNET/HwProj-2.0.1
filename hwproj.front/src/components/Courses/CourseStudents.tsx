@@ -1,25 +1,23 @@
 import React from "react";
+import { CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api/";
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@material-ui/core";
-import { CourseViewModel, HomeworkViewModel } from "../../api/";
 import { Paper, createStyles, Theme } from "@material-ui/core";
 import TaskStudentCell from "../Tasks/TaskStudentCell";
 import ApiSingleton from "../../api/ApiSingleton";
 import { withStyles } from '@material-ui/styles';
+import {RouteComponentProps} from "react-router-dom";
 
-interface ICourseMate {
-  name: string;
-  surname: string;
-  middleName: string;
-  email: string;
-  id: string;
-}
 
 interface ICourseStudentsProps {
   course: CourseViewModel;
   homeworks: HomeworkViewModel[];
   isMentor: boolean;
   userId: string;
-  courseMates: ICourseMate[];
+}
+
+interface ICourseStudentsState {
+  stat: StatisticsCourseMatesModel[];
+  isLoaded: boolean;
 }
 
 const styles = (theme: Theme) =>
@@ -31,11 +29,19 @@ const styles = (theme: Theme) =>
     },
   });
 
-class CourseStudents extends React.Component<ICourseStudentsProps, {}> {
+class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStudentsState> {
+  constructor(props: ICourseStudentsProps) {
+    super(props);
+    this.state = {
+      stat: [],
+      isLoaded: false,
+    };
+  }
 
   public render() {
     return (
       <div>
+        { this.state.isLoaded &&
         <TableContainer component={Paper}>
           <Table aria-label="simple table">
             <TableHead>
@@ -66,8 +72,8 @@ class CourseStudents extends React.Component<ICourseStudentsProps, {}> {
               </TableRow>
             </TableHead>
             <TableBody>
-              {this.props.courseMates
-                .map((cm: any, index) => (
+              {this.state.stat
+                .map((cm, index) => (
                   <TableRow key={index}>
                     <TableCell
                       align="center"
@@ -75,11 +81,15 @@ class CourseStudents extends React.Component<ICourseStudentsProps, {}> {
                       component="td"
                       scope="row"
                     >
-                      {cm.name}
+                      {cm.surname} {cm.name}
                     </TableCell>
-                    {this.props.homeworks.map((homework) =>
+                    {cm.homeworks!.map((homework) =>
                       homework.tasks!.map((task) => (
                         <TaskStudentCell
+                          solutions={this.state.stat
+                              .find(s => s.id == cm.id)!.homeworks!
+                              .find(h => h.id == homework.id)!.tasks!
+                              .find(t => t.id == task.id)!.solution!.slice(-1)[0]}
                           userId={this.props.userId}
                           forMentor={this.props.isMentor}
                           studentId={String(cm.id)}
@@ -91,9 +101,14 @@ class CourseStudents extends React.Component<ICourseStudentsProps, {}> {
                 ))}
             </TableBody>
           </Table>
-        </TableContainer>
+        </TableContainer>}
       </div>
     );
+  }
+
+  async componentDidMount() {
+    const stat = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdGet(this.props.course.id!)
+    this.setState({stat: stat, isLoaded:true})
   }
 }
 

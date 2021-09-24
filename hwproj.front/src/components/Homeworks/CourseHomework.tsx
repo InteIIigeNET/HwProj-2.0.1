@@ -1,7 +1,8 @@
 import * as React from "react";
 import ListItem from "@material-ui/core/ListItem";
 import List from "@material-ui/core/List";
-import { Grid, Typography } from "@material-ui/core";
+import { Accordion, AccordionDetails, AccordionSummary, Grid, Typography } from "@material-ui/core";
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { HomeworkViewModel } from "../../api";
 import Homework from "./Homework";
 
@@ -24,19 +25,20 @@ export default class CourseHomework extends React.Component<ICourseHomeworkProps
             forMentor={this.props.isMentor}
             onDeleteClick={() => this.props.onDelete()}
           />
+
         </ListItem>
       ))
       .reverse();
 
     return (
       homeworkList.length > 0 && (
-      <Grid container direction="column">
+      <Grid container direction="column" alignItems="center" justify="center">
           <Grid item>
             <Typography variant="h6">
-              Домашки
+                Домашние задания
             </Typography>
           </Grid>
-          <Grid item>
+          <Grid item xs={12}>
             <List>
               {homeworkList}
             </List>

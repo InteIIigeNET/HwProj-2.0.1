@@ -1,4 +1,5 @@
-﻿using HwProj.CoursesService.API.Filters;
+﻿using HwProj.AuthService.Client;
+using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.CoursesService.API.Repositories.Groups;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Net.Http;
 
 namespace HwProj.CoursesService.API
 {
@@ -39,6 +41,9 @@ namespace HwProj.CoursesService.API
             services.AddScoped<CourseMentorOnlyAttribute>();
 
             services.AddEventBus(Configuration);
+
+            var httpClient = new HttpClient();
+            services.AddAuthServiceClient(httpClient, "http://localhost:5001");
 
             services.ConfigureHwProjServices("Courses API");
         }

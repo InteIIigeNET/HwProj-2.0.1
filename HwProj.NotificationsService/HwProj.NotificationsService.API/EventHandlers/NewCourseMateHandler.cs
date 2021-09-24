@@ -23,15 +23,18 @@ namespace HwProj.NotificationsService.API.EventHandlers
         {
             var user = await _authClient.GetAccountData(@event.StudentId);
 
-            await _notificationRepository.AddAsync(new Notification
+            foreach (var m in @event.MentorIds.Split('/'))
             {
-                Sender = "CourseService",
-                Body = $"Пользователь <a href='profile/{@event.StudentId}'>{user.Name} {user.Surname}</a> подал заявку на вступление в курс <a href='/courses/{@event.CourseId}'>{@event.CourseName}</a>",
-                Category = "CourseService",
-                Date = DateTime.UtcNow,
-                HasSeen = false,
-                Owner = @event.MentorId
-            });
+                await _notificationRepository.AddAsync(new Notification
+                {
+                    Sender = "CourseService",
+                    Body = $"Пользователь <a href='profile/{@event.StudentId}'>{user.Name} {user.Surname}</a> подал заявку на вступление в курс <a href='/courses/{@event.CourseId}'>{@event.CourseName}</a>.",
+                    Category = "CourseService",
+                    Date = DateTime.UtcNow,
+                    HasSeen = false,
+                    Owner = m
+                });
+            }
         }
     }
 }

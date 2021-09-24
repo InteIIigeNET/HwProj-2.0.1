@@ -30,7 +30,7 @@ export default class TaskSolutionsPage extends React.Component<
       task: {},
       addSolution: false,
       course: {
-        mentorId: "",
+        mentorIds: "",
       },
     };
   }
@@ -44,7 +44,7 @@ export default class TaskSolutionsPage extends React.Component<
     if (isLoaded) {
       if (
         !ApiSingleton.authService.isLoggedIn() ||
-        userId == this.state.course.mentorId ||
+        this.state.course.mentorIds!.includes(userId!) ||
         !this.state.course.courseMates!.some(
           (cm) => cm.isAccepted! && cm.studentId == userId
         )
@@ -66,8 +66,10 @@ export default class TaskSolutionsPage extends React.Component<
               forStudent={true}
               forMentor={false}
               onDeleteClick={() => 3}
+              isExpanded={true}
+              showForCourse={false}
             />
-            {!this.state.addSolution && (
+            {(!this.state.addSolution && this.state.task.canSendSolution) && (
               <div>
                 <Button
                   size="small"
@@ -79,7 +81,10 @@ export default class TaskSolutionsPage extends React.Component<
                 >
                   Добавить решение
                 </Button>
-                <br />
+              </div>
+            )}
+            {!this.state.addSolution && (
+              <div>
                 <TaskSolutions
                   forMentor={false}
                   taskId={+this.props.match.params.taskId}
@@ -90,7 +95,6 @@ export default class TaskSolutionsPage extends React.Component<
             {this.state.addSolution && (
               <div>
                 <AddSolution
-                  studentId={userId as string}
                   taskId={+this.props.match.params.taskId}
                   onAdding={() => this.componentDidMount()}
                   onCancel={() => this.componentDidMount()}
@@ -120,7 +124,7 @@ export default class TaskSolutionsPage extends React.Component<
           .apiHomeworksGetByHomeworkIdGet(task.homeworkId!)
           .then((homework) =>
             ApiSingleton.coursesApi
-              .apiCoursesByCourseIdGet(homework.courseId!)
+                  .apiCoursesByCourseIdGet(homework.courseId!)
               .then((course) =>
                 this.setState({
                   isLoaded: true,

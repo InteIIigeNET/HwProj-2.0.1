@@ -28,7 +28,7 @@ namespace HwProj.APIGateway.API
             services.ConfigureHwProjServices("API Gateway");
 
             const string authenticationProviderKey = "GatewayKey";
-
+            
             services.AddAuthentication()
                 .AddJwtBearer(authenticationProviderKey, x =>
                 {

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using HwProj.AuthService.API.Models;
+using HwProj.Models.AuthService.ViewModels;
 using Microsoft.AspNetCore.Identity;
 
 namespace HwProj.AuthService.API.Services

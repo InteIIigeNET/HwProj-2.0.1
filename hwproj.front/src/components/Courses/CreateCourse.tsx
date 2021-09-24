@@ -5,100 +5,164 @@ import {
   Checkbox,
   FormControlLabel,
   Typography,
+  Grid,
 } from "@material-ui/core";
 import { Redirect } from "react-router-dom";
-
 import ApiSingleton from "../../api/ApiSingleton";
 import './Styles/CreateCourse.css';
+import {FC, FormEvent, useState} from "react";
+import GroupIcon from '@material-ui/icons/Group';
+import makeStyles from "@material-ui/styles/makeStyles";
+import Container from "@material-ui/core/Container";
 
 interface ICreateCourseState {
   name: string;
   groupName?: string;
   isOpen: boolean;
-  created: boolean;
   courseId: string;
+  errors: string[];
 }
 
-export default class CreateCourse extends React.Component<
-  {},
-  ICreateCourseState
-> {
-  state = {
+const useStyles = makeStyles((theme) => ({
+  paper: {
+    marginTop: theme.spacing(7),
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  avatar: {
+    margin: theme.spacing(1),
+  },
+  form: {
+    marginTop: theme.spacing(3),
+    width: '100%'
+  },
+  button: {
+    marginTop: theme.spacing(1)
+  },
+}))
+
+const CreateCourse: FC = () => {
+  const [course, setCourse] = useState<ICreateCourseState>({
     name: "",
     groupName: "",
     isOpen: false,
-    created: false,
     courseId: "",
-  };
+    errors: [],
+  })
 
-  async handleSubmit(e: any) {
-    e.preventDefault();
-
-    let courseViewModel = {
-      name: this.state.name,
-      groupName: this.state.groupName,
-      isOpen: this.state.isOpen,
-    };
-    const id = await ApiSingleton.coursesApi.apiCoursesCreatePost(courseViewModel)
-    if (id) {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const courseViewModel = {
+      name: course.name,
+      groupName: course.groupName,
+      isOpen: course.isOpen,
+    }
+    try {
+      const courseId = await ApiSingleton.coursesApi.apiCoursesCreatePost(courseViewModel)
+      debugger
+      setCourse((prevState) => ({
+        ...prevState,
+        courseId: courseId.toString(),
+      }))
       window.location.assign("/")
     }
-    else {
-      console.log("Something wrong!")
+    catch (e) {
+      setCourse((prevState) => ({
+        ...prevState,
+        errors: ['Сервис недоступен'],
+      }))
     }
   }
 
-  public render() {
-    if (!ApiSingleton.authService.isLecturer){
-      <Typography component="h1" variant="h5">
-          Страница не доступна
-      </Typography>
-    }
-    if (this.state.created) {
-      return <Redirect to={"/courses/" + this.state.courseId} />;
-    }
+  const classes = useStyles()
+
+  if (!ApiSingleton.authService.isLecturer) {
     return (
-      <div className="page">
         <Typography component="h1" variant="h5">
-          Создать курс
+          Страница не доступна
         </Typography>
-        <form onSubmit={(e) => this.handleSubmit(e)} className="form">
-          <TextField
-            required
-            label="Название курса"
-            variant="outlined"
-            margin="normal"
-            name={this.state.name}
-            onChange={(e) => this.setState({ name: e.target.value })}
-          />
-          <TextField
-            label="Номер группы"
-            variant="outlined"
-            margin="normal"
-            value={this.state.groupName}
-            onChange={(e) => this.setState({ groupName: e.target.value })}
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                defaultChecked
-                color="primary"
-                checked={this.state.isOpen}
-                onChange={(e) => this.setState({ isOpen: e.target.checked })}
-              />
-            }
-            label="Открытый курс"
-          />
-          <Button
-            size="large"
-            variant="contained"
-            color="primary"
-            type="submit"
-          >
-            Создать курс
-          </Button>
-        </form>
-      </div>
-    );
+    )
   }
+  return (
+      <Container component="main" maxWidth="xs">
+        <div className={classes.paper}>
+          <GroupIcon
+              fontSize='large'
+              style={{ color: 'white', backgroundColor: '#ecb50d' }}
+              className={classes.avatar}
+          />
+          <Typography component="h1" variant="h5">
+            Создать курс
+          </Typography>
+          <form onSubmit={(e) => handleSubmit(e)} className={classes.form}>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <TextField
+                    required
+                    label="Название курса"
+                    variant="outlined"
+                    fullWidth
+                    name={course.name}
+                    onChange={(e) =>
+                    {
+                      e.persist()
+                      setCourse((prevState) => ({
+                        ...prevState,
+                        name: e.target.value
+                      }))
+                    }}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                    label="Номер группы"
+                    variant="outlined"
+                    fullWidth
+                    value={course.groupName}
+                    onChange={(e) =>
+                    {
+                      e.persist()
+                      setCourse((prevState) => ({
+                        ...prevState,
+                        groupName: e.target.value
+                      }))
+                    }}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <FormControlLabel
+                    control={
+                      <Checkbox
+                          defaultChecked
+                          color="primary"
+                          checked={course.isOpen}
+                          onChange={(e) =>
+                          {
+                            e.persist()
+                            setCourse((prevState) => ({
+                              ...prevState,
+                              isOpen: e.target.checked
+                            }))
+                          }}
+                      />
+                    }
+                    label="Открытый курс"
+                />
+              </Grid>
+            </Grid>
+            <Button
+                fullWidth
+                variant="contained"
+                color="primary"
+                type="submit"
+            >
+              Создать курс
+            </Button>
+          </form>
+        </div>
+      </Container>
+  )
 }
+
+export default CreateCourse

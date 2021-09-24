@@ -2,8 +2,10 @@
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using HwProj.Exceptions;
 using HwProj.HttpUtils;
 using HwProj.Models.SolutionsService;
+using HwProj.Models.StatisticsService;
 using Newtonsoft.Json;
 
 namespace HwProj.SolutionsService.Client
@@ -39,7 +41,7 @@ namespace HwProj.SolutionsService.Client
             return await response.DeserializeAsync<Solution>();
         }
         
-        public async Task<Solution[]> GetAllUserSolutions(long taskId, string studentId)
+        public async Task<Solution[]> GetUserSolution(long taskId, string studentId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get, 
@@ -62,16 +64,24 @@ namespace HwProj.SolutionsService.Client
             };
 
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<long>();;
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.DeserializeAsync<long>();
+            }
+            throw new ForbiddenException();
         }
         
-        public async Task RateSolution(long solutionId, int newRating)
+        public async Task RateSolution(long solutionId, int newRating, string lecturerComment, string lecturerId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _solutionServiceUri + $"api/Solutions/rateSolution/{solutionId}?newRating={newRating}");
+                _solutionServiceUri + $"api/Solutions/rateSolution/{solutionId}?newRating={newRating}&lecturerComment={lecturerComment}&lecturerId={lecturerId}");
 
-            await _httpClient.SendAsync(httpRequest);
+            var response = await _httpClient.SendAsync(httpRequest);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new ForbiddenException();
+            }
         }
         
         public async Task MarkSolution(long solutionId)
@@ -116,6 +126,16 @@ namespace HwProj.SolutionsService.Client
 
             var response = await _httpClient.SendAsync(httpRequest); 
             return await response.DeserializeAsync<Solution[]>();
+        }
+
+        public async Task<StatisticsCourseMatesModel[]> GetCourseStatistics(long courseId, string userId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get, 
+                _solutionServiceUri + $"api/Solutions/getCourseStat/{courseId}?userId={userId}");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<StatisticsCourseMatesModel[]>();
         }
     }
 }

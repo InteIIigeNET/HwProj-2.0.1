@@ -1,174 +1,221 @@
-import * as React from "react";
+import React, {FC, FormEvent, useState} from "react";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
-import { Redirect } from "react-router-dom";
+import {Redirect, RouteComponentProps} from "react-router-dom";
 import ApiSingleton from "../../api/ApiSingleton";
 import { RegisterViewModel } from "../../api/";
 import "./Styles/Register.css";
+import Container from "@material-ui/core/Container";
+import Grid from "@material-ui/core/Grid";
+import makeStyles from "@material-ui/styles/makeStyles";
+import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
+import Avatar from "@material-ui/core/Avatar";
 
-interface IRegisterState {
-  registerData: RegisterViewModel;
-  loggedIn: boolean;
-  error: string[];
+interface  ICommonState {
+    loggedIn: boolean;
+    error: string[];
 }
 
-export class Register extends React.Component<{}, IRegisterState> {
-  constructor(props: {}) {
-    super(props);
-    this.state = {
-      registerData: {
+interface LoginProps extends Partial<RouteComponentProps> {
+    onLogin: () => void;
+}
+
+const useStyles = makeStyles((theme) => ({
+    paper: {
+        marginTop: theme.spacing(3),
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+    },
+    avatar: {
+        margin: theme.spacing(1),
+    },
+    form: {
+        marginTop: theme.spacing(3),
+        width: '100%'
+    },
+    button: {
+        marginTop: theme.spacing(1)
+    },
+}))
+
+const Register: FC<LoginProps> = (props) => {
+
+    const classes = useStyles()
+    const [registerState, setRegisterState] = useState<RegisterViewModel>({
         name: "",
         surname: "",
         email: "",
         middleName: "",
         password: "",
         passwordConfirm: "",
-      },
-      loggedIn: ApiSingleton.authService.loggedIn(),
-      error: [],
-    };
-  }
+    })
 
-  render(): JSX.Element {
-    const { registerData, loggedIn } = this.state;
+    const [commonState, setCommonState] = useState<ICommonState>({
+        loggedIn: ApiSingleton.authService.isLoggedIn(),
+        error: [],
+    })
 
-    if (loggedIn) {
+    const handleSubmit = async (e: any) => {
+        e.preventDefault();
+        try{
+            const result = await ApiSingleton.authService.register(registerState)
+            setCommonState((prevState) => ({
+                ...prevState,
+                error: result!.error!,
+                loggedIn: result.loggedIn
+            }))
+            props.onLogin()
+        }
+        catch (e) {
+            setCommonState((prevState) => ({
+                ...prevState,
+                error: ['Сервис недоступен'],
+                loggedIn: false
+            }))
+        }
+        if (commonState.loggedIn) {
+            window.location.assign("/")
+        }
+    }
+
+    if (commonState.loggedIn) {
       return <Redirect to={"/"} />;
     }
 
     return (
-      <div className="page">
-        <Typography component="h1" variant="h5">
-          Регистрация
-        </Typography>
-          {this.state.error.length > 0 && (
-              <p style={{ color: "red", marginBottom: "0" }}>{this.state.error}</p>
-          )}
-        <form onSubmit={this.handleSubmit} className="form">
-          <TextField
-            size="small"
-            required
-            label="Имя"
-            variant="outlined"
-            margin="normal"
-            name={registerData.name}
-            onChange={(e) =>
-              this.setState({
-                registerData: {
-                  ...this.state.registerData,
-                  name: e.target.value,
-                },
-              })
-            }
-          />
-          <TextField
-            required
-            size="small"
-            label="Фамилия"
-            variant="outlined"
-            margin="normal"
-            name={registerData.surname}
-            onChange={(e) =>
-              this.setState({
-                registerData: {
-                  ...this.state.registerData,
-                  surname: e.target.value,
-                },
-              })
-            }
-          />
-          <TextField
-            size="small"
-            label="Отчество"
-            variant="outlined"
-            margin="normal"
-            name={registerData.middleName}
-            onChange={(e) =>
-              this.setState({
-                registerData: {
-                  ...this.state.registerData,
-                  middleName: e.target.value,
-                },
-              })
-            }
-          />
-          <TextField
-            required
-            size="small"
-            type="email"
-            label="Email"
-            variant="outlined"
-            margin="normal"
-            name={registerData.email}
-            onChange={(e) =>
-              this.setState({
-                registerData: {
-                  ...this.state.registerData,
-                  email: e.target.value,
-                },
-              })
-            }
-          />
-          <TextField
-            required
-            size="small"
-            type="password"
-            label="Пароль"
-            variant="outlined"
-            margin="normal"
-            value={registerData.password}
-            onChange={(e) =>
-              this.setState({
-                registerData: {
-                  ...this.state.registerData,
-                  password: e.target.value,
-                },
-              })
-            }
-          />
-          <TextField
-            required
-            size="small"
-            type="password"
-            label="Поддвердите пароль"
-            variant="outlined"
-            margin="normal"
-            value={registerData.passwordConfirm}
-            onChange={(e) =>
-              this.setState({
-                registerData: {
-                  ...this.state.registerData,
-                  passwordConfirm: e.target.value,
-                },
-              })
-            }
-          />
-          <br />
-          <Button
-            size="medium"
-            variant="contained"
-            color="primary"
-            type="submit"
-          >
-            Зарегистрироваться
-          </Button>
-        </form>
-      </div>
-    );
-  }
-
-  private handleSubmit = async (e: any) => {
-    e.preventDefault();
-    debugger
-    const result = await ApiSingleton.authService.register(this.state.registerData)
-    this.setState({
-      error: result!.error!,
-      loggedIn: result.loggedIn
-    })
-    if (result.loggedIn)
-    {
-        window.location.assign("/")
-    }
-  };
+        <Container component="main" maxWidth="xs">
+            <div className={classes.paper}>
+                <Avatar className={classes.avatar} style={{ color: 'white', backgroundColor: '#ba2e2e' }}>
+                    <LockOutlinedIcon />
+                </Avatar>
+                <Typography component="h1" variant="h5">
+                    Регистрация
+                </Typography>
+                {commonState.error.length > 0 && (
+                    <p style={{ color: "red", marginBottom: "0" }}>{commonState.error}</p>
+                )}
+                <form onSubmit={handleSubmit} className={classes.form}>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                fullWidth
+                                required
+                                label="Имя"
+                                variant="outlined"
+                                name={registerState.name}
+                                onChange={(e) =>
+                                {
+                                    e.persist()
+                                    setRegisterState((prevState) => ({
+                                        ...prevState,
+                                        name: e.target.value
+                                    }))
+                                }}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                required
+                                fullWidth
+                                label="Фамилия"
+                                variant="outlined"
+                                name={registerState.surname}
+                                onChange={(e) =>
+                                {
+                                    e.persist()
+                                    setRegisterState((prevState) => ({
+                                        ...prevState,
+                                        surname: e.target.value
+                                    }))
+                                }}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                fullWidth
+                                label="Отчество"
+                                variant="outlined"
+                                name={registerState.middleName}
+                                onChange={(e) =>
+                                {
+                                    e.persist()
+                                    setRegisterState((prevState) => ({
+                                        ...prevState,
+                                        middleName: e.target.value
+                                    }))
+                                }}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                required
+                                fullWidth
+                                type="email"
+                                label="Электронная почта"
+                                variant="outlined"
+                                name={registerState.email}
+                                onChange={(e) =>
+                                {
+                                    e.persist()
+                                    setRegisterState((prevState) => ({
+                                        ...prevState,
+                                        email: e.target.value
+                                    }))
+                                }}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                required
+                                fullWidth
+                                type="password"
+                                label="Пароль"
+                                variant="outlined"
+                                value={registerState.password}
+                                onChange={(e) =>
+                                {
+                                    e.persist()
+                                    setRegisterState((prevState) => ({
+                                        ...prevState,
+                                        password: e.target.value
+                                    }))
+                                }}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                required
+                                fullWidth
+                                type="password"
+                                label="Поддвердите пароль"
+                                variant="outlined"
+                                value={registerState.passwordConfirm}
+                                onChange={(e) =>
+                                {
+                                    e.persist()
+                                    setRegisterState((prevState) => ({
+                                        ...prevState,
+                                        passwordConfirm: e.target.value
+                                    }))
+                                }}
+                            />
+                        </Grid>
+                    </Grid>
+                    <Button
+                        style={{ marginTop: '15px'}}
+                        fullWidth
+                        variant="contained"
+                        color="primary"
+                        type="submit"
+                    >
+                        Зарегистрироваться
+                    </Button>
+                </form>
+            </div>
+        </Container>
+    )
 }
+
+export default Register

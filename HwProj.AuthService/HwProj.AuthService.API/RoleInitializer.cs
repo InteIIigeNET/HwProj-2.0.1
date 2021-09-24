@@ -1,9 +1,9 @@
-﻿using HwProj.AuthService.API.Models;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
 using HwProj.AuthService.API.Events;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.Roles;
+using HwProj.Models.AuthService.ViewModels;
 
 namespace HwProj.AuthService.API
 {

@@ -21,6 +21,8 @@
     <ProjectReference Include="..\..\HwProj.Common\HwProj.Utils\HwProj.Utils.csproj" />
     <ProjectReference Include="..\..\HwProj.CoursesService\HwProj.CoursesService.API\HwProj.CoursesService.API.csproj" />
     <ProjectReference Include="..\..\HwProj.CoursesService\HwProj.CoursesService.Client\HwProj.CoursesService.Client.csproj" />
+    <ProjectReference Include="..\..\HwProj.SolutionsService\HwProj.SolutionsService.API\HwProj.SolutionsService.API.csproj" />
+    <ProjectReference Include="..\..\HwProj.SolutionsService\HwProj.SolutionsService.Client\HwProj.SolutionsService.Client.csproj" />
   </ItemGroup>
 
 </Project>

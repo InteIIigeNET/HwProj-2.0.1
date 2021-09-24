@@ -1,23 +1,37 @@
 ﻿using System;
 using System.Threading.Tasks;
+using AutoMapper;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
+using HwProj.EventBus.Client.Interfaces;
+using HwProj.CoursesService.API.Events;
+using HwProj.Models.CoursesService.ViewModels;
 
 namespace HwProj.CoursesService.API.Services
 {
     public class HomeworksService : IHomeworksService
     {
         private readonly IHomeworksRepository _homeworksRepository;
-
-        public HomeworksService(IHomeworksRepository homeworksRepository)
+        private readonly IEventBus _eventBus;
+        private readonly IMapper _mapper;
+        private readonly ICoursesRepository _coursesRepository;
+        public HomeworksService(IHomeworksRepository homeworksRepository, IEventBus eventBus, IMapper mapper, ICoursesRepository coursesRepository)
         {
             _homeworksRepository = homeworksRepository;
+            _eventBus = eventBus;
+            _mapper = mapper;
+            _coursesRepository = coursesRepository;
         }
         
         public async Task<long> AddHomeworkAsync(long courseId, Homework homework)
         {
             homework.CourseId = courseId;
             homework.Date = DateTime.Now;
+
+            var course = await _coursesRepository.GetWithCourseMatesAsync(courseId);
+            var courseModel = _mapper.Map<CourseViewModel>(course);
+            _eventBus.Publish(new NewHomeworkEvent(homework.Title, courseModel));
+
             return await _homeworksRepository.AddAsync(homework);
         }
 
@@ -33,7 +47,13 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task UpdateHomeworkAsync(long homeworkId, Homework update)
         {
-            await _homeworksRepository.UpdateAsync(homeworkId, homework => new Homework()
+            var homework = await _homeworksRepository.GetAsync(homeworkId);
+            var course = await _coursesRepository.GetWithCourseMatesAsync(homework.CourseId);
+            var courseModel = _mapper.Map<CourseViewModel>(course);
+            var homeworkModel = _mapper.Map<HomeworkViewModel>(homework);
+            _eventBus.Publish(new UpdateHomeworkEvent(homeworkModel, courseModel));
+
+            await _homeworksRepository.UpdateAsync(homeworkId, hw => new Homework()
             {
                 Title = update.Title,
                 Description = update.Description

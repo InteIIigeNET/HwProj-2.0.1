@@ -11,6 +11,7 @@ using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.AuthService.API.Models;
+using HwProj.Models.Result;
 
 namespace HwProj.AuthService.API.Services
 {
@@ -67,9 +68,7 @@ namespace HwProj.AuthService.API.Services
 
             if (result.Succeeded)
             {
-                var editEvent = new EditEvent(id, model.Name,
-                    model.Surname, model.MiddleName);
-                _eventBus.Publish(editEvent);
+                _eventBus.Publish(new EditProfileEvent(id));
                 return Result.Success();
             }
 

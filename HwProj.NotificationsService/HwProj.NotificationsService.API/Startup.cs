@@ -12,8 +12,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http;
-using HwProj.CoursesService.Client;
 using HwProj.CoursesService.API.Events;
+using HwProj.CoursesService.Client;
+using HwProj.SolutionsService.API.Events;
+using HwProj.SolutionsService.Client;
+using UpdateTaskMaxRatingEvent = HwProj.CoursesService.API.Events.UpdateTaskMaxRatingEvent;
 
 namespace HwProj.NotificationsService.API
 {
@@ -34,12 +37,21 @@ namespace HwProj.NotificationsService.API
             services.AddScoped<INotificationsService, Services.NotificationsService>();
             services.AddEventBus(Configuration);
             services.AddTransient<IEventHandler<StudentRegisterEvent>, RegisterEventHandler>();
+            services.AddTransient<IEventHandler<RateEvent>, RateEventHandler>();
+            services.AddTransient<IEventHandler<EditProfileEvent>, EditProfileEventHandler>();
+            services.AddTransient<IEventHandler<StudentPassTaskEvent>, StudentPassTaskEventHandler>();
+            services.AddTransient<IEventHandler<UpdateHomeworkEvent>, UpdateHomeworkEventHandler>();
+            services.AddTransient<IEventHandler<UpdateTaskMaxRatingEvent>, UpdateTaskMaxRatingEventHandler>();
+            services.AddTransient<IEventHandler<LecturerAcceptToCourseEvent>, LecturerAcceptToCourseEventHandler>();
+            services.AddTransient<IEventHandler<LecturerRejectToCourseEvent>, LecturerRejectToCourseEventHandler>();
+            services.AddTransient<IEventHandler<NewHomeworkEvent>, NewHomeworkEventHandler>();
             services.AddTransient<IEventHandler<InviteLecturerEvent>, InviteLecturerEventHandler>();
             services.AddTransient<IEventHandler<NewCourseMateEvent>, NewCourseMateHandler>();
 
             var httpClient = new HttpClient();
             services.AddAuthServiceClient(httpClient, "http://localhost:5001");
-            // services.AddCoursesServiceClient(httpClient, "http://localhost:5002"); ?
+            services.AddCoursesServiceClient(httpClient, "http://localhost:5002");
+            services.AddSolutionServiceClient(httpClient, "http://localhost:5007");
 
             services.ConfigureHwProjServices("Notifications API");
         }
@@ -48,6 +60,14 @@ namespace HwProj.NotificationsService.API
         {
             eventBus.Subscribe<StudentRegisterEvent>();
             eventBus.Subscribe<InviteLecturerEvent>();
+            eventBus.Subscribe<RateEvent>();
+            eventBus.Subscribe<EditProfileEvent>();
+            eventBus.Subscribe<UpdateHomeworkEvent>();
+            eventBus.Subscribe<StudentPassTaskEvent>();
+            eventBus.Subscribe<UpdateTaskMaxRatingEvent>();
+            eventBus.Subscribe<LecturerAcceptToCourseEvent>();
+            eventBus.Subscribe<LecturerRejectToCourseEvent>();
+            eventBus.Subscribe<NewHomeworkEvent>();
             eventBus.Subscribe<NewCourseMateEvent>();
             app.ConfigureHwProj(env, "Notifications API");
         }

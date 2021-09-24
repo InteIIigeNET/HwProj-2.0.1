@@ -57,8 +57,8 @@ export default class EditHomework extends React.Component<
     }
     if (this.state.isLoaded) {
       if (
-        !ApiSingleton.authService.isLoggedIn() ||
-        ApiSingleton.authService.getUserId() != this.state.courseMentorId
+        !ApiSingleton.authService.isLoggedIn() || 
+        !this.state.courseMentorId.includes(ApiSingleton.authService.getUserId())
       ) {
         return (
           <Typography variant="h6" gutterBottom>
@@ -88,7 +88,6 @@ export default class EditHomework extends React.Component<
                 onChange={(e) => this.setState({ title: e.target.value })}
               />
               <br />
-
               <Tabs 
                 onChange={(event, newValue) => this.setState({isPreview: newValue === 1})} 
                 indicatorColor="primary"
@@ -144,7 +143,7 @@ export default class EditHomework extends React.Component<
               title: homework.title!,
               description: homework.description!,
               courseId: homework.courseId!,
-              courseMentorId: course.mentorId!,
+              courseMentorId: course.mentorIds!,
             })
           )
       );

@@ -26,6 +26,7 @@ namespace HwProj.APIGateway.API.Controllers
 
         [HttpGet]
         [ProducesResponseType(typeof(CourseViewModel[]), (int)HttpStatusCode.OK)]
+        [Authorize]
         public async Task<IActionResult> GetAllCourses()
         {
             var result = await _coursesClient.GetAllCourses();
@@ -103,6 +104,14 @@ namespace HwProj.APIGateway.API.Controllers
             return result == null
                 ? NotFound()
                 : Ok(result) as IActionResult;
+        }
+
+        [HttpGet("acceptLecturer/{courseId}/{lecturerEmail}")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        public async Task<IActionResult> AcceptLecturer(long courseId, string lecturerEmail)
+        {
+            await _coursesClient.AcceptLecturer(courseId, lecturerEmail);
+            return Ok();
         }
     }
 }

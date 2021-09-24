@@ -1,10 +1,18 @@
-import React, { FormEvent } from "react";
-import { RouteComponentProps } from "react-router-dom";
+import React, {FC, FormEvent} from "react";
+import Avatar from '@material-ui/core/Avatar';
+import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
+import {Redirect, RouteComponentProps} from "react-router-dom";
 import { TextField, Button, Typography } from "@material-ui/core";
+import Grid from '@material-ui/core/Grid';
 import ApiSingleton from "../../api/ApiSingleton";
 import "./Styles/Login.css";
+import { useState } from "react";
 import { LoginViewModel } from "../../api/"
-import GoogleLogin, {GoogleLoginResponse, GoogleLoginResponseOffline} from "react-google-login";
+import makeStyles from "@material-ui/styles/makeStyles";
+import Container from '@material-ui/core/Container';
+import GoogleLogin from "react-google-login";
+import { GoogleLoginButton } from "react-social-login-buttons";
+import { GithubLoginButton } from "react-social-login-buttons";
 
 interface LoginProps extends Partial<RouteComponentProps> {
   onLogin: () => void;
@@ -17,102 +25,187 @@ interface ILoginState {
   isLogin: boolean;
 }
 
-export default class Login extends React.Component<LoginProps, ILoginState> {
-  constructor(props: LoginProps) {
-    super(props);
-    this.state = {
-      email: "",
-      password: "",
-      error: [],
-      isLogin: false,
-    };
+const useStyles = makeStyles((theme) => ({
+  paper: {
+    marginTop: theme.spacing(8),
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  login: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  avatar: {
+    margin: theme.spacing(1),
+  },
+  form: {
+    marginTop: theme.spacing(3),
+    width: '100%'
+  },
+  button: {
+    marginTop: theme.spacing(1)
   }
+}))
 
-  handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+const Login: FC<LoginProps> = (props) => {
+  const classes = useStyles()
+  const [loginState, setLoginState] = useState<ILoginState>({
+    email: '',
+    password: '',
+    error: [],
+    isLogin: ApiSingleton.authService.isLoggedIn(),
+  })
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const userData : LoginViewModel = {
-      email: this.state.email,
-      password: this.state.password,
+      email: loginState.email,
+      password: loginState.password,
       rememberMe: false
     }
-    const result = await ApiSingleton.authService.login(userData)
-    this.setState({
-      error: result!.error,
-      isLogin: result.isLogin
-    })
+    try{
+      const result = await ApiSingleton.authService.login(userData)
+      setLoginState(prevState => ({
+        ...prevState,
+        error: result.error,
+        isLogin: result.isLogin,
+      }))
+      if (result.isLogin) {
+        props.onLogin?.()
+      }
+    }
+    catch (e){
+      setLoginState(prevState => ({
+        ...prevState,
+        error: ['Сервис недоступен'],
+        isLogin: false
+      }))
+    }
   }
 
-  googleResponse = async (response: any) => {
+  const handleChangeEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.persist()
+    setLoginState((prevState) => ({
+      ...prevState,
+      email: e.target.value
+    }))
+  }
+
+  const handleChangePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.persist()
+    setLoginState((prevState) => ({
+      ...prevState,
+      password: e.target.value
+    }))
+  }
+
+  const googleResponse = async (response: any) => {
+    console.log(response.tokenId)
+    debugger
     const result = await ApiSingleton.authService.loginByGoogle(response.tokenId)
-    this.setState({
+    setLoginState(prevState => ({
+      ...prevState,
       error: result!.error,
       isLogin: result.isLogin
-    })
-  };
-  
-  render() {
-    const headerStyles: React.CSSProperties = { marginRight: "9.5rem" };
-    const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID!
-
-    if (this.state.error) {
-      headerStyles.marginBottom = "-1.5rem";
+    }))
+    if (result.isLogin) {
+      props.onLogin?.()
     }
-
-    if (this.state.isLogin){
-      this.props.onLogin?.();
-    }
-    
-    return (
-      <div className="page">
-        <Typography component="h1" variant="h5">
-          Войти
-        </Typography>
-        {this.state.error && (
-          <p style={{ color: "red", marginBottom: "0" }}>{this.state.error}</p>
-        )}
-        <form onSubmit={(e) => this.handleSubmit(e)} className="loginForm">
-          <TextField
-            required
-            type="email"
-            size="small"
-            label="Email Address"
-            variant="outlined"
-            margin="normal"
-            name={this.state.email}
-            onChange={(e) => this.setState({ email: e.target.value })}
-          />
-          <TextField
-            required
-            type="password"
-            size="small"
-            label="Password"
-            variant="outlined"
-            margin="normal"
-            value={this.state.password}
-            onChange={(e) => this.setState({ password: e.target.value })}
-          />
-          <br />
-          <Button
-            size="small"
-            variant="contained"
-            color="primary"
-            type="submit"
-          >
-            Войти
-          </Button>
-        </form>
-        <Typography>
-          <hr/>Или войдите с помощью других сервисов<hr/>
-        </Typography>
-        <div>
-          <GoogleLogin
-              clientId={clientId}
-              buttonText=''
-              onSuccess={this.googleResponse}
-          />
-        </div>
-      </div>
-    );
   }
+
+  const headerStyles: React.CSSProperties = { marginRight: "9.5rem" };
+  const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID!
+
+  if (loginState.isLogin){
+    return <Redirect to={"/"} />;
+  }
+
+  if (loginState.error) {
+    headerStyles.marginBottom = "-1.5rem";
+  }
+
+  return (
+      <Container component="main" maxWidth="xs">
+        <Grid container className={classes.paper}>
+          <Avatar className={classes.avatar} style={{ color: 'white', backgroundColor: '#ba2e2e' }}>
+            <LockOutlinedIcon />
+          </Avatar>
+          <Typography component="h1" variant="h5">
+            Войти
+          </Typography>
+          {loginState.error && (
+              <p style={{ color: "red", marginBottom: "0" }}>
+                {loginState.error}
+              </p>
+          )}
+        </Grid>
+        <form onSubmit={(e) => handleSubmit(e)} className={classes.form}>
+          <Grid container direction="column" justifyContent="center">
+            <Grid>
+              <TextField
+                  required
+                  type="email"
+                  fullWidth
+                  label="Электронная почта"
+                  variant="outlined"
+                  margin="normal"
+                  name={loginState.email}
+                  onChange={handleChangeEmail}
+              />
+            </Grid>
+            <Grid>
+              <TextField
+                  required
+                  type="password"
+                  fullWidth
+                  label="Пароль"
+                  variant="outlined"
+                  margin="normal"
+                  value={loginState.password}
+                  onChange={handleChangePassword}
+              />
+            </Grid>
+            <Grid className={classes.button}>
+              <Button
+                  fullWidth
+                  variant="contained"
+                  color="primary"
+                  type="submit"
+              >
+                Войти
+              </Button>
+            </Grid>
+          </Grid>
+          <div className={classes.login}>
+            <GoogleLogin
+                clientId={clientId}
+                onSuccess={googleResponse}
+                render={renderProps => (
+                    <GoogleLoginButton
+                        style={{height: '36px', marginTop: '15px'}}
+                        onClick={renderProps.onClick}
+                    >
+                      <Typography>
+                        Войти с помощью Google
+                      </Typography>
+                    </GoogleLoginButton>
+                )}
+            />
+            {/*<GithubLoginButton*/}
+            {/*    style={{ height: '36px', marginTop: '15px' }}*/}
+            {/*    onClick={() => {}}*/}
+            {/*>*/}
+            {/*  <Typography>*/}
+            {/*    GitHub*/}
+            {/*  </Typography>*/}
+            {/*</GithubLoginButton>*/}
+          </div>
+        </form>
+      </Container>
+  )
 }
+
+export default Login

@@ -39,7 +39,7 @@ export default class StudentSolutionsPage extends React.Component<
     if (isLoaded) {
       if (
         !ApiSingleton.authService.isLoggedIn() ||
-        userId != this.state.course.mentorId!
+        !this.state.course.mentorIds?.includes(userId!)
       ) {
         return <Typography variant="h6">Страница не найдена</Typography>;
       }
@@ -57,6 +57,8 @@ export default class StudentSolutionsPage extends React.Component<
               forStudent={false}
               forMentor={true}
               onDeleteClick={() => 0}
+              isExpanded={true}
+              showForCourse={false}
             />
             <TaskSolutions
               forMentor={true}
@@ -79,7 +81,7 @@ export default class StudentSolutionsPage extends React.Component<
           .apiHomeworksGetByHomeworkIdGet(task.homeworkId!)
           .then((homework) =>
             ApiSingleton.coursesApi
-              .apiCoursesByCourseIdGet(homework.courseId!)
+                  .apiCoursesByCourseIdGet(homework.courseId!)
               .then((course) =>
                 this.setState({
                   task: task,
