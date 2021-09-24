@@ -95,6 +95,7 @@ export default class TaskSolutionsPage extends React.Component<
             {this.state.addSolution && (
               <div>
                 <AddSolution
+                  homeworkId={this.state.task.homeworkId!}
                   taskId={+this.props.match.params.taskId}
                   onAdding={() => this.componentDidMount()}
                   onCancel={() => this.componentDidMount()}

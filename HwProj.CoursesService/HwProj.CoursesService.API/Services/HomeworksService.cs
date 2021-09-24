@@ -32,6 +32,11 @@ namespace HwProj.CoursesService.API.Services
             var courseModel = _mapper.Map<CourseViewModel>(course);
             _eventBus.Publish(new NewHomeworkEvent(homework.Title, courseModel));
 
+            if (homework.IsGroupHomework)
+            {
+                
+            }
+
             return await _homeworksRepository.AddAsync(homework);
         }
 

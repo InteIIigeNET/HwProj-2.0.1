@@ -5,6 +5,7 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {SolutionViewModel} from "../../api";
 
 interface IAddSolutionProps {
+    homeworkId: number,
     taskId: number,
     onAdding: () => void,
     onCancel: () => void
@@ -21,8 +22,16 @@ export default class AddSolution extends React.Component<IAddSolutionProps, Solu
 
     public async handleSubmit(e: any) {
         e.preventDefault();
-        await ApiSingleton.solutionsApi.apiSolutionsByTaskIdPost(this.props.taskId, this.state)
-        this.props.onAdding()
+        const homework = await ApiSingleton.homeworksApi.apiHomeworksGetByHomeworkIdGet(this.props.homeworkId)
+        if (!homework.isGroupHomework!){
+            await ApiSingleton.solutionsApi.apiSolutionsByTaskIdPost(this.props.taskId, this.state)
+            this.props.onAdding()
+        }
+        else {
+            debugger
+            await ApiSingleton.solutionsApi.apiSolutionsByCourseIdByTaskIdPost(this.props.taskId, homework.courseId!, this.state)
+            this.props.onAdding()
+        }
     }
 
     public render() {

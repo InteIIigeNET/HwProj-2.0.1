@@ -16,5 +16,7 @@ namespace HwProj.Models.SolutionsService
         public DateTime PublicationDate { get; set; }
 
         public string LecturerComment { get; set; }
+
+        public long GroupId { get; set; } = -1;
     }
 }

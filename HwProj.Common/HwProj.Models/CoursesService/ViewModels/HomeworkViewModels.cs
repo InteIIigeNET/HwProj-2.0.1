@@ -13,6 +13,8 @@ namespace HwProj.Models.CoursesService.ViewModels
         public string Description { get; set; }
 
         public List<CreateTaskViewModel> Tasks { get; set; } = new List<CreateTaskViewModel>();
+
+        public bool IsGroupHomework { get; set; }
     }
 
     public class HomeworkViewModel
@@ -28,5 +30,7 @@ namespace HwProj.Models.CoursesService.ViewModels
         public long CourseId { get; set; }
 
         public List<HomeworkTaskViewModel> Tasks { get; set; } = new List<HomeworkTaskViewModel>();
+        
+        public bool IsGroupHomework { get; set; }
     }
 }
