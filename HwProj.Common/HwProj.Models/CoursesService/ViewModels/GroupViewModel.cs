@@ -10,9 +10,7 @@ namespace HwProj.Models.CoursesService.ViewModels
         public long CourseId { get; set; }
 
         public string Name { get; set; }
-
-        public List<long> Tasks { get; set; } = new List<long>();
-
+        
         public List<GroupMateViewModel> GroupMates { get; set; } = new List<GroupMateViewModel>();
     }
 
@@ -22,17 +20,13 @@ namespace HwProj.Models.CoursesService.ViewModels
         [RegularExpression(@"^\S+.*", ErrorMessage = "Name shouldn't start with white spaces.")]
         public string Name { get; set; }
         
-        public List<GroupMateViewModel> GroupMates { get; set; } = new List<GroupMateViewModel>();
-        
-        public List<long> Tasks { get; set; } = new List<long>();
+        public List<GroupMateViewModel> GroupMates { get; set; }
     }
 
     public class UpdateGroupViewModel
     {
         [RegularExpression(@"^\S+.*", ErrorMessage = "Name shouldn't start with white spaces.")]
         public string Name { get; set; }
-
-        public List<long> Tasks { get; set; } = new List<long>();
 
         public List<GroupMateViewModel> GroupMates { get; set; }
     }

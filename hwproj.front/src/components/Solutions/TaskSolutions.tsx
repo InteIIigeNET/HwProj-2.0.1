@@ -98,7 +98,6 @@ export default class TaskSolutions extends React.Component<ITaskSolutionsProps, 
     async componentDidMount() {
         const courseId = (await ApiSingleton.homeworksApi.apiHomeworksGetByHomeworkIdGet(this.props.homeworkId)).courseId
         const groupId = await ApiSingleton.courseGroupsApi.apiCourseGroupsByCourseIdGetStudentGroupGet(courseId!)
-        debugger
         if (groupId == -1) {
             const solutions = await ApiSingleton.solutionsApi.apiSolutionsTaskSolutionByTaskIdByStudentIdGet(
                 this.props.taskId,
@@ -115,7 +114,6 @@ export default class TaskSolutions extends React.Component<ITaskSolutionsProps, 
                 groupId,
                 this.props.taskId,
             )
-            debugger
             this.setState({
                 isLoaded: true,
                 solutions: groupSolutions.filter(s => s.taskId == this.props.taskId)
