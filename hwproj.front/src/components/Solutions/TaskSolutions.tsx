@@ -9,6 +9,7 @@ import {ListItem, Grid, Accordion, AccordionDetails, AccordionSummary} from "@ma
 import List from "@material-ui/core/List";
 
 interface ITaskSolutionsProps {
+    homeworkId: number,
     taskId: number,
     studentId: string,
     forMentor: boolean
@@ -95,19 +96,21 @@ export default class TaskSolutions extends React.Component<ITaskSolutionsProps, 
     }
 
     async componentDidMount() {
-        const solutions = await ApiSingleton.solutionsApi.apiSolutionsTaskSolutionByTaskIdByStudentIdGet(
-            this.props.taskId,
-            this.props.studentId,
-        )
+        const courseId = (await ApiSingleton.homeworksApi.apiHomeworksGetByHomeworkIdGet(this.props.homeworkId)).courseId
+        const groupId = await ApiSingleton.courseGroupsApi.apiCourseGroupsByCourseIdGetStudentGroupGet(courseId!)
         debugger
-        if (solutions.length == 0 || solutions[0].groupId! == -1) {
+        if (groupId == -1) {
+            const solutions = await ApiSingleton.solutionsApi.apiSolutionsTaskSolutionByTaskIdByStudentIdGet(
+                this.props.taskId,
+                this.props.studentId,
+            )
+
             this.setState({
                 isLoaded: true,
                 solutions: solutions
             })
         }
         else {
-            let groupId = solutions[0].groupId!
             const groupSolutions = await ApiSingleton.solutionsApi.apiSolutionsByGroupIdTaskSolutionsByTaskIdGet(
                 groupId,
                 this.props.taskId,
