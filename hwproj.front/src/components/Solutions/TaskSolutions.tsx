@@ -48,7 +48,6 @@ export default class TaskSolutions extends React.Component<ITaskSolutionsProps, 
             </Grid>
             )
         ).reverse()
-        debugger
         if (isLoaded) {
             return (
                 <Grid container alignItems="stretch" direction="column">
@@ -100,10 +99,24 @@ export default class TaskSolutions extends React.Component<ITaskSolutionsProps, 
             this.props.taskId,
             this.props.studentId,
         )
-        this.setState({
-            isLoaded: true,
-            solutions: solutions
-        })
         debugger
+        if (solutions.length == 0 || solutions[0].groupId! == -1) {
+            this.setState({
+                isLoaded: true,
+                solutions: solutions
+            })
+        }
+        else {
+            let groupId = solutions[0].groupId!
+            const groupSolutions = await ApiSingleton.solutionsApi.apiSolutionsByGroupIdTaskSolutionsByTaskIdGet(
+                groupId,
+                this.props.taskId,
+            )
+
+            this.setState({
+                isLoaded: true,
+                solutions: groupSolutions
+            })
+        }
     }
 }

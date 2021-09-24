@@ -1,12 +1,16 @@
-﻿using System.Net;
+﻿using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using HwProj.APIGateway.API.ExceptionFilters;
+using HwProj.CoursesService.Client;
+using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
 using HwProj.Models.SolutionsService;
 using HwProj.NotificationsService.Client;
 using HwProj.SolutionsService.Client;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.APIGateway.API.Controllers
@@ -18,11 +22,15 @@ namespace HwProj.APIGateway.API.Controllers
     {
         private readonly INotificationsServiceClient _notificationsClient;
         private readonly ISolutionsServiceClient _solutionsClient;
+        private readonly ICoursesServiceClient _coursesClient;
 
-        public SolutionsController(ISolutionsServiceClient solutionsClient, INotificationsServiceClient notificationsClient)
+        public SolutionsController(ISolutionsServiceClient solutionsClient,
+            INotificationsServiceClient notificationsClient,
+            ICoursesServiceClient coursesClient)
         {
             _notificationsClient = notificationsClient;
             _solutionsClient = solutionsClient;
+            _coursesClient = coursesClient;
         }
         
         [HttpGet]
@@ -88,11 +96,26 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok();
         }
 
-        [HttpPost("{groupId}/{taskId}")]
+        [HttpPost("{courseId}/{taskId}")]
         [Authorize]
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> PostGroupSolution(SolutionViewModel model, long taskId, long groupId)
+        public async Task<IActionResult> PostGroupSolution(SolutionViewModel model, long taskId, long courseId)
         {
+            model.StudentId = Request.GetUserId();
+            var groups = (await _coursesClient.GetAllCourseGroups(courseId)).ToList();
+
+            var groupId = -1L;
+            foreach (var group in groups)
+            {
+                foreach (var groupMate in group.GroupMates)
+                {
+                    if (groupMate.StudentId == model.StudentId)
+                    {
+                        groupId = group.Id;
+                    }
+                }
+            }
+            
             var result = await _solutionsClient.PostGroupSolution(model, taskId, groupId);
             return Ok(result);
         }

@@ -300,6 +300,12 @@ export interface CreateHomeworkViewModel {
      * @memberof CreateHomeworkViewModel
      */
     tasks?: Array<CreateTaskViewModel>;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof CreateHomeworkViewModel
+     */
+    isGroupHomework?: boolean;
 }
 
 /**
@@ -610,6 +616,12 @@ export interface HomeworkViewModel {
      * @memberof HomeworkViewModel
      */
     tasks?: Array<HomeworkTaskViewModel>;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof HomeworkViewModel
+     */
+    isGroupHomework?: boolean;
 }
 
 /**
@@ -906,6 +918,12 @@ export interface SolutionViewModel {
      * @memberof SolutionViewModel
      */
     lecturerComment?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof SolutionViewModel
+     */
+    groupId?: number;
 }
 
 /**
@@ -3862,23 +3880,23 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
         /**
          * 
          * @param {number} taskId 
-         * @param {number} groupId 
+         * @param {number} courseId 
          * @param {SolutionViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSolutionsByGroupIdByTaskIdPost(taskId: number, groupId: number, model?: SolutionViewModel, options: any = {}): FetchArgs {
+        apiSolutionsByCourseIdByTaskIdPost(taskId: number, courseId: number, model?: SolutionViewModel, options: any = {}): FetchArgs {
             // verify required parameter 'taskId' is not null or undefined
             if (taskId === null || taskId === undefined) {
-                throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling apiSolutionsByGroupIdByTaskIdPost.');
+                throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling apiSolutionsByCourseIdByTaskIdPost.');
             }
-            // verify required parameter 'groupId' is not null or undefined
-            if (groupId === null || groupId === undefined) {
-                throw new RequiredError('groupId','Required parameter groupId was null or undefined when calling apiSolutionsByGroupIdByTaskIdPost.');
+            // verify required parameter 'courseId' is not null or undefined
+            if (courseId === null || courseId === undefined) {
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiSolutionsByCourseIdByTaskIdPost.');
             }
-            const localVarPath = `/api/Solutions/{groupId}/{taskId}`
+            const localVarPath = `/api/Solutions/{courseId}/{taskId}`
                 .replace(`{${"taskId"}}`, encodeURIComponent(String(taskId)))
-                .replace(`{${"groupId"}}`, encodeURIComponent(String(groupId)));
+                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
@@ -4228,13 +4246,13 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @param {number} taskId 
-         * @param {number} groupId 
+         * @param {number} courseId 
          * @param {SolutionViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSolutionsByGroupIdByTaskIdPost(taskId: number, groupId: number, model?: SolutionViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
-            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsByGroupIdByTaskIdPost(taskId, groupId, model, options);
+        apiSolutionsByCourseIdByTaskIdPost(taskId: number, courseId: number, model?: SolutionViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
+            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsByCourseIdByTaskIdPost(taskId, courseId, model, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -4405,13 +4423,13 @@ export const SolutionsApiFactory = function (configuration?: Configuration, fetc
         /**
          * 
          * @param {number} taskId 
-         * @param {number} groupId 
+         * @param {number} courseId 
          * @param {SolutionViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSolutionsByGroupIdByTaskIdPost(taskId: number, groupId: number, model?: SolutionViewModel, options?: any) {
-            return SolutionsApiFp(configuration).apiSolutionsByGroupIdByTaskIdPost(taskId, groupId, model, options)(fetch, basePath);
+        apiSolutionsByCourseIdByTaskIdPost(taskId: number, courseId: number, model?: SolutionViewModel, options?: any) {
+            return SolutionsApiFp(configuration).apiSolutionsByCourseIdByTaskIdPost(taskId, courseId, model, options)(fetch, basePath);
         },
         /**
          * 
@@ -4502,14 +4520,14 @@ export class SolutionsApi extends BaseAPI {
     /**
      * 
      * @param {number} taskId 
-     * @param {number} groupId 
+     * @param {number} courseId 
      * @param {SolutionViewModel} [model] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof SolutionsApi
      */
-    public apiSolutionsByGroupIdByTaskIdPost(taskId: number, groupId: number, model?: SolutionViewModel, options?: any) {
-        return SolutionsApiFp(this.configuration).apiSolutionsByGroupIdByTaskIdPost(taskId, groupId, model, options)(this.fetch, this.basePath);
+    public apiSolutionsByCourseIdByTaskIdPost(taskId: number, courseId: number, model?: SolutionViewModel, options?: any) {
+        return SolutionsApiFp(this.configuration).apiSolutionsByCourseIdByTaskIdPost(taskId, courseId, model, options)(this.fetch, this.basePath);
     }
 
     /**

@@ -67,6 +67,7 @@ namespace HwProj.SolutionsService.API.Controllers
             {
                 var solution = _mapper.Map<Solution>(solutionViewModel);
                 solution.TaskId = taskId;
+                solution.GroupId = -1;
                 var solutionId = await _solutionsService.PostOrUpdateAsync(taskId, solution);
                 return Ok(solutionId);
             }
@@ -102,10 +103,11 @@ namespace HwProj.SolutionsService.API.Controllers
         }
         
         [HttpPost("{groupId}/{taskId}")]
-        public async Task<long> PostSolution(long groupId, long taskId, [FromBody] SolutionViewModel solutionViewModel)
+        public async Task<long> PostGroupSolution(long groupId, long taskId, [FromBody] SolutionViewModel solutionViewModel)
         {
             var solution = _mapper.Map<Solution>(solutionViewModel);
             solution.GroupId = groupId;
+            solution.TaskId = taskId;
             var solutionId = await _solutionsService.PostOrUpdateAsync(taskId, solution);
             return solutionId;
         }

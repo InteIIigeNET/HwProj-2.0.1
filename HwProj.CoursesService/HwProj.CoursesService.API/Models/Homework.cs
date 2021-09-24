@@ -17,5 +17,7 @@ namespace HwProj.CoursesService.API.Models
         public long CourseId { get; set; }
         
         public List<HomeworkTask> Tasks { get; set; }
+        
+        public bool IsGroupHomework { get; set; }
     }
 }

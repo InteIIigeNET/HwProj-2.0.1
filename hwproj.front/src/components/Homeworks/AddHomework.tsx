@@ -22,6 +22,7 @@ interface IAddHomeworkState {
   tasks: CreateTaskViewModel[];
   added: boolean;
   isPreview: boolean;
+  isGroupHomework: boolean;
 }
 
 export default class AddHomework extends React.Component<
@@ -43,6 +44,7 @@ export default class AddHomework extends React.Component<
               }],
       added: false,
       isPreview: false,
+      isGroupHomework: false,
     };
   }
 
@@ -221,6 +223,18 @@ export default class AddHomework extends React.Component<
               Ещё задачу
             </Button>
           </div>
+          <Grid>
+            <label>
+              <Checkbox
+                  color="primary"
+                  onChange={(e) =>
+                  {
+                    this.setState({isGroupHomework: e.target.checked });
+                  }}
+              />
+              Это групповая домашка
+            </label>
+          </Grid>
           <Grid container style={{ marginTop: "15px"}}>
             <Button
               size="small"
@@ -252,6 +266,7 @@ export default class AddHomework extends React.Component<
       title: this.state.title,
       description: this.state.description,
       tasks: this.state.tasks,
+      isGroupHomework: this.state.isGroupHomework,
     }
     // ReDo
     homework.tasks.forEach(task => {
@@ -260,7 +275,7 @@ export default class AddHomework extends React.Component<
       }
       task.publicationDate = new Date(task.publicationDate!.setHours(task.publicationDate!.getHours() + 3))
     })
-    
+    debugger
     await ApiSingleton.homeworksApi.apiHomeworksByCourseIdAddPost(this.props.id, homework)
     this.setState({ added: true })
     this.props.onSubmit()
