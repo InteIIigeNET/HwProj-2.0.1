@@ -14,6 +14,8 @@ import GroupHomeworks from "./GroupHomeworks";
 import GroupEdit from "./GroupEdit";
 import EditIcon from "@material-ui/icons/Edit";
 import Grid from "@material-ui/core/Grid";
+import {GroupViewModel} from "../../api";
+import ApiSingleton from "../../api/ApiSingleton";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -32,8 +34,28 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const Group: FC = () => {
+const Group: FC<GroupViewModel> = (props) => {
     const classes = useStyles()
+    const group = props
+
+    const getGroupMates = async () => {
+        const groupMates = group.groupMates!.map(async(gm) => {
+            const student = await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(gm.studentId!)
+            return (
+                <ListItem>
+                    {student.surname}&nbsp;{student.name}
+                    <IconButton aria-label="Delete" onClick={() => console.log("Hello")}>
+                        <DeleteIcon fontSize="small" />
+                    </IconButton>
+                </ListItem>
+            )
+        })
+        return (
+            <List>
+                {groupMates}
+            </List>
+        )
+    };
 
     return (
         <div className={classes.root}>
@@ -45,7 +67,7 @@ const Group: FC = () => {
                     style={{backgroundColor: "#eceef8"}}
                 >
                     <div className={classes.tools}>
-                        <Typography className={classes.heading}>Группа 1</Typography>
+                        <Typography className={classes.heading}>{group.name}</Typography>
                         <IconButton aria-label="Edit" onClick={() => console.log("Hello")}>
                             <EditIcon fontSize="small" />
                         </IconButton>
@@ -55,32 +77,7 @@ const Group: FC = () => {
                     </div>
                 </AccordionSummary>
                 <AccordionDetails>
-                    <List>
-                        <ListItem>
-                            Володя Петров
-                            <IconButton aria-label="Delete" onClick={() => console.log("Hello")}>
-                                <DeleteIcon fontSize="small" />
-                            </IconButton>
-                        </ListItem>
-                        <ListItem>
-                            Володя Петров
-                            <IconButton aria-label="Delete" onClick={() => console.log("Hello")}>
-                                <DeleteIcon fontSize="small" />
-                            </IconButton>
-                        </ListItem>
-                        <ListItem>
-                            Володя Петров
-                            <IconButton aria-label="Delete" onClick={() => console.log("Hello")}>
-                                <DeleteIcon fontSize="small" />
-                            </IconButton>
-                        </ListItem>
-                        <ListItem>
-                            Володя Петров
-                            <IconButton aria-label="Delete" onClick={() => console.log("Hello")}>
-                                <DeleteIcon fontSize="small" />
-                            </IconButton>
-                        </ListItem>
-                    </List>
+                    {getGroupMates()}
                 </AccordionDetails>
             </Accordion>
         </div>

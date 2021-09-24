@@ -77,7 +77,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
           acceptedStudents: await Promise.all(course.courseMates!
             .filter(cm => cm.isAccepted)
             .map(async (cm) => {
-                const user = await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(cm.studentId!);
+                const user = await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(cm.studentId!)
                 return {
                     name: user.name!,
                     surname: user.surname!,
