@@ -52,42 +52,46 @@ export default class TaskSolutions extends React.Component<ITaskSolutionsProps, 
         if (isLoaded) {
             return (
                 <Grid container alignItems="stretch" direction="column">
-                    <Grid item>
-                        <Accordion>
-                            <AccordionSummary
-                                aria-controls="panel1a-content"
-                                id="panel1a-header"
-                                style={{backgroundColor: "#c6cceb"}}
-                            >
-                                <Typography>
-                                    Непроверенные решения
-                                </Typography>
-                            </AccordionSummary>
-                            <AccordionDetails>
-                                <Grid container direction="column" alignItems="stretch">
-                                    {componentsOfNonRatedSolutions}
-                                </Grid>
-                            </AccordionDetails>
-                        </Accordion>
-                    </Grid>
-                    <Grid item>
-                        <Accordion>
-                            <AccordionSummary
-                                aria-controls="panel1a-content"
-                                id="panel1a-header"
-                                style={{backgroundColor: "#c6cceb"}}
-                            >
-                                <Typography>
-                                    Проверенные решения
-                                </Typography>
-                            </AccordionSummary>
-                            <AccordionDetails>
-                                <Grid container direction="column" alignItems="stretch">
-                                    {componentsOfRatedSolutions}
-                                </Grid>
-                            </AccordionDetails>
-                        </Accordion>
-                    </Grid>
+                    { arrayOfNonRatedSolutions.length > 0 &&
+                        <Grid item>
+                            <Accordion>
+                                <AccordionSummary
+                                    aria-controls="panel1a-content"
+                                    id="panel1a-header"
+                                    style={{backgroundColor: "#c6cceb"}}
+                                >
+                                    <Typography>
+                                        Непроверенные решения
+                                    </Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    <Grid container direction="column" alignItems="stretch">
+                                        {componentsOfNonRatedSolutions}
+                                    </Grid>
+                                </AccordionDetails>
+                            </Accordion>
+                        </Grid>
+                    }
+                    { arrayOfRatedSolutions.length > 0 &&
+                        <Grid item>
+                            <Accordion>
+                                <AccordionSummary
+                                    aria-controls="panel1a-content"
+                                    id="panel1a-header"
+                                    style={{backgroundColor: "#c6cceb"}}
+                                >
+                                    <Typography>
+                                        Проверенные решения
+                                    </Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    <Grid container direction="column" alignItems="stretch">
+                                        {componentsOfRatedSolutions}
+                                    </Grid>
+                                </AccordionDetails>
+                            </Accordion>
+                        </Grid>
+                    }
                 </Grid>
             )
         }
