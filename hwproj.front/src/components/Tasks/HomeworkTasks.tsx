@@ -1,8 +1,8 @@
-import { Accordion, AccordionDetails, AccordionSummary, Typography } from '@material-ui/core';
+import {Accordion, AccordionDetails, AccordionSummary, Typography} from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ApiSingleton from 'api/ApiSingleton';
 import * as React from 'react';
-import { HomeworkTaskViewModel } from "../../api";
+import {HomeworkTaskViewModel} from "../../api";
 import Task from './Task'
 
 interface IHomeworkTasksProps {
@@ -15,7 +15,7 @@ interface IHomeworkTasksProps {
 export default class HomeworkTasks extends React.Component<IHomeworkTasksProps, {}> {
     public render() {
         return (
-            <div>
+            <div style={{width: '100%'}}>
                 {this.props.tasks.map((task: any) => {
                     return (
                         <Task

@@ -7,10 +7,11 @@ import AddHomework from "../Homeworks/AddHomework";
 import CourseStudents from "./CourseStudents";
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
-import {Button, Grid, Typography } from "@material-ui/core";
+import {Button, Grid, ListItem, Typography, Link} from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
 import {useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
+import List from "@material-ui/core/List";
 
 interface ICourseMate {
     name: string;
@@ -38,16 +39,6 @@ const styles = makeStyles(theme => ({
     info: {
         display: "flex",
         justifyContent: "space-between",
-        flexWrap: "nowrap",
-    },
-    adminInfo: {
-        margin: "5px",
-        borderWidth: "1px",
-        border: "solid",
-        backgroundColor: "#eceef8",
-        borderColor: "Gainsboro",
-        borderRadius: 5,
-        padding: "2px"
     },
 }))
 
@@ -126,7 +117,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                 <Grid container justify="center" style={{marginTop: "15px"}}>
                     <Grid item xs={11} className={classes.info}>
                         <div>
-                            <Typography variant="h5">
+                            <Typography style={{ fontSize: '22px'}}>
                                 {course.name} &nbsp;
                                 {isMentor && (
                                     <RouterLink to={"./" + courseId! + "/edit"}>
@@ -139,28 +130,28 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                             </Typography>
                         </div>
                         <div>
-                            <Grid container>
+                            <List>
                                 {mentors.map(mentor =>
-                                    <Grid item style={{
-                                        margin: "5px",
-                                        borderWidth: "1px",
-                                        border: "solid",
-                                        backgroundColor: "#eceef8",
-                                        borderColor: "Gainsboro",
-                                        borderRadius: 5,
-                                        padding: "2px"
-                                    }}>
-                                        <Typography variant="h5">
-                                            {mentor.name}&nbsp;{mentor.surname}
-                                        </Typography>
-                                        {(isMentor || isAcceptedStudent) && (
-                                            <Typography variant="subtitle1">
-                                                {mentor.email}
-                                            </Typography>
-                                        )}
-                                    </Grid>
+                                    <div>
+                                        <ListItem style={{ padding: 0}}>
+                                            <Link
+                                                color="inherit"
+                                                component="button"
+                                                onClick={() => window.location.href = "mailto:" + mentor.email}
+                                            >
+                                                <Typography style={{ fontSize: '22px'}}>
+                                                    {mentor.name}&nbsp;{mentor.surname}
+                                                </Typography>
+                                                {/*{(isMentor || isAcceptedStudent) && (*/}
+                                                {/*    <Typography variant="subtitle1">*/}
+                                                {/*        {mentor.email}*/}
+                                                {/*    </Typography>*/}
+                                                {/*)}*/}
+                                            </Link>
+                                        </ListItem>
+                                    </div>
                                 )}
-                            </Grid>
+                            </List>
                             {isLogged && !isSignedInCourse && !isMentor && !isAcceptedStudent && (
                                 <Button
                                     size="small"
@@ -249,10 +240,10 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                         }));
                                     }}
                                 >
-                                    Добавить домашку
+                                    Добавить задание
                                 </Button>
                             </Grid>
-                            <Grid item style={{marginTop: "15px", width: '94%'}}>
+                            <Grid item xs={11} style={{marginTop: "15px"}}>
                                 <CourseHomework
                                     onDelete={() => setCurrentState()}
                                     isStudent={isAcceptedStudent}
@@ -276,14 +267,14 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                     </Grid>
                 )}
                 {!isMentor && (
-                    <div>
+                    <Grid xs={11}>
                         <CourseHomework
                             onDelete={() => setCurrentState()}
                             homework={courseState.courseHomework}
                             isStudent={isAcceptedStudent}
                             isMentor={isMentor}
                         />
-                    </div>
+                    </Grid>
                 )}
             </Grid>
         );
