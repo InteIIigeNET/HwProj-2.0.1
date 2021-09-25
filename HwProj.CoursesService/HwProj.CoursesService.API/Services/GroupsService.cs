@@ -61,7 +61,6 @@ namespace HwProj.CoursesService.API.Services
         {
             var group = await _groupsRepository.GetAsync(groupId);
             group.GroupMates.RemoveAll(cm => true);
-            group.Tasks.RemoveAll(cm => true);
 
             await _groupsRepository.DeleteAsync(groupId).ConfigureAwait(false);
         }
@@ -109,12 +108,6 @@ namespace HwProj.CoursesService.API.Services
             var studentGroups = await Task.WhenAll(getStudentGroupsTask).ConfigureAwait(false);
 
             return studentGroups.Select(c => _mapper.Map<UserGroupDescription>(c)).ToArray();
-        }
-
-        public async Task<long[]> GetTasksIds(long groupId)
-        {
-            var group = await GetGroupAsync(groupId);
-            return group.Tasks.Select(cm => cm.TaskId).ToArray();
         }
 
         public async Task<string[]> GetAllStudentWithoutGroup(long courseId)

@@ -17,8 +17,6 @@ namespace HwProj.CoursesService.API.Repositories.Groups
         {
             return await Context.Set<Group>().Include(c => c.GroupMates)
                 .AsNoTracking()
-                .Include(c => c.Tasks)
-                .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.Id == id)
                 .ConfigureAwait(false);
         }
@@ -28,8 +26,6 @@ namespace HwProj.CoursesService.API.Repositories.Groups
             return Context.Set<Group>()
                 .Where(c => c.CourseId == courseId)
                 .Include(c => c.GroupMates)
-                .AsNoTracking()
-                .Include(c => c.Tasks)
                 .AsNoTracking();
         }
     }

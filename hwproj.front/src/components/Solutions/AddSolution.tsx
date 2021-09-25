@@ -28,7 +28,6 @@ export default class AddSolution extends React.Component<IAddSolutionProps, Solu
             this.props.onAdding()
         }
         else {
-            debugger
             await ApiSingleton.solutionsApi.apiSolutionsByCourseIdByTaskIdPost(this.props.taskId, homework.courseId!, this.state)
             this.props.onAdding()
         }

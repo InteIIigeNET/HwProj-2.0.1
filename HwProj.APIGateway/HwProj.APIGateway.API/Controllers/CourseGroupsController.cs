@@ -97,14 +97,6 @@ namespace HwProj.APIGateway.API.Controllers
                 ? NotFound()
                 : Ok(result) as IActionResult;
         }
-        
-        [HttpGet("getTasks/{groupId}")]
-        [ProducesResponseType(typeof(long[]), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetGroupTasks(long groupId)
-        {
-            var result = await _coursesClient.GetGroupTasks(groupId);
-            return Ok(result);
-        }
 
         [HttpGet("{courseId}/getCourseData")]
         [Authorize(Roles = Roles.LecturerRole)]
@@ -119,6 +111,26 @@ namespace HwProj.APIGateway.API.Controllers
                 StudentsWithoutGroup = courseMatesWithoutGroup,
                 Groups = groups
             });
+        }
+
+        [HttpGet("{courseId}/getStudentGroup")]
+        [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetStudentGroupId(long courseId)
+        {
+            var studentId = Request.GetUserId();
+            var groups = await _coursesClient.GetAllCourseGroups(courseId);
+            foreach (var group in groups)
+            {
+                foreach (var groupMate in group.GroupMates)
+                {
+                    if (groupMate.StudentId == studentId)
+                    {
+                        return Ok(group.Id);
+                    }
+                }
+            }
+
+            return Ok((long) -1);
         }
     }
 }

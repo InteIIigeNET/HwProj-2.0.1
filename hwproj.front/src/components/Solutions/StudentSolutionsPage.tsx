@@ -62,6 +62,7 @@ export default class StudentSolutionsPage extends React.Component<
             />
             <TaskSolutions
               forMentor={true}
+              homeworkId={this.state.task.homeworkId!}
               taskId={+this.props.match.params.taskId}
               studentId={this.props.match.params.studentId}
             />
