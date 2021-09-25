@@ -168,7 +168,7 @@ namespace HwProj.AuthService.API.Services
 
             if (invitedUser == null)
             {
-                return Result.Failed("User not found");
+                return Result.Failed("Пользователь не найден");
             }
 
             var result = await _userManager.AddToRoleAsync(invitedUser, Roles.LecturerRole)
@@ -182,6 +182,11 @@ namespace HwProj.AuthService.API.Services
             }
 
             return Result.Failed();
+        }
+
+        public async Task<User[]> GetAllStudent()
+        {
+            return await _userManager.GetAllUsers();
         }
 
         private Task<IdentityResult> ChangeUserNameTask(User user, EditDataDTO model)

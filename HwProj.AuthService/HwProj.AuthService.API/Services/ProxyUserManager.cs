@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using HwProj.Models.AuthService.ViewModels;
 using Microsoft.AspNetCore.Identity;
@@ -67,6 +68,11 @@ namespace HwProj.AuthService.API.Services
         public Task<IdentityResult> ChangePasswordAsync(User user, string currentPassword, string newPassword)
         {
             return _aspUserManager.ChangePasswordAsync(user, currentPassword, newPassword);
+        }
+
+        public async Task<User[]> GetAllUsers()
+        {
+            return _aspUserManager.Users.ToArray();
         }
     }
 }
