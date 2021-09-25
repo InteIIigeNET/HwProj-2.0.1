@@ -109,5 +109,14 @@ namespace HwProj.AuthService.API.Controllers
             return Ok(roles[0]);
         }
 
+        [HttpGet("getAllStudents")]
+        [ProducesResponseType(typeof(AccountDataDto[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetAllStudents()
+        {
+            var result = await _accountService.GetAllStudent();
+            return result == null
+                ? NotFound()
+                : Ok(result) as IActionResult;
+        }
     }
 }

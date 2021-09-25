@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
 using System.Linq;
 using AutoMapper;
@@ -184,9 +185,18 @@ namespace HwProj.AuthService.API.Services
             return Result.Failed();
         }
 
-        public async Task<User[]> GetAllStudent()
+        public async Task<AccountDataDto[]> GetAllStudent()
         {
-            return await _userManager.GetAllUsers();
+            var users = await _userManager.GetAllUsers();
+            var result = new List<AccountDataDto>();
+            foreach (var user in users)
+            {
+                if ((await _userManager.GetRolesAsync(user))[0] == Roles.StudentRole)
+                {
+                    result.Add(new AccountDataDto(user.Name, user.Surname, user.Email, Roles.StudentRole,user.IsExternalAuth, user.MiddleName));
+                }
+            }
+            return result.ToArray();
         }
 
         private Task<IdentityResult> ChangeUserNameTask(User user, EditDataDTO model)

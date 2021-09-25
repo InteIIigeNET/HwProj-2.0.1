@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using HwProj.Models.AuthService.ViewModels;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.AuthService.API.Services
 {
@@ -72,7 +73,12 @@ namespace HwProj.AuthService.API.Services
 
         public async Task<User[]> GetAllUsers()
         {
-            return _aspUserManager.Users.ToArray();
+            return await _aspUserManager.Users.ToArrayAsync();
         }
+        
+        /*public async Task<User[]> GetAllUsers()
+        {
+            return await Task.Run(() => _aspUserManager.Users.ToArrayAsync());
+        }*/
     }
 }

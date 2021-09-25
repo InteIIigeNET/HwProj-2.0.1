@@ -110,5 +110,14 @@ namespace HwProj.APIGateway.API.Controllers
             var result = await _authClient.EditExternal(model, userId).ConfigureAwait(false);
             return Ok(result);
         }
+
+        [HttpGet("getAllStudents")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        [ProducesResponseType(typeof(AccountDataDto[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetAllStudents()
+        {
+            var result = await _authClient.GetAllStudents();
+            return Ok(result);
+        }
     }
 }
