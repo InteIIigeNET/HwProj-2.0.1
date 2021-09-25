@@ -10,12 +10,13 @@ import {
     TableCell,
     TableBody, TableRow, TableHead, Button
 } from "@material-ui/core";
-import {ChangeEvent, FC, useEffect, useState} from "react";
+import {FC, useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
 import ApiSingleton from "../../api/ApiSingleton";
 import AvailableCourseStudents from "./AvailableCourseStudents";
-import {CourseGroupDTO} from './../../api';
+import {CourseGroupDTO, GroupMateViewModel} from './../../api';
 import AddGroup from "./AddGroup";
+import Group from "./Group";
 
 interface ICourseGroupEditorProps {
     courseId: string;
@@ -62,18 +63,18 @@ const CourseGroups: FC<ICourseGroupEditorProps> = (props) => {
                 middleName: st.middleName!,
             }
         })
-        let groups = group!.groups!.map((g) => {
+        let groups = group.groups!.map((g) => {
             return {
-                id: g.id!,
-                courseId: g.courseId!,
-                name: g.name!,
-                tasks: g.tasks!,
-                groupMates: g.groupMates!,
+                id: g.id,
+                courseId: g.courseId,
+                name: g.name,
+                tasks: g.tasks,
+                groupMates: g.groupMates,
             }
         })
         setGroupState({
             studentsWithoutGroup: students,
-            groups: groups,
+            groups: group.groups,
         })
     }
 
@@ -98,11 +99,15 @@ const CourseGroups: FC<ICourseGroupEditorProps> = (props) => {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                <TableRow>
-                                    <TableCell>
-
-                                    </TableCell>
-                                </TableRow>
+                                {groupState.groups!.map((g) => {
+                                    return (
+                                        <TableRow>
+                                            <TableCell>
+                                                <Group group={g}/>
+                                            </TableCell>
+                                        </TableRow>
+                                    )
+                                })}
                             </TableBody>
                         </Table>
                     </TableContainer>

@@ -35,7 +35,6 @@ const AvailableCourseStudents: FC<AvailableCourseStudentsProps> = (props) => {
     const classes = useStyles()
 
     const GetStudents = () => {
-        debugger
         let students = props.studentsWithoutGroup!.map((student: GroupMateDataDTO) => {
             const fullName = student.middleName
                 ? student.surname + ' ' + student.name + ' ' + student.middleName
