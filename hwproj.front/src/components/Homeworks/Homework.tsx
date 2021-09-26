@@ -31,6 +31,7 @@ export default class Homework extends React.Component<IHomeworkProps, IHomeworkS
 
   public render() {
     let homeworkDateString = new Date(this.props.homework.date!.toString()).toLocaleDateString("ru-RU");
+    let deferredHomework = this.props.homework.tasks?.filter(t => new Date(Date.now()) < new Date(t.publicationDate!))
     return (
       <div style={{ width: '100%' }}>
         <Accordion>
@@ -42,6 +43,7 @@ export default class Homework extends React.Component<IHomeworkProps, IHomeworkS
           >
             <Typography>
               {this.props.homework.title} {homeworkDateString}
+
               {this.props.forMentor &&
                 <IconButton aria-label="Delete" onClick={() => this.deleteHomework()}>
                   <DeleteIcon fontSize="small" />
@@ -51,6 +53,9 @@ export default class Homework extends React.Component<IHomeworkProps, IHomeworkS
                 <RouterLink to={'/homework/' + this.props.homework.id!.toString() + '/edit'}>
                   <EditIcon fontSize="small" />
                 </RouterLink>
+              }
+              {this.props.forMentor && deferredHomework!.length > 0 &&
+                <Typography>Отложенные домашки: {deferredHomework!.length}</Typography>
               }
             </Typography>
 
