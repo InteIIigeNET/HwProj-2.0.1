@@ -3,6 +3,7 @@ import { Accordion, AccordionDetails, AccordionSummary, Button, IconButton, Typo
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import DeleteIcon from '@material-ui/icons/Delete'
 import EditIcon from '@material-ui/icons/Edit'
+import HourglassEmpty from '@material-ui/icons/HourglassEmpty';
 import ReactMarkdown from 'react-markdown';
 import { HomeworkViewModel } from "../../api";
 import AddTask from'../Tasks/AddTask'
@@ -31,7 +32,7 @@ export default class Homework extends React.Component<IHomeworkProps, IHomeworkS
 
   public render() {
     let homeworkDateString = new Date(this.props.homework.date!.toString()).toLocaleDateString("ru-RU");
-    let deferredHomework = this.props.homework.tasks?.filter(t => new Date(Date.now()) < new Date(t.publicationDate!))
+    let deferredHomework = this.props.homework.tasks!.filter(t => t.isDeferred!);
     return (
       <div style={{ width: '100%' }}>
         <Accordion>
@@ -55,7 +56,7 @@ export default class Homework extends React.Component<IHomeworkProps, IHomeworkS
                 </RouterLink>
               }
               {this.props.forMentor && deferredHomework!.length > 0 &&
-                <Typography>Отложенные домашки: {deferredHomework!.length}</Typography>
+                <Typography> <HourglassEmpty/> {deferredHomework!.length}</Typography>
               }
             </Typography>
 

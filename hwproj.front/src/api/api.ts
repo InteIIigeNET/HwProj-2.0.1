@@ -520,6 +520,12 @@ export interface HomeworkTaskViewModel {
      * @memberof HomeworkTaskViewModel
      */
     homeworkId?: number;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof HomeworkTaskViewModel
+     */
+    isDeferred?: boolean;
 }
 
 /**
