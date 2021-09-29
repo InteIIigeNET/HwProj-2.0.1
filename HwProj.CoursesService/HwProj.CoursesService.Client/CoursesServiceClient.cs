@@ -328,5 +328,23 @@ namespace HwProj.CoursesService.Client
 
             await _httpClient.SendAsync(httpRequest);
         }
+
+        public async Task ReadingModeOn(long courseId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + $"api/Courses/readingMode/{courseId}/on");
+
+            await _httpClient.SendAsync(httpRequest);
+        }
+
+        public async Task ReadingModeOff(long courseId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + $"api/Courses/readingMode/{courseId}/off");
+
+            await _httpClient.SendAsync(httpRequest);
+        }
     }
 }

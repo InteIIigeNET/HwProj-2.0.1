@@ -122,5 +122,21 @@ namespace HwProj.CoursesService.API.Controllers
             await _coursesService.AcceptLecturerAsync(courseId, lecturerEmail);
             return Ok();
         }
+
+        [HttpGet("readingMode/{courseId}/on")]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        public async Task<IActionResult> ReadingModeOn(long courseId)
+        {
+            await _coursesService.ReadingModeOn(courseId);
+            return Ok();
+        }
+
+        [HttpGet("readingMode/{courseId}/off")]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        public async Task<IActionResult> ReadingModeOff(long courseId)
+        {
+            await _coursesService.ReadingModeOff(courseId);
+            return Ok();
+        }
     }
 }

@@ -40,5 +40,6 @@ namespace HwProj.Models.CoursesService.ViewModels
         public string InviteCode { get; set; }
         public List<CourseMateViewModel> CourseMates { get; set; } = new List<CourseMateViewModel>();
         public List<HomeworkViewModel> Homeworks { get; set; } = new List<HomeworkViewModel>();
+        public bool IsReadingMode { get; set; }
     }
 }
