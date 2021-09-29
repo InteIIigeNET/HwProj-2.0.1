@@ -50,7 +50,7 @@ const InviteLecturer: FC<InviteLecturer> = (props) => {
             if (result.succeeded) {
                 setLecturerState((prevState) => ({
                     ...prevState,
-                    info: ['Запрос отправлен']
+                    logo: ['Запрос отправлен']
                 }))
                 return
             }

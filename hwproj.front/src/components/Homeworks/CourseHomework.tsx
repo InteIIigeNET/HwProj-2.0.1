@@ -2,7 +2,6 @@ import * as React from "react";
 import ListItem from "@material-ui/core/ListItem";
 import List from "@material-ui/core/List";
 import { Accordion, AccordionDetails, AccordionSummary, Grid, Typography } from "@material-ui/core";
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { HomeworkViewModel } from "../../api";
 import Homework from "./Homework";
 
@@ -18,7 +17,7 @@ export default class CourseHomework extends React.Component<ICourseHomeworkProps
   render() {
     const homeworkList = this.props.homework
       .map((hw) => (
-        <ListItem key={hw.id}>
+        <ListItem key={hw.id} style={{ padding: 0, width: '100%'}}>
           <Homework
             homework={hw}
             forStudent={this.props.isStudent}
@@ -38,11 +37,11 @@ export default class CourseHomework extends React.Component<ICourseHomeworkProps
                 Домашние задания
             </Typography>
           </Grid>
-          <Grid item xs={12}>
-            <List>
-              {homeworkList}
-            </List>
-          </Grid>
+          <div style={{ width: '100%'}}>
+              <List>
+                  {homeworkList}
+              </List>
+          </div>
       </Grid>
       )
     );

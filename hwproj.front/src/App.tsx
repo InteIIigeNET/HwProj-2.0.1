@@ -1,9 +1,9 @@
-import React, { Component } from "react";
+import React, {Component} from "react";
 import {
-  Route,
-  Switch,
-  withRouter,
-  RouteComponentProps,
+    Route,
+    Switch,
+    withRouter,
+    RouteComponentProps,
 } from "react-router-dom";
 import "./App.css";
 import "./components/Courses/Course";
@@ -12,7 +12,7 @@ import Courses from "./components/Courses/Courses";
 import CreateCourse from "./components/Courses/CreateCourse";
 import Profile from "./components/Profile";
 import TaskSolutionsPage from "./components/Solutions/TaskSolutionsPage";
-import { Header } from "./components/AppBar";
+import {Header} from "./components/AppBar";
 import Login from "./components/Auth/Login";
 import EditCourse from "./components/Courses/EditCourse";
 import EditTask from "./components/Tasks/EditTask";
@@ -25,33 +25,33 @@ import ApiSingleton from "./api/ApiSingleton";
 type AppProps = RouteComponentProps;
 
 interface AppState {
-  loggedIn: boolean;
-  isLecturer: boolean;
+    loggedIn: boolean;
+    isLecturer: boolean;
 }
 
 class App extends Component<AppProps, AppState> {
-  constructor(props: AppProps) {
-    super(props);
-    this.state = {
-      loggedIn: ApiSingleton.authService.isLoggedIn(),
-      isLecturer: ApiSingleton.authService.isLecturer()
-    };
-  }
+    constructor(props: AppProps) {
+        super(props);
+        this.state = {
+            loggedIn: ApiSingleton.authService.isLoggedIn(),
+            isLecturer: ApiSingleton.authService.isLecturer()
+        };
+    }
 
-  login = () => {
-    this.setState({
-      loggedIn: true,
-      isLecturer: ApiSingleton.authService.isLecturer()
-    })
-    this.props.history.push("/");
-  }
+    login = () => {
+        this.setState({
+            loggedIn: true,
+            isLecturer: ApiSingleton.authService.isLecturer()
+        })
+        this.props.history.push("/");
+    }
 
-  logout = () => {
-    ApiSingleton.authService.logout();
-    this.setState({loggedIn: false});
-    this.setState({isLecturer: false});
-    this.props.history.push("/login");
-  }
+    logout = () => {
+        ApiSingleton.authService.logout();
+        this.setState({loggedIn: false});
+        this.setState({isLecturer: false});
+        this.props.history.push("/login");
+    }
 
     render() {
         return (
@@ -64,18 +64,10 @@ class App extends Component<AppProps, AppState> {
                 <Route exact path="/create_course" component={CreateCourse}/>
                 <Route exact path="/courses/:id" component={Course}/>
                 <Route exact path="/courses/:courseId/edit" component={EditCourse}/>
-                <Route
-                    exact
-                    path="/homework/:homeworkId/edit"
-                    component={EditHomework}
-                />
+                <Route exact path="/homework/:homeworkId/edit" component={EditHomework}/>
                 <Switch>
                     <Route exact path="/task/:taskId/edit" component={EditTask}/>
-                    <Route
-                        exact
-                        path="/task/:taskId/:studentId"
-                        component={StudentSolutionsPage}
-                    />
+                    <Route exact path="/task/:taskId/:studentId" component={StudentSolutionsPage}/>
                     <Route exact path="/task/:taskId/" component={TaskSolutionsPage}/>
                 </Switch>
                 <Route
