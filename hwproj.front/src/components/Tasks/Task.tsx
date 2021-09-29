@@ -34,7 +34,7 @@ export default class Task extends React.Component<ITaskProp, {}> {
             expandIcon={!this.props.isExpanded ? <ExpandMoreIcon /> : undefined}
             aria-controls="panel1a-content"
             id="panel1a-header"
-            style={{backgroundColor: new Date(Date.now()) < new Date(task.publicationDate!) ? "#e6e6e6" : "#eceef8"}}
+            style={{backgroundColor: task.isDeferred! ? "#e6e6e6" : "#eceef8"}}
           >
             <Typography variant="subtitle1">
               {this.props.forStudent &&
