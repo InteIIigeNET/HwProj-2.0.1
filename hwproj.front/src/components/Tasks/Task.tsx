@@ -9,8 +9,9 @@ import {HomeworkTaskViewModel} from "../../api";
 import {Link as RouterLink} from 'react-router-dom'
 import ApiSingleton from "../../api/ApiSingleton";
 import {Accordion, AccordionDetails, AccordionSummary, Button} from '@material-ui/core';
-import {FC} from "react";
+import {FC, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
+import DeletionConfirmation from "../DeletionConfirmation";
 
 interface ITaskProp {
     task: HomeworkTaskViewModel,
@@ -38,6 +39,16 @@ const useStyles = makeStyles(theme => ({
 
 const Task: FC<ITaskProp> = (props) => {
 
+    const [isOpenDialogDeleteTask, setIsOpenDialogDeleteTask] = useState<boolean>(false)
+
+    const openDialogDeleteTask = () => {
+        setIsOpenDialogDeleteTask(true)
+    }
+
+    const closeDialogDeleteTask = () => {
+        setIsOpenDialogDeleteTask(false)
+    }
+
     const deleteTask = async () => {
         await ApiSingleton.tasksApi.apiTasksDeleteByTaskIdDelete(props.task.id!)
         props.onDeleteClick()
@@ -54,7 +65,7 @@ const Task: FC<ITaskProp> = (props) => {
     const classes = useStyles()
 
     return (
-        <div style={{width: '100%'}}>
+        <div style={{width: '100%', marginTop: "15px"}}>
             <Accordion expanded={props.isExpanded ? true : undefined}>
                 <AccordionSummary
                     expandIcon={!props.isExpanded ? <ExpandMoreIcon/> : undefined}
@@ -66,17 +77,17 @@ const Task: FC<ITaskProp> = (props) => {
                         {props.forStudent &&
                         <RouterLink to={"/task/" + task.id!.toString()}>
                             <Typography style={{fontSize: '18px'}}>
-                                Задача: {task.title}
+                                Задача {task.title}
                             </Typography>
                         </RouterLink>
                         }
                         {!props.forStudent &&
                         <Typography style={{fontSize: '18px'}}>
-                            Задача: {task.title}
+                            Задача {task.title}
                         </Typography>
                         }
                         {props.forMentor &&
-                        <IconButton aria-label="Delete" onClick={() => deleteTask()}>
+                        <IconButton aria-label="Delete" onClick={openDialogDeleteTask}>
                             <DeleteIcon fontSize="small"/>
                         </IconButton>
                         }
@@ -130,6 +141,15 @@ const Task: FC<ITaskProp> = (props) => {
                     </div>
                 </AccordionDetails>
             </Accordion>
+            <DeletionConfirmation
+                onCancel={closeDialogDeleteTask}
+                onSubmit={deleteTask}
+                isOpen={isOpenDialogDeleteTask}
+                dialogTitle={'Удаление задачи'}
+                dialogContentText={`Вы точно хотите удалить задачу "${task.title}"?`}
+                confirmationWord={''}
+                confirmationText={''}
+            />
         </div>
     );
 }

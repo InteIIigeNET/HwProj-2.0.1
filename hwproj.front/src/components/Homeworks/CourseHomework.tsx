@@ -17,7 +17,7 @@ export default class CourseHomework extends React.Component<ICourseHomeworkProps
   render() {
     const homeworkList = this.props.homework
       .map((hw) => (
-        <ListItem key={hw.id} style={{ padding: 0, width: '100%'}}>
+        <ListItem key={hw.id} style={{ padding: 0, marginTop: '20px', width: '100%'}}>
           <Homework
             homework={hw}
             forStudent={this.props.isStudent}

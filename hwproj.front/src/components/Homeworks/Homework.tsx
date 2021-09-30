@@ -11,6 +11,7 @@ import {Link as RouterLink} from 'react-router-dom'
 import ApiSingleton from '../../api/ApiSingleton';
 import {FC, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
+import DeletionConfirmation from "../DeletionConfirmation";
 
 interface IHomeworkProps {
     homework: HomeworkViewModel,
@@ -41,6 +42,16 @@ const Homework: FC<IHomeworkProps> = (props) => {
         createTask: false,
     })
 
+    const [isOpenDialogDeleteHomework, setIsOpenDialogDeleteHomework] = useState<boolean>(false)
+
+    const openDialogDeleteHomework = () => {
+        setIsOpenDialogDeleteHomework(true)
+    }
+
+    const closeDialogDeleteHomework = () => {
+        setIsOpenDialogDeleteHomework(false)
+    }
+
     const deleteHomework = async () => {
         await ApiSingleton.homeworksApi.apiHomeworksDeleteByHomeworkIdDelete(props.homework.id!)
         props.onDeleteClick()
@@ -60,7 +71,7 @@ const Homework: FC<IHomeworkProps> = (props) => {
                     <div className={classes.tools}>
                         <div className={classes.tool}>
                             <Typography style={{fontSize: '18px'}}>
-                                Домашнее задание: {props.homework.title}
+                                Домашнее задание {props.homework.title}
                             </Typography>
                         </div>
                         <div>
@@ -70,7 +81,7 @@ const Homework: FC<IHomeworkProps> = (props) => {
                         </div>
                         <div>
                             {props.forMentor &&
-                            <IconButton aria-label="Delete" onClick={() => deleteHomework()}>
+                            <IconButton aria-label="Delete" onClick={openDialogDeleteHomework}>
                                 <DeleteIcon fontSize="small"/>
                             </IconButton>
                             }
@@ -139,6 +150,15 @@ const Homework: FC<IHomeworkProps> = (props) => {
                     </div>
                 </AccordionDetails>
             </Accordion>
+            <DeletionConfirmation
+                onCancel={closeDialogDeleteHomework}
+                onSubmit={deleteHomework}
+                isOpen={isOpenDialogDeleteHomework}
+                dialogTitle={'Удаление домашнего задания'}
+                dialogContentText={`Вы точно хотите удалить домашнее задание "${props.homework.title}"?`}
+                confirmationWord={''}
+                confirmationText={''}
+            />
         </div>
     )
 }
