@@ -3,6 +3,7 @@ import {Accordion, AccordionDetails, AccordionSummary, Button, IconButton, Typog
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import DeleteIcon from '@material-ui/icons/Delete'
 import EditIcon from '@material-ui/icons/Edit'
+import HourglassEmpty from '@material-ui/icons/HourglassEmpty';
 import ReactMarkdown from 'react-markdown';
 import {HomeworkViewModel} from "../../api";
 import AddTask from '../Tasks/AddTask'
@@ -37,7 +38,6 @@ interface IHomeworkState {
 }
 
 const Homework: FC<IHomeworkProps> = (props) => {
-
     const [homeworkState, setHomeworkState] = useState<IHomeworkState>({
         createTask: false,
     })
@@ -59,6 +59,7 @@ const Homework: FC<IHomeworkProps> = (props) => {
 
     const classes = useStyles()
     const homeworkDateString = new Date(props.homework.date!.toString()).toLocaleDateString("ru-RU");
+    const deferredHomework = props.homework.tasks!.filter(t => t.isDeferred!);
     return (
         <div style={{width: '100%'}}>
             <Accordion>
@@ -91,6 +92,11 @@ const Homework: FC<IHomeworkProps> = (props) => {
                             <RouterLink to={'/homework/' + props.homework.id!.toString() + '/edit'}>
                                 <EditIcon fontSize="small"/>
                             </RouterLink>
+                            }
+                        </div>
+                        <div>
+                            {props.forMentor && deferredHomework!.length > 0 &&
+                            <Typography> <HourglassEmpty/> {deferredHomework!.length}</Typography>
                             }
                         </div>
                     </div>

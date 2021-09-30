@@ -60,7 +60,6 @@ const Task: FC<ITaskProp> = (props) => {
     if (task.hasDeadline) {
         deadlineDate = new Date(task.deadlineDate!.toString()).toLocaleString("ru-RU")
     }
-
     const publicationDate = new Date(task.publicationDate!.toString()).toLocaleString("ru-RU")
     const classes = useStyles()
 
@@ -71,7 +70,7 @@ const Task: FC<ITaskProp> = (props) => {
                     expandIcon={!props.isExpanded ? <ExpandMoreIcon/> : undefined}
                     aria-controls="panel1a-content"
                     id="panel1a-header"
-                    style={{backgroundColor: "#eceef8"}}
+                    style={{backgroundColor: task.isDeferred! ? "#e6e6e6" : "#eceef8"}}
                 >
                     <div className={classes.tools}>
                         {props.forStudent &&
