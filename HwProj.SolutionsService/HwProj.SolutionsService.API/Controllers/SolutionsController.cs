@@ -13,6 +13,7 @@ using HwProj.SolutionsService.API.Domains;
 using HwProj.SolutionsService.API.Models;
 using HwProj.SolutionsService.API.Services;
 using HwProj.Utils.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.SolutionsService.API.Controllers
@@ -152,6 +153,12 @@ namespace HwProj.SolutionsService.API.Controllers
 
             var result = SolutionsStatsDomain.GetCourseStatistics(solutionsStatsContext);
             return Ok(result);
+        }
+
+        [HttpPost("assessmentSystem/add/{courseId}")]
+        public async Task AddDllForAssessment(long courseId, [FromQuery] IFormFile dll)
+        {
+            await _solutionsService.AddDllForAssessment(courseId, dll);
         }
     }
 }

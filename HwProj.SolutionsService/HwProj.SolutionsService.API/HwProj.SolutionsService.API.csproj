@@ -9,6 +9,7 @@
     <None Remove="bin\**" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="dllsForAssessment" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
   <ItemGroup>

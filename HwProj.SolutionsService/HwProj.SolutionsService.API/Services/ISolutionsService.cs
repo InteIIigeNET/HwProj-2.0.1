@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using HwProj.Models.SolutionsService;
 using HwProj.SolutionsService.API.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace HwProj.SolutionsService.API.Services
 {
@@ -21,5 +22,7 @@ namespace HwProj.SolutionsService.API.Services
         Task DeleteSolutionAsync(long solutionId);
         
         Task MarkSolutionFinal(long solutionId);
+
+        Task AddDllForAssessment(long courseId, IFormFile dll);
     }
 }

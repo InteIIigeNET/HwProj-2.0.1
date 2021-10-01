@@ -10,13 +10,16 @@ using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.SolutionsService;
 using HwProj.SolutionsService.API.Events;
 using HwProj.SolutionsService.API.Repositories;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
 
 
 namespace HwProj.SolutionsService.API.Services
 {
     public class SolutionsService : ISolutionsService
     {
+        private readonly string pathForAssessmentDlls = "../../../dllsForAssessment/dllForCourse";
         private readonly ISolutionsRepository _solutionsRepository;
         private readonly IEventBus _eventBus;
         private readonly IMapper _mapper;
@@ -109,6 +112,20 @@ namespace HwProj.SolutionsService.API.Services
         public Task<Solution[]> GetTaskSolutionsFromGroupAsync(long taskId, long groupId)
         {
             return _solutionsRepository.FindAll(cm => cm.GroupId == groupId).ToArrayAsync();
+        }
+
+        public async Task AddDllForAssessment(long courseId, IFormFile dll)
+        {
+            var path = pathForAssessmentDlls + courseId.ToString() + ".dll";
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+
+            using (var stream = File.Create(path))
+            {
+                await dll.CopyToAsync(stream);
+            }
         }
     }
 }
