@@ -4,21 +4,32 @@ import Checkbox from '@material-ui/core/Checkbox'
 import Button from '@material-ui/core/Button'
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Typography from '@material-ui/core/Typography'
-import { Redirect } from 'react-router-dom';
-import {RouteComponentProps, Link} from "react-router-dom"
+import {Redirect} from 'react-router-dom';
+import {RouteComponentProps} from "react-router-dom"
 import ApiSingleton from "../../api/ApiSingleton";
-import { Dialog, DialogTitle, Grid } from '@material-ui/core';
+import {Dialog, DialogTitle, Grid} from '@material-ui/core';
+import {FC, useEffect, useState} from "react";
+import Container from "@material-ui/core/Container";
+import makeStyles from "@material-ui/styles/makeStyles";
+import EditIcon from "@material-ui/icons/Edit";
+import AddLecturerInCourse from './AddLecturerInCourse';
+import DeletionConfirmation from "../DeletionConfirmation";
+import Link from "@material-ui/core/Link";
+import PersonAddIcon from '@material-ui/icons/PersonAdd';
+import DeleteIcon from '@material-ui/icons/Delete';
+import IconButton from "@material-ui/core/IconButton";
+import Lecturers from "./Lecturers";
+import {AccountDataDto} from "../../api";
+
 
 interface IEditCourseState {
     isLoaded: boolean,
     name: string,
     groupName?: string,
-    isOpen: boolean,
     isComplete: boolean,
-    mentorId: string,
+    mentors: AccountDataDto[],
     edited: boolean,
     deleted: boolean,
-    isOpenDialog: boolean;
     lecturerEmail: string;
 }
 
@@ -26,167 +37,252 @@ interface IEditCourseProps {
     courseId: string
 }
 
-export default class EditCourse extends React.Component<RouteComponentProps<IEditCourseProps>, IEditCourseState> {
-    constructor(props: RouteComponentProps<IEditCourseProps>) {
-        super(props)
-        this.state = {
-            isLoaded: false,
-            name: "",
-            groupName: "",
-            isOpen: false,
-            isComplete: false,
-            mentorId: "",
-            edited: false,
-            deleted: false,
-            isOpenDialog: false,
-            lecturerEmail: "",
-        };
+const useStyles = makeStyles((theme) => ({
+    logo: {
+        display: "flex",
+        justifyContent: "center",
+    },
+    paper: {
+        marginTop: theme.spacing(3),
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+    },
+    form: {
+        marginTop: theme.spacing(3),
+        width: '100%'
+    },
+    controls: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    item: {
+        marginTop: theme.spacing(2),
     }
+}))
 
-    public async handleSubmit(e: any) {
-        e.preventDefault();
-        let courseViewModel = {
-            name: this.state.name,
-            groupName: this.state.groupName,
-            isOpen: this.state.isOpen,
-            isComplete: this.state.isComplete
-        };
+const EditCourse: FC<RouteComponentProps<IEditCourseProps>> = (props) => {
 
-        ApiSingleton.coursesApi.apiCoursesUpdateByCourseIdPost(+this.props.match.params.courseId, courseViewModel)
-            .then(res => this.setState({edited: true}))
-    }
+    const [courseState, setCourseState] = useState<IEditCourseState>({
+        isLoaded: false,
+        name: "",
+        groupName: "",
+        isComplete: false,
+        mentors: [],
+        edited: false,
+        deleted: false,
+        lecturerEmail: "",
+    })
 
-    public onDelete() {
-        ApiSingleton.coursesApi.apiCoursesByCourseIdDelete(+this.props.match.params.courseId)
-            .then(res => this.setState({deleted: true}));
-    }
+    const [isOpenDialogDeleteCourse, setIsOpenDialogDeleteCourse] = useState<boolean>(false)
 
-    public async acceptLecturer(e: any) {
-        e.preventDefault()
-        await ApiSingleton.coursesApi
-            .apiCoursesAcceptLecturerByCourseIdByLecturerEmailGet(+this.props.match.params.courseId, this.state.lecturerEmail)
-            .then(res => this.setState({ isOpenDialog: false }))
-    }
+    useEffect(() => {
+        getCourse()
+    }, [])
 
-    public render() {
-        if (this.state.isLoaded) {
-            if (this.state.edited) {
-                return <Redirect to={'/courses/' + this.props.match.params.courseId} />
-            }
-
-            if (this.state.deleted) {
-                return <Redirect to='/' />
-            }
-
-            if (!ApiSingleton.authService.isLoggedIn() || !this.state.mentorId.includes(ApiSingleton.authService.getUserId())) {
-                debugger
-                return <Typography variant='h6' gutterBottom>Только преподаватель может редактировать курс</Typography>
-            }
-
-            return (
-                <div>
-                    &nbsp; <Link to={'/courses/' + this.props.match.params.courseId}>Назад к курсу</Link>
-                        <br />
-                        <br />
-                    <div className="container">
-                        <Typography variant='h6' gutterBottom>Редактировать курс</Typography>
-                        <form onSubmit={e => this.handleSubmit(e)}>
-                            <TextField
-                                required
-                                label="Название курса"
-                                variant="outlined"
-                                margin="normal"
-                                value={this.state.name}
-                                onChange={e => this.setState({ name: e.target.value })}
-                            />
-                            <br />
-                            <TextField
-                                label="Номер группы"
-                                variant="outlined"
-                                margin="normal"
-                                value={this.state.groupName}
-                                onChange={e => this.setState({ groupName: e.target.value})}
-                            />
-                            <br />
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                    defaultChecked
-                                    color="primary"
-                                    checked={this.state.isOpen}
-                                    onChange={e => this.setState({ isOpen: e.target.checked})}
-                                />
-                                }
-                                label="Открытый курс"
-                            />
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                    defaultChecked
-                                    color="primary"
-                                    checked={this.state.isComplete}
-                                    onChange={e => this.setState({ isComplete: e.target.checked})}
-                                />
-                                }
-                                label="Завершённый курс"
-                            />
-                            <br />
-                            <Button
-                                size="small"
-                                variant="contained"
-                                color="primary"
-                                onClick={() => this.setState({ isOpenDialog: true })}
-                            >
-                                Добавить лектора
-                            </Button>
-                            <br /> <br />
-                            <Button size="small" variant="contained" color="primary" type="submit">Редактировать курс</Button>
-                            <br /> <br /> <br /> <hr />
-                            <Button onClick={() => this.onDelete()} size="small" variant="contained" color="secondary">Удалить курс</Button>
-                        </form>
-                    </div>
-
-                    <Dialog
-                        onClose={() => this.setState({ isOpenDialog: false })}
-                        aria-labelledby="simple-dialog-title"
-                        open={this.state.isOpenDialog}
-                    >
-                        <DialogTitle id="simple-dialog-title">Введите Email лектора</DialogTitle>
-                        <Grid container direction="column" justifyContent="space-evenly" alignItems="center">
-                            <Grid item>
-                                <form onSubmit={e => this.acceptLecturer(e)}>
-                                    <TextField
-                                        required
-                                        label="Email лектора"
-                                        variant="outlined"
-                                        margin="normal"
-                                        value={this.state.lecturerEmail}
-                                        onChange={e => {
-                                            e.persist()
-                                            this.setState({ lecturerEmail: e.target.value })
-                                        }}
-                                    />
-                                </form>
-                            </Grid>
-                        </Grid>
-                    </Dialog>
-
-                </div>
-            );
-        }
-
-        return "";
-    }
-
-    async componentDidMount() {
-        const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+this.props.match.params.courseId)
-        this.setState({
+    const getCourse = async () => {
+        const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+props.match.params.courseId)
+        const mentors = await Promise.all(course.mentorIds!.split('/')
+                .map(mentor => ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(mentor)))
+        setCourseState((prevState) => ({
+            ...prevState,
             isLoaded: true,
             name: course.name!,
             groupName: course.groupName!,
             isOpen: course.isOpen!,
             isComplete: course.isCompleted!,
-            mentorId: course.mentorIds!
-        })
+            mentors: mentors,
+        }))
     }
+
+    const handleSubmit = async (e: any) => {
+        e.preventDefault();
+        const courseViewModel = {
+            name: courseState.name,
+            groupName: courseState.groupName,
+            isOpen: true,
+            isComplete: courseState.isComplete
+        };
+
+        await ApiSingleton.coursesApi.apiCoursesUpdateByCourseIdPost(+props.match.params.courseId, courseViewModel)
+        setCourseState((prevState) => ({
+            ...prevState,
+            edited: true,
+        }))
+    }
+
+    const openDialogDeleteCourse = () => {
+        setIsOpenDialogDeleteCourse(true)
+    }
+
+    const closeDialogDeleteCourse = () => {
+        setIsOpenDialogDeleteCourse(false)
+    }
+
+    const onDeleteCourse = async () => {
+        await ApiSingleton.coursesApi.apiCoursesByCourseIdDelete(+props.match.params.courseId)
+        setCourseState((prevState) => ({
+            ...prevState,
+            deleted: true
+        }))
+    }
+
+    const classes = useStyles()
+
+    if (courseState.isLoaded) {
+        if (courseState.edited) {
+            return <Redirect to={'/courses/' + props.match.params.courseId}/>
+        }
+
+        if (courseState.deleted) {
+            return <Redirect to='/'/>
+        }
+
+        if (!ApiSingleton.authService.isLoggedIn() || !ApiSingleton.authService.isLecturer())
+        {
+            return (
+                <Typography variant='h6' gutterBottom>
+                    Только преподаватель может редактировать курс
+                </Typography>
+            )
+        }
+
+        return (
+            <div>
+                <Grid container justify="center" style={{marginTop: '20px'}}>
+                    <Grid container justifyContent="space-between" xs={11} >
+                        <Grid item>
+                            <Link
+                                component="button"
+                                style={{color: '#212529'}}
+                                onClick={() => window.location.assign('/courses/' + props.match.params.courseId)}
+                            >
+                                <Typography>
+                                    Назад к курсу
+                                </Typography>
+                            </Link>
+                        </Grid>
+                        <Grid item>
+                            <Lecturers
+                                mentors={courseState.mentors}
+                                courseId={props.match.params.courseId}
+                                isEditCourse={true}
+                            />
+                        </Grid>
+                    </Grid>
+                </Grid>
+                <Container component="main" maxWidth="xs">
+                    <div className={classes.paper}>
+                        <div className={classes.logo}>
+                            <div>
+                                <EditIcon style={{color: 'red'}}/>
+                            </div>
+                            <Typography style={{fontSize: '22px'}}>
+                                Редактировать курс
+                            </Typography>
+                        </div>
+                        <form onSubmit={e => handleSubmit(e)} className={classes.form}>
+                            <TextField
+                                className={classes.item}
+                                margin="normal"
+                                fullWidth
+                                required
+                                label="Название курса"
+                                variant="outlined"
+                                value={courseState.name}
+                                onChange={(e) => {
+                                    e.persist()
+                                    setCourseState((prevState) => ({
+                                        ...prevState,
+                                        name: e.target.value
+                                    }))
+                                }}
+                            />
+                            <TextField
+                                className={classes.item}
+                                label="Номер группы"
+                                variant="outlined"
+                                margin="normal"
+                                fullWidth
+                                value={courseState.groupName}
+                                onChange={(e) => {
+                                    e.persist()
+                                    setCourseState((prevState) => ({
+                                        ...prevState,
+                                        groupName: e.target.value
+                                    }))
+                                }}
+                            />
+                            <Grid container spacing={2} className={classes.item}>
+                                <Grid item xs={12} sm={6}>
+                                    <FormControlLabel
+                                        style={{ margin: 0 }}
+                                        control={
+                                            <Checkbox
+                                                defaultChecked
+                                                color="primary"
+                                                checked={courseState.isComplete}
+                                                onChange={(e) => {
+                                                    e.persist()
+                                                    setCourseState((prevState) => ({
+                                                        ...prevState,
+                                                        isComplete: e.target.checked
+                                                    }))
+                                                }}
+                                            />
+                                        }
+                                        label="Завершённый курс"
+                                    />
+                                </Grid>
+                            </Grid>
+                            <div className={classes.item}>
+                                <Button
+                                    fullWidth
+                                    variant="contained"
+                                    color="primary"
+                                    type="submit"
+                                >
+                                    Редактировать курс
+                                </Button>
+                            </div>
+                        </form>
+                    </div>
+                </Container>
+                <Grid container justify="center" style={{marginTop: '20px'}}>
+                    <Grid container xs={11} justifyContent="flex-end" >
+                        <Grid>
+                            <Button
+                                onClick={openDialogDeleteCourse}
+                                fullWidth
+                                variant="contained"
+                                style={{ color: '#8d8686'}}
+                                startIcon={<DeleteIcon/>}
+                            >
+                                Удалить курс
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </Grid>
+                <DeletionConfirmation
+                    onCancel={closeDialogDeleteCourse}
+                    onSubmit={onDeleteCourse}
+                    isOpen={isOpenDialogDeleteCourse}
+                    dialogTitle={"Удаление курса"}
+                    dialogContentText={`Вы точно хотите удалить курс "${courseState.name}"?`}
+                    confirmationWord={courseState.name}
+                    confirmationText={"Для подтверждения введите название курса."}
+                />
+            </div>
+        );
+    }
+
+    return (
+        <div>
+
+        </div>
+    )
 }
+
+export default EditCourse

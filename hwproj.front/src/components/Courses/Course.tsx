@@ -14,6 +14,7 @@ import {makeStyles} from "@material-ui/styles";
 import List from "@material-ui/core/List";
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import VisibilityIcon from '@material-ui/icons/Visibility';
+import Lecturers from "./Lecturers";
 
 interface ICourseMate {
     name: string;
@@ -117,8 +118,8 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
         return (
             <Grid>
                 <Grid container justify="center" style={{marginTop: "15px"}}>
-                    <Grid item xs={11} className={classes.info}>
-                        <div>
+                    <Grid container xs={11} className={classes.info}>
+                        <Grid item>
                             <Typography style={{ fontSize: '22px'}}>
                                 {course.name} &nbsp;
                                 {isMentor &&
@@ -155,30 +156,13 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                             <Typography variant="subtitle1" gutterBottom>
                                 Группа: {course.groupName}
                             </Typography>
-                        </div>
-                        <div>
-                            <List>
-                                {mentors.map(mentor =>
-                                    <div>
-                                        <ListItem style={{ padding: 0}}>
-                                            <Link
-                                                color="inherit"
-                                                component="button"
-                                                onClick={() => window.location.href = "mailto:" + mentor.email}
-                                            >
-                                                <Typography style={{ fontSize: '22px'}}>
-                                                    {mentor.name}&nbsp;{mentor.surname}
-                                                </Typography>
-                                                {/*{(isMentor || isAcceptedStudent) && (*/}
-                                                {/*    <Typography variant="subtitle1">*/}
-                                                {/*        {mentor.email}*/}
-                                                {/*    </Typography>*/}
-                                                {/*)}*/}
-                                            </Link>
-                                        </ListItem>
-                                    </div>
-                                )}
-                            </List>
+                        </Grid>
+                        <Grid item>
+                            <Lecturers
+                                mentors={mentors}
+                                courseId={courseId}
+                                isEditCourse={false}
+                            />
                             {isLogged && !isSignedInCourse && !isMentor && !isAcceptedStudent && (
                                 <Button
                                     size="small"
@@ -194,7 +178,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                     Ваша заявка рассматривается
                                 </Typography>
                             }
-                        </div>
+                        </Grid>
                     </Grid>
                 </Grid>
                 {createHomework && (
@@ -298,13 +282,15 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                     </Grid>
                 )}
                 {!isMentor && (
-                    <Grid xs={11}>
-                        <CourseHomework
-                            onDelete={() => setCurrentState()}
-                            homework={courseState.courseHomework}
-                            isStudent={isAcceptedStudent}
-                            isMentor={isMentor}
-                        />
+                    <Grid container justifyContent="center" style={{marginTop: "15px", marginBottom: "15px"}}>
+                        <Grid xs={11}>
+                            <CourseHomework
+                                onDelete={() => setCurrentState()}
+                                homework={courseState.courseHomework}
+                                isStudent={isAcceptedStudent}
+                                isMentor={isMentor}
+                            />
+                        </Grid>
                     </Grid>
                 )}
             </Grid>
