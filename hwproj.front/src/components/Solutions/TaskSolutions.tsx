@@ -31,25 +31,12 @@ export default class TaskSolutions extends React.Component<ITaskSolutionsProps, 
 
     public render() {
         const { isLoaded, solutions } = this.state;
-        const arrayOfNonRatedSolutions = solutions.filter(solution => solution.state!.toString() == 'Posted');
-        const arrayOfRatedSolutions = solutions.filter(solution => solution.state!.toString() != 'Posted');
-        const componentsOfNonRatedSolutions = arrayOfNonRatedSolutions.map((sol) => (
-            <Grid item>
-                <NonRatedSolutionComponent
-                    forMentor={this.props.forMentor}
-                    solution={sol}
-                    isExpanded={true}
-                />
-            </Grid>
-            )
-        ).reverse()
-        const componentsOfRatedSolutions = arrayOfRatedSolutions.map((sol) => (
-            <Grid item>
-                <RatedSolutionComponent forMentor={this.props.forMentor} solution={sol}/>
-            </Grid>
-            )
-        ).reverse()
+
         if (isLoaded) {
+            let solutionList = solutions.map(s => <li key={s.id}>
+                <SolutionComponent forMentor={this.props.forMentor} solution={s} />
+            </li>)
+
             return (
                 <Grid container alignItems="stretch" direction="column">
                     <Grid item>

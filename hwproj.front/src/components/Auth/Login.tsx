@@ -2,16 +2,17 @@ import React, {FC, FormEvent} from "react";
 import Avatar from '@material-ui/core/Avatar';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
 import {Redirect, RouteComponentProps} from "react-router-dom";
-import { TextField, Button, Typography, CssBaseline } from "@material-ui/core";
+import { TextField, Button, Typography } from "@material-ui/core";
 import Grid from '@material-ui/core/Grid';
 import ApiSingleton from "../../api/ApiSingleton";
 import "./Styles/Login.css";
 import { useState } from "react";
-import { red } from '@material-ui/core/colors';
 import { LoginViewModel } from "../../api/"
 import makeStyles from "@material-ui/styles/makeStyles";
 import Container from '@material-ui/core/Container';
-//import GoogleLogin from "react-google-login";
+import GoogleLogin from "react-google-login";
+import { GoogleLoginButton } from "react-social-login-buttons";
+import { GithubLoginButton } from "react-social-login-buttons";
 
 interface LoginProps extends Partial<RouteComponentProps> {
   onLogin: () => void;
@@ -31,6 +32,11 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'column',
     alignItems: 'center',
   },
+  login: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   avatar: {
     margin: theme.spacing(1),
   },
@@ -40,7 +46,7 @@ const useStyles = makeStyles((theme) => ({
   },
   button: {
     marginTop: theme.spacing(1)
-  },
+  }
 }))
 
 const Login: FC<LoginProps> = (props) => {
@@ -67,7 +73,9 @@ const Login: FC<LoginProps> = (props) => {
         error: result.error,
         isLogin: result.isLogin,
       }))
-      props.onLogin?.()
+      if (result.isLogin) {
+        props.onLogin?.()
+      }
     }
     catch (e){
       setLoginState(prevState => ({
@@ -95,13 +103,17 @@ const Login: FC<LoginProps> = (props) => {
   }
 
   const googleResponse = async (response: any) => {
+    console.log(response.tokenId)
+    debugger
     const result = await ApiSingleton.authService.loginByGoogle(response.tokenId)
     setLoginState(prevState => ({
       ...prevState,
       error: result!.error,
       isLogin: result.isLogin
     }))
-    props.onLogin?.()
+    if (result.isLogin) {
+      props.onLogin?.()
+    }
   }
 
   const headerStyles: React.CSSProperties = { marginRight: "9.5rem" };
@@ -137,7 +149,7 @@ const Login: FC<LoginProps> = (props) => {
                   required
                   type="email"
                   fullWidth
-                  label="Email Address"
+                  label="Электронная почта"
                   variant="outlined"
                   margin="normal"
                   name={loginState.email}
@@ -149,7 +161,7 @@ const Login: FC<LoginProps> = (props) => {
                   required
                   type="password"
                   fullWidth
-                  label="Password"
+                  label="Пароль"
                   variant="outlined"
                   margin="normal"
                   value={loginState.password}
@@ -167,19 +179,33 @@ const Login: FC<LoginProps> = (props) => {
               </Button>
             </Grid>
           </Grid>
+          <div className={classes.login}>
+            <GoogleLogin
+                clientId={clientId}
+                onSuccess={googleResponse}
+                render={renderProps => (
+                    <GoogleLoginButton
+                        style={{height: '36px', marginTop: '15px'}}
+                        onClick={renderProps.onClick}
+                    >
+                      <Typography>
+                        Войти с помощью Google
+                      </Typography>
+                    </GoogleLoginButton>
+                )}
+            />
+            {/*<GithubLoginButton*/}
+            {/*    style={{ height: '36px', marginTop: '15px' }}*/}
+            {/*    onClick={() => {}}*/}
+            {/*>*/}
+            {/*  <Typography>*/}
+            {/*    GitHub*/}
+            {/*  </Typography>*/}
+            {/*</GithubLoginButton>*/}
+          </div>
         </form>
-        <Typography>
-          <hr/>Или войдите с помощью других сервисов<hr/>
-        </Typography>
-        {/*<div>*/}
-        {/*  <GoogleLogin*/}
-        {/*      clientId={clientId}*/}
-        {/*      buttonText=''*/}
-        {/*      onSuccess={this.googleResponse}*/}
-        {/*  />*/}
-        {/*</div>*/}
       </Container>
-  );
-};
+  )
+}
 
 export default Login

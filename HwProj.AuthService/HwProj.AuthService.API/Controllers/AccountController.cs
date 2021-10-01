@@ -3,9 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
-using HwProj.AuthService.API.Events;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
 using HwProj.AuthService.API.Services;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.AuthService.DTO;
@@ -14,6 +12,7 @@ using HwProj.Models.Result;
 using Google.Apis.Auth;
 using HwProj.Models.AuthService;
 using HwProj.Models.CoursesService.DTO;
+using HwProj.AuthService.API.Models;
 
 namespace HwProj.AuthService.API.Controllers
 {
@@ -96,6 +95,24 @@ namespace HwProj.AuthService.API.Controllers
             var result = await _accountService.EditAccountAsync(userId, newModel).ConfigureAwait(false);
             return Ok(result);
         }
+
+
+        [HttpGet("findByEmail/{email}")]
+        [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> FindByEmail(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            return Ok(user);
+        }
+
+        [HttpPost("getRole")]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetRolesAsync([FromBody] User user)
+        {
+            var roles = await _userManager.GetRolesAsync(user);
+            return Ok(roles[0]);
+        }
+
 
         [HttpGet("getStudentsData")]
         [ProducesResponseType(typeof(GroupMateDataDTO[]), (int)HttpStatusCode.OK)]

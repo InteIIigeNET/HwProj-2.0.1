@@ -3,12 +3,16 @@ import {Accordion, AccordionDetails, AccordionSummary, Button, IconButton, Typog
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import DeleteIcon from '@material-ui/icons/Delete'
 import EditIcon from '@material-ui/icons/Edit'
+import HourglassEmpty from '@material-ui/icons/HourglassEmpty';
 import ReactMarkdown from 'react-markdown';
 import {HomeworkViewModel} from "../../api";
 import AddTask from '../Tasks/AddTask'
 import HomeworkTasks from '../Tasks/HomeworkTasks'
 import {Link as RouterLink} from 'react-router-dom'
 import ApiSingleton from '../../api/ApiSingleton';
+import {FC, useState} from "react";
+import {makeStyles} from "@material-ui/styles";
+import DeletionConfirmation from "../DeletionConfirmation";
 
 interface IHomeworkProps {
     homework: HomeworkViewModel,
@@ -17,92 +21,152 @@ interface IHomeworkProps {
     onDeleteClick: () => void
 }
 
+const useStyles = makeStyles(theme => ({
+    tools: {
+        display: "flex",
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    tool: {
+        marginRight: theme.spacing(2),
+        marginLeft: theme.spacing(2),
+    }
+}))
+
 interface IHomeworkState {
     createTask: boolean
 }
 
-export default class Homework extends React.Component<IHomeworkProps, IHomeworkState> {
-    constructor(props: IHomeworkProps) {
-        super(props);
-        this.state = {
-            createTask: false
-        };
+const Homework: FC<IHomeworkProps> = (props) => {
+    const [homeworkState, setHomeworkState] = useState<IHomeworkState>({
+        createTask: false,
+    })
+
+    const [isOpenDialogDeleteHomework, setIsOpenDialogDeleteHomework] = useState<boolean>(false)
+
+    const openDialogDeleteHomework = () => {
+        setIsOpenDialogDeleteHomework(true)
     }
 
-    public render() {
-        let homeworkDateString = new Date(this.props.homework.date!.toString()).toLocaleDateString("ru-RU");
-        return (
-            <div style={{width: '100%'}}>
-                <Accordion>
-                    <AccordionSummary
-                        expandIcon={<ExpandMoreIcon/>}
-                        aria-controls="panel1a-content"
-                        id="panel1a-header"
-                        style={{backgroundColor: "#c6cceb"}}
-                    >
-                        <Typography>
-                            {this.props.homework.title} {homeworkDateString}
-                            {this.props.forMentor &&
-                            <IconButton aria-label="Delete" onClick={() => this.deleteHomework()}>
+    const closeDialogDeleteHomework = () => {
+        setIsOpenDialogDeleteHomework(false)
+    }
+
+    const deleteHomework = async () => {
+        await ApiSingleton.homeworksApi.apiHomeworksDeleteByHomeworkIdDelete(props.homework.id!)
+        props.onDeleteClick()
+    }
+
+    const classes = useStyles()
+    const homeworkDateString = new Date(props.homework.date!.toString()).toLocaleDateString("ru-RU");
+    const deferredHomework = props.homework.tasks!.filter(t => t.isDeferred!);
+    return (
+        <div style={{width: '100%'}}>
+            <Accordion>
+                <AccordionSummary
+                    expandIcon={<ExpandMoreIcon/>}
+                    aria-controls="panel1a-content"
+                    id="panel1a-header"
+                    style={{backgroundColor: "#c6cceb"}}
+                >
+                    <div className={classes.tools}>
+                        <div className={classes.tool}>
+                            <Typography style={{fontSize: '18px'}}>
+                                Домашнее задание {props.homework.title}
+                            </Typography>
+                        </div>
+                        <div>
+                            <Typography>
+                                {homeworkDateString}
+                            </Typography>
+                        </div>
+                        <div>
+                            {props.forMentor &&
+                            <IconButton aria-label="Delete" onClick={openDialogDeleteHomework}>
                                 <DeleteIcon fontSize="small"/>
                             </IconButton>
                             }
-                            {this.props.forMentor &&
-                            <RouterLink to={'/homework/' + this.props.homework.id!.toString() + '/edit'}>
+                        </div>
+                        <div>
+                            {props.forMentor &&
+                            <RouterLink to={'/homework/' + props.homework.id!.toString() + '/edit'}>
                                 <EditIcon fontSize="small"/>
                             </RouterLink>
                             }
-                        </Typography>
-
-                    </AccordionSummary>
-                    <AccordionDetails>
-                        <Typography>
-                            <ReactMarkdown source={this.props.homework.description}/>
-                            {(this.props.forMentor && this.state.createTask) &&
-                            <div>
-                                <HomeworkTasks onDelete={() => this.props.onDeleteClick()}
-                                               tasks={this.props.homework.tasks!} forStudent={this.props.forStudent}
-                                               forMentor={this.props.forMentor}/>
-                                <AddTask
-                                    id={this.props.homework.id!}
-                                    onAdding={() => window.location.reload()}
-                                    onCancel={() => this.setState({createTask: false})}
-                                    update={() => this.props.onDeleteClick()}
-                                />
-                            </div>
+                        </div>
+                        <div>
+                            {props.forMentor && deferredHomework!.length > 0 &&
+                            <Typography> <HourglassEmpty/> {deferredHomework!.length}</Typography>
                             }
-                            {(this.props.forMentor && !this.state.createTask) &&
-                            <div>
-                                <HomeworkTasks onDelete={() => this.props.onDeleteClick()}
-                                               tasks={this.props.homework.tasks!} forStudent={this.props.forStudent}
-                                               forMentor={this.props.forMentor}/>
-                                <Button
-                                    style={{marginTop: "10px"}}
-                                    size="small"
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={() => {
-                                        this.setState({createTask: true})
-                                    }}
-                                >
-                                    Добавить задачу
-                                </Button>
-                            </div>
-                            }
-                            {!this.props.forMentor &&
-                            <HomeworkTasks onDelete={() => this.props.onDeleteClick()}
-                                           tasks={this.props.homework.tasks!} forStudent={this.props.forStudent}
-                                           forMentor={this.props.forMentor}/>
-                            }
-                        </Typography>
-                    </AccordionDetails>
-                </Accordion>
-            </div>
-        )
-    }
-
-    deleteHomework = async () => {
-        await ApiSingleton.homeworksApi.apiHomeworksDeleteByHomeworkIdDelete(this.props.homework.id!)
-        this.props.onDeleteClick()
-    }
+                        </div>
+                    </div>
+                </AccordionSummary>
+                <AccordionDetails>
+                    <div style={{width: '100%'}}>
+                        <ReactMarkdown source={props.homework.description}/>
+                        {(props.forMentor && homeworkState.createTask) &&
+                        <div style={{width: '100%'}}>
+                            <HomeworkTasks
+                                onDelete={() => props.onDeleteClick()}
+                                tasks={props.homework.tasks!}
+                                forStudent={props.forStudent}
+                                forMentor={props.forMentor}
+                            />
+                            <AddTask
+                                id={props.homework.id!}
+                                onAdding={() => window.location.reload()}
+                                onCancel={() => setHomeworkState({
+                                    createTask: false
+                                })}
+                                update={() => props.onDeleteClick()}
+                            />
+                        </div>
+                        }
+                        {(props.forMentor && !homeworkState.createTask) &&
+                        <div style={{width: '100%'}}>
+                            <HomeworkTasks
+                                onDelete={() => props.onDeleteClick()}
+                                tasks={props.homework.tasks!}
+                                forStudent={props.forStudent}
+                                forMentor={props.forMentor}
+                            />
+                            <Button
+                                style={{marginTop: "10px"}}
+                                size="small"
+                                variant="contained"
+                                color="primary"
+                                onClick={() => {
+                                    setHomeworkState({
+                                        createTask: true
+                                    })
+                                }}
+                            >
+                                Добавить задачу
+                            </Button>
+                        </div>
+                        }
+                        {!props.forMentor &&
+                        <HomeworkTasks
+                            onDelete={() => props.onDeleteClick()}
+                            tasks={props.homework.tasks!}
+                            forStudent={props.forStudent}
+                            forMentor={props.forMentor}
+                        />
+                        }
+                    </div>
+                </AccordionDetails>
+            </Accordion>
+            <DeletionConfirmation
+                onCancel={closeDialogDeleteHomework}
+                onSubmit={deleteHomework}
+                isOpen={isOpenDialogDeleteHomework}
+                dialogTitle={'Удаление домашнего задания'}
+                dialogContentText={`Вы точно хотите удалить домашнее задание "${props.homework.title}"?`}
+                confirmationWord={''}
+                confirmationText={''}
+            />
+        </div>
+    )
 }
+
+export default Homework

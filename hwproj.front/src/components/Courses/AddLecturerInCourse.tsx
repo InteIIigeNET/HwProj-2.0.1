@@ -1,65 +1,57 @@
+import { Button, DialogActions } from '@material-ui/core'
+import Dialog from '@material-ui/core/Dialog'
+import DialogContent from '@material-ui/core/DialogContent'
+import DialogContentText from '@material-ui/core/DialogContentText'
+import DialogTitle from '@material-ui/core/DialogTitle'
+import Grid from '@material-ui/core/Grid'
+import TextField from '@material-ui/core/TextField'
+import Typography from '@material-ui/core/Typography'
+import ApiSingleton from 'api/ApiSingleton'
 import React, {FC, FormEvent, useState} from 'react'
-import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import ApiSingleton from "../api/ApiSingleton";
-import Typography from "@material-ui/core/Typography";
-import Grid from '@material-ui/core/Grid';
 
-
-interface InviteLecturer {
+interface AddLecturerInCourseProps {
+    onClose: any;
     isOpen: boolean;
-    close: any;
+    courseId: string;
 }
 
-const isCorrectEmail = (email: string) => {
-    const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,5}))$/;
-    return re.test(email);
-}
-
-interface InviteLecturerState {
+interface AddLecturerInCourseState {
     email: string;
     errors: string[];
     info: string[];
 }
 
-const InviteLecturer: FC<InviteLecturer> = (props) => {
+const AddLecturerInCourse: FC<AddLecturerInCourseProps> = (props) => {
 
-    const [lecturerState, setLecturerState] = useState<InviteLecturerState>({
+    const [lecturerState, setLecturerState] = useState<AddLecturerInCourseState>({
         email: '',
         errors: [],
         info: []
     })
+
+    const isCorrectEmail = (email: string) => {
+        const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,5}))$/;
+        return re.test(email);
+    }
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         if (!isCorrectEmail(lecturerState.email)){
             setLecturerState((prevState) => ({
                 ...prevState,
-                errors: ['Некорректный адрес электронной почты.']
+                errors: ['Некорректный адрес электронной почты']
             }))
             return
         }
         try {
-            const result = await ApiSingleton.accountApi
-                .apiAccountInviteNewLecturerPost({email: lecturerState.email})
-            if (result.succeeded) {
-                setLecturerState((prevState) => ({
-                    ...prevState,
-                    logo: ['Запрос отправлен']
-                }))
-                return
-            }
+            await ApiSingleton.coursesApi
+                .apiCoursesAcceptLecturerByCourseIdByLecturerEmailGet(+props.courseId, lecturerState.email)
             setLecturerState((prevState) => ({
                 ...prevState,
-                errors: result.errors!
+                info: ['Преподаватель добавлен']
             }))
-        } catch (e) {
-            debugger
+        }
+        catch (e) {
             setLecturerState((prevState) => ({
                 ...prevState,
                 errors: ['Сервис недоступен']
@@ -67,25 +59,30 @@ const InviteLecturer: FC<InviteLecturer> = (props) => {
         }
     }
 
-    const close = () => {
+    const closeDialogIcon = () => {
         setLecturerState({
+            info: [],
             errors: [],
             email: '',
-            info: []
         })
-        props.close()
+        props.onClose()
     }
 
     return (
         <div>
-            <Dialog open={props.isOpen} onClose={close} aria-labelledby="form-dialog-title">
+            <Dialog
+                onClose={closeDialogIcon}
+                aria-labelledby="simple-dialog-title"
+                open={props.isOpen}
+            >
                 <DialogTitle id="form-dialog-title">
-                    Пригласить преподавателя
+                    Добавить преподавателя в курс
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText>
                         <Typography>
-                            Для получения пользователем статуса преподавателя, введите его адрес электронной почты.
+                            Для добавления преподавателя в курс, введите его адрес элекстронной почты.
+                            Пользователь должен быть зарегистрированным и иметь статус лектора.
                         </Typography>
                         <div style={{textAlign: 'center', marginBottom: "0"}}>
                             {lecturerState.info && (
@@ -119,7 +116,7 @@ const InviteLecturer: FC<InviteLecturer> = (props) => {
                                 </Grid>
                                 <Grid item>
                                     <Button
-                                        onClick={close}
+                                        onClick={closeDialogIcon}
                                         color="primary"
                                         variant="contained"
                                         style={{marginRight: '10px'}}
@@ -133,7 +130,7 @@ const InviteLecturer: FC<InviteLecturer> = (props) => {
                                         color="primary"
                                         type="submit"
                                     >
-                                        Пригласить
+                                        Добавить
                                     </Button>
                                 </Grid>
                             </Grid>
@@ -147,4 +144,4 @@ const InviteLecturer: FC<InviteLecturer> = (props) => {
     )
 }
 
-export default InviteLecturer
+export default AddLecturerInCourse

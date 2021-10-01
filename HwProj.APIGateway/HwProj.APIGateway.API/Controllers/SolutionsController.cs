@@ -2,6 +2,7 @@
 using System.Net;
 using System.Threading.Tasks;
 using HwProj.APIGateway.API.ExceptionFilters;
+using HwProj.APIGateway.API.ExceptionFilters;
 using HwProj.CoursesService.Client;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;

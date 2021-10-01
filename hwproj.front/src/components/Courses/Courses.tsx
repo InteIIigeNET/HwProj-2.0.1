@@ -6,7 +6,8 @@ import ApiSingleton from "../../api/ApiSingleton";
 
 interface ICoursesState {
   isLoaded: boolean;
-  courses: CourseViewModel[];
+  myCourses: CourseViewModel[];
+  allCourses: CourseViewModel[];
   tabValue: number;
 }
 
@@ -15,13 +16,14 @@ export default class Courses extends React.Component<{}, ICoursesState> {
         super(props);
         this.state = {
             isLoaded: false,
-            courses: [],
+            myCourses: [],
+            allCourses: [],
             tabValue: 0,
         };
     }
 
     public render() {
-        const { isLoaded, courses, tabValue } = this.state;
+        const { isLoaded, myCourses: courses, tabValue } = this.state;
 
         if (!isLoaded) {
             return (
@@ -34,6 +36,9 @@ export default class Courses extends React.Component<{}, ICoursesState> {
 
         let activeCourses = courses.filter((course) => !course.isCompleted);
         let completedCourses = courses.filter((course) => course.isCompleted);
+
+        let activeCoursesTab = activeCourses.length > 0 ? 1 : 2;
+        let completedCoursesTab = activeCourses.length > 0 ? 2 : 1; 
         return (
             <div className="container">
                 <Tabs
@@ -41,12 +46,14 @@ export default class Courses extends React.Component<{}, ICoursesState> {
                     indicatorColor="primary"
                     onChange={(event, value) => { this.setState({ tabValue: value }); }}
                 >
-                    <Tab label="Текущие курсы" />
-                    <Tab label="Завершенные курсы" />
+                    <Tab label="Все курсы"/>
+                    { activeCourses.length > 0 && <Tab label="Текущие курсы" /> }
+                    { completedCourses.length > 0 && <Tab label="Завершенные курсы" /> }
                 </Tabs>
                 <br />
-                {tabValue === 0 && <CoursesList courses={activeCourses} />}
-                {tabValue === 1 && <CoursesList courses={completedCourses} />}
+                {tabValue === 0 && <CoursesList courses={this.state.allCourses} />}
+                {tabValue === activeCoursesTab && <CoursesList courses={activeCourses} />}
+                {tabValue === completedCoursesTab && <CoursesList courses={completedCourses} />}
             </div>
         );
     }
@@ -57,9 +64,11 @@ export default class Courses extends React.Component<{}, ICoursesState> {
         }
         try {
             const courses = await ApiSingleton.coursesApi.apiCoursesUserCoursesGet()
+            const allCourses = await ApiSingleton.coursesApi.apiCoursesGet();
             this.setState({
                 isLoaded: true,
-                courses: courses
+                myCourses: courses,
+                allCourses: allCourses,
             })
         }
         catch(error)

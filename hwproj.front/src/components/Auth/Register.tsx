@@ -69,8 +69,6 @@ const Register: FC<LoginProps> = (props) => {
             props.onLogin()
         }
         catch (e) {
-            console.log(e)
-            debugger
             setCommonState((prevState) => ({
                 ...prevState,
                 error: ['Сервис недоступен'],
@@ -155,7 +153,7 @@ const Register: FC<LoginProps> = (props) => {
                                 required
                                 fullWidth
                                 type="email"
-                                label="Email"
+                                label="Электронная почта"
                                 variant="outlined"
                                 name={registerState.email}
                                 onChange={(e) =>

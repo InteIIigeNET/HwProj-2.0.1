@@ -3,14 +3,16 @@ import { CourseViewModel } from "../../api/";
 import {
     Link as RouterLink,
     BrowserRouter as Router,
-    Switch, Route, Link
 } from "react-router-dom";
+import {ListItem, Typography} from "@material-ui/core";
+
 
 interface ICoursesProps {
     courses: CourseViewModel[];
 }
 
 export class CoursesList extends React.Component<ICoursesProps, {}> {
+    
     public render() {
         const { courses } = this.props;
 
@@ -18,13 +20,22 @@ export class CoursesList extends React.Component<ICoursesProps, {}> {
             <div className="container">
                 <Router>
                     {courses.map((course) => (
-                    <li key={course.id} onClick={() => window.location.assign("/courses/"  + course.id!.toString())}>
-                        <RouterLink to={"/courses/" + course.id!.toString()}>
-                                {course.name}
-                        </RouterLink>   
-                        <br />
-                        {course.groupName}
-                    </li>
+                        <ListItem
+                            key={course.id}
+                            onClick={() => window.location.assign("/courses/"  + course.id!.toString())}
+                            style={{ padding: 0}}
+                        >
+                            <div>
+                                <RouterLink 
+                                    to={"/courses/" + course.id!.toString()}
+                                    style={{ color: "#212529" }}
+                                >
+                                    <Typography style={{ fontSize: "18px" }}>
+                                        {course.name} / {course.groupName}
+                                    </Typography>
+                                </RouterLink>  
+                            </div>
+                        </ListItem>
                     ))}
                 </Router>
             </div>

@@ -105,5 +105,13 @@ namespace HwProj.APIGateway.API.Controllers
                 ? NotFound()
                 : Ok(result) as IActionResult;
         }
+
+        [HttpGet("acceptLecturer/{courseId}/{lecturerEmail}")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        public async Task<IActionResult> AcceptLecturer(long courseId, string lecturerEmail)
+        {
+            await _coursesClient.AcceptLecturer(courseId, lecturerEmail);
+            return Ok();
+        }
     }
 }

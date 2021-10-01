@@ -125,7 +125,7 @@ namespace HwProj.SolutionsService.API.Controllers
             var course = await _coursesClient.GetCourseById(courseId, userId);
             course.CourseMates.RemoveAll(cm => !cm.IsAccepted);
 
-            if (course.MentorId != userId)
+            if (!course.MentorIds.Contains(userId))
             {
                 return Forbid();
             }

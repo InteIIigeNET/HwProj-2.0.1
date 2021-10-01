@@ -27,8 +27,6 @@ interface ISolutionState {
     task: HomeworkTaskViewModel,
     lecturerComment: string,
     clickedForRate: boolean,
-    name: string,
-    surname: string,
 }
 
 export default class NonRatedSolutionComponent extends React.Component<ISolutionProps, ISolutionState> {
@@ -39,8 +37,6 @@ export default class NonRatedSolutionComponent extends React.Component<ISolution
             task: {},
             lecturerComment: "",
             clickedForRate: false,
-            name: "",
-            surname: "",
         }
     }
 
@@ -67,9 +63,6 @@ export default class NonRatedSolutionComponent extends React.Component<ISolution
                         <Grid item>
                             <Typography className="antiLongWords">
                                 Комментарий к решению: {solution.comment}
-                            </Typography>
-                            <Typography className="antiLongWords">
-                                Чье решение: {this.state.name } {this.state.surname}
                             </Typography>
                         </Grid>
                         }
@@ -152,13 +145,5 @@ export default class NonRatedSolutionComponent extends React.Component<ISolution
     async assignSolution () {
         await ApiSingleton.solutionsApi.apiSolutionsRateSolutionBySolutionIdByNewRatingPost(this.props.solution.id!, this.state.points, this.state.lecturerComment)
         window.location.reload()
-    }
-
-    async componentDidMount() {
-        const userData = await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(this.props.solution.studentId!)
-        this.setState({
-            name: userData.name!,
-            surname: userData.surname!,
-        })
     }
 }
