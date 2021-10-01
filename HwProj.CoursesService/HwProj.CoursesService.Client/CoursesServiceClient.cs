@@ -309,7 +309,12 @@ namespace HwProj.CoursesService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<GroupViewModel>();
         }
-        
+
+        public Task<long[]> GetGroupTasks(long groupId)
+        {
+            return null;
+        }
+
         public async Task<string[]> GetAllStudentsWithoutGroup(long courseId)
         {
             using var httpRequest = new HttpRequestMessage(
