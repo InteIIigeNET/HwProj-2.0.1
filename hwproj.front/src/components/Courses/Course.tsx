@@ -120,15 +120,20 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
     const { isFound, course, createHomework, mentors, newStudents, acceptedStudents } = courseState;
     if (isFound) {
         const isLogged = ApiSingleton.authService.isLoggedIn()
+
         const userId = isLogged
             ? ApiSingleton.authService.getUserId()
-            : undefined;
-        const isMentor = isLogged && course.mentorIds!.includes(userId!);
+            : undefined
+
+        const isMentor = isLogged && course.mentorIds!.includes(userId!)
+
         const isSignedInCourse =
-            isLogged && newStudents!.some((cm: any) => cm.id === userId);
+            isLogged && newStudents!.some((cm: any) => cm.id === userId)
+
         const isAcceptedStudent = isLogged && acceptedStudents!.some(
             (cm: any) => cm.id === userId
-        );
+        )
+        debugger
         return (
             <Grid>
                 <Grid container justify="center" style={{ marginTop: "15px" }}>
@@ -145,46 +150,37 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                             <Typography variant="subtitle1" gutterBottom>
                                 Группа: {course.groupName}
                             </Typography>
-                        </div>              
-                        <div>
-                          <Grid container>
-                            {mentors.map(mentor => 
-                              <Grid item style={{margin: "5px", borderWidth: "1px", border: "solid", backgroundColor: "#eceef8",  borderColor: "Gainsboro", borderRadius: 5, padding: "2px"}}>
-                                    <Typography variant="h5">
-                                        {mentor.name}&nbsp;{mentor.surname}
+                        </Grid>
+                        <Grid item style={{ width: '187px'}}>
+                            <Grid container alignItems="flex-end" direction="column" xs={12}>
+                                <Grid item>
+                                    <Lecturers
+                                        mentors={mentors}
+                                        courseId={courseId}
+                                        isEditCourse={false}
+                                    />
+                                </Grid>
+                                {isLogged && !isSignedInCourse && !isMentor && !isAcceptedStudent && (
+                                    <Grid item style={{ width: '100%', marginTop: '16px'}}>
+                                        <Button
+                                            fullWidth
+                                            variant="contained"
+                                            color="primary"
+                                            onClick={() => joinCourse()}
+                                        >
+                                            Записаться
+                                        </Button>
+                                    </Grid>
+                                )}
+                                {isLogged && isSignedInCourse && !isAcceptedStudent &&
+                                <Grid item style={{ width: '100%', marginTop: '16px'}}>
+                                    <Typography style={{ fontSize: '15px' }}>
+                                        Ваша заявка рассматривается
                                     </Typography>
-                                    {(isMentor || isAcceptedStudent) && (
-                                    <Typography variant="subtitle1">
-                                        {mentor.email}
-                                    </Typography>
-                                    )}
-                              </Grid>
-                            )}
-                          </Grid>
-                            {isLogged && !isSignedInCourse && !isMentor && !isAcceptedStudent &&(
-                            <Button
-                                size="small"
-                                variant="contained"
-                                color="primary"
-                                onClick={() => joinCourse()}
-                            >
-                                Записаться
-                            </Button>
-                            )}
-                            {isLogged && isMentor && 
-                            <Button
-                                size="small"
-                                variant="contained"
-                                color="primary"
-                                onClick={() => setCourseState(prevState => ({...prevState, isOpenDialog: true }))}>
-                                Добавить лектора
-                            </Button>
-                            }
-                            {isLogged && isSignedInCourse && !isAcceptedStudent &&
-                            <Typography>
-                                Ваша заявка рассматривается
-                            </Typography>}
-                        </div>
+                                </Grid>
+                                }
+                            </Grid>
+                        </Grid>
                     </Grid>
                 </Grid>
                 {createHomework && (
