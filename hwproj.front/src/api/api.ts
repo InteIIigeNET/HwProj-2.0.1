@@ -520,12 +520,6 @@ export interface HomeworkTaskViewModel {
      * @memberof HomeworkTaskViewModel
      */
     homeworkId?: number;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof HomeworkTaskViewModel
-     */
-    isDeferred?: boolean;
 }
 
 /**
@@ -614,20 +608,6 @@ export interface LoginViewModel {
 
 /**
  *
- * @export
- * @interface NewSolutionInfo
- */
-export interface NewSolutionInfo {
-    /**
-     * 
-     * @type {number}
-     * @memberof NewSolutionInfo
-     */
-    id?: number;
-}
-
-/**
- * 
  * @export
  * @interface NotificationViewModel
  */
@@ -736,32 +716,6 @@ export interface Result {
 
 /**
  *
- * @export
- * @interface ResultNewSolutionInfo
- */
-export interface ResultNewSolutionInfo {
-    /**
-     * 
-     * @type {NewSolutionInfo}
-     * @memberof ResultNewSolutionInfo
-     */
-    value?: NewSolutionInfo;
-    /**
-     * 
-     * @type {boolean}
-     * @memberof ResultNewSolutionInfo
-     */
-    succeeded?: boolean;
-    /**
-     * 
-     * @type {Array<string>}
-     * @memberof ResultNewSolutionInfo
-     */
-    errors?: Array<string>;
-}
-
-/**
- * 
  * @export
  * @interface ResultTokenCredentials
  */
@@ -984,12 +938,6 @@ export interface StatisticsCourseSolutionsModel {
      * @memberof StatisticsCourseSolutionsModel
      */
     rating?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof StatisticsTaskSolutionModel
-     */
-    maxRating?: number;
 }
 
 /**
@@ -4304,7 +4252,7 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSolutionsByTaskIdPost(taskId: number, model?: SolutionViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ResultNewSolutionInfo> {
+        apiSolutionsByTaskIdPost(taskId: number, model?: SolutionViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
             const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsByTaskIdPost(taskId, model, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
