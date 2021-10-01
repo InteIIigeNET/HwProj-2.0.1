@@ -45,7 +45,8 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 var notification = new Notification
                 {
                     Sender = "CourseService",
-                    Body = $"В курсе <a href='{_configuration["Url"]}/courses/{@event.Course.Id}'>{@event.Course.Name}</a> опубликована новая домашняя работа <i>{@event.Homework}</i>.",
+                    Body = $"В курсе <a href='{_configuration["Url"]}/courses/{@event.Course.Id}'>{@event.Course.Name}</a>" +
+                           $" опубликована новая домашняя работа <i>{@event.Homework}</i>.",
                     Category = "CourseService",
                     Date = DateTime.UtcNow,
                     HasSeen = false,

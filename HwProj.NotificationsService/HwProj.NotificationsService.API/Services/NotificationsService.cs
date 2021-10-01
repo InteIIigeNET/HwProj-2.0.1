@@ -58,14 +58,12 @@ namespace HwProj.NotificationsService.API.Services
                 Text = notification.Body
             };
 
-            using (var client = new MailKit.Net.Smtp.SmtpClient())
-            {
-                await client.ConnectAsync(_configuration["ConnectSite"], 465, true);
-                await client.AuthenticateAsync(_configuration["Mail"], _configuration["Password"]);
-                await client.SendAsync(emailMessage);
+            await _client.ConnectAsync(_configuration["ConnectSite"], 465, true);
+            await _client.AuthenticateAsync(_configuration["Mail"], _configuration["Password"]);
+            await _client.SendAsync(emailMessage);
 
-                await client.DisconnectAsync(true);
-            }
+            await _client.DisconnectAsync(true);
+        
         }
     }
 }

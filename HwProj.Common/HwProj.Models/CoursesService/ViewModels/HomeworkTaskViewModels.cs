@@ -32,6 +32,8 @@ namespace HwProj.Models.CoursesService.ViewModels
                 CanSendSolution = true;
             }
         }
+
+        public bool IsDeferred { get; set; }
     }
 
     public class CreateTaskViewModel
