@@ -44,7 +44,7 @@ export default class TaskSolutionsPage extends React.Component<
     if (isLoaded) {
       if (
         !ApiSingleton.authService.isLoggedIn() ||
-        this.state.course.mentorIds!.includes(userId!) ||
+        userId == this.state.course.mentorIds ||
         !this.state.course.courseMates!.some(
           (cm) => cm.isAccepted! && cm.studentId == userId
         )

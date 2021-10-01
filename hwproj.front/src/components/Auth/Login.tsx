@@ -120,7 +120,7 @@ const Login: FC<LoginProps> = (props) => {
   const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID!
 
   if (loginState.isLogin){
-    return <Redirect to={"/"} />
+    return <Redirect to={"/"} />;
   }
 
   if (loginState.error) {
@@ -149,7 +149,7 @@ const Login: FC<LoginProps> = (props) => {
                   required
                   type="email"
                   fullWidth
-                  label="Электронная почта"
+                  label="Email Address"
                   variant="outlined"
                   margin="normal"
                   name={loginState.email}
@@ -161,7 +161,7 @@ const Login: FC<LoginProps> = (props) => {
                   required
                   type="password"
                   fullWidth
-                  label="Пароль"
+                  label="Password"
                   variant="outlined"
                   margin="normal"
                   value={loginState.password}
@@ -189,19 +189,19 @@ const Login: FC<LoginProps> = (props) => {
                         onClick={renderProps.onClick}
                     >
                       <Typography>
-                        Войти с помощью Google
+                        Google
                       </Typography>
                     </GoogleLoginButton>
                 )}
             />
-            {/*<GithubLoginButton*/}
-            {/*    style={{ height: '36px', marginTop: '15px' }}*/}
-            {/*    onClick={() => {}}*/}
-            {/*>*/}
-            {/*  <Typography>*/}
-            {/*    GitHub*/}
-            {/*  </Typography>*/}
-            {/*</GithubLoginButton>*/}
+            <GithubLoginButton
+                style={{ height: '36px', marginTop: '15px' }}
+                onClick={() => {}}
+            >
+              <Typography>
+                GitHub
+              </Typography>
+            </GithubLoginButton>
           </div>
         </form>
       </Container>

@@ -116,11 +116,7 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
 	}
 
 	if (profileState.isLoaded) {
-		const fullName = accountState.middleName && accountState.surname
-			? accountState.name + ' ' + accountState.middleName + ' ' + accountState.surname
-			: accountState.surname
-				? accountState.name + ' ' + accountState.surname
-				: accountState.name
+		const fullName = accountState.name + ' ' + accountState.middleName + ' ' + accountState.surname
 		return (
 			<div>
 				<Grid container justify="center" style={{ marginTop: "15px" }}>
