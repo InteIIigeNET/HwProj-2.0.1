@@ -103,15 +103,20 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
     const {isFound, course, createHomework, mentors, newStudents, acceptedStudents} = courseState;
     if (isFound) {
         const isLogged = ApiSingleton.authService.isLoggedIn()
+
         const userId = isLogged
             ? ApiSingleton.authService.getUserId()
-            : undefined;
-        const isMentor = isLogged && course.mentorIds!.includes(userId!);
+            : undefined
+
+        const isMentor = isLogged && course.mentorIds!.includes(userId!)
+
         const isSignedInCourse =
-            isLogged && newStudents!.some((cm: any) => cm.id === userId);
+            isLogged && newStudents!.some((cm: any) => cm.id === userId)
+
         const isAcceptedStudent = isLogged && acceptedStudents!.some(
             (cm: any) => cm.id === userId
-        );
+        )
+        debugger
         return (
             <Grid>
                 <Grid container justify="center" style={{marginTop: "15px"}}>
@@ -129,27 +134,35 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                 Группа: {course.groupName}
                             </Typography>
                         </Grid>
-                        <Grid item>
-                            <Lecturers
-                                mentors={mentors}
-                                courseId={courseId}
-                                isEditCourse={false}
-                            />
-                            {isLogged && !isSignedInCourse && !isMentor && !isAcceptedStudent && (
-                                <Button
-                                    size="small"
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={() => joinCourse()}
-                                >
-                                    Записаться
-                                </Button>
-                            )}
-                            {isLogged && isSignedInCourse && !isAcceptedStudent &&
-                                <Typography>
-                                    Ваша заявка рассматривается
-                                </Typography>
-                            }
+                        <Grid item style={{ width: '187px'}}>
+                            <Grid container alignItems="flex-end" direction="column" xs={12}>
+                                <Grid item>
+                                    <Lecturers
+                                        mentors={mentors}
+                                        courseId={courseId}
+                                        isEditCourse={false}
+                                    />
+                                </Grid>
+                                {isLogged && !isSignedInCourse && !isMentor && !isAcceptedStudent && (
+                                    <Grid item style={{ width: '100%', marginTop: '16px'}}>
+                                        <Button
+                                            fullWidth
+                                            variant="contained"
+                                            color="primary"
+                                            onClick={() => joinCourse()}
+                                        >
+                                            Записаться
+                                        </Button>
+                                    </Grid>
+                                )}
+                                {isLogged && isSignedInCourse && !isAcceptedStudent &&
+                                <Grid item style={{ width: '100%', marginTop: '16px'}}>
+                                    <Typography style={{ fontSize: '15px' }}>
+                                        Ваша заявка рассматривается
+                                    </Typography>
+                                </Grid>
+                                }
+                            </Grid>
                         </Grid>
                     </Grid>
                 </Grid>

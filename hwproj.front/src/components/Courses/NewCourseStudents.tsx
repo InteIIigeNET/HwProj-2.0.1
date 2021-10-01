@@ -1,8 +1,12 @@
 import * as React from 'react';
-import { CourseViewModel } from '../../api/';
+import {CourseViewModel} from '../../api/';
 import Button from '@material-ui/core/Button'
 import ApiSingleton from "../../api/ApiSingleton";
-import { runInThisContext } from 'vm';
+import {FC} from "react";
+import {ListItem, Paper} from "@material-ui/core";
+import List from "@material-ui/core/List";
+import Typography from "@material-ui/core/Typography";
+import {makeStyles} from "@material-ui/styles";
 
 interface ICourseMate {
     name: string;
@@ -10,7 +14,7 @@ interface ICourseMate {
     middleName: string;
     email: string;
     id: string;
-  }
+}
 
 interface INewCourseStudentsProps {
     course: CourseViewModel,
@@ -19,49 +23,82 @@ interface INewCourseStudentsProps {
     courseId: string,
 }
 
-export default class NewCourseStudents extends React.Component<INewCourseStudentsProps, {}> {
-    constructor(props: INewCourseStudentsProps) {
-        super(props);
+const useStyles = makeStyles(theme => ({
+    item: {
+        width: '200px',
+        marginTop: '16px',
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+}))
+
+const NewCourseStudents: FC<INewCourseStudentsProps> = (props) => {
+
+    const acceptStudent = async (studentId: string) => {
+        await ApiSingleton.coursesApi.apiCoursesAcceptStudentByCourseIdByStudentIdPost(props.course.id!, studentId)
+        props.onUpdate()
     }
 
-    public render() {
-        if (this.props.students.length === 0) {
-            return "Нет новых заявок в курс."
-        }
+    const rejectStudent = async (studentId: string) => {
+        await ApiSingleton.coursesApi.apiCoursesRejectStudentByCourseIdByStudentIdPost(props.course.id!, studentId)
+        props.onUpdate()
+    }
 
+    const classes = useStyles()
+
+    if (props.students.length === 0) {
         return (
             <div>
-                Новые заявки на вступление в курс:
-                <br />
-                <ol>
-                    {this.props.students.map((cm, index) => (
-                        <li>
-                            <div>
-                                {cm.surname} {cm.name}
-                                <br />
-                                <Button onClick={() => this.acceptStudent(cm.id)} color="primary" variant="contained" size="small">
-                                    Принять
-                                </Button>
-                                &nbsp;
-                                <Button onClick={() => this.rejectStudent(cm.id!)} color="primary" variant="contained" size="small">
-                                    Отклонить
-                                </Button>
-                            </div>
-                        </li>
-                        ))
-                    }
-                </ol>
+                Нет новых заявок в курс.
             </div>
         )
     }
-
-    acceptStudent(studentId: string) {
-        ApiSingleton.coursesApi.apiCoursesAcceptStudentByCourseIdByStudentIdPost(this.props.course.id!, studentId)
-            .then(res => this.props.onUpdate());
-    }
-
-    rejectStudent(studentId: string) {
-        ApiSingleton.coursesApi.apiCoursesRejectStudentByCourseIdByStudentIdPost(this.props.course.id!, studentId)
-            .then(res => this.props.onUpdate());
-    }
+    return (
+        <div style={{width: "300px"}}>
+            <div>
+                <Typography>
+                    Новые заявки на вступление в курс:
+                </Typography>
+            </div>
+            <List>
+                {props.students.map((cm, index) => (
+                    <ListItem>
+                        <div>
+                            <div>
+                                <Typography>
+                                    {cm.surname} {cm.name}
+                                </Typography>
+                            </div>
+                            <div className={classes.item}>
+                                <div>
+                                    <Button
+                                        onClick={() => acceptStudent(cm.id)}
+                                        color="primary"
+                                        variant="contained"
+                                        size="small"
+                                    >
+                                        Принять
+                                    </Button>
+                                </div>
+                                <div>
+                                    <Button
+                                        onClick={() => rejectStudent(cm.id!)}
+                                        color="primary"
+                                        variant="contained"
+                                        size="small"
+                                    >
+                                        Отклонить
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+                    </ListItem>
+                ))
+                }
+            </List>
+        </div>
+    )
 }
+
+export default NewCourseStudents

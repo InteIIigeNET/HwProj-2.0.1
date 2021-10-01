@@ -96,7 +96,10 @@ const Homework: FC<IHomeworkProps> = (props) => {
                         </div>
                         <div>
                             {props.forMentor && deferredHomework!.length > 0 &&
-                            <Typography> <HourglassEmpty/> {deferredHomework!.length}</Typography>
+                                <Typography>
+                                    <HourglassEmpty/>
+                                    {deferredHomework!.length}
+                                </Typography>
                             }
                         </div>
                     </div>
