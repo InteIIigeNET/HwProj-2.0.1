@@ -73,18 +73,9 @@ const Task: FC<ITaskProp> = (props) => {
                     style={{backgroundColor: task.isDeferred! ? "#e6e6e6" : "#eceef8"}}
                 >
                     <div className={classes.tools}>
-                        {props.forStudent &&
-                        <RouterLink to={"/task/" + task.id!.toString()}>
-                            <Typography style={{fontSize: '18px'}}>
-                                Задача {task.title}
-                            </Typography>
-                        </RouterLink>
-                        }
-                        {!props.forStudent &&
                         <Typography style={{fontSize: '18px'}}>
                             Задача {task.title}
                         </Typography>
-                        }
                         {props.forMentor &&
                         <IconButton aria-label="Delete" onClick={openDialogDeleteTask}>
                             <DeleteIcon fontSize="small"/>
@@ -128,14 +119,16 @@ const Task: FC<ITaskProp> = (props) => {
                         </div>
                         }
                         {props.showForCourse && props.forStudent &&
-                        <Button
-                            size="small"
-                            variant="contained"
-                            color="primary"
-                            onClick={() => window.location.assign("/task/" + task.id!.toString())}
-                        >
-                            Отправить решение
-                        </Button>
+                            <div style={{ marginTop: '15px' }}>
+                                <Button
+                                    size="small"
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={() => window.location.assign("/task/" + task.id!.toString())}
+                                >
+                                    Отправить решение
+                                </Button>
+                            </div>
                         }
                     </div>
                 </AccordionDetails>
