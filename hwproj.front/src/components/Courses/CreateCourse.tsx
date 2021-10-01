@@ -2,8 +2,6 @@ import * as React from "react";
 import {
   TextField,
   Button,
-  Checkbox,
-  FormControlLabel,
   Typography,
   Grid,
 } from "@material-ui/core";
@@ -18,7 +16,6 @@ import Container from "@material-ui/core/Container";
 interface ICreateCourseState {
   name: string;
   groupName?: string;
-  isOpen: boolean;
   courseId: string;
   errors: string[];
 }
@@ -46,7 +43,6 @@ const CreateCourse: FC = () => {
   const [course, setCourse] = useState<ICreateCourseState>({
     name: "",
     groupName: "",
-    isOpen: false,
     courseId: "",
     errors: [],
   })
@@ -56,7 +52,7 @@ const CreateCourse: FC = () => {
     const courseViewModel = {
       name: course.name,
       groupName: course.groupName,
-      isOpen: course.isOpen,
+      isOpen: true,
     }
     try {
       const courseId = await ApiSingleton.coursesApi.apiCoursesCreatePost(courseViewModel)
@@ -130,28 +126,9 @@ const CreateCourse: FC = () => {
                     }}
                 />
               </Grid>
-              <Grid item xs={12}>
-                <FormControlLabel
-                    control={
-                      <Checkbox
-                          defaultChecked
-                          color="primary"
-                          checked={course.isOpen}
-                          onChange={(e) =>
-                          {
-                            e.persist()
-                            setCourse((prevState) => ({
-                              ...prevState,
-                              isOpen: e.target.checked
-                            }))
-                          }}
-                      />
-                    }
-                    label="Открытый курс"
-                />
-              </Grid>
             </Grid>
             <Button
+                style={{ marginTop: '16px'}}
                 fullWidth
                 variant="contained"
                 color="primary"

@@ -3,6 +3,7 @@ using HwProj.CoursesService.API.Models;
 using System.Linq;
 using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
+using System;
 
 namespace HwProj.CoursesService.API
 {
@@ -36,6 +37,8 @@ namespace HwProj.CoursesService.API
             CreateMap<CreateHomeworkViewModel, Homework>();
             CreateMap<Homework, HomeworkViewModel>();
             CreateMap<HomeworkTask, HomeworkTaskViewModel>().ReverseMap();
+            CreateMap<HomeworkTask, HomeworkTaskViewModel>()
+                .ForMember("IsDeferred", cm => cm.MapFrom(g => DateTime.UtcNow.AddHours(3) < g.PublicationDate));
             CreateMap<CreateTaskViewModel, HomeworkTask>().ReverseMap();
         }
     }
