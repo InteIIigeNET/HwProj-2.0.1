@@ -8,7 +8,7 @@ import TaskSolutions from "./TaskSolutions";
 import {CourseViewModel, HomeworkTaskViewModel} from "../../api/";
 import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useEffect, useState} from "react";
-import {Grid, Link} from "@material-ui/core";
+import {Grid} from "@material-ui/core";
 
 interface ITaskSolutionsProps {
     taskId: string;
