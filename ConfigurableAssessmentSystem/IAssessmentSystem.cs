@@ -2,7 +2,7 @@ namespace ConfigurableAssessmentSystem
 {
     public interface IAssessmentSystem
     {
-        public int CalculateAssessmentForTask(TaskForAssessmentModel task,
-            SolutionForAssessmentModel[] solutions);
+        public int CalculateAssessmentForTask(TaskModel task,
+            SolutionModel[] solutions);
     }
 }

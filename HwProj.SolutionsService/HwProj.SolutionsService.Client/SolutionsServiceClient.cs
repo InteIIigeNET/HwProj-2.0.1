@@ -6,6 +6,7 @@ using HwProj.Exceptions;
 using HwProj.HttpUtils;
 using HwProj.Models.SolutionsService;
 using HwProj.Models.StatisticsService;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 
 namespace HwProj.SolutionsService.Client
@@ -136,6 +137,19 @@ namespace HwProj.SolutionsService.Client
 
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<StatisticsCourseMatesModel[]>();
+        }
+
+        public async Task AddDllForAssessment(long courseId, IFormFile dll)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _solutionServiceUri + $"api/Solutions/assessmentSystem/add/{courseId}")
+            {
+                Content = new StringContent(JsonConvert.SerializeObject(dll),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+            var response = await _httpClient.SendAsync(httpRequest);
         }
     }
 }

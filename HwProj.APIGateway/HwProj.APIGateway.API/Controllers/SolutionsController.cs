@@ -7,6 +7,7 @@ using HwProj.NotificationsService.Client;
 using HwProj.SolutionsService.Client;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.APIGateway.API.Controllers
@@ -106,6 +107,14 @@ namespace HwProj.APIGateway.API.Controllers
             return result == null
                 ? NotFound()
                 : Ok(result) as IActionResult;
+        }
+
+        [HttpPost("assessmentSystem/add/{courseId}")]
+        [Authorize]
+        public async Task<IActionResult> AddAssessmentSystem(long courseId, IFormFile dll)
+        {
+            await _solutionsClient.AddDllForAssessment(courseId, dll);
+            return Ok();
         }
     }
 }
