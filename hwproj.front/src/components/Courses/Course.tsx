@@ -7,10 +7,11 @@ import AddHomework from "../Homeworks/AddHomework";
 import CourseStudents from "./CourseStudents";
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
-import {Button, Grid, Typography } from "@material-ui/core";
+import {Button, Grid, ListItem, Typography, Link} from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
 import {useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
+import Lecturers from "./Lecturers";
 
 interface ICourseMate {
     name: string;
@@ -38,16 +39,6 @@ const styles = makeStyles(theme => ({
     info: {
         display: "flex",
         justifyContent: "space-between",
-        flexWrap: "nowrap",
-    },
-    adminInfo: {
-        margin: "5px",
-        borderWidth: "1px",
-        border: "solid",
-        backgroundColor: "#eceef8",
-        borderColor: "Gainsboro",
-        borderRadius: 5,
-        padding: "2px"
     },
 }))
 
@@ -112,21 +103,26 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
     const {isFound, course, createHomework, mentors, newStudents, acceptedStudents} = courseState;
     if (isFound) {
         const isLogged = ApiSingleton.authService.isLoggedIn()
+
         const userId = isLogged
             ? ApiSingleton.authService.getUserId()
-            : undefined;
-        const isMentor = isLogged && course.mentorIds!.includes(userId!);
+            : undefined
+
+        const isMentor = isLogged && course.mentorIds!.includes(userId!)
+
         const isSignedInCourse =
-            isLogged && newStudents!.some((cm: any) => cm.id === userId);
+            isLogged && newStudents!.some((cm: any) => cm.id === userId)
+
         const isAcceptedStudent = isLogged && acceptedStudents!.some(
             (cm: any) => cm.id === userId
-        );
+        )
+        debugger
         return (
             <Grid>
                 <Grid container justify="center" style={{marginTop: "15px"}}>
-                    <Grid item xs={11} className={classes.info}>
-                        <div>
-                            <Typography variant="h5">
+                    <Grid container xs={11} className={classes.info}>
+                        <Grid item>
+                            <Typography style={{ fontSize: '22px'}}>
                                 {course.name} &nbsp;
                                 {isMentor && (
                                     <RouterLink to={"./" + courseId! + "/edit"}>
@@ -137,46 +133,37 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                             <Typography variant="subtitle1" gutterBottom>
                                 Группа: {course.groupName}
                             </Typography>
-                        </div>
-                        <div>
-                            <Grid container>
-                                {mentors.map(mentor =>
-                                    <Grid item style={{
-                                        margin: "5px",
-                                        borderWidth: "1px",
-                                        border: "solid",
-                                        backgroundColor: "#eceef8",
-                                        borderColor: "Gainsboro",
-                                        borderRadius: 5,
-                                        padding: "2px"
-                                    }}>
-                                        <Typography variant="h5">
-                                            {mentor.name}&nbsp;{mentor.surname}
-                                        </Typography>
-                                        {(isMentor || isAcceptedStudent) && (
-                                            <Typography variant="subtitle1">
-                                                {mentor.email}
-                                            </Typography>
-                                        )}
+                        </Grid>
+                        <Grid item style={{ width: '187px'}}>
+                            <Grid container alignItems="flex-end" direction="column" xs={12}>
+                                <Grid item>
+                                    <Lecturers
+                                        mentors={mentors}
+                                        courseId={courseId}
+                                        isEditCourse={false}
+                                    />
+                                </Grid>
+                                {isLogged && !isSignedInCourse && !isMentor && !isAcceptedStudent && (
+                                    <Grid item style={{ width: '100%', marginTop: '16px'}}>
+                                        <Button
+                                            fullWidth
+                                            variant="contained"
+                                            color="primary"
+                                            onClick={() => joinCourse()}
+                                        >
+                                            Записаться
+                                        </Button>
                                     </Grid>
                                 )}
+                                {isLogged && isSignedInCourse && !isAcceptedStudent &&
+                                <Grid item style={{ width: '100%', marginTop: '16px'}}>
+                                    <Typography style={{ fontSize: '15px' }}>
+                                        Ваша заявка рассматривается
+                                    </Typography>
+                                </Grid>
+                                }
                             </Grid>
-                            {isLogged && !isSignedInCourse && !isMentor && !isAcceptedStudent && (
-                                <Button
-                                    size="small"
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={() => joinCourse()}
-                                >
-                                    Записаться
-                                </Button>
-                            )}
-                            {isLogged && isSignedInCourse && !isAcceptedStudent &&
-                                <Typography>
-                                    Ваша заявка рассматривается
-                                </Typography>
-                            }
-                        </div>
+                        </Grid>
                     </Grid>
                 </Grid>
                 {createHomework && (
@@ -249,10 +236,10 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                         }));
                                     }}
                                 >
-                                    Добавить домашку
+                                    Добавить задание
                                 </Button>
                             </Grid>
-                            <Grid item style={{marginTop: "15px", width: '94%'}}>
+                            <Grid item xs={11} style={{marginTop: "15px"}}>
                                 <CourseHomework
                                     onDelete={() => setCurrentState()}
                                     isStudent={isAcceptedStudent}
@@ -276,14 +263,16 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                     </Grid>
                 )}
                 {!isMentor && (
-                    <div>
-                        <CourseHomework
-                            onDelete={() => setCurrentState()}
-                            homework={courseState.courseHomework}
-                            isStudent={isAcceptedStudent}
-                            isMentor={isMentor}
-                        />
-                    </div>
+                    <Grid container justifyContent="center" style={{marginTop: "15px", marginBottom: "15px"}}>
+                        <Grid xs={11}>
+                            <CourseHomework
+                                onDelete={() => setCurrentState()}
+                                homework={courseState.courseHomework}
+                                isStudent={isAcceptedStudent}
+                                isMentor={isMentor}
+                            />
+                        </Grid>
+                    </Grid>
                 )}
             </Grid>
         );

@@ -36,6 +36,9 @@ export default class Courses extends React.Component<{}, ICoursesState> {
 
         let activeCourses = courses.filter((course) => !course.isCompleted);
         let completedCourses = courses.filter((course) => course.isCompleted);
+
+        let activeCoursesTab = activeCourses.length > 0 ? 1 : 2;
+        let completedCoursesTab = activeCourses.length > 0 ? 2 : 1; 
         return (
             <div className="container">
                 <Tabs
@@ -44,13 +47,13 @@ export default class Courses extends React.Component<{}, ICoursesState> {
                     onChange={(event, value) => { this.setState({ tabValue: value }); }}
                 >
                     <Tab label="Все курсы"/>
-                    <Tab label="Текущие курсы" />
-                    <Tab label="Завершенные курсы" />
+                    { activeCourses.length > 0 && <Tab label="Текущие курсы" /> }
+                    { completedCourses.length > 0 && <Tab label="Завершенные курсы" /> }
                 </Tabs>
                 <br />
                 {tabValue === 0 && <CoursesList courses={this.state.allCourses} />}
-                {tabValue === 1 && <CoursesList courses={activeCourses} />}
-                {tabValue === 2 && <CoursesList courses={completedCourses} />}
+                {tabValue === activeCoursesTab && <CoursesList courses={activeCourses} />}
+                {tabValue === completedCoursesTab && <CoursesList courses={completedCourses} />}
             </div>
         );
     }
