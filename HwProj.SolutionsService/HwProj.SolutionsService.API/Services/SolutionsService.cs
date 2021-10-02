@@ -117,14 +117,17 @@ namespace HwProj.SolutionsService.API.Services
         public async Task AddDllForAssessment(long courseId, IFormFile dll)
         {
             var path = pathForAssessmentDlls + courseId.ToString() + ".dll";
-            if (File.Exists(path))
+            if (dll.Length > 0)
             {
-                File.Delete(path);
-            }
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
 
-            using (var stream = File.Create(path))
-            {
-                await dll.CopyToAsync(stream);
+                using (var stream = File.Create(path))
+                {
+                    await dll.CopyToAsync(stream);
+                }   
             }
         }
     }
