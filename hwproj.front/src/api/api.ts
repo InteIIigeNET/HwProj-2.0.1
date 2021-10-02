@@ -575,6 +575,50 @@ export interface HomeworkViewModel {
 /**
  * 
  * @export
+ * @interface IFormFile
+ */
+export interface IFormFile {
+    /**
+     * 
+     * @type {string}
+     * @memberof IFormFile
+     */
+    contentType?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof IFormFile
+     */
+    contentDisposition?: string;
+    /**
+     * 
+     * @type {{ [key: string]: Array<string>; }}
+     * @memberof IFormFile
+     */
+    headers?: { [key: string]: Array<string>; };
+    /**
+     * 
+     * @type {number}
+     * @memberof IFormFile
+     */
+    length?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof IFormFile
+     */
+    name?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof IFormFile
+     */
+    fileName?: string;
+}
+
+/**
+ * 
+ * @export
  * @interface InviteLecturerViewModel
  */
 export interface InviteLecturerViewModel {
@@ -3830,6 +3874,47 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
     return {
         /**
          * 
+         * @param {number} courseId 
+         * @param {{ [key: string]: string; }} [dll] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsAssessmentSystemAddByCourseIdPost(courseId: number, dll?: File | undefined, options: any = {}): FetchArgs {
+            // verify required parameter 'courseId' is not null or undefined
+            if (courseId === null || courseId === undefined) {
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiSolutionsAssessmentSystemAddByCourseIdPost.');
+            }
+            const localVarPath = `/api/Solutions/assessmentSystem/add/{courseId}`
+                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            if (dll !== undefined) {
+                localVarQueryParameter['dll'] = dll;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {number} taskId 
          * @param {number} groupId 
          * @param {SolutionViewModel} [model] 
@@ -4196,6 +4281,25 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
+         * @param {number} courseId 
+         * @param {{ [key: string]: string; }} [dll] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsAssessmentSystemAddByCourseIdPost(courseId: number, dll?: File | undefined, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsAssessmentSystemAddByCourseIdPost(courseId, dll, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
          * @param {number} taskId 
          * @param {number} groupId 
          * @param {SolutionViewModel} [model] 
@@ -4373,6 +4477,16 @@ export const SolutionsApiFactory = function (configuration?: Configuration, fetc
     return {
         /**
          * 
+         * @param {number} courseId 
+         * @param {{ [key: string]: string; }} [dll] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsAssessmentSystemAddByCourseIdPost(courseId: number, dll?: File | undefined, options?: any) {
+            return SolutionsApiFp(configuration).apiSolutionsAssessmentSystemAddByCourseIdPost(courseId, dll, options)(fetch, basePath);
+        },
+        /**
+         * 
          * @param {number} taskId 
          * @param {number} groupId 
          * @param {SolutionViewModel} [model] 
@@ -4468,6 +4582,18 @@ export const SolutionsApiFactory = function (configuration?: Configuration, fetc
  * @extends {BaseAPI}
  */
 export class SolutionsApi extends BaseAPI {
+    /**
+     * 
+     * @param {number} courseId 
+     * @param {{ [key: string]: string; }} [dll] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SolutionsApi
+     */
+    public apiSolutionsAssessmentSystemAddByCourseIdPost(courseId: number, dll?: File | undefined, options?: any) {
+        return SolutionsApiFp(this.configuration).apiSolutionsAssessmentSystemAddByCourseIdPost(courseId, dll, options)(this.fetch, this.basePath);
+    }
+
     /**
      * 
      * @param {number} taskId 

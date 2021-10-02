@@ -31,6 +31,7 @@ interface IEditCourseState {
     edited: boolean,
     deleted: boolean,
     lecturerEmail: string;
+    file: File | undefined;
 }
 
 interface IEditCourseProps {
@@ -74,6 +75,7 @@ const EditCourse: FC<RouteComponentProps<IEditCourseProps>> = (props) => {
         edited: false,
         deleted: false,
         lecturerEmail: "",
+        file: undefined,
     })
 
     const [isOpenDialogDeleteCourse, setIsOpenDialogDeleteCourse] = useState<boolean>(false)
@@ -129,6 +131,13 @@ const EditCourse: FC<RouteComponentProps<IEditCourseProps>> = (props) => {
         }))
     }
 
+    const sendDll = async () => {
+        debugger
+        await ApiSingleton.solutionsApi.apiSolutionsAssessmentSystemAddByCourseIdPost(
+            +props.match.params.courseId, courseState.file
+        )
+    }
+
     const classes = useStyles()
 
     if (courseState.isLoaded) {
@@ -163,6 +172,26 @@ const EditCourse: FC<RouteComponentProps<IEditCourseProps>> = (props) => {
                                     Назад к курсу
                                 </Typography>
                             </Link>
+                        </Grid>
+                        <Grid item>
+                            <form method="POST" encType="multipart/form-data">
+                                <input
+                                    name="user-file"
+                                    type="file"
+                                    onChange={(e) => setCourseState((prevState) => (
+                                        {
+                                            ...prevState,
+                                            file: e.target["files"]![0],
+                                        }))
+                                    }
+                                />
+                                    <br/>
+                                <input
+                                    type="submit"
+                                    value="Отправить"
+                                    onClick={() => sendDll()}
+                                />
+                            </form>
                         </Grid>
                         <Grid item>
                             <Lecturers
