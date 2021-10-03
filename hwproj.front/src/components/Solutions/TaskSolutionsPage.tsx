@@ -75,7 +75,7 @@ const TaskSolutionsPage: FC<RouteComponentProps<ITaskSolutionsProps>> = (props) 
         }
 
         return (
-            <div style={{ marginBottom: '15px' }}>
+            <div style={{ marginBottom: '50px' }}>
                 <Grid container justify="center" style={{marginTop: '20px'}}>
                     <Grid container justifyContent="space-between" xs={11} >
                         <Grid item>

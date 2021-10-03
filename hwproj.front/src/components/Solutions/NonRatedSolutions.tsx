@@ -15,11 +15,12 @@ import {HomeworkTaskViewModel, Solution} from '../../api'
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore"
 import ReactMarkdown from 'react-markdown'
 import ApiSingleton from "../../api/ApiSingleton";
+import {FC, useState} from "react";
 
 interface ISolutionProps {
     solution: Solution,
     forMentor: boolean,
-    isExpanded: boolean
+    isExpanded: boolean,
 }
 
 interface ISolutionState {
@@ -29,121 +30,157 @@ interface ISolutionState {
     clickedForRate: boolean,
 }
 
-export default class NonRatedSolutionComponent extends React.Component<ISolutionProps, ISolutionState> {
-    constructor(props: ISolutionProps) {
-        super(props);
-        this.state = {
-            points: 0,
-            task: {},
-            lecturerComment: "",
-            clickedForRate: false,
-        }
+const NonRatedSolutionComponent: FC<ISolutionProps> = (props) => {
+
+    const [nonRatedSolution, setNonRatedSolution] = useState<ISolutionState>({
+        points: 0,
+        task: {},
+        lecturerComment: "",
+        clickedForRate: false,
+    })
+
+    const assignSolution = async () => {
+        await ApiSingleton.solutionsApi
+            .apiSolutionsRateSolutionBySolutionIdByNewRatingPost(
+                props.solution.id!,
+                nonRatedSolution.points,
+                nonRatedSolution.lecturerComment
+            )
+        window.location.reload()
     }
 
-    public render() {
-        const {solution} = this.props;
-        const postedSolutionTime = new Date(solution.publicationDate!.toString()).toLocaleString("ru-RU");
-        return (
-            <Accordion>
-                <AccordionSummary
-                    aria-controls="panel1a-content"
-                    id="panel1a-header"
-                    style={{backgroundColor: "#eceef8"}}
-                >
-                    <Typography>
-                        Дата отправки: {postedSolutionTime}
-                    </Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                    <Grid container direction="column">
-                        <Grid item>
-                            <Link href={solution.githubUrl} target="_blank">Ссылка на решение</Link>
-                        </Grid>
-                        {solution.comment &&
-                        <Grid item>
-                            <Typography className="antiLongWords">
-                                Комментарий к решению: {solution.comment}
-                            </Typography>
-                        </Grid>
-                        }
-                        {this.props.forMentor && !this.state.clickedForRate &&
-                        <Grid item style={{paddingTop:5}}>
-                            <Button
+    const {solution} = props
+    const postedSolutionTime = new Date(solution.publicationDate!.toString()).toLocaleString("ru-RU")
+
+    return (
+        <Accordion>
+            <AccordionSummary
+                aria-controls="panel1a-content"
+                id="panel1a-header"
+                style={{backgroundColor: "#eceef8"}}
+            >
+                <Typography>
+                    Дата отправки: {postedSolutionTime}
+                </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+                <Grid container direction="column">
+                    <Grid item>
+                        <Link
+                            href={solution.githubUrl}
+                            target="_blank"
+                            style={{color: '#212529'}}
+                        >
+                            Ссылка на решение
+                        </Link>
+                    </Grid>
+                    {solution.comment &&
+                    <Grid item style={{ marginTop: '16px' }}>
+                        <Typography className="antiLongWords">
+                            Комментарий к решению: {solution.comment}
+                        </Typography>
+                    </Grid>
+                    }
+                    {props.forMentor && !nonRatedSolution.clickedForRate &&
+                    <Grid item style={{paddingTop: 5}}>
+                        <Button
                             size="small"
                             variant="contained"
                             color="primary"
-                            onClick={() => this.setState({clickedForRate: true})}
-                            >
-                                Оценить решение
-                            </Button>
+                            onClick={(e) => {
+                                e.persist()
+                                setNonRatedSolution((prevState) => ({
+                                    ...prevState,
+                                    clickedForRate: true
+                                }))
+                            }}
+                        >
+                            Оценить решение
+                        </Button>
+                    </Grid>
+                    }
+                    {props.forMentor && nonRatedSolution.clickedForRate &&
+                    <Grid item>
+                        <Grid style={{ width: "200px" }}>
+                            <TextField
+                                required
+                                label="Баллы за решение"
+                                variant="outlined"
+                                margin="normal"
+                                type="number"
+                                fullWidth
+                                InputProps={{
+                                    readOnly: !props.forMentor,
+                                    inputProps: {min: 0, max: nonRatedSolution.task.maxRating},
+                                }}
+                                defaultValue={solution.rating!}
+                                onChange={(e) => {
+                                    e.persist()
+                                    setNonRatedSolution((prevState) => ({
+                                        ...prevState,
+                                        points: +e.target.value
+                                    }))
+                                }}
+                            />
                         </Grid>
-                        }
-                        {this.props.forMentor && this.state.clickedForRate &&
-                        <Grid item>
-                            <Box width={1/6}>
-                                <TextField
-                                    required
-                                    label="Баллы за решение"
-                                    variant="outlined"
-                                    margin="normal"
-                                    type="number"
-                                    fullWidth
-                                    InputProps={{
-                                        readOnly: !this.props.forMentor,
-                                        inputProps: { min: 0, max: this.state.task.maxRating },
-                                    }}
-                                    defaultValue={solution.rating!}
-                                    onChange={(e) => this.setState({ points: +e.target.value })}
-                                />
-                            </Box>
+                        <Grid style={{ marginTop: '10px' }}>
                             <TextField
                                 multiline
                                 fullWidth
                                 InputProps={{
-                                    readOnly: !this.props.forMentor,
+                                    readOnly: !props.forMentor,
                                 }}
                                 rows="4"
                                 rowsMax="15"
-                                label="Комментарий лектора"
+                                label="Комментарий преподавателя"
                                 variant="outlined"
                                 margin="normal"
-                                value={this.state.lecturerComment}
-                                onChange={(e) => this.setState({ lecturerComment: e.target.value })}
+                                value={nonRatedSolution.lecturerComment}
+                                onChange={(e) => {
+                                    e.persist()
+                                    setNonRatedSolution((prevState) => ({
+                                        ...prevState,
+                                        lecturerComment: e.target.value
+                                    }))
+                                }}
                             />
                         </Grid>
-                        }
-                        {this.props.forMentor && this.state.clickedForRate &&
-                        <Grid container item spacing={1}>
-                            <Grid item>
-                                <Button
-                                    size="small"
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={() => this.assignSolution()}
-                                >
-                                    Отправить
-                                </Button>
-                            </Grid>
-                            <Grid item>
-                                <Button
-                                    size="small"
-                                    variant="contained"
-                                    color="secondary"
-                                    onClick={() => this.setState({clickedForRate: false})}
-                                >
-                                    Отмена
-                                </Button>
-                            </Grid>
-                        </Grid>
-                        }
                     </Grid>
-                </AccordionDetails>
-            </Accordion>
-        )
-    }
-
-    async assignSolution () {
-        await ApiSingleton.solutionsApi.apiSolutionsRateSolutionBySolutionIdByNewRatingPost(this.props.solution.id!, this.state.points, this.state.lecturerComment)
-        window.location.reload()
-    }
+                    }
+                    {props.forMentor && nonRatedSolution.clickedForRate &&
+                    <Grid container item spacing={1} style={{ marginTop: '10px' }}>
+                        <Grid item>
+                            <Button
+                                size="small"
+                                variant="contained"
+                                color="primary"
+                                onClick={(e) => {
+                                    e.persist()
+                                    setNonRatedSolution((prevState) => ({
+                                        ...prevState,
+                                        clickedForRate: false
+                                    }))
+                                }}
+                            >
+                                Отмена
+                            </Button>
+                        </Grid>
+                        <Grid item>
+                            <Button
+                                size="small"
+                                variant="contained"
+                                color="primary"
+                                onClick={assignSolution}
+                            >
+                                Отправить
+                            </Button>
+                        </Grid>
+                    </Grid>
+                    }
+                </Grid>
+            </AccordionDetails>
+        </Accordion>
+    )
 }
+
+export default NonRatedSolutionComponent
