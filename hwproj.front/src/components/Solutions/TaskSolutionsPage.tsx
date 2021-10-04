@@ -113,7 +113,7 @@ const TaskSolutionsPage: FC<RouteComponentProps<ITaskSolutionsProps>> = (props) 
                         {(!taskSolution.addSolution && taskSolution.task.canSendSolution) && (
                             <Grid item xs={12} style={{ marginTop: "16px" }}>
                                 <Button
-                                    size="medium"
+                                    size="small"
                                     variant="contained"
                                     color="primary"
                                     onClick={(e) => {

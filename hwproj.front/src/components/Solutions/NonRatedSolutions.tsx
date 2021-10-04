@@ -82,7 +82,7 @@ const NonRatedSolutionComponent: FC<ISolutionProps> = (props) => {
                     </Grid>
                     }
                     {props.forMentor && !nonRatedSolution.clickedForRate &&
-                    <Grid item style={{paddingTop: 5}}>
+                    <Grid item style={{ marginTop: '16px' }}>
                         <Button
                             size="small"
                             variant="contained"
@@ -100,7 +100,7 @@ const NonRatedSolutionComponent: FC<ISolutionProps> = (props) => {
                     </Grid>
                     }
                     {props.forMentor && nonRatedSolution.clickedForRate &&
-                    <Grid item>
+                    <Grid item style={{ marginTop: '16px' }}>
                         <Grid style={{ width: "200px" }}>
                             <TextField
                                 required
@@ -154,6 +154,16 @@ const NonRatedSolutionComponent: FC<ISolutionProps> = (props) => {
                                 size="small"
                                 variant="contained"
                                 color="primary"
+                                onClick={assignSolution}
+                            >
+                                Отправить
+                            </Button>
+                        </Grid>
+                        <Grid item>
+                            <Button
+                                size="small"
+                                variant="contained"
+                                color="primary"
                                 onClick={(e) => {
                                     e.persist()
                                     setNonRatedSolution((prevState) => ({
@@ -163,16 +173,6 @@ const NonRatedSolutionComponent: FC<ISolutionProps> = (props) => {
                                 }}
                             >
                                 Отмена
-                            </Button>
-                        </Grid>
-                        <Grid item>
-                            <Button
-                                size="small"
-                                variant="contained"
-                                color="primary"
-                                onClick={assignSolution}
-                            >
-                                Отправить
                             </Button>
                         </Grid>
                     </Grid>
