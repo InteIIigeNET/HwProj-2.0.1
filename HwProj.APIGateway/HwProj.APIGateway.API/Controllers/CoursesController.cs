@@ -26,7 +26,6 @@ namespace HwProj.APIGateway.API.Controllers
 
         [HttpGet]
         [ProducesResponseType(typeof(CourseViewModel[]), (int)HttpStatusCode.OK)]
-        [Authorize(Roles = Roles.LecturerRole)]
         public async Task<IActionResult> GetAllCourses()
         {
             var result = await _coursesClient.GetAllCourses();
