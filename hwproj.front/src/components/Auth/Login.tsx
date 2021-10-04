@@ -33,6 +33,8 @@ const useStyles = makeStyles((theme) => ({
         alignItems: 'center',
     },
     login: {
+        marginTop: '16px',
+        width: '100%',
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
@@ -45,8 +47,8 @@ const useStyles = makeStyles((theme) => ({
         width: '100%'
     },
     button: {
-        marginTop: theme.spacing(1)
-    }
+        marginTop: theme.spacing(2)
+    },
 }))
 
 const Login: FC<LoginProps> = (props) => {
@@ -184,7 +186,7 @@ const Login: FC<LoginProps> = (props) => {
                         onSuccess={googleResponse}
                         render={renderProps => (
                             <GoogleLoginButton
-                                style={{height: '36px', marginTop: '15px'}}
+                                style={{height: '36px', margin: 0, width: '100%'}}
                                 onClick={renderProps.onClick}
                             >
                                 <Typography>
