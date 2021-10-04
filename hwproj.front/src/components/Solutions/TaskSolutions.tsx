@@ -10,7 +10,6 @@ import List from "@material-ui/core/List";
 import {FC, useEffect, useState} from "react";
 
 interface ITaskSolutionsProps {
-    homeworkId: number,
     taskId: number,
     studentId: string,
     forMentor: boolean

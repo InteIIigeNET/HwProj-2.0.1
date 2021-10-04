@@ -1,5 +1,5 @@
 import * as React from "react";
-import { RouteComponentProps, Link } from "react-router-dom";
+import { RouteComponentProps } from "react-router-dom";
 import Task from "../Tasks/Task";
 import Typography from "@material-ui/core/Typography";
 import AddSolution from "./AddSolution";
@@ -9,6 +9,7 @@ import {CourseViewModel, HomeworkTaskViewModel} from "../../api/";
 import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useEffect, useState} from "react";
 import {Grid} from "@material-ui/core";
+import Link from "@material-ui/core/Link";
 
 interface ITaskSolutionsProps {
     taskId: string;

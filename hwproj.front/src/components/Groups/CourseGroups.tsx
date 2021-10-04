@@ -68,7 +68,6 @@ const CourseGroups: FC<ICourseGroupEditorProps> = (props) => {
                 id: g.id,
                 courseId: g.courseId,
                 name: g.name,
-                tasks: g.tasks,
                 groupMates: g.groupMates,
             }
         })

@@ -5,8 +5,6 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {SolutionViewModel} from "../../api";
 import {FC, useState} from "react";
 import Grid from "@material-ui/core/Grid";
-import Container from "@material-ui/core/Container";
-import {GridClassKey} from "@material-ui/core/Grid/Grid";
 import makeStyles from "@material-ui/styles/makeStyles";
 
 interface IAddSolutionProps {
@@ -34,16 +32,17 @@ const AddSolution: FC<IAddSolutionProps> = (props) => {
     })
 
     const handleSubmit = async (e: any) => {
-        e.preventDefault();
-        const homework = await ApiSingleton.homeworksApi.apiHomeworksGetByHomeworkIdGet(this.props.homeworkId)
-        if (!homework.isGroupHomework!){
-            await ApiSingleton.solutionsApi.apiSolutionsByTaskIdPost(this.props.taskId, this.state)
-            this.props.onAdd()
+        e.preventDefault()
+
+        const task = await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+props.taskId)
+        const homework = await ApiSingleton.homeworksApi.apiHomeworksGetByHomeworkIdGet(task.homeworkId!)
+        if (!homework.isGroupHomework!) {
+            await ApiSingleton.solutionsApi.apiSolutionsByTaskIdPost(props.taskId, solution)
+            props.onAdd()
+            return
         }
-        else {
-            await ApiSingleton.solutionsApi.apiSolutionsByCourseIdByTaskIdPost(this.props.taskId, homework.courseId!, this.state)
-            this.props.onAdd()
-        }
+        await ApiSingleton.solutionsApi.apiSolutionsByCourseIdByTaskIdPost(props.taskId, homework.courseId!, solution)
+        props.onAdd()
     }
 
     const classes = useStyles()
@@ -68,7 +67,7 @@ const AddSolution: FC<IAddSolutionProps> = (props) => {
                             }}
                         />
                     </Grid>
-                    <Grid item xs={9} style={{ marginTop: '16px' }}>
+                    <Grid item xs={9} style={{marginTop: '16px'}}>
                         <TextField
                             multiline
                             fullWidth
@@ -85,7 +84,7 @@ const AddSolution: FC<IAddSolutionProps> = (props) => {
                             }}
                         />
                     </Grid>
-                    <Grid item xs={9} style={{ marginTop: '16px' }}>
+                    <Grid item xs={9} style={{marginTop: '16px'}}>
                         <div className={classes.buttons}>
                             <Grid xs={6} className={classes.button}>
                                 <Button

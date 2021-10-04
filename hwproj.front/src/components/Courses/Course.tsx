@@ -89,6 +89,9 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                     }
                 })),
         })
+        console.log(courseState)
+        debugger
+        console.log(courseState)
     }
 
     useEffect(() => {
