@@ -155,9 +155,7 @@ export default class AddHomework extends React.Component<IAddHomeworkProps,
                                                     label="Дата публикации"
                                                     type="datetime-local"
                                                     defaultValue={task.publicationDate}
-                                                    onChange={(e) => {
-                                                        task.publicationDate = new Date(e.target.value)
-                                                    }}
+                                                    onChange={(e) => task.publicationDate = new Date(e.target.value)}
                                                     InputLabelProps={{
                                                         shrink: true,
                                                     }}
@@ -272,14 +270,6 @@ export default class AddHomework extends React.Component<IAddHomeworkProps,
             description: this.state.description,
             tasks: this.state.tasks,
         }
-        // ReDo
-        homework.tasks.forEach(task => {
-            if (task.hasDeadline) {
-                task.deadlineDate = new Date(task.deadlineDate!.setHours(task.deadlineDate!.getHours() + 3))
-            }
-            task.publicationDate = new Date(task.publicationDate!.setHours(task.publicationDate!.getHours() + 3))
-        })
-
         await ApiSingleton.homeworksApi.apiHomeworksByCourseIdAddPost(this.props.id, homework)
         this.setState({added: true})
         this.props.onSubmit()

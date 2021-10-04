@@ -51,7 +51,7 @@ namespace HwProj.SolutionsService.API.Services
         
         public async Task<long> PostOrUpdateAsync(long taskId, Solution solution)
         {
-            solution.PublicationDate = DateTime.Now;
+            solution.PublicationDate = DateTime.UtcNow;
             var allSolutionsForTask= await GetTaskSolutionsFromStudentAsync(taskId, solution.StudentId);
             var currentSolution = allSolutionsForTask.FirstOrDefault(s => s.Id == solution.Id);
             var solutionModel = _mapper.Map<SolutionViewModel>(solution);
