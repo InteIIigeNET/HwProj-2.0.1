@@ -1,36 +1,65 @@
 import * as React from 'react';
-import { Accordion, AccordionDetails, AccordionSummary, Button, IconButton, Typography } from '@material-ui/core'
+import {Accordion, AccordionDetails, AccordionSummary, Button, IconButton, Typography} from '@material-ui/core'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import DeleteIcon from '@material-ui/icons/Delete'
 import EditIcon from '@material-ui/icons/Edit'
+import HourglassEmpty from '@material-ui/icons/HourglassEmpty';
 import ReactMarkdown from 'react-markdown';
-import { HomeworkViewModel } from "../../api";
-import AddTask from'../Tasks/AddTask'
+import {HomeworkViewModel} from "../../api";
+import AddTask from '../Tasks/AddTask'
 import HomeworkTasks from '../Tasks/HomeworkTasks'
 import {Link as RouterLink} from 'react-router-dom'
 import ApiSingleton from '../../api/ApiSingleton';
+import {FC, useState} from "react";
+import {makeStyles} from "@material-ui/styles";
+import DeletionConfirmation from "../DeletionConfirmation";
 
 interface IHomeworkProps {
-  homework: HomeworkViewModel,
-  forMentor: boolean,
-  forStudent: boolean,
-  onDeleteClick: () => void
+    homework: HomeworkViewModel,
+    forMentor: boolean,
+    forStudent: boolean,
+    onDeleteClick: () => void
 }
+
+const useStyles = makeStyles(theme => ({
+    tools: {
+        display: "flex",
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    tool: {
+        marginRight: theme.spacing(2),
+        marginLeft: theme.spacing(2),
+    }
+}))
 
 interface IHomeworkState {
-  createTask: boolean
+    createTask: boolean
 }
 
-export default class Homework extends React.Component<IHomeworkProps, IHomeworkState> {
-  constructor(props : IHomeworkProps) {
-    super(props);
-    this.state = {
-        createTask: false
-    };
-  }
+const Homework: FC<IHomeworkProps> = (props) => {
+    const [homeworkState, setHomeworkState] = useState<IHomeworkState>({
+        createTask: false,
+    })
 
-  public render() {
-    let homeworkDateString = new Date(this.props.homework.date!.toString()).toLocaleDateString("ru-RU");
+    const [isOpenDialogDeleteHomework, setIsOpenDialogDeleteHomework] = useState<boolean>(false)
+
+    const openDialogDeleteHomework = () => {
+        setIsOpenDialogDeleteHomework(true)
+    }
+
+    const closeDialogDeleteHomework = () => {
+        setIsOpenDialogDeleteHomework(false)
+    }
+
+    const deleteHomework = async () => {
+        await ApiSingleton.homeworksApi.apiHomeworksDeleteByHomeworkIdDelete(props.homework.id!)
+        props.onDeleteClick()
+    }
+
+    const classes = useStyles()
+    const homeworkDateString = new Date(props.homework.date!.toString()).toLocaleDateString("ru-RU");
+    const deferredHomework = props.homework.tasks!.filter(t => t.isDeferred!);
     return (
         <div style={{width: '100%'}}>
             <Accordion>
@@ -67,10 +96,10 @@ export default class Homework extends React.Component<IHomeworkProps, IHomeworkS
                         </div>
                         <div>
                             {props.forMentor && deferredHomework!.length > 0 &&
-                                <Typography>
-                                    <HourglassEmpty/>
-                                    {deferredHomework!.length}
-                                </Typography>
+                            <Typography>
+                                <HourglassEmpty/>
+                                {deferredHomework!.length}
+                            </Typography>
                             }
                         </div>
                     </div>
@@ -141,10 +170,6 @@ export default class Homework extends React.Component<IHomeworkProps, IHomeworkS
             />
         </div>
     )
-  }
-
-  deleteHomework = async () => {
-    await ApiSingleton.homeworksApi.apiHomeworksDeleteByHomeworkIdDelete(this.props.homework.id!)
-    this.props.onDeleteClick()
-  }
 }
+
+export default Homework

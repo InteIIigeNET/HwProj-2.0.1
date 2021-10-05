@@ -5,28 +5,64 @@ import DeleteIcon from '@material-ui/icons/Delete'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import EditIcon from '@material-ui/icons/Edit'
 import ReactMarkdown from 'react-markdown'
-import { HomeworkTaskViewModel } from "../../api";
+import {HomeworkTaskViewModel} from "../../api";
 import {Link as RouterLink} from 'react-router-dom'
 import ApiSingleton from "../../api/ApiSingleton";
-import { Accordion, AccordionDetails, AccordionSummary, Button } from '@material-ui/core';
+import {Accordion, AccordionDetails, AccordionSummary, Button} from '@material-ui/core';
+import {FC, useState} from "react";
+import {makeStyles} from "@material-ui/styles";
+import DeletionConfirmation from "../DeletionConfirmation";
 
 interface ITaskProp {
-  task: HomeworkTaskViewModel,
-  forMentor: boolean,
-  forStudent: boolean,
-  isExpanded: boolean,
-  onDeleteClick: () => void,
-  showForCourse: boolean
+    task: HomeworkTaskViewModel,
+    forMentor: boolean,
+    forStudent: boolean,
+    isExpanded: boolean,
+    onDeleteClick: () => void,
+    showForCourse: boolean
 }
 
-export default class Task extends React.Component<ITaskProp, {}> {
-  public render() {
-    let task = this.props.task;
-    let deadlineDate
-    if (task.hasDeadline) {
-        deadlineDate = new Date(task.deadlineDate!.toString()).toLocaleString("ru-RU")   
+const useStyles = makeStyles(theme => ({
+    tools: {
+        display: "flex",
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    tool: {
+        marginRight: theme.spacing(2),
+        marginLeft: theme.spacing(2),
+    },
+    text: {
+        marginTop: '16px',
     }
-    let publicationDate = new Date(task.publicationDate!.toString()).toLocaleString("ru-RU")
+}))
+
+const Task: FC<ITaskProp> = (props) => {
+
+    const [isOpenDialogDeleteTask, setIsOpenDialogDeleteTask] = useState<boolean>(false)
+
+    const openDialogDeleteTask = () => {
+        setIsOpenDialogDeleteTask(true)
+    }
+
+    const closeDialogDeleteTask = () => {
+        setIsOpenDialogDeleteTask(false)
+    }
+
+    const deleteTask = async () => {
+        await ApiSingleton.tasksApi.apiTasksDeleteByTaskIdDelete(props.task.id!)
+        props.onDeleteClick()
+    }
+
+    const task = props.task
+    let deadlineDate
+
+    if (task.hasDeadline) {
+        deadlineDate = new Date(task.deadlineDate!.toString()).toLocaleString("ru-RU")
+    }
+    const publicationDate = new Date(task.publicationDate!.toString()).toLocaleString("ru-RU")
+    const classes = useStyles()
+
     return (
         <div style={{width: '100%', marginTop: "15px"}}>
             <Accordion expanded={props.isExpanded ? true : undefined}>
@@ -83,16 +119,16 @@ export default class Task extends React.Component<ITaskProp, {}> {
                         </div>
                         }
                         {props.showForCourse && props.forStudent &&
-                            <div style={{ marginTop: '15px' }}>
-                                <Button
-                                    size="small"
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={() => window.location.assign("/task/" + task.id!.toString())}
-                                >
-                                    Отправить решение
-                                </Button>
-                            </div>
+                        <div style={{ marginTop: '15px' }}>
+                            <Button
+                                size="small"
+                                variant="contained"
+                                color="primary"
+                                onClick={() => window.location.assign("/task/" + task.id!.toString())}
+                            >
+                                Отправить решение
+                            </Button>
+                        </div>
                         }
                     </div>
                 </AccordionDetails>
@@ -108,10 +144,6 @@ export default class Task extends React.Component<ITaskProp, {}> {
             />
         </div>
     );
-  }
-
-  deleteTask(): void {
-    ApiSingleton.tasksApi.apiTasksDeleteByTaskIdDelete(this.props.task.id!)
-      .then(res => this.props.onDeleteClick())
-  }
 }
+
+export default Task
