@@ -124,9 +124,38 @@ export default class EditCourse extends React.Component<RouteComponentProps<IEdi
                             <Button onClick={() => this.onDelete()} size="small" variant="contained" color="secondary">Удалить курс</Button>
                         </form>
                     </div>
-                </div>
-            );
-        }
+
+                </Container>
+                <Grid container justify="center" style={{marginTop: '20px', marginBottom: '20px' }}>
+                    <Grid container xs={11} justifyContent="flex-end" >
+                        <Grid>
+                            <Button
+                                onClick={openDialogDeleteCourse}
+                                fullWidth
+                                variant="contained"
+                                style={{ color: '#8d8686'}}
+                                startIcon={<DeleteIcon/>}
+                            >
+                                Удалить курс
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </Grid>
+                <DeletionConfirmation
+                    onCancel={closeDialogDeleteCourse}
+                    onSubmit={onDeleteCourse}
+                    isOpen={isOpenDialogDeleteCourse}
+                    dialogTitle={"Удаление курса"}
+                    dialogContentText={`Вы точно хотите удалить курс "${courseState.name}"?`}
+                    confirmationWord={courseState.name}
+                    confirmationText={"Для подтверждения введите название курса."}
+                />
+            </div>
+        );
+    }
+
+    return (
+        <div>
 
         return "";
     }

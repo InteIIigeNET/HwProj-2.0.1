@@ -189,7 +189,7 @@ const Register: FC<LoginProps> = (props) => {
                                 required
                                 fullWidth
                                 type="password"
-                                label="Поддвердите пароль"
+                                label="Подтвердите пароль"
                                 variant="outlined"
                                 value={registerState.passwordConfirm}
                                 onChange={(e) =>

@@ -44,8 +44,8 @@ const AddSolution: FC<IAddSolutionProps> = (props) => {
     return (
         <div>
             <form onSubmit={e => handleSubmit(e)}>
-                <Grid container>
-                    <Grid item xs={9}>
+                <Grid container xs={12}>
+                    <Grid item xs={12}>
                         <TextField
                             fullWidth
                             required
@@ -61,7 +61,7 @@ const AddSolution: FC<IAddSolutionProps> = (props) => {
                             }}
                         />
                     </Grid>
-                    <Grid item xs={9} style={{ marginTop: '16px' }}>
+                    <Grid item xs={12} style={{ marginTop: '16px' }}>
                         <TextField
                             multiline
                             fullWidth
@@ -78,29 +78,51 @@ const AddSolution: FC<IAddSolutionProps> = (props) => {
                             }}
                         />
                     </Grid>
-                    <Grid item xs={9} style={{ marginTop: '16px' }}>
+                    <Grid item xs={12} style={{ marginTop: '16px' }}>
                         <div className={classes.buttons}>
-                            <Grid xs={6} className={classes.button}>
+                            <div style={{ marginRight: '16px' }}>
                                 <Button
-                                    fullWidth
+                                    size="small"
                                     variant="contained"
                                     color="primary"
                                     type="submit"
                                 >
                                     Добавить решение
                                 </Button>
-                            </Grid>
-                            <Grid xs={6}>
+                            </div>
+                            <div>
                                 <Button
+                                    size="small"
                                     onClick={() => props.onCancel()}
-                                    fullWidth
                                     variant="contained"
                                     color="primary"
                                 >
                                     Отменить
                                 </Button>
-                            </Grid>
+                            </div>
                         </div>
+                        {/*<div className={classes.buttons}>*/}
+                        {/*    <Grid xs={6} className={classes.button}>*/}
+                        {/*        <Button*/}
+                        {/*            fullWidth*/}
+                        {/*            variant="contained"*/}
+                        {/*            color="primary"*/}
+                        {/*            type="submit"*/}
+                        {/*        >*/}
+                        {/*            Добавить решение*/}
+                        {/*        </Button>*/}
+                        {/*    </Grid>*/}
+                        {/*    <Grid xs={6}>*/}
+                        {/*        <Button*/}
+                        {/*            onClick={() => props.onCancel()}*/}
+                        {/*            fullWidth*/}
+                        {/*            variant="contained"*/}
+                        {/*            color="primary"*/}
+                        {/*        >*/}
+                        {/*            Отменить*/}
+                        {/*        </Button>*/}
+                        {/*    </Grid>*/}
+                        {/*</div>*/}
                     </Grid>
                 </Grid>
             </form>

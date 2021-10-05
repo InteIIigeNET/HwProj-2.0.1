@@ -4,113 +4,111 @@ import {Redirect} from "react-router-dom";
 import {Solution, StatisticsCourseSolutionsModel} from "api";
 
 interface ITaskStudentCellProps {
-  studentId: string;
-  taskId: number;
-  forMentor: boolean;
-  userId: string;
-  solutions?: StatisticsCourseSolutionsModel;
+    studentId: string;
+    taskId: number;
+    forMentor: boolean;
+    userId: string;
+    solutions?: StatisticsCourseSolutionsModel;
 }
 
 interface ITaskStudentCellState {
-  isLoaded: boolean;
-  solution?: StatisticsCourseSolutionsModel;
-  redirectForMentor: boolean;
-  redirectForStudent: boolean;
-  color: string;
+    isLoaded: boolean;
+    solution?: StatisticsCourseSolutionsModel;
+    redirectForMentor: boolean;
+    redirectForStudent: boolean;
+    color: string;
 }
 
-export default class TaskStudentCell extends React.Component<
-  ITaskStudentCellProps,
-  ITaskStudentCellState
-> {
-  constructor(props: ITaskStudentCellProps) {
-    super(props);
-    this.state = {
-      isLoaded: false,
-      solution: {},
-      redirectForMentor: false,
-      redirectForStudent: false,
-      color: "",
-    };
-  }
-
-  public render() {
-    if (this.state.redirectForMentor) {
-      return (
-        <Redirect
-          to={
-            "/task/" +
-            this.props.taskId.toString() +
-            "/" +
-            this.props.studentId.toString()
-          }
-        />
-      );
+export default class TaskStudentCell extends React.Component<ITaskStudentCellProps,
+    ITaskStudentCellState> {
+    constructor(props: ITaskStudentCellProps) {
+        super(props);
+        this.state = {
+            isLoaded: false,
+            solution: {},
+            redirectForMentor: false,
+            redirectForStudent: false,
+            color: "",
+        };
     }
 
-    if (this.state.redirectForStudent) {
-      return <Redirect to={"/task/" + this.props.taskId.toString()} />;
+    public render() {
+        if (this.state.redirectForMentor) {
+            return (
+                <Redirect
+                    to={
+                        "/task/" +
+                        this.props.taskId.toString() +
+                        "/" +
+                        this.props.studentId.toString()
+                    }
+                />
+            );
+        }
+
+        if (this.state.redirectForStudent) {
+            return <Redirect to={"/task/" + this.props.taskId.toString()}/>;
+        }
+
+        if (this.state.isLoaded) {
+            let onClick = this.props.forMentor
+                ? () => this.onMentorCellClick()
+                : this.props.userId === this.props.studentId
+                    ? () => this.onStudentCellClick()
+                    : () => 0;
+            const result = this.state.solution === undefined || this.state.solution.state! === Solution.StateEnum.NUMBER_0
+                ? ""
+                : this.state.solution.rating!.toString()
+            return (
+                <TableCell
+                    onClick={onClick}
+                    component="td"
+                    padding="none"
+                    scope="row"
+                    align="center"
+                    style={{backgroundColor: this.state.color}}
+                >
+                    {result}
+                </TableCell>
+            );
+        }
+
+        return "";
     }
 
-    if (this.state.isLoaded) {
-      let onClick = this.props.forMentor
-        ? () => this.onMentorCellClick()
-        : this.props.userId === this.props.studentId
-        ? () => this.onStudentCellClick()
-        : () => 0;
-      const result = this.state.solution === undefined || this.state.solution.state! === Solution.StateEnum.NUMBER_0
-        ? ""
-        : this.state.solution.rating!.toString()
-      return (
-        <TableCell
-          onClick={onClick}
-          component="td"
-          padding="none"
-          scope="row"
-          align="center"
-          style={{backgroundColor:this.state.color}}
-        >
-          {result}
-        </TableCell>
-      );
+    onMentorCellClick() {
+        this.setState({redirectForMentor: true});
     }
 
-    return "";
-  }
-
-  onMentorCellClick() {
-    this.setState({ redirectForMentor: true });
-  }
-
-  onStudentCellClick() {
-    this.setState({ redirectForStudent: true });
-  }
-
-  getCellBackgroundColor = (state: Solution.StateEnum | undefined): string => {
-    if (state == Solution.StateEnum.NUMBER_0)
-      return "#d0fcc7"
-    if (state == Solution.StateEnum.NUMBER_1)
-      return "#ffc346"
-    if (state == Solution.StateEnum.NUMBER_2)
-      return "#7ad67a"
-    return "#ffffff"
-  }
-
-  async componentDidMount() {
-    const solution = this.props.solutions
-    if (solution === undefined){
-      this.setState({
-        color: "",
-        isLoaded: true,
-        solution: undefined
-      })
-      return
+    onStudentCellClick() {
+        this.setState({redirectForStudent: true});
     }
-    this.setState({
-      color: this.getCellBackgroundColor(solution.state),
-      isLoaded: true,
-      solution: solution
-    })
-  }
+
+    getCellBackgroundColor = (state: Solution.StateEnum | undefined): string => {
+        if (state == Solution.StateEnum.NUMBER_0)
+            return "#d0fcc7"
+        if (state == Solution.StateEnum.NUMBER_1)
+            return "#ffc346"
+        if (state == Solution.StateEnum.NUMBER_2)
+            return "#7ad67a"
+        return "#ffffff"
+    }
+
+    async componentDidMount() {
+        const solution = this.props.solutions
+        if (solution === undefined) {
+            this.setState({
+                color: "",
+                isLoaded: true,
+                solution: undefined
+            })
+            return
+        }
+        this.setState({
+            color: this.getCellBackgroundColor(solution.state),
+            isLoaded: true,
+            solution: solution
+        })
+    }
 }
 
