@@ -1,4 +1,4 @@
-import React, {FC, FormEvent, useState} from 'react'
+import React, {FC, FormEvent, useEffect, useState} from 'react'
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
@@ -9,6 +9,8 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import ApiSingleton from "../api/ApiSingleton";
 import Typography from "@material-ui/core/Typography";
 import Grid from '@material-ui/core/Grid';
+import {Autocomplete} from "@material-ui/lab";
+import {AccountDataDto, UserDataDto} from "../api";
 
 
 interface InviteLecturer {
@@ -25,6 +27,7 @@ interface InviteLecturerState {
     email: string;
     errors: string[];
     info: string[];
+    data: AccountDataDto[];
 }
 
 const InviteLecturer: FC<InviteLecturer> = (props) => {
@@ -32,12 +35,14 @@ const InviteLecturer: FC<InviteLecturer> = (props) => {
     const [lecturerState, setLecturerState] = useState<InviteLecturerState>({
         email: '',
         errors: [],
-        info: []
+        info: [],
+        data: [],
     })
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        if (!isCorrectEmail(lecturerState.email)){
+        debugger
+        if (!isCorrectEmail(lecturerState.email)) {
             setLecturerState((prevState) => ({
                 ...prevState,
                 errors: ['Некорректный адрес электронной почты.']
@@ -71,10 +76,26 @@ const InviteLecturer: FC<InviteLecturer> = (props) => {
         setLecturerState({
             errors: [],
             email: '',
-            info: []
+            info: [],
+            data: [],
         })
         props.close()
     }
+
+    const setCurrentState = async () =>{
+        const data = await ApiSingleton.accountApi.apiAccountGetAllStudentsGet();
+        debugger
+        setLecturerState({
+            errors: [],
+            email: '',
+            info: [],
+            data: data
+        })
+    }
+
+    useEffect(() => {
+        setCurrentState()
+    }, [])
 
     return (
         <div>
@@ -102,7 +123,7 @@ const InviteLecturer: FC<InviteLecturer> = (props) => {
                         <form onSubmit={(e) => handleSubmit(e)}>
                             <Grid container justifyContent="flex-end">
                                 <Grid item xs={12}>
-                                    <TextField
+                                    {/*<TextField
                                         type="email"
                                         fullWidth
                                         label="Электронная почта"
@@ -115,6 +136,22 @@ const InviteLecturer: FC<InviteLecturer> = (props) => {
                                                 email: e.target.value
                                             }))
                                         }}
+                                    />*/}
+                                    <Autocomplete
+                                        freeSolo
+                                        id="free-solo-2-demo"
+                                        disableClearable
+                                        options={lecturerState.data.map((option) => option.email)}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                label="Введите email или ФИО"
+                                                InputProps={{
+                                                    ...params.InputProps,
+                                                    type: 'search',
+                                                }}
+                                            />
+                                        )}
                                     />
                                 </Grid>
                                 <Grid item>
