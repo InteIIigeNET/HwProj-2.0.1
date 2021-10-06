@@ -1,4 +1,4 @@
-import React, {FC} from 'react'
+import React, {FC, useEffect, useState} from 'react'
 import Accordion from '@material-ui/core/Accordion'
 import AccordionSummary from '@material-ui/core/AccordionSummary'
 import Typography from '@material-ui/core/Typography'
@@ -8,12 +8,18 @@ import {createStyles, makeStyles} from '@material-ui/core/styles';
 import {IconButton, ListItem, Theme} from "@material-ui/core";
 import List from "@material-ui/core/List";
 import DeleteIcon from "@material-ui/icons/Delete";
-import EditIcon from "@material-ui/icons/Edit";
-import {GroupViewModel} from "../../api";
+import {AccountDataDto, GroupViewModel} from "../../api";
 import ApiSingleton from "../../api/ApiSingleton";
 
+interface GroupState {
+    id: number;
+    courseId: number;
+    name: string;
+    groupMates?: AccountDataDto[];
+}
+
 interface GroupProps {
-    group: GroupViewModel;
+    group: GroupState;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -33,29 +39,10 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
+
 const Group: FC<GroupProps> = (props) => {
     const classes = useStyles()
     const group = props.group
-
-    const GetGroupMates = async () => {
-        debugger
-        const groupMates = group.groupMates!.map(async (gm) => {
-            const student = await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(gm.studentId!)
-            return (
-                <ListItem>
-                    {student.surname}&nbsp;{student.name}
-                    <IconButton aria-label="Delete" onClick={() => console.log("Hello")}>
-                        <DeleteIcon fontSize="small"/>
-                    </IconButton>
-                </ListItem>
-            )
-        })
-        return (
-            <List>
-                {groupMates}
-            </List>
-        )
-    };
 
     return (
         <div className={classes.root}>
@@ -68,17 +55,21 @@ const Group: FC<GroupProps> = (props) => {
                 >
                     <div className={classes.tools}>
                         <Typography className={classes.heading}>{group.name}</Typography>
-                        <IconButton aria-label="Edit" onClick={() => console.log("Hello")}>
-                            <EditIcon fontSize="small"/>
-                        </IconButton>
-                        <IconButton aria-label="Delete" onClick={() => console.log("Hello")}>
-                            <DeleteIcon fontSize="small"/>
-                        </IconButton>
                     </div>
                 </AccordionSummary>
                 <AccordionDetails>
-                    {group.groupMates?.length !== 0 &&
-                        GetGroupMates()
+                    {group.groupMates!.length !== 0 &&
+                        <List>
+                            {group.groupMates!.map((gm) => {
+                                return (
+                                    <ListItem>
+                                        <Typography>
+                                            {gm.surname}&nbsp;{gm.name}
+                                        </Typography>
+                                    </ListItem>
+                                )
+                            })}
+                        </List>
                     }
                 </AccordionDetails>
             </Accordion>

@@ -21,7 +21,7 @@ import Register from "./components/Auth/Register";
 import StudentSolutionsPage from "./components/Solutions/StudentSolutionsPage";
 import EditProfile from "./components/EditProfile";
 import ApiSingleton from "./api/ApiSingleton";
-import CourseGroups from "./components/Groups/CourseGroups";
+import GroupsEdit from "./components/Groups/GroupsEdit";
 
 type AppProps = RouteComponentProps;
 
@@ -66,6 +66,7 @@ class App extends Component<AppProps, AppState> {
                 <Route exact path="/courses/:id" component={Course}/>
                 <Route exact path="/courses/:courseId/edit" component={EditCourse}/>
                 <Route exact path="/homework/:homeworkId/edit" component={EditHomework}/>
+                <Route exact path="/courses/:id/groups-edit" component={GroupsEdit}/>
                 <Switch>
                     <Route exact path="/task/:taskId/edit" component={EditTask}/>
                     <Route exact path="/task/:taskId/:studentId" component={StudentSolutionsPage}/>

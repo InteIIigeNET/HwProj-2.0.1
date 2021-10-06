@@ -6,14 +6,8 @@ import AccordionDetails from '@material-ui/core/AccordionDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import {createStyles, makeStyles} from '@material-ui/core/styles';
 import {Grid, IconButton, ListItem, Theme} from "@material-ui/core";
-import List from "@material-ui/core/List";
-import Button from "@material-ui/core/Button";
-import DeleteIcon from "@material-ui/icons/Delete";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
-import Avatar from "@material-ui/core/Avatar";
-import ListItemText from "@material-ui/core/ListItemText";
 import {GroupMateDataDTO} from "../../api";
-import Group from "./Group";
+import StudentsWithoutGroup from "./StudentsWithoutGroup";
 
 interface AvailableCourseStudentsProps {
     studentsWithoutGroup?: GroupMateDataDTO[];
@@ -34,30 +28,6 @@ const useStyles = makeStyles((theme: Theme) =>
 const AvailableCourseStudents: FC<AvailableCourseStudentsProps> = (props) => {
     const classes = useStyles()
 
-    const GetStudents = () => {
-        let students = props.studentsWithoutGroup!.map((student: GroupMateDataDTO) => {
-            const fullName = student.middleName
-                ? student.surname + ' ' + student.name + ' ' + student.middleName
-                : student.surname + ' ' + student.name
-            return (
-                <ListItem
-                    button
-                    onClick={() => console.log('hello')}
-                >
-                    <ListItemText primary={fullName}/>
-                </ListItem>
-            )
-        })
-        return (
-            <List
-                component="nav"
-                aria-label="secondary mailbox folders"
-            >
-                {students}
-            </List>
-        )
-    }
-
     return (
         <div>
             <div className={classes.root}>
@@ -73,7 +43,12 @@ const AvailableCourseStudents: FC<AvailableCourseStudentsProps> = (props) => {
                         </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                        <GetStudents/>
+                        <StudentsWithoutGroup
+                            studentsWithoutGroup={props.studentsWithoutGroup}
+                            isEdit={false}
+                            group={undefined}
+                            update={null}
+                        />
                     </AccordionDetails>
                 </Accordion>
             </div>

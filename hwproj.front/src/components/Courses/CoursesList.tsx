@@ -23,7 +23,7 @@ export class CoursesList extends React.Component<ICoursesProps, {}> {
                         <ListItem
                             key={course.id}
                             onClick={() => window.location.assign("/courses/"  + course.id!.toString())}
-                            style={{ padding: 0}}
+                            style={{ padding: 0, marginBottom: '16px' }}
                         >
                             <div>
                                 <RouterLink 
