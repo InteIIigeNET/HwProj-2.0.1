@@ -75,10 +75,5 @@ namespace HwProj.AuthService.API.Services
         {
             return await _aspUserManager.Users.ToArrayAsync();
         }
-        
-        /*public async Task<User[]> GetAllUsers()
-        {
-            return await Task.Run(() => _aspUserManager.Users.ToArrayAsync());
-        }*/
     }
 }
