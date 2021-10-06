@@ -294,7 +294,7 @@ namespace HwProj.CoursesService.Client
         public async Task RemoveStudentFromGroup(long courseId, long groupId, string userId)
         {
             using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Post,
+                HttpMethod.Delete,
                 _coursesServiceUri + $"api/CourseGroups/{courseId}/removeStudentFromGroup/{groupId}?userId={userId}");
             
             await _httpClient.SendAsync(httpRequest);
