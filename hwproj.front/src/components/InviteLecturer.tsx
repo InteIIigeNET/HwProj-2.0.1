@@ -11,6 +11,7 @@ import Typography from "@material-ui/core/Typography";
 import Grid from '@material-ui/core/Grid';
 import {Autocomplete} from "@material-ui/lab";
 import {AccountDataDto, UserDataDto} from "../api";
+import {Box} from "@material-ui/core";
 
 
 interface InviteLecturer {
@@ -123,25 +124,25 @@ const InviteLecturer: FC<InviteLecturer> = (props) => {
                         <form onSubmit={(e) => handleSubmit(e)}>
                             <Grid container justifyContent="flex-end">
                                 <Grid item xs={12}>
-                                    {/*<TextField
-                                        type="email"
-                                        fullWidth
-                                        label="Электронная почта"
-                                        margin="normal"
-                                        name={lecturerState.email}
-                                        onChange={(e) => {
+                                    <Autocomplete
+                                        onChange={(e, values) => {
+                                            debugger
                                             e.persist()
                                             setLecturerState((prevState) => ({
                                                 ...prevState,
-                                                email: e.target.value
+                                                email: (values as AccountDataDto).email!
                                             }))
+                                            debugger
                                         }}
-                                    />*/}
-                                    <Autocomplete
                                         freeSolo
-                                        id="free-solo-2-demo"
                                         disableClearable
-                                        options={lecturerState.data.map((option) => option.email)}
+                                        getOptionLabel={(option) => option.email!}
+                                        options={lecturerState.data}
+                                        renderOption={(props, option) => (
+                                            <Grid component="li" {...props}>
+                                                {props.surname} {props.name} {props.email}
+                                            </Grid>
+                                        )}
                                         renderInput={(params) => (
                                             <TextField
                                                 {...params}
