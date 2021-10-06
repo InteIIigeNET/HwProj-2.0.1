@@ -30,7 +30,7 @@ const useStyles = makeStyles( theme => ({
 		display: "flex",
 		justifyContent: "space-between",
 	},
-}));
+}))
 
 const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
 	const [profileState, setProfileState] = useState<IProfileState>({
@@ -86,7 +86,7 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
 		return (
 			<div>
 				{notifications.map(n =>
-					<Box m={2}>
+					<Box style={{ marginTop: '16px' }}>
 						<Card style={{backgroundColor: "AliceBlue"}}>
 							<CardContent>
 								<Typography variant="body1" component="p">
@@ -125,14 +125,14 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
 			<div>
 				<Grid container justify="center" style={{ marginTop: "15px" }}>
 					<Grid item xs={11} className={classes.info}>
-						<Typography component="h1" variant="h5">
+						<Typography style={{ fontSize: '20px' }}>
 							{fullName}
 						</Typography>
-						<Typography component="h1" variant="h5">
+						<Typography style={{ fontSize: '20px' }}>
 							{accountState.email}
 						</Typography>
 					</Grid>
-					<Grid item xs={12} style={{ marginTop: "15px" }}>
+					<Grid item xs={11} style={{ marginTop: "25px" }}>
 						{!props.match.params.id &&
 						<div>
 							<Tabs

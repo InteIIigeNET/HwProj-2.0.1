@@ -1,95 +1,110 @@
 import * as React from "react";
-import { RouteComponentProps, Link } from "react-router-dom";
-import { CourseViewModel, HomeworkTaskViewModel } from "../../api/";
+import {RouteComponentProps} from "react-router-dom";
+import {CourseViewModel, HomeworkTaskViewModel} from "../../api/";
 import Typography from "@material-ui/core/Typography";
 import Task from "../Tasks/Task";
 import TaskSolutions from "./TaskSolutions";
 import ApiSingleton from "../../api/ApiSingleton";
+import {FC, useEffect, useState} from "react";
+import {Grid, Link} from "@material-ui/core";
 
 interface IStudentSolutionsPageProps {
-  taskId: string;
-  studentId: string;
+    taskId: string;
+    studentId: string;
 }
 
 interface IStudentSolutionsPageState {
-  task: HomeworkTaskViewModel;
-  isLoaded: boolean;
-  course: CourseViewModel;
+    task: HomeworkTaskViewModel;
+    isLoaded: boolean;
+    course: CourseViewModel;
 }
 
-export default class StudentSolutionsPage extends React.Component<
-  RouteComponentProps<IStudentSolutionsPageProps>,
-  IStudentSolutionsPageState
-> {
-  constructor(props: RouteComponentProps<IStudentSolutionsPageProps>) {
-    super(props);
-    this.state = {
-      task: {},
-      isLoaded: false,
-      course: {},
-    };
-  }
+const StudentSolutionsPage: FC<RouteComponentProps<IStudentSolutionsPageProps>> = (props) => {
 
-  public render() {
-    const { isLoaded } = this.state;
-    let userId = ApiSingleton.authService.isLoggedIn()
-      ? ApiSingleton.authService.getUserId()
-      : undefined;
+    const [studentSolutions, setStudentSolutions] = useState<IStudentSolutionsPageState>({
+        task: {},
+        isLoaded: false,
+        course: {},
+    })
 
-    if (isLoaded) {
-      if (
-        !ApiSingleton.authService.isLoggedIn() ||
-        !this.state.course.mentorIds?.includes(userId!)
-      ) {
-        return <Typography variant="h6">Страница не найдена</Typography>;
-      }
-      return (
-        <div>
-          &nbsp;{" "}
-          <Link to={"/courses/" + this.state.course.id!.toString()}>
-            Назад к курсу
-          </Link>
-          <br />
-          <br />
-          <div className="container">
-            <Task
-              task={this.state.task}
-              forStudent={false}
-              forMentor={true}
-              onDeleteClick={() => 0}
-              isExpanded={true}
-              showForCourse={false}
-            />
-            <TaskSolutions
-              forMentor={true}
-              taskId={+this.props.match.params.taskId}
-              studentId={this.props.match.params.studentId}
-            />
-          </div>
-        </div>
-      );
+    const {isLoaded} = studentSolutions
+    const userId = ApiSingleton.authService.isLoggedIn()
+        ? ApiSingleton.authService.getUserId()
+        : undefined
+
+    useEffect(() => {
+        getStudentSolutions()
+    }, [])
+
+    const getStudentSolutions = async () => {
+        const task = await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+props.match.params.taskId)
+        const homework = await ApiSingleton.homeworksApi.apiHomeworksGetByHomeworkIdGet(task.homeworkId!)
+        const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(homework.courseId!)
+
+        setStudentSolutions({
+            task: task,
+            isLoaded: true,
+            course: course,
+        })
     }
 
-    return "";
-  }
+    if (isLoaded) {
+        if (
+            !ApiSingleton.authService.isLoggedIn() ||
+            !studentSolutions.course.mentorIds?.includes(userId!)
+        )
+        {
+            return (
+                <Typography variant="h6">
+                    Страница не найдена
+                </Typography>
+            )
+        }
+        return (
+            <div style={{ marginBottom: '50px', marginTop: '15px' }}>
+                <Grid container justify="center" style={{marginTop: '20px'}}>
+                    <Grid container justifyContent="space-between" xs={11} >
+                        <Grid item>
+                            <Link
+                                component="button"
+                                style={{color: '#212529'}}
+                                onClick={() => window.location.assign("/courses/" + studentSolutions.course.id!)}
+                            >
+                                <Typography>
+                                    Назад к курсу
+                                </Typography>
+                            </Link>
+                        </Grid>
+                    </Grid>
+                    <Grid container xs={11}>
+                        <Task
+                            task={studentSolutions.task}
+                            forStudent={false}
+                            forMentor={true}
+                            onDeleteClick={() => 0}
+                            isExpanded={true}
+                            showForCourse={false}
+                        />
+                    </Grid>
+                    <Grid container xs={11} >
+                        <Grid container xs={6}>
+                            <TaskSolutions
+                                forMentor={true}
+                                taskId={+props.match.params.taskId}
+                                studentId={props.match.params.studentId}
+                            />
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </div>
+        )
+    }
 
-  componentDidMount() {
-    ApiSingleton.tasksApi
-      .apiTasksGetByTaskIdGet(+this.props.match.params.taskId)
-      .then((task) =>
-        ApiSingleton.homeworksApi
-          .apiHomeworksGetByHomeworkIdGet(task.homeworkId!)
-          .then((homework) =>
-            ApiSingleton.coursesApi
-                  .apiCoursesByCourseIdGet(homework.courseId!)
-              .then((course) =>
-                this.setState({
-                  task: task,
-                  isLoaded: true,
-                  course: course,
-                })
-              )
-          )
-      );
-  }
+    return (
+        <div>
+
+        </div>
+    )
 }
+
+export default StudentSolutionsPage

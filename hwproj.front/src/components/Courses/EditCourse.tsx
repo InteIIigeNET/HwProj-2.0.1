@@ -250,7 +250,7 @@ const EditCourse: FC<RouteComponentProps<IEditCourseProps>> = (props) => {
                         </form>
                     </div>
                 </Container>
-                <Grid container justify="center" style={{marginTop: '20px'}}>
+                <Grid container justify="center" style={{marginTop: '20px', marginBottom: '20px' }}>
                     <Grid container xs={11} justifyContent="flex-end" >
                         <Grid>
                             <Button
