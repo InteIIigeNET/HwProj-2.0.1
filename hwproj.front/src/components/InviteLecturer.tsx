@@ -85,7 +85,7 @@ const InviteLecturer: FC<InviteLecturer> = (props) => {
         props.close()
     }
 
-    const setCurrentState = async () =>{
+    const setCurrentState = async () => {
         const data = await ApiSingleton.accountApi.apiAccountGetAllStudentsGet();
         setLecturerState({
             errors: [],
@@ -135,12 +135,28 @@ const InviteLecturer: FC<InviteLecturer> = (props) => {
                                         }}
                                         freeSolo
                                         disableClearable
-                                        getOptionLabel={(option) => option.email!}
+                                        getOptionLabel={(option) => option.email! + option.name! + option.surname!}
                                         options={lecturerState.data}
                                         renderOption={(props, option) => (
-                                            <Box component="li" {...props}>
-                                                {props.surname} {props.name} {props.email}
-                                            </Box>
+                                            <Grid
+                                                direction="row"
+                                                justifyContent="flex-start"
+                                                alignItems="flex-end"
+                                                container
+                                            >
+                                                <Grid item>
+                                                    <Box component="li" {...props} fontWeight='fontWeightMedium'>
+                                                        {props.email} /
+                                                    </Box>
+                                                </Grid>
+                                                <Grid item>
+                                                    <Typography
+                                                        style={{marginLeft: '3px'}}
+                                                    >
+                                                        {props.name} {props.surname}
+                                                    </Typography>
+                                                </Grid>
+                                            </Grid>
                                         )}
                                         renderInput={(params) => (
                                             <TextField
@@ -159,7 +175,7 @@ const InviteLecturer: FC<InviteLecturer> = (props) => {
                                     justifyContent="flex-end"
                                     alignItems="flex-end"
                                     container
-                                    style={{marginTop:'16px'}}
+                                    style={{marginTop: '16px'}}
                                 >
                                     <Grid item>
                                         <Button
