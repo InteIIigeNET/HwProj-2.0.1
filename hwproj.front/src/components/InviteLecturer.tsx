@@ -54,9 +54,11 @@ const InviteLecturer: FC<InviteLecturer> = (props) => {
             const result = await ApiSingleton.accountApi
                 .apiAccountInviteNewLecturerPost({email: lecturerState.email})
             if (result.succeeded) {
+                const data = await ApiSingleton.accountApi.apiAccountGetAllStudentsGet();
                 setLecturerState((prevState) => ({
                     ...prevState,
-                    logo: ['Запрос отправлен']
+                    info: ['Запрос отправлен'],
+                    data: data
                 }))
                 return
             }
@@ -74,18 +76,17 @@ const InviteLecturer: FC<InviteLecturer> = (props) => {
     }
 
     const close = () => {
-        setLecturerState({
-            errors: [],
+        setLecturerState((prevState) => ({
+            ...prevState,
             email: '',
+            errors: [],
             info: [],
-            data: [],
-        })
+        }))
         props.close()
     }
 
     const setCurrentState = async () =>{
         const data = await ApiSingleton.accountApi.apiAccountGetAllStudentsGet();
-        debugger
         setLecturerState({
             errors: [],
             email: '',
@@ -126,22 +127,20 @@ const InviteLecturer: FC<InviteLecturer> = (props) => {
                                 <Grid item xs={12}>
                                     <Autocomplete
                                         onChange={(e, values) => {
-                                            debugger
                                             e.persist()
                                             setLecturerState((prevState) => ({
                                                 ...prevState,
                                                 email: (values as AccountDataDto).email!
                                             }))
-                                            debugger
                                         }}
                                         freeSolo
                                         disableClearable
                                         getOptionLabel={(option) => option.email!}
                                         options={lecturerState.data}
                                         renderOption={(props, option) => (
-                                            <Grid component="li" {...props}>
+                                            <Box component="li" {...props}>
                                                 {props.surname} {props.name} {props.email}
-                                            </Grid>
+                                            </Box>
                                         )}
                                         renderInput={(params) => (
                                             <TextField
@@ -155,24 +154,32 @@ const InviteLecturer: FC<InviteLecturer> = (props) => {
                                         )}
                                     />
                                 </Grid>
-                                <Grid item>
-                                    <Button
-                                        onClick={close}
-                                        color="primary"
-                                        variant="contained"
-                                        style={{marginRight: '10px'}}
-                                    >
-                                        Закрыть
-                                    </Button>
-                                </Grid>
-                                <Grid item>
-                                    <Button
-                                        variant="contained"
-                                        color="primary"
-                                        type="submit"
-                                    >
-                                        Пригласить
-                                    </Button>
+                                <Grid
+                                    direction="row"
+                                    justifyContent="flex-end"
+                                    alignItems="flex-end"
+                                    container
+                                    style={{marginTop:'16px'}}
+                                >
+                                    <Grid item>
+                                        <Button
+                                            onClick={close}
+                                            color="primary"
+                                            variant="contained"
+                                            style={{marginRight: '10px'}}
+                                        >
+                                            Закрыть
+                                        </Button>
+                                    </Grid>
+                                    <Grid item>
+                                        <Button
+                                            variant="contained"
+                                            color="primary"
+                                            type="submit"
+                                        >
+                                            Пригласить
+                                        </Button>
+                                    </Grid>
                                 </Grid>
                             </Grid>
                         </form>
