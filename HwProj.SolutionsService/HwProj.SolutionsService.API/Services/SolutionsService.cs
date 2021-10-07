@@ -18,7 +18,7 @@ using System.IO;
 namespace HwProj.SolutionsService.API.Services
 {
     public class SolutionsService : ISolutionsService
-    {
+    {   
         private readonly string pathForAssessmentDlls = "../../../dllsForAssessment/dllForCourse";
         private readonly ISolutionsRepository _solutionsRepository;
         private readonly IEventBus _eventBus;
