@@ -47,7 +47,6 @@ const AvailableCourseStudents: FC<AvailableCourseStudentsProps> = (props) => {
                             studentsWithoutGroup={props.studentsWithoutGroup}
                             isEdit={false}
                             group={undefined}
-                            update={null}
                         />
                     </AccordionDetails>
                 </Accordion>

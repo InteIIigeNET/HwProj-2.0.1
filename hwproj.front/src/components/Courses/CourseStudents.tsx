@@ -24,8 +24,6 @@ interface ICourseStudentsState {
 const styles = (theme: Theme) =>
     createStyles({
         paper: {
-            //width: "100%",
-            // marginTop: theme.spacing.unit * 3,
             overflowX: "auto",
         },
     });
@@ -90,9 +88,9 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
                                             homework.tasks!.map((task) => (
                                                 <TaskStudentCell
                                                     solutions={this.state.stat
-                                                        .find(s => s.id == cm.id)!.homeworks!
-                                                        .find(h => h.id == homework.id)!.tasks!
-                                                        .find(t => t.id == task.id)!.solution!.slice(-1)[0]}
+                                                        .find(s => s.id === cm.id)!.homeworks!
+                                                        .find(h => h.id === homework.id)!.tasks!
+                                                        .find(t => t.id === task.id)!.solution!.slice(-1)[0]}
                                                     userId={this.props.userId}
                                                     forMentor={this.props.isMentor}
                                                     studentId={String(cm.id)}

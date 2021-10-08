@@ -16,16 +16,16 @@ interface GetStudentsProps {
     studentsWithoutGroup?: GroupMateDataDTO[];
     isEdit: boolean;
     group?: GroupViewModel;
-    update: any;
 }
 
 const StudentsWithoutGroup: FC<GetStudentsProps> = (props) => {
 
     const addStudentInGroup = async (userId: string) => {
+        debugger
         if (props.isEdit){
-            await ApiSingleton.courseGroupsApi.
+            debugger
+            const result = await ApiSingleton.courseGroupsApi.
                 apiCourseGroupsByCourseIdAddStudentInGroupByGroupIdPost(props.group!.courseId!, props.group!.id!, userId)
-                .then(() => props.update())
         }
     }
 

@@ -5,11 +5,23 @@ import {
 import {FC, useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
 import ApiSingleton from "../../api/ApiSingleton";
-import {AccountDataDto, CourseGroupDTO, GroupMateDataDTO, GroupMateViewModel, GroupViewModel} from './../../api';
+import {
+    AccountDataDto,
+    CourseGroupDTO,
+    GroupMateDataDTO,
+    GroupMateViewModel,
+    GroupViewModel,
+    HomeworkViewModel
+} from './../../api';
 import GroupsTable from "./GroupsTable";
+import CourseHomework from "../Homeworks/CourseHomework";
 
 interface ICourseGroupEditorProps {
     courseId: string;
+    groupHomeworks: HomeworkViewModel[];
+    onDelete: any;
+    isStudent: boolean;
+    isMentor: boolean;
 }
 
 const useStyles = makeStyles(theme => ({
@@ -84,15 +96,22 @@ const CourseGroups: FC<ICourseGroupEditorProps> = (props) => {
     const classes = useStyles()
 
     return (
-        <div style={{marginTop: '20px'}}>
+        <div style={{marginTop: '20px', marginBottom: '40px'}}>
             <Grid container spacing={2} justifyContent="center">
                 <GroupsTable
                     studentsWithoutGroup={groupState.studentsWithoutGroup!}
                     groups={groupState.groups!}
                     courseId={courseId}
+                    isMentor={props.isMentor}
+                    homeworks={props.groupHomeworks}
                 />
-                <Grid item xs={11} className={classes.groups}>
-
+                <Grid item xs={11} className={classes.groups} style={{marginTop: '30px'}}>
+                    <CourseHomework
+                        homework={props.groupHomeworks}
+                        isMentor={props.isMentor}
+                        isStudent={props.isStudent}
+                        onDelete={props.onDelete}
+                    />
                 </Grid>
             </Grid>
         </div>

@@ -15,12 +15,12 @@ interface IAddHomeworkProps {
 }
 
 interface IAddHomeworkState {
-  title: string;
-  description: string;
-  tasks: CreateTaskViewModel[];
-  added: boolean;
-  isPreview: boolean;
-  isGroupHomework: boolean;
+    title: string;
+    description: string;
+    tasks: CreateTaskViewModel[];
+    added: boolean;
+    isPreview: boolean;
+    isGroupHomework: boolean;
 }
 
 export default class AddHomework extends React.Component<IAddHomeworkProps,
@@ -38,12 +38,12 @@ export default class AddHomework extends React.Component<IAddHomeworkProps,
                 hasDeadline: false,
                 deadlineDate: undefined,
                 isDeadlineStrict: false,
-              }],
-      added: false,
-      isPreview: false,
-      isGroupHomework: false,
-    };
-  }
+            }],
+            added: false,
+            isPreview: false,
+            isGroupHomework: false,
+        };
+    }
 
     render() {
         return (
@@ -110,7 +110,7 @@ export default class AddHomework extends React.Component<IAddHomeworkProps,
                                             </Button>
                                         </Grid>
                                         <Grid container>
-                                            <div style={{ marginRight: '10px' }}>
+                                            <div style={{marginRight: '10px'}}>
                                                 <TextField
                                                     size="small"
                                                     required
@@ -243,16 +243,15 @@ export default class AddHomework extends React.Component<IAddHomeworkProps,
                         </Button>
                     </div>
                     <Grid>
-                      <label>
-                        <Checkbox
-                            color="primary"
-                            onChange={(e) =>
-                            {
-                              this.setState({isGroupHomework: e.target.checked });
-                            }}
-                        />
-                        Это групповая домашка
-                      </label>
+                        <label>
+                            <Checkbox
+                                color="primary"
+                                onChange={(e) => {
+                                    this.setState({isGroupHomework: e.target.checked});
+                                }}
+                            />
+                            Это групповая домашка
+                        </label>
                     </Grid>
                     <Grid container style={{marginTop: "15px"}}>
                         <Button
@@ -285,6 +284,7 @@ export default class AddHomework extends React.Component<IAddHomeworkProps,
             title: this.state.title,
             description: this.state.description,
             tasks: this.state.tasks,
+            isGroupHomework: this.state.isGroupHomework,
         }
         // ReDo
         homework.tasks.forEach(task => {

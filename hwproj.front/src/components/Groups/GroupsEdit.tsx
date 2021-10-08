@@ -70,11 +70,17 @@ const GroupsEdit: FC<RouteComponentProps<GroupsEditProps>> = (props) => {
     }, [])
 
     const getGroupsInfo = async () => {
-        const group = await ApiSingleton.courseGroupsApi.apiCourseGroupsByCourseIdGetCourseDataGet(+courseId)
-        debugger
+        const groups = await ApiSingleton.courseGroupsApi.apiCourseGroupsByCourseIdGetAllGet(+courseId)
         setGroupsState({
-            studentsWithoutGroup: group.studentsWithoutGroup,
-            groups: group.groups,
+            groups: groups,
+        })
+    }
+
+    const update = async () => {
+        await getGroupsInfo()
+        setCurrentGroup({
+            id: -1,
+            courseId: 0,
         })
     }
     const classes = useStyles()
@@ -83,15 +89,15 @@ const GroupsEdit: FC<RouteComponentProps<GroupsEditProps>> = (props) => {
         return (
             <ListItem
                 button
-                onClick={() => setCurrentGroup(group)}
+                onClick={() => setCurrentGroup({
+                    id: group.id,
+                    courseId: group.courseId,
+                })}
             >
                 <ListItemText primary={group.name}/>
             </ListItem>
         )
     })
-
-    console.log(groupsState)
-    debugger
 
     return (
         <Grid container justifyContent="center" className={classes.paper}>
@@ -108,7 +114,7 @@ const GroupsEdit: FC<RouteComponentProps<GroupsEditProps>> = (props) => {
             </Grid>
             <Grid container xs={11} direction="row" className={classes.paper} spacing={1}>
                 <Grid item xs={3}>
-                    <Paper elevation={3} style={{ minHeight: '400px' }}>
+                    <Paper elevation={3} style={{ minHeight: '400px', backgroundColor: "#c6cceb" }}>
                         <div>
                             <div className={classes.tools}>
                                 <div style={{  marginTop: '16px', marginLeft: '16px' }}>
@@ -133,19 +139,24 @@ const GroupsEdit: FC<RouteComponentProps<GroupsEditProps>> = (props) => {
                 </Grid>
                 <Grid item xs={9}>
                     <div>
-                        <Paper elevation={3} style={{ minHeight: '400px'}}>
+                        <Paper elevation={3} style={{ minHeight: '400px', backgroundColor: "#eceef8"}}>
                             {currentGroup.id !== -1 && (
                                 <GroupEdit
-                                    group={currentGroup}
-                                    studentsWithoutGroup={groupsState.studentsWithoutGroup!}
-                                    update={getGroupsInfo}
+                                    id={currentGroup.id!}
+                                    courseId={currentGroup.courseId!}
+                                    update={update}
                                 />
                             )}
                         </Paper>
                     </div>
                 </Grid>
             </Grid>
-            <AddGroup isOpen={open} close={handleClose} courseId={courseId}/>
+            <AddGroup
+                isOpen={open}
+                close={handleClose}
+                courseId={courseId}
+                update={update}
+            />
         </Grid>
     )
 }

@@ -1,13 +1,18 @@
-import React, {FC} from 'react'
-import {AccountDataDto, CourseGroupDTO, GroupMateDataDTO, GroupViewModel} from "../../api";
+import React, {FC, useEffect, useState} from 'react'
+import {
+    AccountDataDto,
+    GroupMateDataDTO,
+    HomeworkViewModel,
+    StatisticsCourseMatesModel
+} from "../../api";
 import {Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import AvailableCourseStudents from "./AvailableCourseStudents";
 import Group from "./Group";
-import AddIcon from '@material-ui/icons/Add';
 import IconButton from "@material-ui/core/IconButton";
 import Typography from "@material-ui/core/Typography";
 import {makeStyles} from "@material-ui/styles";
 import EditIcon from "@material-ui/icons/Edit";
+import ApiSingleton from "../../api/ApiSingleton";
 
 interface GroupState {
     id: number;
@@ -19,7 +24,14 @@ interface GroupState {
 interface CourseTableProps {
     studentsWithoutGroup: GroupMateDataDTO[];
     groups: GroupState[];
+    homeworks: HomeworkViewModel[];
     courseId: string;
+    isMentor: boolean;
+}
+
+interface GroupsTableState {
+    statistics: StatisticsCourseMatesModel[];
+    isLoaded: boolean;
 }
 
 const useStyles = makeStyles(theme => ({
@@ -37,104 +49,126 @@ const useStyles = makeStyles(theme => ({
 const GroupsTable: FC<CourseTableProps> = (props) => {
 
     const classes = useStyles()
+    const [statistics, setStatistics] = useState<GroupsTableState>({
+        statistics: [],
+        isLoaded: false,
+    })
+
+    useEffect(() => {
+        getStatistics()
+    }, [props])
+
+    const getGroupSolutions = () => {
+        props.groups.map(() => {
+
+        })
+    }
+
+    const getStatistics = async () => {
+        const currentStatistics = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdGet(+props.courseId!)
+        setStatistics({
+            statistics: currentStatistics,
+            isLoaded: true,
+        })
+    }
+
+    const getTable = () => {
+        return (
+            <TableContainer component={Paper}>
+                <Table aria-label="simple table">
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>
+                                <div className={classes.tools}>
+                                    <div>
+                                        <Typography>
+                                            Группы
+                                        </Typography>
+                                    </div>
+                                    {props.isMentor && (
+                                        <div>
+                                            <IconButton
+                                                onClick={() => window.location.assign("./" + props.courseId! + "/groups-edit")}
+                                                style={{ color: '#212529' }}
+                                            >
+                                                <EditIcon fontSize="small"/>
+                                            </IconButton>
+                                        </div>
+                                    )}
+                                </div>
+                            </TableCell>
+                            {props.homeworks.map((homework, index) => (
+                                <TableCell
+                                    padding="none"
+                                    component="td"
+                                    align="center"
+                                    colSpan={homework.tasks!.length}
+                                >
+                                    {index + 1}
+                                </TableCell>
+                            ))}
+                        </TableRow>
+                        <TableRow>
+                            <TableCell component="td">
+                                <div>
+
+                                </div>
+                            </TableCell>
+                            {props.homeworks.map((homework) =>
+                                homework.tasks!.map((task) => (
+                                    <TableCell padding="none" component="td" align="center">
+                                        {task.title}
+                                    </TableCell>
+                                ))
+                            )}
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {props.groups!.map((g) => {
+                            return (
+                                <TableRow>
+                                    <TableCell>
+                                        <Group group={g}/>
+                                    </TableCell>
+                                </TableRow>
+                            )
+                        })}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+        )
+    }
+
+    if (statistics.isLoaded) {
+        return (
+            <Grid item xs={11}>
+                {props.studentsWithoutGroup?.length !== 0 && (
+                    <Grid container xs={12} spacing={2}>
+                        <Grid item xs={4}>
+                            <AvailableCourseStudents studentsWithoutGroup={props.studentsWithoutGroup}/>
+                        </Grid>
+                        <Grid item xs={8}>
+                            {getTable()}
+                        </Grid>
+                    </Grid>
+                )}
+                {props.studentsWithoutGroup?.length === 0 && (
+                    <Grid container xs={12}>
+                        <Grid item xs={12}>
+                            {getTable()}
+                        </Grid>
+                    </Grid>
+                )}
+            </Grid>
+        )
+    }
 
     return (
-        <Grid item xs={11}>
-            {props.studentsWithoutGroup?.length !== 0 && (
-                <Grid container xs={12} spacing={2}>
-                    <Grid item xs={4}>
-                        <AvailableCourseStudents studentsWithoutGroup={props.studentsWithoutGroup}/>
-                    </Grid>
-                    <Grid item xs={8}>
-                        <TableContainer component={Paper}>
-                            <Table aria-label="simple table">
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell>
-                                            <div className={classes.tools}>
-                                                <div>
-                                                    <Typography>
-                                                        Группы
-                                                    </Typography>
-                                                </div>
-                                                <div>
-                                                    <IconButton
-                                                        onClick={() => window.location.assign("./" + props.courseId! + "/groups-edit")}
-                                                        style={{ color: '#212529' }}
-                                                    >
-                                                        <EditIcon fontSize="small"/>
-                                                    </IconButton>
-                                                </div>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell align="right">Задача 1</TableCell>
-                                        <TableCell align="right">Задача 2</TableCell>
-                                        <TableCell align="right">Задача 3</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {props.groups!.map((g) => {
-                                        return (
-                                            <TableRow>
-                                                <TableCell>
-                                                    <Group group={g}/>
-                                                </TableCell>
-                                            </TableRow>
-                                        )
-                                    })}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                    </Grid>
-                </Grid>
-            )}
-            {props.studentsWithoutGroup?.length === 0 && (
-                <Grid container xs={12}>
-                    <Grid item xs={12}>
-                        <TableContainer component={Paper}>
-                            <Table aria-label="simple table">
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell>
-                                            <div className={classes.tools}>
-                                                <div>
-                                                    <Typography>
-                                                        Группы
-                                                    </Typography>
-                                                </div>
-                                                <div>
-                                                    <IconButton
-                                                        onClick={() => window.location.assign("./" + props.courseId! + "/groups-edit")}
-                                                        style={{ color: '#212529' }}
-                                                    >
-                                                        <EditIcon fontSize="small"/>
-                                                    </IconButton>
-                                                </div>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell align="right">Задача 1</TableCell>
-                                        <TableCell align="right">Задача 2</TableCell>
-                                        <TableCell align="right">Задача 3</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {props.groups!.map((g) => {
-                                        return (
-                                            <TableRow>
-                                                <TableCell>
-                                                    <Group group={g}/>
-                                                </TableCell>
-                                            </TableRow>
-                                        )
-                                    })}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                    </Grid>
-                </Grid>
-            )}
-        </Grid>
+        <div>
+
+        </div>
     )
 }
+
 
 export default GroupsTable;

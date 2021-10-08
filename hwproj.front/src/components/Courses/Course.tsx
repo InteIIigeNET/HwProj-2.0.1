@@ -25,7 +25,7 @@ interface ICourseMate {
 interface ICourseState {
     isFound: boolean;
     course: CourseViewModel;
-    courseHomework: HomeworkViewModel[];
+    homeworks: HomeworkViewModel[];
     createHomework: boolean;
     mentors: AccountDataDto[];
     acceptedStudents: ICourseMate[];
@@ -51,7 +51,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
     const [ courseState, setCourseState ] = useState<ICourseState>({
         isFound: false,
         course: {},
-        courseHomework: [],
+        homeworks: [],
         createHomework: false,
         mentors: [],
         acceptedStudents: [],
@@ -59,10 +59,11 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
     })
     const setCurrentState = async () => {
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+courseId)
+        debugger
         setCourseState({
             isFound: true,
             course: course,
-            courseHomework: course.homeworks!,
+            homeworks: course.homeworks!,
             createHomework: false,
             mentors: await Promise.all(course.mentorIds!.split('/').map(mentor => ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(mentor))),
             acceptedStudents: await Promise.all(course.courseMates!
@@ -116,8 +117,11 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
             isLogged && newStudents!.some((cm: any) => cm.id === userId)
 
         const isAcceptedStudent = isLogged && acceptedStudents!.some(
-            (cm: any) => cm.id === userId
-        )
+            (cm: any) => cm.id === userId)
+
+        const courseHomeworks = courseState.homeworks!.filter((hw) => !hw.isGroupHomework)
+        const groupHomeworks = courseState.homeworks!.filter((hw) => hw.isGroupHomework)
+
         return (
             <Grid>
                 <Grid container justify="center" style={{marginTop: "15px"}}>
@@ -180,7 +184,13 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                     </Grid>
                 </Grid>
                 {tabState === 1 && (
-                    <CourseGroups courseId={courseId}/>
+                    <CourseGroups
+                        courseId={courseId}
+                        groupHomeworks={groupHomeworks}
+                        onDelete={() => setCurrentState()}
+                        isStudent={isAcceptedStudent}
+                        isMentor={isMentor}
+                    />
                 )}
                 {tabState === 0 && (
                     <div>
@@ -189,7 +199,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                 <Grid container justifyContent="center" style={{marginTop: "15px", marginBottom: "15px"}}>
                                     <Grid item xs={11} style={{ marginTop: '16px' }}>
                                         <CourseStudents
-                                            homeworks={courseState.courseHomework}
+                                            homeworks={courseHomeworks}
                                             userId={userId as string}
                                             isMentor={isMentor}
                                             course={courseState.course}
@@ -215,7 +225,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                             onDelete={() => setCurrentState()}
                                             isStudent={isAcceptedStudent}
                                             isMentor={isMentor}
-                                            homework={courseState.courseHomework}
+                                            homework={courseHomeworks}
                                         />
                                     </Grid>
                                 </Grid>
@@ -226,7 +236,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                 <Grid container justifyContent="center" style={{marginTop: "15px", marginBottom: "15px"}}>
                                     <Grid item xs={11} style={{ marginTop: '16px' }}>
                                         <CourseStudents
-                                            homeworks={courseState.courseHomework}
+                                            homeworks={courseHomeworks}
                                             userId={userId as string}
                                             isMentor={isMentor}
                                             course={courseState.course}
@@ -262,7 +272,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                             onDelete={() => setCurrentState()}
                                             isStudent={isAcceptedStudent}
                                             isMentor={isMentor}
-                                            homework={courseState.courseHomework}
+                                            homework={courseHomeworks}
                                         />
                                     </Grid>
                                 </Grid>
@@ -272,7 +282,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                             <Grid container justifyContent="center" style={{marginTop: "15px", marginBottom: "15px"}}>
                                 <Grid item xs={11} style={{ marginTop: '16px' }}>
                                     <CourseStudents
-                                        homeworks={courseState.courseHomework}
+                                        homeworks={courseHomeworks}
                                         userId={userId as string}
                                         isMentor={isMentor}
                                         course={courseState.course}
@@ -285,7 +295,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                 <Grid xs={11}>
                                     <CourseHomework
                                         onDelete={() => setCurrentState()}
-                                        homework={courseState.courseHomework}
+                                        homework={courseHomeworks}
                                         isStudent={isAcceptedStudent}
                                         isMentor={isMentor}
                                     />
