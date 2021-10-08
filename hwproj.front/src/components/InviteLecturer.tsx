@@ -135,7 +135,7 @@ const InviteLecturer: FC<InviteLecturer> = (props) => {
                                         }}
                                         freeSolo
                                         disableClearable
-                                        getOptionLabel={(option) => option.email! + option.name! + option.surname!}
+                                        getOptionLabel={(option) => option.email!}
                                         options={lecturerState.data}
                                         renderOption={(props, option) => (
                                             <Grid
