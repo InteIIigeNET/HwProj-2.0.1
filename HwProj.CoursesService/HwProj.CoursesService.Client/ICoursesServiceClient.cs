@@ -33,7 +33,5 @@ namespace HwProj.CoursesService.Client
         Task<GroupViewModel> GetGroupById(long groupId);
         Task<long[]> GetGroupTasks(long groupId);
         Task AcceptLecturer(long courseId, string lecturerEmail);
-        Task ReadingModeOn(long courseId);
-        Task ReadingModeOff(long courseId);
     }
 }

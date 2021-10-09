@@ -16,6 +16,5 @@ namespace HwProj.CoursesService.API.Models
         public string MentorIds { get; set; }
         public List<CourseMate> CourseMates { get; set; } = new List<CourseMate>();
         public List<Homework> Homeworks { get; set; } = new List<Homework>();
-        public bool IsReadingMode { get; set; }
     }
 }

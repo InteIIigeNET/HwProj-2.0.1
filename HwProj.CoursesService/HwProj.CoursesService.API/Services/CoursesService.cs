@@ -221,21 +221,5 @@ namespace HwProj.CoursesService.API.Services
                 }
             }
         }
-
-        public async Task ReadingModeOn(long courseId)
-        {
-            await _coursesRepository.UpdateAsync(courseId, с => new Course
-            {
-                IsReadingMode = true,
-            });
-        }
-
-        public async Task ReadingModeOff(long courseId)
-        {
-            await _coursesRepository.UpdateAsync(courseId, с => new Course
-            {
-                IsReadingMode = false,
-            });
-        }
     }
 }

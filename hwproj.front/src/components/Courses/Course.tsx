@@ -32,6 +32,7 @@ interface ICourseState {
     mentors: AccountDataDto[];
     acceptedStudents: ICourseMate[];
     newStudents: ICourseMate[];
+    isReadingMode: boolean;
 }
 
 interface ICourseProps {
@@ -57,6 +58,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
         mentors: [],
         acceptedStudents: [],
         newStudents: [],
+        isReadingMode: true,
     })
     const setCurrentState = async () => {
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+courseId)
@@ -90,6 +92,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                         id: cm.studentId!,
                     }
                 })),
+            isReadingMode: true,
         })
     }
 
@@ -103,7 +106,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
             .then((res) => setCurrentState());
     }
 
-    const {isFound, course, createHomework, mentors, newStudents, acceptedStudents} = courseState;
+    const {isFound, course, createHomework, mentors, newStudents, acceptedStudents, isReadingMode} = courseState;
     if (isFound) {
         const isLogged = ApiSingleton.authService.isLoggedIn()
         const userId = isLogged
@@ -123,29 +126,23 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                             <Typography style={{ fontSize: '22px'}}>
                                 {course.name} &nbsp;
                                 {isMentor &&
-                                    (course.isReadingMode
+                                    (isReadingMode
                                     ? <VisibilityOffIcon 
                                         titleAccess="Режим чтения включен"
-                                        onClick={async () =>
-                                        {
-                                        await ApiSingleton.coursesApi.apiCoursesReadingModeByCourseIdOffGet(course.id!)
-                                        setCourseState(prevState => ({
-                                            ...prevState,
-                                            course: { ...prevState.course, isReadingMode: false }}))
-                                        }}
+                                        onClick={async () => 
+                                            setCourseState(prevState => ({
+                                                ...prevState,
+                                                isReadingMode: false}))}
                                     />
                                     : <VisibilityIcon 
                                         titleAccess="Режим чтения выключен"
                                         onClick={async () =>
-                                        {
-                                            await ApiSingleton.coursesApi.apiCoursesReadingModeByCourseIdOnGet(course.id!)
                                             setCourseState(prevState => ({
                                                 ...prevState,
-                                                course: { ...prevState.course, isReadingMode: true }}))
-                                        }}
+                                                isReadingMode: true }))}
                                     />)
                                 }
-                                {isMentor && ! course.isReadingMode! && (
+                                {isMentor && ! isReadingMode! && (
                                     <RouterLink to={"./" + courseId! + "/edit"}>
                                         <EditIcon fontSize="small"/>
                                     </RouterLink>
@@ -225,13 +222,13 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                 <CourseStudents
                                     homeworks={courseState.courseHomework}
                                     userId={userId as string}
-                                    isMentor={isMentor && ! course.isReadingMode!}
+                                    isMentor={isMentor && ! isReadingMode!}
                                     course={courseState.course}
                                 />
                             </Grid>
                         </Grid>
                         <Grid container justifyContent="center">
-                            { ! course.isReadingMode! &&
+                            { ! isReadingMode! &&
                                 <Grid item xs={11}>
                                     <NewCourseStudents
                                         onUpdate={() => setCurrentState()}
@@ -241,7 +238,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                     />
                                 </Grid>
                             }
-                            { ! course.isReadingMode! &&
+                            { ! isReadingMode! &&
                                 <Grid item xs={11} style={{marginTop: "15px"}}>
                                 <Button
                                     size="small"
@@ -262,7 +259,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                 <CourseHomework
                                     onDelete={() => setCurrentState()}
                                     isStudent={isAcceptedStudent}
-                                    isMentor={isMentor && ! course.isReadingMode!}
+                                    isMentor={isMentor && ! isReadingMode!}
                                     homework={courseState.courseHomework}
                                 />
                             </Grid>

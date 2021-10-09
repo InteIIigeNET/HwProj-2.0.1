@@ -113,21 +113,5 @@ namespace HwProj.APIGateway.API.Controllers
             await _coursesClient.AcceptLecturer(courseId, lecturerEmail);
             return Ok();
         }
-
-        [HttpGet("readingMode/{courseId}/on")]
-        [Authorize(Roles = Roles.LecturerRole)]
-        public async Task<IActionResult> ReadingModeOn(long courseId)
-        {
-            await _coursesClient.ReadingModeOn(courseId);
-            return Ok();
-        }
-
-        [HttpGet("readingMode/{courseId}/off")]
-        [Authorize(Roles = Roles.LecturerRole)]
-        public async Task<IActionResult> ReadingModeOff(long courseId)
-        {
-            await _coursesClient.ReadingModeOff(courseId);
-            return Ok();
-        }
     }
 }
