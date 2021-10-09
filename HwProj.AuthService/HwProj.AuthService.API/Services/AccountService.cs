@@ -187,16 +187,10 @@ namespace HwProj.AuthService.API.Services
 
         public async Task<AccountDataDto[]> GetAllStudent()
         {
-            var users = await _userManager.GetAllUsers();
-            var result = new List<AccountDataDto>();
-            foreach (var user in users)
-            {
-                if ((await _userManager.GetRolesAsync(user))[0] == Roles.StudentRole)
-                {
-                    result.Add(new AccountDataDto(user.Name, user.Surname, user.Email, Roles.StudentRole,user.IsExternalAuth, user.MiddleName));
-                }
-            }
-            return result.ToArray();
+            return (await _userManager.GetUsersInRoleAsync(Roles.StudentRole))
+                .Select(user => new AccountDataDto(user.Name, user.Surname, user.Email, Roles.StudentRole,
+                    user.IsExternalAuth, user.MiddleName))
+                .ToArray();
         }
 
         private Task<IdentityResult> ChangeUserNameTask(User user, EditDataDTO model)

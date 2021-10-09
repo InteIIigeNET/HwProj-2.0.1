@@ -71,9 +71,9 @@ namespace HwProj.AuthService.API.Services
             return _aspUserManager.ChangePasswordAsync(user, currentPassword, newPassword);
         }
 
-        public async Task<User[]> GetAllUsers()
+        public Task<IList<User>> GetUsersInRoleAsync(string role)
         {
-            return await _aspUserManager.Users.ToArrayAsync();
+            return _aspUserManager.GetUsersInRoleAsync(role);
         }
     }
 }
