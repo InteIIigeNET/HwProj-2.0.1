@@ -54,12 +54,12 @@ namespace HwProj.AuthService.API.Services
             var user = await _userManager.FindByIdAsync(id).ConfigureAwait(false);
             if (user == null)
             {
-                return Result.Failed("User not found");
+                return Result.Failed("Пользователь не найден");
             }
 
             if (!user.IsExternalAuth && !await _userManager.CheckPasswordAsync(user, model.CurrentPassword))
             {
-                return Result.Failed("Wrong current password");
+                return Result.Failed("Неправильный пароль"); // неправильный текущий пароль
             }
 
             var result = user.IsExternalAuth
@@ -80,12 +80,12 @@ namespace HwProj.AuthService.API.Services
             if (await _userManager.FindByEmailAsync(model.Email).ConfigureAwait(false)
                     is var user && user == null)
             {
-                return Result<TokenCredentials>.Failed("User not found");
+                return Result<TokenCredentials>.Failed("Пользователь не найден");
             }
 
             if (!await _userManager.IsEmailConfirmedAsync(user).ConfigureAwait(false))
             {
-                return Result<TokenCredentials>.Failed("Email not confirmed");
+                return Result<TokenCredentials>.Failed("Электронная почта не подтверждена");
             }
 
             var result = await _signInManager.PasswordSignInAsync(
@@ -126,7 +126,7 @@ namespace HwProj.AuthService.API.Services
         {
             if (await _userManager.FindByEmailAsync(model.Email) != null)
             {
-                return Result<TokenCredentials>.Failed("User exist");
+                return Result<TokenCredentials>.Failed("Пользователь существует");
             }
 
             var user = _mapper.Map<User>(model);
@@ -168,7 +168,7 @@ namespace HwProj.AuthService.API.Services
 
             if (invitedUser == null)
             {
-                return Result.Failed("User not found");
+                return Result.Failed("Пользователь не найден");
             }
 
             var result = await _userManager.AddToRoleAsync(invitedUser, Roles.LecturerRole)
