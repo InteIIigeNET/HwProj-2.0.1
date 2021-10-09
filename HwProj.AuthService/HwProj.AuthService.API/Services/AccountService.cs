@@ -3,14 +3,12 @@ using System.Threading.Tasks;
 using System.Linq;
 using AutoMapper;
 using Google.Apis.Auth;
-using Google.Apis.Util;
 using HwProj.AuthService.API.Extensions;
 using HwProj.Models.Roles;
 using HwProj.AuthService.API.Events;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
-using HwProj.AuthService.API.Models;
 using HwProj.Models.Result;
 
 namespace HwProj.AuthService.API.Services
