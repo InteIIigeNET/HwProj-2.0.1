@@ -111,7 +111,7 @@ namespace HwProj.APIGateway.API.Controllers
 
         [HttpPost("assessmentSystem/add/{courseId}")]
         [Authorize]
-        public async Task<IActionResult> AddAssessmentSystem(long courseId, IFormFile dll)
+        public async Task<IActionResult> AddAssessmentSystem([FromForm] long courseId, [FromForm] IFormFile dll)
         {
             await _solutionsClient.AddDllForAssessment(courseId, dll);
             return Ok();

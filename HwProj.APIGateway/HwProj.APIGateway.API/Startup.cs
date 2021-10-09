@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Http;
+using HwProj.APIGateway.API.FeaturesForSwagger;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.NotificationsService.Client;
@@ -11,6 +12,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using HwProj.Utils.Authorization;
+using Microsoft.AspNetCore.Http;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace HwProj.APIGateway.API
 {
@@ -49,6 +52,10 @@ namespace HwProj.APIGateway.API
             services.AddCoursesServiceClient(httpClient, "http://localhost:5002");
             services.AddSolutionServiceClient(httpClient, "http://localhost:5007");
             services.AddNotificationsServiceClient(httpClient, "http://localhost:5006");
+            services.AddSwaggerGen(c =>
+            {
+                c.OperationFilter<FormFileOperationFilter>();
+            });
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

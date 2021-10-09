@@ -133,7 +133,7 @@ const EditCourse: FC<RouteComponentProps<IEditCourseProps>> = (props) => {
 
     const sendDll = async () => {
         debugger
-        await ApiSingleton.solutionsApi.apiSolutionsAssessmentSystemAddByCourseIdPost(
+        await ApiSingleton.solutionsApi.apiSolutionsAssessmentSystemAddByCourseIdPost("wtf",
             +props.match.params.courseId, courseState.file
         )
     }
