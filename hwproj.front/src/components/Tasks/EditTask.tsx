@@ -121,11 +121,7 @@ export default class EditTask extends React.Component<
                       label="Дата публикации"
                       type="datetime-local"
                       defaultValue={this.state.publicationDate}
-                      onChange={(e) => {
-                          let date = new Date(e.target.value)
-                          date = new Date(date.setHours(date.getHours() + 3))
-                          this.setState({publicationDate: date})
-                      }}
+                      onChange={(e) => this.setState({publicationDate: new Date(e.target.value)})}
                       InputLabelProps={{
                           shrink: true,
                       }}
@@ -156,11 +152,7 @@ export default class EditTask extends React.Component<
                       shrink: true,
                     }}
                     required
-                    onChange={(e) => {
-                        let date = new Date(e.target.value)
-                        date = new Date(date.setHours(date.getHours() + 3))
-                        this.setState({deadlineDate: date})
-                    }}
+                    onChange={(e) => this.setState({deadlineDate: new Date(e.target.value)})}
                 />
                 <label>
                   <Checkbox
