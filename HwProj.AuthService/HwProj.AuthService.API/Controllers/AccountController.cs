@@ -113,7 +113,7 @@ namespace HwProj.AuthService.API.Controllers
         [ProducesResponseType(typeof(AccountDataDto[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetAllStudents()
         {
-            var result = await _accountService.GetAllStudent();
+            var result = await _accountService.GetAllStudents();
             return result == null
                 ? NotFound()
                 : Ok(result) as IActionResult;

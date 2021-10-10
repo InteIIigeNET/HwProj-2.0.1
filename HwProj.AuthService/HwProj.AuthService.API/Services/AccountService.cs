@@ -185,7 +185,7 @@ namespace HwProj.AuthService.API.Services
             return Result.Failed();
         }
 
-        public async Task<AccountDataDto[]> GetAllStudent()
+        public async Task<AccountDataDto[]> GetAllStudents()
         {
             var result = await _userManager.GetUsersInRoleAsync(Roles.StudentRole);
             return result
