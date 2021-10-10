@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
 using System.Linq;
 using AutoMapper;
@@ -166,7 +167,7 @@ namespace HwProj.AuthService.API.Services
 
             if (invitedUser == null)
             {
-                return Result.Failed("User not found");
+                return Result.Failed("Пользователь не найден");
             }
 
             var result = await _userManager.AddToRoleAsync(invitedUser, Roles.LecturerRole)
@@ -180,6 +181,14 @@ namespace HwProj.AuthService.API.Services
             }
 
             return Result.Failed();
+        }
+
+        public async Task<AccountDataDto[]> GetAllStudents()
+        {
+            var result = await _userManager.GetUsersInRoleAsync(Roles.StudentRole);
+            return result
+                .Select(u => new AccountDataDto(u.Name, u.Surname, u.Email, Roles.StudentRole, u.IsExternalAuth, u.MiddleName))
+                .ToArray();;
         }
 
         private Task<IdentityResult> ChangeUserNameTask(User user, EditDataDTO model)

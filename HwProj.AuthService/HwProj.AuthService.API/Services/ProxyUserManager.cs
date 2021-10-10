@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using HwProj.Models.AuthService.ViewModels;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.AuthService.API.Services
 {
@@ -67,6 +69,11 @@ namespace HwProj.AuthService.API.Services
         public Task<IdentityResult> ChangePasswordAsync(User user, string currentPassword, string newPassword)
         {
             return _aspUserManager.ChangePasswordAsync(user, currentPassword, newPassword);
+        }
+
+        public Task<IList<User>> GetUsersInRoleAsync(string role)
+        {
+            return _aspUserManager.GetUsersInRoleAsync(role);
         }
     }
 }
