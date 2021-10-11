@@ -193,11 +193,11 @@ namespace HwProj.AuthService.API.Services
             return Result.Failed();
         }
 
-        public async Task<AccountDataDto[]> GetAllStudents()
+        public async Task<AccountDataDto[]> GetUsersInRole(string role)
         {
-            var result = await _userManager.GetUsersInRoleAsync(Roles.StudentRole);
+            var result = await _userManager.GetUsersInRoleAsync(role);
             return result
-                .Select(u => new AccountDataDto(u.Name, u.Surname, u.Email, Roles.StudentRole, u.IsExternalAuth, u.MiddleName))
+                .Select(u => new AccountDataDto(u.Name, u.Surname, u.Email, role, u.IsExternalAuth, u.MiddleName))
                 .ToArray();;
         }
 
