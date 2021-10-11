@@ -7,6 +7,7 @@ using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.Result;
 using Google.Apis.Auth;
+using HwProj.Models.Roles;
 
 namespace HwProj.AuthService.API.Controllers
 {
@@ -109,7 +110,17 @@ namespace HwProj.AuthService.API.Controllers
         [ProducesResponseType(typeof(AccountDataDto[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetAllStudents()
         {
-            var result = await _accountService.GetAllStudents();
+            var result = await _accountService.GetUsersInRole(Roles.StudentRole);
+            return result == null
+                ? NotFound()
+                : Ok(result) as IActionResult;
+        }
+        
+        [HttpGet("getAllLecturers")]
+        [ProducesResponseType(typeof(AccountDataDto[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetAllLecturers()
+        {
+            var result = await _accountService.GetUsersInRole(Roles.LecturerRole);
             return result == null
                 ? NotFound()
                 : Ok(result) as IActionResult;
