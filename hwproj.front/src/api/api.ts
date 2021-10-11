@@ -1206,36 +1206,6 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAccountGetAllLecturersGet(options: any = {}): FetchArgs {
-            const localVarPath = `/api/Account/getAllLecturers`;
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication Bearer required
-            if (configuration && configuration.apiKey) {
-                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-					? configuration.apiKey("Authorization")
-					: configuration.apiKey;
-                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
-            }
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
         apiAccountGetAllStudentsGet(options: any = {}): FetchArgs {
             const localVarPath = `/api/Account/getAllStudents`;
             const localVarUrlObj = url.parse(localVarPath, true);
@@ -1517,23 +1487,6 @@ export const AccountApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAccountGetAllLecturersGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<AccountDataDto>> {
-            const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountGetAllLecturersGet(options);
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
         apiAccountGetAllStudentsGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<AccountDataDto>> {
             const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountGetAllStudentsGet(options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
@@ -1685,14 +1638,6 @@ export const AccountApiFactory = function (configuration?: Configuration, fetch?
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAccountGetAllLecturersGet(options?: any) {
-            return AccountApiFp(configuration).apiAccountGetAllLecturersGet(options)(fetch, basePath);
-        },
-        /**
-         * 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
         apiAccountGetAllStudentsGet(options?: any) {
             return AccountApiFp(configuration).apiAccountGetAllStudentsGet(options)(fetch, basePath);
         },
@@ -1779,16 +1724,6 @@ export class AccountApi extends BaseAPI {
      */
     public apiAccountEditPut(model?: EditAccountViewModel, options?: any) {
         return AccountApiFp(this.configuration).apiAccountEditPut(model, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     * 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof AccountApi
-     */
-    public apiAccountGetAllLecturersGet(options?: any) {
-        return AccountApiFp(this.configuration).apiAccountGetAllLecturersGet(options)(this.fetch, this.basePath);
     }
 
     /**
@@ -2868,6 +2803,42 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
         /**
          * 
          * @param {number} courseId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesGetLecturersAvailableForCourseByCourseIdGet(courseId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'courseId' is not null or undefined
+            if (courseId === null || courseId === undefined) {
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesGetLecturersAvailableForCourseByCourseIdGet.');
+            }
+            const localVarPath = `/api/Courses/getLecturersAvailableForCourse/{courseId}`
+                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} courseId 
          * @param {string} studentId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -3135,6 +3106,24 @@ export const CoursesApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @param {number} courseId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesGetLecturersAvailableForCourseByCourseIdGet(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<AccountDataDto>> {
+            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesGetLecturersAvailableForCourseByCourseIdGet(courseId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} courseId 
          * @param {string} studentId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -3272,6 +3261,15 @@ export const CoursesApiFactory = function (configuration?: Configuration, fetch?
         /**
          * 
          * @param {number} courseId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesGetLecturersAvailableForCourseByCourseIdGet(courseId: number, options?: any) {
+            return CoursesApiFp(configuration).apiCoursesGetLecturersAvailableForCourseByCourseIdGet(courseId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} courseId 
          * @param {string} studentId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -3381,6 +3379,17 @@ export class CoursesApi extends BaseAPI {
      */
     public apiCoursesGet(options?: any) {
         return CoursesApiFp(this.configuration).apiCoursesGet(options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} courseId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CoursesApi
+     */
+    public apiCoursesGetLecturersAvailableForCourseByCourseIdGet(courseId: number, options?: any) {
+        return CoursesApiFp(this.configuration).apiCoursesGetLecturersAvailableForCourseByCourseIdGet(courseId, options)(this.fetch, this.basePath);
     }
 
     /**

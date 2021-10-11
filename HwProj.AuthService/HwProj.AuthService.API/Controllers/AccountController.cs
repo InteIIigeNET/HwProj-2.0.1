@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
@@ -110,20 +111,22 @@ namespace HwProj.AuthService.API.Controllers
         [ProducesResponseType(typeof(AccountDataDto[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetAllStudents()
         {
-            var result = await _accountService.GetUsersInRole(Roles.StudentRole);
-            return result == null
-                ? NotFound()
-                : Ok(result) as IActionResult;
+            var allStudents = await _accountService.GetUsersInRole(Roles.StudentRole);
+            var result = allStudents
+                .Select(u => new AccountDataDto(u.Name, u.Surname, u.Email, Roles.StudentRole, u.IsExternalAuth, u.MiddleName))
+                .ToArray();
+            
+            return Ok(result);
         }
         
         [HttpGet("getAllLecturers")]
-        [ProducesResponseType(typeof(AccountDataDto[]), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(User[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetAllLecturers()
         {
-            var result = await _accountService.GetUsersInRole(Roles.LecturerRole);
-            return result == null
-                ? NotFound()
-                : Ok(result) as IActionResult;
+            var allLecturers = await _accountService.GetUsersInRole(Roles.LecturerRole);
+            var result = allLecturers.ToArray();
+            
+            return Ok(result);
         }
     }
 }

@@ -183,12 +183,9 @@ namespace HwProj.AuthService.API.Services
             return Result.Failed();
         }
 
-        public async Task<AccountDataDto[]> GetUsersInRole(string role)
+        public async Task<IList<User>> GetUsersInRole(string role)
         {
-            var result = await _userManager.GetUsersInRoleAsync(role);
-            return result
-                .Select(u => new AccountDataDto(u.Name, u.Surname, u.Email, role, u.IsExternalAuth, u.MiddleName))
-                .ToArray();;
+            return await _userManager.GetUsersInRoleAsync(role);
         }
 
         private Task<IdentityResult> ChangeUserNameTask(User user, EditDataDTO model)
