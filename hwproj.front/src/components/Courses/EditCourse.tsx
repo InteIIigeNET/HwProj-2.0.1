@@ -7,17 +7,14 @@ import Typography from '@material-ui/core/Typography'
 import {Redirect} from 'react-router-dom';
 import {RouteComponentProps} from "react-router-dom"
 import ApiSingleton from "../../api/ApiSingleton";
-import {Dialog, DialogTitle, Grid} from '@material-ui/core';
+import {Grid} from '@material-ui/core';
 import {FC, useEffect, useState} from "react";
 import Container from "@material-ui/core/Container";
 import makeStyles from "@material-ui/styles/makeStyles";
 import EditIcon from "@material-ui/icons/Edit";
-import AddLecturerInCourse from './AddLecturerInCourse';
 import DeletionConfirmation from "../DeletionConfirmation";
 import Link from "@material-ui/core/Link";
-import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import DeleteIcon from '@material-ui/icons/Delete';
-import IconButton from "@material-ui/core/IconButton";
 import Lecturers from "./Lecturers";
 import {AccountDataDto} from "../../api";
 
@@ -85,7 +82,8 @@ const EditCourse: FC<RouteComponentProps<IEditCourseProps>> = (props) => {
     const getCourse = async () => {
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+props.match.params.courseId)
         const mentors = await Promise.all(course.mentorIds!.split('/')
-                .map(mentor => ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(mentor)))
+                .map(async (mentorId) => await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(mentorId)))
+        debugger
         setCourseState((prevState) => ({
             ...prevState,
             isLoaded: true,
@@ -140,7 +138,9 @@ const EditCourse: FC<RouteComponentProps<IEditCourseProps>> = (props) => {
             return <Redirect to='/'/>
         }
 
-        if (!ApiSingleton.authService.isLoggedIn() || !ApiSingleton.authService.isLecturer())
+        if (!ApiSingleton.authService.isLoggedIn() ||
+            !courseState.mentors.filter((mentor) =>
+                mentor.email === ApiSingleton.authService.getUserEmail()))
         {
             return (
                 <Typography variant='h6' gutterBottom>
@@ -166,6 +166,7 @@ const EditCourse: FC<RouteComponentProps<IEditCourseProps>> = (props) => {
                         </Grid>
                         <Grid item>
                             <Lecturers
+                                update={getCourse}
                                 mentors={courseState.mentors}
                                 courseId={props.match.params.courseId}
                                 isEditCourse={true}

@@ -121,12 +121,13 @@ const Task: FC<ITaskProp> = (props) => {
                         {props.showForCourse && props.forStudent &&
                             <div style={{ marginTop: '15px' }}>
                                 <Button
+                                    style={{ width: '150px'}}
                                     size="small"
                                     variant="contained"
                                     color="primary"
                                     onClick={() => window.location.assign("/task/" + task.id!.toString())}
                                 >
-                                    Отправить решение
+                                    Решения
                                 </Button>
                             </div>
                         }

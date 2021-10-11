@@ -30,7 +30,7 @@ const HomeworkTasks: FC<IHomeworkTasksProps> = (props) => {
                             showForCourse={true}
                         />
                     )
-                })}
+                }).reverse()}
         </div>
     )
 }

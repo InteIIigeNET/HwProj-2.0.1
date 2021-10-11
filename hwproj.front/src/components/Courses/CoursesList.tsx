@@ -23,7 +23,7 @@ export class CoursesList extends React.Component<ICoursesProps, {}> {
                         <ListItem
                             key={course.id}
                             onClick={() => window.location.assign("/courses/"  + course.id!.toString())}
-                            style={{ padding: 0}}
+                            style={{ padding: 0, marginTop: '16px' }}
                         >
                             <div>
                                 <RouterLink 
@@ -36,7 +36,7 @@ export class CoursesList extends React.Component<ICoursesProps, {}> {
                                 </RouterLink>  
                             </div>
                         </ListItem>
-                    ))}
+                    )).reverse()}
                 </Router>
             </div>
         );

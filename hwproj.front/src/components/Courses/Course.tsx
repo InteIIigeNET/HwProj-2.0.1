@@ -138,6 +138,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                             <Grid container alignItems="flex-end" direction="column" xs={12}>
                                 <Grid item>
                                     <Lecturers
+                                        update={() => {}}
                                         mentors={mentors}
                                         courseId={courseId}
                                         isEditCourse={false}
