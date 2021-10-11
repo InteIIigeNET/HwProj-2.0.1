@@ -122,5 +122,15 @@ namespace HwProj.CoursesService.API.Controllers
             await _coursesService.AcceptLecturerAsync(courseId, lecturerEmail);
             return Ok();
         }
+        
+        [HttpGet("getLecturersAvailableForCourse/{courseId}")]
+        //[ProducesResponseType(typeof(AccountDataDto[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetLecturersAvailableForCourse(long courseId, [FromQuery] string mentorId)
+        {
+            var result = await _coursesService.GetLecturersAvailableForCourse(courseId, mentorId);
+            return result == null
+                ? NotFound()
+                : Ok(result) as IActionResult;
+        }
     }
 }

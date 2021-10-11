@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
+using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
 
 namespace HwProj.CoursesService.API.Services
@@ -16,5 +17,6 @@ namespace HwProj.CoursesService.API.Services
         Task<bool> RejectCourseMateAsync(long courseId, string studentId);
         Task<UserCourseDescription[]> GetUserCoursesAsync(string userId);
         Task AcceptLecturerAsync(long courseId, string lecturerEmail);
+        Task<AccountDataDto[]> GetLecturersAvailableForCourse(long courseId, string mentorId);
     }
 }

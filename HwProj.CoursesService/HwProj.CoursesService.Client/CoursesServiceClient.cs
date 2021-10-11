@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using HwProj.HttpUtils;
+using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using Newtonsoft.Json;
@@ -327,6 +328,15 @@ namespace HwProj.CoursesService.Client
                 _coursesServiceUri + $"api/Courses/acceptLecturer/{courseId}?lecturerEmail={lecturerEmail}");
 
             await _httpClient.SendAsync(httpRequest);
+        }
+        public async Task<AccountDataDto[]> GetLecturersAvailableForCourse(long courseId, string mentorId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + $"api/Courses/getLecturersAvailableForCourse/{courseId}?mentorId={mentorId}");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<AccountDataDto[]>().ConfigureAwait(false);
         }
     }
 }

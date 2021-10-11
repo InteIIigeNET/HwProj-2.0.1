@@ -147,14 +147,14 @@ namespace HwProj.AuthService.Client
             return await response.DeserializeAsync<AccountDataDto[]>().ConfigureAwait(false);
         }
         
-        public async Task<AccountDataDto[]> GetAllSLecturers()
+        public async Task<User[]> GetAllLecturers()
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
                 _authServiceUri + $"api/account/getAllLecturers");
 
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<AccountDataDto[]>().ConfigureAwait(false);
+            return await response.DeserializeAsync<User[]>().ConfigureAwait(false);
         }
     }
 }
