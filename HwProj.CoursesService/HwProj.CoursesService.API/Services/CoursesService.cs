@@ -229,7 +229,7 @@ namespace HwProj.CoursesService.API.Services
         {
             var lecturers = await _authServiceClient.GetAllLecturers();
             var mentorIds = (await GetAsync(courseId, mentorId)).MentorIds.Split('/').ToList();
-            var availableLecturers = lecturers.Where(u => mentorIds.Contains(u.Id));
+            var availableLecturers = lecturers.Where(u => !mentorIds.Contains(u.Id));
             
             return availableLecturers
                 .Select(u => new AccountDataDto(u.Name, u.Surname, u.Email, Roles.LecturerRole, u.IsExternalAuth, u.MiddleName))
