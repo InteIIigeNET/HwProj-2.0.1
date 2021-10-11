@@ -9,8 +9,8 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import ApiSingleton from "../api/ApiSingleton";
 import Typography from "@material-ui/core/Typography";
 import Grid from '@material-ui/core/Grid';
-import {Autocomplete} from "@material-ui/lab";
-import {AccountDataDto, UserDataDto} from "../api";
+import {Autocomplete, createFilterOptions} from "@material-ui/lab";
+import {AccountDataDto} from "../api";
 import {Box} from "@material-ui/core";
 
 
@@ -134,7 +134,7 @@ const InviteLecturer: FC<InviteLecturer> = (props) => {
                                         }}
                                         freeSolo
                                         disableClearable
-                                        getOptionLabel={(option) => option.email!}
+                                        getOptionLabel={(option) => option.email! + ' (' + option.surname! + ' ' + option.name! + ' ' + option.middleName! + ')'}
                                         options={lecturerState.data}
                                         renderOption={(props, option) => (
                                             <Grid
@@ -152,7 +152,7 @@ const InviteLecturer: FC<InviteLecturer> = (props) => {
                                                     <Typography
                                                         style={{marginLeft: '3px'}}
                                                     >
-                                                        {props.name} {props.surname}
+                                                        {props.surname} {props.name} {props.middleName}
                                                     </Typography>
                                                 </Grid>
                                             </Grid>
