@@ -1,4 +1,4 @@
-import React, {FC, FormEvent, useState} from 'react'
+import React, {FC, FormEvent, useEffect, useState} from 'react'
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
@@ -9,6 +9,9 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import ApiSingleton from "../api/ApiSingleton";
 import Typography from "@material-ui/core/Typography";
 import Grid from '@material-ui/core/Grid';
+import {Autocomplete} from "@material-ui/lab";
+import {AccountDataDto, UserDataDto} from "../api";
+import {Box} from "@material-ui/core";
 
 
 interface InviteLecturer {
@@ -25,6 +28,7 @@ interface InviteLecturerState {
     email: string;
     errors: string[];
     info: string[];
+    data: AccountDataDto[];
 }
 
 const InviteLecturer: FC<InviteLecturer> = (props) => {
@@ -32,12 +36,14 @@ const InviteLecturer: FC<InviteLecturer> = (props) => {
     const [lecturerState, setLecturerState] = useState<InviteLecturerState>({
         email: '',
         errors: [],
-        info: []
+        info: [],
+        data: [],
     })
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        if (!isCorrectEmail(lecturerState.email)){
+        debugger
+        if (!isCorrectEmail(lecturerState.email)) {
             setLecturerState((prevState) => ({
                 ...prevState,
                 errors: ['Некорректный адрес электронной почты.']
@@ -48,9 +54,11 @@ const InviteLecturer: FC<InviteLecturer> = (props) => {
             const result = await ApiSingleton.accountApi
                 .apiAccountInviteNewLecturerPost({email: lecturerState.email})
             if (result.succeeded) {
+                const data = await ApiSingleton.accountApi.apiAccountGetAllStudentsGet();
                 setLecturerState((prevState) => ({
                     ...prevState,
-                    logo: ['Запрос отправлен']
+                    info: ['Запрос отправлен'],
+                    data: data
                 }))
                 return
             }
@@ -68,13 +76,28 @@ const InviteLecturer: FC<InviteLecturer> = (props) => {
     }
 
     const close = () => {
+        setLecturerState((prevState) => ({
+            ...prevState,
+            email: '',
+            errors: [],
+            info: [],
+        }))
+        props.close()
+    }
+
+    const setCurrentState = async () => {
+        const data = await ApiSingleton.accountApi.apiAccountGetAllStudentsGet();
         setLecturerState({
             errors: [],
             email: '',
-            info: []
+            info: [],
+            data: data
         })
-        props.close()
     }
+
+    useEffect(() => {
+        setCurrentState()
+    }, [])
 
     return (
         <div>
@@ -102,39 +125,77 @@ const InviteLecturer: FC<InviteLecturer> = (props) => {
                         <form onSubmit={(e) => handleSubmit(e)}>
                             <Grid container justifyContent="flex-end">
                                 <Grid item xs={12}>
-                                    <TextField
-                                        type="email"
-                                        fullWidth
-                                        label="Электронная почта"
-                                        margin="normal"
-                                        name={lecturerState.email}
-                                        onChange={(e) => {
+                                    <Autocomplete
+                                        onChange={(e, values) => {
                                             e.persist()
                                             setLecturerState((prevState) => ({
                                                 ...prevState,
-                                                email: e.target.value
+                                                email: (values as AccountDataDto).email!
                                             }))
                                         }}
+                                        freeSolo
+                                        disableClearable
+                                        getOptionLabel={(option) => option.email!}
+                                        options={lecturerState.data}
+                                        renderOption={(props, option) => (
+                                            <Grid
+                                                direction="row"
+                                                justifyContent="flex-start"
+                                                alignItems="flex-end"
+                                                container
+                                            >
+                                                <Grid item>
+                                                    <Box component="li" {...props} fontWeight='fontWeightMedium'>
+                                                        {props.email} /
+                                                    </Box>
+                                                </Grid>
+                                                <Grid item>
+                                                    <Typography
+                                                        style={{marginLeft: '3px'}}
+                                                    >
+                                                        {props.name} {props.surname}
+                                                    </Typography>
+                                                </Grid>
+                                            </Grid>
+                                        )}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                label="Введите email или ФИО"
+                                                InputProps={{
+                                                    ...params.InputProps,
+                                                    type: 'search',
+                                                }}
+                                            />
+                                        )}
                                     />
                                 </Grid>
-                                <Grid item>
-                                    <Button
-                                        onClick={close}
-                                        color="primary"
-                                        variant="contained"
-                                        style={{marginRight: '10px'}}
-                                    >
-                                        Закрыть
-                                    </Button>
-                                </Grid>
-                                <Grid item>
-                                    <Button
-                                        variant="contained"
-                                        color="primary"
-                                        type="submit"
-                                    >
-                                        Пригласить
-                                    </Button>
+                                <Grid
+                                    direction="row"
+                                    justifyContent="flex-end"
+                                    alignItems="flex-end"
+                                    container
+                                    style={{marginTop: '16px'}}
+                                >
+                                    <Grid item>
+                                        <Button
+                                            onClick={close}
+                                            color="primary"
+                                            variant="contained"
+                                            style={{marginRight: '10px'}}
+                                        >
+                                            Закрыть
+                                        </Button>
+                                    </Grid>
+                                    <Grid item>
+                                        <Button
+                                            variant="contained"
+                                            color="primary"
+                                            type="submit"
+                                        >
+                                            Пригласить
+                                        </Button>
+                                    </Grid>
                                 </Grid>
                             </Grid>
                         </form>

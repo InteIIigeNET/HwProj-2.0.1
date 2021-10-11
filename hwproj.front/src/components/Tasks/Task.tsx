@@ -58,9 +58,10 @@ const Task: FC<ITaskProp> = (props) => {
     let deadlineDate
 
     if (task.hasDeadline) {
-        deadlineDate = new Date(task.deadlineDate!.toString()).toLocaleString("ru-RU")
+        deadlineDate = ApiSingleton.utils.convertUTCDateToLocalDate(task.deadlineDate!).toLocaleString("ru-RU")
     }
-    const publicationDate = new Date(task.publicationDate!.toString()).toLocaleString("ru-RU")
+
+    const publicationDate = ApiSingleton.utils.convertUTCDateToLocalDate(task.publicationDate!).toLocaleString("ru-RU")
     const classes = useStyles()
 
     return (

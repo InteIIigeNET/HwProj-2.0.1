@@ -1,6 +1,7 @@
 import { AccountApi, NotificationsApi, CoursesApi, SolutionsApi, HomeworksApi, TasksApi, StatisticsApi} from ".";
 import { Configuration } from './configuration';
 import AuthService from "../services/AuthService";
+import Utils from "../services/Utils";
 
 
 class Api {
@@ -13,6 +14,7 @@ class Api {
   readonly tasksApi: TasksApi;
   readonly statisticsApi: StatisticsApi;
   readonly authService: AuthService;
+  readonly utils: Utils
 
   constructor(
     accountApi: AccountApi,
@@ -23,6 +25,7 @@ class Api {
     tasksApi: TasksApi,
     statisticsApi: StatisticsApi,
     authService: AuthService,
+    utils: Utils
   ) {
     this.accountApi = accountApi;
     this.coursesApi = coursesApi;
@@ -32,6 +35,7 @@ class Api {
     this.tasksApi = tasksApi;
     this.statisticsApi = statisticsApi;
     this.authService = authService;
+    this.utils = utils;
   }
 }
 
@@ -48,5 +52,6 @@ ApiSingleton = new Api(
   new TasksApi({ basePath: basePath, apiKey: () => "Bearer " + authService.getToken()! }),
   new StatisticsApi({ basePath: basePath, apiKey: () => "Bearer " + authService.getToken()! }),
   authService,
+  new Utils(),
 );
 export default ApiSingleton;
