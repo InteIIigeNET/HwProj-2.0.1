@@ -59,7 +59,7 @@ namespace HwProj.AuthService.API.Services
 
             if (!user.IsExternalAuth && !await _userManager.CheckPasswordAsync(user, model.CurrentPassword))
             {
-                return Result.Failed("Неправильный пароль"); // неправильный текущий пароль
+                return Result.Failed("Неправильный пароль");
             }
 
             var result = user.IsExternalAuth
