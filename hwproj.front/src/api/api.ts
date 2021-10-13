@@ -2921,6 +2921,42 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @param {string} userId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesUserCoursesByUserIdGet(userId: string, options: any = {}): FetchArgs {
+            // verify required parameter 'userId' is not null or undefined
+            if (userId === null || userId === undefined) {
+                throw new RequiredError('userId','Required parameter userId was null or undefined when calling apiCoursesUserCoursesByUserIdGet.');
+            }
+            const localVarPath = `/api/Courses/userCourses/{userId}`
+                .replace(`{${"userId"}}`, encodeURIComponent(String(userId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3125,6 +3161,24 @@ export const CoursesApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {string} userId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesUserCoursesByUserIdGet(userId: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<UserCourseDescription>> {
+            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesUserCoursesByUserIdGet(userId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3232,6 +3286,15 @@ export const CoursesApiFactory = function (configuration?: Configuration, fetch?
          */
         apiCoursesUpdateByCourseIdPost(courseId: number, model?: UpdateCourseViewModel, options?: any) {
             return CoursesApiFp(configuration).apiCoursesUpdateByCourseIdPost(courseId, model, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {string} userId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesUserCoursesByUserIdGet(userId: string, options?: any) {
+            return CoursesApiFp(configuration).apiCoursesUserCoursesByUserIdGet(userId, options)(fetch, basePath);
         },
         /**
          * 
@@ -3351,6 +3414,17 @@ export class CoursesApi extends BaseAPI {
      */
     public apiCoursesUpdateByCourseIdPost(courseId: number, model?: UpdateCourseViewModel, options?: any) {
         return CoursesApiFp(this.configuration).apiCoursesUpdateByCourseIdPost(courseId, model, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {string} userId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CoursesApi
+     */
+    public apiCoursesUserCoursesByUserIdGet(userId: string, options?: any) {
+        return CoursesApiFp(this.configuration).apiCoursesUserCoursesByUserIdGet(userId, options)(this.fetch, this.basePath);
     }
 
     /**

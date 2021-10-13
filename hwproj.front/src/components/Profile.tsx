@@ -59,9 +59,11 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
     const getUserInfo = async () => {
         if (props.match.params.id) {
             const data = await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(props.match.params.id)
+            const courses = await ApiSingleton.coursesApi.apiCoursesUserCoursesByUserIdGet(props.match.params.id)
             setProfileState((prevState) => ({
                 ...prevState,
-                isLoaded: true
+                isLoaded: true,
+                courses: courses
             }))
             setAccountState(data)
             return
@@ -181,6 +183,24 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
                             <div role="tabpanel" hidden={profileState.tab !== 2} id="simple-tab-2">
                                 {renderNotifications(profileState.notifications)}
                             </div>
+                        </div>
+                        }
+
+                        {props.match.params.id &&
+                        <div>
+                            <Grid
+                                direction="row"
+                                justifyContent="flex-start"
+                                alignItems="flex-end"
+                                container
+                            >
+                                <Grid item>
+                                    <Typography>
+                                        Курсы:
+                                    </Typography>
+                                    <CoursesList courses={profileState.courses}/>
+                                </Grid>
+                            </Grid>
                         </div>
                         }
                     </Grid>
