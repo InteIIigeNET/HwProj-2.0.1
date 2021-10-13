@@ -59,7 +59,6 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
     })
     const setCurrentState = async () => {
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+courseId)
-        debugger
         setCourseState({
             isFound: true,
             course: course,

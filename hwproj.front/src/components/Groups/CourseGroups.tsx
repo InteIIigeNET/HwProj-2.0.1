@@ -68,7 +68,7 @@ const CourseGroups: FC<ICourseGroupEditorProps> = (props) => {
                 middleName: st.middleName!,
             }
         })
-        const groups = await Promise.all(group.groups!.map(async(g) => {
+        const groupsInfo = await Promise.all(group.groups!.map(async(g) => {
             const groupMates = await Promise.all(g.groupMates!.map( async (gm) => {
                 const student = await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(gm.studentId!)
                 return {
@@ -86,9 +86,10 @@ const CourseGroups: FC<ICourseGroupEditorProps> = (props) => {
                 groupMates: groupMates!,
             }
         }))
+
         setGroupState({
             studentsWithoutGroup: students,
-            groups: groups,
+            groups: groupsInfo,
         })
     }
 

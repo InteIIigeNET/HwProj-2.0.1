@@ -3,7 +3,7 @@ import {
     AccountDataDto,
     GroupMateDataDTO,
     HomeworkViewModel,
-    StatisticsCourseMatesModel
+    StatisticsCourseGroupModel,
 } from "../../api";
 import {Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import AvailableCourseStudents from "./AvailableCourseStudents";
@@ -13,6 +13,7 @@ import Typography from "@material-ui/core/Typography";
 import {makeStyles} from "@material-ui/styles";
 import EditIcon from "@material-ui/icons/Edit";
 import ApiSingleton from "../../api/ApiSingleton";
+import TaskStudentCell from 'components/Tasks/TaskStudentCell';
 
 interface GroupState {
     id: number;
@@ -30,7 +31,7 @@ interface CourseTableProps {
 }
 
 interface GroupsTableState {
-    statistics: StatisticsCourseMatesModel[];
+    statistics: StatisticsCourseGroupModel[];
     isLoaded: boolean;
 }
 
@@ -47,7 +48,6 @@ const useStyles = makeStyles(theme => ({
 }))
 
 const GroupsTable: FC<CourseTableProps> = (props) => {
-
     const classes = useStyles()
     const [statistics, setStatistics] = useState<GroupsTableState>({
         statistics: [],
@@ -58,14 +58,8 @@ const GroupsTable: FC<CourseTableProps> = (props) => {
         getStatistics()
     }, [props])
 
-    const getGroupSolutions = () => {
-        props.groups.map(() => {
-
-        })
-    }
-
     const getStatistics = async () => {
-        const currentStatistics = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdGet(+props.courseId!)
+        const currentStatistics = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdGroupsGet(+props.courseId!)
         setStatistics({
             statistics: currentStatistics,
             isLoaded: true,
@@ -124,22 +118,31 @@ const GroupsTable: FC<CourseTableProps> = (props) => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {props.groups!.map((g) => {
-                            return (
-                                <TableRow>
-                                    <TableCell>
-                                        <Group group={g}/>
-                                    </TableCell>
-                                </TableRow>
-                            )
-                        })}
+                        {statistics.statistics.map(s =>
+                            <TableRow>
+                                <TableCell>
+                                    <Group group={props.groups.find(g => g.id === s.id)!}/>
+                                </TableCell>
+                                {s.homeworks?.map(hw =>
+                                    hw.tasks?.map(task =>
+                                        <TaskStudentCell  // ToDo
+                                            studentId="fd" 
+                                            taskId={123}
+                                            forMentor={true}
+                                            userId="fd"
+                                            solutions={task.solution!.slice(-1)[0]}
+                                        />
+                                    )
+                                )}
+                            </TableRow>
+                        )}
                     </TableBody>
                 </Table>
             </TableContainer>
         )
     }
 
-    if (statistics.isLoaded) {
+    if (statistics.isLoaded && props.groups.length > 0) {
         return (
             <Grid item xs={11}>
                 {props.studentsWithoutGroup?.length !== 0 && (

@@ -8,7 +8,7 @@ import {createStyles, makeStyles} from '@material-ui/core/styles';
 import {IconButton, ListItem, Theme} from "@material-ui/core";
 import List from "@material-ui/core/List";
 import DeleteIcon from "@material-ui/icons/Delete";
-import {AccountDataDto, GroupViewModel} from "../../api";
+import {AccountDataDto, GroupViewModel, StatisticsCourseGroupModel} from "../../api";
 import ApiSingleton from "../../api/ApiSingleton";
 
 interface GroupState {
@@ -42,8 +42,6 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const Group: FC<GroupProps> = (props) => {
     const classes = useStyles()
-    const group = props.group
-
     return (
         <div className={classes.root}>
             <Accordion>
@@ -54,13 +52,13 @@ const Group: FC<GroupProps> = (props) => {
                     style={{backgroundColor: "#eceef8"}}
                 >
                     <div className={classes.tools}>
-                        <Typography className={classes.heading}>{group.name}</Typography>
+                        <Typography className={classes.heading}>{props.group.name}</Typography>
                     </div>
                 </AccordionSummary>
                 <AccordionDetails>
-                    {group.groupMates!.length !== 0 &&
+                    {props.group.groupMates!.length !== 0 &&
                         <List>
-                            {group.groupMates!.map((gm) => {
+                            {props.group.groupMates!.map((gm) => {
                                 return (
                                     <ListItem>
                                         <Typography>

@@ -132,7 +132,7 @@ namespace HwProj.SolutionsService.API.Controllers
             
             var solutions =  (await _solutionsService.GetAllSolutionsAsync())
                 .Where(s => course.Homeworks
-                    .Any(hw => hw.Tasks
+                    .Any(hw => !hw.IsGroupHomework && hw.Tasks
                         .Any(t => t.Id == s.TaskId)))
                 .ToList();
             
@@ -153,6 +153,36 @@ namespace HwProj.SolutionsService.API.Controllers
             };
 
             var result = SolutionsStatsDomain.GetCourseStatistics(solutionsStatsContext);
+            return Ok(result);
+        }
+
+        [HttpGet("getCourseGroupStat/{courseId}")]
+        [ProducesResponseType(typeof(StatisticsCourseGroupModel[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetCourseGroupsStat(long courseId, [FromQuery] string userId)
+        {
+            var groups = await _coursesClient.GetAllCourseGroups(courseId);
+
+            var course = await _coursesClient.GetCourseById(courseId, userId);
+            if (!course.MentorIds.Contains(userId))
+            {
+                return Forbid();
+            }
+            course.Homeworks.RemoveAll(h => !h.IsGroupHomework);
+
+            var solutions = (await _solutionsService.GetAllSolutionsAsync())
+                .Where(s => course.Homeworks
+                    .Any(hw => hw.IsGroupHomework && hw.Tasks
+                        .Any(t => t.Id == s.TaskId)))
+                .ToList();
+
+            var solutionsStatsContext = new StatisticsAggregateModel()
+            {
+                Course = course,
+                Groups = groups.ToList(),
+                Solutions = solutions,
+            };
+
+            var result = SolutionsStatsDomain.GetCourseGroupsStatistics(solutionsStatsContext);
             return Ok(result);
         }
     }

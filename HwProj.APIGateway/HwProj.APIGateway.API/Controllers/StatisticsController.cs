@@ -31,5 +31,17 @@ namespace HwProj.APIGateway.API.Controllers
                 ? Forbid()
                 : Ok(result) as IActionResult;
         }
+
+        [HttpGet("{courseId}/groups")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        [ProducesResponseType(typeof(StatisticsCourseGroupModel[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetCourseGroupStatistics(long courseId)
+        {
+            var userId = Request.GetUserId();
+            var result = await _solutionClient.GetCourseGroupStatistics(courseId, userId);
+            return result == null
+                ? Forbid()
+                : Ok(result) as IActionResult;
+        }
     }
 }
