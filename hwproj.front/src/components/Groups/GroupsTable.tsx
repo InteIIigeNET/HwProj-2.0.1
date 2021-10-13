@@ -126,10 +126,10 @@ const GroupsTable: FC<CourseTableProps> = (props) => {
                                 {s.homeworks?.map(hw =>
                                     hw.tasks?.map(task =>
                                         <TaskStudentCell  // ToDo
-                                            studentId="fd" 
-                                            taskId={123}
+                                            studentId="fd"
+                                            taskId={task.id!}
                                             forMentor={true}
-                                            userId="fd"
+                                            userId={ApiSingleton.authService.getUserId()}
                                             solutions={task.solution!.slice(-1)[0]}
                                         />
                                     )
