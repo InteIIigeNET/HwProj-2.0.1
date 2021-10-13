@@ -81,6 +81,7 @@ const InviteLecturer: FC<InviteLecturer> = (props) => {
             email: '',
             errors: [],
             info: [],
+            data: [],
         }))
         props.close()
     }
