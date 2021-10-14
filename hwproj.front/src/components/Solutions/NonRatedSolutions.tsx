@@ -46,7 +46,6 @@ const NonRatedSolutionComponent: FC<ISolutionProps> = (props) => {
                 nonRatedSolution.points,
                 nonRatedSolution.lecturerComment
             )
-        debugger
         window.location.reload()
     }
 
