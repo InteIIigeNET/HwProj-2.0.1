@@ -116,9 +116,8 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
         const isAcceptedStudent = isLogged && acceptedStudents!.some(
             (cm: any) => cm.id === userId
         )
-        debugger
         return (
-            <Grid>
+            <Grid style={{ marginBottom: '50px' }}>
                 <Grid container justify="center" style={{marginTop: "15px"}}>
                     <Grid container xs={11} className={classes.info}>
                         <Grid item>

@@ -122,7 +122,7 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
 				? accountState.name + ' ' + accountState.surname
 				: accountState.name
 		return (
-			<div>
+			<div style={{ marginBottom: '50px' }}>
 				<Grid container justify="center" style={{ marginTop: "15px" }}>
 					<Grid item xs={11} className={classes.info}>
 						<Typography style={{ fontSize: '20px' }}>

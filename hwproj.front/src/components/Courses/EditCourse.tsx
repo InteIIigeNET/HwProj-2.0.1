@@ -83,7 +83,6 @@ const EditCourse: FC<RouteComponentProps<IEditCourseProps>> = (props) => {
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+props.match.params.courseId)
         const mentors = await Promise.all(course.mentorIds!.split('/')
                 .map(async (mentorId) => await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(mentorId)))
-        debugger
         setCourseState((prevState) => ({
             ...prevState,
             isLoaded: true,
