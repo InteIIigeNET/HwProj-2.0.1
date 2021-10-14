@@ -42,7 +42,6 @@ const InviteLecturer: FC<InviteLecturer> = (props) => {
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        debugger
         if (!isCorrectEmail(lecturerState.email)) {
             setLecturerState((prevState) => ({
                 ...prevState,
@@ -67,7 +66,6 @@ const InviteLecturer: FC<InviteLecturer> = (props) => {
                 errors: result.errors!
             }))
         } catch (e) {
-            debugger
             setLecturerState((prevState) => ({
                 ...prevState,
                 errors: ['Сервис недоступен']
