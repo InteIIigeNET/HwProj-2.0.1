@@ -28,7 +28,6 @@ const DeletionConfirmation: FC<DeletionConfirmationProps> = (props) => {
             props.onSubmit()
             return
         }
-        debugger
         setError("Неверное название")
     }
 

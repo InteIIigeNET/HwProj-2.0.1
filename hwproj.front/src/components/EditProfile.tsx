@@ -110,8 +110,6 @@ const EditProfile: FC = () => {
             }))
         }
         catch (e) {
-            console.log(e)
-            debugger
             setProfile((prevState) => ({
                 ...prevState,
                 isLoaded: true,
