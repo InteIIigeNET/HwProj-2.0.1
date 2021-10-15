@@ -56,7 +56,6 @@ const CreateCourse: FC = () => {
     }
     try {
       const courseId = await ApiSingleton.coursesApi.apiCoursesCreatePost(courseViewModel)
-      debugger
       setCourse((prevState) => ({
         ...prevState,
         courseId: courseId.toString(),
