@@ -15,12 +15,11 @@ namespace HwProj.AuthService.Client
     public class AuthServiceClient : IAuthServiceClient
     {
         private readonly HttpClient _httpClient;
-        private readonly Uri _authServiceUri;
+        private readonly Uri _authServiceUri = new("http://localhost:5001"); //TODO: refactor;
 
-        public AuthServiceClient(HttpClient httpClient, Uri authServiceUri)
+        public AuthServiceClient(IHttpClientFactory clientFactory)
         {
-            _httpClient = httpClient;
-            _authServiceUri = authServiceUri;
+            _httpClient = clientFactory.CreateClient();
         }
 
         public async Task<AccountDataDto> GetAccountData(string userId)

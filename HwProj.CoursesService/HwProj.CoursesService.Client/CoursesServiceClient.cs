@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using HwProj.HttpUtils;
 using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 
 namespace HwProj.CoursesService.Client
@@ -14,12 +16,13 @@ namespace HwProj.CoursesService.Client
     public class CoursesServiceClient : ICoursesServiceClient
     {
         private readonly HttpClient _httpClient;
-        private readonly Uri _coursesServiceUri;
+        private readonly Uri _coursesServiceUri = new("http://localhost:5002"); //TODO: refactor
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public CoursesServiceClient(HttpClient httpClient, Uri coursesServiceUri)
+        public CoursesServiceClient(IHttpClientFactory clientFactory, IHttpContextAccessor httpContextAccessor)
         {
-            _httpClient = httpClient;
-            _coursesServiceUri = coursesServiceUri;
+            _httpClient = clientFactory.CreateClient();
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<CourseViewModel[]> GetAllCourses()
@@ -291,11 +294,13 @@ namespace HwProj.CoursesService.Client
             await _httpClient.SendAsync(httpRequest);
         }
         
-        public async Task RemoveStudentFromGroup(long courseId, long groupId, string userId)
+        public async Task RemoveStudentFromGroup(long courseId, long groupId, string userId, string mentorId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Delete,
                 _coursesServiceUri + $"api/CourseGroups/{courseId}/removeStudentFromGroup/{groupId}?userId={userId}");
+            
+            httpRequest.Headers.Add("UserId", _httpContextAccessor.HttpContext.User.FindFirst("_id").Value);
             
             await _httpClient.SendAsync(httpRequest);
         }

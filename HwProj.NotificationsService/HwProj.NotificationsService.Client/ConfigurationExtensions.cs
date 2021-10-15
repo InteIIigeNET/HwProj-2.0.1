@@ -6,11 +6,9 @@ namespace HwProj.NotificationsService.Client
 {
     public static class ConfigurationExtensions
     {
-        public static IServiceCollection AddNotificationsServiceClient(this IServiceCollection services, HttpClient httpClient,
-            string baseUri)
+        public static IServiceCollection AddNotificationsServiceClient(this IServiceCollection services)
         {
-            var notificationsServiceClient = new NotificationsServiceClient(httpClient, new Uri(baseUri));
-            services.AddSingleton<INotificationsServiceClient>(notificationsServiceClient);
+            services.AddScoped<INotificationsServiceClient, NotificationsServiceClient>();
             return services;
         }
     }

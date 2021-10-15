@@ -84,7 +84,7 @@ namespace HwProj.APIGateway.API.Controllers
         [Authorize(Roles = Roles.LecturerRole)]
         public async Task<IActionResult> RemoveStudentFromGroup(long courseId, long groupId, [FromQuery] string userId)
         {
-            await _coursesClient.RemoveStudentFromGroup(courseId, groupId, userId);
+            await _coursesClient.RemoveStudentFromGroup(courseId, groupId, userId, Request.GetUserId());
             return Ok();
         }
 

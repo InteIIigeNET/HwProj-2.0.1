@@ -11,12 +11,11 @@ namespace HwProj.NotificationsService.Client
     public class NotificationsServiceClient: INotificationsServiceClient
     {
         private readonly HttpClient _httpClient;
-        private readonly Uri _notificationServiceUri;
+        private readonly Uri _notificationServiceUri = new("http://localhost:5006");
 
-        public NotificationsServiceClient(HttpClient httpClient, Uri notificationServiceUri)
+        public NotificationsServiceClient(IHttpClientFactory clientFactory)
         {
-            _httpClient = httpClient;
-            _notificationServiceUri = notificationServiceUri;
+            _httpClient = clientFactory.CreateClient();
         }
 
         public async Task<NotificationViewModel[]> Get(string userId, NotificationFilter filter)

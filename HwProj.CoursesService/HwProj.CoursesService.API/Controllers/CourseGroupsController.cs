@@ -29,7 +29,7 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost("{courseId}/create")]
-        //[ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> CreateGroup([FromBody] CreateGroupViewModel groupViewModel, long courseId)
         {
             var group = _mapper.Map<Group>(groupViewModel);
@@ -39,7 +39,7 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpDelete("{courseId}/delete/{groupId}")]
-        //[ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> DeleteGroup(long groupId)
         {
             await _groupsService.DeleteGroupAsync(groupId).ConfigureAwait(false);
@@ -47,7 +47,7 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost("{courseId}/update/{groupId}")]
-        //[ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> UpdateGroup([FromBody] UpdateGroupViewModel groupViewModel, long courseId, long groupId)
         {
             var group = _mapper.Map<Group>(groupViewModel);
@@ -65,7 +65,7 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost("{courseId}/addStudentInGroup/{groupId}")]
-        //[ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> AddStudentInGroup(long groupId, [FromQuery] string userId)
         {
             await _groupsService.AddGroupMateAsync(groupId, userId);
@@ -73,7 +73,7 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpDelete("{courseId}/removeStudentFromGroup/{groupId}")]
-        //[ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> RemoveStudentFromGroup(long groupId, [FromQuery] string userId)
         {
             return await _groupsService.DeleteGroupMateAsync(groupId, userId)

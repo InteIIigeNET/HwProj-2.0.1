@@ -82,6 +82,8 @@ namespace HwProj.AuthService.API
             services.AddScoped<IAuthTokenService, AuthTokenService>()
                 .AddScoped<IAccountService, AccountService>()
                 .AddScoped<IUserManager, ProxyUserManager>();
+
+            services.AddHttpClient();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace HwProj.CoursesService.API
 {
@@ -41,9 +43,10 @@ namespace HwProj.CoursesService.API
             services.AddScoped<CourseMentorOnlyAttribute>();
 
             services.AddEventBus(Configuration);
-
-            var httpClient = new HttpClient();
-            services.AddAuthServiceClient(httpClient, "http://localhost:5001");
+            
+            services.AddHttpContextAccessor();
+            services.AddHttpClient();
+            services.AddAuthServiceClient();
 
             services.ConfigureHwProjServices("Courses API");
         }
