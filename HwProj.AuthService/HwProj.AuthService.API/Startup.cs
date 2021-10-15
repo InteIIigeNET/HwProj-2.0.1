@@ -77,6 +77,8 @@ namespace HwProj.AuthService.API
                 .AddRoleManager<RoleManager<IdentityRole>>()
                 .AddDefaultTokenProviders();
             
+            services.AddHttpClient();
+            
             services.AddEventBus(Configuration);
 
             services.AddScoped<IAuthTokenService, AuthTokenService>()

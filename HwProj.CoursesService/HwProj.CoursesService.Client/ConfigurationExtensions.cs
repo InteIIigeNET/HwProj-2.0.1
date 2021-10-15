@@ -6,11 +6,9 @@ namespace HwProj.CoursesService.Client
 {
     public static class ConfigurationExtensions
     {
-        public static IServiceCollection AddCoursesServiceClient(this IServiceCollection services, HttpClient httpClient,
-            string baseUri)
+        public static IServiceCollection AddCoursesServiceClient(this IServiceCollection services)
         {
-            var coursesServiceClient = new CoursesServiceClient(httpClient, new Uri(baseUri));
-            services.AddSingleton<ICoursesServiceClient>(coursesServiceClient);
+            services.AddScoped<ICoursesServiceClient, CoursesServiceClient>();
             return services;
         }
     }

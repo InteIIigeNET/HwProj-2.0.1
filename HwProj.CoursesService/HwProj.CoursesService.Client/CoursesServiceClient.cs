@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using HwProj.HttpUtils;
 using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 
 namespace HwProj.CoursesService.Client
@@ -14,12 +15,13 @@ namespace HwProj.CoursesService.Client
     public class CoursesServiceClient : ICoursesServiceClient
     {
         private readonly HttpClient _httpClient;
-        private readonly Uri _coursesServiceUri;
+        private readonly Uri _coursesServiceUri = new("http://localhost:5002"); //TODO: refactor
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public CoursesServiceClient(HttpClient httpClient, Uri coursesServiceUri)
+        public CoursesServiceClient(IHttpClientFactory clientFactory, IHttpContextAccessor httpContextAccessor)
         {
-            _httpClient = httpClient;
-            _coursesServiceUri = coursesServiceUri;
+            _httpClient = clientFactory.CreateClient();
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<CourseViewModel[]> GetAllCourses()
@@ -67,7 +69,9 @@ namespace HwProj.CoursesService.Client
                     Encoding.UTF8,
                     "application/json")
             };
-
+            
+            httpRequest.Headers.Add("UserId", _httpContextAccessor.HttpContext.User.FindFirst("_id").Value);
+            
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<long>();;
         }
@@ -83,6 +87,8 @@ namespace HwProj.CoursesService.Client
                     Encoding.UTF8,
                     "application/json")
             };
+            
+            httpRequest.Headers.Add("UserId", _httpContextAccessor.HttpContext.User.FindFirst("_id").Value);
             
             await _httpClient.SendAsync(httpRequest);
         }
@@ -102,6 +108,8 @@ namespace HwProj.CoursesService.Client
                 HttpMethod.Post,
                 _coursesServiceUri + $"api/Courses/acceptStudent/{courseId}?studentId={studentId}");
             
+            httpRequest.Headers.Add("UserId", _httpContextAccessor.HttpContext.User.FindFirst("_id").Value);
+            
             await _httpClient.SendAsync(httpRequest);
         }
         
@@ -110,6 +118,8 @@ namespace HwProj.CoursesService.Client
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
                 _coursesServiceUri + $"api/Courses/rejectStudent/{courseId}?studentId={studentId}");
+            
+            httpRequest.Headers.Add("UserId", _httpContextAccessor.HttpContext.User.FindFirst("_id").Value);
             
             await _httpClient.SendAsync(httpRequest);
         }
@@ -135,6 +145,8 @@ namespace HwProj.CoursesService.Client
                     Encoding.UTF8,
                     "application/json")
             };
+            
+            httpRequest.Headers.Add("UserId", _httpContextAccessor.HttpContext.User.FindFirst("_id").Value);
 
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<long>();
@@ -162,6 +174,8 @@ namespace HwProj.CoursesService.Client
                     "application/json")
             };
             
+            httpRequest.Headers.Add("UserId", _httpContextAccessor.HttpContext.User.FindFirst("_id").Value);
+            
             await _httpClient.SendAsync(httpRequest);
         }
 
@@ -170,6 +184,8 @@ namespace HwProj.CoursesService.Client
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Delete,
                 _coursesServiceUri + $"api/Homeworks/delete/{homeworkId}");
+            
+            httpRequest.Headers.Add("UserId", _httpContextAccessor.HttpContext.User.FindFirst("_id").Value);
             
             await _httpClient.SendAsync(httpRequest);
         }
@@ -195,6 +211,9 @@ namespace HwProj.CoursesService.Client
                     Encoding.UTF8,
                     "application/json")
             };
+            
+            httpRequest.Headers.Add("UserId", _httpContextAccessor.HttpContext.User.FindFirst("_id").Value);
+            
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<long>();
         }
@@ -204,6 +223,8 @@ namespace HwProj.CoursesService.Client
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Delete,
                 _coursesServiceUri + $"api/Tasks/delete/{taskId}");
+            
+            httpRequest.Headers.Add("UserId", _httpContextAccessor.HttpContext.User.FindFirst("_id").Value);
             
             await _httpClient.SendAsync(httpRequest);
         }
@@ -219,6 +240,9 @@ namespace HwProj.CoursesService.Client
                     Encoding.UTF8,
                     "application/json")
             };  
+            
+            httpRequest.Headers.Add("UserId", _httpContextAccessor.HttpContext.User.FindFirst("_id").Value);
+            
             await _httpClient.SendAsync(httpRequest);
         }
 
@@ -243,6 +267,8 @@ namespace HwProj.CoursesService.Client
                     Encoding.UTF8,
                     "application/json")
             };
+            
+            httpRequest.Headers.Add("UserId", _httpContextAccessor.HttpContext.User.FindFirst("_id").Value);
 
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<long>();;
@@ -253,6 +279,8 @@ namespace HwProj.CoursesService.Client
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Delete,
                 _coursesServiceUri + $"api/CourseGroups/{courseId}/delete/{groupId}");
+            
+            httpRequest.Headers.Add("UserId", _httpContextAccessor.HttpContext.User.FindFirst("_id").Value);
             
             await _httpClient.SendAsync(httpRequest);
         }
@@ -269,6 +297,8 @@ namespace HwProj.CoursesService.Client
                     "application/json")
             };
             
+            httpRequest.Headers.Add("UserId", _httpContextAccessor.HttpContext.User.FindFirst("_id").Value);
+            
             await _httpClient.SendAsync(httpRequest);
         }
         
@@ -277,7 +307,7 @@ namespace HwProj.CoursesService.Client
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get, 
                 _coursesServiceUri + $"api/CourseGroups/{courseId}/get?userId={userId}");
-
+            
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<GroupViewModel>();
         }
@@ -288,6 +318,8 @@ namespace HwProj.CoursesService.Client
                 HttpMethod.Post,
                 _coursesServiceUri + $"api/CourseGroups/{courseId}/addStudentInGroup/{groupId}?userId={userId}");
             
+            httpRequest.Headers.Add("UserId", _httpContextAccessor.HttpContext.User.FindFirst("_id").Value);
+            
             await _httpClient.SendAsync(httpRequest);
         }
         
@@ -296,6 +328,8 @@ namespace HwProj.CoursesService.Client
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
                 _coursesServiceUri + $"api/CourseGroups/{courseId}/removeStudentFromGroup/{groupId}?userId={userId}");
+            
+            httpRequest.Headers.Add("UserId", _httpContextAccessor.HttpContext.User.FindFirst("_id").Value);
             
             await _httpClient.SendAsync(httpRequest);
         }
@@ -325,7 +359,9 @@ namespace HwProj.CoursesService.Client
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
                 _coursesServiceUri + $"api/Courses/acceptLecturer/{courseId}?lecturerEmail={lecturerEmail}");
-
+            
+            httpRequest.Headers.Add("UserId", _httpContextAccessor.HttpContext.User.FindFirst("_id").Value);
+            
             await _httpClient.SendAsync(httpRequest);
         }
     }

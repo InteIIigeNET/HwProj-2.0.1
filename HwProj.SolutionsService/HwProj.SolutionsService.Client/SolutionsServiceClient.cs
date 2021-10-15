@@ -13,12 +13,11 @@ namespace HwProj.SolutionsService.Client
     public class SolutionsServiceClient : ISolutionsServiceClient
     {
         private readonly HttpClient _httpClient;
-        private readonly Uri _solutionServiceUri;
-
-        public SolutionsServiceClient(HttpClient httpClient, Uri solutionServiceUri)
+        private readonly Uri _solutionServiceUri = new("http://localhost:5007");
+        
+        public SolutionsServiceClient(IHttpClientFactory clientFactory)
         {
-            _httpClient = httpClient;
-            _solutionServiceUri = solutionServiceUri;
+            _httpClient = clientFactory.CreateClient();
         }
         
         public async Task<Solution[]> GetAllSolutions()
