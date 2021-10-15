@@ -37,7 +37,7 @@ namespace HwProj.AuthService.API.Controllers
         }
 
         [HttpPost("register")]
-        [ProducesResponseType(typeof(TokenCredentials), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Register([FromBody] RegisterViewModel model)
         {
             var newModel = _mapper.Map<RegisterDataDTO>(model);
