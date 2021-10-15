@@ -9,5 +9,8 @@ namespace ConfigurableAssessmentSystem
         public DateTime? DeadlineDate { get; set; }
         
         public DateTime? TimeForCorrection { get; set; }
+        
+        /* все поля из тасков
+         */
     }
 }

@@ -9,9 +9,9 @@ using Microsoft.AspNetCore.Mvc.Abstractions;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace HwProj.APIGateway.API.FeaturesForSwagger
+namespace HwProj.Utils.FeaturesForSwagger
 {
-    internal class FormFileOperationFilter : IOperationFilter
+    public class FormFileOperationFilter : IOperationFilter
     {
         private struct ContainerParameterData
         {

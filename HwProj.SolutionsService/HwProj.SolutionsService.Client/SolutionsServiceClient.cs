@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -141,15 +142,13 @@ namespace HwProj.SolutionsService.Client
 
         public async Task AddDllForAssessment(long courseId, IFormFile dll)
         {
-            using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Post,
-                _solutionServiceUri + $"api/Solutions/assessmentSystem/add/{courseId}")
-            {
-                Content = new StringContent(JsonConvert.SerializeObject(dll),
-                    Encoding.UTF8,
-                    "application/json")
-            };
-            var response = await _httpClient.SendAsync(httpRequest);
+            var binaryReader = new BinaryReader(dll.OpenReadStream());
+            var file = binaryReader.ReadBytes((int) dll.OpenReadStream().Length);
+            var requestUri = new Uri(_solutionServiceUri + $"api/Solutions/assessmentSystem/add/{courseId}");
+            var client = new HttpClient();
+            var content = new MultipartFormDataContent();
+            content.Add(new ByteArrayContent(file), "file", dll.Name);
+            var response = await client.PostAsync(requestUri, content);
         }
     }
 }

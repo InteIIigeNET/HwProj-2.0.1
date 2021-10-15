@@ -2,14 +2,12 @@ using System;
 using System.Linq;
 using System.Reflection;
 using ConfigurableAssessmentSystem;
-using HwProj.Models.SolutionsService;
-using HwProj.Models.StatisticsService;
 
 namespace HwProj.SolutionsService.API.AssessmentSystem
 {
     public static class AssessmentSystem
     {
-        public static string PathForAssessmentDlls { get; } = "../../../dllsForAssessment/dllForCourse";
+        public static string PathForAssessmentDlls { get; } = "dllsForAssessment/dllForCourse";
         
         public static Func<TaskModel, SolutionModel[], int> GetAssessmentMethodForCourse(int courseId)
         {
@@ -24,6 +22,5 @@ namespace HwProj.SolutionsService.API.AssessmentSystem
             var assessmentClass = (IAssessmentSystem)Activator.CreateInstance(classType);
             return assessmentClass.CalculateAssessmentForTask;
         }
-        
     }
 }

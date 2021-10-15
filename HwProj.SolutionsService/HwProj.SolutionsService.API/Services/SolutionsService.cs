@@ -13,13 +13,13 @@ using HwProj.SolutionsService.API.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
+using HwProj.SolutionsService.API.AssessmentSystem;
 
 
 namespace HwProj.SolutionsService.API.Services
 {
     public class SolutionsService : ISolutionsService
-    {   
-        private readonly string pathForAssessmentDlls = "../../../dllsForAssessment/dllForCourse";
+    {
         private readonly ISolutionsRepository _solutionsRepository;
         private readonly IEventBus _eventBus;
         private readonly IMapper _mapper;
@@ -116,7 +116,7 @@ namespace HwProj.SolutionsService.API.Services
 
         public async Task AddDllForAssessment(long courseId, IFormFile dll)
         {
-            var path = pathForAssessmentDlls + courseId.ToString() + ".dll";
+            var path = AssessmentSystem.AssessmentSystem.PathForAssessmentDlls + courseId.ToString() + ".dll";
             if (dll.Length > 0)
             {
                 if (File.Exists(path))

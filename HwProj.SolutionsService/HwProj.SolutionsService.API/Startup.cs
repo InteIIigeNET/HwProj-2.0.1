@@ -6,6 +6,7 @@ using HwProj.SolutionsService.API.Models;
 using HwProj.SolutionsService.API.Repositories;
 using HwProj.SolutionsService.API.Services;
 using HwProj.Utils.Configuration;
+using HwProj.Utils.FeaturesForSwagger;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -36,6 +37,10 @@ namespace HwProj.SolutionsService.API
 
             services.AddEventBus(Configuration);
             services.ConfigureHwProjServices("Solutions API");
+            services.AddSwaggerGen(c =>
+            {
+                c.OperationFilter<FormFileOperationFilter>();
+            });
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IEventBus eventBus)

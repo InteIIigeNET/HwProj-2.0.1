@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Net.Http;
-using HwProj.APIGateway.API.FeaturesForSwagger;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.NotificationsService.Client;
@@ -12,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using HwProj.Utils.Authorization;
+using HwProj.Utils.FeaturesForSwagger;
 using Microsoft.AspNetCore.Http;
 using Swashbuckle.AspNetCore.Swagger;
 
