@@ -7,17 +7,23 @@ using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.AuthService.DTO;
 using Newtonsoft.Json;
 using HwProj.Models.Result;
+using Microsoft.Extensions.Configuration;
 
 namespace HwProj.AuthService.Client
 {
     public class AuthServiceClient : IAuthServiceClient
     {
         private readonly HttpClient _httpClient;
-        private readonly Uri _authServiceUri = new("http://localhost:5001"); //TODO: refactor;
+        private readonly Uri _authServiceUri;
 
-        public AuthServiceClient(IHttpClientFactory clientFactory)
+        public AuthServiceClient(IHttpClientFactory clientFactory, IConfiguration configuration)
         {
             _httpClient = clientFactory.CreateClient();
+            var a = configuration.GetSection("BasedUri");
+            var b = a["Auth"];
+            var b1 = a["Courses"];
+            var b2 = a["Solutions"];
+            _authServiceUri = new Uri("");
         }
 
         public async Task<AccountDataDto> GetAccountData(string userId)

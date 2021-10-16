@@ -6,6 +6,7 @@ using HwProj.Exceptions;
 using HwProj.HttpUtils;
 using HwProj.Models.SolutionsService;
 using HwProj.Models.StatisticsService;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
 namespace HwProj.SolutionsService.Client
@@ -13,11 +14,12 @@ namespace HwProj.SolutionsService.Client
     public class SolutionsServiceClient : ISolutionsServiceClient
     {
         private readonly HttpClient _httpClient;
-        private readonly Uri _solutionServiceUri = new("http://localhost:5007");
+        private readonly Uri _solutionServiceUri;
         
-        public SolutionsServiceClient(IHttpClientFactory clientFactory)
+        public SolutionsServiceClient(IHttpClientFactory clientFactory, IConfiguration configuration)
         {
             _httpClient = clientFactory.CreateClient();
+            _solutionServiceUri = new Uri(configuration.GetSection("BasedUri")["Solutions"]);
         }
         
         public async Task<Solution[]> GetAllSolutions()

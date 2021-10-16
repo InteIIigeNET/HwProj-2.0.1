@@ -8,6 +8,7 @@ using HwProj.HttpUtils;
 using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
 namespace HwProj.CoursesService.Client
@@ -15,13 +16,14 @@ namespace HwProj.CoursesService.Client
     public class CoursesServiceClient : ICoursesServiceClient
     {
         private readonly HttpClient _httpClient;
-        private readonly Uri _coursesServiceUri = new("http://localhost:5002"); //TODO: refactor
+        private readonly Uri _coursesServiceUri;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public CoursesServiceClient(IHttpClientFactory clientFactory, IHttpContextAccessor httpContextAccessor)
+        public CoursesServiceClient(IHttpClientFactory clientFactory, IHttpContextAccessor httpContextAccessor, IConfiguration configuration)
         {
             _httpClient = clientFactory.CreateClient();
             _httpContextAccessor = httpContextAccessor;
+            _coursesServiceUri = new Uri(configuration.GetSection("BasedUri")["Courses"]);
         }
 
         public async Task<CourseViewModel[]> GetAllCourses()

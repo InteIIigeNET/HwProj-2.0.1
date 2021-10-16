@@ -26,7 +26,7 @@ namespace HwProj.CoursesService.API.Filters
             {
                 var userId = headers.SingleOrDefault(x => x.Key == "UserId").Value.ToString();
                 var course = _coursesRepository.GetAsync(long.Parse(courseId.ToString())).Result;
-                if (course?.MentorIds != null && !(bool)course?.MentorIds.Contains(userId))
+                if (course?.MentorIds != null && !(bool)course?.MentorIds.Split('/').Contains(userId))
                 {
                     context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
                 }
