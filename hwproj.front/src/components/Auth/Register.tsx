@@ -82,7 +82,9 @@ const Register: FC<LoginProps> = (props) => {
                 error: result!.error!,
                 loggedIn: result.loggedIn
             }))
-            props.onLogin()
+            if (result.loggedIn) {
+                props.onLogin()
+            }
         }
         catch (e) {
             setCommonState((prevState) => ({
