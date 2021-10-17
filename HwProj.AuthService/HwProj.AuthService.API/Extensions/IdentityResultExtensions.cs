@@ -33,7 +33,7 @@ namespace HwProj.AuthService.API.Extensions
                 return nameof(result.RequiresTwoFactor);
             }
             
-            return IdentityErrors.WrongPassword.Description;
+            return "Неправильный логин или пароль";
         }
     }
 }

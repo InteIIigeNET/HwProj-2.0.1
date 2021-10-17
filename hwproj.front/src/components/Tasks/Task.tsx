@@ -71,7 +71,7 @@ const Task: FC<ITaskProp> = (props) => {
                     expandIcon={!props.isExpanded ? <ExpandMoreIcon/> : undefined}
                     aria-controls="panel1a-content"
                     id="panel1a-header"
-                    style={{backgroundColor: task.isDeferred! ? "#e6e6e6" : "#eceef8"}}
+                    style={{backgroundColor: task.isDeferred! ? "#d3d5db" : "#eceef8"}}
                 >
                     <div className={classes.tools}>
                         <Typography style={{fontSize: '18px'}}>

@@ -85,8 +85,8 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
 	const renderNotifications = (notifications: NotificationViewModel[]) => {
 		return (
 			<div>
-				{notifications.map(n =>
-					<Box style={{ marginTop: '16px' }}>
+				{notifications.map((n, index) =>
+					<Box style={{ marginTop: '16px' }} key={index}>
 						<Card style={{backgroundColor: "AliceBlue"}}>
 							<CardContent>
 								<Typography variant="body1" component="p">
@@ -122,8 +122,8 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
 				? accountState.name + ' ' + accountState.surname
 				: accountState.name
 		return (
-			<div>
-				<Grid container justify="center" style={{ marginTop: "15px" }}>
+			<div style={{ marginBottom: '50px' }}>
+				<Grid container justifyContent="center" style={{ marginTop: "15px" }}>
 					<Grid item xs={11} className={classes.info}>
 						<Typography style={{ fontSize: '20px' }}>
 							{fullName}

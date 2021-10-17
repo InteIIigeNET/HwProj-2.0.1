@@ -104,8 +104,6 @@ const Login: FC<LoginProps> = (props) => {
     }
 
     const googleResponse = async (response: any) => {
-        console.log(response.tokenId)
-        debugger
         const result = await ApiSingleton.authService.loginByGoogle(response.tokenId)
         setLoginState(prevState => ({
             ...prevState,

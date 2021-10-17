@@ -36,7 +36,6 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
             props.taskId,
             props.studentId
         )
-        debugger
         setTaskSolutions({
             isLoaded: true,
             solutions: solutions
