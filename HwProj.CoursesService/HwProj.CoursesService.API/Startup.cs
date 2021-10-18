@@ -1,4 +1,7 @@
+using System.Data.SqlClient;
 using Hangfire;
+using Hangfire.Dashboard;
+using Hangfire.SqlServer;
 using HwProj.CoursesService.API.Events;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.API.Filters;
@@ -29,7 +32,9 @@ namespace HwProj.CoursesService.API
         public void ConfigureServices(IServiceCollection services)
         {
             var connection = Configuration.GetConnectionString("DefaultConnection");
+            var hangfireConnection = Configuration.GetConnectionString("HangfireConnection");
             services.AddDbContext<CourseContext>(options => options.UseSqlServer(connection));
+
             services.AddScoped<ICoursesRepository, CoursesRepository>();
             services.AddScoped<ICourseMatesRepository, CourseMatesRepository>();
             services.AddScoped<IGroupsRepository, GroupsRepository>();
@@ -45,6 +50,18 @@ namespace HwProj.CoursesService.API
             services.AddScoped<IDeadlinesService, DeadlinesService>();
             services.AddScoped<CourseMentorOnlyAttribute>();
 
+            var hangfireOptions = new SqlServerStorageOptions
+            {
+                PrepareSchemaIfNecessary = true
+            };
+            
+            services.AddHangfire(configuration => configuration
+                .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UseSqlServerStorage(GetHangfireConnectionString()));
+            services.AddHangfireServer();
+
             services.AddEventBus(Configuration);
 
             var httpClient = new HttpClient();
@@ -55,8 +72,35 @@ namespace HwProj.CoursesService.API
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IEventBus eventBus)
         {
+            using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetRequiredService<CourseContext>();
+                context.Database.EnsureCreated();
+            }
+            app.UseHangfireDashboard("/hangfire");
+            
             eventBus.Subscribe<RequestMaxRatingEvent>();
             app.ConfigureHwProj(env, "Courses API");
         }
+        
+        private string GetHangfireConnectionString()
+        {
+            var connectionStringFormat = Configuration.GetConnectionString("HangfireConnection");
+
+            using (var connection = new SqlConnection(("Server=(localdb)\\mssqllocaldb;Database=master;Trusted_Connection=True;")))
+            {
+                connection.Open();
+
+                using (var command = new SqlCommand(string.Format(
+                    @"IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N'{0}') 
+                                    create database [{0}];
+                      ", "HangfireDB"), connection))
+                {
+                    command.ExecuteNonQuery();
+                }
+            }
+
+            return connectionStringFormat;
+        } 
     }
 }

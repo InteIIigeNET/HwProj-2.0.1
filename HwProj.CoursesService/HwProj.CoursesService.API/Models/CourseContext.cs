@@ -13,7 +13,7 @@ namespace HwProj.CoursesService.API.Models
         public DbSet<HomeworkTask> Tasks { get; set; }
         public DbSet<Deadline> Deadlines { get; set; }
 
-        public CourseContext(DbContextOptions options)
+        public CourseContext(DbContextOptions<CourseContext> options)
             : base(options)
         {
             Database.EnsureCreated();

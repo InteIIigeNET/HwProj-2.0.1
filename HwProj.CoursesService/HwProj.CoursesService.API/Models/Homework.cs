@@ -16,6 +16,7 @@ namespace HwProj.CoursesService.API.Models
         
         public long CourseId { get; set; }
         
+        public Course Course { get; set; }
         public List<HomeworkTask> Tasks { get; set; }
     }
 }

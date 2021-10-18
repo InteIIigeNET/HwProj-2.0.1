@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
 using HwProj.Repositories;
@@ -9,6 +10,14 @@ namespace HwProj.CoursesService.API.Repositories
         public DeadlinesRepository(CourseContext context)
             : base(context)
         {
+        }
+
+        public async Task<long> AddDeadlineAsync(Deadline deadline)
+        {
+            var deadlinesBefore = FindAll(d => d.TaskId == deadline.TaskId);
+            deadline.DeadlineType = deadlinesBefore.Any() ? DeadlineType.Corrections : DeadlineType.TaskDeadline; 
+            deadline.CorrectionsBefore = deadlinesBefore.Count();
+            return await AddAsync(deadline);
         }
     }
 }

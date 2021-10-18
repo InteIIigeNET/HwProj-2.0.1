@@ -17,6 +17,7 @@ using HwProj.CoursesService.Client;
 using HwProj.SolutionsService.API.Events;
 using HwProj.SolutionsService.Client;
 using UpdateTaskMaxRatingEvent = HwProj.CoursesService.API.Events.UpdateTaskMaxRatingEvent;
+using HwProj.SolutionsService.API.Events;
 
 namespace HwProj.NotificationsService.API
 {
@@ -47,6 +48,7 @@ namespace HwProj.NotificationsService.API
             services.AddTransient<IEventHandler<NewHomeworkEvent>, NewHomeworkEventHandler>();
             services.AddTransient<IEventHandler<InviteLecturerEvent>, InviteLecturerEventHandler>();
             services.AddTransient<IEventHandler<NewCourseMateEvent>, NewCourseMateHandler>();
+            services.AddTransient<IEventHandler<DeadlineNotificationEvent>, SendDeadlineNotificationEventHandler>();
 
             var httpClient = new HttpClient();
             services.AddAuthServiceClient(httpClient, "http://localhost:5001");
@@ -69,6 +71,7 @@ namespace HwProj.NotificationsService.API
             eventBus.Subscribe<LecturerRejectToCourseEvent>();
             eventBus.Subscribe<NewHomeworkEvent>();
             eventBus.Subscribe<NewCourseMateEvent>();
+            eventBus.Subscribe<DeadlineNotificationEvent>();
             app.ConfigureHwProj(env, "Notifications API");
         }
     }

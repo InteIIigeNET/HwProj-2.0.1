@@ -14,6 +14,8 @@ namespace HwProj.CoursesService.API.Models
         [JsonConverter(typeof(StringEnumConverter))]
         public DeadlineType DeadlineType { get; set; }
         
+        public int CorrectionsBefore { get; set; }
+        
         public bool IsExpired { get; set; }
         
         public string AffectedStudentId { get; set; }

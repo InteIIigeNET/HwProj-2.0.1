@@ -40,6 +40,7 @@ namespace HwProj.SolutionsService.API
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IEventBus eventBus)
         {
+            eventBus.Subscribe<ClearCompletedEvent>();
             app.ConfigureHwProj(env, "Solutions API");
         }
     }
