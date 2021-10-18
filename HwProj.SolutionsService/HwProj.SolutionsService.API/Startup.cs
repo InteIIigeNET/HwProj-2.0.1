@@ -37,6 +37,7 @@ namespace HwProj.SolutionsService.API
         {
             eventBus.Subscribe<UpdateTaskMaxRatingEvent>();
             eventBus.Subscribe<UpdateSolutionMaxRatingEvent>();
+            eventBus.Subscribe<ClearCompletedEvent>();
             app.ConfigureHwProj(env, "Solutions API");
         }
     }
