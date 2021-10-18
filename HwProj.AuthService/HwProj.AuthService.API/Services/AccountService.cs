@@ -125,7 +125,7 @@ namespace HwProj.AuthService.API.Services
         {
             if (await _userManager.FindByEmailAsync(model.Email) != null)
             {
-                return Result<TokenCredentials>.Failed("Пользователь существует");
+                return Result<TokenCredentials>.Failed("Пользователь уже зарегистрирован");
             }
 
             var user = _mapper.Map<User>(model);
