@@ -18,7 +18,7 @@ namespace HwProj.CoursesService.API.Repositories
         {
             var deadlines = Context.Set<Deadline>().Where(d => d.TaskId == deadline.TaskId);
             var lastAddedDeadline = await deadlines.OrderByDescending(d => d.Id).FirstOrDefaultAsync();
-
+            
             if (lastAddedDeadline != null && lastAddedDeadline.DateTime > deadline.DateTime)
             {
                 var listOfDeadlines = await deadlines.ToListAsync();
@@ -40,6 +40,12 @@ namespace HwProj.CoursesService.API.Repositories
                 deadline.DeadlineType = DeadlineType.Corrections;
             }
             return await AddAsync(deadline);
+        }
+
+        public async Task<bool> CheckIfDeadlineExistsAsync(Deadline deadline)
+        {
+            return await Context.Set<Deadline>()
+                .AnyAsync(d => d.TaskId == deadline.TaskId && d.DateTime == deadline.DateTime);
         }
     }
 }
