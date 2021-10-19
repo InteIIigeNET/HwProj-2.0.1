@@ -1,7 +1,9 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
 using HwProj.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.CoursesService.API.Repositories
 {
@@ -14,9 +16,29 @@ namespace HwProj.CoursesService.API.Repositories
 
         public async Task<long> AddDeadlineAsync(Deadline deadline)
         {
-            var deadlinesBefore = FindAll(d => d.TaskId == deadline.TaskId);
-            deadline.DeadlineType = deadlinesBefore.Any() ? DeadlineType.Corrections : DeadlineType.TaskDeadline; 
-            deadline.CorrectionNumber = deadlinesBefore.Count();
+            var deadlines = Context.Set<Deadline>().Where(d => d.TaskId == deadline.TaskId);
+            var lastAddedDeadline = await deadlines.OrderByDescending(d => d.Id).FirstOrDefaultAsync();
+
+            if (lastAddedDeadline != null && lastAddedDeadline.DateTime > deadline.DateTime)
+            {
+                var listOfDeadlines = await deadlines.ToListAsync();
+                listOfDeadlines.Add(deadline);
+                listOfDeadlines.Sort((x, y) => DateTime.Compare(x.DateTime, y.DateTime));
+
+                for (var i = 0; i < listOfDeadlines.Count; ++i)
+                {
+                    listOfDeadlines[i].CorrectionNumber = i;
+                    listOfDeadlines[i].DeadlineType = DeadlineType.Corrections;
+                }
+                
+                listOfDeadlines[0].DeadlineType = DeadlineType.TaskDeadline;
+                await Context.SaveChangesAsync().ConfigureAwait(false);
+            }
+            else if (lastAddedDeadline != null)
+            {
+                deadline.CorrectionNumber = deadlines.Count();
+                deadline.DeadlineType = DeadlineType.Corrections;
+            }
             return await AddAsync(deadline);
         }
     }
