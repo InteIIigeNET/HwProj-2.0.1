@@ -30,10 +30,8 @@ namespace HwProj.CoursesService.API.Services
             
             deadline.TaskId = taskId;
             var affectedStudents = _tasksRepository.FindAll(task => task.Id == taskId)
-                .Include(t => t.Homework)
-                .ThenInclude(h => h.Course)
-                .ThenInclude(c => c.CourseMates)
-                .SelectMany(g => g.Homework.Course.CourseMates.Where(cm => cm.IsAccepted))
+                .SelectMany(t => t.Homework.Course.CourseMates)
+                .Where(mate => mate.IsAccepted)
                 .Select(mate => mate.StudentId)
                 .ToList();
 

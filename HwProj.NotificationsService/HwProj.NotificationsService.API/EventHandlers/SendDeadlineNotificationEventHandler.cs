@@ -18,7 +18,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
         
         public async Task HandleAsync(DeadlineNotificationEvent @event)
         {
-            string toBody = @event.DaysFromExpiration != TimeSpan.Zero
+            string toBody = @event.DaysFromExpiration == TimeSpan.Zero
                 ? $"Дедлайн по <a href='/tasks/get/{@event.TaskId}'>данному заданию</a> прошёл"
                 : $"До дедлайна по <a href='/tasks/get/{@event.TaskId}'>данному заданию</a> осталось {@event.DaysFromExpiration.Days.ToString()} дней";
             string toCategory = @event.DaysFromExpiration == TimeSpan.Zero
