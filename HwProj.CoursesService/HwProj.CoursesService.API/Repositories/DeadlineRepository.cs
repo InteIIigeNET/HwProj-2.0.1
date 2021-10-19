@@ -16,7 +16,7 @@ namespace HwProj.CoursesService.API.Repositories
         {
             var deadlinesBefore = FindAll(d => d.TaskId == deadline.TaskId);
             deadline.DeadlineType = deadlinesBefore.Any() ? DeadlineType.Corrections : DeadlineType.TaskDeadline; 
-            deadline.CorrectionsBefore = deadlinesBefore.Count();
+            deadline.CorrectionNumber = deadlinesBefore.Count();
             return await AddAsync(deadline);
         }
     }
