@@ -23,12 +23,16 @@ namespace HwProj.CoursesService.API.Services
             _tasksRepository = tasksRepository;
         }
 
-        public async Task<long> AddDeadlineAsync(long taskId, Deadline deadline)
+        public async Task<long?> AddDeadlineAsync(long taskId, Deadline deadline)
         {
             var deadlineDateTimeInUtc = deadline.DateTime.Subtract(TimeSpan.FromHours(3));
             var dateTimeInUtc = DateTime.UtcNow;
-            
             deadline.TaskId = taskId;
+
+
+            if (await _deadlinesRepository.CheckIfDeadlineExistsAsync(deadline))
+                return null;
+            
             var affectedStudents = _tasksRepository.FindAll(task => task.Id == taskId)
                 .SelectMany(t => t.Homework.Course.CourseMates)
                 .Where(mate => mate.IsAccepted)

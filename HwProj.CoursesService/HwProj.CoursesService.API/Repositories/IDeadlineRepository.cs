@@ -7,5 +7,6 @@ namespace HwProj.CoursesService.API.Repositories
     public interface IDeadlinesRepository : ICrudRepository<Deadline, long>
     {
         Task<long> AddDeadlineAsync(Deadline deadline);
+        Task<bool> CheckIfDeadlineExistsAsync(Deadline deadline);
     }
 }

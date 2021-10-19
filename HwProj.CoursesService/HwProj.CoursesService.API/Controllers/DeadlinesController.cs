@@ -28,7 +28,7 @@ namespace HwProj.CoursesService.API.Controllers
                 return BadRequest();
             var deadlineId =
                 await _deadlinesService.AddDeadlineAsync(taskId, _mapper.Map<Deadline>(addDeadlineViewModel));
-            return Ok(deadlineId);
+            return deadlineId != null ? Ok(deadlineId) : BadRequest() as IActionResult;
         }
         
         [HttpGet]
