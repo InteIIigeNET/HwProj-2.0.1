@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  hwproj.authservice.api:
+    image: ${DOCKER_REGISTRY-}hwprojauthserviceapi
+    build:
+      context: .
+      dockerfile: HwProj.AuthService/HwProj.AuthService.API/Dockerfile
