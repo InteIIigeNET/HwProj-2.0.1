@@ -9,6 +9,7 @@ using HwProj.EventBus.Client.Interfaces;
 using HwProj.Utils.Authorization;
 using HwProj.Utils.Configuration.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -30,9 +31,9 @@ namespace HwProj.Utils.Configuration
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies())
                 .AddCors()
                 .AddMvc()
-                .AddJsonOptions(options =>
+                .AddNewtonsoftJson(options =>
                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore)
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+                .SetCompatibilityVersion(CompatibilityVersion.Latest);
 
             services.AddSwaggerGen(c =>
             {
