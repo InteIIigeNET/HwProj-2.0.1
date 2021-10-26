@@ -134,6 +134,11 @@ namespace HwProj.AuthService.API.Services
             var createUserTask = model.IsExternalAuth
                 ? _userManager.CreateAsync(user)
                 : _userManager.CreateAsync(user, model.Password);
+
+            if (!await _userManager.CheckPasswordAsync(user, model.PasswordConfirm) && createUserTask.Result.Succeeded)
+            {
+                return Result<TokenCredentials>.Failed("Пароли не совпадают");
+            }
             
             var result = await createUserTask
                 .Then(() => _userManager.AddToRoleAsync(user, Roles.StudentRole))
