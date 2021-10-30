@@ -6,5 +6,32 @@ services:
     build:
       context: .
       dockerfile: HwProj.SolutionsService/HwProj.SolutionsService.API/Dockerfile
-    ports:
-    - 5007:5007
+
+
+  hwproj.authservice.api:
+    image: ${DOCKER_REGISTRY-}hwprojauthserviceapi
+    build:
+      context: .
+      dockerfile: HwProj.AuthService/HwProj.AuthService.API/Dockerfile
+
+
+  hwproj.apigateway.api:
+    image: ${DOCKER_REGISTRY-}hwprojapigatewayapi
+    build:
+      context: .
+      dockerfile: HwProj.APIGateway/HwProj.APIGateway.API/Dockerfile
+
+
+  hwproj.coursesservice.api:
+    image: ${DOCKER_REGISTRY-}hwprojcoursesserviceapi
+    build:
+      context: .
+      dockerfile: HwProj.CoursesService/HwProj.CoursesService.API/Dockerfile
+
+
+  hwproj.notificationsservice.api:
+    image: ${DOCKER_REGISTRY-}hwprojnotificationsserviceapi
+    build:
+      context: .
+      dockerfile: HwProj.NotificationsService/HwProj.NotificationsService.API/Dockerfile
+
