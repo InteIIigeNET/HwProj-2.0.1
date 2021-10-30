@@ -4,41 +4,41 @@ services:
   hwproj.solutionsservice.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:5007
+      - ASPNETCORE_URLS=https://+:5007
     ports:
-      - "5007"
+      - "5007:5007"
     volumes:
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
 
   hwproj.authservice.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:5001
+      - ASPNETCORE_URLS=https://+:5001
     ports:
-      - "5001"
+      - "5001:5001"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
 
   hwproj.apigateway.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:5000
+      - ASPNETCORE_URLS=https://+:5000
     ports:
-      - "5000"
+      - "5000:5000"
 
 
   hwproj.coursesservice.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:5002
+      - ASPNETCORE_URLS=https://+:5002
     ports:
-      - "5002"
+      - "5002:5002"
 
 
   hwproj.notificationsservice.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:5006
+      - ASPNETCORE_URLS=https://+:5006
     ports:
-      - "5006"
+      - "5006:5006"
 
