@@ -1,10 +1,19 @@
 version: '3.4'
 
 services:
+  rabbitmq:
+    container_name: rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
   hwproj.solutionsservice.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=https://+:5007
+      #- ASPNETCORE_URLS=https://+:5007
+    depends_on:
+      - rabbitmq
     ports:
       - "5007:5007"
     volumes:
@@ -13,7 +22,9 @@ services:
   hwproj.authservice.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=https://+:5001
+      #- ASPNETCORE_URLS=https://+:5001
+    depends_on:
+      - rabbitmq
     ports:
       - "5001:5001"
     volumes:
@@ -22,23 +33,26 @@ services:
   hwproj.apigateway.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=https://+:5000
+      #- ASPNETCORE_URLS=https://+:5000
+    depends_on:
+      - rabbitmq
     ports:
       - "5000:5000"
-
 
   hwproj.coursesservice.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=https://+:5002
+      #- ASPNETCORE_URLS=https://+:5002
+    depends_on:
+      - rabbitmq
     ports:
       - "5002:5002"
-
 
   hwproj.notificationsservice.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=https://+:5006
+      #- ASPNETCORE_URLS=https://+:5006
+    depends_on:
+      - rabbitmq
     ports:
       - "5006:5006"
-

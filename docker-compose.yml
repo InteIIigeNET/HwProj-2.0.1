@@ -1,12 +1,14 @@
 version: '3.4'
 
 services:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    
   hwproj.solutionsservice.api:
     image: ${DOCKER_REGISTRY-}hwprojsolutionsserviceapi
     build:
       context: .
       dockerfile: HwProj.SolutionsService/HwProj.SolutionsService.API/Dockerfile
-
 
   hwproj.authservice.api:
     image: ${DOCKER_REGISTRY-}hwprojauthserviceapi
@@ -14,13 +16,11 @@ services:
       context: .
       dockerfile: HwProj.AuthService/HwProj.AuthService.API/Dockerfile
 
-
   hwproj.apigateway.api:
     image: ${DOCKER_REGISTRY-}hwprojapigatewayapi
     build:
       context: .
       dockerfile: HwProj.APIGateway/HwProj.APIGateway.API/Dockerfile
-
 
   hwproj.coursesservice.api:
     image: ${DOCKER_REGISTRY-}hwprojcoursesserviceapi
@@ -28,10 +28,8 @@ services:
       context: .
       dockerfile: HwProj.CoursesService/HwProj.CoursesService.API/Dockerfile
 
-
   hwproj.notificationsservice.api:
     image: ${DOCKER_REGISTRY-}hwprojnotificationsserviceapi
     build:
       context: .
       dockerfile: HwProj.NotificationsService/HwProj.NotificationsService.API/Dockerfile
-
