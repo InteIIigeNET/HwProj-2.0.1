@@ -1,0 +1,10 @@
+version: '3.4'
+
+services:
+  hwproj.solutionsservice.api:
+    image: ${DOCKER_REGISTRY-}hwprojsolutionsserviceapi
+    build:
+      context: .
+      dockerfile: HwProj.SolutionsService/HwProj.SolutionsService.API/Dockerfile
+    ports:
+    - 5007:5007
