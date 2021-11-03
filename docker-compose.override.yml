@@ -27,10 +27,10 @@ services:
     environment:
       - "ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=AuthServiceDB;Trusted_Connection=True;"
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=https://+:5001
+     # - ASPNETCORE_URLS=https://+:5001
     depends_on:
       - rabbitmq
-      - - mssqllocaldb
+      - mssqllocaldb
     ports:
       - "5001:5001"
     volumes:
