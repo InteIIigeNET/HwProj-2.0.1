@@ -3,21 +3,27 @@ version: '3.4'
 services:
   hwproj.solutionsservice.api:
     environment:
+      - "ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=SolutionServiceDB;Trusted_Connection=True;"
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=https://+:5007
     ports:
       - "5007:5007"
     volumes:
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+    depends_on:
+      - mssqllocaldb
 
   hwproj.authservice.api:
     environment:
+      - "ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=AuthServiceDB;Trusted_Connection=True;"
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=https://+:5001
     ports:
       - "5001:5001"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+    depends_on:
+      - mssqllocaldb
 
   hwproj.apigateway.api:
     environment:
@@ -29,16 +35,27 @@ services:
 
   hwproj.coursesservice.api:
     environment:
+      - "ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=CourseWorksServiceDB;Trusted_Connection=True;MultipleActiveResultSets=True;"
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=https://+:5002
     ports:
       - "5002:5002"
+    depends_on:
+      - mssqllocaldb
 
 
   hwproj.notificationsservice.api:
     environment:
+      - "ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=NotificationsServiceDB;Trusted_Connection=True;MultipleActiveResultSets=True;"
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=https://+:5006
+    depends_on:
+      - mssqllocaldb
     ports:
       - "5006:5006"
+  
+  mssqllocaldb:
+    container_name: mssqllocaldb
+    ports:
+      - "4000:4000"
 

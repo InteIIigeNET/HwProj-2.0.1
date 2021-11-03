@@ -34,4 +34,7 @@ services:
     build:
       context: .
       dockerfile: HwProj.NotificationsService/HwProj.NotificationsService.API/Dockerfile
-
+  
+  
+  mssqllocaldb:
+    image: mcr.microsoft.com/mssql/server:2017-latest
