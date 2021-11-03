@@ -1,34 +1,51 @@
 version: '3.4'
 
 services:
+  rabbitmq:
+    container_name: rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
   hwproj.solutionsservice.api:
     environment:
       - "ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=SolutionServiceDB;Trusted_Connection=True;"
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=https://+:5007
+      #- ASPNETCORE_URLS=https://+:5007
+    depends_on:
+      - rabbitmq
+      - hwproj.authservice.api
+      - hwproj.coursesservice.api
+      - mssqllocaldb
     ports:
       - "5007:5007"
     volumes:
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
-    depends_on:
-      - mssqllocaldb
 
   hwproj.authservice.api:
     environment:
       - "ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=AuthServiceDB;Trusted_Connection=True;"
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=https://+:5001
+    depends_on:
+      - rabbitmq
+      - - mssqllocaldb
     ports:
       - "5001:5001"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-    depends_on:
-      - mssqllocaldb
 
   hwproj.apigateway.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=https://+:5000
+      #- ASPNETCORE_URLS=https://+:5000
+    depends_on:
+      - rabbitmq
+      - hwproj.authservice.api
+      - hwproj.solutionsservice.api
+      - hwproj.coursesservice.api
+      - hwproj.notificationsservice.api
     ports:
       - "5000:5000"
 
@@ -37,19 +54,25 @@ services:
     environment:
       - "ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=CourseWorksServiceDB;Trusted_Connection=True;MultipleActiveResultSets=True;"
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=https://+:5002
+      #- ASPNETCORE_URLS=https://+:5002
+    depends_on:
+      - rabbitmq
+      - hwproj.authservice.api
+      - mssqllocaldb
     ports:
       - "5002:5002"
-    depends_on:
-      - mssqllocaldb
 
 
   hwproj.notificationsservice.api:
     environment:
       - "ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=NotificationsServiceDB;Trusted_Connection=True;MultipleActiveResultSets=True;"
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=https://+:5006
+      #- ASPNETCORE_URLS=https://+:5006
     depends_on:
+      - rabbitmq
+      - hwproj.authservice.api
+      - hwproj.coursesservice.api
+      - hwproj.solutionsservice.api
       - mssqllocaldb
     ports:
       - "5006:5006"

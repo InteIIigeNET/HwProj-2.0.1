@@ -1,6 +1,9 @@
 version: '3.4'
 
 services:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    
   hwproj.solutionsservice.api:
     image: ${DOCKER_REGISTRY-}hwprojsolutionsserviceapi
     build:
