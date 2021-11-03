@@ -14,6 +14,8 @@ services:
       #- ASPNETCORE_URLS=https://+:5007
     depends_on:
       - rabbitmq
+      - hwproj.authservice.api
+      - hwproj.coursesservice.api
     ports:
       - "5007:5007"
     volumes:
@@ -36,6 +38,10 @@ services:
       #- ASPNETCORE_URLS=https://+:5000
     depends_on:
       - rabbitmq
+      - hwproj.authservice.api
+      - hwproj.solutionsservice.api
+      - hwproj.coursesservice.api
+      - hwproj.notificationsservice.api
     ports:
       - "5000:5000"
 
@@ -45,6 +51,7 @@ services:
       #- ASPNETCORE_URLS=https://+:5002
     depends_on:
       - rabbitmq
+      - hwproj.authservice.api
     ports:
       - "5002:5002"
 
@@ -54,5 +61,8 @@ services:
       #- ASPNETCORE_URLS=https://+:5006
     depends_on:
       - rabbitmq
+      - hwproj.authservice.api
+      - hwproj.coursesservice.api
+      - hwproj.solutionsservice.api
     ports:
       - "5006:5006"
