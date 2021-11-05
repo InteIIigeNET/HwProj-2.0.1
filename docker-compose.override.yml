@@ -3,16 +3,18 @@ version: '3.4'
 services:
   rabbitmq:
     container_name: rabbitmq
-    restart: always
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
     ports:
       - "5672:5672"
       - "15672:15672"
 
   hwproj.solutionsservice.api:
     environment:
-      - "ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=SolutionServiceDB;Trusted_Connection=True;"
+      - "ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=SolutionServiceDB;User=sa;Password=Your_password123;"
       - ASPNETCORE_ENVIRONMENT=Development
-      #- ASPNETCORE_URLS=https://+:5007
+      - ASPNETCORE_URLS=http://+:5007
     depends_on:
       - rabbitmq
       - hwproj.authservice.api
@@ -25,9 +27,9 @@ services:
 
   hwproj.authservice.api:
     environment:
-      - "ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=AuthServiceDB;Trusted_Connection=True;"
+      - "ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=AuthServiceDB;User=sa;Password=Your_password123;"
       - ASPNETCORE_ENVIRONMENT=Development
-     # - ASPNETCORE_URLS=https://+:5001
+      - ASPNETCORE_URLS=http://+:5001
     depends_on:
       - rabbitmq
       - mssqllocaldb
@@ -39,7 +41,7 @@ services:
   hwproj.apigateway.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      #- ASPNETCORE_URLS=https://+:5000
+      - ASPNETCORE_URLS=http://+:5000
     depends_on:
       - rabbitmq
       - hwproj.authservice.api
@@ -52,9 +54,9 @@ services:
 
   hwproj.coursesservice.api:
     environment:
-      - "ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=CourseWorksServiceDB;Trusted_Connection=True;MultipleActiveResultSets=True;"
+      - "ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=CourseWorksServiceDB;MultipleActiveResultSets=True;User=sa;Password=Your_password123;"
       - ASPNETCORE_ENVIRONMENT=Development
-      #- ASPNETCORE_URLS=https://+:5002
+      - ASPNETCORE_URLS=http://+:5002
     depends_on:
       - rabbitmq
       - hwproj.authservice.api
@@ -65,9 +67,9 @@ services:
 
   hwproj.notificationsservice.api:
     environment:
-      - "ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=NotificationsServiceDB;Trusted_Connection=True;MultipleActiveResultSets=True;"
+      - "ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=NotificationsServiceDB;MultipleActiveResultSets=True;User=sa;Password=Your_password123;"
       - ASPNETCORE_ENVIRONMENT=Development
-      #- ASPNETCORE_URLS=https://+:5006
+      - ASPNETCORE_URLS=http://+:5006
     depends_on:
       - rabbitmq
       - hwproj.authservice.api
@@ -79,6 +81,8 @@ services:
   
   mssqllocaldb:
     container_name: mssqllocaldb
+    environment:
+        SA_PASSWORD: "Your_password123"
+        ACCEPT_EULA: "Y"
     ports:
-      - "4000:4000"
-
+      - "1433:1433"

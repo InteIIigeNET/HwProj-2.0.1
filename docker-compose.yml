@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   rabbitmq:
-    image: rabbitmq:3-management-alpine
+    image: rabbitmq:3-management
     
   hwproj.solutionsservice.api:
     image: ${DOCKER_REGISTRY-}hwprojsolutionsserviceapi
@@ -40,4 +40,4 @@ services:
   
   
   mssqllocaldb:
-    image: mcr.microsoft.com/mssql/server:2017-latest
+    image: mcr.microsoft.com/mssql/server:2019-latest
