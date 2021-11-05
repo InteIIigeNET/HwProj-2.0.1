@@ -59,22 +59,6 @@ const Register: FC<LoginProps> = (props) => {
 
     const handleSubmit = async (e: any) => {
         e.preventDefault()
-        if (registerState.password.length <= 5) {
-            setCommonState((prevState) => ({
-                ...prevState,
-                error: ['Пароль должен содержать не менее 6 символов'],
-                loggedIn: false
-            }))
-            return
-        }
-        if (registerState.password !== registerState.passwordConfirm) {
-            setCommonState((prevState) => ({
-                ...prevState,
-                error: ['Пароль и подтверждение пароля не совпадают'],
-                loggedIn: false
-            }))
-            return
-        }
         try {
             const result = await ApiSingleton.authService.register(registerState)
             setCommonState((prevState) => ({
@@ -82,7 +66,9 @@ const Register: FC<LoginProps> = (props) => {
                 error: result!.error!,
                 loggedIn: result.loggedIn
             }))
-            props.onLogin()
+            if (result.loggedIn) {
+                props.onLogin()
+            }
         }
         catch (e) {
             setCommonState((prevState) => ({

@@ -84,7 +84,7 @@ namespace HwProj.AuthService.API.Services
 
             if (!await _userManager.IsEmailConfirmedAsync(user).ConfigureAwait(false))
             {
-                return Result<TokenCredentials>.Failed("Email not confirmed");
+                return Result<TokenCredentials>.Failed("Электронная почта не подтверждена");
             }
 
             var result = await _signInManager.PasswordSignInAsync(
@@ -125,7 +125,12 @@ namespace HwProj.AuthService.API.Services
         {
             if (await _userManager.FindByEmailAsync(model.Email) != null)
             {
-                return Result<TokenCredentials>.Failed("User exist");
+                return Result<TokenCredentials>.Failed("Пользователь уже зарегистрирован");
+            }
+            
+            if(model.Password.Length < 6)
+            {
+                return Result<TokenCredentials>.Failed("Пароль должен содержать не менее 6 символов");
             }
 
             var user = _mapper.Map<User>(model);
@@ -134,6 +139,11 @@ namespace HwProj.AuthService.API.Services
             var createUserTask = model.IsExternalAuth
                 ? _userManager.CreateAsync(user)
                 : _userManager.CreateAsync(user, model.Password);
+
+            if (createUserTask.Result.Succeeded && !await _userManager.CheckPasswordAsync(user, model.PasswordConfirm))
+            {
+                return Result<TokenCredentials>.Failed("Пароли не совпадают");
+            }
             
             var result = await createUserTask
                 .Then(() => _userManager.AddToRoleAsync(user, Roles.StudentRole))
