@@ -128,7 +128,7 @@ namespace HwProj.AuthService.API.Services
                 return Result<TokenCredentials>.Failed("Пользователь уже зарегистрирован");
             }
             
-            if(!model.IsExternalAuth && model.Password.Length < 6)
+            if (!model.IsExternalAuth && model.Password.Length < 6)
             {
                 return Result<TokenCredentials>.Failed("Пароль должен содержать не менее 6 символов");
             }
