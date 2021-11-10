@@ -12,7 +12,7 @@ namespace HwProj.Models.NotificationsService
 
         //навесить индекс
         public string Owner { get; set; }
-        public string Category { get; set; }
+        public CategoryState Category { get; set; }
         public string Body { get; set; }
         public bool HasSeen { get; set; }
         public DateTime Date { get; set; }
