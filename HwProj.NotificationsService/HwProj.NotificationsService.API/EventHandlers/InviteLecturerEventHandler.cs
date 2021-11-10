@@ -22,7 +22,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             {
                 Sender = "AuthService",
                 Body = "Вас добавили в список лекторов.",
-                Category = "AuthService",
+                Category = CategoryState.CourseRegister,
                 Date = DateTime.UtcNow,
                 HasSeen = false,
                 Owner = @event.UserId

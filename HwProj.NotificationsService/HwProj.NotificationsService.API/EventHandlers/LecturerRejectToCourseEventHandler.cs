@@ -25,7 +25,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             {
                 Sender = "CourseService",
                 Body = $"Вас не приняли на курс <a href='/courses/{@event.CourseId}'>{@event.CourseName}</a>.",
-                Category = "CourseService",
+                Category = CategoryState.CourseRegister,
                 Date = DateTime.UtcNow,
                 HasSeen = false,
                 Owner = @event.StudentId
