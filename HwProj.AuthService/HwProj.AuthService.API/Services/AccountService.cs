@@ -128,7 +128,7 @@ namespace HwProj.AuthService.API.Services
                 return Result<TokenCredentials>.Failed("Пользователь уже зарегистрирован");
             }
             
-            if(model.Password.Length < 6)
+            if(!model.IsExternalAuth && model.Password.Length < 6)
             {
                 return Result<TokenCredentials>.Failed("Пароль должен содержать не менее 6 символов");
             }
@@ -140,7 +140,7 @@ namespace HwProj.AuthService.API.Services
                 ? _userManager.CreateAsync(user)
                 : _userManager.CreateAsync(user, model.Password);
 
-            if (createUserTask.Result.Succeeded && !await _userManager.CheckPasswordAsync(user, model.PasswordConfirm))
+            if (!model.IsExternalAuth && createUserTask.Result.Succeeded && !await _userManager.CheckPasswordAsync(user, model.PasswordConfirm))
             {
                 return Result<TokenCredentials>.Failed("Пароли не совпадают");
             }
