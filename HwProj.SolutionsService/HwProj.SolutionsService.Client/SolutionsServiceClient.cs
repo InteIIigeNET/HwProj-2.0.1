@@ -19,7 +19,7 @@ namespace HwProj.SolutionsService.Client
         public SolutionsServiceClient(IHttpClientFactory clientFactory, IConfiguration configuration)
         {
             _httpClient = clientFactory.CreateClient();
-            _solutionServiceUri = new Uri(configuration.GetSection("BasedUri")["Solutions"]);
+            _solutionServiceUri = new Uri(configuration.GetSection("Services")["Solutions"]);
         }
         
         public async Task<Solution[]> GetAllSolutions()

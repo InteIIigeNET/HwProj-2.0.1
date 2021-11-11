@@ -23,7 +23,7 @@ namespace HwProj.CoursesService.Client
         {
             _httpClient = clientFactory.CreateClient();
             _httpContextAccessor = httpContextAccessor;
-            _coursesServiceUri = new Uri(configuration.GetSection("BasedUri")["Courses"]);
+            _coursesServiceUri = new Uri(configuration.GetSection("Services")["Courses"]);
         }
 
         public async Task<CourseViewModel[]> GetAllCourses()

@@ -17,7 +17,7 @@ namespace HwProj.NotificationsService.Client
         public NotificationsServiceClient(IHttpClientFactory clientFactory, IConfiguration configuration)
         {
             _httpClient = clientFactory.CreateClient();
-            _notificationServiceUri = new Uri(configuration.GetSection("BasedUri")["Notifications"]);
+            _notificationServiceUri = new Uri(configuration.GetSection("Services")["Notifications"]);
         }
 
         public async Task<NotificationViewModel[]> Get(string userId, NotificationFilter filter)

@@ -19,11 +19,7 @@ namespace HwProj.AuthService.Client
         public AuthServiceClient(IHttpClientFactory clientFactory, IConfiguration configuration)
         {
             _httpClient = clientFactory.CreateClient();
-            var a = configuration.GetSection("BasedUri");
-            var b = a["Auth"];
-            var b1 = a["Courses"];
-            var b2 = a["Solutions"];
-            _authServiceUri = new Uri("");
+            _authServiceUri = new Uri(configuration.GetSection("Services")["Auth"]);
         }
 
         public async Task<AccountDataDto> GetAccountData(string userId)
