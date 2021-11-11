@@ -6,11 +6,9 @@ namespace HwProj.SolutionsService.Client
 {
     public static class ConfigurationExtensions
     {
-        public static IServiceCollection AddSolutionServiceClient(this IServiceCollection services, HttpClient httpClient,
-            string baseUri)
+        public static IServiceCollection AddSolutionServiceClient(this IServiceCollection services)
         {
-            var solutionServiceClient = new SolutionsServiceClient(httpClient, new Uri(baseUri));
-            services.AddSingleton<ISolutionsServiceClient>(solutionServiceClient);
+            services.AddScoped<ISolutionsServiceClient, SolutionsServiceClient>();
             return services;
         }
     }

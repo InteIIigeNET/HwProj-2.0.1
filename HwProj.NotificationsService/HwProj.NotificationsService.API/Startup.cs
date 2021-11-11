@@ -48,10 +48,10 @@ namespace HwProj.NotificationsService.API
             services.AddTransient<IEventHandler<InviteLecturerEvent>, InviteLecturerEventHandler>();
             services.AddTransient<IEventHandler<NewCourseMateEvent>, NewCourseMateHandler>();
 
-            var httpClient = new HttpClient();
-            services.AddAuthServiceClient(httpClient, "http://localhost:5001");
-            services.AddCoursesServiceClient(httpClient, "http://localhost:5002");
-            services.AddSolutionServiceClient(httpClient, "http://localhost:5007");
+            services.AddHttpClient();
+            services.AddAuthServiceClient();
+            services.AddCoursesServiceClient();
+            services.AddSolutionServiceClient();
 
             services.ConfigureHwProjServices("Notifications API");
         }
