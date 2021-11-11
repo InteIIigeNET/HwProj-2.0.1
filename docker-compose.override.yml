@@ -16,6 +16,8 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:5007
       - EventBus:EventBusHostName=rabbitmq
+      - Services:Auth=hwproj.authservice.api
+      - Services:Courses=hwproj.coursesservice.api
     depends_on:
       - rabbitmq
       - hwproj.authservice.api
@@ -44,6 +46,10 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:5000
+      - Service:Auth=hwproj.authservice.api
+      - Service:Courses=hwproj.coursesservice.api
+      - Service:Solutions=hwproj.solutionsservice.api
+      - Service:Notifications=hwproj.notificationsservice.api
     depends_on:
       - rabbitmq
       - hwproj.authservice.api
@@ -60,6 +66,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:5002
       - EventBus:EventBusHostName=rabbitmq
+      - Service:Auth=hwproj.authservice.api
     depends_on:
       - rabbitmq
       - hwproj.authservice.api
@@ -74,6 +81,9 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:5006
       - EventBus:EventBusHostName=rabbitmq
+      - Service:Auth=hwproj.authservice.api
+      - Service:Courses=hwproj.coursesservice.api
+      - Service:Solutions=hwproj.solutionsservice.api
     depends_on:
       - rabbitmq
       - hwproj.authservice.api
