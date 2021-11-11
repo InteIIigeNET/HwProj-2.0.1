@@ -30,9 +30,10 @@ namespace HwProj.SolutionsService.API
             services.AddScoped<ISolutionsRepository, SolutionsRepository>();
             services.AddScoped<ISolutionsService, Services.SolutionsService>();
 
-            var httpClient = new HttpClient();
-            services.AddAuthServiceClient(httpClient, "http://localhost:5001");
-            services.AddCoursesServiceClient(httpClient, "http://localhost:5002");
+            services.AddHttpClient();
+            services.AddHttpContextAccessor();
+            services.AddAuthServiceClient();
+            services.AddCoursesServiceClient();
 
             services.AddEventBus(Configuration);
             services.ConfigureHwProjServices("Solutions API");

@@ -42,8 +42,9 @@ namespace HwProj.CoursesService.API
 
             services.AddEventBus(Configuration);
 
-            var httpClient = new HttpClient();
-            services.AddAuthServiceClient(httpClient, "http://localhost:5001");
+            services.AddHttpContextAccessor();
+            services.AddHttpClient();
+            services.AddAuthServiceClient();
 
             services.ConfigureHwProjServices("Courses API");
         }

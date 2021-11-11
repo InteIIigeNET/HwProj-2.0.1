@@ -6,11 +6,9 @@ namespace HwProj.AuthService.Client
 {
     public static class ConfigurationExtensions
     {
-        public static IServiceCollection AddAuthServiceClient(this IServiceCollection services, HttpClient httpClient,
-            string baseUri)
+        public static IServiceCollection AddAuthServiceClient(this IServiceCollection services)
         {
-            var authServiceClient = new AuthServiceClient(httpClient, new Uri(baseUri));
-            services.AddSingleton<IAuthServiceClient>(authServiceClient);
+            services.AddScoped<IAuthServiceClient, AuthServiceClient>();
             return services;
         }
     }
