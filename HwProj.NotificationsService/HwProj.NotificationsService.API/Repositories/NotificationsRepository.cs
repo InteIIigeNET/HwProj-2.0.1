@@ -33,8 +33,10 @@ namespace HwProj.NotificationsService.API.Repositories
                 return await result.OrderByDescending(t => t.Date).ToArrayAsync();
             }
 
-            result = result.Where(t => t.Category == filter.Category);
-            
+            if (filter.Category != CategoryState.None)
+            {
+                result = result.Where(t => t.Category == filter.Category);
+            }
             if (filter.HasSeen != null)
             {
                 result = result.Where(t => t.HasSeen == filter.HasSeen);

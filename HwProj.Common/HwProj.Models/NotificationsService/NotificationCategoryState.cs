@@ -2,6 +2,7 @@
 {
     public enum CategoryState
     {
+        None,
         ProfileUpdate,
         SolutionSent, 
         CourseRegister, 
