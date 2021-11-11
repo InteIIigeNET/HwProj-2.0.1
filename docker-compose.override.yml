@@ -15,6 +15,7 @@ services:
       - "ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=SolutionServiceDB;User=sa;Password=Your_password123;"
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:5007
+      - EventBus:EventBusHostName=rabbitmq
     depends_on:
       - rabbitmq
       - hwproj.authservice.api
@@ -30,6 +31,7 @@ services:
       - "ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=AuthServiceDB;User=sa;Password=Your_password123;"
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:5001
+      - EventBus:EventBusHostName=rabbitmq
     depends_on:
       - rabbitmq
       - mssqllocaldb
@@ -57,6 +59,7 @@ services:
       - "ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=CourseWorksServiceDB;MultipleActiveResultSets=True;User=sa;Password=Your_password123;"
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:5002
+      - EventBus:EventBusHostName=rabbitmq
     depends_on:
       - rabbitmq
       - hwproj.authservice.api
@@ -70,6 +73,7 @@ services:
       - "ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=NotificationsServiceDB;MultipleActiveResultSets=True;User=sa;Password=Your_password123;"
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:5006
+      - EventBus:EventBusHostName=rabbitmq
     depends_on:
       - rabbitmq
       - hwproj.authservice.api
