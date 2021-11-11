@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using AutoMapper;
+using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Services;
 using HwProj.Models.CoursesService.ViewModels;
@@ -21,6 +22,7 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost("{courseId}/add")]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<long> AddHomework(long courseId, [FromBody] CreateHomeworkViewModel homeworkViewModel)
         {
             homeworkViewModel.Tasks.ForEach(task => task.InitializeDeadline());
@@ -39,12 +41,14 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpDelete("delete/{homeworkId}")]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task DeleteHomework(long homeworkId)
         {
             await _homeworksService.DeleteHomeworkAsync(homeworkId);
         }
 
         [HttpPut("update/{homeworkId}")]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task UpdateHomework(long homeworkId, [FromBody] CreateHomeworkViewModel homeworkViewModel)
         {
             homeworkViewModel.Tasks.ForEach(task => task.InitializeDeadline());
