@@ -7,8 +7,8 @@ services:
       #- RABBITMQ_DEFAULT_USER=guest
       #- RABBITMQ_DEFAULT_PASS=guest
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "2000:5672"
+      - "2001:15672"
 
   hwproj.solutionsservice.api:
     environment:
@@ -41,6 +41,7 @@ services:
       - "5001:5001"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - /root/.microsoft/usersecrets:/root/.microsoft/usersecrets:ro
 
   hwproj.apigateway.api:
     environment:
@@ -99,4 +100,4 @@ services:
         SA_PASSWORD: "Your_password123"
         ACCEPT_EULA: "Y"
     ports:
-      - "1433:1433"
+      - "1488:1433"
