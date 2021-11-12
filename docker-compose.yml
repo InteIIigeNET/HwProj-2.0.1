@@ -41,3 +41,10 @@ services:
   
   mssqllocaldb:
     image: mcr.microsoft.com/mssql/server:2019-latest
+  
+  
+  front:
+    image: ${DOCKER_REGISTRY-}front
+    build:
+      context: ./hwproj.front
+      dockerfile: ./Dockerfile

@@ -101,3 +101,9 @@ services:
         ACCEPT_EULA: "Y"
     ports:
       - "1488:1433"
+
+  front:
+    depends_on:
+      - hwproj.apigateway.api
+    ports:
+      - "3000:3000"
