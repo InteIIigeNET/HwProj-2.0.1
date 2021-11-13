@@ -1,5 +1,10 @@
 version: '3.4'
 
+# Set ASPNETCORE_ENVIRONMENT= Development or Production, depending if you want to show up errors while testing.
+#
+# You need to start it with the following CLI command:
+# docker-compose -f docker-compose.yml -f docker-compose.prod.yml up
+
 services:
   mssqllocaldb:
     container_name: mssqllocaldb
@@ -24,7 +29,7 @@ services:
 
   hwproj.apigateway.api:
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:5000
       - Services:Auth=http://hwproj.authservice.api:5001
       - Services:Courses=http://hwproj.coursesservice.api:5002
@@ -36,7 +41,7 @@ services:
   hwproj.authservice.api:
     environment:
       - ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=AuthServiceDB;User=sa;Password=Your_password123;
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:5001
       - EventBus:EventBusHostName=rabbitmq
     ports:
@@ -48,7 +53,7 @@ services:
   hwproj.coursesservice.api:
     environment:
       - ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=CourseWorksServiceDB;MultipleActiveResultSets=True;User=sa;Password=Your_password123;
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:5002
       - EventBus:EventBusHostName=rabbitmq
       - Services:Auth=http://hwproj.authservice.api:5001
@@ -58,7 +63,7 @@ services:
   hwproj.notificationsservice.api:
     environment:
       - ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=NotificationsServiceDB;MultipleActiveResultSets=True;User=sa;Password=Your_password123;
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:5006
       - EventBus:EventBusHostName=rabbitmq
       - Services:Auth=http://hwproj.authservice.api:5001
@@ -70,7 +75,7 @@ services:
   hwproj.solutionsservice.api:
     environment:
       - ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=SolutionServiceDB;User=sa;Password=Your_password123;
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:5007
       - EventBus:EventBusHostName=rabbitmq
       - Services:Auth=http://hwproj.authservice.api:5001
