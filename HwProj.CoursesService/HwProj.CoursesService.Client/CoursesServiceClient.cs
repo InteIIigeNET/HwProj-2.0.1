@@ -324,7 +324,7 @@ namespace HwProj.CoursesService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _coursesServiceUri + $"api/Deadlines/add_deadline/{taskId}")
+                _coursesServiceUri + $"api/Deadlines/{taskId}/add")
             {
                 Content = new StringContent(
                     JsonConvert.SerializeObject(model),
@@ -341,6 +341,16 @@ namespace HwProj.CoursesService.Client
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get, 
                 _coursesServiceUri + "api/Deadlines");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<DeadlineViewModel[]>();
+        }
+        
+        public async Task<DeadlineViewModel[]> GetTaskDeadlinesAsync(long taskId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get, 
+                _coursesServiceUri + $"api/Deadlines/{taskId}/get");
 
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<DeadlineViewModel[]>();

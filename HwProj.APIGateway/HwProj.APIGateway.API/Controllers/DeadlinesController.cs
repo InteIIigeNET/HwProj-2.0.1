@@ -1,10 +1,8 @@
 using System.Net;
 using System.Threading.Tasks;
 using HwProj.CoursesService.Client;
-using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
-using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -47,6 +45,15 @@ namespace HwProj.APIGateway.API.Controllers
         {
             await _coursesClient.DeleteTask(deadlineId);
             return Ok();
+        }
+        
+        [HttpGet("{taskId}/get")]
+        [Authorize]
+        [ProducesResponseType(typeof(DeadlineViewModel[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetTaskDeadlinesAsync(long taskId)
+        {
+            var result = await _coursesClient.GetTaskDeadlinesAsync(taskId);
+            return Ok(result);
         }
     }
 }

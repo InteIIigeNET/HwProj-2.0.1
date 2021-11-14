@@ -36,5 +36,6 @@ namespace HwProj.CoursesService.Client
         Task DeleteDeadline(long deadlineId);
         Task<long> AddDeadline(AddDeadlineViewModel model, long taskId);
         Task AcceptLecturer(long courseId, string lecturerEmail);
+        Task<DeadlineViewModel[]> GetTaskDeadlinesAsync(long taskId);
     }
 }

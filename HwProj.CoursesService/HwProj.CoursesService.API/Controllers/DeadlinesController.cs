@@ -28,13 +28,20 @@ namespace HwProj.CoursesService.API.Controllers
                 return BadRequest();
             var deadlineId =
                 await _deadlinesService.AddDeadlineAsync(taskId, _mapper.Map<Deadline>(addDeadlineViewModel));
-            return deadlineId != null ? Ok(deadlineId) : BadRequest() as IActionResult;
+            return deadlineId != null ? Ok(deadlineId) : Forbid() as IActionResult;
         }
         
         [HttpGet]
         public async Task<DeadlineViewModel[]> GetAllDeadlines()
         {
             var deadlines = await _deadlinesService.GetAllDeadlinesAsync();
+            return _mapper.Map<DeadlineViewModel[]>(deadlines);
+        }
+
+        [HttpGet("{taskId}/get")]
+        public async Task<DeadlineViewModel[]> GetTaskDeadlines(long taskId)
+        {
+            var deadlines = await _deadlinesService.GetTaskDeadlinesAsync(taskId);
             return _mapper.Map<DeadlineViewModel[]>(deadlines);
         }
         

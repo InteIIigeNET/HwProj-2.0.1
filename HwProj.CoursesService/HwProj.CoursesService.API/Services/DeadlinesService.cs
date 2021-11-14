@@ -84,5 +84,11 @@ namespace HwProj.CoursesService.API.Services
         {
             return await _deadlinesRepository.GetAll().ToArrayAsync();
         }
+        
+        public async Task<Deadline[]> GetTaskDeadlinesAsync(long taskId)
+        {
+            return await _deadlinesRepository.FindAll(d => d.TaskId == taskId).ToArrayAsync()
+                .ConfigureAwait(false);
+        }
     }
 }

@@ -8,5 +8,6 @@ namespace HwProj.CoursesService.API.Services
         Task<long?> AddDeadlineAsync(long taskId, Deadline deadline);
         Task DeleteDeadline(long deadlineId);
         Task<Deadline[]> GetAllDeadlinesAsync();
+        Task<Deadline[]> GetTaskDeadlinesAsync(long taskId);
     }
 }
