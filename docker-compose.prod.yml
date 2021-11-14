@@ -12,7 +12,7 @@ services:
       SA_PASSWORD: "Your_password123"
       ACCEPT_EULA: "Y"
     ports:
-      - "1488:1433"
+      - "1488:1433" # Important: In a production environment your should remove the external port
 
   front:
     ports:
@@ -24,8 +24,8 @@ services:
      #- RABBITMQ_DEFAULT_USER=guest
      #- RABBITMQ_DEFAULT_PASS=guest
     ports:
-      - "2000:5672"
-      - "2001:15672"
+      - "2000:5672" # Important: In a production environment your should remove the external port
+      - "2001:15672" # Important: In a production environment your should remove the external port
 
   hwproj.apigateway.api:
     environment:
