@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Hangfire;
@@ -7,6 +8,7 @@ using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.EventBus.Client.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using static System.TimeSpan;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -25,10 +27,9 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<long?> AddDeadlineAsync(long taskId, Deadline deadline)
         {
-            var deadlineDateTimeInUtc = deadline.DateTime.Subtract(TimeSpan.FromHours(3));
+            var deadlineDateTimeInUtc = deadline.DateTime.Subtract(FromHours(3));
             var dateTimeInUtc = DateTime.UtcNow;
             deadline.TaskId = taskId;
-
 
             if (await _deadlinesRepository.CheckIfDeadlineExistsAsync(deadline))
                 return null;
@@ -40,26 +41,33 @@ namespace HwProj.CoursesService.API.Services
                 .ToList();
 
             var jobId = BackgroundJob.Schedule(
-                () => _eventBus.Publish(new ClearCompletedEvent(taskId, affectedStudents, TimeSpan.Zero)),
+                () => ProcessByDay(taskId, deadline, affectedStudents),
                 deadlineDateTimeInUtc);
-            if (deadlineDateTimeInUtc - dateTimeInUtc > TimeSpan.FromDays(1))
+
+            var daysToRemind = new[] {1, 3};
+            
+            foreach (var day in daysToRemind)
             {
-                jobId += '\n' + BackgroundJob.Schedule(
-                    () => _eventBus.Publish(
-                        new ClearCompletedEvent(taskId, affectedStudents, TimeSpan.FromDays(1))),
-                    deadlineDateTimeInUtc - TimeSpan.FromDays(1));
-                if (deadlineDateTimeInUtc - dateTimeInUtc > TimeSpan.FromDays(3))
+                if (deadlineDateTimeInUtc - dateTimeInUtc > FromDays(day))
                 {
                     jobId += '\n' + BackgroundJob.Schedule(
                         () => _eventBus.Publish(
-                            new ClearCompletedEvent(taskId, affectedStudents, TimeSpan.FromDays(3))),
-                        deadlineDateTimeInUtc - TimeSpan.FromDays(3));
+                            new ClearCompletedEvent(taskId, affectedStudents, FromDays(day))),
+                        deadlineDateTimeInUtc - FromDays(day));
                 }
             }
+            
             deadline.JobId = jobId;
             return await _deadlinesRepository.AddDeadlineAsync(deadline);
         }
 
+        // Hangfire requires public methods to invoke
+        public async Task ProcessByDay(long taskId, Deadline deadline, List<string> affectedStudents)
+        {
+            _eventBus.Publish(new ClearCompletedEvent(taskId, affectedStudents, Zero));
+            await _tasksRepository.ProcessDeadlineAsync(taskId, deadline);
+        }
+        
         public async Task DeleteDeadline(long deadlineId)
         { 
             var deadline = await _deadlinesRepository.GetAsync(deadlineId);

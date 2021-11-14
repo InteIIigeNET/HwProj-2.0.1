@@ -17,25 +17,14 @@ namespace HwProj.Models.CoursesService.ViewModels
         public List<DeadlineViewModel> Deadlines { get; set; } = new List<DeadlineViewModel>();
         
         public bool HasDeadline { get; set; }
-        
-        public bool CanSendSolution { get; set; }
+
+        public bool CanSendSolution { get; set; } = true;
 
         public DateTime PublicationDate { get; set; }
 
         public long HomeworkId { get; set; }
-
-        public void PutPossibilityForSendingSolution()
-        {
-            foreach (var deadline in Deadlines)
-            {
-                if (deadline.IsStrict && DateTime.UtcNow >= deadline.DateTime)
-                {
-                    CanSendSolution = false;
-                }
-            }
-        }
-
-        public bool IsDeferred { get; set; }
+        
+        public bool IsDeferred { get; set; } 
     }
 
     public class CreateTaskViewModel
@@ -45,22 +34,11 @@ namespace HwProj.Models.CoursesService.ViewModels
         public string Title { get; set; }
         public string Description { get; set; }
 
-        public List<DeadlineViewModel> Deadlines { get; set; } = new List<DeadlineViewModel>();
-        
         public bool HasDeadline { get; set; }
         
         public DateTime PublicationDate { get; set; }
 
         [Required]
         public int MaxRating { get; set; }
-        
-        public void InitializeDeadline()
-        {
-            if (!HasDeadline || Deadlines == null)
-            {
-                HasDeadline = false;
-                Deadlines = new List<DeadlineViewModel>();
-            }
-        }
     }
 }

@@ -1,8 +1,5 @@
 using System.Data.SqlClient;
 using Hangfire;
-using Hangfire.Dashboard;
-using Hangfire.SqlServer;
-using HwProj.CoursesService.API.Events;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
@@ -32,7 +29,6 @@ namespace HwProj.CoursesService.API
         public void ConfigureServices(IServiceCollection services)
         {
             var connection = Configuration.GetConnectionString("DefaultConnection");
-            var hangfireConnection = Configuration.GetConnectionString("HangfireConnection");
             services.AddDbContext<CourseContext>(options => options.UseSqlServer(connection));
 
             services.AddScoped<ICoursesRepository, CoursesRepository>();
@@ -49,11 +45,6 @@ namespace HwProj.CoursesService.API
             services.AddScoped<ITasksService, TasksService>();
             services.AddScoped<IDeadlinesService, DeadlinesService>();
             services.AddScoped<CourseMentorOnlyAttribute>();
-
-            var hangfireOptions = new SqlServerStorageOptions
-            {
-                PrepareSchemaIfNecessary = true
-            };
             
             services.AddHangfire(configuration => configuration
                 .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
@@ -77,9 +68,8 @@ namespace HwProj.CoursesService.API
                 var context = serviceScope.ServiceProvider.GetRequiredService<CourseContext>();
                 context.Database.EnsureCreated();
             }
-            app.UseHangfireDashboard("/hangfire");
+            app.UseHangfireDashboard();
             
-            eventBus.Subscribe<RequestMaxRatingEvent>();
             app.ConfigureHwProj(env, "Courses API");
         }
         

@@ -2,6 +2,7 @@ using System.Net.Http;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.EventBus.Client.Interfaces;
+using HwProj.SolutionsService.API.Events;
 using HwProj.SolutionsService.API.Models;
 using HwProj.SolutionsService.API.Repositories;
 using HwProj.SolutionsService.API.Services;

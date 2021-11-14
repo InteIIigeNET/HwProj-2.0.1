@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using HwProj.Repositories;
 
 namespace HwProj.CoursesService.API.Models
@@ -15,6 +16,8 @@ namespace HwProj.CoursesService.API.Models
         public int MaxRating { get; set; }
 
         public List<Deadline> Deadlines { get; set; }
+
+        public bool CanSendSolution { get; set; } = true;
         
         public bool HasDeadline { get; set; }
         

@@ -16,7 +16,7 @@ namespace HwProj.CoursesService.API.Models
         
         public int CorrectionNumber { get; set; }
         
-        public bool IsExpired { get; set; }
+        public bool IsStrict { get; set; }
         
         public string AffectedStudentId { get; set; }
         

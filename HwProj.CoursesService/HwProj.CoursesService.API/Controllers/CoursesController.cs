@@ -30,7 +30,6 @@ namespace HwProj.CoursesService.API.Controllers
         {
             var coursesFromDb = await _coursesService.GetAllAsync().ConfigureAwait(false);
             var courses = _mapper.Map<CourseViewModel[]>(coursesFromDb).ToList();
-            courses.ForEach(c => c.Homeworks.ForEach(h => h.Tasks.ForEach(t => t.PutPossibilityForSendingSolution())));
 
             return courses.ToArray();
         }
@@ -46,7 +45,6 @@ namespace HwProj.CoursesService.API.Controllers
             }
 
             var course = _mapper.Map<CourseViewModel>(courseFromDb);
-            course.Homeworks.ForEach(h => h.Tasks.ForEach(t => t.PutPossibilityForSendingSolution()));
 
             return Ok(course);
         }

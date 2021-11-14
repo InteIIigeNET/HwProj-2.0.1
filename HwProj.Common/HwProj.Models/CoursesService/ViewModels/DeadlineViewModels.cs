@@ -5,10 +5,10 @@ namespace HwProj.Models.CoursesService.ViewModels
     public class AddDeadlineViewModel
     {
         public int ToSubtract { get; set; }
-
+        
+        public bool IsStrict { get; set; }
+        
         public DateTime DateTime { get; set; }
-
-        public string  AffectedStudentId { get; set; }
     }
     
     public class DeadlineViewModel
@@ -19,8 +19,8 @@ namespace HwProj.Models.CoursesService.ViewModels
 
         public int ToSubtract { get; set; }
         
-        public DateTime DateTime { get; set; }
+        public bool IsStrict { get; set; }
         
-        public string  AffectedStudentId { get; set; }
+        public DateTime DateTime { get; set; }
     }
 }
