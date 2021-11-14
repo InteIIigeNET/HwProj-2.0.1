@@ -43,7 +43,7 @@ services:
       - "5001:5001"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-      - /root/.microsoft/usersecrets:/root/.microsoft/usersecrets:ro
+     #- /root/.microsoft/usersecrets:/root/.microsoft/usersecrets:ro
 
   hwproj.coursesservice.api:
     environment:
