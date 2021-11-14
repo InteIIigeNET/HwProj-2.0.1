@@ -12,11 +12,11 @@ services:
       SA_PASSWORD: "Your_password123"
       ACCEPT_EULA: "Y"
     ports:
-      - "1488:1433" # Important: In a production environment your should remove the external portd
+      - "1433"
 
   front:
     ports:
-      - "3000:3000"
+      - "3000"
 
   rabbitmq:
     container_name: rabbitmq
@@ -24,41 +24,40 @@ services:
      #- RABBITMQ_DEFAULT_USER=guest
      #- RABBITMQ_DEFAULT_PASS=guest
     ports:
-      - "2000:5672" # Important: In a production environment your should remove the external port
-      - "2001:15672" # Important: In a production environment your should remove the external port
-
+      - "5672"
+      - "15672"
   hwproj.apigateway.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - ASPNETCORE_URLS=http://+:80
-      - Services:Auth=http://hwproj.authservice.api:5001
-      - Services:Courses=http://hwproj.coursesservice.api:5002
-      - Services:Solutions=http://hwproj.solutionsservice.api:5007
-      - Services:Notifications=http://hwproj.notificationsservice.api:5006
+      - ASPNETCORE_URLS=http://0.0.0.0:80
+      - Services:Auth=http://${PROD_EXTERNAL_DNS_NAME_OR_IP}:5001
+      - Services:Courses=http://${PROD_EXTERNAL_DNS_NAME_OR_IP}:5002
+      - Services:Solutions=http://${PROD_EXTERNAL_DNS_NAME_OR_IP}:5007
+      #- Services:Notifications=http://${PROD_EXTERNAL_DNS_NAME_OR_IP}:5006
     ports:
-      - "5000:80"
+      - "80"
 
   hwproj.authservice.api:
     environment:
       - ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=AuthServiceDB;User=sa;Password=Your_password123;
       - ASPNETCORE_ENVIRONMENT=Production
-      - ASPNETCORE_URLS=http://+:80
+      - ASPNETCORE_URLS=http://0.0.0.0:80
       - EventBus:EventBusHostName=rabbitmq
-      - Services:Auth=http://hwproj.authservice.api:5001
+      #- Services:Auth=http://${PROD_EXTERNAL_DNS_NAME_OR_IP}:5001
     ports:
       - "80"
     volumes:
+      #- /root/.microsoft/usersecrets:/root/.microsoft/usersecrets:ro ??
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-      - /root/.microsoft/usersecrets:/root/.microsoft/usersecrets:ro
 
   hwproj.coursesservice.api:
     environment:
       - ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=CourseWorksServiceDB;MultipleActiveResultSets=True;User=sa;Password=Your_password123;
       - ASPNETCORE_ENVIRONMENT=Production
-      - ASPNETCORE_URLS=http://+:80
+      - ASPNETCORE_URLS=http://0.0.0.0:80
       - EventBus:EventBusHostName=rabbitmq
-      - Services:Auth=http://hwproj.authservice.api:5001
-      - Services:Courses=http://hwproj.coursesservice.api:5002
+      - Services:Auth=http://${PROD_EXTERNAL_DNS_NAME_OR_IP}:5001
+      #- Services:Courses=http://${PROD_EXTERNAL_DNS_NAME_OR_IP}:5002
     ports:
       - "80"
 
@@ -66,12 +65,12 @@ services:
     environment:
       - ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=NotificationsServiceDB;MultipleActiveResultSets=True;User=sa;Password=Your_password123;
       - ASPNETCORE_ENVIRONMENT=Production
-      - ASPNETCORE_URLS=http://+:80
+      - ASPNETCORE_URLS=http://0.0.0.0:80
       - EventBus:EventBusHostName=rabbitmq
-      - Services:Auth=http://hwproj.authservice.api:5001
-      - Services:Courses=http://hwproj.coursesservice.api:5002
-      - Services:Solutions=http://hwproj.solutionsservice.api:5007
-      - Services:Notifications=http://hwproj.notificationsservice.api:5006
+      - Services:Auth=http://${PROD_EXTERNAL_DNS_NAME_OR_IP}:5001
+      - Services:Courses=http://${PROD_EXTERNAL_DNS_NAME_OR_IP}:5002
+      - Services:Solutions=http://${PROD_EXTERNAL_DNS_NAME_OR_IP}:5007
+      #- Services:Notifications=http://${PROD_EXTERNAL_DNS_NAME_OR_IP}:5006
     ports:
       - "80"
 
@@ -79,12 +78,13 @@ services:
     environment:
       - ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=SolutionServiceDB;User=sa;Password=Your_password123;
       - ASPNETCORE_ENVIRONMENT=Production
-      - ASPNETCORE_URLS=http://+:80
+      - ASPNETCORE_URLS=http://0.0.0.0:80
       - EventBus:EventBusHostName=rabbitmq
-      - Services:Auth=http://hwproj.authservice.api:5001
-      - Services:Courses=http://hwproj.coursesservice.api:5002
-      - Services:Solutions=http://hwproj.solutionsservice.api:5007
+      - Services:Auth=http://${PROD_EXTERNAL_DNS_NAME_OR_IP}:5001
+      - Services:Courses=http://${PROD_EXTERNAL_DNS_NAME_OR_IP}:5002
+      #- Services:Solutions=http://${PROD_EXTERNAL_DNS_NAME_OR_IP}:5007
     ports:
       - "80"
     volumes:
+      #- /root/.asp.net/https:/root/.aspnet/https:ro ??
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
