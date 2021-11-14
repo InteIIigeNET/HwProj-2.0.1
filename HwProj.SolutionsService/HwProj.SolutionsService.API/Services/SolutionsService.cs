@@ -12,7 +12,6 @@ using HwProj.SolutionsService.API.Events;
 using HwProj.SolutionsService.API.Repositories;
 using Microsoft.EntityFrameworkCore;
 
-
 namespace HwProj.SolutionsService.API.Services
 {
     public class SolutionsService : ISolutionsService

@@ -32,7 +32,6 @@ namespace HwProj.CoursesService.API.Controllers
             }
 
             var task = _mapper.Map<HomeworkTaskViewModel>(taskFromDb);
-            task.PutPossibilityForSendingSolution();
             
             return Ok(task);
         }
@@ -40,7 +39,6 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpPost("{homeworkId}/add")]
         public async Task<long> AddTask(long homeworkId, [FromBody] CreateTaskViewModel taskViewModel)
         {
-            taskViewModel.InitializeDeadline();
             var task = _mapper.Map<HomeworkTask>(taskViewModel);
             var taskId = await _tasksService.AddTaskAsync(homeworkId, task);
             return taskId;
@@ -55,15 +53,12 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpPut("update/{taskId}")]
         public async Task UpdateTask(long taskId, [FromBody] CreateTaskViewModel taskViewModel)
         {
-            taskViewModel.InitializeDeadline();
             await _tasksService.UpdateTaskAsync(taskId, new HomeworkTask()
             {
                 Title = taskViewModel.Title,
                 Description = taskViewModel.Description,
                 MaxRating = taskViewModel.MaxRating,
-                DeadlineDate = taskViewModel.DeadlineDate,
                 HasDeadline = taskViewModel.HasDeadline,
-                IsDeadlineStrict = taskViewModel.IsDeadlineStrict,
                 PublicationDate = taskViewModel.PublicationDate
             });
         }

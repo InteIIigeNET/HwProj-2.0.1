@@ -40,6 +40,9 @@ namespace HwProj.CoursesService.API
             CreateMap<HomeworkTask, HomeworkTaskViewModel>()
                 .ForMember("IsDeferred", cm => cm.MapFrom(g => DateTime.UtcNow.AddHours(3) < g.PublicationDate));
             CreateMap<CreateTaskViewModel, HomeworkTask>().ReverseMap();
+
+            CreateMap<AddDeadlineViewModel, Deadline>().ReverseMap();
+            CreateMap<Deadline, DeadlineViewModel>().ReverseMap();
         }
     }
 }
