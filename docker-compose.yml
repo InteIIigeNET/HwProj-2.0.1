@@ -5,7 +5,7 @@ services:
     image: mcr.microsoft.com/mssql/server:2019-latest
 
   front:
-    image: ${DOCKER_REGISTRY-}front
+    image: docker.io/intelligenet/hwproj:front-latest
     build:
       context: ./hwproj.front
       dockerfile: ./Dockerfile
@@ -16,10 +16,10 @@ services:
     image: rabbitmq:3-management-alpine
 
   hwproj.apigateway.api:
-    # image: docker.io/organization/hwproj.apigateway.api.api:tag
+    image: docker.io/intelligenet/hwproj:apigateway-latest
     # or 
     # image: ${REGISTRY:-organization}/hwproj.apigateway.api:${PLATFORM:-linux}-${TAG:-tag}
-    image: ${DOCKER_REGISTRY-}hwprojapigatewayapi
+    #image: ${DOCKER_REGISTRY-}hwprojapigatewayapi
     build:
       context: .
       dockerfile: HwProj.APIGateway/HwProj.APIGateway.API/Dockerfile
@@ -31,7 +31,8 @@ services:
       - hwproj.notificationsservice.api
 
   hwproj.authservice.api:
-    image: ${DOCKER_REGISTRY-}hwprojauthserviceapi
+    #image: ${DOCKER_REGISTRY-}hwprojauthserviceapi
+    image: docker.io/intelligenet/hwproj:authservice-latest
     build:
       context: .
       dockerfile: HwProj.AuthService/HwProj.AuthService.API/Dockerfile
@@ -40,7 +41,8 @@ services:
       - mssqllocaldb
 
   hwproj.coursesservice.api:
-    image: ${DOCKER_REGISTRY-}hwprojcoursesserviceapi
+    #image: ${DOCKER_REGISTRY-}hwprojcoursesserviceapi
+    image: docker.io/intelligenet/hwproj:coursesservice-latest
     build:
       context: .
       dockerfile: HwProj.CoursesService/HwProj.CoursesService.API/Dockerfile
@@ -50,7 +52,8 @@ services:
       - mssqllocaldb
 
   hwproj.notificationsservice.api:
-    image: ${DOCKER_REGISTRY-}hwprojnotificationsserviceapi
+    #image: ${DOCKER_REGISTRY-}hwprojnotificationsserviceapi
+    image: docker.io/intelligenet/hwproj:notificationsservice-latest
     build:
       context: .
       dockerfile: HwProj.NotificationsService/HwProj.NotificationsService.API/Dockerfile
@@ -62,8 +65,8 @@ services:
       - mssqllocaldb
 
   hwproj.solutionsservice.api:
-
-    image: ${DOCKER_REGISTRY-}hwprojsolutionsserviceapi
+    #image: ${DOCKER_REGISTRY-}hwprojsolutionsserviceapi
+    image: docker.io/intelligenet/hwproj:solutionsservice-latest
     build:
       context: .
       dockerfile: HwProj.SolutionsService/HwProj.SolutionsService.API/Dockerfile

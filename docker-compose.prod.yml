@@ -29,11 +29,10 @@ services:
   hwproj.apigateway.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - ASPNETCORE_URLS=http://0.0.0.0:80
-      - Services:Auth=http://${PROD_EXTERNAL_DNS_NAME_OR_IP}:5001
-      - Services:Courses=http://${PROD_EXTERNAL_DNS_NAME_OR_IP}:5002
-      - Services:Solutions=http://${PROD_EXTERNAL_DNS_NAME_OR_IP}:5007
-      #- Services:Notifications=http://${PROD_EXTERNAL_DNS_NAME_OR_IP}:5006
+      - ASPNETCORE_URLS=http://+:80
+      - Services:Auth=http://hwproj.authservice.api
+      - Services:Courses=http://hwproj.coursesservice.api
+      - Services:Solutions=http://hwproj.solutionsservice.api
     ports:
       - "80"
 
@@ -41,9 +40,8 @@ services:
     environment:
       - ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=AuthServiceDB;User=sa;Password=Your_password123;
       - ASPNETCORE_ENVIRONMENT=Production
-      - ASPNETCORE_URLS=http://0.0.0.0:80
+      - ASPNETCORE_URLS=http://+:80
       - EventBus:EventBusHostName=rabbitmq
-      #- Services:Auth=http://${PROD_EXTERNAL_DNS_NAME_OR_IP}:5001
     ports:
       - "80"
     volumes:
@@ -54,10 +52,9 @@ services:
     environment:
       - ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=CourseWorksServiceDB;MultipleActiveResultSets=True;User=sa;Password=Your_password123;
       - ASPNETCORE_ENVIRONMENT=Production
-      - ASPNETCORE_URLS=http://0.0.0.0:80
+      - ASPNETCORE_URLS=http://+:80
       - EventBus:EventBusHostName=rabbitmq
-      - Services:Auth=http://${PROD_EXTERNAL_DNS_NAME_OR_IP}:5001
-      #- Services:Courses=http://${PROD_EXTERNAL_DNS_NAME_OR_IP}:5002
+      - Services:Auth=http://hwproj.authservice.api
     ports:
       - "80"
 
@@ -65,12 +62,11 @@ services:
     environment:
       - ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=NotificationsServiceDB;MultipleActiveResultSets=True;User=sa;Password=Your_password123;
       - ASPNETCORE_ENVIRONMENT=Production
-      - ASPNETCORE_URLS=http://0.0.0.0:80
+      - ASPNETCORE_URLS=http://+:80
       - EventBus:EventBusHostName=rabbitmq
-      - Services:Auth=http://${PROD_EXTERNAL_DNS_NAME_OR_IP}:5001
-      - Services:Courses=http://${PROD_EXTERNAL_DNS_NAME_OR_IP}:5002
-      - Services:Solutions=http://${PROD_EXTERNAL_DNS_NAME_OR_IP}:5007
-      #- Services:Notifications=http://${PROD_EXTERNAL_DNS_NAME_OR_IP}:5006
+      - Services:Auth=http://hwproj.authservice.api
+      - Services:Courses=http://hwproj.coursesservice.api
+      - Services:Solutions=http://hwproj.solutionsservice.api
     ports:
       - "80"
 
@@ -78,11 +74,10 @@ services:
     environment:
       - ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=SolutionServiceDB;User=sa;Password=Your_password123;
       - ASPNETCORE_ENVIRONMENT=Production
-      - ASPNETCORE_URLS=http://0.0.0.0:80
+      - ASPNETCORE_URLS=http://+:80
       - EventBus:EventBusHostName=rabbitmq
-      - Services:Auth=http://${PROD_EXTERNAL_DNS_NAME_OR_IP}:5001
-      - Services:Courses=http://${PROD_EXTERNAL_DNS_NAME_OR_IP}:5002
-      #- Services:Solutions=http://${PROD_EXTERNAL_DNS_NAME_OR_IP}:5007
+      - Services:Auth=http://hwproj.authservice.api
+      - Services:Courses=http://hwproj.coursesservice.api
     ports:
       - "80"
     volumes:
