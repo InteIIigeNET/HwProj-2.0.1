@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -13,6 +14,7 @@ using HwProj.SolutionsService.API.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
+using ConfigurableAssessmentSystem;
 using HwProj.SolutionsService.API.AssessmentSystem;
 
 
@@ -129,6 +131,58 @@ namespace HwProj.SolutionsService.API.Services
                     await dll.CopyToAsync(stream);
                 }   
             }
+        }
+
+        public async Task<FinalAssessmentForStudent[]> GetAssessmentForCourseForAllStudents(long courseId, string userId)
+        {
+            var assessmentFunction = AssessmentSystem.AssessmentSystem.GetAssessmentMethodForCourse(courseId);
+            if (assessmentFunction == null)
+            {
+                return null;
+            }
+            var course = await _coursesServiceClient.GetCourseById(courseId, userId);
+            var tasks = new List<HomeworkTaskViewModel>();
+            course.Homeworks.ForEach(hw =>
+            {
+                tasks = tasks.Union(hw.Tasks).ToList();
+            });
+            var courseMates = course.CourseMates;
+            var modelsForAssessment = new AssessmentModel[tasks.Count];
+            var assessments = new FinalAssessmentForStudent[courseMates.Count];
+            for (int i = 0; i < courseMates.Count; i++)
+            {
+                for (int j = 0; j < tasks.Count; j++)
+                {
+                    var solutionByTask =
+                        (await GetTaskSolutionsFromStudentAsync(tasks[j].Id, courseMates[i].StudentId)).FirstOrDefault(s =>
+                            s.Rating > 0);
+                    var assessmentModel = new AssessmentModel()
+                    {
+                        TaskName = tasks[j].Title,
+                        MaxRating = tasks[j].MaxRating,
+                        HasDeadline = tasks[j].HasDeadline,
+                        DeadlineDate = tasks[j].DeadlineDate,
+                        IsDeadlineStrict = tasks[j].IsDeadlineStrict,
+                        TaskPublicationDate = tasks[j].PublicationDate,
+                    };
+                    if (solutionByTask != null)
+                    {
+                        assessmentModel.SolutionPublicationDate = solutionByTask.PublicationDate;
+                        assessmentModel.SolutionRating = solutionByTask.Rating;
+                    }
+
+                    modelsForAssessment[j] = assessmentModel;
+                }
+
+                assessments[i] = new FinalAssessmentForStudent()
+                {
+                    StudentId = courseMates[i].StudentId,
+                    CourseId = courseId,
+                    Assessment = assessmentFunction(modelsForAssessment),
+                };
+            }
+
+            return assessments;
         }
     }
 }
