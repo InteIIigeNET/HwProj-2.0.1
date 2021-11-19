@@ -9,6 +9,7 @@ using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.SolutionsService;
 using HwProj.Models.StatisticsService;
+using HwProj.SolutionsService.API.AssessmentSystem;
 using HwProj.SolutionsService.API.Domains;
 using HwProj.SolutionsService.API.Models;
 using HwProj.SolutionsService.API.Services;
@@ -164,6 +165,12 @@ namespace HwProj.SolutionsService.API.Controllers
                 dll = Request.Form.Files[0];
             }
             await _solutionsService.AddDllForAssessment(courseId, dll);
+        }
+
+        [HttpGet("assessmentSystem/get/assessment/{courseId}")]
+        public async Task<FinalAssessmentForStudent[]> GetAssessmentForCourse(long courseId, [FromBody] string userId)
+        {
+            return await _solutionsService.GetAssessmentForCourseForAllStudents(courseId, userId);
         }
     }
 }

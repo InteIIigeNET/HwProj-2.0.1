@@ -4,6 +4,7 @@ using HwProj.APIGateway.API.ExceptionFilters;
 using HwProj.Models.Roles;
 using HwProj.Models.SolutionsService;
 using HwProj.NotificationsService.Client;
+using HwProj.SolutionsService.API.AssessmentSystem;
 using HwProj.SolutionsService.Client;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Authorization;
@@ -115,6 +116,17 @@ namespace HwProj.APIGateway.API.Controllers
         {
             await _solutionsClient.AddDllForAssessment(courseId, dll);
             return Ok();
+        }
+
+        [HttpGet("assessmentSystem/get/assessment/{courseId}")]
+        [Authorize]
+        [ProducesResponseType(typeof(FinalAssessmentForStudent[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetAssessmentForCourse(long courseId)
+        {
+            var result = await _solutionsClient.GetAssessmentForCourse(courseId, Request.GetUserId());
+            return result == null
+                ? NotFound()
+                : Ok(result) as IActionResult;
         }
     }
 }

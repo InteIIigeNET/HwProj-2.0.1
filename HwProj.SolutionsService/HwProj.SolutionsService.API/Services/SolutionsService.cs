@@ -141,6 +141,10 @@ namespace HwProj.SolutionsService.API.Services
                 return null;
             }
             var course = await _coursesServiceClient.GetCourseById(courseId, userId);
+            if (userId != course.MentorIds)
+            {
+                return null;
+            }
             var tasks = new List<HomeworkTaskViewModel>();
             course.Homeworks.ForEach(hw =>
             {

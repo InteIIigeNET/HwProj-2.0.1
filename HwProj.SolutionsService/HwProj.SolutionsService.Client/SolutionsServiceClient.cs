@@ -7,6 +7,7 @@ using HwProj.Exceptions;
 using HwProj.HttpUtils;
 using HwProj.Models.SolutionsService;
 using HwProj.Models.StatisticsService;
+using HwProj.SolutionsService.API.AssessmentSystem;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 
@@ -149,6 +150,21 @@ namespace HwProj.SolutionsService.Client
             var content = new MultipartFormDataContent();
             content.Add(new ByteArrayContent(file), "file", dll.Name);
             var response = await client.PostAsync(requestUri, content);
+        }
+
+        public async Task<FinalAssessmentForStudent[]> GetAssessmentForCourse(long courseId, string userId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                    HttpMethod.Get, 
+                    _solutionServiceUri + $"api/Solutions/assessmentSystem/get/assessment/{courseId}")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(userId),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<FinalAssessmentForStudent[]>();
         }
     }
 }
