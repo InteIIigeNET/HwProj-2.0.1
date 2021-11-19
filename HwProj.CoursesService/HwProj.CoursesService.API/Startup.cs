@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http;
+using System.Runtime.InteropServices;
 
 namespace HwProj.CoursesService.API
 {
@@ -24,9 +25,13 @@ namespace HwProj.CoursesService.API
         private IConfiguration Configuration { get; }
 
         public void ConfigureServices(IServiceCollection services)
-        {
-            var connection = Configuration.GetConnectionString("DefaultConnection");
-            services.AddDbContext<CourseContext>(options => options.UseSqlServer(connection));
+        {   
+            var connectionString = Configuration.GetConnectionString("DefaultConnectionForWindows");
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                connectionString = Configuration.GetConnectionString("DefaultConnectionForLinux");
+            }
+            services.AddDbContext<CourseContext>(options => options.UseSqlServer(connectionString));
             services.AddScoped<ICoursesRepository, CoursesRepository>();
             services.AddScoped<ICourseMatesRepository, CourseMatesRepository>();
             services.AddScoped<IGroupsRepository, GroupsRepository>();

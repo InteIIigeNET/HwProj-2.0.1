@@ -1,4 +1,5 @@
 using System.Net.Http;
+using System.Runtime.InteropServices;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.EventBus.Client.Interfaces;
@@ -25,7 +26,11 @@ namespace HwProj.SolutionsService.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var connectionString = Configuration.GetConnectionString("DefaultConnection");
+            var connectionString = Configuration.GetConnectionString("DefaultConnectionForWindows");
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                connectionString = Configuration.GetConnectionString("DefaultConnectionForLinux");
+            }
             services.AddDbContext<SolutionContext>(options => options.UseSqlServer(connectionString));
             services.AddScoped<ISolutionsRepository, SolutionsRepository>();
             services.AddScoped<ISolutionsService, Services.SolutionsService>();

@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http;
+using System.Runtime.InteropServices;
 using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.Client;
 using HwProj.SolutionsService.API.Events;
@@ -31,7 +32,11 @@ namespace HwProj.NotificationsService.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var connectionString = Configuration.GetConnectionString("DefaultConnection");
+            var connectionString = Configuration.GetConnectionString("DefaultConnectionForWindows");
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                connectionString = Configuration.GetConnectionString("DefaultConnectionForLinux");
+            }
             services.AddDbContext<NotificationsContext>(options => options.UseSqlServer(connectionString));
             services.AddScoped<INotificationsRepository, NotificationsRepository>();
             services.AddScoped<INotificationsService, Services.NotificationsService>();

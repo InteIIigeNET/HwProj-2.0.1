@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System.Runtime.InteropServices;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -60,8 +61,14 @@ namespace HwProj.AuthService.API
                     options.ClientSecret = googleAuthNSection["ClientSecret"];
                 });
 
+            var connectionString =Configuration.GetConnectionString("DefaultConnectionForWindows");
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                connectionString = Configuration.GetConnectionString("DefaultConnectionForLinux");
+            }
+            
             services.AddDbContext<IdentityContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(connectionString));
 
             services.AddIdentity<User, IdentityRole>(opts =>
                 {
