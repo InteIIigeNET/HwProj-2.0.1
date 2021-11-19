@@ -5,8 +5,7 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
 	<ApplicationIcon />
 	<StartupObject />
-	<LangVersion>preview</LangVersion>
-	<Nullable>enable</Nullable>
+	<LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

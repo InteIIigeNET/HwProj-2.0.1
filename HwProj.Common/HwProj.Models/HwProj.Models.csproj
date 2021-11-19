@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-    <LangVersion>preview</LangVersion>
+    <LangVersion>8</LangVersion>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 

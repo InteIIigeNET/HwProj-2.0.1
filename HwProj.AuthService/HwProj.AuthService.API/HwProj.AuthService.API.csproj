@@ -2,9 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-    <LangVersion>preview</LangVersion>
+    <LangVersion>7.2</LangVersion>
     <UserSecretsId>603911e4-ace8-4439-96f8-1705a0dae761</UserSecretsId>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
