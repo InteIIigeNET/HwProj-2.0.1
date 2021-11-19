@@ -61,12 +61,7 @@ namespace HwProj.AuthService.API
                     options.ClientSecret = googleAuthNSection["ClientSecret"];
                 });
 
-            var connectionString =Configuration.GetConnectionString("DefaultConnectionForWindows");
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                connectionString = Configuration.GetConnectionString("DefaultConnectionForLinux");
-            }
-            
+            var connectionString = ConnectionString.GetConnectionString(Configuration);
             services.AddDbContext<IdentityContext>(options =>
                 options.UseSqlServer(connectionString));
 

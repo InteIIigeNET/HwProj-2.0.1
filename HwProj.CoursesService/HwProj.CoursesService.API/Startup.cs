@@ -26,11 +26,7 @@ namespace HwProj.CoursesService.API
 
         public void ConfigureServices(IServiceCollection services)
         {   
-            var connectionString = Configuration.GetConnectionString("DefaultConnectionForWindows");
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                connectionString = Configuration.GetConnectionString("DefaultConnectionForLinux");
-            }
+            var connectionString = ConnectionString.GetConnectionString(Configuration);
             services.AddDbContext<CourseContext>(options => options.UseSqlServer(connectionString));
             services.AddScoped<ICoursesRepository, CoursesRepository>();
             services.AddScoped<ICourseMatesRepository, CourseMatesRepository>();
