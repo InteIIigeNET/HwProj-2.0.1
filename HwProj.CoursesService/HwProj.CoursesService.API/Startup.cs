@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http;
-using System.Runtime.InteropServices;
 
 namespace HwProj.CoursesService.API
 {

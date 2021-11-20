@@ -1,5 +1,4 @@
 using System.Net.Http;
-using System.Runtime.InteropServices;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.EventBus.Client.Interfaces;
