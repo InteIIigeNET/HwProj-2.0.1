@@ -1,4 +1,4 @@
-version: '3.4'
+version: '2.0'
 
 services:
   mssqllocaldb:
@@ -10,6 +10,8 @@ services:
       - "1488:1433"
 
   front:
+    environment:
+      - REACT_APP_BASE_PATH=http://localhost:5000
     ports:
       - "3000:3000"
 
@@ -41,8 +43,8 @@ services:
       - EventBus:EventBusHostName=rabbitmq
     ports:
       - "5001:5001"
-    volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+    #volumes:
+     #- ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
      #- /root/.microsoft/usersecrets:/root/.microsoft/usersecrets:ro
 
   hwproj.coursesservice.api:
@@ -77,5 +79,5 @@ services:
       - Services:Courses=http://hwproj.coursesservice.api:5002
     ports:
       - "5007:5007"
-    volumes:
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+    #volumes:
+      #- ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro

@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <LangVersion>preview</LangVersion>
-    <UserSecretsId>603911e4-ace8-4439-96f8-1705a0dae761</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <Nullable>enable</Nullable>
     <DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>

@@ -1,4 +1,4 @@
-version: '3.4'
+version: '2.0'
 
 # Set ASPNETCORE_ENVIRONMENT= Development or Production, depending if you want to show up errors while testing.
 #
@@ -44,9 +44,9 @@ services:
       - EventBus:EventBusHostName=rabbitmq
     ports:
       - "80"
-    volumes:
-      #- /root/.microsoft/usersecrets:/root/.microsoft/usersecrets:ro ??
-      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+    #volumes:
+      #- /root/.microsoft/usersecrets:/root/.microsoft/usersecrets:ro
+      #- ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
 
   hwproj.coursesservice.api:
     environment:
@@ -81,5 +81,5 @@ services:
     ports:
       - "80"
     volumes:
-      #- /root/.asp.net/https:/root/.aspnet/https:ro ??
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+      - /root/.asp.net/https:/root/.aspnet/https:ro
+      #- ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro

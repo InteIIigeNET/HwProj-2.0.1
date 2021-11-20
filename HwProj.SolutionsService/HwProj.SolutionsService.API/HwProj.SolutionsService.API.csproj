@@ -4,7 +4,6 @@
     <LangVersion>preview</LangVersion>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
-    <UserSecretsId>8f30bd04-e633-474a-adf8-21d9c52c672e</UserSecretsId>
     <DockerfileContext>..\..</DockerfileContext>
     <Nullable>enable</Nullable>
   </PropertyGroup>
