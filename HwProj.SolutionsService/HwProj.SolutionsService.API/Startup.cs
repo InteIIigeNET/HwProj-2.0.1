@@ -25,7 +25,7 @@ namespace HwProj.SolutionsService.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var connectionString = Configuration.GetConnectionString("DefaultConnection");
+            var connectionString = ConnectionString.GetConnectionString(Configuration);
             services.AddDbContext<SolutionContext>(options => options.UseSqlServer(connectionString));
             services.AddScoped<ISolutionsRepository, SolutionsRepository>();
             services.AddScoped<ISolutionsService, Services.SolutionsService>();
