@@ -11,9 +11,14 @@ import ApiSingleton from "api/ApiSingleton";
 import { AccountDataDto, NotificationViewModel } from "../api/";
 import "./Styles/Profile.css";
 import parse from 'html-react-parser';
-import {ChangeEvent, FC, useEffect, useState} from "react";
+import {ChangeEvent, Component, FC, useEffect, useState} from "react";
 import {Redirect} from "react-router-dom";
 import {makeStyles} from "@material-ui/styles";
+import Image from 'material-ui-image'
+import telegramLogo from './tlgm.png'
+import "./Styles/telegram.css";
+import {GoogleLoginButton} from "react-social-login-buttons";
+import {TelegramLoginButton} from "react-social-login-buttons";
 
 interface IProfileState {
   isLoaded: boolean;
@@ -116,6 +121,7 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
 	}
 
 	if (profileState.isLoaded) {
+		const hrefLink = "https://t.me/HwProjBot?start=>" + accountState.email;
 		const fullName = accountState.middleName && accountState.surname
 			? accountState.name + ' ' + accountState.middleName + ' ' + accountState.surname
 			: accountState.surname
@@ -128,10 +134,24 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
 						<Typography style={{ fontSize: '20px' }}>
 							{fullName}
 						</Typography>
+						<TelegramLoginButton
+							style={{height: '36px', margin: 0, width: '14%'}}
+							onClick={() => alert("Hello")}>
+							<Typography>
+								Попробуйте бота
+							</Typography>
+						</TelegramLoginButton>
 						<Typography style={{ fontSize: '20px' }}>
 							{accountState.email}
 						</Typography>
 					</Grid>
+
+					<a href={hrefLink} target="_blank">
+						<img
+							className="telegram"
+							src={telegramLogo}
+						/>
+					</a>
 					<Grid item xs={11} style={{ marginTop: "25px" }}>
 						{!props.match.params.id &&
 						<div>

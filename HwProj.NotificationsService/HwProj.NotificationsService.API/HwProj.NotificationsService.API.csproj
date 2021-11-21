@@ -23,6 +23,8 @@
     <ProjectReference Include="..\..\HwProj.CoursesService\HwProj.CoursesService.Client\HwProj.CoursesService.Client.csproj" />
     <ProjectReference Include="..\..\HwProj.SolutionsService\HwProj.SolutionsService.API\HwProj.SolutionsService.API.csproj" />
     <ProjectReference Include="..\..\HwProj.SolutionsService\HwProj.SolutionsService.Client\HwProj.SolutionsService.Client.csproj" />
+    <ProjectReference Include="..\..\HwProj.TelegramBot\HwProj.TelegramBot.Client\HwProj.TelegramBot.Client.csproj" />
+    <ProjectReference Include="..\..\HwProj.TelegramBot\HwProj.TelegramBotAPI\HwProj.TelegramBotAPI.csproj" />
   </ItemGroup>
 
 </Project>

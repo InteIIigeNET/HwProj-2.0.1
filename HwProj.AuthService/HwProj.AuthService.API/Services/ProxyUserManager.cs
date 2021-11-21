@@ -9,69 +9,69 @@ namespace HwProj.AuthService.API.Services
 {
     public class ProxyUserManager : IUserManager
     {
-        private readonly UserManager<User> _aspUserManager;
+        private readonly UserManager<UserViewModel> _aspUserManager;
 
-        public ProxyUserManager(UserManager<User> aspUserManager)
+        public ProxyUserManager(UserManager<UserViewModel> aspUserManager)
         {
             _aspUserManager = aspUserManager;
         }
         
-        public Task<IdentityResult> CreateAsync(User user)
+        public Task<IdentityResult> CreateAsync(UserViewModel userViewModel)
         {
-            return _aspUserManager.CreateAsync(user);
+            return _aspUserManager.CreateAsync(userViewModel);
         }
 
-        public Task<IdentityResult> CreateAsync(User user, string password)
+        public Task<IdentityResult> CreateAsync(UserViewModel userViewModel, string password)
         {
-            return _aspUserManager.CreateAsync(user, password);
+            return _aspUserManager.CreateAsync(userViewModel, password);
         }
 
-        public Task<User> FindByIdAsync(string id)
+        public Task<UserViewModel> FindByIdAsync(string id)
         {
             return _aspUserManager.FindByIdAsync(id);
         }
 
-        public Task<User> FindByEmailAsync(string email)
+        public Task<UserViewModel> FindByEmailAsync(string email)
         {
             return _aspUserManager.FindByEmailAsync(email);
         }
 
-        public Task<IdentityResult> UpdateAsync(User user)
+        public Task<IdentityResult> UpdateAsync(UserViewModel userViewModel)
         {
-            return _aspUserManager.UpdateAsync(user);
+            return _aspUserManager.UpdateAsync(userViewModel);
         }
 
-        public Task<IdentityResult> AddToRoleAsync(User user, string role)
+        public Task<IdentityResult> AddToRoleAsync(UserViewModel userViewModel, string role)
         {
-            return _aspUserManager.AddToRoleAsync(user, role);
+            return _aspUserManager.AddToRoleAsync(userViewModel, role);
         }
 
-        public Task<IdentityResult> RemoveFromRoleAsync(User user, string role)
+        public Task<IdentityResult> RemoveFromRoleAsync(UserViewModel userViewModel, string role)
         {
-            return _aspUserManager.RemoveFromRoleAsync(user, role);
+            return _aspUserManager.RemoveFromRoleAsync(userViewModel, role);
         }
 
-        public Task<IList<string>> GetRolesAsync(User user)
+        public Task<IList<string>> GetRolesAsync(UserViewModel userViewModel)
         {
-            return _aspUserManager.GetRolesAsync(user);
+            return _aspUserManager.GetRolesAsync(userViewModel);
         }
 
-        public Task<bool> IsEmailConfirmedAsync(User user)
+        public Task<bool> IsEmailConfirmedAsync(UserViewModel userViewModel)
         {
-            return _aspUserManager.IsEmailConfirmedAsync(user);
+            return _aspUserManager.IsEmailConfirmedAsync(userViewModel);
         }
 
-        public Task<bool> CheckPasswordAsync(User user, string password)
+        public Task<bool> CheckPasswordAsync(UserViewModel userViewModel, string password)
         {
-            return _aspUserManager.CheckPasswordAsync(user, password);
+            return _aspUserManager.CheckPasswordAsync(userViewModel, password);
         }
 
-        public Task<IdentityResult> ChangePasswordAsync(User user, string currentPassword, string newPassword)
+        public Task<IdentityResult> ChangePasswordAsync(UserViewModel userViewModel, string currentPassword, string newPassword)
         {
-            return _aspUserManager.ChangePasswordAsync(user, currentPassword, newPassword);
+            return _aspUserManager.ChangePasswordAsync(userViewModel, currentPassword, newPassword);
         }
 
-        public Task<IList<User>> GetUsersInRoleAsync(string role)
+        public Task<IList<UserViewModel>> GetUsersInRoleAsync(string role)
         {
             return _aspUserManager.GetUsersInRoleAsync(role);
         }

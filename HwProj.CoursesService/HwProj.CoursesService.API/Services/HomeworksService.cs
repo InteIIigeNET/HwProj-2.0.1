@@ -40,6 +40,11 @@ namespace HwProj.CoursesService.API.Services
             return await _homeworksRepository.GetWithTasksAsync(homeworkId);
         }
 
+        public async Task<Homework[]> GetAllHomeworkFromCourse(long courseId)
+        {
+            return await _homeworksRepository.GetAllWithTasksByCourseAsync(courseId);
+        }
+
         public async Task DeleteHomeworkAsync(long homeworkId)
         {
             await _homeworksRepository.DeleteAsync(homeworkId);

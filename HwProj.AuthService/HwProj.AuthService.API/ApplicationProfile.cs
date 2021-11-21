@@ -8,7 +8,7 @@ namespace HwProj.AuthService.API
     {
         public ApplicationProfile()
         {
-            CreateMap<RegisterDataDTO, User>();
+            CreateMap<RegisterDataDTO, UserViewModel>();
             CreateMap<EditAccountViewModel, EditDataDTO>();
             CreateMap<RegisterViewModel, RegisterDataDTO>();
             CreateMap<EditExternalViewModel, EditDataDTO>();

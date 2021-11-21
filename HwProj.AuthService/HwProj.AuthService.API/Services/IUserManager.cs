@@ -7,17 +7,17 @@ namespace HwProj.AuthService.API.Services
 {
     public interface IUserManager
     {
-        Task<IdentityResult> CreateAsync(User user);
-        Task<IdentityResult> CreateAsync(User user, string password);
-        Task<User> FindByIdAsync(string id);
-        Task<User> FindByEmailAsync(string email);
-        Task<IdentityResult> UpdateAsync(User user);
-        Task<IdentityResult> AddToRoleAsync(User user, string role);
-        Task<IdentityResult> RemoveFromRoleAsync(User user, string role);
-        Task<IList<string>> GetRolesAsync(User user);
-        Task<bool> IsEmailConfirmedAsync(User user);
-        Task<bool> CheckPasswordAsync(User user, string password);
-        Task<IdentityResult> ChangePasswordAsync(User user, string currentPassword, string newPassword);
-        Task<IList<User>> GetUsersInRoleAsync(string role);
+        Task<IdentityResult> CreateAsync(UserViewModel userViewModel);
+        Task<IdentityResult> CreateAsync(UserViewModel userViewModel, string password);
+        Task<UserViewModel> FindByIdAsync(string id);
+        Task<UserViewModel> FindByEmailAsync(string email);
+        Task<IdentityResult> UpdateAsync(UserViewModel userViewModel);
+        Task<IdentityResult> AddToRoleAsync(UserViewModel userViewModel, string role);
+        Task<IdentityResult> RemoveFromRoleAsync(UserViewModel userViewModel, string role);
+        Task<IList<string>> GetRolesAsync(UserViewModel userViewModel);
+        Task<bool> IsEmailConfirmedAsync(UserViewModel userViewModel);
+        Task<bool> CheckPasswordAsync(UserViewModel userViewModel, string password);
+        Task<IdentityResult> ChangePasswordAsync(UserViewModel userViewModel, string currentPassword, string newPassword);
+        Task<IList<UserViewModel>> GetUsersInRoleAsync(string role);
     }
 }

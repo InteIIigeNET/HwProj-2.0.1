@@ -36,6 +36,7 @@ namespace HwProj.NotificationsService.API
             services.AddScoped<INotificationsRepository, NotificationsRepository>();
             services.AddScoped<INotificationsService, Services.NotificationsService>();
             services.AddEventBus(Configuration);
+            /*services.AddTransient<IEventHandler<ConfirmTelegramBotEvent>, ConfirmTelegramBotEventHandler>();*/
             services.AddTransient<IEventHandler<StudentRegisterEvent>, RegisterEventHandler>();
             services.AddTransient<IEventHandler<RateEvent>, RateEventHandler>();
             services.AddTransient<IEventHandler<EditProfileEvent>, EditProfileEventHandler>();
@@ -52,12 +53,15 @@ namespace HwProj.NotificationsService.API
             services.AddAuthServiceClient(httpClient, "http://localhost:5001");
             services.AddCoursesServiceClient(httpClient, "http://localhost:5002");
             services.AddSolutionServiceClient(httpClient, "http://localhost:5007");
+            /*services.AddTelegramBotClient(httpClient, "http://localhost:5009");*/
+            
 
             services.ConfigureHwProjServices("Notifications API");
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IEventBus eventBus)
         {
+            /*eventBus.Subscribe<ConfirmTelegramBotEvent>();*/
             eventBus.Subscribe<StudentRegisterEvent>();
             eventBus.Subscribe<InviteLecturerEvent>();
             eventBus.Subscribe<RateEvent>();

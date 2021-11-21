@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Services;
@@ -36,6 +37,20 @@ namespace HwProj.CoursesService.API.Controllers
             var homework = _mapper.Map<HomeworkViewModel>(homeworkFromDb);
             homework.Tasks.ForEach(t => t.PutPossibilityForSendingSolution());
             return homework;
+        }
+        
+        [HttpGet("{courseId}/getAll")]
+        public async Task<HomeworkViewModel[]> GetAllHomeworkFromCourse(long courseId)
+        {
+            var homeworkFromDb = await _homeworksService.GetAllHomeworkFromCourse(courseId);
+            List<HomeworkViewModel> hwList = null;
+            foreach (var hw in homeworkFromDb)
+            {
+                var homework = _mapper.Map<HomeworkViewModel>(hw);
+                homework.Tasks.ForEach(t => t.PutPossibilityForSendingSolution());
+                hwList.Add(homework);    
+            }
+            return hwList?.ToArray();
         }
 
         [HttpDelete("delete/{homeworkId}")]

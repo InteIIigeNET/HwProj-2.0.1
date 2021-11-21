@@ -9,7 +9,7 @@ namespace HwProj.AuthService.API
 {
     public class RoleInitializer
     {
-        public static async Task InitializeAsync(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, IEventBus eventBus)
+        public static async Task InitializeAsync(UserManager<UserViewModel> userManager, RoleManager<IdentityRole> roleManager, IEventBus eventBus)
         {
             if(await roleManager.FindByNameAsync(Roles.LecturerRole) == null)
             {
@@ -26,7 +26,7 @@ namespace HwProj.AuthService.API
 
             if (await userManager.FindByEmailAsync(email) == null)
             {
-                var admin = new User { 
+                var admin = new UserViewModel { 
                     Email = email,
                     Name = "Admin",
                     UserName = "Admin"
