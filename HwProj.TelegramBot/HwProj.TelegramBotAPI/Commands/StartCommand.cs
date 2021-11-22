@@ -23,26 +23,14 @@ namespace HwProj.TelegramBotAPI.Commands
         public override async Task ExecuteAsync(Update update)
         {
             var user = await _userService.GetOrCreateChatId(update);
-            
-            var inlineKeyboard = new InlineKeyboardMarkup(new[]
+
+            var inlineKeyboard = new InlineKeyboardMarkup(new InlineKeyboardButton
             {
-                new[]
-                {
-                    new InlineKeyboardButton()
-                    {
-                        Text = "Мои курсы",
-                        CallbackData = "/courses"
-                    },
-                    new InlineKeyboardButton()
-                    {
-                        Text = "/homeworks"
-                    }
-                }
+                Text = "Мои курсы",
+                CallbackData = "/courses"
             });
 
-            await _botClient.SendTextMessageAsync(user.ChatId, "Добро пожаловать!", 
-                ParseMode.Markdown, replyMarkup:inlineKeyboard);
-            
+            await _botClient.SendTextMessageAsync(user.ChatId, "Добро пожаловать!", ParseMode.Markdown, replyMarkup:inlineKeyboard);
         }
     }
 }

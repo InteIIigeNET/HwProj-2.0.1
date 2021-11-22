@@ -40,7 +40,7 @@ namespace HwProj.CoursesService.API.Services
             return await _homeworksRepository.GetWithTasksAsync(homeworkId);
         }
 
-        public async Task<Homework[]> GetAllHomeworkFromCourse(long courseId)
+        public async Task<Homework[]> GetAllHomeworkFromCourseAsync(long courseId)
         {
             return await _homeworksRepository.GetAllWithTasksByCourseAsync(courseId);
         }

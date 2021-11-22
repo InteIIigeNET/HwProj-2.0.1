@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HwProj.TelegramBotAPI.Commands;
 using Microsoft.Extensions.DependencyInjection;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -37,20 +38,32 @@ namespace HwProj.TelegramBotAPI.Service
                 {
                     case "/start":
                         await ExecuteCommand(CommandNames.StartCommand, update);
-                        break;
-                    case "/courses":
+                    break;
+                    /*case "/courses":
                         await ExecuteCommand(CommandNames.GetCourses, update);
-                        break;
+                    break;
                     case "/homeworks":
                         await ExecuteCommand(CommandNames.GetHomeworks, update);
-                        break;
+                    break;*/
                 }
             }
-            switch (update.CallbackQuery.Data.Split(' ')[0])
+            else
             {
-                case "/homeworks":
-                    await ExecuteCommand(CommandNames.GetHomeworks, update);
+                switch (update.CallbackQuery.Data.Split(' ')[0])
+                {
+                    case "/courses":
+                        await ExecuteCommand(CommandNames.GetCourses, update);
                     break;
+                    case "/homeworks":
+                        await ExecuteCommand(CommandNames.GetHomeworks, update);
+                    break;
+                    case "/task":
+                        await ExecuteCommand(CommandNames.GetTasks, update);
+                    break;
+                    case "/taskinfo":
+                        await ExecuteCommand(CommandNames.GetTaskInfo, update);
+                    break;
+                }
             }
         }
         

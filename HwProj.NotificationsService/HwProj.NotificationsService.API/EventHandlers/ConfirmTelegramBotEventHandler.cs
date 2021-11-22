@@ -4,6 +4,7 @@ using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.TelegramBotAPI;
+using HwProj.TelegramBotAPI.Events;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {

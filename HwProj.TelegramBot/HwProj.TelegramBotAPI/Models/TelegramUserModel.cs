@@ -1,6 +1,4 @@
-﻿using HwProj.Repositories;
-
-namespace HwProj.TelegramBotAPI.Models
+﻿namespace HwProj.TelegramBotAPI.Models
 {
     public class TelegramUserModel
     {

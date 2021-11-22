@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using HwProj.TelegramBotAPI.Service;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using Telegram.Bot.Types;
 
 

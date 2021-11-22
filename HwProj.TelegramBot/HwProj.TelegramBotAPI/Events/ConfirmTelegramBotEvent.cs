@@ -1,7 +1,7 @@
 ﻿using HwProj.EventBus.Client;
 using HwProj.TelegramBotAPI.Models;
 
-namespace HwProj.TelegramBotAPI
+namespace HwProj.TelegramBotAPI.Events
 {
     public class ConfirmTelegramBotEvent : Event
     {

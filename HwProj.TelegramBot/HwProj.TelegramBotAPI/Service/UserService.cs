@@ -4,7 +4,6 @@ using HwProj.AuthService.Client;
 using HwProj.TelegramBotAPI.Models;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
 
 namespace HwProj.TelegramBotAPI.Service
 {
@@ -30,10 +29,6 @@ namespace HwProj.TelegramBotAPI.Service
                 if (text[0] == "/start" && text.Length > 1)
                 {
                     studentId= _authClient.FindByEmailAsync(text[1]).Result;
-                }
-                else if (text[0] == "/start" && text.Length == 1)
-                {
-                    throw new Exception();
                 }
                 else
                 {

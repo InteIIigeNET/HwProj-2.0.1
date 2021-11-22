@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using HwProj.CoursesService.API.Services;
 using HwProj.CoursesService.Client;
 using HwProj.TelegramBotAPI.Service;
 using Telegram.Bot;
@@ -35,7 +34,7 @@ namespace HwProj.TelegramBotAPI.Commands
             {
                 var k = new InlineKeyboardButton
                 { 
-                    Text = $"/homeworks {courses[i - 1].Id}",
+                    Text = courses[i - 1].Name,
                     CallbackData = $"/homeworks {courses[i - 1].Id}"
                 };
                 cols.Add(k);
