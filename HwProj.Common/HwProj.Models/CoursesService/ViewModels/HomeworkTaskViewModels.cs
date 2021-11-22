@@ -27,7 +27,7 @@ namespace HwProj.Models.CoursesService.ViewModels
 
         public void PutPossibilityForSendingSolution()
         {
-            if (!IsDeadlineStrict || DateTime.Now <= DeadlineDate)
+            if (!IsDeadlineStrict || DateTime.UtcNow <= DeadlineDate)
             {
                 CanSendSolution = true;
             }

@@ -30,7 +30,7 @@ const useStyles = makeStyles( theme => ({
 		display: "flex",
 		justifyContent: "space-between",
 	},
-}));
+}))
 
 const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
 	const [profileState, setProfileState] = useState<IProfileState>({
@@ -85,8 +85,8 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
 	const renderNotifications = (notifications: NotificationViewModel[]) => {
 		return (
 			<div>
-				{notifications.map(n =>
-					<Box m={2}>
+				{notifications.map((n, index) =>
+					<Box style={{ marginTop: '16px' }} key={index}>
 						<Card style={{backgroundColor: "AliceBlue"}}>
 							<CardContent>
 								<Typography variant="body1" component="p">
@@ -122,17 +122,17 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
 				? accountState.name + ' ' + accountState.surname
 				: accountState.name
 		return (
-			<div>
-				<Grid container justify="center" style={{ marginTop: "15px" }}>
+			<div style={{ marginBottom: '50px' }}>
+				<Grid container justifyContent="center" style={{ marginTop: "15px" }}>
 					<Grid item xs={11} className={classes.info}>
-						<Typography component="h1" variant="h5">
+						<Typography style={{ fontSize: '20px' }}>
 							{fullName}
 						</Typography>
-						<Typography component="h1" variant="h5">
+						<Typography style={{ fontSize: '20px' }}>
 							{accountState.email}
 						</Typography>
 					</Grid>
-					<Grid item xs={12} style={{ marginTop: "15px" }}>
+					<Grid item xs={11} style={{ marginTop: "25px" }}>
 						{!props.match.params.id &&
 						<div>
 							<Tabs

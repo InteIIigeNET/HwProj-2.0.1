@@ -43,9 +43,10 @@ namespace HwProj.APIGateway.API
                         ValidateIssuerSigningKey = true
                     };
                 });
+
             services.AddHttpClient();
             services.AddHttpContextAccessor();
-            
+
             services.AddAuthServiceClient();
             services.AddCoursesServiceClient();
             services.AddSolutionServiceClient();

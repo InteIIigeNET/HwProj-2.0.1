@@ -1,9 +1,6 @@
 ﻿using AutoMapper;
-using HwProj.AuthService.API.Models;
-using HwProj.Models.AuthService;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
-using HwProj.Models.CoursesService.DTO;
 
 namespace HwProj.AuthService.API
 {

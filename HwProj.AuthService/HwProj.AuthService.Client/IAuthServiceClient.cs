@@ -18,6 +18,7 @@ namespace HwProj.AuthService.Client
         Task<Result<TokenCredentials>> LoginByGoogle(string tokenId);
         Task<Result> EditExternal(EditExternalViewModel model, string userId);
         Task<string> FindByEmailAsync(string email);
+        Task<AccountDataDto[]> GetAllStudents();
         Task<GroupMateDataDTO[]> GetStudentData(StudentsModel studentsModel);
     }
 }

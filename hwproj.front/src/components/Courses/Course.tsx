@@ -11,6 +11,9 @@ import {Button, Grid, ListItem, Typography, Link, Tab, Tabs} from "@material-ui/
 import EditIcon from "@material-ui/icons/Edit";
 import {useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
+import List from "@material-ui/core/List";
+import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
+import VisibilityIcon from '@material-ui/icons/Visibility';
 import Lecturers from "./Lecturers";
 import CourseGroups from "../Groups/CourseGroups";
 
@@ -30,6 +33,7 @@ interface ICourseState {
     mentors: AccountDataDto[];
     acceptedStudents: ICourseMate[];
     newStudents: ICourseMate[];
+    isReadingMode: boolean;
 }
 
 interface ICourseProps {
@@ -56,6 +60,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
         mentors: [],
         acceptedStudents: [],
         newStudents: [],
+        isReadingMode: true,
     })
     const setCurrentState = async () => {
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+courseId)
@@ -89,6 +94,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                         id: cm.studentId!,
                     }
                 })),
+            isReadingMode: true,
         })
     }
 
@@ -102,7 +108,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
             .then((res) => setCurrentState());
     }
 
-    const {isFound, course, createHomework, mentors, newStudents, acceptedStudents} = courseState;
+    const {isFound, course, createHomework, mentors, newStudents, acceptedStudents, isReadingMode} = courseState;
     if (isFound) {
         const isLogged = ApiSingleton.authService.isLoggedIn()
 
@@ -122,17 +128,36 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
         const groupHomeworks = courseState.homeworks!.filter((hw) => hw.isGroupHomework)
 
         return (
-            <Grid>
+            <Grid style={{ marginBottom: '50px' }}>
                 <Grid container justify="center" style={{marginTop: "15px"}}>
                     <Grid container xs={11} className={classes.info}>
                         <Grid item>
                             <Typography style={{ fontSize: '22px'}}>
                                 {course.name} &nbsp;
-                                {isMentor && (
+                                {isMentor &&
+                                    (isReadingMode
+                                    ? <VisibilityOffIcon 
+                                        titleAccess="Режим чтения включен"
+                                        onClick={async () => 
+                                            setCourseState(prevState => ({
+                                                ...prevState,
+                                                isReadingMode: false}))}
+                                    />
+                                    : <VisibilityIcon 
+                                        titleAccess="Режим чтения выключен"
+                                        onClick={async () =>
+                                            setCourseState(prevState => ({
+                                                ...prevState,
+                                                isReadingMode: true }))}
+                                    />)
+                                }
+                                {isMentor && ! isReadingMode! && (
                                     <RouterLink to={"./" + courseId! + "/edit"}>
                                         <EditIcon fontSize="small"/>
                                     </RouterLink>
                                 )}
+
+                                
                             </Typography>
                             <Typography variant="subtitle1" gutterBottom>
                                 Группа: {course.groupName}
@@ -142,6 +167,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                             <Grid container alignItems="flex-end" direction="column" xs={12}>
                                 <Grid item>
                                     <Lecturers
+                                        update={() => {}}
                                         mentors={mentors}
                                         courseId={courseId}
                                         isEditCourse={false}

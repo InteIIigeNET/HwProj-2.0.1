@@ -99,7 +99,6 @@ const EditProfile: FC = () => {
 
     const getUserInfo = async () => {
         try{
-            debugger
             const currentUser = await (await ApiSingleton.accountApi.apiAccountGetUserDataGet()).userData!
             setProfile((prevState) => ({
                 ...prevState,

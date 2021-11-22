@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using HwProj.AuthService.API.Services;
-using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.Result;
@@ -22,13 +21,11 @@ namespace HwProj.AuthService.API.Controllers
     {
         private readonly IAccountService _accountService;
         private readonly IUserManager _userManager;
-        private readonly IEventBus _eventBus;
         private readonly IMapper _mapper;
 
-        public AccountController(IAccountService accountService, IEventBus eventBus, IUserManager userManager, IMapper mapper)
+        public AccountController(IAccountService accountService, IUserManager userManager, IMapper mapper)
         {
             _accountService = accountService;
-            _eventBus = eventBus;
             _userManager = userManager;
             _mapper = mapper;
         }
@@ -45,7 +42,7 @@ namespace HwProj.AuthService.API.Controllers
         }
 
         [HttpPost("register")]
-        [ProducesResponseType(typeof(TokenCredentials), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Register([FromBody] RegisterViewModel model)
         {
             var newModel = _mapper.Map<RegisterDataDTO>(model);
@@ -113,6 +110,15 @@ namespace HwProj.AuthService.API.Controllers
             return Ok(roles[0]);
         }
 
+        [HttpGet("getAllStudents")]
+        [ProducesResponseType(typeof(AccountDataDto[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetAllStudents()
+        {
+            var result = await _accountService.GetAllStudents();
+            return result == null
+                ? NotFound()
+                : Ok(result) as IActionResult;
+        }
 
         [HttpGet("getStudentsData")]
         [ProducesResponseType(typeof(GroupMateDataDTO[]), (int)HttpStatusCode.OK)]

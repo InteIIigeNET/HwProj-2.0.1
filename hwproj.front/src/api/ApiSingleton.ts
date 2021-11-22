@@ -1,13 +1,4 @@
-import {
-  AccountApi,
-  NotificationsApi,
-  CoursesApi,
-  SolutionsApi,
-  HomeworksApi,
-  TasksApi,
-  StatisticsApi,
-  CourseGroupsApi
-} from ".";
+import { AccountApi, NotificationsApi, CoursesApi, SolutionsApi, HomeworksApi, TasksApi, StatisticsApi} from ".";
 import { Configuration } from './configuration';
 import AuthService from "../services/AuthService";
 
@@ -22,7 +13,6 @@ class Api {
   readonly tasksApi: TasksApi;
   readonly statisticsApi: StatisticsApi;
   readonly authService: AuthService;
-  readonly courseGroupsApi: CourseGroupsApi;
 
   constructor(
     accountApi: AccountApi,
@@ -33,7 +23,6 @@ class Api {
     tasksApi: TasksApi,
     statisticsApi: StatisticsApi,
     authService: AuthService,
-    courseGroupsApi: CourseGroupsApi,
   ) {
     this.accountApi = accountApi;
     this.coursesApi = coursesApi;
@@ -43,14 +32,9 @@ class Api {
     this.tasksApi = tasksApi;
     this.statisticsApi = statisticsApi;
     this.authService = authService;
-    this.courseGroupsApi = courseGroupsApi;
   }
 }
 
-const currentToken = (new AuthService()).getToken()
-const token = typeof currentToken === "string"
-  ? currentToken
-  : undefined
 const basePath = "http://localhost:5000";
 
 const authService = new AuthService();
@@ -64,6 +48,5 @@ ApiSingleton = new Api(
   new TasksApi({ basePath: basePath, apiKey: () => "Bearer " + authService.getToken()! }),
   new StatisticsApi({ basePath: basePath, apiKey: () => "Bearer " + authService.getToken()! }),
   authService,
-    new CourseGroupsApi({ basePath: basePath, apiKey: () => "Bearer " + authService.getToken()! }),
 );
 export default ApiSingleton;

@@ -5,17 +5,19 @@ using System;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.Client
 {
     public class NotificationsServiceClient: INotificationsServiceClient
     {
         private readonly HttpClient _httpClient;
-        private readonly Uri _notificationServiceUri = new("http://localhost:5006");
-
-        public NotificationsServiceClient(IHttpClientFactory clientFactory)
+        private readonly Uri _notificationServiceUri;
+        
+        public NotificationsServiceClient(IHttpClientFactory clientFactory, IConfiguration configuration)
         {
             _httpClient = clientFactory.CreateClient();
+            _notificationServiceUri = new Uri(configuration.GetSection("Services")["Notifications"]);
         }
 
         public async Task<NotificationViewModel[]> Get(string userId, NotificationFilter filter)

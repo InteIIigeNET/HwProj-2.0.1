@@ -76,7 +76,7 @@ const TaskSolutionsPage: FC<RouteComponentProps<ITaskSolutionsProps>> = (props) 
         }
 
         return (
-            <div style={{ marginBottom: '15px' }}>
+            <div style={{ marginBottom: '50px' }}>
                 <Grid container justify="center" style={{marginTop: '20px'}}>
                     <Grid container justifyContent="space-between" xs={11} >
                         <Grid item>
@@ -114,7 +114,7 @@ const TaskSolutionsPage: FC<RouteComponentProps<ITaskSolutionsProps>> = (props) 
                         {(!taskSolution.addSolution && taskSolution.task.canSendSolution) && (
                             <Grid item xs={12} style={{ marginTop: "16px" }}>
                                 <Button
-                                    size="medium"
+                                    size="small"
                                     variant="contained"
                                     color="primary"
                                     onClick={(e) => {

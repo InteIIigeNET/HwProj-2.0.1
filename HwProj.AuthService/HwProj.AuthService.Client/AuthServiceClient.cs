@@ -9,17 +9,19 @@ using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
 using Newtonsoft.Json;
 using HwProj.Models.Result;
+using Microsoft.Extensions.Configuration;
 
 namespace HwProj.AuthService.Client
 {
     public class AuthServiceClient : IAuthServiceClient
     {
         private readonly HttpClient _httpClient;
-        private readonly Uri _authServiceUri = new("http://localhost:5001"); //TODO: refactor;
+        private readonly Uri _authServiceUri;
 
-        public AuthServiceClient(IHttpClientFactory clientFactory)
+        public AuthServiceClient(IHttpClientFactory clientFactory, IConfiguration configuration)
         {
             _httpClient = clientFactory.CreateClient();
+            _authServiceUri = new Uri(configuration.GetSection("Services")["Auth"]);
         }
 
         public async Task<AccountDataDto> GetAccountData(string userId)
@@ -136,6 +138,16 @@ namespace HwProj.AuthService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             var user = await response.DeserializeAsync<User>();
             return user?.Id;
+        }
+
+        public async Task<AccountDataDto[]> GetAllStudents()
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _authServiceUri + $"api/account/getAllStudents");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<AccountDataDto[]>().ConfigureAwait(false);
         }
         
         public async Task<GroupMateDataDTO[]> GetStudentData(StudentsModel studentsModel)
