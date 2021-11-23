@@ -75,7 +75,7 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {this.state.stat
+                            {this.props.isMentor && this.state.stat
                                 .map((cm, index) => (
                                     <TableRow key={index}>
                                         <TableCell
@@ -102,6 +102,33 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
                                         )}
                                     </TableRow>
                                 ))}
+                            {!this.props.isMentor &&
+                                <TableRow key={1}>
+                                    <TableCell
+                                        align="center"
+                                        padding="none"
+                                        component="td"
+                                        scope="row"
+                                    >
+                                        {this.state.stat.find(cm => cm.id == this.props.userId)!.surname}
+                                        {this.state.stat.find(cm => cm.id == this.props.userId)!.name}
+                                    </TableCell>
+                                    {this.state.stat.find(cm => cm.id == this.props.userId)!.homeworks!.map((homework) =>
+                                        homework.tasks!.map((task) => (
+                                            <TaskStudentCell
+                                                solutions={this.state.stat
+                                                    .find(s => s.id == this.props.userId)!.homeworks!
+                                                    .find(h => h.id == homework.id)!.tasks!
+                                                    .find(t => t.id == task.id)!.solution!.slice(-1)[0]}
+                                                userId={this.props.userId}
+                                                forMentor={this.props.isMentor}
+                                                studentId={this.props.userId}
+                                                taskId={task.id!}
+                                            />
+                                        ))
+                                    )}
+                                </TableRow>
+                            }
                         </TableBody>
                     </Table>
                 </TableContainer>}
@@ -110,7 +137,10 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
     }
 
     async componentDidMount() {
+        console.log(this.props.isMentor)
+        debugger
         const stat = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdGet(this.props.course.id!)
+        debugger
         this.setState({stat: stat, isLoaded: true})
     }
 }
