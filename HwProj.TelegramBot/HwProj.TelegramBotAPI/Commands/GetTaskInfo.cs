@@ -31,7 +31,7 @@ namespace HwProj.TelegramBotAPI.Commands
             var user = await _userService.GetOrCreateChatId(update);
             var message = update.CallbackQuery.Data;
             var text = message.Split(' ');
-            var hw = _coursesServiceClient.GetHomework(Int32.Parse(text[1])).Result;
+            var hw = _coursesServiceClient.GetHomework(Int32.Parse(text[1])).Result; ////
             var tasks = hw.Tasks.ToArray();
             HomeworkTaskViewModel task = null;
             foreach (var t in tasks)

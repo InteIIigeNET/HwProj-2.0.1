@@ -39,7 +39,7 @@ namespace HwProj.TelegramBotAPI.Commands
                 var k = new InlineKeyboardButton
                 { 
                     Text = tasks[i - 1].Title,
-                    CallbackData = $"/tasks {tasks[i - 1].Id}"
+                    CallbackData = $"/taskinfo {tasks[i - 1].Id}"
                 };
                 cols.Add(k);
                 if (i % 3 != 0) continue;
