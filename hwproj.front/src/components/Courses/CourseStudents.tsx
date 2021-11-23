@@ -137,10 +137,7 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
     }
 
     async componentDidMount() {
-        console.log(this.props.isMentor)
-        debugger
         const stat = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdGet(this.props.course.id!)
-        debugger
         this.setState({stat: stat, isLoaded: true})
     }
 }
