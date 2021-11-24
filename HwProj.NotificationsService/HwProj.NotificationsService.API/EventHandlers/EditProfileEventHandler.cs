@@ -22,7 +22,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             {
                 Sender = "AuthService",
                 Body = "Ваш профиль был успешно отредактирован.",
-                Category = CategoryState.ProfileUpdate,
+                Category = CategoryState.Profile,
                 Date = DateTime.UtcNow,
                 HasSeen = false,
                 Owner = @event.UserId

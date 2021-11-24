@@ -29,7 +29,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 {
                     Sender = "CourseService",
                     Body = $"Пользователь <a href='profile/{@event.StudentId}'>{user.Name} {user.Surname}</a> подал(-а) заявку на вступление в курс <a href='/courses/{@event.CourseId}'>{@event.CourseName}</a>.",
-                    Category = CategoryState.CourseRegister,
+                    Category = CategoryState.Courses,
                     Date = DateTime.UtcNow,
                     HasSeen = false,
                     Owner = m

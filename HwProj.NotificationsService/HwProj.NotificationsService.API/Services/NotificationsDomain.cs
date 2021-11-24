@@ -23,7 +23,7 @@ namespace HwProj.NotificationsService.API.Services
             return id;
         }
 
-        public async Task<NotificationViewModel[]> GetAsync(string userId, NotificationFilter filter = null)
+        public async Task<NotificationViewModel[]> GroupAsync(string userId, NotificationFilter filter = null)
         {
             filter = filter ?? new NotificationFilter
             {

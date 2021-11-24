@@ -26,7 +26,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 {
                     Sender = "CourseService",
                     Body = $"В курсе <a href='courses/{@event.Course.Id}'>{@event.Course.Name}</a> опубликована новая домашка <i>{@event.Homework}</i>.",
-                    Category = CategoryState.NewAssignment,
+                    Category = CategoryState.Homeworks,
                     Date = DateTime.UtcNow,
                     HasSeen = false,
                     Owner = student.StudentId

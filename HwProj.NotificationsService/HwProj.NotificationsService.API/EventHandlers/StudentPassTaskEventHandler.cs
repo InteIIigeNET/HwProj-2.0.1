@@ -26,7 +26,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 {
                     Sender = "SolutionService",
                     Body = $"{@event.Student.Name} {@event.Student.Surname} добавил(-а) новое <a href='{@event.Solution.GithubUrl}' target='_blank'>решение</a> задачи <a href='task/{@event.Task.Id}'>{@event.Task.Title}</a> из курса <a href='courses/{@event.Course.Id}'>{@event.Course.Name}</a>.",
-                    Category = CategoryState.SolutionSent,
+                    Category = CategoryState.Homeworks,
                     Date = DateTime.UtcNow,
                     HasSeen = false,
                     Owner = m,
