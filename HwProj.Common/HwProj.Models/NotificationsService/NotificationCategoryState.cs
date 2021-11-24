@@ -3,14 +3,8 @@
     public enum CategoryState
     {
         None,
-        ProfileUpdate,
-        SolutionSent, 
-        CourseRegister, 
-        LecturerRatedSolution,
-        NewAssignment,
-        CourseUpdate, 
-        SolutionRated,
-        UpcomingDeadlineThreeDays,
-        UpcomingDeadlineDay
+        Profile,
+        Courses, 
+        Homeworks
     }
 }

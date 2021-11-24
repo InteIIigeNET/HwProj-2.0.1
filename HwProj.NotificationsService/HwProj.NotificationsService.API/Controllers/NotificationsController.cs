@@ -17,11 +17,13 @@ namespace HwProj.NotificationsService.API.Controllers
             _notificationsService = notificationsService;
         }
 
+        // Get nots here
+        // return model
         [HttpPost("get/{userId}")]
         [ProducesResponseType(typeof(NotificationViewModel[]), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Get(string userId, [FromBody] NotificationFilter filter)
+        public async Task<IActionResult> Get(string userId)//, [FromBody] NotificationFilter filter)
         {
-            var notifications = await _notificationsService.GetAsync(userId, filter);
+            var notifications = await _notificationsService.GroupAsync(userId);
             return Ok(notifications ?? new NotificationViewModel[] { });
         }
 
