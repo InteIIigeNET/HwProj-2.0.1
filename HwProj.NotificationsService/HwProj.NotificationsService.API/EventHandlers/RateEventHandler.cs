@@ -1,9 +1,9 @@
 using System;
 using System.Threading.Tasks;
-using HwProj.AuthService.API.Events;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
+using HwProj.NotificationsService.API.Services;
 using HwProj.SolutionsService.API.Events;
 
 namespace HwProj.NotificationsService.API.EventHandlers
@@ -12,15 +12,17 @@ namespace HwProj.NotificationsService.API.EventHandlers
     public class RateEventHandler : IEventHandler<RateEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
+        private readonly INotificationsService _notificationsService;
 
-        public RateEventHandler(INotificationsRepository notificationRepository)
+        public RateEventHandler(INotificationsRepository notificationRepository, INotificationsService notificationsService)
         {
             _notificationRepository = notificationRepository;
+            _notificationsService = notificationsService;
         }
 
         public async Task HandleAsync(RateEvent @event)
         {
-            await _notificationRepository.AddAsync(new Notification
+            var notification = new Notification
             {
                 Sender = "SolutionService",
                 Body = $"Задача <a href='task/{@event.Task.Id}' target='_blank'>{@event.Task.Title}</a> оценена.",
@@ -28,7 +30,9 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 Date = DateTime.UtcNow,
                 HasSeen = false,
                 Owner = @event.Solution.StudentId
-            }); ;
+            };
+            await _notificationRepository.AddAsync(notification);
+            await _notificationsService.SendTelegramMessageAsync(notification);
         }
     }
 }

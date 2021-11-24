@@ -1,21 +1,23 @@
-﻿using HwProj.AuthService.API.Events;
-using HwProj.AuthService.Client;
-using HwProj.EventBus.Client.Interfaces;
-using HwProj.NotificationsService.API.EventHandlers;
-using HwProj.NotificationsService.API.Models;
-using HwProj.NotificationsService.API.Repositories;
-using HwProj.NotificationsService.API.Services;
-using HwProj.Utils.Configuration;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http;
+using HwProj.AuthService.API.Events;
+using HwProj.AuthService.Client;
+using HwProj.EventBus.Client.Interfaces;
+using HwProj.NotificationsService.API.EventHandlers;
+using HwProj.NotificationsService.API.Models;
+
+using HwProj.NotificationsService.API.Repositories;
+using HwProj.NotificationsService.API.Services;
+using HwProj.Utils.Configuration;
 using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.Client;
 using HwProj.SolutionsService.API.Events;
 using HwProj.SolutionsService.Client;
+using HwProj.TelegramBotService.Client;
 using UpdateTaskMaxRatingEvent = HwProj.CoursesService.API.Events.UpdateTaskMaxRatingEvent;
 
 namespace HwProj.NotificationsService.API
@@ -53,7 +55,7 @@ namespace HwProj.NotificationsService.API
             services.AddAuthServiceClient(httpClient, "http://localhost:5001");
             services.AddCoursesServiceClient(httpClient, "http://localhost:5002");
             services.AddSolutionServiceClient(httpClient, "http://localhost:5007");
-            /*services.AddTelegramBotClient(httpClient, "http://localhost:5009");*/
+            services.AddTelegramBotClient(httpClient, "http://localhost:5009");
             
 
             services.ConfigureHwProjServices("Notifications API");

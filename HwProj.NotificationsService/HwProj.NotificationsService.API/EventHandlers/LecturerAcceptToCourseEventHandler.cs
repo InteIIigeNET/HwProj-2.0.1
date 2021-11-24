@@ -5,6 +5,8 @@ using HwProj.CoursesService.API.Events;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
+using HwProj.NotificationsService.API.Services;
+using HwProj.TelegramBotService.Client;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {
@@ -12,16 +14,18 @@ namespace HwProj.NotificationsService.API.EventHandlers
     {
         private readonly INotificationsRepository _notificationRepository;
         private readonly IAuthServiceClient _authClient;
+        private readonly INotificationsService _notificationsService;
 
-        public LecturerAcceptToCourseEventHandler(INotificationsRepository notificationRepository, IAuthServiceClient authClient)
+        public LecturerAcceptToCourseEventHandler(INotificationsRepository notificationRepository, IAuthServiceClient authClient, INotificationsService notificationsService)
         {
             _notificationRepository = notificationRepository;
             _authClient = authClient;
+            _notificationsService = notificationsService;
         }
 
         public async Task HandleAsync(LecturerAcceptToCourseEvent @event)
         {
-            await _notificationRepository.AddAsync(new Notification
+            var notification = new Notification
             {
                 Sender = "CourseService",
                 Body = $"Вас приняли на курс <a href='/courses/{@event.CourseId}'>{@event.CourseName}</a>.",
@@ -29,7 +33,9 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 Date = DateTime.UtcNow,
                 HasSeen = false,
                 Owner = @event.StudentId
-            });
+            };
+            await _notificationRepository.AddAsync(notification);
+            await _notificationsService.SendTelegramMessageAsync(notification);
         }
     }
 }
