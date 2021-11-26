@@ -53,12 +53,12 @@ namespace HwProj.AuthService.API.Services
             var user = await _userManager.FindByIdAsync(id).ConfigureAwait(false);
             if (user == null)
             {
-                return Result.Failed("User not found");
+                return Result.Failed("Пользователь не найден");
             }
 
             if (!user.IsExternalAuth && !await _userManager.CheckPasswordAsync(user, model.CurrentPassword))
             {
-                return Result.Failed("Wrong current password");
+                return Result.Failed("Неправильный логин или пароль");
             }
 
             var result = user.IsExternalAuth
@@ -79,12 +79,12 @@ namespace HwProj.AuthService.API.Services
             if (await _userManager.FindByEmailAsync(model.Email).ConfigureAwait(false)
                     is var user && user == null)
             {
-                return Result<TokenCredentials>.Failed("User not found");
+                return Result<TokenCredentials>.Failed("Пользователь не найден");
             }
 
             if (!await _userManager.IsEmailConfirmedAsync(user).ConfigureAwait(false))
             {
-                return Result<TokenCredentials>.Failed("Email not confirmed");
+                return Result<TokenCredentials>.Failed("Электронная почта не подтверждена");
             }
 
             var result = await _signInManager.PasswordSignInAsync(
@@ -125,7 +125,12 @@ namespace HwProj.AuthService.API.Services
         {
             if (await _userManager.FindByEmailAsync(model.Email) != null)
             {
-                return Result<TokenCredentials>.Failed("User exist");
+                return Result<TokenCredentials>.Failed("Пользователь уже зарегистрирован");
+            }
+            
+            if(!model.IsExternalAuth && model.Password.Length < 6)
+            {
+                return Result<TokenCredentials>.Failed("Пароль должен содержать не менее 6 символов");
             }
 
             var user = _mapper.Map<UserViewModel>(model);
@@ -134,6 +139,11 @@ namespace HwProj.AuthService.API.Services
             var createUserTask = model.IsExternalAuth
                 ? _userManager.CreateAsync(user)
                 : _userManager.CreateAsync(user, model.Password);
+
+            if (!model.IsExternalAuth && createUserTask.Result.Succeeded && !await _userManager.CheckPasswordAsync(user, model.PasswordConfirm))
+            {
+                return Result<TokenCredentials>.Failed("Пароли не совпадают");
+            }
             
             var result = await createUserTask
                 .Then(() => _userManager.AddToRoleAsync(user, Roles.StudentRole))

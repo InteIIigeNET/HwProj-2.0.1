@@ -28,7 +28,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
             foreach (var m in @event.MentorIds.Split('/'))
             {
-                var notification = new Notification
+                await _notificationRepository.AddAsync(new Notification
                 {
                     Sender = "CourseService",
                     Body =

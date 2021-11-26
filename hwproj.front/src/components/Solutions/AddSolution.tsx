@@ -5,8 +5,6 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {SolutionViewModel} from "../../api";
 import {FC, useState} from "react";
 import Grid from "@material-ui/core/Grid";
-import Container from "@material-ui/core/Container";
-import {GridClassKey} from "@material-ui/core/Grid/Grid";
 import makeStyles from "@material-ui/styles/makeStyles";
 
 interface IAddSolutionProps {
@@ -87,7 +85,7 @@ const AddSolution: FC<IAddSolutionProps> = (props) => {
                                     color="primary"
                                     type="submit"
                                 >
-                                    Добавить решение
+                                    Отправить решение
                                 </Button>
                             </div>
                             <div>
@@ -101,28 +99,6 @@ const AddSolution: FC<IAddSolutionProps> = (props) => {
                                 </Button>
                             </div>
                         </div>
-                        {/*<div className={classes.buttons}>*/}
-                        {/*    <Grid xs={6} className={classes.button}>*/}
-                        {/*        <Button*/}
-                        {/*            fullWidth*/}
-                        {/*            variant="contained"*/}
-                        {/*            color="primary"*/}
-                        {/*            type="submit"*/}
-                        {/*        >*/}
-                        {/*            Добавить решение*/}
-                        {/*        </Button>*/}
-                        {/*    </Grid>*/}
-                        {/*    <Grid xs={6}>*/}
-                        {/*        <Button*/}
-                        {/*            onClick={() => props.onCancel()}*/}
-                        {/*            fullWidth*/}
-                        {/*            variant="contained"*/}
-                        {/*            color="primary"*/}
-                        {/*        >*/}
-                        {/*            Отменить*/}
-                        {/*        </Button>*/}
-                        {/*    </Grid>*/}
-                        {/*</div>*/}
                     </Grid>
                 </Grid>
             </form>

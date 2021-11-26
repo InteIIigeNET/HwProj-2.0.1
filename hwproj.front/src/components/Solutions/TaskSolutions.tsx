@@ -54,14 +54,14 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                 />
             </Grid>
         )
-    )
+    ).reverse()
 
     const componentsOfRatedSolutions = arrayOfRatedSolutions.map((sol) => (
             <Grid item style={{ marginTop: '16px' }}>
                 <RatedSolutionComponent forMentor={props.forMentor} solution={sol}/>
             </Grid>
         )
-    )
+    ).reverse()
 
     if (isLoaded) {
         return (

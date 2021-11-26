@@ -44,11 +44,13 @@ namespace HwProj.APIGateway.API
                     };
                 });
 
-            var httpClient = new HttpClient();
-            services.AddAuthServiceClient(httpClient, "http://localhost:5001");
-            services.AddCoursesServiceClient(httpClient, "http://localhost:5002");
-            services.AddSolutionServiceClient(httpClient, "http://localhost:5007");
-            services.AddNotificationsServiceClient(httpClient, "http://localhost:5006");
+            services.AddHttpClient();
+            services.AddHttpContextAccessor();
+
+            services.AddAuthServiceClient();
+            services.AddCoursesServiceClient();
+            services.AddSolutionServiceClient();
+            services.AddNotificationsServiceClient();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

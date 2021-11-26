@@ -99,9 +99,7 @@ const EditProfile: FC = () => {
 
     const getUserInfo = async () => {
         try{
-            debugger
             const currentUser = await (await ApiSingleton.accountApi.apiAccountGetUserDataGet()).userData!
-            debugger
             setProfile((prevState) => ({
                 ...prevState,
                 isLoaded: true,
@@ -110,11 +108,8 @@ const EditProfile: FC = () => {
                 middleName: currentUser.middleName!,
                 isExternalAuth: currentUser.isExternalAuth,
             }))
-            debugger
         }
         catch (e) {
-            console.log(e)
-            debugger
             setProfile((prevState) => ({
                 ...prevState,
                 isLoaded: true,

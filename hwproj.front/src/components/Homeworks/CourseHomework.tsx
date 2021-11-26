@@ -26,7 +26,7 @@ const CourseHomework: FC<ICourseHomeworkProps> = (props) => {
                 />
 
             </ListItem>
-        ))
+        )).reverse()
 
     if (homeworkList.length > 0) {
         return (

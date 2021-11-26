@@ -94,7 +94,7 @@ const Homework: FC<IHomeworkProps> = (props) => {
                             </RouterLink>
                             }
                         </div>
-                        <div>
+                        <div style={{ marginLeft: '8px' }}>
                             {props.forMentor && deferredHomework!.length > 0 &&
                                 <Typography>
                                     <HourglassEmpty/>

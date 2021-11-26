@@ -9,10 +9,15 @@ using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.NotificationsService.API.EventHandlers;
 using HwProj.NotificationsService.API.Models;
-
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
 using HwProj.Utils.Configuration;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using System.Net.Http;
 using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.Client;
 using HwProj.SolutionsService.API.Events;
@@ -51,12 +56,11 @@ namespace HwProj.NotificationsService.API
             services.AddTransient<IEventHandler<InviteLecturerEvent>, InviteLecturerEventHandler>();
             services.AddTransient<IEventHandler<NewCourseMateEvent>, NewCourseMateHandler>();
 
-            var httpClient = new HttpClient();
-            services.AddAuthServiceClient(httpClient, "http://localhost:5001");
-            services.AddCoursesServiceClient(httpClient, "http://localhost:5002");
-            services.AddSolutionServiceClient(httpClient, "http://localhost:5007");
+            services.AddHttpClient();
+            services.AddAuthServiceClient();
+            services.AddCoursesServiceClient();
+            services.AddSolutionServiceClient();
             services.AddTelegramBotClient(httpClient, "http://localhost:5009");
-            
 
             services.ConfigureHwProjServices("Notifications API");
         }

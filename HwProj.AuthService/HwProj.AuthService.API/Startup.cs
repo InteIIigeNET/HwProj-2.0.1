@@ -60,8 +60,9 @@ namespace HwProj.AuthService.API
                     options.ClientSecret = googleAuthNSection["ClientSecret"];
                 });
 
+            var connectionString = ConnectionString.GetConnectionString(Configuration);
             services.AddDbContext<IdentityContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(connectionString));
 
             services.AddIdentity<UserViewModel, IdentityRole>(opts =>
                 {
@@ -76,7 +77,7 @@ namespace HwProj.AuthService.API
                 .AddUserManager<UserManager<UserViewModel>>()
                 .AddRoleManager<RoleManager<IdentityRole>>()
                 .AddDefaultTokenProviders();
-            
+
             services.AddEventBus(Configuration);
 
             services.AddScoped<IAuthTokenService, AuthTokenService>()
