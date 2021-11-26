@@ -20,7 +20,7 @@ namespace HwProj.NotificationsService.Client
             _notificationServiceUri = new Uri(configuration.GetSection("Services")["Notifications"]);
         }
 
-        public async Task<NotificationViewModel[]> Get(string userId, NotificationFilter filter)
+        public async Task<CategorizedNotifications[]> Get(string userId, NotificationFilter filter)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
@@ -30,7 +30,7 @@ namespace HwProj.NotificationsService.Client
             httpRequest.Content = new StringContent(jsonFilter, Encoding.UTF8, "application/json");
             
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<NotificationViewModel[]>() ?? new NotificationViewModel[] { };
+            return await response.DeserializeAsync<CategorizedNotifications[]>() ?? new CategorizedNotifications[] { };
         }
 
         public async Task MarkAsSeen(string userId, long[] notificationIds)
