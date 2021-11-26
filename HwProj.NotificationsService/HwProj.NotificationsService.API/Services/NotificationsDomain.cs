@@ -30,14 +30,14 @@ namespace HwProj.NotificationsService.API.Services
             return id;
         }
 
-        public async Task<NotificationViewModel[]> GroupAsync(string userId, NotificationFilter filter = null)
+        public CategorizedNotifications[] GroupAsync(Notification[] notifications)
         {
-            filter = filter ?? new NotificationFilter
-            {
-                MaxCount = 50, 
-            };
-            var notifications = await _repository.GetAllByUserAsync(userId, filter);
-            return notifications.Select(notification => _mapper.Map<NotificationViewModel>(notification)).ToArray();
+            var groupedNotifications = notifications.GroupBy(t => t.Category).Select(
+                category => (category.Key, 
+                category.Where(t => t.HasSeen).ToArray(),
+                category.Where(t => !t.HasSeen).ToArray()));
+
+            return groupedNotifications.Select(element => _mapper.Map<CategorizedNotifications>(element)).ToArray();
         }
 
         public async Task MarkAsSeenAsync(string userId, long[] notificationIds)
