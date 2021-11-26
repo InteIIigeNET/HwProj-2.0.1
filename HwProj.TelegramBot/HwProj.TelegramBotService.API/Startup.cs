@@ -40,9 +40,9 @@ namespace HwProj.TelegramBotService.API
             services.AddScoped<Commands.Commands, GetSolutionsFromTask>();
 
             var httpClient = new HttpClient();
-            services.AddAuthServiceClient(httpClient, "http://localhost:5001");
-            services.AddCoursesServiceClient(httpClient, "http://localhost:5002");
-            services.AddSolutionServiceClient(httpClient, "http://localhost:5007");
+            services.AddAuthServiceClient();
+            services.AddCoursesServiceClient();
+            services.AddSolutionServiceClient();
 
             services.AddEventBus(Configuration);
             services.ConfigureHwProjServices("Telegram API");

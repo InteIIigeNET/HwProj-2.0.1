@@ -6,11 +6,9 @@ namespace HwProj.TelegramBotService.Client
 {
     public static class ConfigurationExtensions
     {
-        public static IServiceCollection AddTelegramBotClient(this IServiceCollection services, HttpClient httpClient,
-            string baseUri)
+        public static IServiceCollection AddTelegramBotClient(this IServiceCollection services)
         {
-            var telegramBotServiceClient = new TelegramBotServiceClient(httpClient, new Uri(baseUri));
-            services.AddSingleton<ITelegramBotServiceClient>(telegramBotServiceClient);
+            services.AddScoped<ITelegramBotServiceClient, TelegramBotServiceClient>();
             return services;
         }
     }

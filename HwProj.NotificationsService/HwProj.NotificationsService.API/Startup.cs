@@ -60,7 +60,7 @@ namespace HwProj.NotificationsService.API
             services.AddAuthServiceClient();
             services.AddCoursesServiceClient();
             services.AddSolutionServiceClient();
-            services.AddTelegramBotClient(httpClient, "http://localhost:5009");
+            services.AddTelegramBotClient();
 
             services.ConfigureHwProjServices("Notifications API");
         }
