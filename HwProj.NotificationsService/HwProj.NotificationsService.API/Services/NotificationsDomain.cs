@@ -8,14 +8,14 @@ using MimeKit;
 
 namespace HwProj.NotificationsService.API.Services
 {
-    public class NotificationsService : INotificationsService
+    public class NotificationsDomain : INotificationsService
     {
         private readonly INotificationsRepository _repository;
         private readonly IMapper _mapper;
         private readonly IConfigurationSection _configuration;
         private readonly MailKit.Net.Smtp.SmtpClient _client;
 
-        public NotificationsService(INotificationsRepository repository, IMapper mapper, IConfiguration configuration)
+        public NotificationsDomain(INotificationsRepository repository, IMapper mapper, IConfiguration configuration)
         {
             _repository = repository;
             _mapper = mapper;
