@@ -5,9 +5,9 @@
 
     <IsPackable>false</IsPackable>
 
-    <LangVersion>preview</LangVersion>
+    <LangVersion>$(CSharpLanguageVersion)</LangVersion>
 
-    <Nullable>enable</Nullable>
+    <Nullable>$(NullableReferenceTypes)</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
