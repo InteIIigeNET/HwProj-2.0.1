@@ -31,16 +31,8 @@ namespace HwProj.TelegramBotService.API.Commands
             var user = await _userService.GetOrCreateChatId(update);
             var message = update.CallbackQuery.Data;
             var text = message.Split(' ');
-            var hw = _coursesServiceClient.GetHomework(Int32.Parse(text[1])).Result; ////
-            var tasks = hw.Tasks.ToArray();
-            HomeworkTaskViewModel task = null;
-            foreach (var t in tasks)
-            {
-                if (t.Id == Int32.Parse(text[1]))
-                {
-                    task = t;
-                }
-            }
+            var task = _coursesServiceClient.GetTask(Int64.Parse(text[1])).Result; ////
+            var hw = _coursesServiceClient.GetHomework(task.HomeworkId).Result;
             
             var rows = new List<InlineKeyboardButton[]>();
             var cols = new List<InlineKeyboardButton>();
@@ -52,7 +44,7 @@ namespace HwProj.TelegramBotService.API.Commands
             cols = new List<InlineKeyboardButton>();
             button = GetButton("Мои задачи", $"/task {task.HomeworkId}");
             cols.Add(button);
-            button = GetButton($"Решения {task.Title}", $"/solutioninfo {task.Id}");
+            button = GetButton($"Решения {task.Title}", $"/solutions {task.Id}");
             cols.Add(button);
             rows.Add(cols.ToArray());
             

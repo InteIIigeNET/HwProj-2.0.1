@@ -31,7 +31,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 Owner = @event.UserId
             };
             await _notificationRepository.AddAsync(notification);
-            await _notificationsService.SendTelegramMessageAsync(notification);
+            await _notificationsService.SendTelegramMessageAsync(notification, null);
         }
     }
 }

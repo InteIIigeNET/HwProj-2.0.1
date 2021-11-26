@@ -23,7 +23,7 @@ namespace HwProj.TelegramBotService.API.Service
             
             _botClient = new TelegramBotClient(_configuration["Token"]);
             
-            var hook = $"{_configuration["Url"]}api/Telegram/update";
+            var hook = $"{_configuration["Url"]}api/TelegramBot";
             await _botClient.SetWebhookAsync(hook);
 
             return _botClient;

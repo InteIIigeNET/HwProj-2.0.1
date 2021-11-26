@@ -32,14 +32,16 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 {
                     Sender = "CourseService",
                     Body =
-                        $"Пользователь <a href='profile/{@event.StudentId}'>{user.Name} {user.Surname}</a> подал заявку на вступление в курс <a href='/courses/{@event.CourseId}'>{@event.CourseName}</a>.",
+                        $"Пользователь <a href='profile/{@event.StudentId}'>{user.Name} {user.Surname}</a>" +
+                        $" подал заявку на вступление в курс <a href='/courses/{@event.CourseId}'>{@event.CourseName}</a>.",
                     Category = "CourseService",
                     Date = DateTime.UtcNow,
                     HasSeen = false,
                     Owner = m
                 };
                 await _notificationRepository.AddAsync(notification);
-                await _notificationsService.SendTelegramMessageAsync(notification);
+                notification.Body = $"Пользователь {user.Name} {user.Surname} подал заявку на вступление в курс {@event.CourseName}.";
+                await _notificationsService.SendTelegramMessageAsync(notification, null);
             }
         }
     }

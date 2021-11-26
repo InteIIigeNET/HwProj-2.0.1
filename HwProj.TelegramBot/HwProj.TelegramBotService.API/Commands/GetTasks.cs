@@ -31,6 +31,7 @@ namespace HwProj.TelegramBotService.API.Commands
             var message = update.CallbackQuery.Data;
             var text = message.Split(' ');
             var hw = _coursesServiceClient.GetHomework(Int32.Parse(text[1])).Result;
+            var course = _coursesServiceClient.GetCourseById(hw.CourseId, user.StudentId).Result;
             var tasks = hw.Tasks.ToArray();
             var rows = new List<InlineKeyboardButton[]>();
             var cols = new List<InlineKeyboardButton>();
@@ -68,7 +69,13 @@ namespace HwProj.TelegramBotService.API.Commands
             rows.Add(cols.ToArray());
             
             var keyboardMarkup = new InlineKeyboardMarkup(rows.ToArray());
-            await _botClient.SendTextMessageAsync(user.ChatId, "Выберите task:", replyMarkup:keyboardMarkup);
+            await _botClient.SendTextMessageAsync(
+                user.ChatId,
+             $"Курс: {course.Name}\n" + 
+                $"Homework: {hw.Title}" +
+                $"Описание: {hw.Description}" +
+                "\nВыберите task: ", 
+                replyMarkup:keyboardMarkup);
         }
     }
 }

@@ -37,7 +37,7 @@ namespace HwProj.TelegramBotService.API
             services.AddScoped<Commands.Commands, GetTasks>();
             services.AddScoped<Commands.Commands, GetTaskInfo>();
             services.AddScoped<Commands.Commands, GetSolutionInfo>();
-            /*services.AddScoped<Commands.Commands, GetSolutionsFromTask>();*/
+            services.AddScoped<Commands.Commands, GetSolutionsFromTask>();
 
             var httpClient = new HttpClient();
             services.AddAuthServiceClient(httpClient, "http://localhost:5001");

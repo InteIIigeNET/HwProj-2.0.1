@@ -1,5 +1,6 @@
 ﻿using HwProj.Models.NotificationsService;
 using System.Threading.Tasks;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace HwProj.NotificationsService.API.Services
 {
@@ -9,6 +10,6 @@ namespace HwProj.NotificationsService.API.Services
         Task<NotificationViewModel[]> GetAsync(string userId, NotificationFilter filter = null);
         Task MarkAsSeenAsync(string userId, long[] notificationIds);
 
-        Task SendTelegramMessageAsync(Notification notification);
+        Task SendTelegramMessageAsync(Notification notification, InlineKeyboardMarkup inlineKeyboard);
     }
 }

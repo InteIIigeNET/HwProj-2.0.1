@@ -7,6 +7,7 @@ using HwProj.TelegramBotService.Client;
 using Microsoft.Extensions.Configuration;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace HwProj.NotificationsService.API.Services
 {
@@ -14,16 +15,16 @@ namespace HwProj.NotificationsService.API.Services
     {
         private readonly INotificationsRepository _repository;
         private readonly IMapper _mapper;
-        private readonly TelegramBotClient _botClient;
         private readonly IConfigurationSection _configuration;
+        private readonly TelegramBotClient _botClient;
         private readonly ITelegramBotServiceClient _telegramBotServiceClient;
 
-        public NotificationsService(INotificationsRepository repository, IMapper mapper, IConfigurationSection configuration, ITelegramBotServiceClient telegramBotServiceClient)
+        public NotificationsService(INotificationsRepository repository, IMapper mapper, IConfiguration configuration, ITelegramBotServiceClient telegramBotServiceClient)
         {
             _repository = repository;
             _mapper = mapper;
+            _configuration = configuration.GetSection("Telegram");
             _telegramBotServiceClient = telegramBotServiceClient;
-            _configuration = configuration.GetSection("Telegram");;
             _botClient = new TelegramBotClient(_configuration["Token"]);
         }
 
@@ -49,12 +50,19 @@ namespace HwProj.NotificationsService.API.Services
                 t => new Notification {HasSeen = true});
         }
         
-        public async Task SendTelegramMessageAsync(Notification notification)
+        public async Task SendTelegramMessageAsync(Notification notification, InlineKeyboardMarkup inlineKeyboard)
         {
             var user = await _telegramBotServiceClient.GetTelegramUser(notification.Owner);
             if (user != null)
             {
-                await _botClient.SendTextMessageAsync(user.ChatId, notification.Body, ParseMode.Markdown);
+                if (inlineKeyboard == null)
+                {
+                    await _botClient.SendTextMessageAsync(user.ChatId, notification.Body, ParseMode.Markdown);
+                }
+                else
+                {
+                    await _botClient.SendTextMessageAsync(user.ChatId, notification.Body, ParseMode.Markdown, replyMarkup:inlineKeyboard);
+                }
             }
         }
     }

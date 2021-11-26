@@ -5,6 +5,7 @@ using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
 using HwProj.SolutionsService.API.Events;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {
@@ -32,7 +33,13 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 Owner = @event.Solution.StudentId
             };
             await _notificationRepository.AddAsync(notification);
-            await _notificationsService.SendTelegramMessageAsync(notification);
+            notification.Body = $"Задача {@event.Task.Title} оценена."; //<a href='task/{@event.Task.Id}'>/клава
+            var inlineKeyboard = new InlineKeyboardMarkup(new InlineKeyboardButton
+            {
+                Text = $"{@event.Task.Title}",
+                CallbackData = $"/solutioninfo {@event.SolutionId}"
+            });
+            await _notificationsService.SendTelegramMessageAsync(notification, inlineKeyboard);
         }
     }
 }

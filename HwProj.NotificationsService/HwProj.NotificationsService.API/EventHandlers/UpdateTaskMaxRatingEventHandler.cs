@@ -5,6 +5,7 @@ using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.CoursesService.API.Events;
 using HwProj.NotificationsService.API.Services;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {
@@ -26,14 +27,20 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 var notification =new Notification
                 {
                     Sender = "CourseService",
-                    Body = $"<a href='task/{@event.Task.Id}'>Задача</a> обновлена.",
+                    Body = $"<a href='task/{@event.Task.Id}'>Задача</a> из {@event.Course.Name} обновлена.",
                     Category = "CourseService",
                     Date = DateTime.UtcNow,
                     HasSeen = false,
                     Owner = student.StudentId
                 };
                 await _notificationRepository.AddAsync(notification);
-                await _notificationsService.SendTelegramMessageAsync(notification);
+                notification.Body = $"Задача {@event.Task.Title} из {@event.Course.Name} обновлена.";// клава
+                var inlineKeyboard = new InlineKeyboardMarkup(new InlineKeyboardButton
+                {
+                    Text = $"{@event.Task.Title}",
+                    CallbackData = $"/taskinfo {@event.Task.Id}"
+                });
+                await _notificationsService.SendTelegramMessageAsync(notification, inlineKeyboard);
             }
         }
     }

@@ -6,7 +6,8 @@ using HwProj.TelegramBotService.API.Service;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.ReplyMarkups; /*using HwProj.CoursesService.Client;*/
+using Telegram.Bot.Types.ReplyMarkups; 
+using HwProj.CoursesService.Client;
 
 namespace HwProj.TelegramBotService.API.Commands
 {
@@ -14,15 +15,15 @@ namespace HwProj.TelegramBotService.API.Commands
     {
         private readonly TelegramBotClient _botClient;
         private readonly IUserService _userService;
-        private readonly SolutionsServiceClient _solutionsServiceClient;
-        /*private readonly CoursesServiceClient _coursesServiceClient;*/
+        private readonly ISolutionsServiceClient _solutionsServiceClient;
+        private readonly ICoursesServiceClient _coursesServiceClient;
 
-        public GetSolutionsFromTask(TelegramBot telegramBot, IUserService userService, SolutionsServiceClient solutionsServiceClient/*, CoursesServiceClient coursesServiceClient*/)
+        public GetSolutionsFromTask(TelegramBot telegramBot, IUserService userService, ISolutionsServiceClient solutionsServiceClient, ICoursesServiceClient coursesServiceClient)
         {
             _botClient = telegramBot.GetBot().Result;
-            _userService = userService;
             _solutionsServiceClient = solutionsServiceClient;
-            /*_coursesServiceClient = coursesServiceClient;*/
+            _userService = userService;
+            _coursesServiceClient = coursesServiceClient;
         }
 
         public override string Name => CommandNames.GetSolutionsFromTask;
@@ -33,8 +34,8 @@ namespace HwProj.TelegramBotService.API.Commands
             var message = update.CallbackQuery.Data;
             var text = message.Split(' ');
             var solutions = _solutionsServiceClient.GetUserSolution(Int32.Parse(text[1]), user.StudentId).Result;
-            /*var task = _coursesServiceClient.GetTask(Int32.Parse(text[1])).Result;
-            var hw = _coursesServiceClient.GetHomework(task.HomeworkId).Result;*/
+            var task = _coursesServiceClient.GetTask(Int32.Parse(text[1])).Result;
+            var hw = _coursesServiceClient.GetHomework(task.HomeworkId).Result;
             
             var rows = new List<InlineKeyboardButton[]>();
             var cols = new List<InlineKeyboardButton>();
@@ -51,19 +52,20 @@ namespace HwProj.TelegramBotService.API.Commands
             {
                 rows.Add(cols.ToArray());
             }
+            cols = new List<InlineKeyboardButton>();
             var button = GetButton("Мои курсы", $"/courses");
             cols.Add(button);
-            /*button = GetButton("Мои домашки", $"/homeworks {hw.CourseId}");
-            cols.Add(button);*/
+            button = GetButton("Мои домашки", $"/homeworks {hw.CourseId}");
+            cols.Add(button);
             rows.Add(cols.ToArray());
             cols = new List<InlineKeyboardButton>();
-            /*button = GetButton("Мои задачи", $"/task {task.HomeworkId}");
-            cols.Add(button);*/
+            button = GetButton("Мои задачи", $"/task {task.HomeworkId}");
+            cols.Add(button);
             rows.Add(cols.ToArray());
             
             var keyboardMarkup = new InlineKeyboardMarkup(rows.ToArray());
 
-            await _botClient.SendTextMessageAsync(user.ChatId, "", ParseMode.Markdown, replyMarkup:keyboardMarkup);
+            await _botClient.SendTextMessageAsync(user.ChatId, "123", ParseMode.Markdown, replyMarkup:keyboardMarkup);///
         }
         
         private InlineKeyboardButton GetButton(string text, string callbackData)

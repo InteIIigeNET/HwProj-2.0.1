@@ -21,7 +21,7 @@ namespace HwProj.TelegramBotService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get, 
-                _telegramBotUri + $"api/Telegram/get/{studentId}");
+                _telegramBotUri + $"api/TelegramBot/get/{studentId}");
 
             var response = await _httpClient.SendAsync(httpRequest); 
             return await response.DeserializeAsync<TelegramUserModel>();

@@ -7,8 +7,8 @@ using Telegram.Bot.Types;
 
 namespace HwProj.TelegramBotService.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class TelegramBotController : Controller
     {
         private readonly ICommandService _commandService;
@@ -20,7 +20,7 @@ namespace HwProj.TelegramBotService.API.Controllers
             _userService = userService;
         }
         
-        [HttpPost("/update")]
+        [HttpPost]
         public async Task<IActionResult> Update(Update update)
         {
             
@@ -41,11 +41,10 @@ namespace HwProj.TelegramBotService.API.Controllers
             return Ok();
         }
         
-        [HttpGet("/get/{studentId}")]
+        [HttpGet("get/{studentId}")]
         public async Task<TelegramUserModel> GetUser(string studentId)
         {
-            var userMoodel = await _userService.GetTelegramUserModelByStudentId(studentId);
-            return userMoodel;
+            return await _userService.GetTelegramUserModelByStudentId(studentId);
         }
     }
 }

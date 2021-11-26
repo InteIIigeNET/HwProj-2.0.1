@@ -30,7 +30,7 @@ namespace HwProj.CoursesService.API.Services
 
             var course = await _coursesRepository.GetWithCourseMatesAsync(courseId);
             var courseModel = _mapper.Map<CourseViewModel>(course);
-            _eventBus.Publish(new NewHomeworkEvent(homework.Title, courseModel));
+            _eventBus.Publish(new NewHomeworkEvent(homework.Title, homework.Id, courseModel));
 
             return await _homeworksRepository.AddAsync(homework);
         }

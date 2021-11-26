@@ -35,7 +35,8 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 Owner = @event.StudentId
             };
             await _notificationRepository.AddAsync(notification);
-            await _notificationsService.SendTelegramMessageAsync(notification);
+            notification.Body = $"Вас приняли на курс {@event.CourseName}.";
+            await _notificationsService.SendTelegramMessageAsync(notification, null);
         }
     }
 }
