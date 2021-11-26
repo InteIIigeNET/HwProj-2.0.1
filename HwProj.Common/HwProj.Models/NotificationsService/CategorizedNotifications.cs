@@ -6,6 +6,6 @@
 
         public NotificationViewModel[] SeenNotifications { get; }
         
-        public NotificationViewModel[] UnSeenNotifications { get; }
+        public NotificationViewModel[] NotSeenNotifications { get; }
     }
 }
