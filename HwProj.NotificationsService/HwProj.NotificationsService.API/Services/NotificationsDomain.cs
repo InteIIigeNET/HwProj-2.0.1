@@ -6,12 +6,12 @@ using HwProj.NotificationsService.API.Repositories;
 
 namespace HwProj.NotificationsService.API.Services
 {
-    public class NotificationsService : INotificationsService
+    public class NotificationsDomain : INotificationsService
     {
         private readonly INotificationsRepository _repository;
         private readonly IMapper _mapper;
 
-        public NotificationsService(INotificationsRepository repository, IMapper mapper)
+        public NotificationsDomain(INotificationsRepository repository, IMapper mapper)
         {
             _repository = repository;
             _mapper = mapper;
