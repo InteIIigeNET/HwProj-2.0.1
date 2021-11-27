@@ -16,7 +16,7 @@ namespace ConfigurableAssessmentSystem
         
         public DateTime TaskPublicationDate { get; set; }
         
-        public DateTime SolutionPublicationDate { get; set; }
+        public DateTime? SolutionPublicationDate { get; set; }
 
         public int SolutionRating { get; set; }
     }

@@ -67,10 +67,16 @@ export default class RatedSolutionComponent extends React.Component<ISolutionPro
                                 <AccordionDetails>
                                     <Grid container direction="column">
                                         <Grid item>
-                                            <Link href={solution.githubUrl} target="_blank">Ссылка на решение</Link>
+                                            <Link
+                                                style={{color: '#212529'}}
+                                                href={solution.githubUrl}
+                                                target="_blank"
+                                            >
+                                                Ссылка на решение
+                                            </Link>
                                         </Grid>
                                         {solution.comment &&
-                                        <Grid item>
+                                        <Grid item style={{ marginTop: '16px' }}>
                                             <Typography className="antiLongWords">
                                                 Комментарий к решению: {solution.comment}
                                             </Typography>
@@ -81,21 +87,21 @@ export default class RatedSolutionComponent extends React.Component<ISolutionPro
                             </Accordion>
                         </Grid>
                         {!this.state.clickedForEdit &&
-                            <Grid item>
+                            <Grid item style={{ marginTop: '16px' }}>
                                 <Typography>
                                     Оценка за решение: {solution.rating}
                                 </Typography>
                             </Grid>
                         }
                         {!this.state.clickedForEdit && solution.lecturerComment &&
-                        <Grid item>
+                        <Grid item style={{ marginTop: '16px' }}>
                             <Typography className="antiLongWords">
                                 Комментарий преподавателя: {solution.lecturerComment}
                             </Typography>
                         </Grid>
                         }
                         {!this.state.clickedForEdit && this.props.forMentor &&
-                        <Grid item style={{paddingTop:5}}>
+                        <Grid item style={{ marginTop: '16px' }}>
                             <Button
                                 size="small"
                                 variant="contained"
@@ -107,8 +113,8 @@ export default class RatedSolutionComponent extends React.Component<ISolutionPro
                         </Grid>
                         }
                         {this.state.clickedForEdit && this.props.forMentor &&
-                        <Grid item>
-                            <Box width={1/6}>
+                        <Grid item style={{ marginTop: '16px' }}>
+                            <div style={{ width: "200px" }}>
                                 <TextField
                                     required
                                     label="Баллы за решение"
@@ -123,25 +129,27 @@ export default class RatedSolutionComponent extends React.Component<ISolutionPro
                                     defaultValue={solution.rating!}
                                     onChange={(e) => this.setState({ points: +e.target.value })}
                                 />
-                            </Box>
-                            <TextField
-                                multiline
-                                fullWidth
-                                InputProps={{
-                                    readOnly: !this.props.forMentor,
-                                }}
-                                rows="4"
-                                rowsMax="15"
-                                label="Комментарий лектора"
-                                variant="outlined"
-                                margin="normal"
-                                value={this.state.lecturerComment}
-                                onChange={(e) => this.setState({ lecturerComment: e.target.value })}
-                            />
+                            </div>
+                            <div>
+                                <TextField
+                                    multiline
+                                    fullWidth
+                                    InputProps={{
+                                        readOnly: !this.props.forMentor,
+                                    }}
+                                    rows="4"
+                                    rowsMax="15"
+                                    label="Комментарий лектора"
+                                    variant="outlined"
+                                    margin="normal"
+                                    value={this.state.lecturerComment}
+                                    onChange={(e) => this.setState({ lecturerComment: e.target.value })}
+                                />
+                            </div>
                         </Grid>
                         }
                         {this.state.clickedForEdit && this.props.forMentor &&
-                        <Grid container item spacing={1}>
+                        <Grid container item spacing={1} style={{ marginTop: "8px" }}>
                             <Grid item>
                                 <Button
                                     size="small"
@@ -156,7 +164,7 @@ export default class RatedSolutionComponent extends React.Component<ISolutionPro
                                 <Button
                                     size="small"
                                     variant="contained"
-                                    color="secondary"
+                                    color="primary"
                                     onClick={() => this.setState({clickedForEdit: false})}
                                 >
                                     Отмена

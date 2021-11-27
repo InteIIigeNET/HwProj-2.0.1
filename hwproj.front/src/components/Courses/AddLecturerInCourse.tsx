@@ -13,6 +13,7 @@ interface AddLecturerInCourseProps {
     onClose: any;
     isOpen: boolean;
     courseId: string;
+    update: any;
 }
 
 interface AddLecturerInCourseState {
@@ -50,6 +51,7 @@ const AddLecturerInCourse: FC<AddLecturerInCourseProps> = (props) => {
                 ...prevState,
                 info: ['Преподаватель добавлен']
             }))
+            props.update()
         }
         catch (e) {
             setLecturerState((prevState) => ({

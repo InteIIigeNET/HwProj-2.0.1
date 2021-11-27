@@ -46,7 +46,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
     const arrayOfNonRatedSolutions = solutions.filter(solution => solution.state!.toString() === 'Posted')
     const arrayOfRatedSolutions = solutions.filter(solution => solution.state!.toString() !== 'Posted')
     const componentsOfNonRatedSolutions = arrayOfNonRatedSolutions.map((sol) => (
-            <Grid item>
+            <Grid item style={{ marginTop: '16px' }}>
                 <NonRatedSolutionComponent
                     forMentor={props.forMentor}
                     solution={sol}
@@ -57,7 +57,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
     ).reverse()
 
     const componentsOfRatedSolutions = arrayOfRatedSolutions.map((sol) => (
-            <Grid item>
+            <Grid item style={{ marginTop: '16px' }}>
                 <RatedSolutionComponent forMentor={props.forMentor} solution={sol}/>
             </Grid>
         )
@@ -87,7 +87,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                 </Grid>
                 }
                 {arrayOfRatedSolutions.length > 0 &&
-                <Grid item>
+                <Grid item style={{ marginTop: '16px' }}>
                     <Accordion>
                         <AccordionSummary
                             aria-controls="panel1a-content"

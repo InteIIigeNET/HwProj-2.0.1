@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
 using ConfigurableAssessmentSystem;
+using HwProj.Models.StatisticsService;
 using HwProj.SolutionsService.API.AssessmentSystem;
 
 
@@ -56,7 +57,7 @@ namespace HwProj.SolutionsService.API.Services
         
         public async Task<long> PostOrUpdateAsync(long taskId, Solution solution)
         {
-            solution.PublicationDate = DateTime.Now;
+            solution.PublicationDate = DateTime.UtcNow;
             var allSolutionsForTask= await GetTaskSolutionsFromStudentAsync(taskId, solution.StudentId);
             var currentSolution = allSolutionsForTask.FirstOrDefault(s => s.Id == solution.Id);
             var solutionModel = _mapper.Map<SolutionViewModel>(solution);
@@ -116,21 +117,37 @@ namespace HwProj.SolutionsService.API.Services
             return _solutionsRepository.FindAll(cm => cm.GroupId == groupId).ToArrayAsync();
         }
 
-        public async Task AddDllForAssessment(long courseId, IFormFile dll)
+        public async Task<ResponseForAddAssessmentMethod> AddDllForAssessment(long courseId, IFormFile dll)
         {
-            var path = AssessmentSystem.AssessmentSystem.PathForAssessmentDlls + courseId.ToString() + ".dll";
-            if (dll.Length > 0)
+            if (dll.Length > 2097152)
             {
-                if (File.Exists(path))
+                return new ResponseForAddAssessmentMethod()
                 {
-                    File.Delete(path);
-                }
-
-                using (var stream = File.Create(path))
-                {
-                    await dll.CopyToAsync(stream);
-                }   
+                    EveryThingOK = false,
+                    ErrorMessage = "Файл должен весить меньше 2 мб"
+                };
             }
+            if (!AssessmentSystem.AssessmentSystem.CheckFileHaveAssessmentMethod(dll))
+            {
+                return new ResponseForAddAssessmentMethod()
+                {
+                    EveryThingOK = false,
+                    ErrorMessage = "Файл не содержит метода для оценки"
+                };
+            }
+            
+            var path = AssessmentSystem.AssessmentSystem.PathForAssessmentDlls + courseId.ToString() + ".dll";
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+
+            using var stream = File.Create(path);
+            await dll.CopyToAsync(stream);
+            return new ResponseForAddAssessmentMethod()
+            {
+                EveryThingOK = true
+            };
         }
 
         public async Task<FinalAssessmentForStudent[]> GetAssessmentForCourseForAllStudents(long courseId, string userId)
@@ -141,7 +158,7 @@ namespace HwProj.SolutionsService.API.Services
                 return null;
             }
             var course = await _coursesServiceClient.GetCourseById(courseId, userId);
-            if (userId != course.MentorIds)
+            if (!course.MentorIds.Contains(userId))
             {
                 return null;
             }
@@ -150,7 +167,7 @@ namespace HwProj.SolutionsService.API.Services
             {
                 tasks = tasks.Union(hw.Tasks).ToList();
             });
-            var courseMates = course.CourseMates;
+            var courseMates = course.CourseMates.Where(mate => mate.IsAccepted).ToList();
             var modelsForAssessment = new AssessmentModel[tasks.Count];
             var assessments = new FinalAssessmentForStudent[courseMates.Count];
             for (int i = 0; i < courseMates.Count; i++)

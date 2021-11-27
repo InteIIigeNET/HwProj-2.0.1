@@ -58,9 +58,10 @@ const Task: FC<ITaskProp> = (props) => {
     let deadlineDate
 
     if (task.hasDeadline) {
-        deadlineDate = new Date(task.deadlineDate!.toString()).toLocaleString("ru-RU")
+        deadlineDate = ApiSingleton.utils.convertUTCDateToLocalDate(task.deadlineDate!).toLocaleString("ru-RU")
     }
-    const publicationDate = new Date(task.publicationDate!.toString()).toLocaleString("ru-RU")
+
+    const publicationDate = ApiSingleton.utils.convertUTCDateToLocalDate(task.publicationDate!).toLocaleString("ru-RU")
     const classes = useStyles()
 
     return (
@@ -70,7 +71,7 @@ const Task: FC<ITaskProp> = (props) => {
                     expandIcon={!props.isExpanded ? <ExpandMoreIcon/> : undefined}
                     aria-controls="panel1a-content"
                     id="panel1a-header"
-                    style={{backgroundColor: task.isDeferred! ? "#e6e6e6" : "#eceef8"}}
+                    style={{backgroundColor: task.isDeferred! ? "#d3d5db" : "#eceef8"}}
                 >
                     <div className={classes.tools}>
                         <Typography style={{fontSize: '18px'}}>
@@ -121,12 +122,13 @@ const Task: FC<ITaskProp> = (props) => {
                         {props.showForCourse && props.forStudent &&
                             <div style={{ marginTop: '15px' }}>
                                 <Button
+                                    style={{ width: '150px'}}
                                     size="small"
                                     variant="contained"
                                     color="primary"
                                     onClick={() => window.location.assign("/task/" + task.id!.toString())}
                                 >
-                                    Отправить решение
+                                    Решения
                                 </Button>
                             </div>
                         }

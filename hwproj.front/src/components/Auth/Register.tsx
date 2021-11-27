@@ -58,15 +58,17 @@ const Register: FC<LoginProps> = (props) => {
     })
 
     const handleSubmit = async (e: any) => {
-        e.preventDefault();
-        try{
+        e.preventDefault()
+        try {
             const result = await ApiSingleton.authService.register(registerState)
             setCommonState((prevState) => ({
                 ...prevState,
                 error: result!.error!,
                 loggedIn: result.loggedIn
             }))
-            props.onLogin()
+            if (result.loggedIn) {
+                props.onLogin()
+            }
         }
         catch (e) {
             setCommonState((prevState) => ({
@@ -189,7 +191,7 @@ const Register: FC<LoginProps> = (props) => {
                                 required
                                 fullWidth
                                 type="password"
-                                label="Поддвердите пароль"
+                                label="Подтвердите пароль"
                                 variant="outlined"
                                 value={registerState.passwordConfirm}
                                 onChange={(e) =>

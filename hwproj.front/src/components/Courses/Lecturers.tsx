@@ -12,6 +12,7 @@ interface LecturersProps {
     mentors: AccountDataDto[];
     courseId: string;
     isEditCourse: boolean;
+    update: any;
 }
 
 const useStyles = makeStyles(theme => ({
@@ -53,12 +54,12 @@ const Lecturers: FC<LecturersProps> = (props) => {
                             Преподаватели
                         </Typography>
                         {props.isEditCourse &&
-                        <IconButton
-                            onClick={openDialogIconAddLecturer}
-                            style={{ color: '#212529' }}
-                        >
-                            <PersonAddIcon fontSize="small"/>
-                        </IconButton>
+                            <IconButton
+                                onClick={openDialogIconAddLecturer}
+                                style={{ color: '#212529' }}
+                            >
+                                <PersonAddIcon fontSize="small"/>
+                            </IconButton>
                         }
                     </div>
                 </AccordionSummary>
@@ -86,6 +87,7 @@ const Lecturers: FC<LecturersProps> = (props) => {
                 onClose={closeDialogIconAddLecturer}
                 courseId={props.courseId}
                 isOpen={isOpenDialogAddLecturer}
+                update={props.update}
             />
         </div>
     )

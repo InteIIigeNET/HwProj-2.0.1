@@ -9,6 +9,7 @@ using HwProj.Models.SolutionsService;
 using HwProj.Models.StatisticsService;
 using HwProj.SolutionsService.API.AssessmentSystem;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
 namespace HwProj.SolutionsService.Client
@@ -18,42 +19,42 @@ namespace HwProj.SolutionsService.Client
         private readonly HttpClient _httpClient;
         private readonly Uri _solutionServiceUri;
 
-        public SolutionsServiceClient(HttpClient httpClient, Uri solutionServiceUri)
+        public SolutionsServiceClient(IHttpClientFactory clientFactory, IConfiguration configuration)
         {
-            _httpClient = httpClient;
-            _solutionServiceUri = solutionServiceUri;
+            _httpClient = clientFactory.CreateClient();
+            _solutionServiceUri = new Uri(configuration.GetSection("Services")["Solutions"]);
         }
-        
+
         public async Task<Solution[]> GetAllSolutions()
         {
             using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Get, 
+                HttpMethod.Get,
                 _solutionServiceUri + "api/Solutions");
 
-            var response = await _httpClient.SendAsync(httpRequest); 
+            var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Solution[]>();
         }
-        
+
         public async Task<Solution> GetSolutionById(long solutionId)
         {
             using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Get, 
+                HttpMethod.Get,
                 _solutionServiceUri + $"api/Solutions/{solutionId}");
 
-            var response = await _httpClient.SendAsync(httpRequest); 
+            var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Solution>();
         }
-        
+
         public async Task<Solution[]> GetUserSolution(long taskId, string studentId)
         {
             using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Get, 
+                HttpMethod.Get,
                 _solutionServiceUri + $"api/Solutions/taskSolutions/{taskId}/{studentId}");
 
-            var response = await _httpClient.SendAsync(httpRequest); 
+            var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Solution[]>();
         }
-        
+
         public async Task<long> PostSolution(SolutionViewModel model, long taskId)
         {
             using var httpRequest = new HttpRequestMessage(
@@ -71,14 +72,16 @@ namespace HwProj.SolutionsService.Client
             {
                 return await response.DeserializeAsync<long>();
             }
+
             throw new ForbiddenException();
         }
-        
+
         public async Task RateSolution(long solutionId, int newRating, string lecturerComment, string lecturerId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _solutionServiceUri + $"api/Solutions/rateSolution/{solutionId}?newRating={newRating}&lecturerComment={lecturerComment}&lecturerId={lecturerId}");
+                _solutionServiceUri +
+                $"api/Solutions/rateSolution/{solutionId}?newRating={newRating}&lecturerComment={lecturerComment}&lecturerId={lecturerId}");
 
             var response = await _httpClient.SendAsync(httpRequest);
             if (!response.IsSuccessStatusCode)
@@ -86,7 +89,7 @@ namespace HwProj.SolutionsService.Client
                 throw new ForbiddenException();
             }
         }
-        
+
         public async Task MarkSolution(long solutionId)
         {
             using var httpRequest = new HttpRequestMessage(
@@ -95,16 +98,16 @@ namespace HwProj.SolutionsService.Client
 
             await _httpClient.SendAsync(httpRequest);
         }
-        
+
         public async Task DeleteSolution(long solutionId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Delete,
                 _solutionServiceUri + $"api/Solutions/delete/{solutionId}");
-            
+
             await _httpClient.SendAsync(httpRequest);
         }
-        
+
         public async Task<long> PostGroupSolution(SolutionViewModel model, long taskId, long groupId)
         {
             using var httpRequest = new HttpRequestMessage(
@@ -118,30 +121,30 @@ namespace HwProj.SolutionsService.Client
             };
 
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<long>();;
+            return await response.DeserializeAsync<long>();
         }
-        
+
         public async Task<Solution[]> GetTaskSolutions(long groupId, long taskId)
         {
             using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Get, 
+                HttpMethod.Get,
                 _solutionServiceUri + $"api/Solutions/{groupId}/taskSolutions/{taskId}");
 
-            var response = await _httpClient.SendAsync(httpRequest); 
+            var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Solution[]>();
         }
 
         public async Task<StatisticsCourseMatesModel[]> GetCourseStatistics(long courseId, string userId)
         {
             using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Get, 
+                HttpMethod.Get,
                 _solutionServiceUri + $"api/Solutions/getCourseStat/{courseId}?userId={userId}");
 
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<StatisticsCourseMatesModel[]>();
         }
 
-        public async Task AddDllForAssessment(long courseId, IFormFile dll)
+        public async Task<ResponseForAddAssessmentMethod> AddDllForAssessment(long courseId, IFormFile dll)
         {
             var binaryReader = new BinaryReader(dll.OpenReadStream());
             var file = binaryReader.ReadBytes((int) dll.OpenReadStream().Length);
@@ -150,6 +153,7 @@ namespace HwProj.SolutionsService.Client
             var content = new MultipartFormDataContent();
             content.Add(new ByteArrayContent(file), "file", dll.Name);
             var response = await client.PostAsync(requestUri, content);
+            return await response.DeserializeAsync<ResponseForAddAssessmentMethod>();
         }
 
         public async Task<FinalAssessmentForStudent[]> GetAssessmentForCourse(long courseId, string userId)

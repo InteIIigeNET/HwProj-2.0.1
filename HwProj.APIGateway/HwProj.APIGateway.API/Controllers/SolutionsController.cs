@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using HwProj.APIGateway.API.ExceptionFilters;
 using HwProj.Models.Roles;
 using HwProj.Models.SolutionsService;
+using HwProj.Models.StatisticsService;
 using HwProj.NotificationsService.Client;
 using HwProj.SolutionsService.API.AssessmentSystem;
 using HwProj.SolutionsService.Client;
@@ -112,10 +113,11 @@ namespace HwProj.APIGateway.API.Controllers
 
         [HttpPost("assessmentSystem/add/{courseId}")]
         [Authorize]
+        [ProducesResponseType(typeof(ResponseForAddAssessmentMethod), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> AddAssessmentSystem([FromForm] long courseId, [FromForm] IFormFile dll)
         {
-            await _solutionsClient.AddDllForAssessment(courseId, dll);
-            return Ok();
+            var result = await _solutionsClient.AddDllForAssessment(courseId, dll);
+            return Ok(result) as IActionResult; 
         }
 
         [HttpGet("assessmentSystem/get/assessment/{courseId}")]

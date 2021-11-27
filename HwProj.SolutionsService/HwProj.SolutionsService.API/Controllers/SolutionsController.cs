@@ -157,14 +157,13 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpPost("assessmentSystem/add/{courseId}")]
-        
-        public async Task AddDllForAssessment(long courseId, [FromForm] IFormFile dll)
+        public async Task<ResponseForAddAssessmentMethod> AddDllForAssessment([FromForm] long courseId, [FromForm] IFormFile dll)
         {
             if (Request.HasFormContentType)
             {
                 dll = Request.Form.Files[0];
             }
-            await _solutionsService.AddDllForAssessment(courseId, dll);
+            return await _solutionsService.AddDllForAssessment(1, dll);
         }
 
         [HttpGet("assessmentSystem/get/assessment/{courseId}")]

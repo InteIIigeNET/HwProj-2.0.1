@@ -2,216 +2,301 @@ import * as React from "react";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
-import { Redirect, Link } from "react-router-dom";
-import { RouteComponentProps } from "react-router-dom";
+import {Redirect, Link} from "react-router-dom";
+import {RouteComponentProps} from "react-router-dom";
 import ApiSingleton from "../../api/ApiSingleton";
 import Checkbox from "@material-ui/core/Checkbox";
+import {FC, useEffect, useState} from "react";
+import Grid from "@material-ui/core/Grid";
+import EditIcon from "@material-ui/icons/Edit";
+import {makeStyles} from "@material-ui/styles";
+import Container from "@material-ui/core/Container";
 
 interface IEditTaskState {
-  isLoaded: boolean;
-  title: string;
-  description: string;
-  maxRating: number;
-  courseId: number;
-  courseMentorId: string;
-  edited: boolean;
-  hasDeadline: boolean;
-  deadlineDate: Date | undefined;
-  isDeadlineStrict: boolean;
-  publicationDate: Date;
+    isLoaded: boolean;
+    title: string;
+    description: string;
+    maxRating: number;
+    courseId: number;
+    courseMentorId: string;
+    edited: boolean;
+    hasDeadline: boolean;
+    deadlineDate: Date | undefined;
+    isDeadlineStrict: boolean;
+    publicationDate: Date;
 }
 
 interface IEditTaskProps {
-  taskId: string;
+    taskId: string;
 }
 
-export default class EditTask extends React.Component<
-  RouteComponentProps<IEditTaskProps>,
-  IEditTaskState
-> {
-  constructor(props: RouteComponentProps<IEditTaskProps>) {
-    super(props);
-    this.state = {
-      isLoaded: false,
-      title: "",
-      description: "",
-      maxRating: 0,
-      courseId: 0,
-      courseMentorId: "",
-      edited: false,
-      hasDeadline: false,
-      deadlineDate: new Date(),
-      isDeadlineStrict: false,
-      publicationDate: new Date()
-    };
-  }
+const useStyles = makeStyles(theme => ({
+    logo: {
+        display: "flex",
+        justifyContent: "center",
+    },
+    form: {
+        marginTop: theme.spacing(3),
+        width: '100%',
+    },
+    checkBox: {
+        width: '100%',
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between"
+    },
+}))
 
-  public async handleSubmit(e: any) {
-      e.preventDefault();
-      ApiSingleton.tasksApi
-        .apiTasksUpdateByTaskIdPut(+this.props.match.params.taskId, this.state)
-        .then((res) => {
-          this.setState({ edited: true })
-        });
-  }
+const EditTask: FC<RouteComponentProps<IEditTaskProps>> = (props) => {
 
-  public render() {
-    if (this.state.edited) {
-      return <Redirect to={"/courses/" + this.state.courseId} />;
+    const [taskState, setTaskState] = useState<IEditTaskState>({
+        isLoaded: false,
+        title: "",
+        description: "",
+        maxRating: 0,
+        courseId: 0,
+        courseMentorId: "",
+        edited: false,
+        hasDeadline: false,
+        deadlineDate: new Date(),
+        isDeadlineStrict: false,
+        publicationDate: new Date()
+    })
+
+    useEffect(() => {
+        getTask()
+    }, [])
+
+    const getTask = async () => {
+        const task = await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+props.match.params.taskId)
+        const homework = await ApiSingleton.homeworksApi.apiHomeworksGetByHomeworkIdGet(task.homeworkId!)
+        const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(homework.courseId!)
+        setTaskState((prevState) => ({
+            ...prevState,
+            isLoaded: true,
+            title: task.title!,
+            description: task.description!,
+            maxRating: task.maxRating!,
+            courseId: homework.courseId!,
+            courseMentorId: course.mentorIds!,
+            hasDeadline: task.hasDeadline!,
+            deadlineDate: task.deadlineDate!,
+            isDeadlineStrict: task.isDeadlineStrict!,
+            publicationDate: task.publicationDate! as Date
+        }))
     }
 
-    if (this.state.isLoaded) {
-      if (
-        !ApiSingleton.authService.isLoggedIn() ||
-        !this.state.courseMentorId.includes(ApiSingleton.authService.getUserId())
-      ) {
+    const handleSubmit = async (e: any) => {
+        e.preventDefault();
+        await ApiSingleton.tasksApi
+            .apiTasksUpdateByTaskIdPut(+props.match.params.taskId, taskState)
+
+        setTaskState((prevState) => ({
+            ...prevState,
+            edited: true,
+        }))
+    }
+
+    const classes = useStyles()
+
+    if (taskState.edited) {
+        return <Redirect to={"/courses/" + taskState.courseId}/>;
+    }
+
+    if (taskState.isLoaded) {
+        if (
+            !ApiSingleton.authService.isLoggedIn() ||
+            !taskState.courseMentorId.includes(ApiSingleton.authService.getUserId())
+        ) {
+            return (
+                <Typography variant="h6" gutterBottom>
+                    Только преподаваталь может редактировать задачу
+                </Typography>
+            );
+        }
         return (
-          <Typography variant="h6" gutterBottom>
-            Только преподаваталь может редактировать задачу
-          </Typography>
-        );
-      }
-      return (
-        <div>
-          &nbsp;{" "}
-          <Link to={"/courses/" + this.state.courseId.toString()}>
-            Назад к курсу
-          </Link>
-          <br />
-          <br />
-          <div className="container">
-            <Typography variant="h6" gutterBottom>
-              Редактировать задачу
-            </Typography>
-            <form onSubmit={(e) => this.handleSubmit(e)}>
-              <TextField
-                required
-                label="Название задачи"
-                variant="outlined"
-                margin="normal"
-                value={this.state.title}
-                onChange={(e) => this.setState({ title: e.target.value })}
-              />
-              <br />
-              <TextField
-                required
-                label="Баллы"
-                variant="outlined"
-                margin="normal"
-                type="number"
-                value={this.state.maxRating}
-                onChange={(e) => this.setState({ maxRating: +e.target.value })}
-              />
-              <br />
-              <TextField
-                multiline
-                fullWidth
-                rows="4"
-                rowsMax="10"
-                label="Условие задачи"
-                variant="outlined"
-                margin="normal"
-                value={this.state.description}
-                onChange={(e) => this.setState({ description: e.target.value })}
-              />
-              <br />
-              <div>
-                  <TextField
-                      id="datetime-local"
-                      label="Дата публикации"
-                      type="datetime-local"
-                      defaultValue={this.state.publicationDate}
-                      onChange={(e) => {
-                          let date = new Date(e.target.value)
-                          date = new Date(date.setHours(date.getHours() + 3))
-                          this.setState({publicationDate: date})
-                      }}
-                      InputLabelProps={{
-                          shrink: true,
-                      }}
-                  />
-              </div>  
-              <label>
-                <Checkbox
-                    color="primary"
-                    checked={this.state.hasDeadline}
-                    onChange={(e) =>
-                    {
-                      this.setState({
-                        hasDeadline: e.target.checked,
-                        deadlineDate: undefined,
-                      })
-                    }}
-                />
-                Добавить дедлайн
-              </label>
-              {this.state.hasDeadline &&
-              <div>
-                <TextField
-                    id="datetime-local"
-                    label="Дедлайн задачи"
-                    type="datetime-local"
-                    defaultValue={this.state.deadlineDate}
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                    required
-                    onChange={(e) => {
-                        let date = new Date(e.target.value)
-                        date = new Date(date.setHours(date.getHours() + 3))
-                        this.setState({deadlineDate: date})
-                    }}
-                />
-                <label>
-                  <Checkbox
-                      color="primary"
-                      onChange={(e) => this.setState({isDeadlineStrict: e.target.checked})}
-                  />
-                  Запретить отправку заданий после дедлайна
-                </label>
-              </div>
-              }
-              <br />
-              <Button
-                size="small"
-                variant="contained"
-                color="primary"
-                type="submit"
-              >
-                Редактировать задачу
-              </Button>
-            </form>
-          </div>
-        </div>
-      );
+            <div>
+                <Grid container justify="center" style={{marginTop: '20px'}}>
+                    <Grid item xs={11}>
+                        <Link
+                            style={{color: '#212529'}}
+                            to={"/courses/" + taskState.courseId.toString()}
+                        >
+                            <Typography>
+                                Назад к курсу
+                            </Typography>
+                        </Link>
+                    </Grid>
+                </Grid>
+                <Container component="main" maxWidth="sm">
+                    <div className={classes.logo}>
+                        <div>
+                            <EditIcon style={{color: 'red'}}/>
+                        </div>
+                        <div>
+                            <Typography style={{fontSize: '22px'}}>
+                                Редактирование задачи
+                            </Typography>
+                        </div>
+                    </div>
+                    <form
+                        onSubmit={(e) => handleSubmit(e)}
+                        className={classes.form}
+                    >
+                        <Grid container spacing={2}>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    required
+                                    fullWidth
+                                    label="Название задачи"
+                                    variant="outlined"
+                                    margin="normal"
+                                    value={taskState.title}
+                                    onChange={(e) => {
+                                        e.persist()
+                                        setTaskState((prevState) => ({
+                                            ...prevState,
+                                            title: e.target.value,
+                                        }))
+                                    }}
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    required
+                                    fullWidth
+                                    label="Баллы"
+                                    variant="outlined"
+                                    margin="normal"
+                                    type="number"
+                                    value={taskState.maxRating}
+                                    onChange={(e) => {
+                                        e.persist()
+                                        setTaskState((prevState) => ({
+                                            ...prevState,
+                                            maxRating: +e.target.value,
+                                        }))
+                                    }}
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField
+                                    multiline
+                                    fullWidth
+                                    rows="8"
+                                    label="Условие задачи"
+                                    variant="outlined"
+                                    value={taskState.description}
+                                    onChange={(e) => {
+                                        e.persist()
+                                        setTaskState((prevState) => ({
+                                            ...prevState,
+                                            description: e.target.value,
+                                        }))
+                                    }}
+                                />
+                            </Grid>
+                            <Grid item className={classes.checkBox}>
+                                <div>
+                                    <TextField
+                                        id="datetime-local"
+                                        label="Дата публикации"
+                                        type="datetime-local"
+                                        defaultValue={taskState.publicationDate}
+                                        onChange={(e) => {
+                                            let date = new Date(e.target.value)
+                                            date = new Date(date.setHours(date.getHours() + 3))
+                                            e.persist()
+                                            setTaskState((prevState) => ({
+                                                ...prevState,
+                                                publicationDate: date,
+                                            }))
+                                        }}
+                                        InputLabelProps={{
+                                            shrink: true,
+                                        }}
+                                    />
+                                </div>
+                                <div>
+                                    <label>
+                                        <Checkbox
+                                            color="primary"
+                                            checked={taskState.hasDeadline}
+                                            onChange={(e) => {
+                                                e.persist()
+                                                setTaskState((prevState) => ({
+                                                    ...prevState,
+                                                    hasDeadline: e.target.checked,
+                                                    deadlineDate: undefined,
+                                                }))
+                                            }}
+                                        />
+                                        Добавить дедлайн
+                                    </label>
+                                </div>
+                            </Grid>
+                            {taskState.hasDeadline &&
+                                <Grid item className={classes.checkBox}>
+                                    <div>
+                                        <TextField
+                                            id="datetime-local"
+                                            label="Дедлайн задачи"
+                                            type="datetime-local"
+                                            defaultValue={taskState.deadlineDate}
+                                            InputLabelProps={{
+                                                shrink: true,
+                                            }}
+                                            required
+                                            onChange={(e) => {
+                                                e.persist()
+                                                let date = new Date(e.target.value)
+                                                date = new Date(date.setHours(date.getHours() + 3))
+                                                setTaskState((prevState) => ({
+                                                    ...prevState,
+                                                    deadlineDate: date,
+                                                }))
+                                            }}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label>
+                                            <Checkbox
+                                                color="primary"
+                                                onChange={(e) => {
+                                                    e.persist()
+                                                    setTaskState((prevState) => ({
+                                                        ...prevState,
+                                                        isDeadlineStrict: e.target.checked
+                                                    }))
+                                                }}
+                                            />
+                                            Запретить отправку после дедлайна
+                                        </label>
+                                    </div>
+                                </Grid>
+                            }
+                            <Grid item xs={12}>
+                                <Button
+                                    fullWidth
+                                    variant="contained"
+                                    color="primary"
+                                    type="submit"
+                                >
+                                    Редактировать задачу
+                                </Button>
+                            </Grid>
+                        </Grid>
+                    </form>
+                </Container>
+            </div>
+        )
     }
 
-    return "";
-  }
+    return (
+        <div>
 
-  async componentDidMount() {
-    await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+this.props.match.params.taskId)
-      .then(async (task) =>
-        await ApiSingleton.homeworksApi
-        .apiHomeworksGetByHomeworkIdGet(task.homeworkId!)
-        .then(async (homework) =>
-          await ApiSingleton.coursesApi
-                .apiCoursesByCourseIdGet(homework.courseId!)
-          .then((course) =>
-            this.setState({
-              isLoaded: true,
-              title: task.title!,
-              description: task.description!,
-              maxRating: task.maxRating!,
-              courseId: homework.courseId!,
-              courseMentorId: course.mentorIds!,
-              hasDeadline: task.hasDeadline!,
-              deadlineDate: task.deadlineDate!,
-              isDeadlineStrict: task.isDeadlineStrict!,
-              publicationDate: task.publicationDate! as Date
-            })
-          )
-        )
-    );
-  }
+        </div>
+    )
 }
+
+export default EditTask

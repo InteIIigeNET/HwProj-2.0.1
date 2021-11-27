@@ -31,15 +31,6 @@ export default class AddTask extends React.Component<IAddTaskProps,
 
     public async handleSubmit(e: any) {
         e.preventDefault();
-        // ReDo
-        this.setState({
-            publicationDate: new Date(this.state.publicationDate!.setHours(this.state.publicationDate!.getHours() + 3)),
-        })
-        if (this.state.hasDeadline) {
-            this.setState({
-                deadlineDate: new Date(this.state.deadlineDate!.setHours(this.state.deadlineDate!.getHours() + 3))
-            })
-        }
         await ApiSingleton.tasksApi.apiTasksAddByHomeworkIdPost(this.props.id, this.state);
         this.props.onAdding()
     }

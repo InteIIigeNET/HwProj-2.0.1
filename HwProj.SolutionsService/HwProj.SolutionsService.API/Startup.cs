@@ -26,14 +26,15 @@ namespace HwProj.SolutionsService.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var connectionString = Configuration.GetConnectionString("DefaultConnection");
+            var connectionString = ConnectionString.GetConnectionString(Configuration);
             services.AddDbContext<SolutionContext>(options => options.UseSqlServer(connectionString));
             services.AddScoped<ISolutionsRepository, SolutionsRepository>();
             services.AddScoped<ISolutionsService, Services.SolutionsService>();
 
-            var httpClient = new HttpClient();
-            services.AddAuthServiceClient(httpClient, "http://localhost:5001");
-            services.AddCoursesServiceClient(httpClient, "http://localhost:5002");
+            services.AddHttpClient();
+            services.AddHttpContextAccessor();
+            services.AddAuthServiceClient();
+            services.AddCoursesServiceClient();
 
             services.AddEventBus(Configuration);
             services.ConfigureHwProjServices("Solutions API");
