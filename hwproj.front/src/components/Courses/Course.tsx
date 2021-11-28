@@ -218,9 +218,9 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                     />
                 )}
                 {tabState === 0 && (
-                    <div>
+                    <Grid>
                         {createHomework && (
-                            <div>
+                            <Grid>
                                 <Grid container justifyContent="center" style={{marginTop: "15px", marginBottom: "15px"}}>
                                     <Grid item xs={11} style={{ marginTop: '16px' }}>
                                         <CourseStudents
@@ -254,10 +254,10 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                         />
                                     </Grid>
                                 </Grid>
-                            </div>
+                            </Grid>
                         )}
                         {isMentor && !createHomework && (
-                            <div>
+                            <Grid>
                                 <Grid container justifyContent="center" style={{marginTop: "15px", marginBottom: "15px"}}>
                                     <Grid item xs={11} style={{ marginTop: '16px' }}>
                                         <CourseStudents
@@ -301,7 +301,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                         />
                                     </Grid>
                                 </Grid>
-                            </div>
+                            </Grid>
                         )}
                         {isAcceptedStudent && (
                             <Grid container justifyContent="center" style={{marginTop: "15px", marginBottom: "15px"}}>
@@ -327,7 +327,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                 </Grid>
                             </Grid>
                         )}
-                    </div>
+                    </Grid>
                 )}
             </Grid>
         );

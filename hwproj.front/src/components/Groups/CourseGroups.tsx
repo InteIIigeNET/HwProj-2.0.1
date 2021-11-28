@@ -1,6 +1,7 @@
 import * as React from "react";
 import {
-    Grid,
+    Button,
+    Grid, Typography,
 } from "@material-ui/core";
 import {FC, useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
@@ -98,6 +99,27 @@ const CourseGroups: FC<ICourseGroupEditorProps> = (props) => {
 
     return (
         <div style={{marginTop: '20px', marginBottom: '40px'}}>
+            {groupState.groups!.length == 0 &&
+                <Grid container direction="row" alignItems="center">
+                    <Grid item style={{marginLeft: '60px'}}>
+                        <Typography
+                            variant="h6"
+                        >
+                            Групп нет. Хотите создать?
+                        </Typography>
+                    </Grid>
+                    <Grid item style={{marginLeft: '20px'}}>
+                        <Button
+                            fullWidth
+                            variant="contained"
+                            color="primary"
+                            onClick={() => console.log(window.location.assign("./" + props.courseId! + "/groups-edit"))}
+                        >
+                            Создать
+                        </Button>
+                    </Grid>
+                </Grid>
+            }
             <Grid container spacing={2} justifyContent="center">
                 <GroupsTable
                     studentsWithoutGroup={groupState.studentsWithoutGroup!}
