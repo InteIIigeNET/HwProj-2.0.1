@@ -5,7 +5,8 @@
         <TargetFramework>netcoreapp2.2</TargetFramework>
         <ApplicationIcon />
         <StartupObject />
-        <LangVersion>latest</LangVersion>
+        <LangVersion>$(CSharpLanguageVersion)</LangVersion>
+        <Nullable>$(NullableReferenceTypes)</Nullable>
     </PropertyGroup>
 
     <ItemGroup>

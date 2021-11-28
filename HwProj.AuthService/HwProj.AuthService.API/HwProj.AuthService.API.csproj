@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-    <LangVersion>7.2</LangVersion>
-    <UserSecretsId>3d6a422c-bb0f-4d0e-8d9d-995fce143c3e</UserSecretsId>
+    <LangVersion>$(CSharpLanguageVersion)</LangVersion>
+    <Nullable>$(NullableReferenceTypes)</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
