@@ -18,47 +18,43 @@ namespace HwProj.CourseWorkService.API.Controllers
     [ApiController]
     public class ReviewerCourseWorksController : ControllerBase
     {
-	    #region Fields: Private
+        #region Fields: Private
 
-	    private readonly IReviewService _reviewService;
+        private readonly IReviewService _reviewService;
 
-	    #endregion
+        #endregion
 
-	    #region Constructors: Public
+        #region Constructors: Public
 
-	    public ReviewerCourseWorksController(IReviewService reviewService)
-	    {
-		    _reviewService = reviewService;
-	    }
+        public ReviewerCourseWorksController(IReviewService reviewService)
+        {
+            _reviewService = reviewService;
+        }
 
-		#endregion
+        #endregion
 
-		#region Methods: Public
+        #region Methods: Public
 
-		[HttpGet("course_works_in_bidding")]
-		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ReviewerOverviewCourseWorkDTO[]))]
-		public async Task<IActionResult> GetCourseWorksInBidding()
-		{
-			var userId = Request.GetUserId();
-			var courseWorksDTO = await _reviewService.GetCourseWorksInBiddingForReviewer(userId)
-				.ConfigureAwait(false);
-			return Ok(courseWorksDTO);
-		}
+        [HttpGet("course_works_in_bidding")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ReviewerOverviewCourseWorkDTO[]))]
+        public async Task<IActionResult> GetCourseWorksInBidding()
+        {
+            var userId = Request.GetUserId();
+            var courseWorksDTO = await _reviewService.GetCourseWorksInBiddingForReviewer(userId)
+                .ConfigureAwait(false);
+            return Ok(courseWorksDTO);
+        }
 
-		[HttpPost("bidding/{courseWorkId}/{biddingValueString}")]
-		public async Task<IActionResult> CreateCourseWorkBid(long courseWorkId, string biddingValueString)
-		{
-			if (!Enum.TryParse<BiddingValues>(biddingValueString, out var biddingValue))
-			{
-				return NotFound();
-			}
-			var userId = Request.GetUserId();
+        [HttpPost("bidding/{courseWorkId}/{biddingValueString}")]
+        public async Task<IActionResult> CreateCourseWorkBid(long courseWorkId, string biddingValueString)
+        {
+            if (!Enum.TryParse<BiddingValues>(biddingValueString, out var biddingValue)) return NotFound();
+            var userId = Request.GetUserId();
 
-			await _reviewService.CreateCourseWorkBid(userId, courseWorkId, biddingValue).ConfigureAwait(false);
-			return Ok();
-		}
+            await _reviewService.CreateCourseWorkBid(userId, courseWorkId, biddingValue).ConfigureAwait(false);
+            return Ok();
+        }
 
-
-		#endregion
-	}
+        #endregion
+    }
 }

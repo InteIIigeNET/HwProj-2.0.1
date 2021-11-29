@@ -17,12 +17,12 @@ namespace HwProj.EventBus.Client.Implementations
         private const string BrokerName = "hwproj_event_bus";
 
         private readonly IDefaultConnection _connection;
-        private readonly IServiceScopeFactory _scopeFactory;
-
-        private readonly string _queueName;
         private readonly RetryPolicy _policy;
 
-        private  IModel _consumerChannel;
+        private readonly string _queueName;
+        private readonly IServiceScopeFactory _scopeFactory;
+
+        private IModel _consumerChannel;
 
         public EventBusRabbitMq(IDefaultConnection connection, IServiceProvider serviceProvider,
             IServiceScopeFactory scopeFactory, RetryPolicy policy)
@@ -34,11 +34,17 @@ namespace HwProj.EventBus.Client.Implementations
             _consumerChannel = CreateConsumerChannel();
         }
 
+        public void Dispose()
+        {
+            _consumerChannel.Close();
+            _connection.Dispose();
+        }
+
         public void Publish(Event @event)
         {
             using (var channel = _connection.CreateModel())
             {
-                channel.ExchangeDeclare(exchange: BrokerName, type: ExchangeType.Direct, durable: true);
+                channel.ExchangeDeclare(BrokerName, ExchangeType.Direct, true);
 
                 var message = JsonConvert.SerializeObject(@event);
                 var body = Encoding.UTF8.GetBytes(message);
@@ -49,11 +55,11 @@ namespace HwProj.EventBus.Client.Implementations
 
                 _policy.Execute(() =>
                 {
-                    channel.BasicPublish(exchange: BrokerName,
-                                    routingKey: eventName, 
-                                    mandatory: true,
-                                    basicProperties: properties,  
-                                    body: body);
+                    channel.BasicPublish(BrokerName,
+                        eventName,
+                        true,
+                        properties,
+                        body);
                 });
             }
         }
@@ -64,8 +70,9 @@ namespace HwProj.EventBus.Client.Implementations
             using (var channel = _connection.CreateModel())
             {
                 var eventName = GetEventName<TEvent>();
-                channel.QueueBind(queue: _queueName, exchange: BrokerName, routingKey: eventName);
+                channel.QueueBind(_queueName, BrokerName, eventName);
             }
+
             StartBasicConsume();
         }
 
@@ -73,12 +80,12 @@ namespace HwProj.EventBus.Client.Implementations
         {
             var channel = _connection.CreateModel();
 
-            channel.ExchangeDeclare(exchange: BrokerName, type: ExchangeType.Direct, durable: true);
-            channel.QueueDeclare(queue: _queueName,
-                                 durable: true,
-                                 exclusive: false,
-                                 autoDelete: false,
-                                 arguments: null);
+            channel.ExchangeDeclare(BrokerName, ExchangeType.Direct, true);
+            channel.QueueDeclare(_queueName,
+                true,
+                false,
+                false,
+                null);
 
             channel.CallbackException += (sender, ea) =>
             {
@@ -94,7 +101,7 @@ namespace HwProj.EventBus.Client.Implementations
         {
             var consumer = new EventingBasicConsumer(_consumerChannel);
             consumer.Received += Consumer_Received;
-            _consumerChannel.BasicConsume(queue: _queueName, autoAck: false, consumer: consumer);
+            _consumerChannel.BasicConsume(_queueName, false, consumer);
         }
 
         private async void Consumer_Received(object sender, BasicDeliverEventArgs eventArgs)
@@ -104,7 +111,7 @@ namespace HwProj.EventBus.Client.Implementations
 
             await ProcessEvent(eventName, message).ConfigureAwait(false);
 
-            _consumerChannel.BasicAck(deliveryTag: eventArgs.DeliveryTag, multiple: false);
+            _consumerChannel.BasicAck(eventArgs.DeliveryTag, false);
         }
 
         private async Task ProcessEvent(string eventName, string message)
@@ -125,7 +132,7 @@ namespace HwProj.EventBus.Client.Implementations
                         var handlerObject = scope.ServiceProvider.GetRequiredService(handler);
                         // ReSharper disable once PossibleNullReferenceException
                         await ((Task)handler.GetMethod("HandleAsync")
-                            ?.Invoke(handlerObject, new object[] { @event }))
+                                ?.Invoke(handlerObject, new object[] { @event }))
                             .ConfigureAwait(false);
                     }
                 }
@@ -134,12 +141,6 @@ namespace HwProj.EventBus.Client.Implementations
             {
                 await Task.CompletedTask;
             }
-        }
-
-        public void Dispose()
-        {
-            _consumerChannel.Close();
-            _connection.Dispose();
         }
 
         private static string GetEventName<TEvent>()

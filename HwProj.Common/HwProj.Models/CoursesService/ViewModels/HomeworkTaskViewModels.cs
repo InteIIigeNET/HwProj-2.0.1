@@ -12,28 +12,25 @@ namespace HwProj.Models.CoursesService.ViewModels
         public string Description { get; set; }
 
         public int MaxRating { get; set; }
-        
+
         public bool HasDeadline { get; set; }
-        
+
         public DateTime? DeadlineDate { get; set; }
-        
+
         public bool IsDeadlineStrict { get; set; }
-        
+
         public bool CanSendSolution { get; set; }
 
         public DateTime PublicationDate { get; set; }
 
         public long HomeworkId { get; set; }
 
+        public bool IsDeferred { get; set; }
+
         public void PutPossibilityForSendingSolution()
         {
-            if (!IsDeadlineStrict || DateTime.UtcNow <= DeadlineDate)
-            {
-                CanSendSolution = true;
-            }
+            if (!IsDeadlineStrict || DateTime.UtcNow <= DeadlineDate) CanSendSolution = true;
         }
-
-        public bool IsDeferred { get; set; }
     }
 
     public class CreateTaskViewModel
@@ -41,19 +38,19 @@ namespace HwProj.Models.CoursesService.ViewModels
         [Required]
         [RegularExpression(@"^\S+.*", ErrorMessage = "Name shouldn't start with white spaces.")]
         public string Title { get; set; }
+
         public string Description { get; set; }
-        
+
         public bool HasDeadline { get; set; }
-        
+
         public DateTime? DeadlineDate { get; set; }
-        
+
         public bool IsDeadlineStrict { get; set; }
 
         public DateTime PublicationDate { get; set; }
 
-        [Required]
-        public int MaxRating { get; set; }
-        
+        [Required] public int MaxRating { get; set; }
+
         public void InitializeDeadline()
         {
             if (!HasDeadline || DeadlineDate == null)

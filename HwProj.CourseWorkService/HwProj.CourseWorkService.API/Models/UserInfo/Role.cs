@@ -13,13 +13,13 @@ namespace HwProj.CourseWorkService.API.Models.UserInfo
 
     public class Role : IEntity<long>
     {
-        public long Id { get; set; }
-        public string DisplayValue { get; set; }
-        public List<UserRole> UserRoles { get; set; }
-
         public Role()
         {
             UserRoles = new List<UserRole>();
         }
+
+        public string DisplayValue { get; set; }
+        public List<UserRole> UserRoles { get; set; }
+        public long Id { get; set; }
     }
 }

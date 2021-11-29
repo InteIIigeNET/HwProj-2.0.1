@@ -5,7 +5,11 @@ namespace HwProj.CourseWorkService.API.Models.UserInfo
 {
     public class User : IEntity<string>
     {
-        public string Id { get; set; }
+        public User()
+        {
+            UserRoles = new List<UserRole>();
+        }
+
         public string Name { get; set; }
         public string Surname { get; set; }
         public string MiddleName { get; set; }
@@ -18,10 +22,6 @@ namespace HwProj.CourseWorkService.API.Models.UserInfo
         public ReviewerProfile ReviewerProfile { get; set; }
         public CuratorProfile CuratorProfile { get; set; }
         public List<UserRole> UserRoles { get; set; }
-
-        public User()
-        {
-            UserRoles = new List<UserRole>();
-        }
+        public string Id { get; set; }
     }
 }

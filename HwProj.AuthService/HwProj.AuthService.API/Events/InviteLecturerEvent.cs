@@ -4,11 +4,11 @@ namespace HwProj.AuthService.API.Events
 {
     public class InviteLecturerEvent : Event
     {
-        public string UserId { get; set; }
-
         public InviteLecturerEvent(string id)
         {
             UserId = id;
         }
+
+        public string UserId { get; set; }
     }
 }

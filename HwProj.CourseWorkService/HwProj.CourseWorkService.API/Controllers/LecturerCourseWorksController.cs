@@ -15,19 +15,12 @@ namespace HwProj.CourseWorkService.API.Controllers
     [Authorize]
     [Route("api/lecturer")]
     [TypeFilter(typeof(OnlySelectRoleAttribute), Arguments = new object[] { Roles.Lecturer })]
-    [TypeFilter(typeof(CommonExceptionFilterAttribute), 
-        Arguments = new object[] { new [] { typeof(ForbidException), typeof(ObjectNotFoundException), typeof(BadRequestException) }})]
+    [TypeFilter(typeof(CommonExceptionFilterAttribute),
+        Arguments = new object[]
+            { new[] { typeof(ForbidException), typeof(ObjectNotFoundException), typeof(BadRequestException) } })]
     [ApiController]
     public class LecturerCourseWorksController : ControllerBase
     {
-        #region Fields: Private
-
-        private readonly IApplicationsService _applicationsService;
-        private readonly ICourseWorksService _courseWorksService;
-        private readonly IUserService _userService;
-
-        #endregion
-
         #region Constructors: Public
 
         public LecturerCourseWorksController(IApplicationsService applicationsService,
@@ -40,11 +33,20 @@ namespace HwProj.CourseWorkService.API.Controllers
 
         #endregion
 
+        #region Fields: Private
+
+        private readonly IApplicationsService _applicationsService;
+        private readonly ICourseWorksService _courseWorksService;
+        private readonly IUserService _userService;
+
+        #endregion
+
         #region Methods: Public
 
         [HttpPost("course_works/add")]
         [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> AddCourseWorkAsync([FromBody] CreateCourseWorkViewModel createCourseWorkViewModel)
+        public async Task<IActionResult> AddCourseWorkAsync(
+            [FromBody] CreateCourseWorkViewModel createCourseWorkViewModel)
         {
             var userId = Request.GetUserId();
             var id = await _courseWorksService.AddCourseWorkAsync(createCourseWorkViewModel, userId, false);
@@ -60,7 +62,8 @@ namespace HwProj.CourseWorkService.API.Controllers
         }
 
         [HttpPut("course_works/{courseWorkId}")]
-        public async Task<IActionResult> UpdateCourseWorkAsync([FromBody] CreateCourseWorkViewModel createCourseWorkViewModel, long courseWorkId)
+        public async Task<IActionResult> UpdateCourseWorkAsync(
+            [FromBody] CreateCourseWorkViewModel createCourseWorkViewModel, long courseWorkId)
         {
             var userId = Request.GetUserId();
             await _courseWorksService.UpdateCourseWorkAsync(courseWorkId, userId, createCourseWorkViewModel)
@@ -71,16 +74,18 @@ namespace HwProj.CourseWorkService.API.Controllers
         [HttpDelete("course_works/{courseWorkId}/exclude")]
         public async Task<IActionResult> ExcludeStudent(long courseWorkId)
         {
-	        var userId = Request.GetUserId();
-	        await _courseWorksService.ExcludeStudentAsync(userId, courseWorkId);
-	        return Ok();
+            var userId = Request.GetUserId();
+            await _courseWorksService.ExcludeStudentAsync(userId, courseWorkId);
+            return Ok();
         }
 
         [HttpPut("profile")]
-        public async Task<IActionResult> UpdateProfileAsync([FromBody] LecturerProfileViewModel lecturerProfileViewModel)
+        public async Task<IActionResult> UpdateProfileAsync(
+            [FromBody] LecturerProfileViewModel lecturerProfileViewModel)
         {
             var userId = Request.GetUserId();
-            await _userService.UpdateUserRoleProfile<LecturerProfile, LecturerProfileViewModel>(userId, lecturerProfileViewModel)
+            await _userService
+                .UpdateUserRoleProfile<LecturerProfile, LecturerProfileViewModel>(userId, lecturerProfileViewModel)
                 .ConfigureAwait(false);
             return Ok();
         }

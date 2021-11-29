@@ -6,7 +6,10 @@ namespace HwProj.CourseWorkService.API.Models
 {
     public class Direction : IEntity<long>
     {
-        public long Id { get; set; }
+        public Direction()
+        {
+            StudentProfiles = new List<StudentProfile>();
+        }
 
         public string Name { get; set; }
 
@@ -14,10 +17,6 @@ namespace HwProj.CourseWorkService.API.Models
         public CuratorProfile CuratorProfile { get; set; }
 
         public ICollection<StudentProfile> StudentProfiles { get; set; }
-
-        public Direction()
-        {
-            StudentProfiles = new List<StudentProfile>();
-        }
+        public long Id { get; set; }
     }
 }

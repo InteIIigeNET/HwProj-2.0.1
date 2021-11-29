@@ -24,10 +24,7 @@ namespace HwProj.CourseWorkService.API.Filters
         {
             var userId = context.HttpContext.Request.GetUserId();
             var userRoles = await _usersRepository.GetRolesTypesAsync(userId).ConfigureAwait(false);
-            if (!userRoles.Contains(_role))
-            {
-                context.Result = new ForbidResult();
-            }
+            if (!userRoles.Contains(_role)) context.Result = new ForbidResult();
         }
     }
 }

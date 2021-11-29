@@ -4,10 +4,6 @@ namespace HwProj.Models.Result
 {
     public sealed class Result<T> where T : class
     {
-        public T Value { get; }
-        public bool Succeeded { get; }
-        public string[] Errors { get; }
-
         [JsonConstructor]
         private Result(T value, bool succeeded, string[] errors)
         {
@@ -15,6 +11,10 @@ namespace HwProj.Models.Result
             Value = value;
             Errors = errors;
         }
+
+        public T Value { get; }
+        public bool Succeeded { get; }
+        public string[] Errors { get; }
 
         public static Result<T> Success(T value)
         {
@@ -26,18 +26,18 @@ namespace HwProj.Models.Result
             return new Result<T>(null, false, errors);
         }
     }
-    
+
     public sealed class Result
     {
-        public bool Succeeded { get; }
-        public string[] Errors { get; }
-
         [JsonConstructor]
         private Result(bool succeeded, string[] errors)
         {
             Succeeded = succeeded;
             Errors = errors;
         }
+
+        public bool Succeeded { get; }
+        public string[] Errors { get; }
 
         public static Result Success()
         {

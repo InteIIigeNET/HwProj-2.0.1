@@ -74,16 +74,16 @@ namespace HwProj.CoursesService.API.Controllers
         {
             return await _groupsService.DeleteGroupMateAsync(groupId, userId)
                 ? Ok()
-                : NotFound() as IActionResult;
+                : NotFound();
         }
-        
+
         [HttpGet("get/{groupId}")]
         public async Task<IActionResult> Get(long groupId)
         {
             var group = await _groupsService.GetGroupAsync(groupId);
             return group == null
                 ? NotFound()
-                : Ok(_mapper.Map<GroupViewModel>(group)) as IActionResult;
+                : Ok(_mapper.Map<GroupViewModel>(@group));
         }
 
 

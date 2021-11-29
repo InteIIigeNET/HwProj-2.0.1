@@ -15,11 +15,11 @@ namespace HwProj.CoursesService.API.Services
 {
     public class CoursesService : ICoursesService
     {
-        private readonly ICoursesRepository _coursesRepository;
+        private readonly IAuthServiceClient _authServiceClient;
         private readonly ICourseMatesRepository _courseMatesRepository;
+        private readonly ICoursesRepository _coursesRepository;
         private readonly IEventBus _eventBus;
         private readonly IMapper _mapper;
-        private readonly IAuthServiceClient _authServiceClient;
 
         public CoursesService(ICoursesRepository coursesRepository,
             ICourseMatesRepository courseMatesRepository,
@@ -46,8 +46,10 @@ namespace HwProj.CoursesService.API.Services
             if (!course.MentorIds.Contains(userId))
             {
                 var currentDate = DateTime.UtcNow.AddHours(3);
-                course.Homeworks.ForEach(hw => hw.Tasks = new List<HomeworkTask>(hw.Tasks.Where(t => currentDate >= t.PublicationDate)));
+                course.Homeworks.ForEach(hw =>
+                    hw.Tasks = new List<HomeworkTask>(hw.Tasks.Where(t => currentDate >= t.PublicationDate)));
             }
+
             return course;
         }
 
@@ -82,10 +84,7 @@ namespace HwProj.CoursesService.API.Services
             await Task.WhenAll(getCourseTask, getCourseMateTask);
 
             var course = getCourseTask.Result;
-            if (course == null || getCourseMateTask.Result != null)
-            {
-                return false;
-            }
+            if (course == null || getCourseMateTask.Result != null) return false;
 
             var courseMate = new CourseMate
             {
@@ -114,10 +113,7 @@ namespace HwProj.CoursesService.API.Services
                 _courseMatesRepository.FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
             await Task.WhenAll(getCourseTask, getCourseMateTask);
 
-            if (getCourseTask.Result == null || getCourseMateTask.Result == null)
-            {
-                return false;
-            }
+            if (getCourseTask.Result == null || getCourseMateTask.Result == null) return false;
 
             await _courseMatesRepository.UpdateAsync(
                 getCourseMateTask.Result.Id,
@@ -151,10 +147,7 @@ namespace HwProj.CoursesService.API.Services
                 _courseMatesRepository.FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
             await Task.WhenAll(getCourseTask, getCourseMateTask);
 
-            if (getCourseTask.Result == null || getCourseMateTask.Result == null)
-            {
-                return false;
-            }
+            if (getCourseTask.Result == null || getCourseMateTask.Result == null) return false;
 
             await _courseMatesRepository.DeleteAsync(getCourseMateTask.Result.Id);
 
@@ -216,7 +209,7 @@ namespace HwProj.CoursesService.API.Services
                     string newMentors = course.MentorIds + "/" + userId;
                     await _coursesRepository.UpdateAsync(courseId, с => new Course
                     {
-                        MentorIds = newMentors,
+                        MentorIds = newMentors
                     });
                 }
             }

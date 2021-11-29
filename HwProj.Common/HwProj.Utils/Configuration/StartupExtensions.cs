@@ -9,7 +9,6 @@ using HwProj.EventBus.Client.Interfaces;
 using HwProj.Utils.Authorization;
 using HwProj.Utils.Configuration.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -49,14 +48,14 @@ namespace HwProj.Utils.Configuration
                             Name = "Authorization",
                             Type = "apiKey"
                         });
-                    c.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>> {
-                        { "Bearer", Enumerable.Empty<string>() },
+                    c.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>
+                    {
+                        { "Bearer", Enumerable.Empty<string>() }
                     });
                 }
             });
 
             if (serviceName != "AuthService API")
-            {
                 services.AddAuthentication(options =>
                     {
                         options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -75,7 +74,6 @@ namespace HwProj.Utils.Configuration
                             ValidateIssuerSigningKey = true
                         };
                     });
-            }
 
             services.AddTransient<NoApiGatewayMiddleware>();
 
@@ -88,9 +86,7 @@ namespace HwProj.Utils.Configuration
 
             var retryCount = 5;
             if (!string.IsNullOrEmpty(eventBusSection["EventBusRetryCount"]))
-            {
                 retryCount = int.Parse(eventBusSection["EventBusRetryCount"]);
-            }
 
             services.AddSingleton(sp => Policy.Handle<SocketException>()
                 .Or<BrokerUnreachableException>()
@@ -115,10 +111,7 @@ namespace HwProj.Utils.Configuration
                 var handlersTypes = types.Where(x =>
                     fullTypeInterface.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
 
-                foreach (var handlerType in handlersTypes)
-                {
-                    services.AddTransient(handlerType);
-                }
+                foreach (var handlerType in handlersTypes) services.AddTransient(handlerType);
             }
 
             return services;
@@ -128,15 +121,11 @@ namespace HwProj.Utils.Configuration
             string serviceName)
         {
             if (env.IsDevelopment())
-            {
                 app.UseDeveloperExceptionPage()
                     .UseSwagger()
                     .UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", serviceName); });
-            }
             else
-            {
                 app.UseHsts();
-            }
 
             app.UseAuthentication();
             app.UseCors(x => x

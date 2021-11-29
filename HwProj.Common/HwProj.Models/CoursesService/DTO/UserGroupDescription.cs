@@ -11,8 +11,8 @@ namespace HwProj.Models.CoursesService.DTO
 
         public string Name { get; set; }
 
-        public List<long> Tasks { get; set; } = new List<long>();
+        public List<long> Tasks { get; set; } = new();
 
-        public List<GroupMateViewModel> GroupMates { get; set; } = new List<GroupMateViewModel>();
+        public List<GroupMateViewModel> GroupMates { get; set; } = new();
     }
 }

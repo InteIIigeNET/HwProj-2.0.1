@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using AutoMapper;
-using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Services;
 using HwProj.Models.CoursesService.ViewModels;
@@ -12,8 +11,8 @@ namespace HwProj.CoursesService.API.Controllers
     [ApiController]
     public class TasksController : Controller
     {
-        private readonly ITasksService _tasksService;
         private readonly IMapper _mapper;
+        private readonly ITasksService _tasksService;
 
         public TasksController(ITasksService tasksService, IMapper mapper)
         {
@@ -26,17 +25,14 @@ namespace HwProj.CoursesService.API.Controllers
         {
             var taskFromDb = await _tasksService.GetTaskAsync(taskId);
 
-            if (taskFromDb == null)
-            {
-                return NotFound();
-            }
+            if (taskFromDb == null) return NotFound();
 
             var task = _mapper.Map<HomeworkTaskViewModel>(taskFromDb);
             task.PutPossibilityForSendingSolution();
-            
+
             return Ok(task);
         }
-        
+
         [HttpPost("{homeworkId}/add")]
         public async Task<long> AddTask(long homeworkId, [FromBody] CreateTaskViewModel taskViewModel)
         {
@@ -45,18 +41,18 @@ namespace HwProj.CoursesService.API.Controllers
             var taskId = await _tasksService.AddTaskAsync(homeworkId, task);
             return taskId;
         }
-        
+
         [HttpDelete("delete/{taskId}")] //bug with rights
         public async Task DeleteTask(long taskId)
         {
             await _tasksService.DeleteTaskAsync(taskId);
         }
-        
+
         [HttpPut("update/{taskId}")]
         public async Task UpdateTask(long taskId, [FromBody] CreateTaskViewModel taskViewModel)
         {
             taskViewModel.InitializeDeadline();
-            await _tasksService.UpdateTaskAsync(taskId, new HomeworkTask()
+            await _tasksService.UpdateTaskAsync(taskId, new HomeworkTask
             {
                 Title = taskViewModel.Title,
                 Description = taskViewModel.Description,

@@ -16,15 +16,6 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 {
     public class CourseWorksService : ICourseWorksService
     {
-        #region Fields: Private
-
-        private readonly IApplicationsService _applicationsService;
-        private readonly IViewModelService _viewModelService;
-        private readonly ICourseWorksRepository _courseWorksRepository;
-        private readonly IWorkFilesRepository _workFilesRepository;
-
-        #endregion
-
         #region Constructors: Public
 
         public CourseWorksService(IApplicationsService applicationsService, ICourseWorksRepository courseWorkRepository,
@@ -35,6 +26,15 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
             _viewModelService = viewModelService;
             _workFilesRepository = workFilesRepository;
         }
+
+        #endregion
+
+        #region Fields: Private
+
+        private readonly IApplicationsService _applicationsService;
+        private readonly IViewModelService _viewModelService;
+        private readonly ICourseWorksRepository _courseWorksRepository;
+        private readonly IWorkFilesRepository _workFilesRepository;
 
         #endregion
 
@@ -50,14 +50,15 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
         [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local")]
         private static void CheckCourseWorkLecturer(CourseWork courseWork, string userId)
         {
-            if (courseWork.LecturerProfileId != userId) throw new ForbidException("Only an owner of the course work have rights to this action!");
+            if (courseWork.LecturerProfileId != userId)
+                throw new ForbidException("Only an owner of the course work have rights to this action!");
         }
 
         [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local")]
         private static void CheckCourseWorkLecturerOrStudent(CourseWork courseWork, string userId)
         {
-            if (courseWork.StudentProfileId != userId && courseWork.LecturerProfileId != userId) 
-	            throw new ForbidException("Only a student and lecturer ot the course work have rights to this action!");
+            if (courseWork.StudentProfileId != userId && courseWork.LecturerProfileId != userId)
+                throw new ForbidException("Only a student and lecturer ot the course work have rights to this action!");
         }
 
         #endregion
@@ -72,7 +73,8 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
                 .ConfigureAwait(false);
 
             return await Task.WhenAll(courseWorks
-                .Select(async courseWork => await _viewModelService.GetCourseWorkOverviewDTO(courseWork).ConfigureAwait(false))
+                .Select(async courseWork =>
+                    await _viewModelService.GetCourseWorkOverviewDTO(courseWork).ConfigureAwait(false))
                 .ToArray());
         }
 
@@ -82,10 +84,11 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
             return await _viewModelService.GetCourseWorkDetailDTO(courseWork).ConfigureAwait(false);
         }
 
-        public async Task<long> AddCourseWorkAsync(CreateCourseWorkViewModel createCourseWorkViewModel, 
+        public async Task<long> AddCourseWorkAsync(CreateCourseWorkViewModel createCourseWorkViewModel,
             string userId, bool createdByCurator)
         {
-            var courseWork = await _viewModelService.GetCourseWorkFromViewModel(createCourseWorkViewModel, userId, createdByCurator)
+            var courseWork = await _viewModelService
+                .GetCourseWorkFromViewModel(createCourseWorkViewModel, userId, createdByCurator)
                 .ConfigureAwait(false);
             return await _courseWorksRepository.AddAsync(courseWork).ConfigureAwait(false);
         }
@@ -104,7 +107,7 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
             var courseWork = await GetCourseWorkByIdAsync(courseWorkId).ConfigureAwait(false);
             CheckCourseWorkLecturer(courseWork, userId);
 
-            await _courseWorksRepository.UpdateAsync(courseWorkId, cw => new CourseWork()
+            await _courseWorksRepository.UpdateAsync(courseWorkId, cw => new CourseWork
                 {
                     Title = createCourseWorkViewModel.Title,
                     Overview = createCourseWorkViewModel.Overview,
@@ -118,14 +121,12 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
                 .ConfigureAwait(false);
         }
 
-        public async Task<long> ApplyToCourseWorkAsync(string userId, long courseWorkId, 
+        public async Task<long> ApplyToCourseWorkAsync(string userId, long courseWorkId,
             CreateApplicationViewModel createApplicationViewModel)
         {
             var courseWork = await GetCourseWorkByIdAsync(courseWorkId).ConfigureAwait(false);
             if (courseWork.Applications.Count(app => app.StudentProfileId == userId) > 0)
-            {
                 throw new BadRequestException("Student already applied to course work!");
-            }
 
             return await _applicationsService.AddApplicationAsync(userId, courseWorkId, createApplicationViewModel);
         }
@@ -135,113 +136,97 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
             var courseWork = await GetCourseWorkByIdAsync(courseWorkId).ConfigureAwait(false);
             CheckCourseWorkLecturer(courseWork, userId);
 
-            await _courseWorksRepository.UpdateAsync(courseWork.Id, cw => new CourseWork()
+            await _courseWorksRepository.UpdateAsync(courseWork.Id, cw => new CourseWork
             {
                 CuratorProfileId = null,
                 StudentProfileId = null
             }).ConfigureAwait(false);
         }
 
-        public async Task UpdateReferenceInCourseWorkAsync(string userId, long courseWorkId, string reference = null, bool remove = false)
+        public async Task UpdateReferenceInCourseWorkAsync(string userId, long courseWorkId, string reference = null,
+            bool remove = false)
         {
-	        var courseWork = await GetCourseWorkByIdAsync(courseWorkId).ConfigureAwait(false);
+            var courseWork = await GetCourseWorkByIdAsync(courseWorkId).ConfigureAwait(false);
             CheckCourseWorkLecturerOrStudent(courseWork, userId);
 
-	        await _courseWorksRepository.UpdateAsync(courseWorkId,
-		        x => new CourseWork()
-		        {
-			        Reference = remove ? null : reference
-		        }).ConfigureAwait(false);
+            await _courseWorksRepository.UpdateAsync(courseWorkId,
+                x => new CourseWork
+                {
+                    Reference = remove ? null : reference
+                }).ConfigureAwait(false);
         }
 
-        public async Task<long> AddWorkFileToCourseWorkAsync(string userId, long courseWorkId, FileTypes fileType, IFormFile file)
+        public async Task<long> AddWorkFileToCourseWorkAsync(string userId, long courseWorkId, FileTypes fileType,
+            IFormFile file)
         {
-	        var courseWork = await GetCourseWorkByIdAsync(courseWorkId).ConfigureAwait(false);
-	        if (fileType != FileTypes.Review)
-	        {
+            var courseWork = await GetCourseWorkByIdAsync(courseWorkId).ConfigureAwait(false);
+            if (fileType != FileTypes.Review)
                 CheckCourseWorkLecturerOrStudent(courseWork, userId);
-	        }
-	        else if (courseWork.ReviewerProfileId != userId)
-	        {
-		        throw new ForbidException("Only a reviewer of the course work have rights to this action!");
-	        }
+            else if (courseWork.ReviewerProfileId != userId)
+                throw new ForbidException("Only a reviewer of the course work have rights to this action!");
 
-	        if (fileType != FileTypes.Other)
-	        {
-		        var existWorkFile = courseWork.WorkFiles.FirstOrDefault(wf => wf.FileTypeId == (long) fileType);
-		        if (existWorkFile != null)
-		        {
-			        await RemoveWorkFileAsync(userId, courseWorkId, existWorkFile.Id).ConfigureAwait(false);
-		        }
-	        }
+            if (fileType != FileTypes.Other)
+            {
+                var existWorkFile = courseWork.WorkFiles.FirstOrDefault(wf => wf.FileTypeId == (long)fileType);
+                if (existWorkFile != null)
+                    await RemoveWorkFileAsync(userId, courseWorkId, existWorkFile.Id).ConfigureAwait(false);
+            }
 
-	        var workFile = new WorkFile
-	        {
-		        FileName = file.FileName,
-		        ContentType = file.ContentType,
-		        CourseWork = courseWork,
-		        FileTypeId = (long)fileType
-	        };
+            var workFile = new WorkFile
+            {
+                FileName = file.FileName,
+                ContentType = file.ContentType,
+                CourseWork = courseWork,
+                FileTypeId = (long)fileType
+            };
 
-	        using (var binaryReader = new BinaryReader(file.OpenReadStream()))
-	        {
-		        workFile.Data = binaryReader.ReadBytes((int)file.Length);
-	        }
+            using (var binaryReader = new BinaryReader(file.OpenReadStream()))
+            {
+                workFile.Data = binaryReader.ReadBytes((int)file.Length);
+            }
 
-	        var id = await _workFilesRepository.AddAsync(workFile).ConfigureAwait(false);
-	        if (fileType == FileTypes.CourseWorkText)
-	        {
-		        await SetIsUpdatedInCourseWork(courseWorkId, true).ConfigureAwait(false);
-	        }
-	        return id;
+            var id = await _workFilesRepository.AddAsync(workFile).ConfigureAwait(false);
+            if (fileType == FileTypes.CourseWorkText)
+                await SetIsUpdatedInCourseWork(courseWorkId, true).ConfigureAwait(false);
+            return id;
         }
 
         public async Task RemoveWorkFileAsync(string userId, long courseWorkId, long fileId)
         {
-	        var courseWork = await GetCourseWorkByIdAsync(courseWorkId).ConfigureAwait(false);
-	        var workFile = courseWork.WorkFiles.FirstOrDefault(wf => wf.Id == fileId);
-	        if (workFile == null)
-	        {
-                throw new ObjectNotFoundException($"File with Id {fileId}");
-	        }
+            var courseWork = await GetCourseWorkByIdAsync(courseWorkId).ConfigureAwait(false);
+            var workFile = courseWork.WorkFiles.FirstOrDefault(wf => wf.Id == fileId);
+            if (workFile == null) throw new ObjectNotFoundException($"File with Id {fileId}");
 
-	        if (workFile.FileTypeId != (long)FileTypes.Review)
-	        {
-		        CheckCourseWorkLecturerOrStudent(courseWork, userId);
-	        }
-	        else if (courseWork.ReviewerProfileId != userId)
-	        {
-		        throw new ForbidException("Only a reviewer of the course work have rights to this action!");
-	        }
+            if (workFile.FileTypeId != (long)FileTypes.Review)
+                CheckCourseWorkLecturerOrStudent(courseWork, userId);
+            else if (courseWork.ReviewerProfileId != userId)
+                throw new ForbidException("Only a reviewer of the course work have rights to this action!");
 
             await _workFilesRepository.DeleteAsync(workFile.Id).ConfigureAwait(false);
         }
 
         public async Task<WorkFile> GetWorkFileAsync(long courseWorkId, long fileId)
         {
-	        var courseWork = await GetCourseWorkByIdAsync(courseWorkId).ConfigureAwait(false);
-	        var workFile = courseWork.WorkFiles.FirstOrDefault(wf => wf.Id == fileId);
-	        if (workFile == null)
-	        {
-		        throw new ObjectNotFoundException($"File with Id {fileId}");
-	        }
+            var courseWork = await GetCourseWorkByIdAsync(courseWorkId).ConfigureAwait(false);
+            var workFile = courseWork.WorkFiles.FirstOrDefault(wf => wf.Id == fileId);
+            if (workFile == null) throw new ObjectNotFoundException($"File with Id {fileId}");
 
-	        return workFile;
+            return workFile;
         }
 
         public async Task<WorkFileDTO[]> GetCourseWorkFilesAsync(long courseWorkId)
         {
-	        var courseWork = await GetCourseWorkByIdAsync(courseWorkId).ConfigureAwait(false);
-	        var workFilesDTO = courseWork.WorkFiles.Select(_viewModelService.GetWorkFileDTO);
-	        return workFilesDTO.ToArray();
+            var courseWork = await GetCourseWorkByIdAsync(courseWorkId).ConfigureAwait(false);
+            var workFilesDTO = courseWork.WorkFiles.Select(_viewModelService.GetWorkFileDTO);
+            return workFilesDTO.ToArray();
         }
 
         public async Task SetIsUpdatedInCourseWork(long courseWorkId, bool value = false)
         {
-	        await _courseWorksRepository.UpdateAsync(courseWorkId, cw => new CourseWork()
-	        {
-		        IsUpdated = value
-	        }).ConfigureAwait(false);
+            await _courseWorksRepository.UpdateAsync(courseWorkId, cw => new CourseWork
+            {
+                IsUpdated = value
+            }).ConfigureAwait(false);
         }
 
         #endregion

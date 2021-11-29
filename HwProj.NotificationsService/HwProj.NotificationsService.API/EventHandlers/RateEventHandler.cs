@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using HwProj.AuthService.API.Events;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
@@ -28,7 +27,8 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 Date = DateTime.UtcNow,
                 HasSeen = false,
                 Owner = @event.Solution.StudentId
-            }); ;
+            });
+            ;
         }
     }
 }

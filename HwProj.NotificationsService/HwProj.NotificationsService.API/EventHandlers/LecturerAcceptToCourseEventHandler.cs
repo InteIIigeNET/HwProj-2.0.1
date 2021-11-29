@@ -10,10 +10,11 @@ namespace HwProj.NotificationsService.API.EventHandlers
 {
     public class LecturerAcceptToCourseEventHandler : IEventHandler<LecturerAcceptToCourseEvent>
     {
-        private readonly INotificationsRepository _notificationRepository;
         private readonly IAuthServiceClient _authClient;
+        private readonly INotificationsRepository _notificationRepository;
 
-        public LecturerAcceptToCourseEventHandler(INotificationsRepository notificationRepository, IAuthServiceClient authClient)
+        public LecturerAcceptToCourseEventHandler(INotificationsRepository notificationRepository,
+            IAuthServiceClient authClient)
         {
             _notificationRepository = notificationRepository;
             _authClient = authClient;

@@ -1,13 +1,11 @@
-﻿using HwProj.Repositories;
-using System;
+﻿using System;
 using HwProj.CourseWorkService.API.Models.UserInfo;
+using HwProj.Repositories;
 
 namespace HwProj.CourseWorkService.API.Models
 {
-	public class Deadline : IEntity<long>
+    public class Deadline : IEntity<long>
     {
-        public long Id { get; set; }
-
         public DateTime Date { get; set; }
         public int? Course { get; set; }
 
@@ -22,5 +20,6 @@ namespace HwProj.CourseWorkService.API.Models
 
         public long? CourseWorkId { get; set; }
         public CourseWork CourseWork { get; set; }
+        public long Id { get; set; }
     }
 }

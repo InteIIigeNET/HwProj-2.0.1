@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Diagnostics.Contracts;
 using System.Net.Http;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using HwProj.HttpUtils;
 using HwProj.Models.CoursesService.DTO;
@@ -15,8 +13,8 @@ namespace HwProj.CoursesService.Client
 {
     public class CoursesServiceClient : ICoursesServiceClient
     {
-        private readonly HttpClient _httpClient;
         private readonly Uri _coursesServiceUri;
+        private readonly HttpClient _httpClient;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public CoursesServiceClient(IHttpClientFactory clientFactory, IHttpContextAccessor httpContextAccessor,

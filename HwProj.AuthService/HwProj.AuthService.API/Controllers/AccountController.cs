@@ -1,12 +1,12 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
+using Google.Apis.Auth;
 using HwProj.AuthService.API.Services;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.Result;
-using Google.Apis.Auth;
+using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.AuthService.API.Controllers
 {
@@ -15,8 +15,8 @@ namespace HwProj.AuthService.API.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService;
-        private readonly IUserManager _userManager;
         private readonly IMapper _mapper;
+        private readonly IUserManager _userManager;
 
         public AccountController(IAccountService accountService, IUserManager userManager, IMapper mapper)
         {
@@ -33,7 +33,7 @@ namespace HwProj.AuthService.API.Controllers
 
             return accountData != null
                 ? Ok(accountData)
-                : NotFound() as IActionResult;
+                : NotFound();
         }
 
         [HttpPost("register")]
@@ -52,7 +52,7 @@ namespace HwProj.AuthService.API.Controllers
             var tokenMeta = await _accountService.LoginUserAsync(model).ConfigureAwait(false);
             return Ok(tokenMeta);
         }
-        
+
         [HttpPut("edit/{userId}")]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Edit([FromBody] EditAccountViewModel model, string userId)
@@ -61,7 +61,7 @@ namespace HwProj.AuthService.API.Controllers
             var result = await _accountService.EditAccountAsync(userId, newModel).ConfigureAwait(false);
             return Ok(result);
         }
-        
+
         [HttpPost("inviteNewLecturer")]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> InviteNewLecturer(InviteLecturerViewModel model)
@@ -69,16 +69,17 @@ namespace HwProj.AuthService.API.Controllers
             var result = await _accountService.InviteNewLecturer(model.Email).ConfigureAwait(false);
             return Ok(result);
         }
-        
+
         [HttpPost("google/{tokenId}")]
         [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GoogleRegister(string tokenId)
         {
-            var payload = await GoogleJsonWebSignature.ValidateAsync(tokenId, new GoogleJsonWebSignature.ValidationSettings());
+            var payload =
+                await GoogleJsonWebSignature.ValidateAsync(tokenId, new GoogleJsonWebSignature.ValidationSettings());
             var result = await _accountService.LoginUserByGoogleAsync(payload).ConfigureAwait(false);
             return Ok(result);
         }
-        
+
         [HttpPut("editExternal/{userId}")]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> EditExternal([FromBody] EditExternalViewModel model, string userId)
@@ -112,7 +113,7 @@ namespace HwProj.AuthService.API.Controllers
             var result = await _accountService.GetAllStudents();
             return result == null
                 ? NotFound()
-                : Ok(result) as IActionResult;
+                : Ok(result);
         }
     }
 }

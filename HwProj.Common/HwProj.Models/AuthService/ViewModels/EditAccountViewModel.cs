@@ -4,14 +4,12 @@ namespace HwProj.Models.AuthService.ViewModels
 {
     public class EditAccountViewModel
     {
-        [Required]
-        public string Name { get; set; }
+        [Required] public string Name { get; set; }
 
-        [Required]
-        public string Surname { get; set; }
-        
+        [Required] public string Surname { get; set; }
+
         public string MiddleName { get; set; }
-        
+
         [Required]
         [DataType(DataType.Password)]
         public string CurrentPassword { get; set; }

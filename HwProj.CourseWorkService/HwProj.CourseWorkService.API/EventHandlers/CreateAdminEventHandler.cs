@@ -17,7 +17,7 @@ namespace HwProj.CourseWorkService.API.EventHandlers
 
         public async Task HandleAsync(AdminRegisterEvent @event)
         {
-            var user = new User()
+            var user = new User
             {
                 Id = @event.UserId,
                 Name = @event.Name,

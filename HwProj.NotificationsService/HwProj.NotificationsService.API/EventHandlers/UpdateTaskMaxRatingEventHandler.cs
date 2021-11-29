@@ -1,10 +1,9 @@
 using System;
 using System.Threading.Tasks;
-using HwProj.AuthService.API.Events;
+using HwProj.CoursesService.API.Events;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
-using HwProj.CoursesService.API.Events;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {
@@ -21,7 +20,6 @@ namespace HwProj.NotificationsService.API.EventHandlers
         public async Task HandleAsync(UpdateTaskMaxRatingEvent @event)
         {
             foreach (var student in @event.Course.CourseMates)
-            {
                 await _notificationRepository.AddAsync(new Notification
                 {
                     Sender = "CourseService",
@@ -31,7 +29,6 @@ namespace HwProj.NotificationsService.API.EventHandlers
                     HasSeen = false,
                     Owner = student.StudentId
                 });
-            }
         }
     }
 }

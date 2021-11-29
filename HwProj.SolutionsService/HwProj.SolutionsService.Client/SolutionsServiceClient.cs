@@ -65,10 +65,7 @@ namespace HwProj.SolutionsService.Client
             };
 
             var response = await _httpClient.SendAsync(httpRequest);
-            if (response.IsSuccessStatusCode)
-            {
-                return await response.DeserializeAsync<long>();
-            }
+            if (response.IsSuccessStatusCode) return await response.DeserializeAsync<long>();
 
             throw new ForbiddenException();
         }
@@ -81,10 +78,7 @@ namespace HwProj.SolutionsService.Client
                 $"api/Solutions/rateSolution/{solutionId}?newRating={newRating}&lecturerComment={lecturerComment}&lecturerId={lecturerId}");
 
             var response = await _httpClient.SendAsync(httpRequest);
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new ForbiddenException();
-            }
+            if (!response.IsSuccessStatusCode) throw new ForbiddenException();
         }
 
         public async Task MarkSolution(long solutionId)

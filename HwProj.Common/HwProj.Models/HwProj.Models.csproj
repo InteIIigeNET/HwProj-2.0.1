@@ -1,24 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-    <LangVersion>$(CSharpLanguageVersion)</LangVersion>
-    <Nullable>$(NullableReferenceTypes)</Nullable>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <LangVersion>$(CSharpLanguageVersion)</LangVersion>
+        <Nullable>$(NullableReferenceTypes)</Nullable>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.3" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="2.2.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.0"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.3"/>
+        <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="2.2.0"/>
+        <PackageReference Include="Newtonsoft.Json" Version="9.0.1"/>
+    </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\HwProj.Repositories\HwProj.Repositories.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\HwProj.Repositories\HwProj.Repositories.csproj"/>
+    </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="CoursesService" />
-  </ItemGroup>
+    <ItemGroup>
+        <Folder Include="CoursesService"/>
+    </ItemGroup>
 
 </Project>

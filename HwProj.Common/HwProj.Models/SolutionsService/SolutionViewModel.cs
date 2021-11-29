@@ -1,5 +1,5 @@
-using System.ComponentModel.DataAnnotations;
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace HwProj.Models.SolutionsService
 {
@@ -8,9 +8,9 @@ namespace HwProj.Models.SolutionsService
         [Required]
         [RegularExpression(@"^\S+.*", ErrorMessage = "Name shouldn't start with white spaces.")]
         public string GithubUrl { get; set; }
-        
+
         public string Comment { get; set; }
-        
+
         public string StudentId { get; set; }
 
         public DateTime PublicationDate { get; set; }

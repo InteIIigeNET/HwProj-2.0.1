@@ -4,11 +4,6 @@ namespace HwProj.CourseWorkService.API.Events
 {
     public class EditEvent : Event
     {
-        public string NewName { get; set; }
-        public string NewSurname { get; set; }
-        public string NewMiddleName { get; set; }
-        public string UserId { get; set; }
-
         public EditEvent(string userId, string newName, string newSurname, string newMiddleName)
         {
             UserId = userId;
@@ -16,5 +11,10 @@ namespace HwProj.CourseWorkService.API.Events
             NewSurname = newSurname;
             NewMiddleName = newMiddleName;
         }
+
+        public string NewName { get; set; }
+        public string NewSurname { get; set; }
+        public string NewMiddleName { get; set; }
+        public string UserId { get; set; }
     }
 }

@@ -1,17 +1,10 @@
 ﻿using System;
 using Newtonsoft.Json;
 
-
 namespace HwProj.EventBus.Client
 {
     public class Event
     {
-        [JsonProperty]
-        public Guid Id { get; set; }
-
-        [JsonProperty]
-        public DateTime CreationData { get; set; }
-
         public Event()
         {
             Id = Guid.NewGuid();
@@ -23,5 +16,9 @@ namespace HwProj.EventBus.Client
             Id = id;
             CreationData = data;
         }
+
+        [JsonProperty] public Guid Id { get; set; }
+
+        [JsonProperty] public DateTime CreationData { get; set; }
     }
 }

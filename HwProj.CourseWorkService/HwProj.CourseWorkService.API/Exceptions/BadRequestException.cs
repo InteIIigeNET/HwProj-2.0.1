@@ -6,7 +6,6 @@ namespace HwProj.CourseWorkService.API.Exceptions
     {
         public BadRequestException(string message) : base(message)
         {
-
         }
     }
 }

@@ -1,19 +1,16 @@
-﻿using System;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Services;
 using HwProj.Models.CoursesService.ViewModels;
-using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
 
 namespace HwProj.CoursesService.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    
     public class CoursesController : Controller
     {
         private readonly ICoursesService _coursesService;
@@ -40,10 +37,7 @@ namespace HwProj.CoursesService.API.Controllers
         {
             var courseFromDb = await _coursesService.GetAsync(courseId, userId);
 
-            if (courseFromDb == null)
-            {
-                return NotFound();
-            }
+            if (courseFromDb == null) return NotFound();
 
             var course = _mapper.Map<CourseViewModel>(courseFromDb);
             course.Homeworks.ForEach(h => h.Tasks.ForEach(t => t.PutPossibilityForSendingSolution()));
@@ -52,7 +46,8 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> AddCourse([FromBody] CreateCourseViewModel courseViewModel, [FromQuery] string mentorId)
+        public async Task<IActionResult> AddCourse([FromBody] CreateCourseViewModel courseViewModel,
+            [FromQuery] string mentorId)
         {
             var course = _mapper.Map<Course>(courseViewModel);
             var id = await _coursesService.AddAsync(course, mentorId);
@@ -87,7 +82,7 @@ namespace HwProj.CoursesService.API.Controllers
         {
             return await _coursesService.AddStudentAsync(courseId, studentId)
                 ? Ok()
-                : NotFound() as IActionResult;
+                : NotFound();
         }
 
         [HttpPost("acceptStudent/{courseId}")]
@@ -96,7 +91,7 @@ namespace HwProj.CoursesService.API.Controllers
         {
             return await _coursesService.AcceptCourseMateAsync(courseId, studentId)
                 ? Ok()
-                : NotFound() as IActionResult;
+                : NotFound();
         }
 
         [HttpPost("rejectStudent/{courseId}")]
@@ -105,7 +100,7 @@ namespace HwProj.CoursesService.API.Controllers
         {
             return await _coursesService.RejectCourseMateAsync(courseId, studentId)
                 ? Ok()
-                : NotFound() as IActionResult;
+                : NotFound();
         }
 
         [HttpGet("userCourses/{userId}")]

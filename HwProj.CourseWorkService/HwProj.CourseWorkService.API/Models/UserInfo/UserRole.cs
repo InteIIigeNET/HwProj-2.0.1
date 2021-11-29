@@ -9,8 +9,8 @@ namespace HwProj.CourseWorkService.API.Models.UserInfo
         public long RoleId { get; set; }
         public Role Role { get; set; }
 
-        [Required]
-        public string UserId { get; set; }
+        [Required] public string UserId { get; set; }
+
         public User User { get; set; }
     }
 }

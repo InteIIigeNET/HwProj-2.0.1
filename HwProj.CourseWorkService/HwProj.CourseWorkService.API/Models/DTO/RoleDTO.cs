@@ -1,6 +1,4 @@
-﻿using HwProj.CourseWorkService.API.Models.UserInfo;
-
-namespace HwProj.CourseWorkService.API.Models.DTO
+﻿namespace HwProj.CourseWorkService.API.Models.DTO
 {
     public class RoleDTO
     {

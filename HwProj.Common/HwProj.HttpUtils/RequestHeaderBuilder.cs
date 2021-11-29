@@ -7,7 +7,7 @@ namespace HwProj.HttpUtils
     {
         public static void AddUserId(this HttpRequestMessage request, IHttpContextAccessor httpContextAccessor)
         {
-            request.Headers.Add("UserId", httpContextAccessor.HttpContext.User.FindFirst("_id").Value);
+            request.Headers.Add("UserId", httpContextAccessor.HttpContext.User.FindFirst("_id")!.Value);
         }
     }
 }

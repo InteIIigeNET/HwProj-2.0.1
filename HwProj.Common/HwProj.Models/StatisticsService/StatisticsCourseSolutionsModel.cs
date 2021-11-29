@@ -12,10 +12,9 @@ namespace HwProj.Models.StatisticsService
                 State = model.State;
                 Rating = model.Rating;
             }
-            
         }
-        
-        public long? Id { get; set; } 
+
+        public long? Id { get; set; }
         public SolutionState? State { get; set; }
         public int? Rating { get; set; }
     }
