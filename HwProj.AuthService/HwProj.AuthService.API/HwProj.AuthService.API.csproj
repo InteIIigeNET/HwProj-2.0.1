@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <LangVersion>$(CSharpLanguageVersion)</LangVersion>
     <Nullable>$(NullableReferenceTypes)</Nullable>
+    <UserSecretsId>63084dc3-f2a2-467b-a935-cdaad63eae40</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
