@@ -5,7 +5,7 @@ namespace HwProj.HttpUtils
 {
     public class RequestUrlBuilder
     {
-        private readonly StringBuilder _uriBuilder = new StringBuilder();
+        private readonly StringBuilder _uriBuilder = new();
         private bool _withQuery;
 
         public RequestUrlBuilder(Uri baseUri)
@@ -36,6 +36,7 @@ namespace HwProj.HttpUtils
                 _uriBuilder.Append($"?{argName}={value}");
                 _withQuery = true;
             }
+
             return this;
         }
 

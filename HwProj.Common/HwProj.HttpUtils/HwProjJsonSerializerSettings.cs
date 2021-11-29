@@ -8,13 +8,13 @@ namespace HwProj.HttpUtils
     {
         static HwProjJsonSerializerSettings()
         {
-            Settings = new JsonSerializerSettings()
+            Settings = new JsonSerializerSettings
             {
                 ContractResolver = new CamelCasePropertyNamesContractResolver(),
                 NullValueHandling = NullValueHandling.Ignore,
                 Converters = new JsonConverter[]
                 {
-                    new StringEnumConverter(new CamelCaseNamingStrategy()),
+                    new StringEnumConverter(new CamelCaseNamingStrategy())
                 }
             };
         }

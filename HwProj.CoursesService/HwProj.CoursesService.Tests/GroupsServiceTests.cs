@@ -1,17 +1,4 @@
-﻿using HwProj.CoursesService.API.Models;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using NUnit.Framework;
-using HwProj.CoursesService.API.Services;
-using HwProj.CoursesService.API.Repositories;
-using HwProj.CoursesService.API;
-using AutoMapper;
-using System.Threading.Tasks;
-using System.Linq;
-using HwProj.CoursesService.API.Repositories.Groups;
-using FluentAssertions;
-
-namespace HwProj.CoursesService.Tests
+﻿namespace HwProj.CoursesService.Tests
 {
     /*
     [TestFixture]

@@ -6,7 +6,6 @@ namespace HwProj.CourseWorkService.API.Exceptions
     {
         public ForbidException(string message) : base(message)
         {
-
         }
     }
 }

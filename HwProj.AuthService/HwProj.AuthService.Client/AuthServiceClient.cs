@@ -3,18 +3,18 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using HwProj.HttpUtils;
-using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.AuthService.DTO;
-using Newtonsoft.Json;
+using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.Result;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 
 namespace HwProj.AuthService.Client
 {
     public class AuthServiceClient : IAuthServiceClient
     {
-        private readonly HttpClient _httpClient;
         private readonly Uri _authServiceUri;
+        private readonly HttpClient _httpClient;
 
         public AuthServiceClient(IHttpClientFactory clientFactory, IConfiguration configuration)
         {
@@ -43,7 +43,7 @@ namespace HwProj.AuthService.Client
                     Encoding.UTF8,
                     "application/json")
             };
-            
+
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Result<TokenCredentials>>();
         }
@@ -59,11 +59,11 @@ namespace HwProj.AuthService.Client
                     Encoding.UTF8,
                     "application/json")
             };
-            
+
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Result<TokenCredentials>>();
         }
-        
+
         public async Task<Result> Edit(EditAccountViewModel model, string userId)
         {
             using var httpRequest = new HttpRequestMessage(
@@ -75,11 +75,11 @@ namespace HwProj.AuthService.Client
                     Encoding.UTF8,
                     "application/json")
             };
-            
+
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Result>();
         }
-        
+
         public async Task<Result> InviteNewLecturer(InviteLecturerViewModel model)
         {
             using var httpRequest = new HttpRequestMessage(
@@ -91,21 +91,22 @@ namespace HwProj.AuthService.Client
                     Encoding.UTF8,
                     "application/json")
             };
-            
+
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Result>();
         }
-        
+
         public async Task<Result<TokenCredentials>> LoginByGoogle(string tokenId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
                 _authServiceUri + $"api/account/google/{tokenId}");
-            
+
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<Result<TokenCredentials>>();;
+            return await response.DeserializeAsync<Result<TokenCredentials>>();
+            ;
         }
-        
+
         public async Task<Result> EditExternal(EditExternalViewModel model, string userId)
         {
             using var httpRequest = new HttpRequestMessage(
@@ -142,7 +143,7 @@ namespace HwProj.AuthService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
-                _authServiceUri + $"api/account/getAllStudents");
+                _authServiceUri + "api/account/getAllStudents");
 
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<AccountDataDto[]>().ConfigureAwait(false);

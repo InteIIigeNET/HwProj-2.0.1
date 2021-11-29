@@ -17,7 +17,7 @@ namespace HwProj.CourseWorkService.API.EventHandlers
 
         public async Task HandleAsync(EditEvent @event)
         {
-            await _usersRepository.UpdateAsync(@event.UserId, u => new User()
+            await _usersRepository.UpdateAsync(@event.UserId, u => new User
             {
                 Name = @event.NewName,
                 Surname = @event.NewSurname,

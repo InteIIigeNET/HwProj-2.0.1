@@ -1,18 +1,18 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using HwProj.AuthService.API.Models;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+﻿using HwProj.AuthService.API.Models;
 using HwProj.AuthService.API.Services;
 using HwProj.EventBus.Client.Interfaces;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using HwProj.Utils.Configuration;
-using HwProj.Utils.Authorization;
-using Microsoft.AspNetCore.Authentication.Google;
 using HwProj.Models.AuthService.ViewModels;
+using HwProj.Utils.Authorization;
+using HwProj.Utils.Configuration;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 
 namespace HwProj.AuthService.API
 {
@@ -31,7 +31,7 @@ namespace HwProj.AuthService.API
 
             //var appSettingsSection = Configuration.GetSection("AppSettings");
             //services.Configure<AppSettings>(appSettingsSection);
-            
+
             services.AddAuthentication(options =>
                 {
                     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -93,13 +93,11 @@ namespace HwProj.AuthService.API
             {
                 var userManager = scope.ServiceProvider.GetService(typeof(UserManager<User>)) as UserManager<User>;
 
-                var rolesManager = scope.ServiceProvider.GetService(typeof(RoleManager<IdentityRole>)) as RoleManager<IdentityRole>;
+                var rolesManager =
+                    scope.ServiceProvider.GetService(typeof(RoleManager<IdentityRole>)) as RoleManager<IdentityRole>;
                 var eventBus = scope.ServiceProvider.GetService<IEventBus>();
 
-                if (env.IsDevelopment())
-                {
-                    RoleInitializer.InitializeAsync(userManager, rolesManager, eventBus).Wait();
-                }
+                if (env.IsDevelopment()) RoleInitializer.InitializeAsync(userManager, rolesManager, eventBus).Wait();
             }
         }
     }

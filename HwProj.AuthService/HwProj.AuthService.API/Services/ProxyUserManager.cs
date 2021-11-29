@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using HwProj.Models.AuthService.ViewModels;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.AuthService.API.Services
 {
@@ -15,7 +13,7 @@ namespace HwProj.AuthService.API.Services
         {
             _aspUserManager = aspUserManager;
         }
-        
+
         public Task<IdentityResult> CreateAsync(User user)
         {
             return _aspUserManager.CreateAsync(user);

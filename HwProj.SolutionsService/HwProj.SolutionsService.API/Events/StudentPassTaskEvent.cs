@@ -7,17 +7,18 @@ namespace HwProj.SolutionsService.API.Events
 {
     public class StudentPassTaskEvent : Event
     {
+        public StudentPassTaskEvent(CourseViewModel course, SolutionViewModel solution, AccountDataDto student,
+            HomeworkTaskViewModel task)
+        {
+            Course = course;
+            Solution = solution;
+            Student = student;
+            Task = task;
+        }
+
         public CourseViewModel Course { get; set; }
         public SolutionViewModel Solution { get; set; }
         public AccountDataDto Student { get; set; }
         public HomeworkTaskViewModel Task { get; set; }
-
-        public StudentPassTaskEvent(CourseViewModel course, SolutionViewModel solution, AccountDataDto student, HomeworkTaskViewModel task)
-        {
-            Course = course;
-            Solution = solution;
-            Student= student;
-            Task = task;
-        }
     }
 }

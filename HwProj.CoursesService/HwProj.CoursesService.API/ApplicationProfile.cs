@@ -1,9 +1,9 @@
-﻿using AutoMapper;
-using HwProj.CoursesService.API.Models;
+﻿using System;
 using System.Linq;
+using AutoMapper;
+using HwProj.CoursesService.API.Models;
 using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
-using System;
 
 namespace HwProj.CoursesService.API
 {
@@ -19,16 +19,24 @@ namespace HwProj.CoursesService.API
             CreateMap<Group, UserGroupDescription>();
             CreateMap<Group, GroupViewModel>()
                 .ForMember("Tasks", cm => cm.MapFrom(g => g.Tasks.Select(c => c.TaskId).ToList()))
-                .ForMember("GroupMates", cm => cm.MapFrom(g => g.GroupMates.Select(c => new GroupMateViewModel { StudentId = c.StudentId }).ToList()));
+                .ForMember("GroupMates",
+                    cm => cm.MapFrom(g =>
+                        g.GroupMates.Select(c => new GroupMateViewModel { StudentId = c.StudentId }).ToList()));
             CreateMap<UserGroupDescription, Group>().ReverseMap()
                 .ForMember("Tasks", cm => cm.MapFrom(g => g.Tasks.Select(c => c.TaskId).ToList()))
-                .ForMember("GroupMates", cm => cm.MapFrom(g => g.GroupMates.Select(c => new GroupMateViewModel { StudentId = c.StudentId }).ToList()));
+                .ForMember("GroupMates",
+                    cm => cm.MapFrom(g =>
+                        g.GroupMates.Select(c => new GroupMateViewModel { StudentId = c.StudentId }).ToList()));
             CreateMap<Group, CreateGroupViewModel>().ReverseMap()
                 .ForMember("Tasks", cm => cm.MapFrom(g => g.Tasks.Select(c => new TaskModel { TaskId = c }).ToList()))
-                .ForMember("GroupMates", cm => cm.MapFrom(g => g.GroupMates.Select(c => new GroupMate { StudentId = c.StudentId }).ToList()));
+                .ForMember("GroupMates",
+                    cm => cm.MapFrom(g =>
+                        g.GroupMates.Select(c => new GroupMate { StudentId = c.StudentId }).ToList()));
             CreateMap<UpdateGroupViewModel, Group>()
                 .ForMember("Tasks", cm => cm.MapFrom(g => g.Tasks.Select(c => new TaskModel { TaskId = c }).ToList()))
-                .ForMember("GroupMates", cm => cm.MapFrom(g => g.GroupMates.Select(c => new GroupMate { StudentId = c.StudentId }).ToList()));
+                .ForMember("GroupMates",
+                    cm => cm.MapFrom(g =>
+                        g.GroupMates.Select(c => new GroupMate { StudentId = c.StudentId }).ToList()));
 
             CreateMap<GroupMate, GroupMateViewModel>();
 

@@ -4,8 +4,6 @@ namespace HwProj.CourseWorkService.API.Models
 {
     public class WorkFile : IEntity<long>
     {
-        public long Id { get; set; }
-
         public string FileName { get; set; }
         public string ContentType { get; set; }
         public byte[] Data { get; set; }
@@ -15,5 +13,6 @@ namespace HwProj.CourseWorkService.API.Models
 
         public long FileTypeId { get; set; }
         public FileType FileType { get; set; }
+        public long Id { get; set; }
     }
 }

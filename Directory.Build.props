@@ -2,8 +2,8 @@
     <PropertyGroup>
         <CSharpLanguageVersion>preview</CSharpLanguageVersion>
     </PropertyGroup>
-    
+
     <PropertyGroup>
-       <NullableReferenceTypes>enable</NullableReferenceTypes> 
+        <NullableReferenceTypes>enable</NullableReferenceTypes>
     </PropertyGroup>
 </Project>

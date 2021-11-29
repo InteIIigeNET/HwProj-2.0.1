@@ -8,8 +8,8 @@ namespace HwProj.NotificationsService.API.Services
 {
     public class NotificationsService : INotificationsService
     {
-        private readonly INotificationsRepository _repository;
         private readonly IMapper _mapper;
+        private readonly INotificationsRepository _repository;
 
         public NotificationsService(INotificationsRepository repository, IMapper mapper)
         {
@@ -27,7 +27,7 @@ namespace HwProj.NotificationsService.API.Services
         {
             filter = filter ?? new NotificationFilter
             {
-                MaxCount = 50, 
+                MaxCount = 50
             };
             var notifications = await _repository.GetAllByUserAsync(userId, filter);
             return notifications.Select(notification => _mapper.Map<NotificationViewModel>(notification)).ToArray();
@@ -36,7 +36,7 @@ namespace HwProj.NotificationsService.API.Services
         public async Task MarkAsSeenAsync(string userId, long[] notificationIds)
         {
             await _repository.UpdateBatchAsync(userId, notificationIds,
-                t => new Notification {HasSeen = true});
+                t => new Notification { HasSeen = true });
         }
     }
 }

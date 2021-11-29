@@ -10,12 +10,14 @@ namespace HwProj.CoursesService.API.Services
 {
     public class TasksService : ITasksService
     {
-        private readonly ITasksRepository _tasksRepository;
-        private readonly IEventBus _eventBus;
-        private readonly IMapper _mapper;
         private readonly ICoursesRepository _coursesRepository;
+        private readonly IEventBus _eventBus;
         private readonly IHomeworksRepository _homeworksRepository;
-        public TasksService(ITasksRepository tasksRepository, IEventBus eventBus, IMapper mapper, ICoursesRepository coursesRepository, IHomeworksRepository homeworksRepository)
+        private readonly IMapper _mapper;
+        private readonly ITasksRepository _tasksRepository;
+
+        public TasksService(ITasksRepository tasksRepository, IEventBus eventBus, IMapper mapper,
+            ICoursesRepository coursesRepository, IHomeworksRepository homeworksRepository)
         {
             _tasksRepository = tasksRepository;
             _homeworksRepository = homeworksRepository;
@@ -49,7 +51,7 @@ namespace HwProj.CoursesService.API.Services
             var courseModel = _mapper.Map<CourseViewModel>(course);
             _eventBus.Publish(new UpdateTaskMaxRatingEvent(courseModel, taskModel, update.MaxRating));
 
-            await _tasksRepository.UpdateAsync(taskId, t => new HomeworkTask()
+            await _tasksRepository.UpdateAsync(taskId, t => new HomeworkTask
             {
                 Title = update.Title,
                 Description = update.Description,

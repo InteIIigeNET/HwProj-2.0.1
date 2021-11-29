@@ -29,13 +29,13 @@ namespace HwProj.CourseWorkService.API.Repositories.Implementations
                 .Include(u => u.LecturerProfile)
                 .Include(u => u.ReviewerProfile)
                 .Include(u => u.CuratorProfile)
-					.ThenInclude(cp => cp.Directions)
+                .ThenInclude(cp => cp.Directions)
                 .Include(u => u.CuratorProfile)
-					.ThenInclude(cp => cp.Deadlines)
+                .ThenInclude(cp => cp.Deadlines)
                 .Include(u => u.ReviewerProfile)
-					.ThenInclude(rp => rp.ReviewersInCuratorsBidding)
+                .ThenInclude(rp => rp.ReviewersInCuratorsBidding)
                 .Include(u => u.ReviewerProfile)
-					.ThenInclude(rp => rp.CourseWorks)
+                .ThenInclude(rp => rp.CourseWorks)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(u => u.Id == userId)
                 .ConfigureAwait(false);
@@ -60,12 +60,12 @@ namespace HwProj.CourseWorkService.API.Repositories.Implementations
         public async Task<User[]> GetUsersByRoleAsync(Roles role)
         {
             return await Context.Set<User>()
-	            .Include(u => u.UserRoles)
-					.ThenInclude(ur => ur.Role)
+                .Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
                 .Include(u => u.CuratorProfile)
-					.ThenInclude(cp => cp.Directions)
-	            .Include(u => u.ReviewerProfile)
-					.ThenInclude(rp => rp.ReviewersInCuratorsBidding)
+                .ThenInclude(cp => cp.Directions)
+                .Include(u => u.ReviewerProfile)
+                .ThenInclude(rp => rp.ReviewersInCuratorsBidding)
                 .AsNoTracking()
                 .Where(u => u.UserRoles.Select(ur => (Roles)ur.Role.Id).Contains(role))
                 .ToArrayAsync()
@@ -82,7 +82,7 @@ namespace HwProj.CourseWorkService.API.Repositories.Implementations
                 .Include(u => u.CuratorProfile)
                 .FirstOrDefaultAsync(u => u.Id == userId);
 
-            user.UserRoles.Add(new UserRole() { UserId = user.Id, RoleId = (long)role });
+            user.UserRoles.Add(new UserRole { UserId = user.Id, RoleId = (long)role });
 
             switch (role)
             {
@@ -93,17 +93,17 @@ namespace HwProj.CourseWorkService.API.Repositories.Implementations
                 }
                 case Roles.Lecturer:
                 {
-                    user.LecturerProfile = new LecturerProfile() { Id = userId };
+                    user.LecturerProfile = new LecturerProfile { Id = userId };
                     break;
                 }
                 case Roles.Reviewer:
                 {
-                    user.ReviewerProfile = new ReviewerProfile() { Id = userId };
+                    user.ReviewerProfile = new ReviewerProfile { Id = userId };
                     break;
                 }
                 case Roles.Curator:
                 {
-                    user.CuratorProfile = new CuratorProfile() { Id = userId };
+                    user.CuratorProfile = new CuratorProfile { Id = userId };
                     break;
                 }
             }
@@ -153,60 +153,55 @@ namespace HwProj.CourseWorkService.API.Repositories.Implementations
             await Context.SaveChangesAsync();
         }
 
-        public async Task UpdateUserRoleProfileAsync<TProfile>(string userId, TProfile roleProfile) where TProfile : class, IProfile
+        public async Task UpdateUserRoleProfileAsync<TProfile>(string userId, TProfile roleProfile)
+            where TProfile : class, IProfile
         {
-
             if (roleProfile is StudentProfile studentProfile)
-            {
                 await Context.Set<StudentProfile>()
                     .Where(p => p.UserId == userId)
-                    .UpdateAsync(sp => new StudentProfile()
+                    .UpdateAsync(sp => new StudentProfile
                     {
                         Course = studentProfile.Course,
                         Group = studentProfile.Group,
                         DirectionId = studentProfile.DirectionId
                     }).ConfigureAwait(false);
-            }
 
             if (roleProfile is LecturerProfile lecturerProfile)
-            {
                 await Context.Set<LecturerProfile>()
                     .Where(p => p.UserId == userId)
-                    .UpdateAsync(sp => new LecturerProfile()
+                    .UpdateAsync(sp => new LecturerProfile
                     {
                         Contact = lecturerProfile.Contact,
                         DepartmentId = lecturerProfile.DepartmentId
                     }).ConfigureAwait(false);
-            }
 
             if (roleProfile is CuratorProfile curatorProfile)
-            {
                 await Context.Set<CuratorProfile>()
                     .Where(p => p.UserId == userId)
-                    .UpdateAsync(sp => new CuratorProfile()
+                    .UpdateAsync(sp => new CuratorProfile
                     {
                         DepartmentId = curatorProfile.DepartmentId
                     }).ConfigureAwait(false);
-            }
         }
 
         public async Task SetReviewersToCuratorBidding(string curatorId, string[] reviewersId)
         {
-	        var curator = await Context.Set<CuratorProfile>()
-		        .Include(cp => cp.ReviewersInCuratorsBidding)
-		        .FirstOrDefaultAsync(cp => cp.Id == curatorId)
-		        .ConfigureAwait(false);
+            var curator = await Context.Set<CuratorProfile>()
+                .Include(cp => cp.ReviewersInCuratorsBidding)
+                .FirstOrDefaultAsync(cp => cp.Id == curatorId)
+                .ConfigureAwait(false);
 
-	        curator.ReviewersInCuratorsBidding.Clear();
+            curator.ReviewersInCuratorsBidding.Clear();
             curator.ReviewersInCuratorsBidding.AddRange(reviewersId
-	            .Select(reviewerId => new ReviewersInCuratorsBidding
-	            {
+                .Select(reviewerId => new ReviewersInCuratorsBidding
+                {
                     CuratorProfileId = curatorId,
                     ReviewerProfileId = reviewerId
-	            }));
+                }));
 
             await Context.SaveChangesAsync().ConfigureAwait(false);
         }
+
         #endregion
     }
 }

@@ -1,14 +1,20 @@
-﻿using HwProj.Repositories;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using HwProj.CourseWorkService.API.Models.UserInfo;
+using HwProj.Repositories;
 
 namespace HwProj.CourseWorkService.API.Models
 {
     public class CourseWork : IEntity<long>
     {
-        public long Id { get; set; }
-        
+        public CourseWork()
+        {
+            Applications = new List<Application>();
+            Deadlines = new List<Deadline>();
+            WorkFiles = new List<WorkFile>();
+            Bids = new List<Bid>();
+        }
+
         public string Title { get; set; }
         public string Overview { get; set; }
         public string Description { get; set; }
@@ -44,13 +50,6 @@ namespace HwProj.CourseWorkService.API.Models
         public List<Deadline> Deadlines { get; set; }
         public List<WorkFile> WorkFiles { get; set; }
         public List<Bid> Bids { get; set; }
-
-        public CourseWork()
-        {
-            Applications = new List<Application>();
-            Deadlines = new List<Deadline>();
-            WorkFiles = new List<WorkFile>();
-            Bids = new List<Bid>();
-        }
+        public long Id { get; set; }
     }
 }

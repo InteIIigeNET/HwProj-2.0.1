@@ -11,23 +11,23 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 {
     public class UserService : IUserService
     {
-        #region Fields: Private
-
-        private readonly IViewModelService _viewModelService;
-        private readonly IUsersRepository _usersRepository;
-        private readonly IMapper _mapper;
-
-        #endregion
-
         #region Constructors: Public
 
         public UserService(IViewModelService viewModelService,
             IUsersRepository usersRepository, IMapper mapper)
         {
-	        _viewModelService = viewModelService;
+            _viewModelService = viewModelService;
             _usersRepository = usersRepository;
             _mapper = mapper;
         }
+
+        #endregion
+
+        #region Fields: Private
+
+        private readonly IViewModelService _viewModelService;
+        private readonly IUsersRepository _usersRepository;
+        private readonly IMapper _mapper;
 
         #endregion
 
@@ -51,20 +51,13 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
         public async Task InviteCuratorAsync(string email)
         {
             var user = await _usersRepository.FindAsync(u => u.Email == email).ConfigureAwait(false);
-            if (user == null)
-            {
-                throw new ObjectNotFoundException($"User with email {email}");
-            }
+            if (user == null) throw new ObjectNotFoundException($"User with email {email}");
 
             var userRoles = await _usersRepository.GetRolesTypesAsync(user.Id).ConfigureAwait(false);
             if (!userRoles.Contains(Roles.Curator) && userRoles.Contains(Roles.Lecturer))
-            {
                 await _usersRepository.AddRoleToUserAsync(user.Id, Roles.Curator);
-            }
             else
-            {
-	            throw new ObjectNotFoundException($"User with email {email} and necessary roles");
-            }
+                throw new ObjectNotFoundException($"User with email {email} and necessary roles");
         }
 
         public async Task<RoleDTO[]> GetUserRoles(string userId)
@@ -81,20 +74,16 @@ namespace HwProj.CourseWorkService.API.Services.Implementations
 
         public async Task AddReviewerRoleToUser(string userId)
         {
-	        var roles = await _usersRepository.GetRolesTypesAsync(userId).ConfigureAwait(false);
-	        if (!roles.Contains(Roles.Reviewer))
-	        {
-		        await _usersRepository.AddRoleToUserAsync(userId, Roles.Reviewer).ConfigureAwait(false);
-	        }
+            var roles = await _usersRepository.GetRolesTypesAsync(userId).ConfigureAwait(false);
+            if (!roles.Contains(Roles.Reviewer))
+                await _usersRepository.AddRoleToUserAsync(userId, Roles.Reviewer).ConfigureAwait(false);
         }
 
         public async Task RemoveReviewerRole(string userId)
         {
-	        var roles = await _usersRepository.GetRolesTypesAsync(userId).ConfigureAwait(false);
-	        if (roles.Contains(Roles.Reviewer))
-	        {
-		        await _usersRepository.RemoveRoleFromUserAsync(userId, Roles.Reviewer).ConfigureAwait(false);
-	        }
+            var roles = await _usersRepository.GetRolesTypesAsync(userId).ConfigureAwait(false);
+            if (roles.Contains(Roles.Reviewer))
+                await _usersRepository.RemoveRoleFromUserAsync(userId, Roles.Reviewer).ConfigureAwait(false);
         }
 
         #endregion

@@ -11,14 +11,10 @@ namespace HwProj.Utils.Configuration.Middleware
             var request = context.Request;
 
             if (!request.Query.ContainsKey("_id"))
-            {
                 request.QueryString = request.QueryString.Add("_id", "hwprojDevUser");
-            }
 
             if (!request.Query.ContainsKey("_role"))
-            {
                 request.QueryString = request.QueryString.Add("_role", Roles.LecturerRole);
-            }
 
             await next.Invoke(context);
         }

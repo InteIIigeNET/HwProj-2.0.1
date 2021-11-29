@@ -10,7 +10,6 @@ namespace HwProj.CourseWorkService.API.Repositories.Implementations
     {
         public DirectionRepository(CourseWorkContext context) : base(context)
         {
-
         }
 
         public async Task<Direction[]> GetDirectionsAsync()

@@ -7,16 +7,13 @@ namespace HwProj.EventBus.Client.Implementations
 {
     public class DefaultConnection : IDefaultConnection
     {
-        private readonly object _lock = new object();
+        private readonly IConnectionFactory _factory;
+        private readonly object _lock = new();
 
         private readonly RetryPolicy _policy;
-
-        private readonly IConnectionFactory _factory;
         private IConnection _connection;
 
         private bool _isDisposed;
-
-        public bool IsConnected => _connection != null && _connection.IsOpen && !_isDisposed;
 
         public DefaultConnection(RetryPolicy policy, IConnectionFactory factory)
         {
@@ -25,9 +22,13 @@ namespace HwProj.EventBus.Client.Implementations
             TryConnect();
         }
 
+        public bool IsConnected => _connection != null && _connection.IsOpen && !_isDisposed;
+
         public IModel CreateModel()
         {
-            return IsConnected ? _connection.CreateModel() : throw new InvalidOperationException("No RabbitMQ connections are available to perform this action");
+            return IsConnected
+                ? _connection.CreateModel()
+                : throw new InvalidOperationException("No RabbitMQ connections are available to perform this action");
         }
 
         public bool TryConnect()
@@ -44,11 +45,9 @@ namespace HwProj.EventBus.Client.Implementations
 
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
-            }                   
+
+                return false;
+            }
         }
 
         public void Dispose()
@@ -62,10 +61,7 @@ namespace HwProj.EventBus.Client.Implementations
 
         private void OnErrorConnection(object sender, EventArgs ea)
         {
-            if (!_isDisposed)
-            {
-                TryConnect();
-            }
+            if (!_isDisposed) TryConnect();
         }
     }
 }

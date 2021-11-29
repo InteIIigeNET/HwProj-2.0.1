@@ -1,32 +1,30 @@
-﻿using Microsoft.AspNetCore.Identity;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using HwProj.AuthService.API.Events;
 using HwProj.EventBus.Client.Interfaces;
-using HwProj.Models.Roles;
 using HwProj.Models.AuthService.ViewModels;
+using HwProj.Models.Roles;
+using Microsoft.AspNetCore.Identity;
 
 namespace HwProj.AuthService.API
 {
     public class RoleInitializer
     {
-        public static async Task InitializeAsync(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, IEventBus eventBus)
+        public static async Task InitializeAsync(UserManager<User> userManager, RoleManager<IdentityRole> roleManager,
+            IEventBus eventBus)
         {
-            if(await roleManager.FindByNameAsync(Roles.LecturerRole) == null)
-            {
+            if (await roleManager.FindByNameAsync(Roles.LecturerRole) == null)
                 await roleManager.CreateAsync(Roles.Lecturer);
-            }
-  
+
             if (await roleManager.FindByNameAsync(Roles.StudentRole) == null)
-            {
                 await roleManager.CreateAsync(Roles.Student);
-            }
 
             const string email = "admin@gmail.com";
             const string password = "Admin@1234";
 
             if (await userManager.FindByEmailAsync(email) == null)
             {
-                var admin = new User { 
+                var admin = new User
+                {
                     Email = email,
                     Name = "Admin",
                     UserName = "Admin"

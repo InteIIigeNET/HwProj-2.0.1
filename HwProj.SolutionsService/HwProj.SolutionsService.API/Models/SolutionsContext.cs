@@ -1,18 +1,16 @@
-﻿using System;
-using System.Threading;
-using HwProj.Models.SolutionsService;
+﻿using HwProj.Models.SolutionsService;
 using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.SolutionsService.API.Models
 {
     public sealed class SolutionContext : DbContext
     {
-        public DbSet<Solution> Solutions { get; set; }
-        
         public SolutionContext(DbContextOptions options)
             : base(options)
         {
             Database.EnsureCreated();
         }
+
+        public DbSet<Solution> Solutions { get; set; }
     }
 }

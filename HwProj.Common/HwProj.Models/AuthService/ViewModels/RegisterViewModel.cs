@@ -5,11 +5,9 @@ namespace HwProj.Models.AuthService.ViewModels
 {
     public class RegisterViewModel
     {
-        [Required]
-        public string Name { get; set; }
+        [Required] public string Name { get; set; }
 
-        [Required]
-        public string Surname { get; set; }
+        [Required] public string Surname { get; set; }
 
         public string MiddleName { get; set; }
 

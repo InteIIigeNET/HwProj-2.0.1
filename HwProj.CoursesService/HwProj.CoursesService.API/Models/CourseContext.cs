@@ -4,6 +4,12 @@ namespace HwProj.CoursesService.API.Models
 {
     public sealed class CourseContext : DbContext
     {
+        public CourseContext(DbContextOptions options)
+            : base(options)
+        {
+            Database.EnsureCreated();
+        }
+
         public DbSet<Course> Courses { get; set; }
         public DbSet<CourseMate> CourseMates { get; set; }
         public DbSet<Group> Groups { get; set; }
@@ -11,12 +17,6 @@ namespace HwProj.CoursesService.API.Models
         public DbSet<TaskModel> TasksModels { get; set; }
         public DbSet<Homework> Homeworks { get; set; }
         public DbSet<HomeworkTask> Tasks { get; set; }
-
-        public CourseContext(DbContextOptions options)
-            : base(options)
-        {
-            Database.EnsureCreated();
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

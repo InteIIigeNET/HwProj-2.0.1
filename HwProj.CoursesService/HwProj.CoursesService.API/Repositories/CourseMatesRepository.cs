@@ -1,5 +1,5 @@
-﻿using HwProj.Repositories;
-using HwProj.CoursesService.API.Models;
+﻿using HwProj.CoursesService.API.Models;
+using HwProj.Repositories;
 
 namespace HwProj.CoursesService.API.Repositories
 {

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using HwProj.AuthService.API.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace HwProj.AuthService.API.Extensions
@@ -18,21 +17,12 @@ namespace HwProj.AuthService.API.Extensions
 
         public static string TryGetIdentityError(this SignInResult result)
         {
-            if (result.IsLockedOut)
-            {
-                return nameof(result.IsLockedOut);
-            }
+            if (result.IsLockedOut) return nameof(result.IsLockedOut);
 
-            if (result.IsNotAllowed)
-            {
-                return nameof(result.IsNotAllowed);
-            }
+            if (result.IsNotAllowed) return nameof(result.IsNotAllowed);
 
-            if (result.RequiresTwoFactor)
-            {
-                return nameof(result.RequiresTwoFactor);
-            }
-            
+            if (result.RequiresTwoFactor) return nameof(result.RequiresTwoFactor);
+
             return "Неправильный логин или пароль";
         }
     }

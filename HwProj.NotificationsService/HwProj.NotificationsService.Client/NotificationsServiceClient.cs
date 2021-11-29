@@ -1,19 +1,19 @@
-﻿using HwProj.HttpUtils;
-using HwProj.Models.NotificationsService;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using HwProj.HttpUtils;
+using HwProj.Models.NotificationsService;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 
 namespace HwProj.NotificationsService.Client
 {
-    public class NotificationsServiceClient: INotificationsServiceClient
+    public class NotificationsServiceClient : INotificationsServiceClient
     {
         private readonly HttpClient _httpClient;
         private readonly Uri _notificationServiceUri;
-        
+
         public NotificationsServiceClient(IHttpClientFactory clientFactory, IConfiguration configuration)
         {
             _httpClient = clientFactory.CreateClient();
@@ -25,10 +25,10 @@ namespace HwProj.NotificationsService.Client
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
                 _notificationServiceUri + $"api/notifications/get/{userId}");
-            
+
             var jsonFilter = JsonConvert.SerializeObject(filter);
             httpRequest.Content = new StringContent(jsonFilter, Encoding.UTF8, "application/json");
-            
+
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<NotificationViewModel[]>() ?? new NotificationViewModel[] { };
         }
@@ -37,7 +37,7 @@ namespace HwProj.NotificationsService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Put,
-                _notificationServiceUri + $"api/notifications/markAsSeen/" + userId);
+                _notificationServiceUri + "api/notifications/markAsSeen/" + userId);
 
             var jsonIds = JsonConvert.SerializeObject(notificationIds);
             httpRequest.Content = new StringContent(jsonIds, Encoding.UTF8, "application/json");

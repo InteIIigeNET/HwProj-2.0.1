@@ -11,6 +11,7 @@ namespace HwProj.CourseWorkService.API.Services.Interfaces
     {
         Task<long> AddApplicationAsync(string userId, long courseWorkId,
             CreateApplicationViewModel createApplicationViewModel);
+
         Task<OverviewApplicationDTO[]> GetFilteredApplicationsAsync(Expression<Func<Application, bool>> predicate);
         Task<StudentApplicationDTO> GetApplicationForStudentAsync(string userId, long appId);
         Task<LecturerApplicationDTO> GetApplicationForLecturerAsync(string userId, long appId);

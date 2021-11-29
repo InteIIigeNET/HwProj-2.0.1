@@ -5,7 +5,7 @@ using HwProj.Models.StatisticsService;
 namespace HwProj.SolutionsService.Client
 {
     public interface ISolutionsServiceClient
-    { 
+    {
         Task<Solution[]> GetAllSolutions();
         Task<Solution> GetSolutionById(long solutionId);
         Task<Solution[]> GetUserSolution(long taskId, string studentId);
