@@ -11,12 +11,12 @@ namespace HwProj.CoursesService.API.Filters
     public class CourseMentorOnlyAttribute : Attribute, IAuthorizationFilter
     {
         private readonly ICoursesRepository _coursesRepository;
-        
+
         public CourseMentorOnlyAttribute(ICoursesRepository coursesRepository)
         {
             _coursesRepository = coursesRepository;
         }
-        
+
         public async void OnAuthorization(AuthorizationFilterContext context)
         {
             var routeData = context.HttpContext.GetRouteData();

@@ -1,7 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>\
+    <LangVersion>$(CSharpLanguageVersion)</LangVersion>
+    <Nullable>$(NullableReferenceTypes)</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

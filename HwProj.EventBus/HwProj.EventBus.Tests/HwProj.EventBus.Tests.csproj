@@ -4,6 +4,10 @@
     <TargetFramework>net5.0</TargetFramework>
 
     <IsPackable>false</IsPackable>
+
+    <LangVersion>$(CSharpLanguageVersion)</LangVersion>
+
+    <Nullable>$(NullableReferenceTypes)</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

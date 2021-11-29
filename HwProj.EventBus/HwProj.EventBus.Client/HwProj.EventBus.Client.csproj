@@ -7,6 +7,8 @@
     <StartupObject />
     <AssemblyName>HwProj.EventBus.Client</AssemblyName>
     <RootNamespace>HwProj.EventBus.Client</RootNamespace>
+    <LangVersion>$(CSharpLanguageVersion)</LangVersion>
+    <Nullable>$(NullableReferenceTypes)</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

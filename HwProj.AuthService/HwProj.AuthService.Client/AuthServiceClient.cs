@@ -7,6 +7,7 @@ using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.AuthService.DTO;
 using Newtonsoft.Json;
 using HwProj.Models.Result;
+using Microsoft.Extensions.Configuration;
 
 namespace HwProj.AuthService.Client
 {
@@ -15,10 +16,10 @@ namespace HwProj.AuthService.Client
         private readonly HttpClient _httpClient;
         private readonly Uri _authServiceUri;
 
-        public AuthServiceClient(HttpClient httpClient, Uri authServiceUri)
+        public AuthServiceClient(IHttpClientFactory clientFactory, IConfiguration configuration)
         {
-            _httpClient = httpClient;
-            _authServiceUri = authServiceUri;
+            _httpClient = clientFactory.CreateClient();
+            _authServiceUri = new Uri(configuration.GetSection("Services")["Auth"]);
         }
 
         public async Task<AccountDataDto> GetAccountData(string userId)
