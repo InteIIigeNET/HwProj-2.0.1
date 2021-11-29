@@ -29,6 +29,9 @@ namespace HwProj.APIGateway.API
 
             const string authenticationProviderKey = "GatewayKey";
             
+            services.AddControllersWithViews(options => options.EnableEndpointRouting = false)
+                .AddNewtonsoftJson();
+            
             services.AddAuthentication()
                 .AddJwtBearer(authenticationProviderKey, x =>
                 {

@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Polly;
 using RabbitMQ.Client;
@@ -30,26 +31,43 @@ namespace HwProj.Utils.Configuration
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies())
                 .AddCors()
                 .AddMvc()
-                .AddJsonOptions(options =>
-                    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore)
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+                .AddNewtonsoftJson(options => 
+                    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Info { Title = serviceName, Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = serviceName, Version = "v1" });
 
                 if (serviceName == "API Gateway")
                 {
-                    c.AddSecurityDefinition("Bearer",
-                        new ApiKeyScheme
+                    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                    {
+                        Description = @"JWT Authorization header using the Bearer scheme. \r\n\r\n 
+                      Enter 'Bearer' [space] and then your token in the text input below.
+                      \r\n\r\nExample: 'Bearer 12345abcdef'",
+                        Name = "Authorization",
+                        In = ParameterLocation.Header,
+                        Type = SecuritySchemeType.ApiKey,
+                        Scheme = "Bearer"
+                    });
+
+                    c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+                    {
                         {
-                            In = "header",
-                            Description = "Please enter into field the word 'Bearer' following by space and JWT",
-                            Name = "Authorization",
-                            Type = "apiKey"
-                        });
-                    c.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>> {
-                        { "Bearer", Enumerable.Empty<string>() },
+                            new OpenApiSecurityScheme
+                            {
+                                Reference = new OpenApiReference
+                                {
+                                    Type = ReferenceType.SecurityScheme,
+                                    Id = "Bearer"
+                                },
+                                Scheme = "oauth2",
+                                Name = "Bearer",
+                                In = ParameterLocation.Header,
+
+                            },
+                            new List<string>()
+                        }
                     });
                 }
             });

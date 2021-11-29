@@ -47,6 +47,8 @@ namespace HwProj.NotificationsService.API
             services.AddTransient<IEventHandler<NewHomeworkEvent>, NewHomeworkEventHandler>();
             services.AddTransient<IEventHandler<InviteLecturerEvent>, InviteLecturerEventHandler>();
             services.AddTransient<IEventHandler<NewCourseMateEvent>, NewCourseMateHandler>();
+            services.AddControllersWithViews(options => options.EnableEndpointRouting = false)
+                .AddNewtonsoftJson();
 
             services.AddHttpClient();
             services.AddAuthServiceClient();

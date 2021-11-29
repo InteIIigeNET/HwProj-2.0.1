@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Net.Http;
 
 namespace HwProj.CoursesService.API
 {
@@ -39,6 +38,8 @@ namespace HwProj.CoursesService.API
             services.AddScoped<IHomeworksService, HomeworksService>();
             services.AddScoped<ITasksService, TasksService>();
             services.AddScoped<CourseMentorOnlyAttribute>();
+            services.AddControllersWithViews(options => options.EnableEndpointRouting = false)
+                .AddNewtonsoftJson();
 
             services.AddEventBus(Configuration);
 

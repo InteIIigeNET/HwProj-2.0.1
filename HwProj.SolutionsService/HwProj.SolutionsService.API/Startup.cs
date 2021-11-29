@@ -35,6 +35,9 @@ namespace HwProj.SolutionsService.API
             services.AddAuthServiceClient();
             services.AddCoursesServiceClient();
 
+            services.AddControllersWithViews(options => options.EnableEndpointRouting = false)
+                .AddNewtonsoftJson();
+
             services.AddEventBus(Configuration);
             services.ConfigureHwProjServices("Solutions API");
         }

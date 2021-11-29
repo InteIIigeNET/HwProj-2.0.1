@@ -31,7 +31,7 @@ namespace HwProj.AuthService.API
 
             //var appSettingsSection = Configuration.GetSection("AppSettings");
             //services.Configure<AppSettings>(appSettingsSection);
-            
+
             services.AddAuthentication(options =>
                 {
                     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -50,7 +50,7 @@ namespace HwProj.AuthService.API
                         ValidateIssuerSigningKey = true
                     };
                 })
-                .AddCookie()
+                /*.AddCookie()
                 .AddGoogle(options =>
                 {
                     IConfigurationSection googleAuthNSection =
@@ -58,7 +58,7 @@ namespace HwProj.AuthService.API
 
                     options.ClientId = googleAuthNSection["ClientId"];
                     options.ClientSecret = googleAuthNSection["ClientSecret"];
-                });
+                })*/;
 
             var connectionString = ConnectionString.GetConnectionString(Configuration);
             services.AddDbContext<IdentityContext>(options =>
@@ -78,6 +78,9 @@ namespace HwProj.AuthService.API
                 .AddRoleManager<RoleManager<IdentityRole>>()
                 .AddDefaultTokenProviders();
 
+            services.AddControllersWithViews(options => options.EnableEndpointRouting = false)
+                .AddNewtonsoftJson();
+            
             services.AddEventBus(Configuration);
 
             services.AddScoped<IAuthTokenService, AuthTokenService>()

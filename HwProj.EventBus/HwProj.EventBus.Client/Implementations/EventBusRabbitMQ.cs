@@ -100,7 +100,7 @@ namespace HwProj.EventBus.Client.Implementations
         private async void Consumer_Received(object sender, BasicDeliverEventArgs eventArgs)
         {
             var eventName = eventArgs.RoutingKey;
-            var message = Encoding.UTF8.GetString(eventArgs.Body);
+            var message = Encoding.UTF8.GetString(eventArgs.Body.ToArray());
 
             await ProcessEvent(eventName, message).ConfigureAwait(false);
 
