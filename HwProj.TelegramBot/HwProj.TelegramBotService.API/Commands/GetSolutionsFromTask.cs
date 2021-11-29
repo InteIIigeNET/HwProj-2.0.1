@@ -33,46 +33,37 @@ namespace HwProj.TelegramBotService.API.Commands
             var user = await _userService.GetOrCreateChatId(update);
             var message = update.CallbackQuery.Data;
             var text = message.Split(' ');
-            var solutions = _solutionsServiceClient.GetUserSolution(Int32.Parse(text[1]), user.StudentId).Result;
+            var solutions = _solutionsServiceClient.GetUserSolution(Int32.Parse(text[1]), user.AccountId).Result;
             var task = _coursesServiceClient.GetTask(Int32.Parse(text[1])).Result;
             var hw = _coursesServiceClient.GetHomework(task.HomeworkId).Result;
+            var course = _coursesServiceClient.GetCourseById(hw.CourseId, user.AccountId).Result;
             
             var rows = new List<InlineKeyboardButton[]>();
             var cols = new List<InlineKeyboardButton>();
             for (var i = 1; i < solutions.Length + 1; i++)
             {
-                var k = GetButton($"Попытка {i}", $"/solutioninfo {solutions[i - 1].Id}");
-                cols.Add(k);
+                cols.Add(GetButton($"Попытка {i}", $"/solutioninfo {solutions[i - 1].Id}"));
                 if (i % 3 != 0) continue;
                 rows.Add(cols.ToArray());
                 cols = new List<InlineKeyboardButton>();
             }
-
-            if (solutions.Length < 3)
-            {
-                rows.Add(cols.ToArray());
-            }
-            cols = new List<InlineKeyboardButton>();
-            var button = GetButton("Мои курсы", $"/courses");
-            cols.Add(button);
-            button = GetButton("Мои домашки", $"/homeworks {hw.CourseId}");
-            cols.Add(button);
+            
             rows.Add(cols.ToArray());
             cols = new List<InlineKeyboardButton>();
-            button = GetButton("Мои задачи", $"/task {task.HomeworkId}");
-            cols.Add(button);
+            cols.Add(GetButton("Мои курсы", $"/courses"));
+            cols.Add(GetButton("Мои домашки", $"/homeworks {hw.CourseId}"));
+            cols.Add(GetButton("Мои задачи", $"/task {task.HomeworkId}"));
             rows.Add(cols.ToArray());
             
             var keyboardMarkup = new InlineKeyboardMarkup(rows.ToArray());
 
-            await _botClient.SendTextMessageAsync(user.ChatId, "123", ParseMode.Markdown, replyMarkup:keyboardMarkup);///
+            await _botClient.SendTextMessageAsync(user.ChatId, 
+                $"<b>Курс:</b> {course.Name}" +
+                $"\n<b>Домашнаяя работа:</b> {hw.Title}" + 
+                $"\n<b>Задача:</b> {task.Title}" + 
+                "\n<b>Выберите решение:</b>",
+                parseMode: ParseMode.Html,
+                replyMarkup : keyboardMarkup);
         }
-        
-        private InlineKeyboardButton GetButton(string text, string callbackData)
-            => new InlineKeyboardButton
-            { 
-                Text = text,
-                CallbackData = callbackData
-            };
     }
 }

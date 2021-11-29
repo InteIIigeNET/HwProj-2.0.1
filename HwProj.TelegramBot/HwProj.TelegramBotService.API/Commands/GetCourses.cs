@@ -4,6 +4,7 @@ using HwProj.CoursesService.Client;
 using HwProj.TelegramBotService.API.Service;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace HwProj.TelegramBotService.API.Commands
@@ -26,30 +27,20 @@ namespace HwProj.TelegramBotService.API.Commands
         public override async Task ExecuteAsync(Update update)
         {
             var user = await _userService.GetOrCreateChatId(update);
-            var courses = _coursesServiceClient.GetAllUserCourses(user.StudentId).Result;
+            var courses = _coursesServiceClient.GetAllUserCourses(user.AccountId).Result;
             
-            var rows = new List<InlineKeyboardButton[]>();
-            var cols = new List<InlineKeyboardButton>();
-            for (var i = 1; i < courses.Length + 1; i++)
-            {
-                var k = new InlineKeyboardButton
-                { 
-                    Text = courses[i - 1].Name,
-                    CallbackData = $"/homeworks {courses[i - 1].Id}"
-                };
-                cols.Add(k);
-                if (i % 3 != 0) continue;
-                rows.Add(cols.ToArray());
-                cols = new List<InlineKeyboardButton>();
-            }
-
-            if (courses.Length < 3)
-            {
-                rows.Add(cols.ToArray());
-            }
-            var keyboardMarkup = new InlineKeyboardMarkup(rows.ToArray());
+            await _botClient.SendTextMessageAsync(user.ChatId, "*Выберите курс для просмотра домашних работ или статистики:*", ParseMode.Markdown);
             
-            await _botClient.SendTextMessageAsync(user.ChatId, "Выберите курс:", replyMarkup:keyboardMarkup);
+            foreach (var course in courses)
+            {
+                var rows = new List<InlineKeyboardButton[]>();
+                var cols = new List<InlineKeyboardButton>();
+                cols.Add(GetButton("Домашние работы", $"/homeworks {course.Id}"));
+                cols.Add(GetButton("Cтатистика", $"/statistics {course.Id}"));
+                rows.Add(cols.ToArray());
+                var keyboardMarkup = new InlineKeyboardMarkup(rows.ToArray());
+                await _botClient.SendTextMessageAsync(user.ChatId, "<b>Курс:</b>" + $" {course.Name}", parseMode: ParseMode.Html, replyMarkup:keyboardMarkup);
+            }
         }
     }
 }

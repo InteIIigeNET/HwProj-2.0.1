@@ -4,10 +4,12 @@
     {
         public long Id { get; set; }
         
-        public string StudentId { get; set; }
-        
         public long ChatId { get; set; }
+     
+        public string AccountId { get; set; }
         
-        public bool IsRegister { get; set; }
+        public bool IsLecture { get; set; }
+        
+        public bool IsRegistered { get; set; }
     }
 }

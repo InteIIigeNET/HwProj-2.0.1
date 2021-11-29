@@ -39,10 +39,10 @@ namespace HwProj.TelegramBotService.API.Service
                     case "/start":
                         await ExecuteCommand(CommandNames.StartCommand, update);
                     break;
-                    /*case "/courses":
+                    case "/courses":
                         await ExecuteCommand(CommandNames.GetCourses, update);
                     break;
-                    case "/homeworks":
+                    /*case "/homeworks":
                         await ExecuteCommand(CommandNames.GetHomeworks, update);
                     break;*/
                 }
@@ -56,6 +56,9 @@ namespace HwProj.TelegramBotService.API.Service
                     break;
                     case "/homeworks":
                         await ExecuteCommand(CommandNames.GetHomeworks, update);
+                    break;
+                    case "/statistics":
+                        await ExecuteCommand(CommandNames.GetStatistics, update);
                     break;
                     case "/task":
                         await ExecuteCommand(CommandNames.GetTasks, update);

@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using HwProj.HttpUtils;
 using HwProj.TelegramBotService.API.Models;
+using Microsoft.Extensions.Configuration;
 
 namespace HwProj.TelegramBotService.Client
 {
@@ -11,12 +12,12 @@ namespace HwProj.TelegramBotService.Client
         private readonly HttpClient _httpClient;
         private readonly Uri _telegramBotUri;
 
-        public TelegramBotServiceClient(HttpClient httpClient, Uri telegramBotUri)
+        public TelegramBotServiceClient(IHttpClientFactory clientFactory, IConfiguration configuration)
         {
-            _httpClient = httpClient;
-            _telegramBotUri = telegramBotUri;
+            _httpClient = clientFactory.CreateClient();
+            _telegramBotUri = new Uri(configuration.GetSection("Services")["TelegramBot"]);
         }
-
+        
         public async Task<TelegramUserModel> GetTelegramUser(string studentId)
         {
             using var httpRequest = new HttpRequestMessage(

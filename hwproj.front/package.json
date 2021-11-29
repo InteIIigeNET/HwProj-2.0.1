@@ -18,6 +18,8 @@
     "@types/react-syntax-highlighter": "^10.2.1",
     "@types/remarkable": "^1.7.4",
     "@types/request": "^2.48.7",
+    "@v9v/ts-react-telegram-login": "^1.1.1",
+    "add": "^2.0.6",
     "axios": "^0.21.1",
     "bootstrap": "^4.3.1",
     "classnames": "^2.3.1",
@@ -29,6 +31,7 @@
     "jwt-decode": "^3.1.2",
     "lowdb": "^1.0.0",
     "material-ui-image": "^3.3.2",
+    "or": "^0.2.0",
     "portable-fetch": "^3.0.0",
     "prop-types": "^15.7.2",
     "react": "^16.12.0",
@@ -38,7 +41,10 @@
     "react-query": "^3.21.1",
     "react-router-dom": "^5.2.1",
     "react-scripts": "^4.0.3",
-    "react-social-login-buttons": "^3.6.0"
+    "react-social-login-buttons": "^3.6.0",
+    "react-telegram-auth": "^1.0.3",
+    "react-telegram-login": "^1.1.2",
+    "yarn": "^1.22.17"
   },
   "scripts": {
     "start": "react-scripts start",

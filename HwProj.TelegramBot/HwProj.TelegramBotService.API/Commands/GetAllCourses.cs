@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using HwProj.CoursesService.Client;
 using HwProj.TelegramBotService.API.Service;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -7,26 +8,28 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace HwProj.TelegramBotService.API.Commands
 {
-    public class StartCommand : Commands
+    public class GetAllCourses : Commands
     {
         private readonly TelegramBotClient _botClient;
         private readonly IUserService _userService;
+        private readonly ICoursesServiceClient _coursesServiceClient;
 
-        public StartCommand(TelegramBot telegramBot, IUserService userService)
+        public GetAllCourses(TelegramBot telegramBot, IUserService userService, ICoursesServiceClient coursesServiceClient)
         {
             _botClient = telegramBot.GetBot().Result;
             _userService = userService;
+            _coursesServiceClient = coursesServiceClient;
         }
 
-        public override string Name => CommandNames.StartCommand;
+        public override string Name => CommandNames.GetAllCourses;
         
         public override async Task ExecuteAsync(Update update)
         {
             var user = await _userService.GetOrCreateChatId(update);
 
-            var inlineKeyboard = new InlineKeyboardMarkup(GetButton("Мои курсы", "/courses"));
+            var courses = _coursesServiceClient.GetAllCourses().Result;
 
-            await _botClient.SendTextMessageAsync(user.ChatId, "Добро пожаловать!", ParseMode.Markdown, replyMarkup:inlineKeyboard);
+            await _botClient.SendTextMessageAsync(user.ChatId, "Добро пожаловать!", ParseMode.Markdown/*, replyMarkup:inlineKeyboard*/);
         }
     }
 }

@@ -17,8 +17,7 @@ import {makeStyles} from "@material-ui/styles";
 import Image from 'material-ui-image'
 import telegramLogo from './tlgm.png'
 import "./Styles/telegram.css";
-import {GoogleLoginButton} from "react-social-login-buttons";
-import {TelegramLoginButton} from "react-social-login-buttons";
+import TelegramLoginButton, { TelegramUser } from '@v9v/ts-react-telegram-login';
 
 interface IProfileState {
   isLoaded: boolean;
@@ -114,6 +113,13 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
 		)
 	}
 
+	const handleTelegramResponse = (user: TelegramUser) => {
+		console.log(user);
+		debugger
+	};
+
+
+
 	const classes = useStyles()
 
 	if (!ApiSingleton.authService.isLoggedIn()) {
@@ -134,13 +140,19 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
 						<Typography style={{ fontSize: '20px' }}>
 							{fullName}
 						</Typography>
-						<TelegramLoginButton
-							style={{height: '36px', margin: 0, width: '14%'}}
-							onClick={() => alert("Hello")}>
-							<Typography>
-								Попробуйте бота
-							</Typography>
-						</TelegramLoginButton>
+						<div
+							style={{
+								width: '100%',
+								height: '100vh',
+								display: 'flex',
+								flexDirection: 'column',
+								alignItems: 'center',
+							}}
+						>
+							<b>Shalom!</b>
+							<br />
+							<TelegramLoginButton dataOnAuth={handleTelegramResponse} botName="HwProjBot" />
+						</div>
 						<Typography style={{ fontSize: '20px' }}>
 							{accountState.email}
 						</Typography>
@@ -192,4 +204,4 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
 	)
 }
 
-export default Profile
+export default Profile;

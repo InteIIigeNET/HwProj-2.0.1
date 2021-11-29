@@ -7,6 +7,9 @@ namespace HwProj.TelegramBotService.API.Service
     public interface IUserService
     {
         Task<TelegramUserModel> GetOrCreateChatId(Update update);
+        
+        /*Task<TelegramUserModel> CreateChatId(Update update);
+        */
 
         Task<TelegramUserModel> GetTelegramUserModelByStudentId(string studentId);
         

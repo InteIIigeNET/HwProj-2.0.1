@@ -1,5 +1,4 @@
 using System;
-using System.Net.Http;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.SolutionsService.Client;
@@ -38,11 +37,13 @@ namespace HwProj.TelegramBotService.API
             services.AddScoped<Commands.Commands, GetTaskInfo>();
             services.AddScoped<Commands.Commands, GetSolutionInfo>();
             services.AddScoped<Commands.Commands, GetSolutionsFromTask>();
+            services.AddScoped<Commands.Commands, GetStatistics>();
+            /*services.AddScoped<Commands.Commands, SendSolution>();*/
 
-            var httpClient = new HttpClient();
+            services.AddHttpClient();
             services.AddAuthServiceClient();
-            services.AddCoursesServiceClient();
             services.AddSolutionServiceClient();
+            services.AddCoursesServiceClient();
 
             services.AddEventBus(Configuration);
             services.ConfigureHwProjServices("Telegram API");

@@ -5,6 +5,7 @@ using HwProj.CoursesService.Client;
 using HwProj.TelegramBotService.API.Service;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace HwProj.TelegramBotService.API.Commands
@@ -30,14 +31,13 @@ namespace HwProj.TelegramBotService.API.Commands
             var message = update.CallbackQuery.Data;
             var text = message.Split(' ');
             var homeworks = _coursesServiceClient.GetAllHomeworkByCourse(Int32.Parse(text[1])).Result;
-            var course = _coursesServiceClient.GetCourseById(Int32.Parse(text[1]), user.StudentId).Result;
+            var course = _coursesServiceClient.GetCourseById(Int32.Parse(text[1]), user.AccountId).Result;
 
             var rows = new List<InlineKeyboardButton[]>();
             var cols = new List<InlineKeyboardButton>();
             for (var i = 1; i < homeworks.Length + 1; i++)
             {
-                var k = GetButton(homeworks[i - 1].Title, $"/task {homeworks[i - 1].Id}");
-                cols.Add(k);
+                cols.Add(GetButton(homeworks[i - 1].Title, $"/task {homeworks[i - 1].Id}"));
                 if (i % 3 != 0) continue;
                 rows.Add(cols.ToArray());
                 cols = new List<InlineKeyboardButton>();
@@ -46,20 +46,16 @@ namespace HwProj.TelegramBotService.API.Commands
             {
                 rows.Add(cols.ToArray());
             }
-
-            var button = GetButton("Мои курсы", $"/courses");
+            
             cols = new List<InlineKeyboardButton>();
-            cols.Add(button);
+            cols.Add(GetButton("Мои курсы", $"/courses"));
             rows.Add(cols.ToArray());
             var keyboardMarkup = new InlineKeyboardMarkup(rows.ToArray());
-            await _botClient.SendTextMessageAsync(user.ChatId, $"Выберите homework из курса {course.Name}", replyMarkup:keyboardMarkup);
+            await _botClient.SendTextMessageAsync(
+                user.ChatId,
+                $"<b>Курс:</b> {course.Name}\nВыберите домашнюю работу", 
+                parseMode: ParseMode.Html,
+                replyMarkup:keyboardMarkup);
         }
-        
-        private InlineKeyboardButton GetButton(string text, string callbackData)
-            => new InlineKeyboardButton
-            { 
-                Text = text,
-                CallbackData = callbackData
-            };
     }
 }

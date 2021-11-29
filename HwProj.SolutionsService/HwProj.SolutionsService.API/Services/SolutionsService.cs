@@ -22,7 +22,9 @@ namespace HwProj.SolutionsService.API.Services
         private readonly IMapper _mapper;
         private readonly ICoursesServiceClient _coursesServiceClient;
         private readonly IAuthServiceClient _authServiceClient;
-        public SolutionsService(ISolutionsRepository solutionsRepository, IEventBus eventBus, IMapper mapper, ICoursesServiceClient coursesServiceClient, IAuthServiceClient authServiceClient)
+
+        public SolutionsService(ISolutionsRepository solutionsRepository, IEventBus eventBus, IMapper mapper,
+            ICoursesServiceClient coursesServiceClient, IAuthServiceClient authServiceClient)
         {
             _solutionsRepository = solutionsRepository;
             _eventBus = eventBus;
@@ -47,11 +49,53 @@ namespace HwProj.SolutionsService.API.Services
                 .FindAll(solution => solution.TaskId == taskId && solution.StudentId == studentId)
                 .ToArrayAsync();
         }
-        
-        
+
+
         public async Task<long> PostOrUpdateAsync(long taskId, Solution solution)
         {
             solution.PublicationDate = DateTime.UtcNow;
+            var allSolutionsForTask = await GetTaskSolutionsFromStudentAsync(taskId, solution.StudentId);
+            var currentSolution = allSolutionsForTask.FirstOrDefault(s => s.Id == solution.Id);
+            var solutionModel = _mapper.Map<SolutionViewModel>(solution);
+            var task = await _coursesServiceClient.GetTask(solution.TaskId);
+            var taskModel = _mapper.Map<HomeworkTaskViewModel>(task);
+            var homework = await _coursesServiceClient.GetHomework(task.HomeworkId);
+            var courses = await _coursesServiceClient.GetCourseById(homework.CourseId, solution.StudentId);
+            var student = await _authServiceClient.GetAccountData((solutionModel.StudentId));
+            var studentModel = _mapper.Map<AccountDataDto>(student);
+            _eventBus.Publish(new StudentPassTaskEvent(courses, solutionModel, studentModel, taskModel));
+
+            if (currentSolution == null)
+            {
+                solution.TaskId = taskId;
+                var id = await _solutionsRepository.AddAsync(solution);
+                return id;
+            }
+
+            await _solutionsRepository.UpdateAsync(currentSolution.Id, s => new Solution()
+                {
+                    State = SolutionState.Rated,
+                    Comment = solution.Comment,
+                    GithubUrl = solution.GithubUrl,
+                    PublicationDate = solution.PublicationDate,
+                }
+            );
+
+            return solution.Id;
+        }
+
+        /*public async Task<long> PostOrUpdateFromTelegramAsync(long taskId, string githubUrl, string comment, string studentId)
+        {
+            var solution = new Solution {
+                Id = ,
+                GithubUrl = githubUrl,
+                Comment = comment,
+                State = SolutionState.Rated,
+                StudentId = studentId,
+                GroupId = ,
+                TaskId = taskId,
+                PublicationDate = DateTime.Now,
+                LecturerComment =  null};
             var allSolutionsForTask= await GetTaskSolutionsFromStudentAsync(taskId, solution.StudentId);
             var currentSolution = allSolutionsForTask.FirstOrDefault(s => s.Id == solution.Id);
             var solutionModel = _mapper.Map<SolutionViewModel>(solution);
@@ -80,7 +124,7 @@ namespace HwProj.SolutionsService.API.Services
             );
 
             return solution.Id;
-        }
+        }*/
 
         public async Task RateSolutionAsync(long solutionId, int newRating, string lecturerComment)
         {
