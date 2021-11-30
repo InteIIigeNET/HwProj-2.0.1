@@ -29,7 +29,7 @@ namespace HwProj.TelegramBotService.API.Commands
         
         public override async Task ExecuteAsync(Update update)
         {
-            var user = await _userService.GetOrCreateChatId(update);
+            var user = await _userService.GetUserByUpdate(update);
             var message = update.CallbackQuery.Data;
             var text = message.Split(' ');
             var task = _coursesServiceClient.GetTask(Int64.Parse(text[1])).Result;

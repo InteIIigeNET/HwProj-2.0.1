@@ -17,7 +17,6 @@ import {makeStyles} from "@material-ui/styles";
 import Image from 'material-ui-image'
 import telegramLogo from './tlgm.png'
 import "./Styles/telegram.css";
-import TelegramLoginButton, { TelegramUser } from '@v9v/ts-react-telegram-login';
 
 interface IProfileState {
   isLoaded: boolean;
@@ -113,13 +112,6 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
 		)
 	}
 
-	const handleTelegramResponse = (user: TelegramUser) => {
-		console.log(user);
-		debugger
-	};
-
-
-
 	const classes = useStyles()
 
 	if (!ApiSingleton.authService.isLoggedIn()) {
@@ -140,30 +132,16 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
 						<Typography style={{ fontSize: '20px' }}>
 							{fullName}
 						</Typography>
-						<div
-							style={{
-								width: '100%',
-								height: '100vh',
-								display: 'flex',
-								flexDirection: 'column',
-								alignItems: 'center',
-							}}
-						>
-							<b>Shalom!</b>
-							<br />
-							<TelegramLoginButton dataOnAuth={handleTelegramResponse} botName="HwProjBot" />
-						</div>
+						<a href={hrefLink} target="_blank">
+							<img
+								className="telegram"
+								src={telegramLogo}
+							/>
+						</a>
 						<Typography style={{ fontSize: '20px' }}>
 							{accountState.email}
 						</Typography>
 					</Grid>
-
-					<a href={hrefLink} target="_blank">
-						<img
-							className="telegram"
-							src={telegramLogo}
-						/>
-					</a>
 					<Grid item xs={11} style={{ marginTop: "25px" }}>
 						{!props.match.params.id &&
 						<div>

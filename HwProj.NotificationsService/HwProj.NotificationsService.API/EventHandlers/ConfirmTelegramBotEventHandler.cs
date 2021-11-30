@@ -19,15 +19,16 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
         public async Task HandleAsync(ConfirmTelegramBotEvent @event)
         {
-            /*await _notificationRepository.AddAsync(new Notification
+            var notification = new Notification
             {
-                Sender = "TelegramBot",
-                Body = "Ваш профиль был успешно отредактирован.",
-                Category = "AuthService",
+                Sender = "TelegramBotService",
+                Body = $"Ваш код для телеграмма - {@event.TelegramUserModel.Code}.",
+                Category = "TelegramBotService",
                 Date = DateTime.UtcNow,
                 HasSeen = false,
-                Owner = @event.UserId
-            });*/
+                Owner = @event.TelegramUserModel.AccountId
+            };
+            await _notificationRepository.AddAsync(notification);
         }
     }
 }

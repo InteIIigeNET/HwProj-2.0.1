@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using HwProj.HttpUtils;
+using HwProj.Models.Result;
 using HwProj.TelegramBotService.API.Models;
 using Microsoft.Extensions.Configuration;
 

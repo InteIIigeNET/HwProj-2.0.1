@@ -7,26 +7,26 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace HwProj.TelegramBotService.API.Commands
 {
-    public class StartCommand : Commands
+    public class CheckCodeCommand : Commands
     {
         private readonly TelegramBotClient _botClient;
         private readonly IUserService _userService;
 
-        public StartCommand(TelegramBot telegramBot, IUserService userService)
+        public CheckCodeCommand(TelegramBot telegramBot, IUserService userService)
         {
             _botClient = telegramBot.GetBot().Result;
             _userService = userService;
         }
 
-        public override string Name => CommandNames.StartCommand;
+        public override string Name => CommandNames.CheckCodeCommand;
         
         public override async Task ExecuteAsync(Update update)
         {
-            await _userService.DeleteUser(update);
+            var user = await _userService.AddFinishUser(update);
             
-            var user = await _userService.CreateUser(update);
+            var inlineKeyboard = new InlineKeyboardMarkup(GetButton("Мои курсы", "/courses"));
 
-            await _botClient.SendTextMessageAsync(user.ChatId, "Добро пожаловать!\n Введите ваш e-mail на Hw-Proj2.0.1", ParseMode.Markdown);
+            await _botClient.SendTextMessageAsync(user.ChatId, "Добро пожаловать в Hw-ProjBot!", replyMarkup: inlineKeyboard);
         }
     }
 }

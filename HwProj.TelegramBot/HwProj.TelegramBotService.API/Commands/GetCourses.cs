@@ -26,7 +26,7 @@ namespace HwProj.TelegramBotService.API.Commands
         
         public override async Task ExecuteAsync(Update update)
         {
-            var user = await _userService.GetOrCreateChatId(update);
+            var user = await _userService.GetUserByUpdate(update);
             var courses = _coursesServiceClient.GetAllUserCourses(user.AccountId).Result;
             
             await _botClient.SendTextMessageAsync(user.ChatId, "*Выберите курс для просмотра домашних работ или статистики:*", ParseMode.Markdown);

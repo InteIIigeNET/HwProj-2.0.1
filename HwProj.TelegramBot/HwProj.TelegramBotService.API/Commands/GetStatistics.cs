@@ -30,7 +30,7 @@ namespace HwProj.TelegramBotService.API.Commands
         
         public override async Task ExecuteAsync(Update update)
         {
-            var user = await _userService.GetOrCreateChatId(update);
+            var user = await _userService.GetUserByUpdate(update);
             var message = update.CallbackQuery.Data;
             var text = message.Split(' ');
             var course = _coursesServiceClient.GetCourseById(Int64.Parse(text[1]), user.AccountId).Result;

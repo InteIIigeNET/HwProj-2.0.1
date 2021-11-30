@@ -22,6 +22,7 @@ using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.Client;
 using HwProj.SolutionsService.API.Events;
 using HwProj.SolutionsService.Client;
+using HwProj.TelegramBotService.API.Events;
 using HwProj.TelegramBotService.Client;
 using UpdateTaskMaxRatingEvent = HwProj.CoursesService.API.Events.UpdateTaskMaxRatingEvent;
 
@@ -43,7 +44,7 @@ namespace HwProj.NotificationsService.API
             services.AddScoped<INotificationsRepository, NotificationsRepository>();
             services.AddScoped<INotificationsService, Services.NotificationsService>();
             services.AddEventBus(Configuration);
-            /*services.AddTransient<IEventHandler<ConfirmTelegramBotEvent>, ConfirmTelegramBotEventHandler>();*/
+            services.AddTransient<IEventHandler<ConfirmTelegramBotEvent>, ConfirmTelegramBotEventHandler>();
             services.AddTransient<IEventHandler<StudentRegisterEvent>, RegisterEventHandler>();
             services.AddTransient<IEventHandler<RateEvent>, RateEventHandler>();
             services.AddTransient<IEventHandler<EditProfileEvent>, EditProfileEventHandler>();
@@ -67,7 +68,7 @@ namespace HwProj.NotificationsService.API
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IEventBus eventBus)
         {
-            /*eventBus.Subscribe<ConfirmTelegramBotEvent>();*/
+            eventBus.Subscribe<ConfirmTelegramBotEvent>();
             eventBus.Subscribe<StudentRegisterEvent>();
             eventBus.Subscribe<InviteLecturerEvent>();
             eventBus.Subscribe<RateEvent>();

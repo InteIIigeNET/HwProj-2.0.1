@@ -6,7 +6,10 @@ namespace HwProj.TelegramBotService.API.Events
     public class ConfirmTelegramBotEvent : Event
     {
         public TelegramUserModel TelegramUserModel { get; set; }
-        
-        public string Code { get; set; }
+
+        public ConfirmTelegramBotEvent(TelegramUserModel userModel)
+        {
+            TelegramUserModel = userModel;
+        }
     }
 }

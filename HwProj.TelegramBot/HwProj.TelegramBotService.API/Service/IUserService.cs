@@ -6,13 +6,18 @@ namespace HwProj.TelegramBotService.API.Service
 {
     public interface IUserService
     {
-        Task<TelegramUserModel> GetOrCreateChatId(Update update);
+        Task<TelegramUserModel> CreateUser(Update update);
         
-        /*Task<TelegramUserModel> CreateChatId(Update update);
-        */
+        Task<TelegramUserModel> AddEmailToUser(Update update);
+        
+        Task<TelegramUserModel> AddFinishUser(Update update);
+
+        Task<TelegramUserModel> GetUserByUpdate(Update update);
 
         Task<TelegramUserModel> GetTelegramUserModelByStudentId(string studentId);
         
-        Task<TelegramUserModel> GetTelegramUserModelByChatId(long ChatId);
+        Task DeleteUser(Update update);
+
+        Task<TelegramUserModel> GetTelegramUserModelByChatId(long chatId);
     }
 }
