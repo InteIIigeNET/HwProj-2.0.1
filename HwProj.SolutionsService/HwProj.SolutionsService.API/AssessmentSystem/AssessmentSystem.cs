@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using ConfigurableAssessmentSystem;
@@ -13,6 +14,10 @@ namespace HwProj.SolutionsService.API.AssessmentSystem
         public static Func<AssessmentModel[], int>? GetAssessmentMethodForCourse(long courseId)
         {
             var path = PathForAssessmentDlls + courseId + ".dll";
+            if (!File.Exists(path))
+            {
+                return null;
+            }
             var loadBuild = Assembly.LoadFrom(path);
             var classType = loadBuild.ExportedTypes.FirstOrDefault(t =>
                 t.IsClass && typeof(IAssessmentSystem).GetTypeInfo().IsAssignableFrom(t.GetTypeInfo()));
