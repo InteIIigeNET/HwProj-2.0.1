@@ -1,5 +1,4 @@
-﻿using System.Text.Json.Serialization;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 
@@ -13,7 +12,7 @@ namespace HwProj.HttpUtils
             {
                 ContractResolver = new CamelCasePropertyNamesContractResolver(),
                 NullValueHandling = NullValueHandling.Ignore,
-                Converters = new JsonConverterCollection()
+                Converters = new JsonConverter[]
                 {
                     new StringEnumConverter(new CamelCaseNamingStrategy()),
                 }

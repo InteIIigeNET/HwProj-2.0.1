@@ -50,7 +50,7 @@ namespace HwProj.AuthService.API
                         ValidateIssuerSigningKey = true
                     };
                 })
-                /*.AddCookie()
+                .AddCookie()
                 .AddGoogle(options =>
                 {
                     IConfigurationSection googleAuthNSection =
@@ -58,7 +58,7 @@ namespace HwProj.AuthService.API
 
                     options.ClientId = googleAuthNSection["ClientId"];
                     options.ClientSecret = googleAuthNSection["ClientSecret"];
-                })*/;
+                });
 
             var connectionString = ConnectionString.GetConnectionString(Configuration);
             services.AddDbContext<IdentityContext>(options =>
