@@ -55,7 +55,7 @@ export interface FetchArgs {
  * @class BaseAPI
  */
 export class BaseAPI {
-    protected configuration!: Configuration;
+    protected configuration: Configuration;
 
     constructor(configuration?: Configuration, protected basePath: string = BASE_PATH, protected fetch: FetchAPI = portableFetch) {
         if (configuration) {
@@ -72,7 +72,7 @@ export class BaseAPI {
  * @extends {Error}
  */
 export class RequiredError extends Error {
-    name!: "RequiredError"
+    name: "RequiredError"
     constructor(public field: string, msg?: string) {
         super(msg);
     }
@@ -120,6 +120,49 @@ export interface AccountDataDto {
      * @memberof AccountDataDto
      */
     isExternalAuth?: boolean;
+}
+
+/**
+ * 
+ * @export
+ * @interface CategorizedNotifications
+ */
+export interface CategorizedNotifications {
+    /**
+     * 
+     * @type {number}
+     * @memberof CategorizedNotifications
+     */
+    category?: CategorizedNotifications.CategoryEnum;
+    /**
+     * 
+     * @type {Array<NotificationViewModel>}
+     * @memberof CategorizedNotifications
+     */
+    seenNotifications?: Array<NotificationViewModel>;
+    /**
+     * 
+     * @type {Array<NotificationViewModel>}
+     * @memberof CategorizedNotifications
+     */
+    notSeenNotifications?: Array<NotificationViewModel>;
+}
+
+/**
+ * @export
+ * @namespace CategorizedNotifications
+ */
+export namespace CategorizedNotifications {
+    /**
+     * @export
+     * @enum {string}
+     */
+    export enum CategoryEnum {
+        NUMBER_0 = <any> 0,
+        NUMBER_1 = <any> 1,
+        NUMBER_2 = <any> 2,
+        NUMBER_3 = <any> 3
+    }
 }
 
 /**
@@ -638,10 +681,10 @@ export interface NotificationViewModel {
     owner?: string;
     /**
      * 
-     * @type {string}
+     * @type {number}
      * @memberof NotificationViewModel
      */
-    category?: string;
+    category?: NotificationViewModel.CategoryEnum;
     /**
      * 
      * @type {string}
@@ -654,6 +697,23 @@ export interface NotificationViewModel {
      * @memberof NotificationViewModel
      */
     hasSeen?: boolean;
+}
+
+/**
+ * @export
+ * @namespace NotificationViewModel
+ */
+export namespace NotificationViewModel {
+    /**
+     * @export
+     * @enum {string}
+     */
+    export enum CategoryEnum {
+        NUMBER_0 = <any> 0,
+        NUMBER_1 = <any> 1,
+        NUMBER_2 = <any> 2,
+        NUMBER_3 = <any> 3
+    }
 }
 
 /**
@@ -1118,10 +1178,10 @@ export interface UserDataDto {
     userData?: AccountDataDto;
     /**
      * 
-     * @type {Array<NotificationViewModel>}
+     * @type {Array<CategorizedNotifications>}
      * @memberof UserDataDto
      */
-    notifications?: Array<NotificationViewModel>;
+    notifications?: Array<CategorizedNotifications>;
 }
 
 
@@ -3872,7 +3932,7 @@ export const NotificationsApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiNotificationsGetGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<NotificationViewModel>> {
+        apiNotificationsGetGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<CategorizedNotifications>> {
             const localVarFetchArgs = NotificationsApiFetchParamCreator(configuration).apiNotificationsGetGet(options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
