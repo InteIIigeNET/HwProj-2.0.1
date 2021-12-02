@@ -23,6 +23,7 @@ interface ICourseGroupEditorProps {
     onDelete: any;
     isStudent: boolean;
     isMentor: boolean;
+    isReadingMode: boolean;
 }
 
 const useStyles = makeStyles(theme => ({
@@ -103,7 +104,7 @@ const CourseGroups: FC<ICourseGroupEditorProps> = (props) => {
                 <Grid container direction="row" alignItems="center">
                     <Grid item style={{marginLeft: '60px'}}>
                         <Typography
-                            variant="h6"
+                            variant="h5"
                         >
                             Групп нет. Хотите создать?
                         </Typography>

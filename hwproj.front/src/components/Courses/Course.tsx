@@ -215,6 +215,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                         onDelete={() => setCurrentState()}
                         isStudent={isAcceptedStudent}
                         isMentor={isMentor}
+                        isReadingMode={isReadingMode}
                     />
                 )}
                 {tabState === 0 && (
