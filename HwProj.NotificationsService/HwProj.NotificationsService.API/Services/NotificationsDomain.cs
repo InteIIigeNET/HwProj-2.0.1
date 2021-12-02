@@ -33,9 +33,9 @@ namespace HwProj.NotificationsService.API.Services
         public CategorizedNotifications[] GroupAsync(Notification[] notifications)
         {
             var groupedNotifications = notifications.GroupBy(t => t.Category).Select(
-                category => (category.Key, 
-                category.Where(t => t.HasSeen).ToArray(),
-                category.Where(t => !t.HasSeen).ToArray()));
+                category => (category.Key,
+                    category.Where(t => t.HasSeen).ToArray(),
+                    category.Where(t => !t.HasSeen).ToArray()));
 
             return groupedNotifications.Select(element => _mapper.Map<CategorizedNotifications>(element)).ToArray();
         }
