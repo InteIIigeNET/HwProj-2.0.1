@@ -19,9 +19,9 @@ namespace HwProj.NotificationsService.API.Controllers
             _notificationsService = notificationsService;
             _repository = repository;
         }
-        
+
         [HttpPost("get/{userId}")]
-        [ProducesResponseType(typeof(CategorizedNotifications[]), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(CategorizedNotifications[]), (int) HttpStatusCode.OK)]
         public async Task<IActionResult> Get(string userId)
         {
             var notifications = await _repository.GetAllByUserAsync(userId);
