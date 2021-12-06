@@ -91,7 +91,7 @@ namespace HwProj.SolutionsService.API.Services
                 var solutionModel = _mapper.Map<SolutionViewModel>(solution);
                 var taskModel = _mapper.Map<HomeworkTaskViewModel>(task);
                 _eventBus.Publish(new RateEvent(taskModel, solutionModel));
-                SolutionState state = newRating >= task.MaxRating ? SolutionState.Final : SolutionState.Rated;
+                var state = newRating >= task.MaxRating ? SolutionState.Final : SolutionState.Rated;
                 await _solutionsRepository.RateSolutionAsync(solutionId, state, newRating, lecturerComment);
             }
         }
