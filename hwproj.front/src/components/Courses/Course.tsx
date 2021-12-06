@@ -7,7 +7,7 @@ import AddHomework from "../Homeworks/AddHomework";
 import CourseStudents from "./CourseStudents";
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
-import {Button, Grid, ListItem, Typography, Link} from "@material-ui/core";
+import {Button, Grid, ListItem, Typography, Link, Tabs, Tab} from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
 import {useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
@@ -33,6 +33,7 @@ interface ICourseState {
     acceptedStudents: ICourseMate[];
     newStudents: ICourseMate[];
     isReadingMode: boolean;
+    tabValue: number;
 }
 
 interface ICourseProps {
@@ -59,6 +60,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
         acceptedStudents: [],
         newStudents: [],
         isReadingMode: true,
+        tabValue: 0,
     })
     const setCurrentState = async () => {
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+courseId)
@@ -93,6 +95,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                     }
                 })),
             isReadingMode: true,
+            tabValue: 0,
         })
     }
 
@@ -230,14 +233,35 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                 )}
                 {isMentor && !createHomework && (
                     <div>
-                        <Grid container justifyContent="center" style={{marginTop: "15px", marginBottom: "15px"}}>
-                            <Grid item xs={11}>
-                                <CourseStudents
-                                    homeworks={courseState.courseHomework}
-                                    userId={userId as string}
-                                    isMentor={isMentor}
-                                    course={courseState.course}
-                                />
+                        <Grid  style={{marginTop: "15px", marginBottom: "15px"}}> {/*container justifyContent="center"*/}
+                            <Tabs
+                                indicatorColor="primary"
+                                value={courseState.tabValue}
+                                onChange={(e: React.ChangeEvent<{}>, newValue: number) => {
+                                    e.persist()
+                                    setCourseState((prevState) => ({
+                                        ...prevState,
+                                        tabValue: newValue
+                                    }))
+                                }}
+                            >
+                                <Tab label="Таблица успеваемости" id="simple-tab-0" aria-controls="simple-tabpanel-0"/>
+                                <Tab label="Подробная статистика" id="simple-tab-1" aria-controls="simple-tabpanel-1"/>
+                            </Tabs>
+                            <Grid role="tabpanel" hidden={courseState.tabValue !== 0} id="simple-tab-0">
+                                <Grid item xs={11}>
+                                    <CourseStudents
+                                        homeworks={courseState.courseHomework}
+                                        userId={userId as string}
+                                        isMentor={isMentor}
+                                        course={courseState.course}
+                                    />
+                                </Grid>
+                            </Grid>
+                            <Grid role="tabpanel" hidden={courseState.tabValue !== 1} id="simple-tab-1">
+                                <Grid item xs={11}>
+                                    <Typography>AAAAAAAAAAAAAAA</Typography>
+                                </Grid>
                             </Grid>
                         </Grid>
                         <Grid container justifyContent="center">
