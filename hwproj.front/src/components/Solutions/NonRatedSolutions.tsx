@@ -54,8 +54,6 @@ const NonRatedSolutionComponent: FC<ISolutionProps> = (props) => {
     const {solution} = props
     const postedSolutionTime = new Date(solution.publicationDate!.toString()).toLocaleString("ru-RU")
 
-    console.log(nonRatedSolution.task!.maxRating!)
-    debugger
     return (
         <Accordion>
             <AccordionSummary
