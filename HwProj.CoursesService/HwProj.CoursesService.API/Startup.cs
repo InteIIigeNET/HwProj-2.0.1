@@ -42,7 +42,6 @@ namespace HwProj.CoursesService.API
 
             services.AddEventBus(Configuration);
 
-            services.AddHttpContextAccessor();
             services.AddHttpClient();
             services.AddAuthServiceClient();
 
