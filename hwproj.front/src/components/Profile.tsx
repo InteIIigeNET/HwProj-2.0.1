@@ -10,7 +10,7 @@ import {
     Tabs, Tab, Grid
 } from "@material-ui/core";
 import ApiSingleton from "api/ApiSingleton";
-import {AccountDataDto, NotificationViewModel, CategorizedNotifications} from "../api/";
+import {AccountDataDto, CategorizedNotifications, NotificationViewModel} from "../api/";
 import "./Styles/Profile.css";
 import parse from 'html-react-parser';
 import {ChangeEvent, FC, useEffect, useState} from "react";
@@ -77,7 +77,6 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
         await ApiSingleton.notificationsApi.apiNotificationsMarkAsSeenPut([id]);
         const notifications = profileState.notifications;
         notifications.forEach(item => item.notSeenNotifications!.find(not => not.id === id)!.hasSeen = true);
-        //notifications.find(not => not.id === id)!.hasSeen = true;
         e.persist()
         setProfileState((prevState) => ({
             ...prevState,
@@ -149,16 +148,7 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
                                 }))
                             }}
                         >
-                            <Tab label="Новые уведомления" id="simple-tab-0" aria-controls="simple-tabpanel-0"/>
-                            <Tab label="Все уведомления" id="simple-tab-1" aria-controls="simple-tabpanel-1"/>
                         </Tabs>
-
-                        <div role="tabpanel" hidden={profileState.tab !== 0} id="simple-tab-0">
-                            {renderNotifications(profileState.notifications.map(item => item.notSeenNotifications!))}
-                        </div>
-                        <div role="tabpanel" hidden={profileState.tab !== 1} id="simple-tab-1">
-                            {renderNotifications(profileState.notifications)}
-                        </div>
                     </div>
                     }
                 </Grid>
