@@ -86,6 +86,7 @@ namespace HwProj.SolutionsService.API.Controllers
                 await _solutionsService.RateSolutionAsync(solutionId, newRating, lecturerComment);
                 return Ok();
             }
+
             return Forbid();
         }
         

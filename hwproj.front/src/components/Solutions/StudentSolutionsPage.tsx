@@ -92,6 +92,7 @@ const StudentSolutionsPage: FC<RouteComponentProps<IStudentSolutionsPageProps>> 
                                 forMentor={true}
                                 taskId={+props.match.params.taskId}
                                 studentId={props.match.params.studentId}
+                                maxRating={studentSolutions.task!.maxRating!}
                             />
                         </Grid>
                     </Grid>
