@@ -159,16 +159,16 @@ namespace HwProj.SolutionsService.API.Services
 
         private long GetAverageTimeHandIn(Solution[] solutions, long taskId)
         {
-            var result = solutions.Where(s => s.TaskId == taskId && s.State == SolutionState.Final)
-                .Average(s => (DateTime.Now - s.PublicationDate).TotalDays);
-            
+            var sol = solutions.Where(s => s.TaskId == taskId && s.State == SolutionState.Final).ToArray();
+            var result = sol.Count() == 0 ? 0 : sol.Average(s => (DateTime.Now - s.PublicationDate).TotalDays);
+
             return (long)result;
         }
 
         private long GetMinimumTimeHandIn(Solution[] solutions, long taskId)
         {
-            var result = solutions.Where(s => s.TaskId == taskId && s.State == SolutionState.Final)
-                .Min(s => (DateTime.Now - s.PublicationDate).TotalDays);
+            var sol = solutions.Where(s => s.TaskId == taskId && s.State == SolutionState.Final).ToArray();
+            var result = sol.Count() == 0 ? 0 : sol.Min(s => (DateTime.Now - s.PublicationDate).TotalDays);
 
             return (long)result;
         }
@@ -176,7 +176,7 @@ namespace HwProj.SolutionsService.API.Services
         private long GetAverageScoreOnFirstAttempt(Solution[] solutions, long taskId)
         {
             var result = solutions.Where(s => s.TaskId == taskId)
-                .GroupBy(s => new {s.StudentId, s.PublicationDate})
+                .GroupBy(s => new { s.StudentId, s.PublicationDate })
                 .Average(s => s.First().Rating);
 
             return (long)result;
@@ -184,9 +184,9 @@ namespace HwProj.SolutionsService.API.Services
 
         private long GetAverageFinalGrade(Solution[] solutions, long taskId)
         {
-            var result = solutions.Where(s => s.TaskId == taskId && s.State == SolutionState.Final)
-                .Average(s => s.Rating);
-            
+            var sol = solutions.Where(s => s.TaskId == taskId && s.State == SolutionState.Final).ToArray();
+            var result = sol.Count() == 0 ? 0 : sol.Average(s => s.Rating);
+
             return (long)result;
         }
 
@@ -195,7 +195,7 @@ namespace HwProj.SolutionsService.API.Services
             var result = solutions.Where(s => s.TaskId == taskId)
                 .GroupBy(s => new { s.StudentId, s.PublicationDate })
                 .Average(g => g.Count());
-            
+
             return (long)result;
         }
     }
