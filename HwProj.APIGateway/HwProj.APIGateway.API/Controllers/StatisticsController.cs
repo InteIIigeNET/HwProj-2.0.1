@@ -28,7 +28,18 @@ namespace HwProj.APIGateway.API.Controllers
             var result = await _solutionClient.GetCourseStatistics(courseId, userId);
             return result == null
                 ? Forbid()
-                : Ok(result) as IActionResult;
+                : Ok(result);
+        }
+        
+        [HttpGet("getDetailedStat/{courseId}")]
+        [ProducesResponseType(typeof(StatisticsCourseMatesModel[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetDetailedCourseStatistics(long courseId)
+        {
+            var userId = Request.GetUserId();
+            var result = await _solutionClient.GetDetailedCourseStatistics(courseId, userId);
+            return result == null
+                ? Forbid()
+                : Ok(result);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -8,6 +9,7 @@ using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.SolutionsService;
+using HwProj.Models.StatisticsService;
 using HwProj.SolutionsService.API.Events;
 using HwProj.SolutionsService.API.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -22,7 +24,9 @@ namespace HwProj.SolutionsService.API.Services
         private readonly IMapper _mapper;
         private readonly ICoursesServiceClient _coursesServiceClient;
         private readonly IAuthServiceClient _authServiceClient;
-        public SolutionsService(ISolutionsRepository solutionsRepository, IEventBus eventBus, IMapper mapper, ICoursesServiceClient coursesServiceClient, IAuthServiceClient authServiceClient)
+
+        public SolutionsService(ISolutionsRepository solutionsRepository, IEventBus eventBus, IMapper mapper,
+            ICoursesServiceClient coursesServiceClient, IAuthServiceClient authServiceClient)
         {
             _solutionsRepository = solutionsRepository;
             _eventBus = eventBus;
@@ -47,12 +51,12 @@ namespace HwProj.SolutionsService.API.Services
                 .FindAll(solution => solution.TaskId == taskId && solution.StudentId == studentId)
                 .ToArrayAsync();
         }
-        
-        
+
+
         public async Task<long> PostOrUpdateAsync(long taskId, Solution solution)
         {
             solution.PublicationDate = DateTime.UtcNow;
-            var allSolutionsForTask= await GetTaskSolutionsFromStudentAsync(taskId, solution.StudentId);
+            var allSolutionsForTask = await GetTaskSolutionsFromStudentAsync(taskId, solution.StudentId);
             var currentSolution = allSolutionsForTask.FirstOrDefault(s => s.Id == solution.Id);
             var solutionModel = _mapper.Map<SolutionViewModel>(solution);
             var task = await _coursesServiceClient.GetTask(solution.TaskId);
@@ -69,7 +73,7 @@ namespace HwProj.SolutionsService.API.Services
                 var id = await _solutionsRepository.AddAsync(solution);
                 return id;
             }
-    
+
             await _solutionsRepository.UpdateAsync(currentSolution.Id, s => new Solution()
                 {
                     State = SolutionState.Rated,
@@ -109,6 +113,90 @@ namespace HwProj.SolutionsService.API.Services
         public Task<Solution[]> GetTaskSolutionsFromGroupAsync(long taskId, long groupId)
         {
             return _solutionsRepository.FindAll(cm => cm.GroupId == groupId).ToArrayAsync();
+        }
+
+        public async Task<DetailedCourseStatsModel[]> GetDetailedCourseStat(long courseId, string userId)
+        {
+            var course = await _coursesServiceClient.GetCourseById(courseId, userId);
+
+            var solutions = (await GetAllSolutionsAsync())
+                .Where(s => course.Homeworks
+                    .Any(hw => hw.Tasks
+                        .Any(t => t.Id == s.TaskId)))
+                .ToArray();
+
+            /*foreach (var item in result)
+            {
+                item.NumberSolutionsRateFinal = GetNumberSolutionsRate(solutions, item.TaskId, SolutionState.Final);
+                item.NumberSolutionsRatePosted = GetNumberSolutionsRate(solutions, item.TaskId, SolutionState.Posted);
+                item.AverageFinalGrade = GetAverageFinalGrade(solutions, item.TaskId);
+            }*/
+
+            var result = course.Homeworks.SelectMany(hw =>
+                hw.Tasks.Select(t => new DetailedCourseStatsModel()
+                {
+                    TaskId = t.Id,
+                    NumberSolutionsRatePosted = GetNumberSolutionsRate(solutions, t.Id, SolutionState.Posted),
+                    NumberSolutionsRateFinal = GetNumberSolutionsRate(solutions, t.Id, SolutionState.Final),
+                    AverageTimeHandIn = GetAverageTimeHandIn(solutions, t.Id),
+                    MinimumTimeHandIn = GetMinimumTimeHandIn(solutions, t.Id),
+                    AverageScoreOnFirstAttempt = GetAverageScoreOnFirstAttempt(solutions, t.Id),
+                    AverageFinalGrade = GetAverageFinalGrade(solutions, t.Id),
+                    AverageNumberOfCorrections = GetAverageNumberOfCorrections(solutions, t.Id)
+                })).ToArray();
+
+            return result;
+        }
+
+        private long GetNumberSolutionsRate(Solution[] solutions, long taskId, SolutionState state)
+        {
+            var result = solutions.Where(s => s.TaskId == taskId)
+                .Select(s => s.State == state)
+                .Count();
+
+            return result;
+        }
+
+        private long GetAverageTimeHandIn(Solution[] solutions, long taskId)
+        {
+            var result = solutions.Where(s => s.TaskId == taskId && s.State == SolutionState.Final)
+                .Average(s => (DateTime.Now - s.PublicationDate).TotalDays);
+            
+            return (long)result;
+        }
+
+        private long GetMinimumTimeHandIn(Solution[] solutions, long taskId)
+        {
+            var result = solutions.Where(s => s.TaskId == taskId && s.State == SolutionState.Final)
+                .Min(s => (DateTime.Now - s.PublicationDate).TotalDays);
+
+            return (long)result;
+        }
+
+        private long GetAverageScoreOnFirstAttempt(Solution[] solutions, long taskId)
+        {
+            var result = solutions.Where(s => s.TaskId == taskId)
+                .GroupBy(s => new {s.StudentId, s.PublicationDate})
+                .Average(s => s.First().Rating);
+
+            return (long)result;
+        }
+
+        private long GetAverageFinalGrade(Solution[] solutions, long taskId)
+        {
+            var result = solutions.Where(s => s.TaskId == taskId && s.State == SolutionState.Final)
+                .Average(s => s.Rating);
+            
+            return (long)result;
+        }
+
+        private long GetAverageNumberOfCorrections(Solution[] solutions, long taskId)
+        {
+            var result = solutions.Where(s => s.TaskId == taskId)
+                .GroupBy(s => new { s.StudentId, s.PublicationDate })
+                .Average(g => g.Count());
+            
+            return (long)result;
         }
     }
 }
