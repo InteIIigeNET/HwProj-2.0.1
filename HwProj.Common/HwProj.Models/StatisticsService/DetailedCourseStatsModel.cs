@@ -8,13 +8,13 @@ public class DetailedCourseStatsModel
 
     public long NumberSolutionsRateFinal { get; set; }
 
-    public long AverageTimeHandIn { get; set; }
+    public double AverageTimeHandIn { get; set; }
 
-    public long MinimumTimeHandIn { get; set; }
+    public double MinimumTimeHandIn { get; set; }
 
-    public long AverageScoreOnFirstAttempt { get; set; }
+    public double AverageScoreOnFirstAttempt { get; set; }
 
-    public long AverageFinalGrade { get; set; }
+    public double AverageFinalGrade { get; set; }
 
-    public long AverageNumberOfCorrections { get; set; }
+    public double AverageNumberOfCorrections { get; set; }
 }

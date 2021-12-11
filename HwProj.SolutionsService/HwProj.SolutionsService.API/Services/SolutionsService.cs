@@ -157,46 +157,46 @@ namespace HwProj.SolutionsService.API.Services
             return result;
         }
 
-        private long GetAverageTimeHandIn(Solution[] solutions, long taskId)
+        private double GetAverageTimeHandIn(Solution[] solutions, long taskId)
         {
             var sol = solutions.Where(s => s.TaskId == taskId && s.State == SolutionState.Final).ToArray();
             var result = sol.Count() == 0 ? 0 : sol.Average(s => (DateTime.Now - s.PublicationDate).TotalDays);
 
-            return (long)result;
+            return result;
         }
 
-        private long GetMinimumTimeHandIn(Solution[] solutions, long taskId)
+        private double GetMinimumTimeHandIn(Solution[] solutions, long taskId)
         {
             var sol = solutions.Where(s => s.TaskId == taskId && s.State == SolutionState.Final).ToArray();
             var result = sol.Count() == 0 ? 0 : sol.Min(s => (DateTime.Now - s.PublicationDate).TotalDays);
 
-            return (long)result;
+            return result;
         }
 
-        private long GetAverageScoreOnFirstAttempt(Solution[] solutions, long taskId)
+        private double GetAverageScoreOnFirstAttempt(Solution[] solutions, long taskId)
         {
             var result = solutions.Where(s => s.TaskId == taskId)
                 .GroupBy(s => new { s.StudentId, s.PublicationDate })
                 .Average(s => s.First().Rating);
 
-            return (long)result;
+            return result;
         }
 
-        private long GetAverageFinalGrade(Solution[] solutions, long taskId)
+        private double GetAverageFinalGrade(Solution[] solutions, long taskId)
         {
             var sol = solutions.Where(s => s.TaskId == taskId && s.State == SolutionState.Final).ToArray();
             var result = sol.Count() == 0 ? 0 : sol.Average(s => s.Rating);
 
-            return (long)result;
+            return result;
         }
 
-        private long GetAverageNumberOfCorrections(Solution[] solutions, long taskId)
+        private double GetAverageNumberOfCorrections(Solution[] solutions, long taskId)
         {
             var result = solutions.Where(s => s.TaskId == taskId)
                 .GroupBy(s => new { s.StudentId, s.PublicationDate })
                 .Average(g => g.Count());
 
-            return (long)result;
+            return result;
         }
     }
 }
