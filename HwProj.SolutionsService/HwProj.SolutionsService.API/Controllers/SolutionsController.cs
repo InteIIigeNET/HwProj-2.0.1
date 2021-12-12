@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -147,8 +148,22 @@ namespace HwProj.SolutionsService.API.Controllers
                 Solutions = solutions,
                 CourseMatesData = courseMatesData
             };
-
+            FinalAssessmentForStudent[]? finalAssessments = null;
             var result = SolutionsStatsDomain.GetCourseStatistics(solutionsStatsContext).ToArray();
+            try
+            {
+                finalAssessments = await _solutionsService.GetAssessmentForCourseForAllStudents(courseId, userId);
+            }
+            catch (Exception e) { }
+
+            if (finalAssessments != null)
+            {
+                foreach (var statisticForStudent in result)
+                {
+                    statisticForStudent.FinalAssessmentForCourse = finalAssessments
+                        .First(fs => fs.StudentId == statisticForStudent.Id).Assessment;
+                }
+            }
 
             if (!course.MentorIds.Contains(userId))
             {

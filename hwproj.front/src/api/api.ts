@@ -405,6 +405,32 @@ export interface EditExternalViewModel {
 /**
  * 
  * @export
+ * @interface FinalAssessmentForStudent
+ */
+export interface FinalAssessmentForStudent {
+    /**
+     * 
+     * @type {string}
+     * @memberof FinalAssessmentForStudent
+     */
+    studentId?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof FinalAssessmentForStudent
+     */
+    courseId?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof FinalAssessmentForStudent
+     */
+    assessment?: number;
+}
+
+/**
+ * 
+ * @export
  * @interface GroupMateViewModel
  */
 export interface GroupMateViewModel {
@@ -703,6 +729,26 @@ export interface RegisterViewModel {
 /**
  * 
  * @export
+ * @interface ResponseForAddAssessmentMethod
+ */
+export interface ResponseForAddAssessmentMethod {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof ResponseForAddAssessmentMethod
+     */
+    everyThingOK?: boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof ResponseForAddAssessmentMethod
+     */
+    errorMessage?: string;
+}
+
+/**
+ * 
+ * @export
  * @interface Result
  */
 export interface Result {
@@ -912,6 +958,12 @@ export interface StatisticsCourseMatesModel {
      * @memberof StatisticsCourseMatesModel
      */
     surname?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof StatisticsCourseMatesModel
+     */
+    finalAssessmentForCourse?: number;
     /**
      * 
      * @type {Array<StatisticsCourseHomeworksModel>}
@@ -3948,6 +4000,42 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
         },
         /**
          * 
+         * @param {number} courseId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsAssessmentSystemGetAssessmentByCourseIdGet(courseId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'courseId' is not null or undefined
+            if (courseId === null || courseId === undefined) {
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiSolutionsAssessmentSystemGetAssessmentByCourseIdGet.');
+            }
+            const localVarPath = `/api/Solutions/assessmentSystem/get/assessment/{courseId}`
+                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {number} taskId 
          * @param {number} groupId 
          * @param {SolutionViewModel} [model] 
@@ -4320,12 +4408,30 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSolutionsAssessmentSystemAddByCourseIdPost(courseId2: string, courseId?: number, dll?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+        apiSolutionsAssessmentSystemAddByCourseIdPost(courseId2: string, courseId?: number, dll?: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ResponseForAddAssessmentMethod> {
             const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsAssessmentSystemAddByCourseIdPost(courseId2, courseId, dll, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
-                        return response;
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsAssessmentSystemGetAssessmentByCourseIdGet(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<FinalAssessmentForStudent>> {
+            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsAssessmentSystemGetAssessmentByCourseIdGet(courseId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
                     } else {
                         throw response;
                     }
@@ -4522,6 +4628,15 @@ export const SolutionsApiFactory = function (configuration?: Configuration, fetc
         },
         /**
          * 
+         * @param {number} courseId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsAssessmentSystemGetAssessmentByCourseIdGet(courseId: number, options?: any) {
+            return SolutionsApiFp(configuration).apiSolutionsAssessmentSystemGetAssessmentByCourseIdGet(courseId, options)(fetch, basePath);
+        },
+        /**
+         * 
          * @param {number} taskId 
          * @param {number} groupId 
          * @param {SolutionViewModel} [model] 
@@ -4628,6 +4743,17 @@ export class SolutionsApi extends BaseAPI {
      */
     public apiSolutionsAssessmentSystemAddByCourseIdPost(courseId2: string, courseId?: number, dll?: any, options?: any) {
         return SolutionsApiFp(this.configuration).apiSolutionsAssessmentSystemAddByCourseIdPost(courseId2, courseId, dll, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} courseId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SolutionsApi
+     */
+    public apiSolutionsAssessmentSystemGetAssessmentByCourseIdGet(courseId: number, options?: any) {
+        return SolutionsApiFp(this.configuration).apiSolutionsAssessmentSystemGetAssessmentByCourseIdGet(courseId, options)(this.fetch, this.basePath);
     }
 
     /**

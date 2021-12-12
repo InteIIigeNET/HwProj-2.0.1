@@ -62,6 +62,15 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
                                         {index + 1}
                                     </TableCell>
                                 ))}
+                                { this.state.stat.length > 0 && this.state.stat[0] != undefined &&
+                                    <TableCell
+                                        padding="none"
+                                        component="td"
+                                        align="center"
+                                    >
+                                        {this.state.stat.length + 1}
+                                    </TableCell>
+                                }
                             </TableRow>
                             <TableRow>
                                 <TableCell component="td"></TableCell>
@@ -72,6 +81,15 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
                                         </TableCell>
                                     ))
                                 )}
+                                { this.state.stat.length > 0 && this.state.stat[0] != undefined &&
+                                    <TableCell
+                                        padding="none"
+                                        component="td"
+                                        align="center"
+                                    >
+                                        Итоговая отметка 
+                                    </TableCell>
+                                }
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -100,6 +118,15 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
                                                 />
                                             ))
                                         )}
+                                        { this.state.stat.length > 0 && this.state.stat[0] != undefined &&
+                                            <TableCell
+                                                padding="none"
+                                                component="td"
+                                                align="center"
+                                            >
+                                                {cm.finalAssessmentForCourse}
+                                            </TableCell>
+                                        }
                                     </TableRow>
                                 ))}
                             {!this.props.isMentor &&
@@ -127,6 +154,15 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
                                             />
                                         ))
                                     )}
+                                    { this.state.stat.length > 0 && this.state.stat[0] != undefined &&
+                                        <TableCell
+                                            padding="none"
+                                            component="td"
+                                            align="center"
+                                        >
+                                            {this.state.stat.find(cm => cm.id == this.props.userId)!.finalAssessmentForCourse}
+                                        </TableCell>
+                                    }
                                 </TableRow>
                             }
                         </TableBody>
