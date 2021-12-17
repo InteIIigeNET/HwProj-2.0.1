@@ -1,24 +1,26 @@
 import * as React from "react";
+import {ChangeEvent, FC, useEffect, useState} from "react";
 import {RouteComponentProps} from 'react-router';
 import {
+    Box,
     Card,
-    Typography,
     CardContent,
     Checkbox,
     CircularProgress,
-    Box,
+    FormControlLabel,
     Grid,
     InputLabel,
-    MenuItem, FormControlLabel
+    MenuItem,
+    Typography
 } from "@material-ui/core";
 import Select, {SelectChangeEvent} from '@mui/material/Select';
 import ApiSingleton from "api/ApiSingleton";
 import {AccountDataDto, CategorizedNotifications, NotificationViewModel} from "../api/";
 import "./Styles/Profile.css";
 import parse from 'html-react-parser';
-import {ChangeEvent, FC, useEffect, useState} from "react";
 import {Redirect} from "react-router-dom";
 import {makeStyles} from "@material-ui/styles";
+import CategoryEnum = CategorizedNotifications.CategoryEnum;
 
 interface IProfileState {
     isLoaded: boolean;
@@ -29,12 +31,12 @@ interface IProfileProps {
     id: string;
 }
 
-type CategoriesMap<T> = {
-    [Property in keyof T]: boolean;
-};
+// type CategoriesMap<T> = {
+//     [Property in keyof T]: boolean;
+// };
 
 interface IFilterState {
-    categoryFlag: CategoriesMap<CategorizedNotifications.CategoryEnum>;
+    categoryFlag: Map<CategoryEnum, boolean>;
     filteredNotifications: NotificationViewModel[];
     showAll: boolean
 }
@@ -59,9 +61,14 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
         email: "",
         role: ""
     })
-    
+
     const [filterState, setFilterState] = useState<IFilterState>({
-        categoryFlag: 0,
+        categoryFlag: new Map([
+            [CategoryEnum.NUMBER_0, true],
+            [CategoryEnum.NUMBER_1, true],
+            [CategoryEnum.NUMBER_2, true],
+            [CategoryEnum.NUMBER_3, true]
+        ]),
         filteredNotifications: [],
         showAll: true
     });
@@ -93,7 +100,7 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
         const id = parseInt(e.target.id)
         await ApiSingleton.notificationsApi.apiNotificationsMarkAsSeenPut([id]);
         const notifications = profileState.notifications;
-        notifications.forEach(item => item.notSeenNotifications!.find(not => not.id === id)!.hasSeen = true);
+        notifications.forEach(item => item.notSeenNotifications!.find(notification => notification.id === id)!.hasSeen = true);
         e.persist()
         setProfileState((prevState) => ({
             ...prevState,
@@ -134,19 +141,36 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
         return <Redirect to={"/login"}/>;
     }
 
-    const markShowAll = (event: ChangeEvent<HTMLInputElement>) => {
+    const changeShowAll = (event: ChangeEvent<HTMLInputElement>) => {
+        let notifications = filterState.filteredNotifications;
+        if (!event.target.checked) {
+            notifications = notifications.filter(notification => !notification.hasSeen);
+        } else {
+            profileState.notifications.forEach(item =>
+                filterState.categoryFlag.get(item.category!) ? notifications.concat(item.seenNotifications!) : notifications);
+        }
         setFilterState((prevState) => ({
             ...prevState,
+            filteredNotifications: notifications,
             showAll: event.target.checked
-        }))
+        }));
     };
 
-    const handleChange = (event: SelectChangeEvent<typeof NotificationViewModel.CategoryEnum>) => {
-        //change state
-        
-        const notifications = profileState.notifications.filter(not => not.category!.toString() === event.target.value);
+    const handleChange = (event: SelectChangeEvent<typeof CategoryEnum>) => {
+        filterState.categoryFlag.forEach((value, key) =>
+            key.toString() == event.target.value ? filterState.categoryFlag.set(key, !value) : value);
+        const notifications = profileState.notifications.filter(notification => filterState.categoryFlag.get(notification.category!));
         const array = [] as NotificationViewModel[];
-        notifications.forEach(not => array.concat(not.notSeenNotifications!));
+        notifications.forEach(notification =>
+            filterState.showAll
+                ? array.concat(notification.notSeenNotifications!).concat(notification.seenNotifications!)
+                : array.concat(notification.notSeenNotifications!)
+        );
+
+        setFilterState((prevState) => ({
+            ...prevState,
+            filteredNotifications: array
+        }));
     };
 
     if (profileState.isLoaded) {
@@ -165,11 +189,11 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
                         {accountState.email}
                     </Typography>
                 </Grid>
-                
+
                 <FormControlLabel control={
                     <Checkbox
                         checked={filterState.showAll}
-                        onChange={markShowAll}
+                        onChange={changeShowAll}
                         inputProps={{'aria-label': 'controlled'}}
                     />
                 } label="Показывать все уведомления"
@@ -180,13 +204,13 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
                     labelId="notification-category-label"
                     id="notification-category"
                     multiple
-                    value={NotificationViewModel.CategoryEnum}
+                    value={CategoryEnum}
                     label="Категория"
                     onChange={handleChange}
                 >
-                    <MenuItem value={NotificationViewModel.CategoryEnum.NUMBER_1}>Профиль</MenuItem>
-                    <MenuItem value={NotificationViewModel.CategoryEnum.NUMBER_2}>Курсы</MenuItem>
-                    <MenuItem value={NotificationViewModel.CategoryEnum.NUMBER_3}>Домашки</MenuItem>
+                    <MenuItem value={CategoryEnum.NUMBER_1}>Профиль</MenuItem>
+                    <MenuItem value={CategoryEnum.NUMBER_2}>Курсы</MenuItem>
+                    <MenuItem value={CategoryEnum.NUMBER_3}>Домашки</MenuItem>
                 </Select>
                 //renderNotifications
             </Grid>
