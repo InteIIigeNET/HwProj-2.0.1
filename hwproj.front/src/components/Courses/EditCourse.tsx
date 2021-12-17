@@ -17,6 +17,7 @@ import Link from "@material-ui/core/Link";
 import DeleteIcon from '@material-ui/icons/Delete';
 import Lecturers from "./Lecturers";
 import {AccountDataDto} from "../../api";
+import Input from '@material-ui/core/Input';
 
 
 interface IEditCourseState {
@@ -129,10 +130,17 @@ const EditCourse: FC<RouteComponentProps<IEditCourseProps>> = (props) => {
     }
 
     const sendDll = async () => {
-        debugger
-        await ApiSingleton.solutionsApi.apiSolutionsAssessmentSystemAddByCourseIdPost("wtf",
-            +props.match.params.courseId, courseState.file
-        )
+        var url = "http://localhost:5000/api/Solutions/assessmentSystem/add/" + props.match.params.courseId
+        if (courseState.file != undefined && courseState.file.size > 0)
+        {
+            var formdata = new FormData()
+            formdata.append("File", courseState.file)
+            var response = await fetch(url, {
+                headers: {"Authorization" : "Bearer " + ApiSingleton.authService.getToken()},
+                method: 'POST',
+                body: formdata
+            })
+        }
     }
 
     const classes = useStyles()
@@ -173,7 +181,7 @@ const EditCourse: FC<RouteComponentProps<IEditCourseProps>> = (props) => {
                             </Link>
                         </Grid>
                         <Grid item>
-                            <form method="POST" encType="multipart/form-data">
+                            <label htmlFor="btn-upload">
                                 <input
                                     name="user-file"
                                     type="file"
@@ -184,13 +192,13 @@ const EditCourse: FC<RouteComponentProps<IEditCourseProps>> = (props) => {
                                         }))
                                     }
                                 />
-                                    <br/>
-                                <input
-                                    type="submit"
-                                    value="Отправить"
-                                    onClick={() => sendDll()}
-                                />
-                            </form>
+                            </label>
+                            <br/>
+                            <input
+                                type="submit"
+                                value="Отправить"
+                                onClick={() => sendDll()}
+                            />
                         </Grid>
                         <Grid item>
                             <Lecturers

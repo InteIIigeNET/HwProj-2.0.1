@@ -54,10 +54,6 @@ namespace HwProj.APIGateway.API
             services.AddCoursesServiceClient();
             services.AddSolutionServiceClient();
             services.AddNotificationsServiceClient();
-            services.AddSwaggerGen(c =>
-            {
-                c.OperationFilter<FormFileOperationFilter>();
-            });
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
