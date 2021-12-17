@@ -6,9 +6,12 @@ import {
     CardContent,
     Checkbox,
     CircularProgress,
-    TextField, Box,
-    Tabs, Tab, Grid
+    Box,
+    Grid,
+    InputLabel,
+    MenuItem, FormControlLabel
 } from "@material-ui/core";
+import Select, {SelectChangeEvent} from '@mui/material/Select';
 import ApiSingleton from "api/ApiSingleton";
 import {AccountDataDto, CategorizedNotifications, NotificationViewModel} from "../api/";
 import "./Styles/Profile.css";
@@ -20,11 +23,20 @@ import {makeStyles} from "@material-ui/styles";
 interface IProfileState {
     isLoaded: boolean;
     notifications: CategorizedNotifications[];
-    tab: number;
 }
 
 interface IProfileProps {
     id: string;
+}
+
+type CategoriesMap<T> = {
+    [Property in keyof T]: boolean;
+};
+
+interface IFilterState {
+    categoryFlag: CategoriesMap<CategorizedNotifications.CategoryEnum>;
+    filteredNotifications: NotificationViewModel[];
+    showAll: boolean
 }
 
 const useStyles = makeStyles(theme => ({
@@ -37,8 +49,7 @@ const useStyles = makeStyles(theme => ({
 const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
     const [profileState, setProfileState] = useState<IProfileState>({
         isLoaded: false,
-        notifications: [],
-        tab: 0,
+        notifications: []
     })
 
     const [accountState, setAccountState] = useState<AccountDataDto>({
@@ -48,6 +59,12 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
         email: "",
         role: ""
     })
+    
+    const [filterState, setFilterState] = useState<IFilterState>({
+        categoryFlag: 0,
+        filteredNotifications: [],
+        showAll: true
+    });
 
     useEffect(() => {
         getUserInfo()
@@ -117,6 +134,21 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
         return <Redirect to={"/login"}/>;
     }
 
+    const markShowAll = (event: ChangeEvent<HTMLInputElement>) => {
+        setFilterState((prevState) => ({
+            ...prevState,
+            showAll: event.target.checked
+        }))
+    };
+
+    const handleChange = (event: SelectChangeEvent<typeof NotificationViewModel.CategoryEnum>) => {
+        //change state
+        
+        const notifications = profileState.notifications.filter(not => not.category!.toString() === event.target.value);
+        const array = [] as NotificationViewModel[];
+        notifications.forEach(not => array.concat(not.notSeenNotifications!));
+    };
+
     if (profileState.isLoaded) {
         const fullName = accountState.middleName && accountState.surname
             ? accountState.name + ' ' + accountState.middleName + ' ' + accountState.surname
@@ -133,25 +165,30 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
                         {accountState.email}
                     </Typography>
                 </Grid>
-                <Grid item xs={11} style={{marginTop: "25px"}}>
-                    {!props.match.params.id &&
-                    <div>
-                        <Tabs
-                            indicatorColor="primary"
-                            value={profileState.tab}
-                            variant="fullWidth"
-                            onChange={(e: React.ChangeEvent<{}>, newValue: number) => {
-                                e.persist()
-                                setProfileState((prevState) => ({
-                                    ...prevState,
-                                    tab: newValue
-                                }))
-                            }}
-                        >
-                        </Tabs>
-                    </div>
-                    }
-                </Grid>
+                
+                <FormControlLabel control={
+                    <Checkbox
+                        checked={filterState.showAll}
+                        onChange={markShowAll}
+                        inputProps={{'aria-label': 'controlled'}}
+                    />
+                } label="Показывать все уведомления"
+                />
+
+                <InputLabel id="notification-category-label">Категория</InputLabel>
+                <Select
+                    labelId="notification-category-label"
+                    id="notification-category"
+                    multiple
+                    value={NotificationViewModel.CategoryEnum}
+                    label="Категория"
+                    onChange={handleChange}
+                >
+                    <MenuItem value={NotificationViewModel.CategoryEnum.NUMBER_1}>Профиль</MenuItem>
+                    <MenuItem value={NotificationViewModel.CategoryEnum.NUMBER_2}>Курсы</MenuItem>
+                    <MenuItem value={NotificationViewModel.CategoryEnum.NUMBER_3}>Домашки</MenuItem>
+                </Select>
+                //renderNotifications
             </Grid>
         </div>
     }
