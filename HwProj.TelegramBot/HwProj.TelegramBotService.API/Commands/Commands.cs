@@ -11,7 +11,7 @@ namespace HwProj.TelegramBotService.API.Commands
         public abstract Task ExecuteAsync(Update update);
 
         protected InlineKeyboardButton GetButton(string text, string callbackData)
-            => new InlineKeyboardButton
+            => new()
             { 
                 Text = text,
                 CallbackData = callbackData

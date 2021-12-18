@@ -25,8 +25,12 @@ namespace HwProj.TelegramBotService.API.Service
         
         public async Task Execute(Update update)
         {
-            if(update?.Message?.Chat == null && update?.CallbackQuery == null)
+            if (update?.Message?.Chat == null && update?.CallbackQuery == null)
+            {
                 return;
+            }
+            
+            var user = _context.TelegramUser.FirstOrDefaultAsync(x => x.ChatId == update.Message.Chat.Id).Result;
             
             if (update.Type == UpdateType.Message)
             {
@@ -40,7 +44,6 @@ namespace HwProj.TelegramBotService.API.Service
                         await ExecuteCommand(CommandNames.GetCourses, update);
                         return;
                 }
-                var user = _context.TelegramUser.FirstOrDefaultAsync(x => x.ChatId == update.Message.Chat.Id).Result;
                 if (user.Operation == "wait_code" || user.Operation == "check_code")
                 {
                     switch (user.Operation)
@@ -53,16 +56,8 @@ namespace HwProj.TelegramBotService.API.Service
                             break;
                     }
                 }
-                if (user == null)
-                {
-                    await ExecuteCommand(CommandNames.StartCommand, update);
-                }
-                if (user.Operation == null)
-                {
-                    
-                }
             }
-            else
+            else if (user.IsLecture == false)
             {
                 switch (update.CallbackQuery.Data.Split(' ')[0])
                 {

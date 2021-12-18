@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
@@ -8,16 +9,18 @@ using HwProj.SolutionsService.API.Events;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {
-    // ReSharper disable once UnusedType.Global
     public class StudentPassTaskEventHandler : IEventHandler<StudentPassTaskEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
         private readonly INotificationsService _notificationsService;
+        private readonly IAuthServiceClient _authServiceClient;
 
-        public StudentPassTaskEventHandler(INotificationsRepository notificationRepository, INotificationsService notificationsService)
+
+        public StudentPassTaskEventHandler(INotificationsRepository notificationRepository, INotificationsService notificationsService, IAuthServiceClient authServiceClient)
         {
             _notificationRepository = notificationRepository;
             _notificationsService = notificationsService;
+            _authServiceClient = authServiceClient;
         }
 
         public async Task HandleAsync(StudentPassTaskEvent @event)
@@ -37,6 +40,9 @@ namespace HwProj.NotificationsService.API.EventHandlers
                     Owner = m,
                 };
                 await _notificationRepository.AddAsync(notification);
+                var mentor = await _authServiceClient.GetAccountData(notification.Owner);
+                await _notificationsService.SendEmailAsync(notification, mentor.Email, "HwProj");
+                
                 notification.Body = $"{@event.Student.Name} {@event.Student.Surname} добавил новое решение задачи {@event.Task.Title} из курса {@event.Course.Name}.";
                 await _notificationsService.SendTelegramMessageAsync(notification, null);
             }

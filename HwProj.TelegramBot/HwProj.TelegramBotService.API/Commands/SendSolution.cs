@@ -25,11 +25,12 @@ namespace HwProj.TelegramBotService.API.Commands
 
         public override async Task ExecuteAsync(Update update)
         {
-            var user = await _userService.GetUserByUpdate(update);
+            var user = await _userService.UserByUpdate(update);
 
             /*await _solutionsServiceClient.PostSolution();*/
             
-            await _botClient.SendTextMessageAsync(user.ChatId, "Добро пожаловать!",
+            await _botClient.SendTextMessageAsync(user.ChatId, "Введите ссылку на pull request и комментарий. " +
+                                                               "\n Пример: '<ccылка на pull request> <комментарий'",
                 ParseMode.Markdown /*, replyMarkup:inlineKeyboard*/);
         }
     }

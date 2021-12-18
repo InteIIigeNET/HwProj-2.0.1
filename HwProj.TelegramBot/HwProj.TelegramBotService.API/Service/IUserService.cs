@@ -12,12 +12,10 @@ namespace HwProj.TelegramBotService.API.Service
         
         Task<TelegramUserModel> AddFinishUser(Update update);
 
-        Task<TelegramUserModel> GetUserByUpdate(Update update);
+        Task<TelegramUserModel> UserByUpdate(Update update);
 
-        Task<TelegramUserModel> GetTelegramUserModelByStudentId(string studentId);
+        Task<TelegramUserModel> TelegramUserModelByStudentId(string studentId);
         
         Task DeleteUser(Update update);
-
-        Task<TelegramUserModel> GetTelegramUserModelByChatId(long chatId);
     }
 }

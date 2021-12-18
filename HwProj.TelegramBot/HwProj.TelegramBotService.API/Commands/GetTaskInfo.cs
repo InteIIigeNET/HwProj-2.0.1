@@ -29,7 +29,7 @@ namespace HwProj.TelegramBotService.API.Commands
         
         public override async Task ExecuteAsync(Update update)
         {
-            var user = await _userService.GetUserByUpdate(update);
+            var user = await _userService.UserByUpdate(update);
             var message = update.CallbackQuery.Data;
             var text = message.Split(' ');
             var task = _coursesServiceClient.GetTask(Int64.Parse(text[1])).Result;
@@ -53,7 +53,7 @@ namespace HwProj.TelegramBotService.API.Commands
                 $"\n<b>Дата публикации:</b> {task.PublicationDate.Date}." +
                 $"\n<b>Дедлайн:</b> {task.DeadlineDate}." +
                 $"\n<b>Максимальный балл:</b> {task.MaxRating}.",
-            parseMode: ParseMode.Html,
+            ParseMode.Html,
                 replyMarkup:keyboardMarkup);
         }
     }

@@ -12,14 +12,15 @@ namespace HwProj.NotificationsService.API.EventHandlers
     public class LecturerRejectToCourseEventHandler : IEventHandler<LecturerRejectToCourseEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
-        private readonly IAuthServiceClient _authClient;
         private readonly INotificationsService _notificationsService;
+        private readonly IAuthServiceClient _authServiceClient;
 
-        public LecturerRejectToCourseEventHandler(INotificationsRepository notificationRepository, IAuthServiceClient authClient, INotificationsService notificationsService)
+
+        public LecturerRejectToCourseEventHandler(INotificationsRepository notificationRepository, INotificationsService notificationsService, IAuthServiceClient authServiceClient)
         {
             _notificationRepository = notificationRepository;
-            _authClient = authClient;
             _notificationsService = notificationsService;
+            _authServiceClient = authServiceClient;
         }
 
         public async Task HandleAsync(LecturerRejectToCourseEvent @event)
@@ -34,6 +35,9 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 Owner = @event.StudentId
             };
             await _notificationRepository.AddAsync(notification);
+            var student = await _authServiceClient.GetAccountData(notification.Owner);
+            await _notificationsService.SendEmailAsync(notification, student.Email, "HwProj");
+            
             notification.Body = $"Вас не приняли на курс {@event.CourseName}.";
             await _notificationsService.SendTelegramMessageAsync(notification, null);
         }

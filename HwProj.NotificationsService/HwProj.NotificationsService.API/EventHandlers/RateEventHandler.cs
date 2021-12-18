@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
@@ -9,16 +10,18 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {
-    // ReSharper disable once UnusedType.Global
     public class RateEventHandler : IEventHandler<RateEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
         private readonly INotificationsService _notificationsService;
+        private readonly IAuthServiceClient _authServiceClient;
 
-        public RateEventHandler(INotificationsRepository notificationRepository, INotificationsService notificationsService)
+
+        public RateEventHandler(INotificationsRepository notificationRepository, INotificationsService notificationsService, IAuthServiceClient authServiceClient)
         {
             _notificationRepository = notificationRepository;
             _notificationsService = notificationsService;
+            _authServiceClient = authServiceClient;
         }
 
         public async Task HandleAsync(RateEvent @event)
@@ -33,7 +36,10 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 Owner = @event.Solution.StudentId
             };
             await _notificationRepository.AddAsync(notification);
-            notification.Body = $"Задача {@event.Task.Title} оценена."; //<a href='task/{@event.Task.Id}'>/клава
+            var studentModel = await _authServiceClient.GetAccountData(notification.Owner);
+            await _notificationsService.SendEmailAsync(notification, studentModel.Email, "Оценка");
+            
+            notification.Body = $"Задача {@event.Task.Title} оценена."; 
             var inlineKeyboard = new InlineKeyboardMarkup(new InlineKeyboardButton
             {
                 Text = $"{@event.Task.Title}",

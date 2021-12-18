@@ -15,6 +15,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
         private readonly IAuthServiceClient _authClient;
         private readonly INotificationsService _notificationsService;
 
+
         public NewCourseMateHandler(INotificationsRepository notificationRepository, IAuthServiceClient authClient, INotificationsService notificationsService)
         {
             _notificationRepository = notificationRepository;
@@ -40,6 +41,9 @@ namespace HwProj.NotificationsService.API.EventHandlers
                     Owner = m
                 };
                 await _notificationRepository.AddAsync(notification);
+                var mentor = await _authClient.GetAccountData(notification.Owner);
+                await _notificationsService.SendEmailAsync(notification, mentor.Email, "HwProj");
+                
                 notification.Body = $"Пользователь {user.Name} {user.Surname} подал заявку на вступление в курс {@event.CourseName}.";
                 await _notificationsService.SendTelegramMessageAsync(notification, null);
             }

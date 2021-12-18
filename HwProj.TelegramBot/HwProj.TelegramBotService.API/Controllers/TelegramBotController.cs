@@ -44,7 +44,7 @@ namespace HwProj.TelegramBotService.API.Controllers
         [HttpGet("get/{studentId}")]
         public async Task<TelegramUserModel> GetUser(string studentId)
         {
-            return await _userService.GetTelegramUserModelByStudentId(studentId);
+            return await _userService.TelegramUserModelByStudentId(studentId);
         }
     }
 }

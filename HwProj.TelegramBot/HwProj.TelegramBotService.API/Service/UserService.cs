@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
-using HwProj.Models.AuthService.DTO;
 using HwProj.TelegramBotService.API.Events;
 using HwProj.TelegramBotService.API.Models;
 using Microsoft.EntityFrameworkCore;
@@ -26,11 +26,13 @@ namespace HwProj.TelegramBotService.API.Service
         
         public async Task<TelegramUserModel> CreateUser(Update update)
         {
-            /*var user = await _context.TelegramUser.FirstOrDefaultAsync(x => x.ChatId == update.Message.Chat.Id);
-            _context.Remove(user);
-            await _context.SaveChangesAsync();*/
             var random = new Random();
-            var code = random.Next(10) * 1000 + random.Next(10) * 100 + random.Next(10) * 10 + random.Next(10);
+            var chars = "ABCEFGHJKPQRSTXYZ0123456789";
+            var code = new StringBuilder();
+            code.Append(chars[random.Next(chars.Length)]);
+            code.Append(chars[random.Next(chars.Length)]);
+            code.Append(chars[random.Next(chars.Length)]);
+            code.Append(chars[random.Next(chars.Length)]);
             var newUser = new TelegramUserModel
             {
                 Id = update.Message.Chat.Id,
@@ -90,10 +92,10 @@ namespace HwProj.TelegramBotService.API.Service
             return user;
         }
 
-        public async Task<TelegramUserModel> GetUserByUpdate(Update update)
+        public async Task<TelegramUserModel> UserByUpdate(Update update)
             => await _context.TelegramUser.FindAsync(update.CallbackQuery == null ? update.Message.Chat.Id : update.CallbackQuery.Message.Chat.Id);
 
-        public async Task<TelegramUserModel> GetTelegramUserModelByStudentId(string studentId)
+        public async Task<TelegramUserModel> TelegramUserModelByStudentId(string studentId)
             => _context.TelegramUser.First(x => x.AccountId == studentId);
         
         public async Task DeleteUser(Update update)
@@ -106,8 +108,5 @@ namespace HwProj.TelegramBotService.API.Service
                 await _context.SaveChangesAsync();    
             }
         }
-        
-        public async Task<TelegramUserModel> GetTelegramUserModelByChatId(long chatId)
-            => _context.TelegramUser.FindAsync(chatId).Result;
     }
 }

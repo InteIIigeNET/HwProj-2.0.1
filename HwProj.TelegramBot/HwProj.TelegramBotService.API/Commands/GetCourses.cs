@@ -26,7 +26,7 @@ namespace HwProj.TelegramBotService.API.Commands
         
         public override async Task ExecuteAsync(Update update)
         {
-            var user = await _userService.GetUserByUpdate(update);
+            var user = await _userService.UserByUpdate(update);
             var courses = _coursesServiceClient.GetAllUserCourses(user.AccountId).Result;
             
             await _botClient.SendTextMessageAsync(user.ChatId, "*Выберите курс для просмотра домашних работ или статистики:*", ParseMode.Markdown);
@@ -39,7 +39,7 @@ namespace HwProj.TelegramBotService.API.Commands
                 cols.Add(GetButton("Cтатистика", $"/statistics {course.Id}"));
                 rows.Add(cols.ToArray());
                 var keyboardMarkup = new InlineKeyboardMarkup(rows.ToArray());
-                await _botClient.SendTextMessageAsync(user.ChatId, "<b>Курс:</b>" + $" {course.Name}", parseMode: ParseMode.Html, replyMarkup:keyboardMarkup);
+                await _botClient.SendTextMessageAsync(user.ChatId, "<b>Курс:</b>" + $" {course.Name}", ParseMode.Html, replyMarkup:keyboardMarkup);
             }
         }
     }

@@ -30,7 +30,7 @@ namespace HwProj.TelegramBotService.API.Commands
         
         public override async Task ExecuteAsync(Update update)
         {
-            var user = await _userService.GetUserByUpdate(update);
+            var user = await _userService.UserByUpdate(update);
             var message = update.CallbackQuery.Data;
             var text = message.Split(' ');
             var course = _coursesServiceClient.GetCourseById(Int64.Parse(text[1]), user.AccountId).Result;
@@ -62,7 +62,7 @@ namespace HwProj.TelegramBotService.API.Commands
             await _botClient.SendTextMessageAsync(user.ChatId, 
                 $"<b>Курс:</b> {course.Name}." +
                 $"\n<b>Баллы:</b> {studentRating}/{maxRating}",
-                parseMode: ParseMode.Html,
+                ParseMode.Html,
                 replyMarkup:inlineKeyboard);
         }
     }

@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
@@ -13,11 +14,14 @@ namespace HwProj.NotificationsService.API.EventHandlers
     {
         private readonly INotificationsRepository _notificationRepository;
         private readonly INotificationsService _notificationsService;
+        private readonly IAuthServiceClient _authServiceClient;
 
-        public UpdateHomeworkEventHandler(INotificationsRepository notificationRepository, INotificationsService notificationsService)
+
+        public UpdateHomeworkEventHandler(INotificationsRepository notificationRepository, INotificationsService notificationsService, IAuthServiceClient authServiceClient)
         {
             _notificationRepository = notificationRepository;
             _notificationsService = notificationsService;
+            _authServiceClient = authServiceClient;
         }
 
         public async Task HandleAsync(UpdateHomeworkEvent @event)
@@ -35,6 +39,9 @@ namespace HwProj.NotificationsService.API.EventHandlers
                     Owner = student.StudentId
                 };
                 await _notificationRepository.AddAsync(notification);
+                var studentModel = await _authServiceClient.GetAccountData(student.StudentId);
+                await _notificationsService.SendEmailAsync(notification, studentModel.Email, "Домашняя работа");
+                
                 notification.Body = $"В курсе {@event.Course.Name} домашнее задание {@event.Homework.Title} обновлено.";// клава
                 var inlineKeyboard = new InlineKeyboardMarkup(new InlineKeyboardButton
                 {

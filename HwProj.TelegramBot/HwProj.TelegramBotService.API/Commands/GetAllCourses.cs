@@ -25,7 +25,7 @@ namespace HwProj.TelegramBotService.API.Commands
         
         public override async Task ExecuteAsync(Update update)
         {
-            var user = await _userService.GetUserByUpdate(update);
+            var user = await _userService.UserByUpdate(update);
 
             await _botClient.SendTextMessageAsync(user.ChatId, "Повторите запрос снова!", ParseMode.Markdown/*, replyMarkup:inlineKeyboard*/);
         }

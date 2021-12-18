@@ -2,7 +2,7 @@
 
 namespace HwProj.TelegramBotService.API.Models
 {
-    public class TelegramUserModel /*: IEntity<long>*/
+    public class TelegramUserModel
     {
         public long Id { get; set; }
         
