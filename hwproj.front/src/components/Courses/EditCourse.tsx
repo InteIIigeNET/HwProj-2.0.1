@@ -18,6 +18,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import Lecturers from "./Lecturers";
 import {AccountDataDto} from "../../api";
 import Input from '@material-ui/core/Input';
+import OpenDialogForAddingAssessmentFile from './OpenDialogForAddingAssessmentFile'
 
 
 interface IEditCourseState {
@@ -29,7 +30,6 @@ interface IEditCourseState {
     edited: boolean,
     deleted: boolean,
     lecturerEmail: string;
-    file: File | undefined;
 }
 
 interface IEditCourseProps {
@@ -73,7 +73,6 @@ const EditCourse: FC<RouteComponentProps<IEditCourseProps>> = (props) => {
         edited: false,
         deleted: false,
         lecturerEmail: "",
-        file: undefined,
     })
 
     const [isOpenDialogDeleteCourse, setIsOpenDialogDeleteCourse] = useState<boolean>(false)
@@ -128,21 +127,6 @@ const EditCourse: FC<RouteComponentProps<IEditCourseProps>> = (props) => {
             deleted: true
         }))
     }
-
-    const sendDll = async () => {
-        var url = "http://localhost:5000/api/Solutions/assessmentSystem/add/" + props.match.params.courseId
-        if (courseState.file != undefined && courseState.file.size > 0)
-        {
-            var formdata = new FormData()
-            formdata.append("File", courseState.file)
-            var response = await fetch(url, {
-                headers: {"Authorization" : "Bearer " + ApiSingleton.authService.getToken()},
-                method: 'POST',
-                body: formdata
-            })
-        }
-    }
-
     const classes = useStyles()
 
     if (courseState.isLoaded) {
@@ -181,24 +165,10 @@ const EditCourse: FC<RouteComponentProps<IEditCourseProps>> = (props) => {
                             </Link>
                         </Grid>
                         <Grid item>
-                            <label htmlFor="btn-upload">
-                                <input
-                                    name="user-file"
-                                    type="file"
-                                    onChange={(e) => setCourseState((prevState) => (
-                                        {
-                                            ...prevState,
-                                            file: e.target["files"]![0],
-                                        }))
-                                    }
-                                />
-                            </label>
-                            <br/>
-                            <input
-                                type="submit"
-                                value="Отправить"
-                                onClick={() => sendDll()}
-                            />
+                           <OpenDialogForAddingAssessmentFile
+                               update = {getCourse}
+                               courseId = {props.match.params.courseId}
+                           /> 
                         </Grid>
                         <Grid item>
                             <Lecturers
