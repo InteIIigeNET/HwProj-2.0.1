@@ -1,6 +1,8 @@
 import React, {FC, useState} from 'react'
-import {Button} from '@material-ui/core'
+import {Button, Typography} from '@material-ui/core'
 import AddAssessmentFile from './AddAssessmentFile'
+import IconButton from "@material-ui/core/IconButton";
+import AddRoundedIcon from '@material-ui/icons/AddRounded';
 
 interface Props {
     courseId: string;
@@ -17,9 +19,12 @@ const OpenDialogForAddingAssessmentFile: FC<Props> = (props) => {
     return (
         <div>
             <Button
-                onClick = {openDialog}
+                onClick={openDialog}
             >
-                Подсчет итоговой отметки
+                <Typography>
+                    Подсчет итоговой отметки
+                </Typography>
+                <AddRoundedIcon/>
             </Button>
             <AddAssessmentFile
                 onClose = {closeDialog}

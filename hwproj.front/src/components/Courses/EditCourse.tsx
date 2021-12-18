@@ -165,17 +165,15 @@ const EditCourse: FC<RouteComponentProps<IEditCourseProps>> = (props) => {
                             </Link>
                         </Grid>
                         <Grid item>
-                           <OpenDialogForAddingAssessmentFile
-                               update = {getCourse}
-                               courseId = {props.match.params.courseId}
-                           /> 
-                        </Grid>
-                        <Grid item>
                             <Lecturers
                                 update={getCourse}
                                 mentors={courseState.mentors}
                                 courseId={props.match.params.courseId}
                                 isEditCourse={true}
+                            />
+                            <OpenDialogForAddingAssessmentFile
+                                update = {getCourse}
+                                courseId = {props.match.params.courseId}
                             />
                         </Grid>
                     </Grid>
