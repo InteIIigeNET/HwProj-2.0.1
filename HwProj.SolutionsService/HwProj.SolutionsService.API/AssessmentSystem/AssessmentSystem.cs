@@ -36,7 +36,7 @@ namespace HwProj.SolutionsService.API.AssessmentSystem
             {
                 stream.Read(fileInBytes, 0, (int) file.Length);
             }
-            var loadBuild = Assembly.ReflectionOnlyLoad(fileInBytes);
+            var loadBuild = Assembly.Load(fileInBytes);
             return loadBuild.ExportedTypes.FirstOrDefault(t =>
                 t.IsClass && typeof(IAssessmentSystem).GetTypeInfo().IsAssignableFrom(t.GetTypeInfo())) != null;
         }

@@ -42,19 +42,21 @@ const AddAssessmentFile: FC<AddAssessmentFileProps> = (props) =>
         {
             var formdata = new FormData()
             formdata.append("File", fileState)
-            fetch(url, {
+            var response = await fetch(url, {
                 headers: {"Authorization" : "Bearer " + ApiSingleton.authService.getToken()},
                 method: 'POST',
                 body: formdata
-            }).then((response) => {
-                if (response.status >= 200 && response.status < 300) {
-                    setResponseState(response.json() as ResponseForAddAssessmentMethod)
-                    setIsFileUpload(responseState.everyThingOK!)
-                }
-                else {
-                    throw response
-                }
             })
+            if (response.status >= 200 && response.status < 300) {
+                var responseInJson = await response.json()
+                var parsedResponse = responseInJson as ResponseForAddAssessmentMethod
+                setResponseState(parsedResponse)
+                setIsFileUpload(parsedResponse.everyThingOK!)
+            }
+            else {
+                setResponseState((prevState) => ({everyThingOK: false, errorMessage: "При загрузке файла возникла ошибка"}))
+                throw response
+            }
         }
     }
     
@@ -81,16 +83,24 @@ const AddAssessmentFile: FC<AddAssessmentFileProps> = (props) =>
                             <input
                                 name="user-file"
                                 type="file"
-                                onChange={(e) => setFileState(e.target["files"]![0])}
+                                onChange={(e) => {
+                                    setFileState(e.target["files"]![0])
+                                    setIsFileUpload(false)
+                                    setResponseState((prevState) => ({everyThingOK: undefined, errorMessage:''}))
+                                }}
                             />
                         </label>
                     }
                     {isFileUpload == false && responseState.everyThingOK == false &&
-                        <Typography>{responseState.errorMessage}</Typography>
+                        <Typography style={{color: "red", marginBottom: "0"}}>
+                            {responseState.errorMessage}
+                        </Typography>
                     }
 
                     {isFileUpload == true &&
-                        <Typography>Файл успешно загружен</Typography>
+                        <Typography style={{color: "green", marginBottom: "0"}}>
+                            Файл успешно загружен
+                        </Typography>
                     }
                     <DialogActions>
                         <Button
