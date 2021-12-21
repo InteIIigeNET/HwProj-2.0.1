@@ -125,13 +125,6 @@ namespace HwProj.SolutionsService.API.Services
                         .Any(t => t.Id == s.TaskId)))
                 .ToArray();
 
-            /*foreach (var item in result)
-            {
-                item.NumberSolutionsRateFinal = GetNumberSolutionsRate(solutions, item.TaskId, SolutionState.Final);
-                item.NumberSolutionsRatePosted = GetNumberSolutionsRate(solutions, item.TaskId, SolutionState.Posted);
-                item.AverageFinalGrade = GetAverageFinalGrade(solutions, item.TaskId);
-            }*/
-
             var result = course.Homeworks.SelectMany(hw =>
                 hw.Tasks.Select(t => new DetailedCourseStatsModel()
                 {

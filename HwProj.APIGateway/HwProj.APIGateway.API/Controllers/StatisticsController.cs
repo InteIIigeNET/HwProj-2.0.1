@@ -32,7 +32,7 @@ namespace HwProj.APIGateway.API.Controllers
         }
         
         [HttpGet("getDetailedStat/{courseId}")]
-        [ProducesResponseType(typeof(StatisticsCourseMatesModel[]), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(DetailedCourseStatsModel[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetDetailedCourseStatistics(long courseId)
         {
             var userId = Request.GetUserId();

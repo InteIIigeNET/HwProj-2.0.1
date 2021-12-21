@@ -341,6 +341,62 @@ export interface CreateTaskViewModel {
 /**
  * 
  * @export
+ * @interface DetailedCourseStatsModel
+ */
+export interface DetailedCourseStatsModel {
+    /**
+     * 
+     * @type {number}
+     * @memberof DetailedCourseStatsModel
+     */
+    taskId?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof DetailedCourseStatsModel
+     */
+    numberSolutionsRatePosted?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof DetailedCourseStatsModel
+     */
+    numberSolutionsRateFinal?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof DetailedCourseStatsModel
+     */
+    averageTimeHandIn?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof DetailedCourseStatsModel
+     */
+    minimumTimeHandIn?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof DetailedCourseStatsModel
+     */
+    averageScoreOnFirstAttempt?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof DetailedCourseStatsModel
+     */
+    averageFinalGrade?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof DetailedCourseStatsModel
+     */
+    averageNumberOfCorrections?: number;
+}
+
+/**
+ * 
+ * @export
  * @interface EditAccountViewModel
  */
 export interface EditAccountViewModel {
@@ -4682,6 +4738,42 @@ export const StatisticsApiFetchParamCreator = function (configuration?: Configur
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiStatisticsGetDetailedStatByCourseIdGet(courseId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'courseId' is not null or undefined
+            if (courseId === null || courseId === undefined) {
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiStatisticsGetDetailedStatByCourseIdGet.');
+            }
+            const localVarPath = `/api/Statistics/getDetailedStat/{courseId}`
+                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -4699,6 +4791,24 @@ export const StatisticsApiFp = function(configuration?: Configuration) {
          */
         apiStatisticsByCourseIdGet(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<StatisticsCourseMatesModel>> {
             const localVarFetchArgs = StatisticsApiFetchParamCreator(configuration).apiStatisticsByCourseIdGet(courseId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiStatisticsGetDetailedStatByCourseIdGet(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<DetailedCourseStatsModel>> {
+            const localVarFetchArgs = StatisticsApiFetchParamCreator(configuration).apiStatisticsGetDetailedStatByCourseIdGet(courseId, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -4727,6 +4837,15 @@ export const StatisticsApiFactory = function (configuration?: Configuration, fet
         apiStatisticsByCourseIdGet(courseId: number, options?: any) {
             return StatisticsApiFp(configuration).apiStatisticsByCourseIdGet(courseId, options)(fetch, basePath);
         },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiStatisticsGetDetailedStatByCourseIdGet(courseId: number, options?: any) {
+            return StatisticsApiFp(configuration).apiStatisticsGetDetailedStatByCourseIdGet(courseId, options)(fetch, basePath);
+        },
     };
 };
 
@@ -4746,6 +4865,17 @@ export class StatisticsApi extends BaseAPI {
      */
     public apiStatisticsByCourseIdGet(courseId: number, options?: any) {
         return StatisticsApiFp(this.configuration).apiStatisticsByCourseIdGet(courseId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} courseId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StatisticsApi
+     */
+    public apiStatisticsGetDetailedStatByCourseIdGet(courseId: number, options?: any) {
+        return StatisticsApiFp(this.configuration).apiStatisticsGetDetailedStatByCourseIdGet(courseId, options)(this.fetch, this.basePath);
     }
 
 }

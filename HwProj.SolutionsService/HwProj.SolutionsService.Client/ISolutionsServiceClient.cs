@@ -16,6 +16,6 @@ namespace HwProj.SolutionsService.Client
         Task<long> PostGroupSolution(SolutionViewModel model, long taskId, long groupId);
         Task<Solution[]> GetTaskSolutions(long groupId, long taskId);
         Task<StatisticsCourseMatesModel[]> GetCourseStatistics(long courseId, string userId);
-        Task<StatisticsCourseMatesModel[]> GetDetailedCourseStatistics(long courseId, string userId);
+        Task<DetailedCourseStatsModel[]> GetDetailedCourseStatistics(long courseId, string userId);
     }
 }

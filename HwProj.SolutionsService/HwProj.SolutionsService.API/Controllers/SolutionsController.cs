@@ -162,7 +162,7 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpGet("getDetailedCourseStat/{courseId}")]
-        [ProducesResponseType(typeof(DetailedCourseStatsModel), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(DetailedCourseStatsModel[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetDetailedCourseStat(long courseId, [FromQuery] string userId)
         {
             var result = await _solutionsService.GetDetailedCourseStat(courseId, userId);

@@ -15,6 +15,7 @@ import List from "@material-ui/core/List";
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import Lecturers from "./Lecturers";
+import DetailedStatistics from "./DetailedStatistics";
 
 interface ICourseMate {
     name: string;
@@ -260,7 +261,10 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                             </Grid>
                             <Grid role="tabpanel" hidden={courseState.tabValue !== 1} id="simple-tab-1">
                                 <Grid item xs={11}>
-                                    <Typography>AAAAAAAAAAAAAAA</Typography>
+                                    <DetailedStatistics
+                                        course={courseState.course}
+                                        homeworks={courseState.courseHomework}
+                                    />
                                 </Grid>
                             </Grid>
                         </Grid>
