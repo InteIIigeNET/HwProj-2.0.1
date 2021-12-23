@@ -20,7 +20,8 @@ import "./Styles/Profile.css";
 import parse from 'html-react-parser';
 import {Redirect} from "react-router-dom";
 import {makeStyles} from "@material-ui/styles";
-import CategoryEnum = CategorizedNotifications.CategoryEnum;
+
+let CategoryEnum = CategorizedNotifications.CategoryEnum;
 
 interface IProfileState {
     isLoaded: boolean;
@@ -31,14 +32,10 @@ interface IProfileProps {
     id: string;
 }
 
-// type CategoriesMap<T> = {
-//     [Property in keyof T]: boolean;
-// };
-
 interface IFilterState {
-    categoryFlag: Map<CategoryEnum, boolean>;
+    categoryFlag: Map<CategorizedNotifications.CategoryEnum, boolean>;
     filteredNotifications: NotificationViewModel[];
-    showAll: boolean
+    showAll: boolean;
 }
 
 const useStyles = makeStyles(theme => ({
@@ -212,7 +209,6 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
                     <MenuItem value={CategoryEnum.NUMBER_2}>Курсы</MenuItem>
                     <MenuItem value={CategoryEnum.NUMBER_3}>Домашки</MenuItem>
                 </Select>
-                //renderNotifications
             </Grid>
         </div>
     }
