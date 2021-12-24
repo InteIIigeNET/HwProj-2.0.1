@@ -84,59 +84,6 @@ namespace HwProj.SolutionsService.API.Services
             return solution.Id;
         }
 
-        public async Task<long> PostFromTelegramAsync(long taskId, string githubUrl, string comment,
-            string studentId)
-        {
-            var task1 = _coursesServiceClient.GetTask(taskId);
-            var taskModel1 = _mapper.Map<HomeworkTaskViewModel>(task1);
-            var homework1 = await _coursesServiceClient.GetHomework(taskModel1.HomeworkId);
-            var courseId = homework1.CourseId;
-            var group = await _coursesServiceClient.GetCourseGroupsById(courseId, studentId);
-            long? groupId = null;
-            if (group.Tasks.Contains(taskId))
-            {
-                groupId = group.Id;
-            }
-            var solution = new Solution{
-                
-                GithubUrl = githubUrl,
-                Comment = comment,
-                State = SolutionState.Posted,
-                StudentId = studentId,
-                GroupId = groupId,
-                TaskId = taskId,
-                PublicationDate = DateTime.Now,
-                LecturerComment = null};
-            var allSolutionsForTask= await GetTaskSolutionsFromStudentAsync(taskId, solution.StudentId);
-            var currentSolution = allSolutionsForTask.FirstOrDefault(s => s.Id == solution.Id);
-            var solutionModel = _mapper.Map<SolutionViewModel>(solution);
-            var task = await _coursesServiceClient.GetTask(solution.TaskId);
-            var taskModel = _mapper.Map<HomeworkTaskViewModel>(task);
-            var homework = await _coursesServiceClient.GetHomework(task.HomeworkId);
-            var courses = await _coursesServiceClient.GetCourseById(homework.CourseId, solution.StudentId);
-            var student = await _authServiceClient.GetAccountData((solutionModel.StudentId));
-            var studentModel = _mapper.Map<AccountDataDto>(student);
-            _eventBus.Publish(new StudentPassTaskEvent(courses, solutionModel, studentModel, taskModel));
-
-            if (currentSolution == null)
-            {
-                solution.TaskId = taskId;
-                var id = await _solutionsRepository.AddAsync(solution);
-                return id;
-            }
-    
-            await _solutionsRepository.UpdateAsync(currentSolution.Id, s => new Solution()
-                {
-                    State = SolutionState.Rated,
-                    Comment = solution.Comment,
-                    GithubUrl = solution.GithubUrl,
-                    PublicationDate = solution.PublicationDate,
-                }
-            );
-
-            return solution.Id;
-        }
-
         public async Task RateSolutionAsync(long solutionId, int newRating, string lecturerComment)
         {
             var solution = await _solutionsRepository.GetAsync(solutionId);
