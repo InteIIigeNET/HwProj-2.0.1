@@ -68,7 +68,7 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
                                         component="td"
                                         align="center"
                                     >
-                                        {this.state.stat.length + 1}
+                                        {this.props.homeworks.length + 1}
                                     </TableCell>
                                 }
                             </TableRow>
