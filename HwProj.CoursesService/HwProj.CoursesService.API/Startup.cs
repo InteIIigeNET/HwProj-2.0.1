@@ -41,7 +41,7 @@ namespace HwProj.CoursesService.API
             services.AddScoped<CourseMentorOnlyAttribute>();
 
             services.AddEventBus(Configuration);
-            
+
             services.AddHttpClient();
             services.AddAuthServiceClient();
 
