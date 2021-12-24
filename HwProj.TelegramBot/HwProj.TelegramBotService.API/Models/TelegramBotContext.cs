@@ -1,14 +1,16 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using HwProj.Models.TelegramBotService;
+using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.TelegramBotService.API.Models
 {
-    public class TelegramBotContext : DbContext
+    public sealed class TelegramBotContext : DbContext
     {
-        public DbSet<TelegramUserModel> TelegramUser { get; set; }
+        public DbSet<UserTelegram> TelegramUser { get; set; }
         
         public TelegramBotContext(DbContextOptions<TelegramBotContext> options) 
             : base(options)
         {
+            Database.EnsureCreated();
         }
         
     }

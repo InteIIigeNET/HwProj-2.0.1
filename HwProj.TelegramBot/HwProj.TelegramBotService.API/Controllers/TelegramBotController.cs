@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using HwProj.Models.TelegramBotService;
 using HwProj.TelegramBotService.API.Models;
 using HwProj.TelegramBotService.API.Service;
 using Microsoft.AspNetCore.Mvc;
@@ -42,7 +43,7 @@ namespace HwProj.TelegramBotService.API.Controllers
         }
         
         [HttpGet("get/{studentId}")]
-        public async Task<TelegramUserModel> GetUser(string studentId)
+        public async Task<UserTelegram> GetUser(string studentId)
         {
             return await _userService.TelegramUserModelByStudentId(studentId);
         }

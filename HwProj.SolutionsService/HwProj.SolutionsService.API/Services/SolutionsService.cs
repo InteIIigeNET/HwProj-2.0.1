@@ -84,18 +84,29 @@ namespace HwProj.SolutionsService.API.Services
             return solution.Id;
         }
 
-        /*public async Task<long> PostOrUpdateFromTelegramAsync(long taskId, string githubUrl, string comment, string studentId)
+        public async Task<long> PostFromTelegramAsync(long taskId, string githubUrl, string comment,
+            string studentId)
         {
-            var solution = new Solution {
-                Id = ,
+            var task1 = _coursesServiceClient.GetTask(taskId);
+            var taskModel1 = _mapper.Map<HomeworkTaskViewModel>(task1);
+            var homework1 = await _coursesServiceClient.GetHomework(taskModel1.HomeworkId);
+            var courseId = homework1.CourseId;
+            var group = await _coursesServiceClient.GetCourseGroupsById(courseId, studentId);
+            long? groupId = null;
+            if (group.Tasks.Contains(taskId))
+            {
+                groupId = group.Id;
+            }
+            var solution = new Solution{
+                
                 GithubUrl = githubUrl,
                 Comment = comment,
-                State = SolutionState.Rated,
+                State = SolutionState.Posted,
                 StudentId = studentId,
-                GroupId = ,
+                GroupId = groupId,
                 TaskId = taskId,
                 PublicationDate = DateTime.Now,
-                LecturerComment =  null};
+                LecturerComment = null};
             var allSolutionsForTask= await GetTaskSolutionsFromStudentAsync(taskId, solution.StudentId);
             var currentSolution = allSolutionsForTask.FirstOrDefault(s => s.Id == solution.Id);
             var solutionModel = _mapper.Map<SolutionViewModel>(solution);
@@ -124,7 +135,7 @@ namespace HwProj.SolutionsService.API.Services
             );
 
             return solution.Id;
-        }*/
+        }
 
         public async Task RateSolutionAsync(long solutionId, int newRating, string lecturerComment)
         {

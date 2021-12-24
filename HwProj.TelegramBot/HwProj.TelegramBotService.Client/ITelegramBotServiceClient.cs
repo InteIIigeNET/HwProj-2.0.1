@@ -1,11 +1,10 @@
 ﻿using System.Threading.Tasks;
-using HwProj.Models.Result;
-using HwProj.TelegramBotService.API.Models;
+using HwProj.Models.TelegramBotService;
 
 namespace HwProj.TelegramBotService.Client
 {
     public interface ITelegramBotServiceClient
     {
-        Task<TelegramUserModel> GetTelegramUser(string studentId);
+        Task<UserTelegram> GetTelegramUser(string studentId);
     }
 }

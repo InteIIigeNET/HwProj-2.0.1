@@ -1,15 +1,19 @@
 ﻿using HwProj.EventBus.Client;
+using HwProj.Models.TelegramBotService;
 using HwProj.TelegramBotService.API.Models;
 
 namespace HwProj.TelegramBotService.API.Events
 {
     public class ConfirmTelegramBotEvent : Event
     {
-        public TelegramUserModel TelegramUserModel { get; }
+        public string StudentId { get; }
+        
+        public string Code { get; }
 
-        public ConfirmTelegramBotEvent(TelegramUserModel userModel)
+        public ConfirmTelegramBotEvent(string studentId, string code)
         {
-            TelegramUserModel = userModel;
+            StudentId = studentId;
+            Code = code;
         }
     }
 }

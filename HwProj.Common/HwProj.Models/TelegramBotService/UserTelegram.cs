@@ -1,10 +1,10 @@
-﻿/*using HwProj.Repositories;
+﻿using HwProj.Repositories;
 
-namespace HwProj.TelegramBotService.API.Models
+namespace HwProj.Models.TelegramBotService
 {
-    public class TelegramUserModel
+    public class UserTelegram : IEntity<long>
     {
-        /*public long Id { get; set; }
+        public long Id { get; set; }
         
         public long ChatId { get; set; }
 
@@ -16,8 +16,6 @@ namespace HwProj.TelegramBotService.API.Models
         
         public string Code { get; set; }
         
-        public string Operation { get; set; }#1#
-        
-        /*public long TaskId { get; set; }#1#
+        public string Operation { get; set; }
     }
-}*/
+}

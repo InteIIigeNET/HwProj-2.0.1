@@ -16,7 +16,7 @@ namespace HwProj.SolutionsService.API.Services
         
         Task<long> PostOrUpdateAsync(long taskId, Solution solution);
 
-        /*Task<long> PostOrUpdateFromTelegramAsync(long taskId, string githubUrl, string comment);*/
+        Task<long> PostFromTelegramAsync(long taskId, string githubUrl, string comment, string studentId);
 
         Task RateSolutionAsync(long solutionId, int newRating, string lecturerComment);
 

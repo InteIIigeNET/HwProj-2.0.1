@@ -14,9 +14,7 @@ import parse from 'html-react-parser';
 import {ChangeEvent, Component, FC, useEffect, useState} from "react";
 import {Redirect} from "react-router-dom";
 import {makeStyles} from "@material-ui/styles";
-import Image from 'material-ui-image'
-import telegramLogo from './tlgm.png'
-import "./Styles/telegram.css";
+import Button from "@material-ui/core/Button";
 
 interface IProfileState {
   isLoaded: boolean;
@@ -119,7 +117,7 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
 	}
 
 	if (profileState.isLoaded) {
-		const hrefLink = "https://t.me/HwProjBot?start=>" + accountState.email;
+		const hrefLink = "https://t.me/HwProjBot?start=>";
 		const fullName = accountState.middleName && accountState.surname
 			? accountState.name + ' ' + accountState.middleName + ' ' + accountState.surname
 			: accountState.surname
@@ -132,12 +130,14 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
 						<Typography style={{ fontSize: '20px' }}>
 							{fullName}
 						</Typography>
-						<a href={hrefLink} target="_blank">
-							<img
-								className="telegram"
-								src={telegramLogo}
-							/>
-						</a>
+						<Button variant="outlined" href={hrefLink}
+							style={{ marginRight: '5px'}}
+							size="small"
+							color="primary"
+							type="submit"
+						>
+							Попробовать HwProjBot
+						</Button>
 						<Typography style={{ fontSize: '20px' }}>
 							{accountState.email}
 						</Typography>

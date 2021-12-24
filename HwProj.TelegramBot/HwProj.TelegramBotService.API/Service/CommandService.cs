@@ -29,9 +29,7 @@ namespace HwProj.TelegramBotService.API.Service
             {
                 return;
             }
-            
-            var user = _context.TelegramUser.FirstOrDefaultAsync(x => x.ChatId == update.Message.Chat.Id).Result;
-            
+
             if (update.Type == UpdateType.Message)
             {
                 var message = update.Message?.Text;
@@ -44,9 +42,10 @@ namespace HwProj.TelegramBotService.API.Service
                         await ExecuteCommand(CommandNames.GetCourses, update);
                         return;
                 }
-                if (user.Operation == "wait_code" || user.Operation == "check_code")
+                var userWantRegister = _context.TelegramUser.FirstOrDefaultAsync(x => x.ChatId == update.Message.Chat.Id).Result;
+                if (userWantRegister.Operation == "wait_code" || userWantRegister.Operation == "check_code")
                 {
-                    switch (user.Operation)
+                    switch (userWantRegister.Operation)
                     {
                         case "wait_code":
                             await ExecuteCommand(CommandNames.WaitCodeCommand, update);
@@ -57,34 +56,37 @@ namespace HwProj.TelegramBotService.API.Service
                     }
                 }
             }
-            else if (user.IsLecture == false)
+            else if (update.Type == UpdateType.CallbackQuery)
             {
-                switch (update.CallbackQuery.Data.Split(' ')[0])
+                var user = _context.TelegramUser.FirstOrDefaultAsync(x => x.ChatId == update.CallbackQuery.Message.Chat.Id).Result;
+                if (user.IsLecture == false)
                 {
-                    case "/courses":
-                        await ExecuteCommand(CommandNames.GetCourses, update);
-                    break;
-                    case "/homeworks":
-                        await ExecuteCommand(CommandNames.GetHomeworks, update);
-                    break;
-                    case "/statistics":
-                        await ExecuteCommand(CommandNames.GetStatistics, update);
-                    break;
-                    case "/task":
-                        await ExecuteCommand(CommandNames.GetTasks, update);
-                    break;
-                    case "/taskinfo":
-                        await ExecuteCommand(CommandNames.GetTaskInfo, update);
-                    break;
-                    case "/solutions":
-                        await ExecuteCommand(CommandNames.GetSolutionsFromTask, update);
-                    break;
-                    case "/solutioninfo":
-                        await ExecuteCommand(CommandNames.GetSolutionInfo, update);
-                    break;
+                    switch (update.CallbackQuery.Data.Split(' ')[0])
+                    {
+                        case "/courses":
+                            await ExecuteCommand(CommandNames.GetCourses, update);
+                            break;
+                        case "/homeworks":
+                            await ExecuteCommand(CommandNames.GetHomeworks, update);
+                            break;
+                        case "/statistics":
+                            await ExecuteCommand(CommandNames.GetStatistics, update);
+                            break;
+                        case "/task":
+                            await ExecuteCommand(CommandNames.GetTasks, update);
+                            break;
+                        case "/taskinfo":
+                            await ExecuteCommand(CommandNames.GetTaskInfo, update);
+                            break;
+                        case "/solutions":
+                            await ExecuteCommand(CommandNames.GetSolutionsFromTask, update);
+                            break;
+                        case "/solutioninfo":
+                            await ExecuteCommand(CommandNames.GetSolutionInfo, update);
+                            break;
+                    }
                 }
             }
-            
         }
         
         private async Task ExecuteCommand(string commandName, Update update)

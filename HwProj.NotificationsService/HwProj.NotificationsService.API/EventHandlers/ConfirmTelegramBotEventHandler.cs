@@ -22,11 +22,11 @@ namespace HwProj.NotificationsService.API.EventHandlers
             var notification = new Notification
             {
                 Sender = "TelegramBotService",
-                Body = $"Ваш код для телеграмма - {@event.TelegramUserModel.Code}.",
+                Body = $"Ваш код для телеграмма - {@event.Code}.",
                 Category = "TelegramBotService",
                 Date = DateTime.UtcNow,
                 HasSeen = false,
-                Owner = @event.TelegramUserModel.AccountId
+                Owner = @event.StudentId
             };
             await _notificationRepository.AddAsync(notification);
         }

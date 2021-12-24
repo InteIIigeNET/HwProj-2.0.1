@@ -17,6 +17,7 @@ namespace HwProj.NotificationsService.API.Services
         private readonly INotificationsRepository _repository;
         private readonly IMapper _mapper;
         private readonly IConfigurationSection _configuration;
+        private readonly IConfigurationSection _configurationMail;
         private readonly TelegramBotClient _botClient;
         private readonly ITelegramBotServiceClient _telegramBotServiceClient;
         private readonly MailKit.Net.Smtp.SmtpClient _client;
@@ -26,6 +27,7 @@ namespace HwProj.NotificationsService.API.Services
             _repository = repository;
             _mapper = mapper;
             _configuration = configuration.GetSection("Telegram");
+            _configurationMail = configuration.GetSection("Notification");
             _telegramBotServiceClient = telegramBotServiceClient;
             _botClient = new TelegramBotClient(_configuration["Token"]);
             _client = new MailKit.Net.Smtp.SmtpClient();
@@ -57,7 +59,7 @@ namespace HwProj.NotificationsService.API.Services
         {
             var emailMessage = new MimeMessage();
 
-            emailMessage.From.Add(new MailboxAddress("HwProj-2.0.1", _configuration["Mail"]));
+            emailMessage.From.Add(new MailboxAddress("HwProj-2.0.1", _configurationMail["Mail"]));
             emailMessage.To.Add(new MailboxAddress("", email));
             emailMessage.Subject = topic;
             emailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Html)
@@ -65,8 +67,8 @@ namespace HwProj.NotificationsService.API.Services
                 Text = notification.Body
             };
 
-            await _client.ConnectAsync(_configuration["ConnectSite"], 465, true);
-            await _client.AuthenticateAsync(_configuration["Mail"], _configuration["Password"]);
+            await _client.ConnectAsync(_configurationMail["ConnectSite"], 465, true);
+            await _client.AuthenticateAsync(_configurationMail["Mail"], _configurationMail["Password"]);
             await _client.SendAsync(emailMessage);
 
             await _client.DisconnectAsync(true);

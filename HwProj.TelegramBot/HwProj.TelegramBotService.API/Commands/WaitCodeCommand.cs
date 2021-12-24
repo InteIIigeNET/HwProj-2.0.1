@@ -25,7 +25,8 @@ namespace HwProj.TelegramBotService.API.Commands
 
             if (user == null)
             {
-                await _botClient.SendTextMessageAsync(update.Message.Chat.Id, "E-mail не зарегистрирован на Hw-Proj2.0.1.\nВведите /start", ParseMode.Markdown);
+                await _botClient.SendTextMessageAsync(update.Message.Chat.Id, "E-mail не зарегистрирован на Hw-Proj2.0.1." +
+                                                                              "\nВведите /start", ParseMode.Markdown);
             }
 
             await _botClient.SendTextMessageAsync(user.ChatId, "Ваш код отправлен.\nВведите его:", ParseMode.Markdown);

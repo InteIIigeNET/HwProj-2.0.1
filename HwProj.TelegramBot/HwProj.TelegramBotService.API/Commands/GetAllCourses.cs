@@ -27,7 +27,7 @@ namespace HwProj.TelegramBotService.API.Commands
         {
             var user = await _userService.UserByUpdate(update);
 
-            await _botClient.SendTextMessageAsync(user.ChatId, "Повторите запрос снова!", ParseMode.Markdown/*, replyMarkup:inlineKeyboard*/);
+            await _botClient.SendTextMessageAsync(user.ChatId, "Повторите запрос снова!", ParseMode.Markdown);
         }
     }
 }

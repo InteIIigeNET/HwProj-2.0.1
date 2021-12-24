@@ -2,8 +2,7 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using HwProj.HttpUtils;
-using HwProj.Models.Result;
-using HwProj.TelegramBotService.API.Models;
+using HwProj.Models.TelegramBotService;
 using Microsoft.Extensions.Configuration;
 
 namespace HwProj.TelegramBotService.Client
@@ -19,14 +18,14 @@ namespace HwProj.TelegramBotService.Client
             _telegramBotUri = new Uri(configuration.GetSection("Services")["TelegramBot"]);
         }
         
-        public async Task<TelegramUserModel> GetTelegramUser(string studentId)
+        public async Task<UserTelegram> GetTelegramUser(string studentId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get, 
                 _telegramBotUri + $"api/TelegramBot/get/{studentId}");
 
             var response = await _httpClient.SendAsync(httpRequest); 
-            return await response.DeserializeAsync<TelegramUserModel>();
+            return await response.DeserializeAsync<UserTelegram>();
         }
     }
 }

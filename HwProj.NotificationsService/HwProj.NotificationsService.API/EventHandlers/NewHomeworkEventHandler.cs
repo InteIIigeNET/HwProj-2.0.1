@@ -51,7 +51,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 var inlineKeyboard = new InlineKeyboardMarkup(new InlineKeyboardButton
                 {
                     Text = $"{@event.Homework}",
-                    CallbackData = $"/homeworks {@event.HomeworkId}"
+                    CallbackData = $"/homeworks {@event.Course.Id}"
                 });
                 await _notificationsService.SendTelegramMessageAsync(notification, inlineKeyboard);
             }

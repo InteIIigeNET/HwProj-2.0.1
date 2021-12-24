@@ -4,6 +4,7 @@ using HwProj.CoursesService.Client;
 using HwProj.SolutionsService.Client;
 using HwProj.TelegramBotService.API.Commands;
 using HwProj.TelegramBotService.API.Models;
+using HwProj.TelegramBotService.API.Repositories;
 using HwProj.TelegramBotService.API.Service;
 using HwProj.Utils.Configuration;
 using Microsoft.AspNetCore.Builder;
@@ -28,6 +29,7 @@ namespace HwProj.TelegramBotService.API
             var connectionString = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<TelegramBotContext>(options => options.UseSqlServer(connectionString));
             services.AddScoped<TelegramBot>();
+            services.AddScoped<ITelegramBotRepository, TelegramBotRepository>();
             services.AddScoped<ICommandService, CommandService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<Commands.Commands, StartCommand>();
