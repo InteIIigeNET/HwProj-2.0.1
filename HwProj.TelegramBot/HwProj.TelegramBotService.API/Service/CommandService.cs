@@ -87,6 +87,8 @@ namespace HwProj.TelegramBotService.API.Service
                     }
                 }
             }
+
+            await ExecuteCommand(CommandNames.ErrorCommand, update);
         }
         
         private async Task ExecuteCommand(string commandName, Update update)

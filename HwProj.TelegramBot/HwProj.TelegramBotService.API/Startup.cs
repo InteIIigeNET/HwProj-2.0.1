@@ -43,7 +43,6 @@ namespace HwProj.TelegramBotService.API
             services.AddScoped<Commands.Commands, WaitCodeCommand>();
             services.AddScoped<Commands.Commands, CheckCodeCommand>();
             services.AddScoped<Commands.Commands, ErrorCommand>();
-            /*services.AddScoped<Commands.Commands, SendSolution>();*/
 
             services.AddHttpClient();
             services.AddAuthServiceClient();
