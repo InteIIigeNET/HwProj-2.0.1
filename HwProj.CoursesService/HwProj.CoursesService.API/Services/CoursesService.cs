@@ -48,8 +48,10 @@ namespace HwProj.CoursesService.API.Services
             if (!course.MentorIds.Contains(userId))
             {
                 var currentDate = DateTime.UtcNow.AddHours(3);
-                course.Homeworks.ForEach(hw => hw.Tasks = new List<HomeworkTask>(hw.Tasks.Where(t => currentDate >= t.PublicationDate)));
+                course.Homeworks.ForEach(hw =>
+                    hw.Tasks = new List<HomeworkTask>(hw.Tasks.Where(t => currentDate >= t.PublicationDate)));
             }
+
             return course;
         }
 
@@ -220,20 +222,23 @@ namespace HwProj.CoursesService.API.Services
                     {
                         MentorIds = newMentors,
                     });
+
+                    await RejectCourseMateAsync(courseId, userId);
                 }
             }
         }
-        
-        
+
         public async Task<AccountDataDto[]> GetLecturersAvailableForCourse(long courseId, string mentorId)
         {
             var lecturers = await _authServiceClient.GetAllLecturers();
             var mentorIds = (await GetAsync(courseId, mentorId)).MentorIds.Split('/').ToList();
             var availableLecturers = lecturers.Where(u => !mentorIds.Contains(u.Id));
-            
+
             return availableLecturers
-                .Select(u => new AccountDataDto(u.Name, u.Surname, u.Email, Roles.LecturerRole, u.IsExternalAuth, u.MiddleName))
-                .ToArray();;
+                .Select(u =>
+                    new AccountDataDto(u.Name, u.Surname, u.Email, Roles.LecturerRole, u.IsExternalAuth, u.MiddleName))
+                .ToArray();
+            ;
         }
     }
 }
