@@ -78,6 +78,8 @@ namespace HwProj.Utils.Configuration
 
             services.AddTransient<NoApiGatewayMiddleware>();
 
+            services.AddHttpContextAccessor();
+
             return services;
         }
 
