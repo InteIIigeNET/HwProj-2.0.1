@@ -152,8 +152,13 @@ namespace HwProj.SolutionsService.API.Services
 
         private double GetAverageTimeHandIn(Solution[] solutions, long taskId)
         {
-            var sol = solutions.Where(s => s.TaskId == taskId && s.State == SolutionState.Final).ToArray();
-            var result = sol.Count() == 0 ? 0 : sol.Average(s => (DateTime.Now - s.PublicationDate).TotalDays);
+            var sol = solutions
+                .Where(s => s.TaskId == taskId && s.State == SolutionState.Final)
+                .ToArray();
+
+            var result = sol.Count() == 0
+                ? 0
+                : sol.Average(s => (DateTime.Now - s.PublicationDate).TotalDays);
 
             return result;
         }
@@ -161,7 +166,9 @@ namespace HwProj.SolutionsService.API.Services
         private double GetMinimumTimeHandIn(Solution[] solutions, long taskId)
         {
             var sol = solutions.Where(s => s.TaskId == taskId && s.State == SolutionState.Final).ToArray();
-            var result = sol.Count() == 0 ? 0 : sol.Min(s => (DateTime.Now - s.PublicationDate).TotalDays);
+            var result = sol.Count() == 0
+                ? 0
+                : sol.Min(s => (DateTime.Now - s.PublicationDate).TotalDays);
 
             return result;
         }
@@ -178,7 +185,9 @@ namespace HwProj.SolutionsService.API.Services
         private double GetAverageFinalGrade(Solution[] solutions, long taskId)
         {
             var sol = solutions.Where(s => s.TaskId == taskId && s.State == SolutionState.Final).ToArray();
-            var result = sol.Count() == 0 ? 0 : sol.Average(s => s.Rating);
+            var result = sol.Count() == 0
+                ? 0
+                : sol.Average(s => s.Rating);
 
             return result;
         }
