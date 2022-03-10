@@ -44,6 +44,7 @@ namespace HwProj.CoursesService.API
 
             var httpClient = new HttpClient();
             services.AddAuthServiceClient(httpClient, "http://localhost:5001");
+            services.AddHttpContextAccessor();
 
             services.ConfigureHwProjServices("Courses API");
         }
@@ -51,6 +52,7 @@ namespace HwProj.CoursesService.API
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             app.ConfigureHwProj(env, "Courses API");
+            app.UseAuthentication();
         }
     }
 }
