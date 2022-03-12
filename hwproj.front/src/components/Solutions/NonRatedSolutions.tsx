@@ -16,11 +16,13 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore"
 import ReactMarkdown from 'react-markdown'
 import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useState} from "react";
+import {match} from "react-router-dom";
 
 interface ISolutionProps {
     solution: Solution,
     forMentor: boolean,
     isExpanded: boolean,
+    maxRating: number,
 }
 
 interface ISolutionState {
@@ -111,9 +113,10 @@ const NonRatedSolutionComponent: FC<ISolutionProps> = (props) => {
                                 fullWidth
                                 InputProps={{
                                     readOnly: !props.forMentor,
-                                    inputProps: {min: 0, max: nonRatedSolution.task.maxRating},
+                                    inputProps: {max: props.maxRating, min: 0},
                                 }}
                                 defaultValue={solution.rating!}
+                                maxRows={10}
                                 onChange={(e) => {
                                     e.persist()
                                     setNonRatedSolution((prevState) => ({

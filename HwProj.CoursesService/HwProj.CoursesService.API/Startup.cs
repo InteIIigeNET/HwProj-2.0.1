@@ -25,8 +25,8 @@ namespace HwProj.CoursesService.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var connection = Configuration.GetConnectionString("DefaultConnection");
-            services.AddDbContext<CourseContext>(options => options.UseSqlServer(connection));
+            var connectionString = ConnectionString.GetConnectionString(Configuration);
+            services.AddDbContext<CourseContext>(options => options.UseSqlServer(connectionString));
             services.AddScoped<ICoursesRepository, CoursesRepository>();
             services.AddScoped<ICourseMatesRepository, CourseMatesRepository>();
             services.AddScoped<IGroupsRepository, GroupsRepository>();
@@ -42,7 +42,6 @@ namespace HwProj.CoursesService.API
 
             services.AddEventBus(Configuration);
 
-            services.AddHttpContextAccessor();
             services.AddHttpClient();
             services.AddAuthServiceClient();
 
