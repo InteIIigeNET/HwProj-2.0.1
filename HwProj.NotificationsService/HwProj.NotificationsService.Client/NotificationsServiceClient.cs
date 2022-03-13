@@ -5,6 +5,7 @@ using System;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.Client
 {
@@ -12,11 +13,11 @@ namespace HwProj.NotificationsService.Client
     {
         private readonly HttpClient _httpClient;
         private readonly Uri _notificationServiceUri;
-
-        public NotificationsServiceClient(HttpClient httpClient, Uri notificationServiceUri)
+        
+        public NotificationsServiceClient(IHttpClientFactory clientFactory, IConfiguration configuration)
         {
-            _httpClient = httpClient;
-            _notificationServiceUri = notificationServiceUri;
+            _httpClient = clientFactory.CreateClient();
+            _notificationServiceUri = new Uri(configuration.GetSection("Services")["Notifications"]);
         }
 
         public async Task<NotificationViewModel[]> Get(string userId, NotificationFilter filter)

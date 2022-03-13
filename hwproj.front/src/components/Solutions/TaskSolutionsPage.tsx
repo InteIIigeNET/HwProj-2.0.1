@@ -107,6 +107,7 @@ const TaskSolutionsPage: FC<RouteComponentProps<ITaskSolutionsProps>> = (props) 
                                     forMentor={false}
                                     taskId={+props.match.params.taskId}
                                     studentId={userId as string}
+                                    maxRating={taskSolution.task!.maxRating!}
                                 />
                             </Grid>
                         )}
@@ -135,6 +136,7 @@ const TaskSolutionsPage: FC<RouteComponentProps<ITaskSolutionsProps>> = (props) 
                                         forMentor={false}
                                         taskId={+props.match.params.taskId}
                                         studentId={userId as string}
+                                        maxRating={taskSolution.task!.maxRating!}
                                     />
                                 </div>
                                 <div style={{ marginTop: "16px" }}>
