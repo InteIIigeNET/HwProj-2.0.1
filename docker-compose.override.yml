@@ -28,10 +28,10 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:5000
-      - Services:Auth=http://hwproj.authservice.api:5001
-      - Services:Courses=http://hwproj.coursesservice.api:5002
-      - Services:Solutions=http://hwproj.solutionsservice.api:5007
-      - Services:Notifications=http://hwproj.notificationsservice.api:5006
+      - Services:Auth=http://hwproj.authservice.api
+      - Services:Courses=http://hwproj.coursesservice.api
+      - Services:Solutions=http://hwproj.solutionsservice.api
+      - Services:Notifications=http://hwproj.notificationsservice.api
     ports:
       - "5000:5000"
 
@@ -39,7 +39,6 @@ services:
     environment:
       - ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=AuthServiceDB;User=sa;Password=Your_password123;
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:5001
       - EventBus:EventBusHostName=rabbitmq
     ports:
       - "5001:5001"
@@ -51,9 +50,8 @@ services:
     environment:
       - ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=CourseWorksServiceDB;MultipleActiveResultSets=True;User=sa;Password=Your_password123;
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:5002
       - EventBus:EventBusHostName=rabbitmq
-      - Services:Auth=http://hwproj.authservice.api:5001
+      - Services:Auth=http://hwproj.authservice.api
     ports:
       - "5002:5002"
 
@@ -61,11 +59,10 @@ services:
     environment:
       - ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=NotificationsServiceDB;MultipleActiveResultSets=True;User=sa;Password=Your_password123;
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:5006
       - EventBus:EventBusHostName=rabbitmq
-      - Services:Auth=http://hwproj.authservice.api:5001
-      - Services:Courses=http://hwproj.coursesservice.api:5002
-      - Services:Solutions=http://hwproj.solutionsservice.api:5007
+      - Services:Auth=http://hwproj.authservice.api
+      - Services:Courses=http://hwproj.coursesservice.api
+      - Services:Solutions=http://hwproj.solutionsservice.api
     ports:
       - "5006:5006"
 
@@ -73,10 +70,9 @@ services:
     environment:
       - ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=SolutionServiceDB;User=sa;Password=Your_password123;
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:5007
       - EventBus:EventBusHostName=rabbitmq
-      - Services:Auth=http://hwproj.authservice.api:5001
-      - Services:Courses=http://hwproj.coursesservice.api:5002
+      - Services:Auth=http://hwproj.authservice.api
+      - Services:Courses=http://hwproj.coursesservice.api
     ports:
       - "5007:5007"
     #volumes:
