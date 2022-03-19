@@ -27,7 +27,7 @@ namespace HwProj.CoursesService.API.Filters
                 headers.TryGetValue("UserId", out var userId);
                 var mentorIds = _coursesService.GetCourseLecturers(long.Parse(courseId.ToString())).Result;
 
-                if (mentorIds != null && !mentorIds.Contains(userId.ToString()))
+                if (!mentorIds.Contains(userId.ToString()))
                 {
                     context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
                 }

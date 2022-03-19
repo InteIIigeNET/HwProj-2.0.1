@@ -226,7 +226,7 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<string[]> GetCourseLecturers(long courseId)
         {
-            var course = await _coursesRepository.GetAsync(long.Parse(courseId.ToString()));
+            var course = await _coursesRepository.GetAsync(courseId);
 
             return course.MentorIds
                 .Split('/')
