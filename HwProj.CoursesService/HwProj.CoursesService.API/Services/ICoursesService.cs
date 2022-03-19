@@ -16,5 +16,6 @@ namespace HwProj.CoursesService.API.Services
         Task<bool> RejectCourseMateAsync(long courseId, string studentId);
         Task<UserCourseDescription[]> GetUserCoursesAsync(string userId);
         Task AcceptLecturerAsync(long courseId, string lecturerEmail);
+        Task<string[]> GetCourseLecturers(long courseId);
     }
 }
