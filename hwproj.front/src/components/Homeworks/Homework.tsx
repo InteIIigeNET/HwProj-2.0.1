@@ -106,7 +106,7 @@ const Homework: FC<IHomeworkProps> = (props) => {
                 </AccordionSummary>
                 <AccordionDetails>
                     <div style={{width: '100%'}}>
-                        <ReactMarkdown source={props.homework.description}/>
+                        <ReactMarkdown children={props.homework.description!}/>
                         {(props.forMentor && homeworkState.createTask) &&
                         <div style={{width: '100%'}}>
                             <HomeworkTasks

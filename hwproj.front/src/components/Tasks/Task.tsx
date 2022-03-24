@@ -93,7 +93,7 @@ const Task: FC<ITaskProp> = (props) => {
                 <AccordionDetails>
                     <div>
                         <Typography variant="body1">
-                            <ReactMarkdown source={task.description}/>
+                            <ReactMarkdown children={task.description!}/>
                         </Typography>
                         <div className={classes.text}>
                             <Typography>
