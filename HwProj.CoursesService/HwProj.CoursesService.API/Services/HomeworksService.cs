@@ -30,7 +30,7 @@ namespace HwProj.CoursesService.API.Services
 
             var course = await _coursesRepository.GetWithCourseMatesAsync(courseId);
             var courseModel = _mapper.Map<CourseViewModel>(course);
-            _eventBus.Publish(new NewHomeworkEvent(homework.Title, courseModel));
+            _eventBus.Publish(new NewHomeworkEvent(homework.Title, homework.Id, courseModel));
 
             return await _homeworksRepository.AddAsync(homework);
         }
@@ -38,6 +38,11 @@ namespace HwProj.CoursesService.API.Services
         public async Task<Homework> GetHomeworkAsync(long homeworkId)
         {
             return await _homeworksRepository.GetWithTasksAsync(homeworkId);
+        }
+
+        public async Task<Homework[]> GetAllHomeworkFromCourseAsync(long courseId)
+        {
+            return await _homeworksRepository.GetAllWithTasksByCourseAsync(courseId);
         }
 
         public async Task DeleteHomeworkAsync(long homeworkId)

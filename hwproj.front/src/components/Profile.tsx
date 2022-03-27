@@ -11,9 +11,10 @@ import ApiSingleton from "api/ApiSingleton";
 import { AccountDataDto, NotificationViewModel } from "../api/";
 import "./Styles/Profile.css";
 import parse from 'html-react-parser';
-import {ChangeEvent, FC, useEffect, useState} from "react";
+import {ChangeEvent, Component, FC, useEffect, useState} from "react";
 import {Redirect} from "react-router-dom";
 import {makeStyles} from "@material-ui/styles";
+import Button from "@material-ui/core/Button";
 
 interface IProfileState {
   isLoaded: boolean;
@@ -116,6 +117,7 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
 	}
 
 	if (profileState.isLoaded) {
+		const hrefLink = "https://t.me/HwProjBot?start=>";
 		const fullName = accountState.middleName && accountState.surname
 			? accountState.name + ' ' + accountState.middleName + ' ' + accountState.surname
 			: accountState.surname
@@ -128,6 +130,14 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
 						<Typography style={{ fontSize: '20px' }}>
 							{fullName}
 						</Typography>
+						<Button variant="outlined" href={hrefLink}
+							style={{ marginRight: '5px'}}
+							size="small"
+							color="primary"
+							type="submit"
+						>
+							Попробовать HwProjBot
+						</Button>
 						<Typography style={{ fontSize: '20px' }}>
 							{accountState.email}
 						</Typography>
@@ -172,4 +182,4 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
 	)
 }
 
-export default Profile
+export default Profile;

@@ -2,7 +2,7 @@
 
 namespace HwProj.Models.AuthService.ViewModels
 {
-    public class User : IdentityUser
+    public class UserViewModel : IdentityUser
     {
         public string GitHubId { get; set; }
 
@@ -14,7 +14,7 @@ namespace HwProj.Models.AuthService.ViewModels
         
         public bool IsExternalAuth { get; set; }
 
-        public User()
+        public UserViewModel()
         {
         }
     }

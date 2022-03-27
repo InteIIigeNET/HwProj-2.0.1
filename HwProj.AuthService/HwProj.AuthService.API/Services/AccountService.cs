@@ -17,13 +17,13 @@ namespace HwProj.AuthService.API.Services
     public class AccountService : IAccountService
     {
         private readonly IUserManager _userManager;
-        private readonly SignInManager<User> _signInManager;
+        private readonly SignInManager<UserViewModel> _signInManager;
         private readonly IAuthTokenService _tokenService;
         private readonly IEventBus _eventBus;
         private readonly IMapper _mapper;
 
         public AccountService(IUserManager userManager,
-            SignInManager<User> signInManager,
+            SignInManager<UserViewModel> signInManager,
             IAuthTokenService authTokenService,
             IEventBus eventBus,
             IMapper mapper)
@@ -133,7 +133,7 @@ namespace HwProj.AuthService.API.Services
                 return Result<TokenCredentials>.Failed("Пароль должен содержать не менее 6 символов");
             }
 
-            var user = _mapper.Map<User>(model);
+            var user = _mapper.Map<UserViewModel>(model);
             user.UserName = user.Email.Split('@')[0];
 
             var createUserTask = model.IsExternalAuth
@@ -201,40 +201,40 @@ namespace HwProj.AuthService.API.Services
                 .ToArray();;
         }
 
-        private Task<IdentityResult> ChangeUserNameTask(User user, EditDataDTO model)
+        private Task<IdentityResult> ChangeUserNameTask(UserViewModel userViewModel, EditDataDTO model)
         {
             if (!string.IsNullOrWhiteSpace(model.Name))
             {
-                user.Name = model.Name;
+                userViewModel.Name = model.Name;
             }
             if (!string.IsNullOrWhiteSpace(model.Name))
             {
-                user.Surname = model.Surname;
+                userViewModel.Surname = model.Surname;
             }
             if (!string.IsNullOrWhiteSpace(model.Name))
             {
-                user.MiddleName = model.MiddleName;
+                userViewModel.MiddleName = model.MiddleName;
             }
 
-            return _userManager.UpdateAsync(user);
+            return _userManager.UpdateAsync(userViewModel);
         }
 
-        private Task<IdentityResult> ChangePasswordAsync(User user, EditDataDTO model)
+        private Task<IdentityResult> ChangePasswordAsync(UserViewModel userViewModel, EditDataDTO model)
         {
             return !string.IsNullOrWhiteSpace(model.NewPassword)
-                ? _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword)
+                ? _userManager.ChangePasswordAsync(userViewModel, model.CurrentPassword, model.NewPassword)
                 : Task.FromResult(IdentityResult.Success);
         }
 
-        private async Task SignIn(User user, string password)
+        private async Task SignIn(UserViewModel userViewModel, string password)
         {
-            await _signInManager.PasswordSignInAsync(user, password, false, false)
+            await _signInManager.PasswordSignInAsync(userViewModel, password, false, false)
                 .ConfigureAwait(false);
         }
 
-        private async Task<Result<TokenCredentials>> GetToken(User user)
+        private async Task<Result<TokenCredentials>> GetToken(UserViewModel userViewModel)
         {
-            return Result<TokenCredentials>.Success(await _tokenService.GetTokenAsync(user).ConfigureAwait(false));
+            return Result<TokenCredentials>.Success(await _tokenService.GetTokenAsync(userViewModel).ConfigureAwait(false));
         }
     }
 }

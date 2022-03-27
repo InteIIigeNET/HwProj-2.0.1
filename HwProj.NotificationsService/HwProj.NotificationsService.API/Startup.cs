@@ -1,4 +1,10 @@
-﻿using HwProj.AuthService.API.Events;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using System.Net.Http;
+using HwProj.AuthService.API.Events;
 using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.NotificationsService.API.EventHandlers;
@@ -16,6 +22,8 @@ using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.Client;
 using HwProj.SolutionsService.API.Events;
 using HwProj.SolutionsService.Client;
+using HwProj.TelegramBotService.API.Events;
+using HwProj.TelegramBotService.Client;
 using UpdateTaskMaxRatingEvent = HwProj.CoursesService.API.Events.UpdateTaskMaxRatingEvent;
 
 namespace HwProj.NotificationsService.API
@@ -31,11 +39,12 @@ namespace HwProj.NotificationsService.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var connectionString = ConnectionString.GetConnectionString(Configuration);
+           var connectionString = ConnectionString.GetConnectionString(Configuration);
             services.AddDbContext<NotificationsContext>(options => options.UseSqlServer(connectionString));
             services.AddScoped<INotificationsRepository, NotificationsRepository>();
             services.AddScoped<INotificationsService, Services.NotificationsService>();
             services.AddEventBus(Configuration);
+            services.AddTransient<IEventHandler<ConfirmTelegramBotEvent>, ConfirmTelegramBotEventHandler>();
             services.AddTransient<IEventHandler<StudentRegisterEvent>, RegisterEventHandler>();
             services.AddTransient<IEventHandler<RateEvent>, RateEventHandler>();
             services.AddTransient<IEventHandler<EditProfileEvent>, EditProfileEventHandler>();
@@ -52,12 +61,14 @@ namespace HwProj.NotificationsService.API
             services.AddAuthServiceClient();
             services.AddCoursesServiceClient();
             services.AddSolutionServiceClient();
+            services.AddTelegramBotClient();
 
             services.ConfigureHwProjServices("Notifications API");
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IEventBus eventBus)
         {
+            eventBus.Subscribe<ConfirmTelegramBotEvent>();
             eventBus.Subscribe<StudentRegisterEvent>();
             eventBus.Subscribe<InviteLecturerEvent>();
             eventBus.Subscribe<RateEvent>();

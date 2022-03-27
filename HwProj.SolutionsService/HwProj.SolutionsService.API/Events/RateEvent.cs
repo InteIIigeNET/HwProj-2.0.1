@@ -6,13 +6,16 @@ namespace HwProj.SolutionsService.API.Events
 {
     public class RateEvent : Event
     {
-        public HomeworkTaskViewModel Task { get; set; }
-        public SolutionViewModel Solution { get; set; }
+        public HomeworkTaskViewModel Task { get; }
+        public SolutionViewModel Solution { get; }
+        
+        public long SolutionId { get; }
 
-        public RateEvent(HomeworkTaskViewModel task, SolutionViewModel solution)
+        public RateEvent(HomeworkTaskViewModel task, SolutionViewModel solution, long solutionId)
         {
             Task = task;
             Solution = solution;
+            SolutionId = solutionId;
         }
     }
 }

@@ -90,7 +90,7 @@ namespace HwProj.AuthService.API.Controllers
 
 
         [HttpGet("findByEmail/{email}")]
-        [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(UserViewModel), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> FindByEmail(string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
@@ -99,9 +99,9 @@ namespace HwProj.AuthService.API.Controllers
 
         [HttpPost("getRole")]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetRolesAsync([FromBody] User user)
+        public async Task<IActionResult> GetRolesAsync([FromBody] UserViewModel userViewModel)
         {
-            var roles = await _userManager.GetRolesAsync(user);
+            var roles = await _userManager.GetRolesAsync(userViewModel);
             return Ok(roles[0]);
         }
 

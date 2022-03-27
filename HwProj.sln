@@ -69,6 +69,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HwProj.SolutionsService.Cli
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HwProj.Exceptions", "HwProj.Common\HwProj.Exceptions\HwProj.Exceptions.csproj", "{51463655-7668-4C7D-9FDE-D4D7CDAA82B8}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HwProj.TelegramBotService", "HwProj.TelegramBotService", "{42822186-2040-4216-9C1D-9849EA5D3CB5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.TelegramBotService.Client", "HwProj.TelegramBot\HwProj.TelegramBotService.Client\HwProj.TelegramBotService.Client.csproj", "{00F850B0-419E-44EA-9AFC-CBF3CBA26C91}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.TelegramBotService.API", "HwProj.TelegramBot\HwProj.TelegramBotService.API\HwProj.TelegramBotService.API.csproj", "{677D77E8-ACFA-49FE-A752-F787B5F7A3EE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -159,6 +165,14 @@ Global
 		{51463655-7668-4C7D-9FDE-D4D7CDAA82B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{51463655-7668-4C7D-9FDE-D4D7CDAA82B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{51463655-7668-4C7D-9FDE-D4D7CDAA82B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00F850B0-419E-44EA-9AFC-CBF3CBA26C91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00F850B0-419E-44EA-9AFC-CBF3CBA26C91}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00F850B0-419E-44EA-9AFC-CBF3CBA26C91}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00F850B0-419E-44EA-9AFC-CBF3CBA26C91}.Release|Any CPU.Build.0 = Release|Any CPU
+		{677D77E8-ACFA-49FE-A752-F787B5F7A3EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{677D77E8-ACFA-49FE-A752-F787B5F7A3EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{677D77E8-ACFA-49FE-A752-F787B5F7A3EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{677D77E8-ACFA-49FE-A752-F787B5F7A3EE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -185,6 +199,8 @@ Global
 		{0CBD72C5-1CCF-4C13-8046-732398816160} = {1EAEB779-E7C8-4EF9-B9A9-22CB8E3C246D}
 		{C1ACAB32-4100-4C19-AE08-57FA9BA75DF2} = {A85A3030-2878-4923-B450-9683832CDAC1}
 		{51463655-7668-4C7D-9FDE-D4D7CDAA82B8} = {77D857A8-45C6-4432-B4BF-A2F2C9ECA7FE}
+		{00F850B0-419E-44EA-9AFC-CBF3CBA26C91} = {42822186-2040-4216-9C1D-9849EA5D3CB5}
+		{677D77E8-ACFA-49FE-A752-F787B5F7A3EE} = {42822186-2040-4216-9C1D-9849EA5D3CB5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C03BF138-4A5B-4261-9495-6D3AC6CE9779}

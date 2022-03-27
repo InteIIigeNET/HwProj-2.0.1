@@ -6,6 +6,6 @@ namespace HwProj.AuthService.API.Services
 {
     public interface IAuthTokenService
     {
-        Task<TokenCredentials> GetTokenAsync(User user);
+        Task<TokenCredentials> GetTokenAsync(UserViewModel userViewModel);
     }
 }

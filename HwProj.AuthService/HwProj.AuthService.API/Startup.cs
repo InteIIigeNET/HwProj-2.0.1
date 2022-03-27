@@ -64,7 +64,7 @@ namespace HwProj.AuthService.API
             services.AddDbContext<IdentityContext>(options =>
                 options.UseSqlServer(connectionString));
 
-            services.AddIdentity<User, IdentityRole>(opts =>
+            services.AddIdentity<UserViewModel, IdentityRole>(opts =>
                 {
                     opts.User.RequireUniqueEmail = true;
                     opts.Password.RequiredLength = 6;
@@ -74,7 +74,7 @@ namespace HwProj.AuthService.API
                     opts.Password.RequireDigit = false;
                 })
                 .AddEntityFrameworkStores<IdentityContext>()
-                .AddUserManager<UserManager<User>>()
+                .AddUserManager<UserManager<UserViewModel>>()
                 .AddRoleManager<RoleManager<IdentityRole>>()
                 .AddDefaultTokenProviders();
 
@@ -91,7 +91,7 @@ namespace HwProj.AuthService.API
 
             using (var scope = app.ApplicationServices.CreateScope())
             {
-                var userManager = scope.ServiceProvider.GetService(typeof(UserManager<User>)) as UserManager<User>;
+                var userManager = scope.ServiceProvider.GetService(typeof(UserManager<UserViewModel>)) as UserManager<UserViewModel>;
 
                 var rolesManager = scope.ServiceProvider.GetService(typeof(RoleManager<IdentityRole>)) as RoleManager<IdentityRole>;
                 var eventBus = scope.ServiceProvider.GetService<IEventBus>();

@@ -15,21 +15,21 @@ namespace HwProj.AuthService.API.Services
 {
     public class AuthTokenService : IAuthTokenService
     {
-        private readonly UserManager<User> _userManager;
+        private readonly UserManager<UserViewModel> _userManager;
         private readonly IConfigurationSection _configuration;
 
-        public AuthTokenService(UserManager<User> userManager, IConfiguration configuration)
+        public AuthTokenService(UserManager<UserViewModel> userManager, IConfiguration configuration)
         {
             _userManager = userManager;
             _configuration = configuration.GetSection("AppSettings");
         }
 
-        public async Task<TokenCredentials> GetTokenAsync(User user)
+        public async Task<TokenCredentials> GetTokenAsync(UserViewModel userViewModel)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["SecurityKey"]));
             var timeNow = DateTime.UtcNow;
 
-            var userRoles = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
+            var userRoles = await _userManager.GetRolesAsync(userViewModel).ConfigureAwait(false);
 
             var token = new JwtSecurityToken(
                 issuer: _configuration["ApiName"],
@@ -37,9 +37,9 @@ namespace HwProj.AuthService.API.Services
                 expires: timeNow.AddMinutes(int.Parse(_configuration["ExpireInForToken"])),
                 claims: new[]
                 {
-                    new Claim("_userName", user.UserName),
-                    new Claim("_id", user.Id),
-                    new Claim(ClaimTypes.Email, user.Email),
+                    new Claim("_userName", userViewModel.UserName),
+                    new Claim("_id", userViewModel.Id),
+                    new Claim(ClaimTypes.Email, userViewModel.Email),
                     new Claim(ClaimTypes.Role, userRoles.FirstOrDefault() ?? Roles.StudentRole)
                 },
                 signingCredentials: new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256));

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.AuthService.API.Models
 {
-    public sealed class IdentityContext : IdentityDbContext<User>
+    public sealed class IdentityContext : IdentityDbContext<UserViewModel>
     {
         public IdentityContext(DbContextOptions<IdentityContext> options)
             : base(options)

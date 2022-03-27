@@ -134,7 +134,7 @@ namespace HwProj.AuthService.Client
             };
 
             var response = await _httpClient.SendAsync(httpRequest);
-            var user = await response.DeserializeAsync<User>();
+            var user = await response.DeserializeAsync<UserViewModel>();
             return user?.Id;
         }
 

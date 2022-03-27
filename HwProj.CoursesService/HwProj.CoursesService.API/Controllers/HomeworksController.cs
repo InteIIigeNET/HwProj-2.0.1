@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
@@ -38,6 +40,13 @@ namespace HwProj.CoursesService.API.Controllers
             var homework = _mapper.Map<HomeworkViewModel>(homeworkFromDb);
             homework.Tasks.ForEach(t => t.PutPossibilityForSendingSolution());
             return homework;
+        }
+        
+        [HttpGet("{courseId}/getAll")]
+        public async Task<Homework[]> GetAllHomeworkFromCourse(long courseId)
+        {
+            var homeworkFromDb = await _homeworksService.GetAllHomeworkFromCourseAsync(courseId);
+            return homeworkFromDb.ToArray();
         }
 
         [HttpDelete("delete/{homeworkId}")]

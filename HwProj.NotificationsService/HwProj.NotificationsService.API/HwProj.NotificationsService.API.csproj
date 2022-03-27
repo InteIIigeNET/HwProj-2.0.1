@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="MailKit" Version="2.9.0" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.3" />
@@ -25,6 +26,8 @@
     <ProjectReference Include="..\..\HwProj.CoursesService\HwProj.CoursesService.Client\HwProj.CoursesService.Client.csproj" />
     <ProjectReference Include="..\..\HwProj.SolutionsService\HwProj.SolutionsService.API\HwProj.SolutionsService.API.csproj" />
     <ProjectReference Include="..\..\HwProj.SolutionsService\HwProj.SolutionsService.Client\HwProj.SolutionsService.Client.csproj" />
+    <ProjectReference Include="..\..\HwProj.TelegramBot\HwProj.TelegramBotService.Client\HwProj.TelegramBotService.Client.csproj" />
+    <ProjectReference Include="..\..\HwProj.TelegramBot\HwProj.TelegramBotService.API\HwProj.TelegramBotService.API.csproj" />
   </ItemGroup>
 
 </Project>
