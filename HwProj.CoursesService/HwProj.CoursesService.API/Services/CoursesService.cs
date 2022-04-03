@@ -223,10 +223,17 @@ namespace HwProj.CoursesService.API.Services
                     {
                         MentorIds = newMentors,
                     });
-
-                    await RejectCourseMateAsync(courseId, userId);
                 }
             }
+        }
+
+        public async Task<string[]> GetCourseLecturers(long courseId)
+        {
+            var course = await _coursesRepository.GetAsync(courseId);
+
+            return course.MentorIds
+                .Split('/')
+                .ToArray();
         }
 
         public async Task<AccountDataDto[]> GetLecturersAvailableForCourse(long courseId, string mentorId)
