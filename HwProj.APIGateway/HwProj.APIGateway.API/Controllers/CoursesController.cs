@@ -120,8 +120,7 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(AccountDataDto[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetLecturersAvailableForCourse(long courseId)
         {
-            var mentorId = Request.GetUserId();
-            var result = await _coursesClient.GetLecturersAvailableForCourse(courseId, mentorId);
+            var result = await _coursesClient.GetLecturersAvailableForCourse(courseId);
             return Ok(result);
         }
     }

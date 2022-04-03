@@ -128,8 +128,9 @@ namespace HwProj.CoursesService.API.Controllers
         
         [HttpGet("getLecturersAvailableForCourse/{courseId}")]
         [ProducesResponseType(typeof(AccountDataDto[]), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetLecturersAvailableForCourse(long courseId, [FromQuery] string mentorId)
+        public async Task<IActionResult> GetLecturersAvailableForCourse(long courseId)
         {
+            var mentorId = Request.GetMentorId();
             var result = await _coursesService.GetLecturersAvailableForCourse(courseId, mentorId);
             return result == null
                 ? NotFound()

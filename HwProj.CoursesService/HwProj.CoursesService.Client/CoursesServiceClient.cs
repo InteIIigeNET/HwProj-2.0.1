@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Diagnostics.Contracts;
 using System.Net.Http;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using HwProj.HttpUtils;
 using HwProj.Models.AuthService.DTO;
@@ -370,14 +368,17 @@ namespace HwProj.CoursesService.Client
 
             await _httpClient.SendAsync(httpRequest);
         }
-        public async Task<AccountDataDto[]> GetLecturersAvailableForCourse(long courseId, string mentorId)
+
+        public async Task<AccountDataDto[]> GetLecturersAvailableForCourse(long courseId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
-                _coursesServiceUri + $"api/Courses/getLecturersAvailableForCourse/{courseId}?mentorId={mentorId}");
+                _coursesServiceUri + $"api/Courses/getLecturersAvailableForCourse/{courseId}");
+
+            httpRequest.AddUserId(_httpContextAccessor);
 
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<AccountDataDto[]>().ConfigureAwait(false);
+            return await response.DeserializeAsync<AccountDataDto[]>();
         }
     }
 }

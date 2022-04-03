@@ -239,15 +239,13 @@ namespace HwProj.CoursesService.API.Services
         public async Task<AccountDataDto[]> GetLecturersAvailableForCourse(long courseId, string mentorId)
         {
             var lecturers = await _authServiceClient.GetAllLecturers();
-            var course = await GetAsync(courseId, mentorId);
-            var mentorIds = course.MentorIds.GetMentorIds();
+            var mentorIds = await GetCourseLecturers(courseId);
             var availableLecturers = lecturers.Where(u => !mentorIds.Contains(u.Id));
 
             return availableLecturers
                 .Select(u =>
                     new AccountDataDto(u.Name, u.Surname, u.Email, Roles.LecturerRole, u.IsExternalAuth, u.MiddleName))
                 .ToArray();
-            ;
         }
     }
 }
