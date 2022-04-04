@@ -20,7 +20,6 @@ namespace HwProj.TelegramBotService.API.Service
         private readonly TelegramBotContext _context;
         private readonly IAuthServiceClient _authClient;
         private readonly IEventBus _eventBus;
-        private readonly IMapper _mapper;
 
         public UserService(TelegramBotContext context, IAuthServiceClient authClient, IEventBus eventBus, ITelegramBotRepository telegramBotRepository, IMapper mapper)
         {
@@ -28,7 +27,6 @@ namespace HwProj.TelegramBotService.API.Service
             _authClient = authClient;
             _eventBus = eventBus;
             _telegramBotRepository = telegramBotRepository;
-            _mapper = mapper;
         }
         
         public async Task<UserTelegram> CreateUser(Update update)
@@ -36,6 +34,8 @@ namespace HwProj.TelegramBotService.API.Service
             var random = new Random();
             var chars = "ABCEFGHJKPQRSTXYZ0123456789";
             var code = new StringBuilder();
+            code.Append(chars[random.Next(chars.Length)]);
+            code.Append(chars[random.Next(chars.Length)]);
             code.Append(chars[random.Next(chars.Length)]);
             code.Append(chars[random.Next(chars.Length)]);
             code.Append(chars[random.Next(chars.Length)]);
@@ -48,7 +48,6 @@ namespace HwProj.TelegramBotService.API.Service
                 IsRegistered = false,
                 Code = code.ToString(),
                 Operation = "wait_code",
-                /*TaskId = -1*/
             };
             var user = await _context.TelegramUser.FirstOrDefaultAsync(x => x.ChatId == newUser.ChatId);
         
@@ -108,14 +107,15 @@ namespace HwProj.TelegramBotService.API.Service
 
         public async Task<UserTelegram> TelegramUserModelByStudentId(string studentId)
             => _context.TelegramUser.First(x => x.AccountId == studentId);
-
-        public async Task<UserTelegram> AddTaskIdToSentSolution(long chatId, long taskId)
+        
+        // not write metod
+        /*public async Task<UserTelegram> AddTaskIdToSentSolution(long chatId, long taskId)
         {
             var user = await _context.TelegramUser.FindAsync(chatId);
-            /*user.TaskId = taskId;*/
+            /*user.TaskId = taskId;#1#
             await _context.SaveChangesAsync();
             return user;
-        }
+        }*/
         
         public async Task DeleteUser(Update update)
         {

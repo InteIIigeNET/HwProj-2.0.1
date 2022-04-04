@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using HwProj.CoursesService.Client;
-using HwProj.Models.CoursesService.ViewModels;
 using HwProj.TelegramBotService.API.Service;
 using Telegram.Bot;
 using Telegram.Bot.Types;

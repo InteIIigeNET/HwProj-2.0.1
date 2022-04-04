@@ -17,7 +17,7 @@ namespace HwProj.TelegramBotService.API.Service
 
         Task<UserTelegram> TelegramUserModelByStudentId(string studentId);
 
-        Task<UserTelegram> AddTaskIdToSentSolution(long chatId, long taskId);
+        /*Task<UserTelegram> AddTaskIdToSentSolution(long chatId, long taskId);*/
 
         Task DeleteUser(Update update);
     }
