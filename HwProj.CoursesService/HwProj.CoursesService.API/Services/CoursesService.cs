@@ -223,6 +223,8 @@ namespace HwProj.CoursesService.API.Services
                     {
                         MentorIds = newMentors,
                     });
+
+                    await RejectCourseMateAsync(courseId, userId);
                 }
             }
         }
