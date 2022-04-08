@@ -22,6 +22,7 @@ import StudentSolutionsPage from "./components/Solutions/StudentSolutionsPage";
 import EditProfile from "./components/EditProfile";
 import ApiSingleton from "./api/ApiSingleton";
 import GroupsEdit from "./components/Groups/GroupsEdit";
+import GroupTaskSolutionsPage from "./components/Groups/GroupTaskSolutionsPage";
 
 type AppProps = RouteComponentProps;
 
@@ -70,8 +71,9 @@ class App extends Component<AppProps, AppState> {
                 <Switch>
                     <Route exact path="/task/:taskId/edit" component={EditTask}/>
                     <Route exact path="/task/:taskId/:studentId" component={StudentSolutionsPage}/>
-                    <Route exact path="/task/:taskId/" component={TaskSolutionsPage}/>
+                    <Route exact path="/task/:taskId" component={TaskSolutionsPage}/>
                 </Switch>
+                <Route exact path="/groupTask/:groupId/:taskId/:userId" component={GroupTaskSolutionsPage}/>
                 <Route
                     exact
                     path="/login"

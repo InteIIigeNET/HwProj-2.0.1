@@ -13,7 +13,7 @@ import Typography from "@material-ui/core/Typography";
 import {makeStyles} from "@material-ui/styles";
 import EditIcon from "@material-ui/icons/Edit";
 import ApiSingleton from "../../api/ApiSingleton";
-import TaskStudentCell from 'components/Tasks/TaskStudentCell';
+import GroupTaskStudentCell from "./GroupTaskStudentCell";
 
 interface GroupState {
     id: number;
@@ -125,8 +125,8 @@ const GroupsTable: FC<CourseTableProps> = (props) => {
                                 </TableCell>
                                 {s.homeworks?.map(hw =>
                                     hw.tasks?.map(task =>
-                                        <TaskStudentCell  // ToDo
-                                            studentId="fd"
+                                        <GroupTaskStudentCell
+                                            groupId={s.id!}
                                             taskId={task.id!}
                                             forMentor={true}
                                             userId={ApiSingleton.authService.getUserId()}

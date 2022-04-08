@@ -100,7 +100,7 @@ const CourseGroups: FC<ICourseGroupEditorProps> = (props) => {
 
     return (
         <div style={{marginTop: '20px', marginBottom: '40px'}}>
-            {groupState.groups!.length == 0 &&
+            { props.isMentor && groupState.groups!.length == 0 &&
                 <Grid container direction="row" alignItems="center">
                     <Grid item style={{marginLeft: '60px'}}>
                         <Typography

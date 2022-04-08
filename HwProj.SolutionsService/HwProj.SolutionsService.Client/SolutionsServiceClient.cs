@@ -81,6 +81,7 @@ namespace HwProj.SolutionsService.Client
                 $"api/Solutions/rateSolution/{solutionId}?newRating={newRating}&lecturerComment={lecturerComment}&lecturerId={lecturerId}");
 
             var response = await _httpClient.SendAsync(httpRequest);
+            var x = 10;
             if (!response.IsSuccessStatusCode)
             {
                 throw new ForbiddenException();

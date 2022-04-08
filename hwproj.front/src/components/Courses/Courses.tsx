@@ -65,7 +65,7 @@ export default class Courses extends React.Component<{}, ICoursesState> {
             window.location.assign("/login");
         }
         try {
-            const courses = await ApiSingleton.coursesApi.apiCoursesUserCoursesGet()
+            const courses = await ApiSingleton.coursesApi.apiCoursesUserCoursesGet();
             const allCourses = await ApiSingleton.coursesApi.apiCoursesGet();
             this.setState({
                 isLoaded: true,
