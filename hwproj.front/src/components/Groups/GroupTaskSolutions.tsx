@@ -12,7 +12,8 @@ interface IGroupTaskSolutionsProps {
     taskId: number,
     groupId: number,
     userId: string,
-    forMentor: boolean
+    forMentor: boolean,
+    maxRating: number,
 }
 
 interface IGroupTaskSolutionsState {
@@ -47,15 +48,16 @@ const GroupTaskSolutions: FC<IGroupTaskSolutionsProps> = (props) => {
     const arrayOfNonRatedSolutions = solutions.filter(solution => solution.state!.toString() === 'Posted')
     const arrayOfRatedSolutions = solutions.filter(solution => solution.state!.toString() !== 'Posted')
     const componentsOfNonRatedSolutions = arrayOfNonRatedSolutions.map((sol) => (
-            <Grid item style={{ marginTop: '16px' }}>
+            <Grid item style={{marginTop: '16px'}}>
                 <NonRatedSolutionComponent
                     forMentor={props.forMentor}
                     solution={sol}
                     isExpanded={true}
+                    maxRating={props.maxRating}
                 />
             </Grid>
         )
-    ).reverse()
+    ).reverse();
 
     const componentsOfRatedSolutions = arrayOfRatedSolutions.map((sol) => (
             <Grid item style={{ marginTop: '16px' }}>

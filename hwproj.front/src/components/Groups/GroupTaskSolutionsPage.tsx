@@ -38,9 +38,6 @@ const GroupTaskSolutionsPage: FC<RouteComponentProps<IGroupTaskSolutionsPageProp
     }, [])
 
     const getStudentSolutions = async () => {
-        console.log(props.match.params.userId)
-        console.log(props.match.params.taskId)
-        console.log(props.match.params.groupId)
         const task = await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+props.match.params.taskId)
         const homework = await ApiSingleton.homeworksApi.apiHomeworksGetByHomeworkIdGet(task.homeworkId!)
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(homework.courseId!)
@@ -97,6 +94,7 @@ const GroupTaskSolutionsPage: FC<RouteComponentProps<IGroupTaskSolutionsPageProp
                                 forMentor={true}
                                 taskId={+props.match.params.taskId}
                                 userId={props.match.params.userId}
+                                maxRating={studentSolutions.task!.maxRating!}
                             />
                         </Grid>
                     </Grid>

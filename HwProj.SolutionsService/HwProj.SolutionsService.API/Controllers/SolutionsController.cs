@@ -82,7 +82,7 @@ namespace HwProj.SolutionsService.API.Controllers
             var homework = await _coursesClient.GetHomework(task.HomeworkId);
             var course = await _coursesClient.GetCourseById(homework.CourseId, "");
 
-            if (course.MentorId == lecturerId)
+            if (course.MentorIds.Contains(lecturerId))
             {
                 await _solutionsService.RateSolutionAsync(solutionId, newRating, lecturerComment);
                 return Ok();

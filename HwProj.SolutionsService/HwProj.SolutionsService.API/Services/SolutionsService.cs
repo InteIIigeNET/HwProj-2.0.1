@@ -43,12 +43,19 @@ namespace HwProj.SolutionsService.API.Services
 
         public async Task<Solution[]> GetTaskSolutionsFromStudentAsync(long taskId, string studentId)
         {
-            return await _solutionsRepository
+            var solutions = await _solutionsRepository
                 .FindAll(solution => solution.TaskId == taskId && solution.StudentId == studentId)
                 .ToArrayAsync();
+            
+            if (solutions == null || solutions.Length == 0 || solutions[0].GroupId == -1)
+            {
+                return solutions;
+            }
+
+            var groupId = (long)solutions[0].GroupId;
+            return await GetTaskSolutionsFromGroupAsync(taskId, groupId);
         }
-        
-        
+
         public async Task<long> PostOrUpdateAsync(long taskId, Solution solution)
         {
             solution.PublicationDate = DateTime.UtcNow;

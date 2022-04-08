@@ -24,6 +24,8 @@ interface ICourseStudentsState {
 const styles = (theme: Theme) =>
     createStyles({
         paper: {
+            //width: "100%",
+            // marginTop: theme.spacing.unit * 3,
             overflowX: "auto",
         },
     });
@@ -41,101 +43,102 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
         return (
             <div>
                 {this.state.isLoaded &&
-                <TableContainer component={Paper}>
+                  <TableContainer component={Paper}>
                     <Table aria-label="simple table">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell align="center" padding="none" component="td">
-                                    <Typography>
-                                      Студент
-                                    </Typography>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell align="center" padding="none" component="td">
+                            <Typography>
+                              Студент
+                            </Typography>
+                          </TableCell>
+                            {this.props.homeworks.map((homework, index) => (
+                                <TableCell
+                                    padding="none"
+                                    component="td"
+                                    align="center"
+                                    colSpan={homework.tasks!.length}
+                                >
+                                    {index + 1}
                                 </TableCell>
-                                {this.props.homeworks.map((homework, index) => (
-                                    <TableCell
-                                        padding="none"
-                                        component="td"
-                                        align="center"
-                                        colSpan={homework.tasks!.length}
-                                    >
-                                        {index + 1}
+                            ))}
+                        </TableRow>
+                        <TableRow>
+                          <TableCell component="td"></TableCell>
+                            {this.props.homeworks.map((homework) =>
+                                homework.tasks!.map((task) => (
+                                    <TableCell padding="none" component="td" align="center">
+                                        {task.title}
                                     </TableCell>
-                                ))}
-                            </TableRow>
-                            <TableRow>
-                                <TableCell component="td"></TableCell>
-                                {this.props.homeworks.map((homework) =>
+                                ))
+                            )}
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                          {this.props.isMentor && this.state.stat
+                              .map((cm, index) => (
+                                  <TableRow key={index}>
+                                      <TableCell
+                                          align="center"
+                                          padding="none"
+                                          component="td"
+                                          scope="row"
+                                      >
+                                          {cm.surname} {cm.name}
+                                      </TableCell>
+                                      {cm.homeworks!.map((homework) =>
+                                          homework.tasks!.map((task) => (
+                                              <TaskStudentCell
+                                                  solutions={this.state.stat
+                                                      .find(s => s.id == cm.id)!.homeworks!
+                                                      .find(h => h.id == homework.id)!.tasks!
+                                                      .find(t => t.id == task.id)!.solution!.slice(-1)[0]}
+                                                  userId={this.props.userId}
+                                                  forMentor={this.props.isMentor}
+                                                  studentId={String(cm.id)}
+                                                  taskId={task.id!}
+                                              />
+                                          ))
+                                      )}
+                                  </TableRow>
+                              ))}
+                          {!this.props.isMentor &&
+                            <TableRow key={1}>
+                              <TableCell
+                                align="center"
+                                padding="none"
+                                component="td"
+                                scope="row"
+                              >
+                                  {this.state.stat.find(cm => cm.id == this.props.userId)!.surname}
+                                  {this.state.stat.find(cm => cm.id == this.props.userId)!.name}
+                              </TableCell>
+                                {this.state.stat.find(cm => cm.id == this.props.userId)!.homeworks!.map((homework) =>
                                     homework.tasks!.map((task) => (
-                                        <TableCell padding="none" component="td" align="center">
-                                            {task.title}
-                                        </TableCell>
+                                        <TaskStudentCell
+                                            solutions={this.state.stat
+                                                .find(s => s.id == this.props.userId)!.homeworks!
+                                                .find(h => h.id == homework.id)!.tasks!
+                                                .find(t => t.id == task.id)!.solution!.slice(-1)[0]}
+                                            userId={this.props.userId}
+                                            forMentor={this.props.isMentor}
+                                            studentId={this.props.userId}
+                                            taskId={task.id!}
+                                        />
                                     ))
                                 )}
                             </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {this.props.isMentor && this.state.stat
-                                .map((cm, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell
-                                            align="center"
-                                            padding="none"
-                                            component="td"
-                                            scope="row"
-                                        >
-                                            {cm.surname} {cm.name}
-                                        </TableCell>
-                                        {cm.homeworks!.map((homework) =>
-                                            homework.tasks!.map((task) => (
-                                                <TaskStudentCell
-                                                    solutions={this.state.stat
-                                                        .find(s => s.id === cm.id)!.homeworks!
-                                                        .find(h => h.id === homework.id)!.tasks!
-                                                        .find(t => t.id === task.id)!.solution!.slice(-1)[0]}
-                                                    userId={this.props.userId}
-                                                    forMentor={this.props.isMentor}
-                                                    studentId={String(cm.id)}
-                                                    taskId={task.id!}
-                                                />
-                                            ))
-                                        )}
-                                    </TableRow>
-                                ))}
-                            {!this.props.isMentor &&
-                                <TableRow key={1}>
-                                    <TableCell
-                                        align="center"
-                                        padding="none"
-                                        component="td"
-                                        scope="row"
-                                    >
-                                        {this.state.stat.find(cm => cm.id == this.props.userId)!.surname}
-                                        {this.state.stat.find(cm => cm.id == this.props.userId)!.name}
-                                    </TableCell>
-                                    {this.state.stat.find(cm => cm.id == this.props.userId)!.homeworks!.map((homework) =>
-                                        homework.tasks!.map((task) => (
-                                            <TaskStudentCell
-                                                solutions={this.state.stat
-                                                    .find(s => s.id == this.props.userId)!.homeworks!
-                                                    .find(h => h.id == homework.id)!.tasks!
-                                                    .find(t => t.id == task.id)!.solution!.slice(-1)[0]}
-                                                userId={this.props.userId}
-                                                forMentor={this.props.isMentor}
-                                                studentId={this.props.userId}
-                                                taskId={task.id!}
-                                            />
-                                        ))
-                                    )}
-                                </TableRow>
-                            }
-                        </TableBody>
+                          }
+                      </TableBody>
                     </Table>
-                </TableContainer>}
+                  </TableContainer>}
             </div>
         );
     }
 
     async componentDidMount() {
         const stat = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdGet(this.props.course.id!)
+        console.log(stat)
         this.setState({stat: stat, isLoaded: true})
     }
 }

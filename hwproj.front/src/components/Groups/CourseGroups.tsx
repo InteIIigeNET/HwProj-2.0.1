@@ -14,8 +14,8 @@ import {
     GroupViewModel,
     HomeworkViewModel
 } from './../../api';
-import GroupsTable from "./GroupsTable";
 import CourseHomework from "../Homeworks/CourseHomework";
+import GroupsTable from "./GroupsTable";
 
 interface ICourseGroupEditorProps {
     courseId: string;
