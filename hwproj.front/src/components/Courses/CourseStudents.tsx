@@ -138,7 +138,6 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
 
     async componentDidMount() {
         const stat = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdGet(this.props.course.id!)
-        console.log(stat)
         this.setState({stat: stat, isLoaded: true})
     }
 }

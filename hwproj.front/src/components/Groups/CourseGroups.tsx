@@ -61,38 +61,40 @@ const CourseGroups: FC<ICourseGroupEditorProps> = (props) => {
     }, [])
 
     const getGroupsInfo = async () => {
-        const group = await ApiSingleton.courseGroupsApi.apiCourseGroupsByCourseIdGetCourseDataGet(+courseId)
-        const students = group.studentsWithoutGroup?.map((st) => {
-            return {
-                id: st.id!,
-                name: st.name!,
-                surname: st.surname!,
-                middleName: st.middleName!,
-            }
-        })
-        const groupsInfo = await Promise.all(group.groups!.map(async(g) => {
-            const groupMates = await Promise.all(g.groupMates!.map( async (gm) => {
-                const student = await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(gm.studentId!)
-                return {
-                    name: student.name!,
-                    surname:  student.surname!,
-                    middleName:  student.middleName!,
-                    email:  student.email!,
-                    role: student.role!,
-                }
-            }))
-            return {
-                id: g.id!,
-                courseId: g.courseId!,
-                name: g.name!,
-                groupMates: groupMates!,
-            }
-        }))
+       if (props.isMentor){
+           const group = await ApiSingleton.courseGroupsApi.apiCourseGroupsByCourseIdGetCourseDataGet(+courseId)
+           const students = group.studentsWithoutGroup?.map((st) => {
+               return {
+                   id: st.id!,
+                   name: st.name!,
+                   surname: st.surname!,
+                   middleName: st.middleName!,
+               }
+           })
+           const groupsInfo = await Promise.all(group.groups!.map(async(g) => {
+               const groupMates = await Promise.all(g.groupMates!.map( async (gm) => {
+                   const student = await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(gm.studentId!)
+                   return {
+                       name: student.name!,
+                       surname:  student.surname!,
+                       middleName:  student.middleName!,
+                       email:  student.email!,
+                       role: student.role!,
+                   }
+               }))
+               return {
+                   id: g.id!,
+                   courseId: g.courseId!,
+                   name: g.name!,
+                   groupMates: groupMates!,
+               }
+           }))
 
-        setGroupState({
-            studentsWithoutGroup: students,
-            groups: groupsInfo,
-        })
+           setGroupState({
+               studentsWithoutGroup: students,
+               groups: groupsInfo,
+           })
+       }
     }
 
     const courseId = props.courseId
