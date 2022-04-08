@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 
@@ -33,5 +34,6 @@ namespace HwProj.CoursesService.Client
         Task<GroupViewModel> GetGroupById(long groupId);
         Task<long[]> GetGroupTasks(long groupId);
         Task AcceptLecturer(long courseId, string lecturerEmail);
+        Task<AccountDataDto[]> GetLecturersAvailableForCourse(long courseId);
     }
 }

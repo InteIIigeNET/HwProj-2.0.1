@@ -1,4 +1,4 @@
-import { Button, DialogActions } from '@material-ui/core'
+import {Box, Button, DialogActions} from '@material-ui/core'
 import Dialog from '@material-ui/core/Dialog'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogContentText from '@material-ui/core/DialogContentText'
@@ -7,7 +7,9 @@ import Grid from '@material-ui/core/Grid'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 import ApiSingleton from 'api/ApiSingleton'
-import React, {FC, FormEvent, useState} from 'react'
+import React, {FC, FormEvent, useEffect, useState} from 'react'
+import {AccountDataDto} from "../../api";
+import {Autocomplete} from "@material-ui/lab";
 
 interface AddLecturerInCourseProps {
     onClose: any;
@@ -20,6 +22,7 @@ interface AddLecturerInCourseState {
     email: string;
     errors: string[];
     info: string[];
+    data: AccountDataDto[];
 }
 
 const AddLecturerInCourse: FC<AddLecturerInCourseProps> = (props) => {
@@ -27,7 +30,8 @@ const AddLecturerInCourse: FC<AddLecturerInCourseProps> = (props) => {
     const [lecturerState, setLecturerState] = useState<AddLecturerInCourseState>({
         email: '',
         errors: [],
-        info: []
+        info: [],
+        data: [],
     })
 
     const isCorrectEmail = (email: string) => {
@@ -37,7 +41,7 @@ const AddLecturerInCourse: FC<AddLecturerInCourseProps> = (props) => {
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        if (!isCorrectEmail(lecturerState.email)){
+        if (!isCorrectEmail(lecturerState.email)) {
             setLecturerState((prevState) => ({
                 ...prevState,
                 errors: ['Некорректный адрес электронной почты']
@@ -47,13 +51,15 @@ const AddLecturerInCourse: FC<AddLecturerInCourseProps> = (props) => {
         try {
             await ApiSingleton.coursesApi
                 .apiCoursesAcceptLecturerByCourseIdByLecturerEmailGet(+props.courseId, lecturerState.email)
+            const data = await ApiSingleton.coursesApi
+                .apiCoursesGetLecturersAvailableForCourseByCourseIdGet(+props.courseId);
             setLecturerState((prevState) => ({
                 ...prevState,
-                info: ['Преподаватель добавлен']
+                info: ['Преподаватель добавлен'],
+                data: data
             }))
             props.update()
-        }
-        catch (e) {
+        } catch (e) {
             setLecturerState((prevState) => ({
                 ...prevState,
                 errors: ['Сервис недоступен']
@@ -66,9 +72,25 @@ const AddLecturerInCourse: FC<AddLecturerInCourseProps> = (props) => {
             info: [],
             errors: [],
             email: '',
+            data: [],
         })
         props.onClose()
     }
+
+    const setCurrentState = async () => {
+        const data = await ApiSingleton.coursesApi
+            .apiCoursesGetLecturersAvailableForCourseByCourseIdGet(+props.courseId);
+        setLecturerState({
+            errors: [],
+            email: '',
+            info: [],
+            data: data
+        })
+    }
+
+    useEffect(() => {
+        setCurrentState()
+    }, [])
 
     return (
         <div>
@@ -101,39 +123,77 @@ const AddLecturerInCourse: FC<AddLecturerInCourseProps> = (props) => {
                         <form onSubmit={(e) => handleSubmit(e)}>
                             <Grid container justifyContent="flex-end">
                                 <Grid item xs={12}>
-                                    <TextField
-                                        type="email"
-                                        fullWidth
-                                        label="Электронная почта"
-                                        margin="normal"
-                                        name={lecturerState.email}
-                                        onChange={(e) => {
+                                    <Autocomplete
+                                        onChange={(e, values) => {
                                             e.persist()
                                             setLecturerState((prevState) => ({
                                                 ...prevState,
-                                                email: e.target.value
+                                                email: (values as AccountDataDto).email!
                                             }))
                                         }}
+                                        freeSolo
+                                        disableClearable
+                                        getOptionLabel={(option) => option.email! + ' (' + option.surname! + ' ' + option.name! + ' ' + option.middleName! + ')'}
+                                        options={lecturerState.data}
+                                        renderOption={(props, option) => (
+                                            <Grid
+                                                direction="row"
+                                                justifyContent="flex-start"
+                                                alignItems="flex-end"
+                                                container
+                                            >
+                                                <Grid item>
+                                                    <Box component="li" {...props} fontWeight='fontWeightMedium'>
+                                                        {props.email} /
+                                                    </Box>
+                                                </Grid>
+                                                <Grid item>
+                                                    <Typography
+                                                        style={{marginLeft: '3px'}}
+                                                    >
+                                                        {props.name} {props.surname}
+                                                    </Typography>
+                                                </Grid>
+                                            </Grid>
+                                        )}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                label="Введите email или ФИО"
+                                                InputProps={{
+                                                    ...params.InputProps,
+                                                    type: 'search',
+                                                }}
+                                            />
+                                        )}
                                     />
                                 </Grid>
-                                <Grid item>
-                                    <Button
-                                        onClick={closeDialogIcon}
-                                        color="primary"
-                                        variant="contained"
-                                        style={{marginRight: '10px'}}
-                                    >
-                                        Закрыть
-                                    </Button>
-                                </Grid>
-                                <Grid item>
-                                    <Button
-                                        variant="contained"
-                                        color="primary"
-                                        type="submit"
-                                    >
-                                        Добавить
-                                    </Button>
+                                <Grid
+                                    direction="row"
+                                    justifyContent="flex-end"
+                                    alignItems="flex-end"
+                                    container
+                                    style={{marginTop: '16px'}}
+                                >
+                                    <Grid item>
+                                        <Button
+                                            onClick={props.onClose}
+                                            color="primary"
+                                            variant="contained"
+                                            style={{marginRight: '10px'}}
+                                        >
+                                            Закрыть
+                                        </Button>
+                                    </Grid>
+                                    <Grid item>
+                                        <Button
+                                            variant="contained"
+                                            color="primary"
+                                            type="submit"
+                                        >
+                                            Пригласить
+                                        </Button>
+                                    </Grid>
                                 </Grid>
                             </Grid>
                         </form>
