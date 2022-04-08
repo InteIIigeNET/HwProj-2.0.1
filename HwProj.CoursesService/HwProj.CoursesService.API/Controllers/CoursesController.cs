@@ -52,6 +52,7 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost("create")]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> AddCourse([FromBody] CreateCourseViewModel courseViewModel, [FromQuery] string mentorId)
         {
             var course = _mapper.Map<Course>(courseViewModel);

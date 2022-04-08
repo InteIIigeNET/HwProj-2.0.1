@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using HwProj.CoursesService.API.Repositories;
+using HwProj.CoursesService.API.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -10,13 +10,13 @@ namespace HwProj.CoursesService.API.Filters
 {
     public class CourseMentorOnlyAttribute : Attribute, IAuthorizationFilter
     {
-        private readonly ICoursesRepository _coursesRepository;
-        
-        public CourseMentorOnlyAttribute(ICoursesRepository coursesRepository)
+        private readonly ICoursesService _coursesService;
+
+        public CourseMentorOnlyAttribute(ICoursesService coursesService)
         {
-            _coursesRepository = coursesRepository;
+            _coursesService = coursesService;
         }
-        
+
         public void OnAuthorization(AuthorizationFilterContext context)
         {
             var routeData = context.HttpContext.GetRouteData();
@@ -24,9 +24,10 @@ namespace HwProj.CoursesService.API.Filters
 
             if (routeData.Values.TryGetValue("courseId", out var courseId))
             {
-                var userId = headers.SingleOrDefault(x => x.Key == "UserId").Value.ToString();
-                var course = _coursesRepository.GetAsync(long.Parse(courseId.ToString())).Result;
-                if (course?.MentorIds != null && !(bool)course?.MentorIds.Split('/').Contains(userId))
+                headers.TryGetValue("UserId", out var userId);
+                var mentorIds = _coursesService.GetCourseLecturers(long.Parse(courseId.ToString())).Result;
+
+                if (!mentorIds.Contains(userId.ToString()))
                 {
                     context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
                 }

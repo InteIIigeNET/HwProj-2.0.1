@@ -21,7 +21,6 @@ namespace HwProj.APIGateway.API.Controllers
         }
 
         [HttpGet("{courseId}")]
-        [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(StatisticsCourseMatesModel[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetCourseStatistics(long courseId)
         {

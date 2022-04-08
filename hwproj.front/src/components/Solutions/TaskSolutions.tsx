@@ -12,7 +12,8 @@ import {FC, useEffect, useState} from "react";
 interface ITaskSolutionsProps {
     taskId: number,
     studentId: string,
-    forMentor: boolean
+    forMentor: boolean,
+    maxRating: number,
 }
 
 interface ITaskSolutionsState {
@@ -51,6 +52,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                     forMentor={props.forMentor}
                     solution={sol}
                     isExpanded={true}
+                    maxRating={props.maxRating}
                 />
             </Grid>
         )

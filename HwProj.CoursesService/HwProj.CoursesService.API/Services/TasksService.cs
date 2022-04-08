@@ -15,7 +15,9 @@ namespace HwProj.CoursesService.API.Services
         private readonly IMapper _mapper;
         private readonly ICoursesRepository _coursesRepository;
         private readonly IHomeworksRepository _homeworksRepository;
-        public TasksService(ITasksRepository tasksRepository, IEventBus eventBus, IMapper mapper, ICoursesRepository coursesRepository, IHomeworksRepository homeworksRepository)
+
+        public TasksService(ITasksRepository tasksRepository, IEventBus eventBus, IMapper mapper,
+            ICoursesRepository coursesRepository, IHomeworksRepository homeworksRepository)
         {
             _tasksRepository = tasksRepository;
             _homeworksRepository = homeworksRepository;

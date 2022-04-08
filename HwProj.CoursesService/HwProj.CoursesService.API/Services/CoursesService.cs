@@ -46,8 +46,10 @@ namespace HwProj.CoursesService.API.Services
             if (!course.MentorIds.Contains(userId))
             {
                 var currentDate = DateTime.UtcNow.AddHours(3);
-                course.Homeworks.ForEach(hw => hw.Tasks = new List<HomeworkTask>(hw.Tasks.Where(t => currentDate >= t.PublicationDate)));
+                course.Homeworks.ForEach(hw =>
+                    hw.Tasks = new List<HomeworkTask>(hw.Tasks.Where(t => currentDate >= t.PublicationDate)));
             }
+
             return course;
         }
 
@@ -220,6 +222,15 @@ namespace HwProj.CoursesService.API.Services
                     });
                 }
             }
+        }
+
+        public async Task<string[]> GetCourseLecturers(long courseId)
+        {
+            var course = await _coursesRepository.GetAsync(courseId);
+
+            return course.MentorIds
+                .Split('/')
+                .ToArray();
         }
     }
 }
