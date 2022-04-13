@@ -37,7 +37,12 @@ namespace HwProj.NotificationsService.API.Services
                     category.Where(t => t.HasSeen).ToArray(),
                     category.Where(t => !t.HasSeen).ToArray()));
 
-            return groupedNotifications.Select(element => _mapper.Map<CategorizedNotifications>(element)).ToArray();
+            //return groupedNotifications.Select(element => _mapper.Map<CategorizedNotifications>(element)).ToArray();
+            return groupedNotifications.Select(element =>
+                    new CategorizedNotifications(element.Key,
+                        _mapper.Map<NotificationViewModel[]>(element.Item2),
+                        _mapper.Map<NotificationViewModel[]>(element.Item3))
+                ).ToArray();
         }
 
         public async Task MarkAsSeenAsync(string userId, long[] notificationIds)
