@@ -6,7 +6,7 @@ import {
     Card,
     CardContent,
     Checkbox,
-    CircularProgress,
+    CircularProgress, FormControl,
     FormControlLabel,
     Grid,
     InputLabel,
@@ -90,6 +90,10 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
             isLoaded: true,
             notifications: data.notifications!
         }))
+        // setFilterState((prevState) => ({
+        //     ...prevState,
+        //     filteredNotifications: GetAll(data.notifications)
+        // }))
         setAccountState(data.userData!)
     }
 
@@ -187,33 +191,40 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
                     </Typography>
                 </Grid>
 
-                <FormControlLabel control={
-                    <Checkbox
-                        checked={filterState.showAll}
-                        onChange={changeShowAll}
-                        inputProps={{'aria-label': 'controlled'}}
+                <Grid item xs={11}>
+                    <FormControlLabel control={
+                        <Checkbox
+                            checked={filterState.showAll}
+                            onChange={changeShowAll}
+                            inputProps={{'aria-label': 'controlled'}}
+                        />
+                    } label="Показывать все уведомления"
                     />
-                } label="Показывать все уведомления"
-                />
+                    {renderNotifications(filterState.filteredNotifications)}
+                </Grid>
 
-                <InputLabel id="notification-category-label">Категория</InputLabel>
-                <Select
-                    labelId="notification-category-label"
-                    id="notification-category"
-                    multiple
-                    value={CategoryEnum}
-                    label="Категория"
-                    onChange={handleChange}
-                >
-                    <MenuItem value={CategoryEnum.NUMBER_1}>Профиль</MenuItem>
-                    <MenuItem value={CategoryEnum.NUMBER_2}>Курсы</MenuItem>
-                    <MenuItem value={CategoryEnum.NUMBER_3}>Домашки</MenuItem>
-                </Select>
+
+                {/*<FormControl margin="normal">*/}
+                {/*    <InputLabel id="notification-category-label">Категория</InputLabel>*/}
+                {/*    /!*<Select*!/*/}
+                {/*    /!*    labelId="notification-category-label"*!/*/}
+                {/*    /!*    id="notification-category"*!/*/}
+                {/*    /!*    multiple*!/*/}
+                {/*    /!*    value={CategoryEnum}*!/*/}
+                {/*    /!*    label="Категория"*!/*/}
+                {/*    /!*    onChange={handleChange}*!/*/}
+                {/*    /!*    renderValue={(selected) => selected.toString().concat(', ')}*!/*/}
+                {/*    /!*>*!/*/}
+                {/*        <MenuItem value={CategoryEnum.NUMBER_1}>Профиль</MenuItem>*/}
+                {/*        <MenuItem value={CategoryEnum.NUMBER_2}>Курсы</MenuItem>*/}
+                {/*        <MenuItem value={CategoryEnum.NUMBER_3}>Домашки</MenuItem>*/}
+                {/*    /!*</Select>*!/*/}
+                {/*</FormControl>*/}
             </Grid>
         </div>
     }
     return (
-        <Box m={2}>
+        <Box sx={{minWidth: 150}}>
             <p>Loading...</p>
             <CircularProgress/>
         </Box>
