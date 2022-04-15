@@ -8,5 +8,6 @@ namespace HwProj.TelegramBotService.API.Repositories
     public interface ITelegramBotRepository : ICrudRepository<UserTelegram, long>
     {
         IQueryable<UserTelegram> GetUserTelegramByChatId(long chatId);
+        IQueryable<UserTelegram> GetChatIdTelegramByAccountId(string accountId);
     }
 }

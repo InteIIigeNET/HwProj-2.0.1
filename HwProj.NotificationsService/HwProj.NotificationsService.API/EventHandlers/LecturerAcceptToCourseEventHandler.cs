@@ -39,7 +39,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             await _notificationsService.SendEmailAsync(notification, student.Email, "HwProj");
             
             notification.Body = $"Вас приняли на курс {@event.CourseName}.";
-            await _notificationsService.SendTelegramMessageAsync(notification, null);
+            await _notificationsService.SendTelegramMessageAsync(notification);
         }
     }
 }

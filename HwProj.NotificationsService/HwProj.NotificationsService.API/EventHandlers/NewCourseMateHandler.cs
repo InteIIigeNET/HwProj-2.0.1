@@ -45,7 +45,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 await _notificationsService.SendEmailAsync(notification, mentor.Email, "HwProj");
                 
                 notification.Body = $"Пользователь {user.Name} {user.Surname} подал заявку на вступление в курс {@event.CourseName}.";
-                await _notificationsService.SendTelegramMessageAsync(notification, null);
+                await _notificationsService.SendTelegramMessageAsync(notification);
             }
         }
     }

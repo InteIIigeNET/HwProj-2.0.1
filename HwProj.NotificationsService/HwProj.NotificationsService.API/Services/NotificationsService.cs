@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.Models.NotificationsService;
@@ -74,20 +75,24 @@ namespace HwProj.NotificationsService.API.Services
             await _client.DisconnectAsync(true);
         
         }
-        
-        public async Task SendTelegramMessageAsync(Notification notification, InlineKeyboardMarkup inlineKeyboard)
+
+        public async Task SendTelegramMessageAsync(Notification notification)
         {
-            var user = await _telegramBotServiceClient.GetTelegramUser(notification.Owner);
-            if (user != null)
+            var checkUser = await _telegramBotServiceClient.CheckUser(notification.Owner);
+            if (checkUser)
             {
-                if (inlineKeyboard == null)
-                {
-                    await _botClient.SendTextMessageAsync(user.ChatId, notification.Body, ParseMode.Markdown);
-                }
-                else
-                {
-                    await _botClient.SendTextMessageAsync(user.ChatId, notification.Body, ParseMode.Markdown, replyMarkup:inlineKeyboard);
-                }
+                var user = await _telegramBotServiceClient.GetTelegramUser(notification.Owner);
+                await _botClient.SendTextMessageAsync(user.ChatId, notification.Body, ParseMode.Markdown);
+            }
+        }
+
+        public async Task SendTelegramMessageWithKeyboardAsync(Notification notification, InlineKeyboardMarkup inlineKeyboard)
+        {
+            var checkUser = await _telegramBotServiceClient.CheckUser(notification.Owner);
+            if (checkUser)
+            {
+                var user = await _telegramBotServiceClient.GetTelegramUser(notification.Owner);
+                await _botClient.SendTextMessageAsync(user.ChatId, notification.Body, ParseMode.Markdown, replyMarkup:inlineKeyboard);
             }
         }
     }

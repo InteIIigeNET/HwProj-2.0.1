@@ -25,7 +25,7 @@ namespace HwProj.TelegramBotService.API.Commands
             
             var user = await _userService.CreateUser(update);
 
-            await _botClient.SendTextMessageAsync(user.ChatId, "Добро пожаловать!\n Введите ваш e-mail на Hw-Proj2.0.1",
+            await _botClient.SendTextMessageAsync(user.ChatId, "Добро пожаловать!\nВведите ваш e-mail на Hw-Proj2.0.1",
                 ParseMode.Markdown);
         }
     }

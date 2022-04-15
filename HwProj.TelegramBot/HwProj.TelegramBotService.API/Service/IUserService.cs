@@ -15,9 +15,11 @@ namespace HwProj.TelegramBotService.API.Service
 
         Task<UserTelegram> UserByUpdate(Update update);
 
+        Task<bool> CheckTelegramUserModelByStudentId(string studentId);
         Task<UserTelegram> TelegramUserModelByStudentId(string studentId);
+        Task<long> GetChatIdByStudentId(string studentId);
 
-        /*Task<UserTelegram> AddTaskIdToSentSolution(long chatId, long taskId);*/
+        Task<UserTelegram> AddTaskIdAndWaitPullRequest(Update update, long taskId);
 
         Task DeleteUser(Update update);
     }

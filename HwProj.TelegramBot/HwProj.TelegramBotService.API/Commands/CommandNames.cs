@@ -13,5 +13,7 @@
         public const string WaitCodeCommand = "wait_code";    
         public const string CheckCodeCommand = "check_code";    
         public const string ErrorCommand = "error_response";
+        public const string WaitPullRequest = "wait_pull_request";
+        public const string SendSolution = "send_solution";
     }
 }

@@ -39,12 +39,12 @@ namespace HwProj.TelegramBotService.API.Commands
             cols.Add(GetButton($"Решения {task.Title}", $"/solutions {task.Id}"));
             rows.Add(cols.ToArray());
             cols = new List<InlineKeyboardButton>();
-            cols.Add(GetButton($"Отправить решение {task.Title}", $"/wait_solution {task.Id}"));
-            rows.Add(cols.ToArray());
-            cols = new List<InlineKeyboardButton>();
             cols.Add(GetButton("Мои курсы",  $"/courses"));
             cols.Add(GetButton("Мои домашки", $"/homeworks {hw.CourseId}"));
             cols.Add(GetButton("Мои задачи", $"/task {task.HomeworkId}"));
+            rows.Add(cols.ToArray());
+            cols = new List<InlineKeyboardButton>();
+            cols.Add(GetButton($"Отправить решение {task.Title}", $"wait_pull_request {task.Id}"));
             rows.Add(cols.ToArray());
             
             var keyboardMarkup = new InlineKeyboardMarkup(rows.ToArray());

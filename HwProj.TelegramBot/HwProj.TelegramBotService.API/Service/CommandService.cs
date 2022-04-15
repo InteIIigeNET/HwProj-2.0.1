@@ -42,18 +42,24 @@ namespace HwProj.TelegramBotService.API.Service
                         await ExecuteCommand(CommandNames.GetCourses, update);
                         return;
                 }
-                var userWantRegister = _context.TelegramUser.FirstOrDefaultAsync(x => x.ChatId == update.Message.Chat.Id).Result;
-                if (userWantRegister.Operation == "wait_code" || userWantRegister.Operation == "check_code")
+                
+                var user = _context.TelegramUser.FirstOrDefaultAsync(x => x.ChatId == update.Message.Chat.Id).Result;
+                if (user.Operation is "wait_code" or "check_code")
                 {
-                    switch (userWantRegister.Operation)
+                    switch (user.Operation)
                     {
                         case "wait_code":
                             await ExecuteCommand(CommandNames.WaitCodeCommand, update);
-                            break;
+                            return;
                         case "check_code":
                             await ExecuteCommand(CommandNames.CheckCodeCommand, update);
-                            break;
+                            return;
                     }
+                }
+                if (user.Operation == "wait_pull_request")
+                {
+                    await ExecuteCommand(CommandNames.SendSolution, update);
+                    return;
                 }
             }
             else if (update.Type == UpdateType.CallbackQuery)
@@ -65,25 +71,28 @@ namespace HwProj.TelegramBotService.API.Service
                     {
                         case "/courses":
                             await ExecuteCommand(CommandNames.GetCourses, update);
-                            break;
+                            return;
                         case "/homeworks":
                             await ExecuteCommand(CommandNames.GetHomeworks, update);
-                            break;
+                            return;
                         case "/statistics":
                             await ExecuteCommand(CommandNames.GetStatistics, update);
-                            break;
+                            return;
                         case "/task":
                             await ExecuteCommand(CommandNames.GetTasks, update);
-                            break;
+                            return;
                         case "/taskinfo":
                             await ExecuteCommand(CommandNames.GetTaskInfo, update);
-                            break;
+                            return;
                         case "/solutions":
                             await ExecuteCommand(CommandNames.GetSolutionsFromTask, update);
-                            break;
+                            return;
                         case "/solutioninfo":
                             await ExecuteCommand(CommandNames.GetSolutionInfo, update);
-                            break;
+                            return;
+                        case "wait_pull_request":
+                            await ExecuteCommand(CommandNames.WaitPullRequest, update);
+                            return;
                     }
                 }
             }

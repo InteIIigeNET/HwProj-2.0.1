@@ -42,8 +42,15 @@ namespace HwProj.TelegramBotService.API.Controllers
             return Ok();
         }
         
+        [HttpGet("check/{studentId}")]
+        public async Task<IActionResult> CheckUserTelegram(string studentId)
+        {
+            var response =  await _userService.CheckTelegramUserModelByStudentId(studentId);
+            return Ok(response);
+        }
+        
         [HttpGet("get/{studentId}")]
-        public async Task<UserTelegram> GetUser(string studentId)
+        public async Task<UserTelegram> GetUserTelegram(string studentId)
         {
             return await _userService.TelegramUserModelByStudentId(studentId);
         }

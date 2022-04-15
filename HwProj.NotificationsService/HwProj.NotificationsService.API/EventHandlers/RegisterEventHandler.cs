@@ -32,7 +32,6 @@ namespace HwProj.NotificationsService.API.EventHandlers
             };
             await _notificationRepository.AddAsync(notification);
             await _notificationsService.SendEmailAsync(notification, @event.Email, "HwProj");
-            await _notificationsService.SendTelegramMessageAsync(notification, null);
         }
     }
 }

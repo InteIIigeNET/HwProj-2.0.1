@@ -43,7 +43,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             var studentModel = _mapper.Map<AccountDataDto>(studentAccount);
             
             await _notificationsService.SendEmailAsync(notification, studentModel.Email, "Редактирование профиля");
-            await _notificationsService.SendTelegramMessageAsync(notification, null);
+            await _notificationsService.SendTelegramMessageAsync(notification);
         }
     }
 }

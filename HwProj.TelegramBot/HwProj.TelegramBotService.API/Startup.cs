@@ -41,6 +41,8 @@ namespace HwProj.TelegramBotService.API
             services.AddScoped<Commands.Commands, GetSolutionsFromTask>();
             services.AddScoped<Commands.Commands, GetStatistics>();
             services.AddScoped<Commands.Commands, WaitCodeCommand>();
+            services.AddScoped<Commands.Commands, WaitPullRequest>();
+            services.AddScoped<Commands.Commands, SendSolution>();
             services.AddScoped<Commands.Commands, CheckCodeCommand>();
             services.AddScoped<Commands.Commands, ErrorCommand>();
 

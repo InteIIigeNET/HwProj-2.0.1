@@ -45,7 +45,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 Text = $"{@event.Task.Title}",
                 CallbackData = $"/solutioninfo {@event.SolutionId}"
             });
-            await _notificationsService.SendTelegramMessageAsync(notification, inlineKeyboard);
+            await _notificationsService.SendTelegramMessageWithKeyboardAsync(notification, inlineKeyboard);
         }
     }
 }

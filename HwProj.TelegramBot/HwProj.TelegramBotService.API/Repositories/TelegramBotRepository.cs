@@ -18,5 +18,10 @@ namespace HwProj.TelegramBotService.API.Repositories
         {
             return Context.Set<UserTelegram>().Where(h => h.ChatId == chatId);
         }
+
+        public IQueryable<UserTelegram> GetChatIdTelegramByAccountId(string accountId)
+        {
+            return Context.Set<UserTelegram>().Where(h => h.AccountId == accountId);
+        }
     }
 }

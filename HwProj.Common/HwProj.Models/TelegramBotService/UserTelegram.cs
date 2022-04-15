@@ -14,8 +14,12 @@ namespace HwProj.Models.TelegramBotService
         
         public bool IsRegistered { get; set; }
         
-        public string Code { get; set; }
+        public string? Code { get; set; }
         
-        public string Operation { get; set; }
+        public long? TaskIdToSend { get; set; }
+        
+        public string? GitHubUrl { get; set; }
+        
+        public string? Operation { get; set; }
     }
 }

@@ -53,7 +53,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                     Text = $"{@event.Homework}",
                     CallbackData = $"/homeworks {@event.Course.Id}"
                 });
-                await _notificationsService.SendTelegramMessageAsync(notification, inlineKeyboard);
+                await _notificationsService.SendTelegramMessageWithKeyboardAsync(notification, inlineKeyboard);
             }
         }
     }
