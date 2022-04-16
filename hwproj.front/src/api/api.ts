@@ -699,10 +699,10 @@ export interface NotificationViewModel {
     hasSeen?: boolean;
     /**
      * 
-     * @type {string}
+     * @type {Date}
      * @memberof NotificationViewModel
      */
-    dateTime?: string;
+    date?: Date;
 }
 
 /**

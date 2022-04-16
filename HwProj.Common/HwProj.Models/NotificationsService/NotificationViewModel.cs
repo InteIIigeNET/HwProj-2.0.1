@@ -1,4 +1,7 @@
-﻿namespace HwProj.Models.NotificationsService
+﻿using System;
+using System.Globalization;
+
+namespace HwProj.Models.NotificationsService
 {
     public class NotificationViewModel
     {
@@ -7,8 +10,10 @@
         public string Owner { get; set; }
         public CategoryState Category { get; set; }
         public string Body { get; set; }
+
         public bool HasSeen { get; set; }
+
         // dd.mm.yy hh:mm
-        public string DateTime { get; set; }
+        public DateTime Date { get; set; }
     }
 }
