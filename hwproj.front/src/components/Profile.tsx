@@ -22,6 +22,7 @@ import {Redirect} from "react-router-dom";
 import {makeStyles} from "@material-ui/styles";
 
 let CategoryEnum = CategorizedNotifications.CategoryEnum;
+let options = {year: '2-digit', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'};
 
 interface IProfileState {
     isLoaded: boolean;
@@ -118,6 +119,9 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
                             <CardContent>
                                 <Typography variant="body1" component="p">
                                     {parse(n.body!)}
+                                </Typography>
+                                <Typography variant="body1">
+                                    {parse(ApiSingleton.utils.convertUTCDateToLocalDate(n.date!).toLocaleDateString("ru-RU", options))}
                                 </Typography>
                             </CardContent>
                             <Box display="flex" flexDirection="row-reverse">

@@ -14,6 +14,6 @@ namespace HwProj.Models.NotificationsService
         public CategoryState Category { get; set; }
         public string Body { get; set; }
         public bool HasSeen { get; set; }
-        public DateTime Date { get; set; }
+        public DateTime Date { get ; set; }
     }
 }
