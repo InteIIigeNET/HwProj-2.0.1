@@ -697,6 +697,12 @@ export interface NotificationViewModel {
      * @memberof NotificationViewModel
      */
     hasSeen?: boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof NotificationViewModel
+     */
+    dateTime?: string;
 }
 
 /**

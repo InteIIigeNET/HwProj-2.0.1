@@ -8,5 +8,7 @@
         public CategoryState Category { get; set; }
         public string Body { get; set; }
         public bool HasSeen { get; set; }
+        // dd.mm.yy hh:mm
+        public string DateTime { get; set; }
     }
 }
