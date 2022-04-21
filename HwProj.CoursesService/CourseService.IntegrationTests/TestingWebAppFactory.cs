@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using HwProj.CoursesService.API;
 using HwProj.CoursesService.API.Models;
+using HwProj.CoursesService.Client;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
@@ -30,7 +31,7 @@ namespace CourseService.IntegrationTests
 
                 services.AddDbContext<CourseContext>(options =>
                 {
-                    options.UseInMemoryDatabase("InMemoryEmployeeTest");
+                    options.UseInMemoryDatabase("CourseServiceTestDb");
                     options.UseInternalServiceProvider(serviceProvider);
                 });
 
@@ -43,6 +44,10 @@ namespace CourseService.IntegrationTests
                         appContext.Database.EnsureCreated();
                     }
                 }
+                
+                services.AddHttpClient();
+                services.AddHttpContextAccessor();
+                services.AddCoursesServiceClient();
             });
         }
     }
