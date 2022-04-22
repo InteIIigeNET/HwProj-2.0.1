@@ -2,15 +2,20 @@ import * as React from "react";
 import {ChangeEvent, FC, useEffect, useState} from "react";
 import {RouteComponentProps} from 'react-router';
 import {
+    Accordion,
+    AccordionDetails,
+    AccordionSummary,
     Box,
     Card,
     CardContent,
     Checkbox,
-    CircularProgress, FormControl,
+    CircularProgress,
+    FormControl,
     FormControlLabel,
     Grid,
-    InputLabel,
+    InputLabel, Link, ListItem,
     MenuItem,
+    OutlinedInput,
     Typography
 } from "@material-ui/core";
 import Select, {SelectChangeEvent} from '@mui/material/Select';
@@ -20,9 +25,25 @@ import "./Styles/Profile.css";
 import parse from 'html-react-parser';
 import {Redirect} from "react-router-dom";
 import {makeStyles} from "@material-ui/styles";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import IconButton from "@material-ui/core/IconButton";
+import PersonAddIcon from "@material-ui/icons/PersonAdd";
+import List from "@material-ui/core/List";
 
 let CategoryEnum = CategorizedNotifications.CategoryEnum;
-let options = {year: '2-digit', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'};
+const options = {year: '2-digit', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'};
+
+function getAll(data: CategorizedNotifications[]) {
+    let list: NotificationViewModel[] = [];
+    data.forEach(function (item) {
+            if (item != null && item.seenNotifications != undefined)
+                list = list.concat(item.seenNotifications);
+            if (item != null && item.notSeenNotifications != undefined)
+                list = list.concat(item.notSeenNotifications);
+        }
+    );
+    return list!;
+}
 
 interface IProfileState {
     isLoaded: boolean;
@@ -62,7 +83,7 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
 
     const [filterState, setFilterState] = useState<IFilterState>({
         categoryFlag: new Map([
-            [CategoryEnum.NUMBER_0, true],
+            [CategoryEnum.NUMBER_0, false],
             [CategoryEnum.NUMBER_1, true],
             [CategoryEnum.NUMBER_2, true],
             [CategoryEnum.NUMBER_3, true]
@@ -91,10 +112,10 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
             isLoaded: true,
             notifications: data.notifications!
         }))
-        // setFilterState((prevState) => ({
-        //     ...prevState,
-        //     filteredNotifications: GetAll(data.notifications)
-        // }))
+        setFilterState((prevState) => ({
+            ...prevState,
+            filteredNotifications: getAll(data.notifications!)!
+        }))
         setAccountState(data.userData!)
     }
 
@@ -102,7 +123,13 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
         const id = parseInt(e.target.id)
         await ApiSingleton.notificationsApi.apiNotificationsMarkAsSeenPut([id]);
         const notifications = profileState.notifications;
-        notifications.forEach(item => item.notSeenNotifications!.find(notification => notification.id === id)!.hasSeen = true);
+        notifications.forEach((item) => {
+                const temp = item.notSeenNotifications!.find(notification => notification.id === id);
+                if (temp != null)
+                    temp.hasSeen = true;
+            }
+        );
+
         e.persist()
         setProfileState((prevState) => ({
             ...prevState,
@@ -151,25 +178,28 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
         if (!event.target.checked) {
             notifications = notifications.filter(notification => !notification.hasSeen);
         } else {
-            profileState.notifications.forEach(item =>
-                filterState.categoryFlag.get(item.category!) ? notifications.concat(item.seenNotifications!) : notifications);
+            notifications = getAll(profileState.notifications);
+            // profileState.notifications.forEach(item =>
+            //     filterState.categoryFlag.get(item.category!) ? notifications.concat(item.seenNotifications!) : notifications);
         }
         setFilterState((prevState) => ({
             ...prevState,
             filteredNotifications: notifications,
-            showAll: event.target.checked
+            showAll: !prevState.showAll
         }));
     };
 
-    const handleChange = (event: SelectChangeEvent<typeof CategoryEnum>) => {
+    const changeCategory = (event: ChangeEvent<HTMLInputElement>) => {
         filterState.categoryFlag.forEach((value, key) =>
             key.toString() == event.target.value ? filterState.categoryFlag.set(key, !value) : value);
-        const notifications = profileState.notifications.filter(notification => filterState.categoryFlag.get(notification.category!));
-        const array = [] as NotificationViewModel[];
+
+        const notifications = profileState.notifications.filter(notification =>
+            filterState.categoryFlag.get(notification.category!));
+        let array: NotificationViewModel[] = [];
         notifications.forEach(notification =>
             filterState.showAll
-                ? array.concat(notification.notSeenNotifications!).concat(notification.seenNotifications!)
-                : array.concat(notification.notSeenNotifications!)
+                ? array = array.concat(notification.notSeenNotifications!, notification.seenNotifications!)
+                : array = array.concat(notification.notSeenNotifications!)
         );
 
         setFilterState((prevState) => ({
@@ -195,6 +225,8 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
                     </Typography>
                 </Grid>
 
+
+                {/*Нужно обернуть в accordion*/}
                 <Grid item xs={11}>
                     <FormControlLabel control={
                         <Checkbox
@@ -204,26 +236,35 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
                         />
                     } label="Показывать все уведомления"
                     />
+                    <FormControlLabel control={
+                        <Checkbox
+                            checked={filterState.categoryFlag.get(CategoryEnum.NUMBER_1)}
+                            onChange={changeCategory}
+                            value={CategoryEnum.NUMBER_1}
+                            inputProps={{'aria-label': 'controlled'}}
+                        />
+                    } label="Профиль"
+                    />
+                    <FormControlLabel control={
+                        <Checkbox
+                            checked={filterState.categoryFlag.get(CategoryEnum.NUMBER_2)}
+                            onChange={changeCategory}
+                            value={CategoryEnum.NUMBER_2}
+                            inputProps={{'aria-label': 'controlled'}}
+                        />
+                    } label="Курсы"
+                    />
+                    <FormControlLabel control={
+                        <Checkbox
+                            checked={filterState.categoryFlag.get(CategoryEnum.NUMBER_3)}
+                            onChange={changeCategory}
+                            value={CategoryEnum.NUMBER_3}
+                            inputProps={{'aria-label': 'controlled'}}
+                        />
+                    } label="Домашние задания"
+                    />
                     {renderNotifications(filterState.filteredNotifications)}
                 </Grid>
-
-
-                {/*<FormControl margin="normal">*/}
-                {/*    <InputLabel id="notification-category-label">Категория</InputLabel>*/}
-                {/*    /!*<Select*!/*/}
-                {/*    /!*    labelId="notification-category-label"*!/*/}
-                {/*    /!*    id="notification-category"*!/*/}
-                {/*    /!*    multiple*!/*/}
-                {/*    /!*    value={CategoryEnum}*!/*/}
-                {/*    /!*    label="Категория"*!/*/}
-                {/*    /!*    onChange={handleChange}*!/*/}
-                {/*    /!*    renderValue={(selected) => selected.toString().concat(', ')}*!/*/}
-                {/*    /!*>*!/*/}
-                {/*        <MenuItem value={CategoryEnum.NUMBER_1}>Профиль</MenuItem>*/}
-                {/*        <MenuItem value={CategoryEnum.NUMBER_2}>Курсы</MenuItem>*/}
-                {/*        <MenuItem value={CategoryEnum.NUMBER_3}>Домашки</MenuItem>*/}
-                {/*    /!*</Select>*!/*/}
-                {/*</FormControl>*/}
             </Grid>
         </div>
     }
