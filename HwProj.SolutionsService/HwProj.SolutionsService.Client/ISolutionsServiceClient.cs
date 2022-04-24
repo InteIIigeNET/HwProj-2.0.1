@@ -1,6 +1,8 @@
 ﻿using System.Threading.Tasks;
 using HwProj.Models.SolutionsService;
 using HwProj.Models.StatisticsService;
+using HwProj.SolutionsService.API.AssessmentSystem;
+using Microsoft.AspNetCore.Http;
 
 namespace HwProj.SolutionsService.Client
 {
@@ -16,5 +18,7 @@ namespace HwProj.SolutionsService.Client
         Task<long> PostGroupSolution(SolutionViewModel model, long taskId, long groupId);
         Task<Solution[]> GetTaskSolutions(long groupId, long taskId);
         Task<StatisticsCourseMatesModel[]> GetCourseStatistics(long courseId, string userId);
+        Task<ResponseForAddAssessmentMethod> AddDllForAssessment(long courseId, IFormFile dll);
+        Task<FinalAssessmentForStudent[]> GetAssessmentForCourse(long courseId, string userId);
     }
 }

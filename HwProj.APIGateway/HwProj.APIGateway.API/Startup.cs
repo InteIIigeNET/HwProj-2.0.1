@@ -11,6 +11,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using HwProj.Utils.Authorization;
+using HwProj.Utils.FeaturesForSwagger;
+using Microsoft.AspNetCore.Http;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace HwProj.APIGateway.API
 {

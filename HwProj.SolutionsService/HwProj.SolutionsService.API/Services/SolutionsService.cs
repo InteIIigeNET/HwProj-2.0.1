@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -10,7 +11,12 @@ using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.SolutionsService;
 using HwProj.SolutionsService.API.Events;
 using HwProj.SolutionsService.API.Repositories;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
+using ConfigurableAssessmentSystem;
+using HwProj.Models.StatisticsService;
+using HwProj.SolutionsService.API.AssessmentSystem;
 
 
 namespace HwProj.SolutionsService.API.Services
@@ -109,6 +115,91 @@ namespace HwProj.SolutionsService.API.Services
         public Task<Solution[]> GetTaskSolutionsFromGroupAsync(long taskId, long groupId)
         {
             return _solutionsRepository.FindAll(cm => cm.GroupId == groupId).ToArrayAsync();
+        }
+
+        public async Task<ResponseForAddAssessmentMethod> AddDllForAssessment(long courseId, IFormFile dll)
+        {
+            if (dll.Length > 2097152)
+            {
+                return new ResponseForAddAssessmentMethod()
+                {
+                    EveryThingOK = false,
+                    ErrorMessage = "Файл должен весить меньше 2 мб"
+                };
+            }
+            if (!AssessmentSystem.AssessmentSystem.CheckFileHaveAssessmentMethod(dll))
+            {
+                return new ResponseForAddAssessmentMethod()
+                {
+                    EveryThingOK = false,
+                    ErrorMessage = "Файл не содержит метода для оценки"
+                };
+            }
+            
+            var path = AssessmentSystem.AssessmentSystem.PathForAssessmentDlls + courseId.ToString() + ".dll";
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+
+            using var stream = File.Create(path);
+            await dll.CopyToAsync(stream);
+            return new ResponseForAddAssessmentMethod()
+            {
+                EveryThingOK = true
+            };
+        }
+
+        public async Task<FinalAssessmentForStudent[]> GetAssessmentForCourseForAllStudents(long courseId, string userId)
+        {
+            var assessmentFunction = AssessmentSystem.AssessmentSystem.GetAssessmentMethodForCourse(courseId);
+            if (assessmentFunction == null)
+            {
+                return null;
+            }
+            var course = await _coursesServiceClient.GetCourseById(courseId, userId);
+            var tasks = new List<HomeworkTaskViewModel>();
+            course.Homeworks.ForEach(hw =>
+            {
+                tasks = tasks.Union(hw.Tasks).ToList();
+            });
+            var courseMates = course.CourseMates.Where(mate => mate.IsAccepted).ToList();
+            var modelsForAssessment = new AssessmentModel[tasks.Count];
+            var assessments = new FinalAssessmentForStudent[courseMates.Count];
+            for (int i = 0; i < courseMates.Count; i++)
+            {
+                for (int j = 0; j < tasks.Count; j++)
+                {
+                    var solutionByTask =
+                        (await GetTaskSolutionsFromStudentAsync(tasks[j].Id, courseMates[i].StudentId)).FirstOrDefault(s =>
+                            s.Rating > 0);
+                    var assessmentModel = new AssessmentModel()
+                    {
+                        TaskName = tasks[j].Title,
+                        MaxRating = tasks[j].MaxRating,
+                        HasDeadline = tasks[j].HasDeadline,
+                        DeadlineDate = tasks[j].DeadlineDate,
+                        IsDeadlineStrict = tasks[j].IsDeadlineStrict,
+                        TaskPublicationDate = tasks[j].PublicationDate,
+                    };
+                    if (solutionByTask != null)
+                    {
+                        assessmentModel.SolutionPublicationDate = solutionByTask.PublicationDate;
+                        assessmentModel.SolutionRating = solutionByTask.Rating;
+                    }
+
+                    modelsForAssessment[j] = assessmentModel;
+                }
+
+                assessments[i] = new FinalAssessmentForStudent()
+                {
+                    StudentId = courseMates[i].StudentId,
+                    CourseId = courseId,
+                    Assessment = assessmentFunction(modelsForAssessment),
+                };
+            }
+
+            return assessments;
         }
     }
 }

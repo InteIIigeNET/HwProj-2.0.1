@@ -17,6 +17,8 @@ import Link from "@material-ui/core/Link";
 import DeleteIcon from '@material-ui/icons/Delete';
 import Lecturers from "./Lecturers";
 import {AccountDataDto} from "../../api";
+import Input from '@material-ui/core/Input';
+import OpenDialogForAddingAssessmentFile from './OpenDialogForAddingAssessmentFile'
 
 
 interface IEditCourseState {
@@ -125,7 +127,6 @@ const EditCourse: FC<RouteComponentProps<IEditCourseProps>> = (props) => {
             deleted: true
         }))
     }
-
     const classes = useStyles()
 
     if (courseState.isLoaded) {
@@ -169,6 +170,10 @@ const EditCourse: FC<RouteComponentProps<IEditCourseProps>> = (props) => {
                                 mentors={courseState.mentors}
                                 courseId={props.match.params.courseId}
                                 isEditCourse={true}
+                            />
+                            <OpenDialogForAddingAssessmentFile
+                                update = {getCourse}
+                                courseId = {props.match.params.courseId}
                             />
                         </Grid>
                     </Grid>

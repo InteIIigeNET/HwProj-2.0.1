@@ -3,10 +3,13 @@ using System.Threading.Tasks;
 using HwProj.APIGateway.API.ExceptionFilters;
 using HwProj.Models.Roles;
 using HwProj.Models.SolutionsService;
+using HwProj.Models.StatisticsService;
 using HwProj.NotificationsService.Client;
+using HwProj.SolutionsService.API.AssessmentSystem;
 using HwProj.SolutionsService.Client;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.APIGateway.API.Controllers
@@ -103,6 +106,30 @@ namespace HwProj.APIGateway.API.Controllers
         public async Task<IActionResult> GetGroupSolutions(long groupId, long taskId)
         {
             var result = await _solutionsClient.GetTaskSolutions(groupId, taskId);
+            return result == null
+                ? NotFound()
+                : Ok(result) as IActionResult;
+        }
+
+        [HttpPost("assessmentSystem/add/{courseId}")]
+        [Authorize]
+        [ProducesResponseType(typeof(ResponseForAddAssessmentMethod), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> AddAssessmentSystem(long courseId, IFormFile dll)
+        {   
+            if (Request.HasFormContentType)
+            {
+                dll = Request.Form.Files[0];
+            }
+            var result = await _solutionsClient.AddDllForAssessment(courseId, dll);
+            return Ok(result) as IActionResult; 
+        }
+
+        [HttpGet("assessmentSystem/get/assessment/{courseId}")]
+        [Authorize]
+        [ProducesResponseType(typeof(FinalAssessmentForStudent[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetAssessmentForCourse(long courseId)
+        {
+            var result = await _solutionsClient.GetAssessmentForCourse(courseId, Request.GetUserId());
             return result == null
                 ? NotFound()
                 : Ok(result) as IActionResult;
