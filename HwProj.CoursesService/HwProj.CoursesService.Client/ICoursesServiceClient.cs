@@ -30,7 +30,7 @@ namespace HwProj.CoursesService.Client
         Task UpdateCourseGroup(UpdateGroupViewModel model, long courseId, long groupId);
         Task<GroupViewModel> GetCourseGroupsById(long courseId, string userId);
         Task AddStudentInGroup(long courseId, long groupId, string userId);
-        Task RemoveStudentFromGroup(long courseId, long groupId, string userId);
+        Task RemoveStudentFromGroup(long courseId, long groupId, string userId, string mentorId);
         Task<GroupViewModel> GetGroupById(long groupId);
         Task<long[]> GetGroupTasks(long groupId);
         Task AcceptLecturer(long courseId, string lecturerEmail);

@@ -198,7 +198,7 @@ namespace HwProj.CoursesService.Client
         public async Task<HomeworkTaskViewModel> GetTask(long taskId)
         {
             using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Get, 
+                HttpMethod.Get,
                 _coursesServiceUri + $"api/Tasks/get/{taskId}");
 
             var response = await _httpClient.SendAsync(httpRequest);
@@ -328,7 +328,7 @@ namespace HwProj.CoursesService.Client
 
             await _httpClient.SendAsync(httpRequest);
         }
-        
+
         public async Task RemoveStudentFromGroup(long courseId, long groupId, string userId, string mentorId)
         {
             using var httpRequest = new HttpRequestMessage(
@@ -358,7 +358,7 @@ namespace HwProj.CoursesService.Client
         public async Task<string[]> GetAllStudentsWithoutGroup(long courseId)
         {
             using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Get, 
+                HttpMethod.Get,
                 _coursesServiceUri + $"api/CourseGroups/getStudents?courseId={courseId}");
 
             var response = await _httpClient.SendAsync(httpRequest);
