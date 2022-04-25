@@ -10,15 +10,10 @@ import {
     CardContent,
     Checkbox,
     CircularProgress,
-    FormControl,
-    FormControlLabel,
+    FormControlLabel, FormGroup,
     Grid,
-    InputLabel, Link, ListItem,
-    MenuItem,
-    OutlinedInput,
     Typography
 } from "@material-ui/core";
-import Select, {SelectChangeEvent} from '@mui/material/Select';
 import ApiSingleton from "api/ApiSingleton";
 import {AccountDataDto, CategorizedNotifications, NotificationViewModel} from "../api/";
 import "./Styles/Profile.css";
@@ -26,9 +21,6 @@ import parse from 'html-react-parser';
 import {Redirect} from "react-router-dom";
 import {makeStyles} from "@material-ui/styles";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import IconButton from "@material-ui/core/IconButton";
-import PersonAddIcon from "@material-ui/icons/PersonAdd";
-import List from "@material-ui/core/List";
 
 let CategoryEnum = CategorizedNotifications.CategoryEnum;
 const options = {year: '2-digit', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'};
@@ -57,7 +49,8 @@ interface IProfileProps {
 interface IFilterState {
     categoryFlag: Map<CategorizedNotifications.CategoryEnum, boolean>;
     filteredNotifications: NotificationViewModel[];
-    showAll: boolean;
+    showUnread: boolean;
+    isCheckAll: boolean;
 }
 
 const useStyles = makeStyles(theme => ({
@@ -83,13 +76,13 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
 
     const [filterState, setFilterState] = useState<IFilterState>({
         categoryFlag: new Map([
-            [CategoryEnum.NUMBER_0, false],
             [CategoryEnum.NUMBER_1, true],
             [CategoryEnum.NUMBER_2, true],
             [CategoryEnum.NUMBER_3, true]
         ]),
         filteredNotifications: [],
-        showAll: true
+        showUnread: false,
+        isCheckAll: true
     });
 
     useEffect(() => {
@@ -173,38 +166,56 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
         return <Redirect to={"/login"}/>;
     }
 
-    const changeShowAll = (event: ChangeEvent<HTMLInputElement>) => {
+    const changeShowUnread = (event: ChangeEvent<HTMLInputElement>) => {
         let notifications = filterState.filteredNotifications;
-        if (!event.target.checked) {
+        if (event.target.checked) {
             notifications = notifications.filter(notification => !notification.hasSeen);
         } else {
             notifications = getAll(profileState.notifications);
-            // profileState.notifications.forEach(item =>
-            //     filterState.categoryFlag.get(item.category!) ? notifications.concat(item.seenNotifications!) : notifications);
         }
         setFilterState((prevState) => ({
             ...prevState,
             filteredNotifications: notifications,
-            showAll: !prevState.showAll
+            showUnread: !prevState.showUnread
         }));
     };
+
+    let getNotifications = () => {
+        const notifications = profileState.notifications.filter(notification =>
+            filterState.categoryFlag.get(notification.category!));
+        let array: NotificationViewModel[] = [];
+        notifications.forEach(notification =>
+            filterState.showUnread
+                ? array = array.concat(notification.notSeenNotifications!)
+                : array = array.concat(notification.notSeenNotifications!, notification.seenNotifications!)
+        );
+        return array;
+    }
+
+    let isAllChecked = () => {
+        let result = true;
+        filterState.categoryFlag.forEach((value, key) => result = result && value);
+        return result;
+    }
 
     const changeCategory = (event: ChangeEvent<HTMLInputElement>) => {
         filterState.categoryFlag.forEach((value, key) =>
             key.toString() == event.target.value ? filterState.categoryFlag.set(key, !value) : value);
 
-        const notifications = profileState.notifications.filter(notification =>
-            filterState.categoryFlag.get(notification.category!));
-        let array: NotificationViewModel[] = [];
-        notifications.forEach(notification =>
-            filterState.showAll
-                ? array = array.concat(notification.notSeenNotifications!, notification.seenNotifications!)
-                : array = array.concat(notification.notSeenNotifications!)
-        );
+        setFilterState((prevState) => ({
+            ...prevState,
+            filteredNotifications: getNotifications(),
+            isCheckAll: isAllChecked()
+        }));
+    };
+
+    const changeCheckAll = (event: ChangeEvent<HTMLInputElement>) => {
+        filterState.categoryFlag.forEach((value, key) => filterState.categoryFlag.set(key, event.target.checked));
 
         setFilterState((prevState) => ({
             ...prevState,
-            filteredNotifications: array
+            filteredNotifications: getNotifications(),
+            isCheckAll: !prevState.isCheckAll
         }));
     };
 
@@ -225,44 +236,71 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
                     </Typography>
                 </Grid>
 
-
-                {/*Нужно обернуть в accordion*/}
                 <Grid item xs={11}>
                     <FormControlLabel control={
                         <Checkbox
-                            checked={filterState.showAll}
-                            onChange={changeShowAll}
+                            checked={filterState.showUnread}
+                            onChange={changeShowUnread}
                             inputProps={{'aria-label': 'controlled'}}
                         />
-                    } label="Показывать все уведомления"
+                    } label="Показывать только непрочитанные"
                     />
-                    <FormControlLabel control={
-                        <Checkbox
-                            checked={filterState.categoryFlag.get(CategoryEnum.NUMBER_1)}
-                            onChange={changeCategory}
-                            value={CategoryEnum.NUMBER_1}
-                            inputProps={{'aria-label': 'controlled'}}
-                        />
-                    } label="Профиль"
-                    />
-                    <FormControlLabel control={
-                        <Checkbox
-                            checked={filterState.categoryFlag.get(CategoryEnum.NUMBER_2)}
-                            onChange={changeCategory}
-                            value={CategoryEnum.NUMBER_2}
-                            inputProps={{'aria-label': 'controlled'}}
-                        />
-                    } label="Курсы"
-                    />
-                    <FormControlLabel control={
-                        <Checkbox
-                            checked={filterState.categoryFlag.get(CategoryEnum.NUMBER_3)}
-                            onChange={changeCategory}
-                            value={CategoryEnum.NUMBER_3}
-                            inputProps={{'aria-label': 'controlled'}}
-                        />
-                    } label="Домашние задания"
-                    />
+                    <div style={{maxWidth: '300px'}}>
+                        <Accordion>
+                            <AccordionSummary
+                                expandIcon={<ExpandMoreIcon/>}
+                                aria-controls="panel1a-content"
+                                id="panel1a-header"
+                            >
+                                <div>
+                                    <Typography style={{fontSize: '16px'}}>
+                                        Фильтрация
+                                    </Typography>
+                                </div>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                                <FormGroup>
+                                    <FormControlLabel control={
+                                        <Checkbox
+                                            checked={filterState.isCheckAll}
+                                            onChange={changeCheckAll}
+                                            value={filterState.isCheckAll}
+                                            inputProps={{'aria-label': 'controlled'}}
+                                        />
+                                    } label="Показать все"
+                                    />
+                                    <FormControlLabel control={
+                                        <Checkbox
+                                            checked={filterState.categoryFlag.get(CategoryEnum.NUMBER_1)}
+                                            onChange={changeCategory}
+                                            value={CategoryEnum.NUMBER_1}
+                                            inputProps={{'aria-label': 'controlled'}}
+                                        />
+                                    } label="Профиль"
+                                    />
+                                    <FormControlLabel control={
+                                        <Checkbox
+                                            checked={filterState.categoryFlag.get(CategoryEnum.NUMBER_2)}
+                                            onChange={changeCategory}
+                                            value={CategoryEnum.NUMBER_2}
+                                            inputProps={{'aria-label': 'controlled'}}
+                                        />
+                                    } label="Курсы"
+                                    />
+                                    <FormControlLabel control={
+                                        <Checkbox
+                                            checked={filterState.categoryFlag.get(CategoryEnum.NUMBER_3)}
+                                            onChange={changeCategory}
+                                            value={CategoryEnum.NUMBER_3}
+                                            inputProps={{'aria-label': 'controlled'}}
+                                        />
+                                    } label="Домашние задания"
+                                    />
+                                </FormGroup>
+                            </AccordionDetails>
+                        </Accordion>
+                    </div>
+
                     {renderNotifications(filterState.filteredNotifications)}
                 </Grid>
             </Grid>
