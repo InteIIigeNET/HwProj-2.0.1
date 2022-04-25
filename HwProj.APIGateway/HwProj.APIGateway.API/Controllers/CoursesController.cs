@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using HwProj.CoursesService.Client;
+using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
@@ -112,6 +113,15 @@ namespace HwProj.APIGateway.API.Controllers
         {
             await _coursesClient.AcceptLecturer(courseId, lecturerEmail);
             return Ok();
+        }
+        
+        [HttpGet("getLecturersAvailableForCourse/{courseId}")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        [ProducesResponseType(typeof(AccountDataDto[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetLecturersAvailableForCourse(long courseId)
+        {
+            var result = await _coursesClient.GetLecturersAvailableForCourse(courseId);
+            return Ok(result);
         }
     }
 }
