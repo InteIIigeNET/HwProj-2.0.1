@@ -67,7 +67,6 @@ namespace HwProj.AuthService.API.Services
 
             if (result.Succeeded)
             {
-                _eventBus.Publish(new EditProfileEvent(id));
                 return Result.Success();
             }
 
