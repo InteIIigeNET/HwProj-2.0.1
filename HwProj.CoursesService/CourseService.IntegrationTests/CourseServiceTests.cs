@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
@@ -76,6 +77,25 @@ namespace CourseService.IntegrationTests
             Assert.Equal(newCourseViewModel.Name, courseFromServer.Name);
             Assert.Equal(newCourseViewModel.GroupName, courseFromServer.GroupName);
             Assert.Contains(userId, courseFromServer.MentorIds);
+        }
+
+        [Fact]
+        public async void TestDeleteCourse()
+        {
+            // Arrange
+            var authClient = CreateAuthServiceClient();
+            var userData = GenerateRegisterViewModel();
+            await authClient.Register(userData);
+            var userId = await authClient.FindByEmailAsync(userData.Email);
+            await authClient.InviteNewLecturer(new InviteLecturerViewModel() {Email = userData.Email});
+            var courseClient = CreateCourseServiceClient(userId);
+            var newCourseViewModel = GenerateCourseViewModel(); 
+            // Act
+            var courseId = await courseClient.CreateCourse(newCourseViewModel, userId);
+            await courseClient.DeleteCourse(courseId);
+            // Assert
+            var coursesFromServer = await courseClient.GetAllCourses();
+            Assert.True(coursesFromServer.FirstOrDefault(c => c.Id == courseId) == null);
         }
     }
 }

@@ -56,7 +56,8 @@ namespace HwProj.CoursesService.Client
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Delete,
                 _coursesServiceUri + $"api/Courses/{courseId}");
-
+            
+            httpRequest.AddUserId(_httpContextAccessor);
             await _httpClient.SendAsync(httpRequest);
         }
 
