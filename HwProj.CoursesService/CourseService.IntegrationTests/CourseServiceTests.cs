@@ -37,6 +37,13 @@ namespace CourseService.IntegrationTests
                 .With(cvm => cvm.IsOpen, true);
             return fixture.Create();
         }
+
+        private UpdateCourseViewModel GenerateUpdateCourseViewModel()
+        {
+            var fixture = new Fixture().Build<UpdateCourseViewModel>()
+                .With(cvm => cvm.IsOpen, true);
+            return fixture.Create();
+        }
         
         private CoursesServiceClient CreateCourseServiceClient(string userId)
         {
@@ -96,6 +103,29 @@ namespace CourseService.IntegrationTests
             // Assert
             var coursesFromServer = await courseClient.GetAllCourses();
             Assert.True(coursesFromServer.FirstOrDefault(c => c.Id == courseId) == null);
+        }
+
+        [Fact]
+        public async void TestUpdateCourse()
+        {
+            // Arrange
+            var authClient = CreateAuthServiceClient();
+            var userData = GenerateRegisterViewModel();
+            await authClient.Register(userData);
+            var userId = await authClient.FindByEmailAsync(userData.Email);
+            await authClient.InviteNewLecturer(new InviteLecturerViewModel() {Email = userData.Email});
+            var courseClient = CreateCourseServiceClient(userId);
+            var newCourseViewModel = GenerateCourseViewModel(); 
+            // Act
+            var courseId = await courseClient.CreateCourse(newCourseViewModel, userId);
+            var updateCourse = GenerateUpdateCourseViewModel();
+            await courseClient.UpdateCourse(updateCourse, courseId);
+            // Assert
+            var courseFromServer = await courseClient.GetCourseById(courseId, userId);
+            Assert.Equal(updateCourse.Name, courseFromServer.Name);
+            Assert.Equal(updateCourse.GroupName, courseFromServer.GroupName);
+            Assert.Equal(updateCourse.IsComplete, courseFromServer.IsCompleted);
+            Assert.Equal(updateCourse.IsOpen, courseFromServer.IsOpen);
         }
     }
 }
