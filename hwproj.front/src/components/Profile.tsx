@@ -220,22 +220,8 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
     };
 
     if (profileState.isLoaded) {
-        const fullName = accountState.middleName && accountState.surname
-            ? accountState.name + ' ' + accountState.middleName + ' ' + accountState.surname
-            : accountState.surname
-                ? accountState.name + ' ' + accountState.surname
-                : accountState.name
         return <div style={{marginBottom: '50px'}}>
             <Grid container justifyContent="center" style={{marginTop: "15px"}}>
-                <Grid item xs={11} className={classes.info}>
-                    <Typography style={{fontSize: '20px'}}>
-                        {fullName}
-                    </Typography>
-                    <Typography style={{fontSize: '20px'}}>
-                        {accountState.email}
-                    </Typography>
-                </Grid>
-
                 <Grid item xs={11}>
                     <FormControlLabel control={
                         <Checkbox
