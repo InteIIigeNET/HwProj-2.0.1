@@ -1,8 +1,8 @@
-using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoFixture;
+using FluentAssertions;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.Models.AuthService.ViewModels;
@@ -85,23 +85,23 @@ namespace Tests
         public async Task TestCreateCourse()
         {
             // Arrange
-            var (userId, mail) = await CreateAndRegisterLecture();
+            var (userId, _) = await CreateAndRegisterLecture();
             var courseClient = CreateCourseServiceClient(userId);
             var newCourseViewModel = GenerateCourseViewModel();
             // Act
             var courseId = await courseClient.CreateCourse(newCourseViewModel, userId);
             // Assert
             var courseFromServer = await courseClient.GetCourseById(courseId, userId);
-            Assert.AreEqual(newCourseViewModel.Name, courseFromServer.Name);
-            Assert.AreEqual(newCourseViewModel.GroupName, courseFromServer.GroupName);
-            Assert.IsTrue(courseFromServer.MentorIds.Contains(userId));
+            courseFromServer.Name.Should().Be(newCourseViewModel.Name);
+            courseFromServer.GroupName.Should().Be(newCourseViewModel.GroupName);
+            courseFromServer.MentorIds.Should().Contain(userId);
         }
 
         [Test]
         public async Task TestDeleteCourse()
         {
             // Arrange
-            var (userId, mail) = await CreateAndRegisterLecture();
+            var (userId, _) = await CreateAndRegisterLecture();
             var courseClient = CreateCourseServiceClient(userId);
             var newCourseViewModel = GenerateCourseViewModel();
             // Act
@@ -109,14 +109,14 @@ namespace Tests
             await courseClient.DeleteCourse(courseId);
             // Assert
             var coursesFromServer = await courseClient.GetAllCourses();
-            Assert.IsTrue(coursesFromServer.FirstOrDefault(c => c.Id == courseId) == null);
+            coursesFromServer.Should().NotContain(c => c.Id == courseId);
         }
 
         [Test]
         public async Task TestUpdateCourse()
         {
             // Arrange
-            var (userId, mail) = await CreateAndRegisterLecture();
+            var (userId, _) = await CreateAndRegisterLecture();
             var courseClient = CreateCourseServiceClient(userId);
             var newCourseViewModel = GenerateCourseViewModel();
             // Act
@@ -125,18 +125,18 @@ namespace Tests
             await courseClient.UpdateCourse(updateCourse, courseId);
             // Assert
             var courseFromServer = await courseClient.GetCourseById(courseId, userId);
-            Assert.AreEqual(updateCourse.Name, courseFromServer.Name);
-            Assert.AreEqual(updateCourse.GroupName, courseFromServer.GroupName);
-            Assert.AreEqual(updateCourse.IsComplete, courseFromServer.IsCompleted);
-            Assert.AreEqual(updateCourse.IsOpen, courseFromServer.IsOpen);
+            courseFromServer.Name.Should().Be(updateCourse.Name);
+            courseFromServer.GroupName.Should().Be(updateCourse.GroupName);
+            courseFromServer.IsCompleted.Should().Be(updateCourse.IsComplete);
+            courseFromServer.IsOpen.Should().Be(updateCourse.IsOpen);
         }
         
         [Test]
         public async Task TestSignInAndAcceptStudent()
         {   
             // Arrange
-            var (lectureId, lectureMail) = await CreateAndRegisterLecture();
-            var (studentId, studentMail) = await CreateAndRegisterUser();
+            var (lectureId, _) = await CreateAndRegisterLecture();
+            var (studentId, _) = await CreateAndRegisterUser();
             var lectureCourseClient = CreateCourseServiceClient(lectureId);
             var studentCourseClient = CreateCourseServiceClient(studentId);
             var newCourseViewModel = GenerateCourseViewModel();
@@ -147,32 +147,31 @@ namespace Tests
             await lectureCourseClient.AcceptStudent(courseId, studentId);
             var courseAfterAcceptStudent = await lectureCourseClient.GetCourseById(courseId, lectureId);
             // Assert
-            var mateBeforeAccept = courseBeforeAcceptStudent.CourseMates.FirstOrDefault(m => m.StudentId == studentId);
-            var mateAfterAccept = courseAfterAcceptStudent.CourseMates.FirstOrDefault(m => m.StudentId == studentId);
-            Assert.IsFalse(mateBeforeAccept.IsAccepted);
-            Assert.IsTrue(mateAfterAccept.IsAccepted);
+            courseBeforeAcceptStudent.CourseMates.Should().Contain(s => s.StudentId == studentId).Which.IsAccepted
+                .Should().BeFalse();
+            courseAfterAcceptStudent.CourseMates.Should().Contain(s => s.StudentId == studentId).Which.IsAccepted
+                .Should().BeTrue();
         }
         
         [Test]
         public async Task TestSignInAndRejectStudent()
         {   
             // Arrange
-            var (lectureId, lectureMail) = await CreateAndRegisterLecture();
-            var (studentId, studentMail) = await CreateAndRegisterUser();
+            var (lectureId, _) = await CreateAndRegisterLecture();
+            var (studentId, _) = await CreateAndRegisterUser();
             var lectureCourseClient = CreateCourseServiceClient(lectureId);
             var studentCourseClient = CreateCourseServiceClient(studentId);
             var newCourseViewModel = GenerateCourseViewModel();
             // Act
             var courseId = await lectureCourseClient.CreateCourse(newCourseViewModel, lectureId);
             await studentCourseClient.SignInCourse(courseId, studentId);
-            var courseBeforeAcceptStudent = await lectureCourseClient.GetCourseById(courseId, lectureId);
+            var courseBeforeRejectStudent = await lectureCourseClient.GetCourseById(courseId, lectureId);
             await lectureCourseClient.RejectStudent(courseId, studentId);
-            var courseAfterAcceptStudent = await lectureCourseClient.GetCourseById(courseId, lectureId);
+            var courseAfterRejectStudent = await lectureCourseClient.GetCourseById(courseId, lectureId);
             // Assert
-            var mateBeforeAccept = courseBeforeAcceptStudent.CourseMates.FirstOrDefault(m => m.StudentId == studentId);
-            var mateAfterAccept = courseAfterAcceptStudent.CourseMates.FirstOrDefault(m => m.StudentId == studentId);
-            Assert.IsFalse(mateBeforeAccept.IsAccepted);
-            Assert.IsNull(mateAfterAccept);
+            courseBeforeRejectStudent.CourseMates.Should().Contain(s => s.StudentId == studentId).Which.IsAccepted
+                .Should().BeFalse();
+            courseAfterRejectStudent.CourseMates.Should().NotContain(s => s.StudentId == studentId);
         }
     }
 }
