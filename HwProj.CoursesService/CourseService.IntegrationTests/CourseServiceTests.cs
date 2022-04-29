@@ -1,26 +1,21 @@
-using System;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoFixture;
 using HwProj.AuthService.Client;
-using HwProj.CoursesService.API;
 using HwProj.CoursesService.Client;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.CoursesService.ViewModels;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Moq;
-using Xunit;
+using NUnit.Framework;
 
-namespace CourseService.IntegrationTests
+namespace Tests
 {
-    public class CourseServiceTests
+    public class Tests
     {
         private RegisterViewModel GenerateRegisterViewModel()
         {
@@ -86,8 +81,8 @@ namespace CourseService.IntegrationTests
         }
 
 
-        [Fact]
-        public async void TestCreateCourse()
+        [Test]
+        public async Task TestCreateCourse()
         {
             // Arrange
             var (userId, mail) = await CreateAndRegisterLecture();
@@ -97,13 +92,13 @@ namespace CourseService.IntegrationTests
             var courseId = await courseClient.CreateCourse(newCourseViewModel, userId);
             // Assert
             var courseFromServer = await courseClient.GetCourseById(courseId, userId);
-            Assert.Equal(newCourseViewModel.Name, courseFromServer.Name);
-            Assert.Equal(newCourseViewModel.GroupName, courseFromServer.GroupName);
-            Assert.Contains(userId, courseFromServer.MentorIds);
+            Assert.AreEqual(newCourseViewModel.Name, courseFromServer.Name);
+            Assert.AreEqual(newCourseViewModel.GroupName, courseFromServer.GroupName);
+            Assert.IsTrue(courseFromServer.MentorIds.Contains(userId));
         }
 
-        [Fact]
-        public async void TestDeleteCourse()
+        [Test]
+        public async Task TestDeleteCourse()
         {
             // Arrange
             var (userId, mail) = await CreateAndRegisterLecture();
@@ -114,11 +109,11 @@ namespace CourseService.IntegrationTests
             await courseClient.DeleteCourse(courseId);
             // Assert
             var coursesFromServer = await courseClient.GetAllCourses();
-            Assert.True(coursesFromServer.FirstOrDefault(c => c.Id == courseId) == null);
+            Assert.IsTrue(coursesFromServer.FirstOrDefault(c => c.Id == courseId) == null);
         }
 
-        [Fact]
-        public async void TestUpdateCourse()
+        [Test]
+        public async Task TestUpdateCourse()
         {
             // Arrange
             var (userId, mail) = await CreateAndRegisterLecture();
@@ -130,14 +125,14 @@ namespace CourseService.IntegrationTests
             await courseClient.UpdateCourse(updateCourse, courseId);
             // Assert
             var courseFromServer = await courseClient.GetCourseById(courseId, userId);
-            Assert.Equal(updateCourse.Name, courseFromServer.Name);
-            Assert.Equal(updateCourse.GroupName, courseFromServer.GroupName);
-            Assert.Equal(updateCourse.IsComplete, courseFromServer.IsCompleted);
-            Assert.Equal(updateCourse.IsOpen, courseFromServer.IsOpen);
+            Assert.AreEqual(updateCourse.Name, courseFromServer.Name);
+            Assert.AreEqual(updateCourse.GroupName, courseFromServer.GroupName);
+            Assert.AreEqual(updateCourse.IsComplete, courseFromServer.IsCompleted);
+            Assert.AreEqual(updateCourse.IsOpen, courseFromServer.IsOpen);
         }
         
-        [Fact]
-        public async void TestSignInAndAcceptStudent()
+        [Test]
+        public async Task TestSignInAndAcceptStudent()
         {   
             // Arrange
             var (lectureId, lectureMail) = await CreateAndRegisterLecture();
@@ -154,12 +149,12 @@ namespace CourseService.IntegrationTests
             // Assert
             var mateBeforeAccept = courseBeforeAcceptStudent.CourseMates.FirstOrDefault(m => m.StudentId == studentId);
             var mateAfterAccept = courseAfterAcceptStudent.CourseMates.FirstOrDefault(m => m.StudentId == studentId);
-            Assert.False(mateBeforeAccept.IsAccepted);
-            Assert.True(mateAfterAccept.IsAccepted);
+            Assert.IsFalse(mateBeforeAccept.IsAccepted);
+            Assert.IsTrue(mateAfterAccept.IsAccepted);
         }
         
-        [Fact]
-        public async void TestSignInAndRejectStudent()
+        [Test]
+        public async Task TestSignInAndRejectStudent()
         {   
             // Arrange
             var (lectureId, lectureMail) = await CreateAndRegisterLecture();
@@ -176,8 +171,8 @@ namespace CourseService.IntegrationTests
             // Assert
             var mateBeforeAccept = courseBeforeAcceptStudent.CourseMates.FirstOrDefault(m => m.StudentId == studentId);
             var mateAfterAccept = courseAfterAcceptStudent.CourseMates.FirstOrDefault(m => m.StudentId == studentId);
-            Assert.False(mateBeforeAccept.IsAccepted);
-            Assert.Null(mateAfterAccept);
+            Assert.IsFalse(mateBeforeAccept.IsAccepted);
+            Assert.IsNull(mateAfterAccept);
         }
     }
 }
