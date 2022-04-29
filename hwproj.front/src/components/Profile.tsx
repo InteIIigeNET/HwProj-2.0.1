@@ -49,7 +49,7 @@ interface IProfileProps {
 interface IFilterState {
     categoryFlag: Map<CategorizedNotifications.CategoryEnum, boolean>;
     filteredNotifications: NotificationViewModel[];
-    showUnread: boolean;
+    showOnlyUnread: boolean;
     isCheckAll: boolean;
 }
 
@@ -81,7 +81,7 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
             [CategoryEnum.NUMBER_3, true]
         ]),
         filteredNotifications: [],
-        showUnread: false,
+        showOnlyUnread: true,
         isCheckAll: true
     });
 
@@ -107,7 +107,7 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
         }))
         setFilterState((prevState) => ({
             ...prevState,
-            filteredNotifications: getAll(data.notifications!)!
+            filteredNotifications: getAll(data.notifications!)?.filter(notification => !notification.hasSeen)!
         }))
         setAccountState(data.userData!)
     }
@@ -166,7 +166,7 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
         return <Redirect to={"/login"}/>;
     }
 
-    const changeShowUnread = (event: ChangeEvent<HTMLInputElement>) => {
+    const changeShowOnlyUnread = (event: ChangeEvent<HTMLInputElement>) => {
         let notifications = filterState.filteredNotifications;
         if (event.target.checked) {
             notifications = notifications.filter(notification => !notification.hasSeen);
@@ -176,7 +176,7 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
         setFilterState((prevState) => ({
             ...prevState,
             filteredNotifications: notifications,
-            showUnread: !prevState.showUnread
+            showOnlyUnread: !prevState.showOnlyUnread
         }));
     };
 
@@ -185,7 +185,7 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
             filterState.categoryFlag.get(notification.category!));
         let array: NotificationViewModel[] = [];
         notifications.forEach(notification =>
-            filterState.showUnread
+            filterState.showOnlyUnread
                 ? array = array.concat(notification.notSeenNotifications!)
                 : array = array.concat(notification.notSeenNotifications!, notification.seenNotifications!)
         );
@@ -239,8 +239,8 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
                 <Grid item xs={11}>
                     <FormControlLabel control={
                         <Checkbox
-                            checked={filterState.showUnread}
-                            onChange={changeShowUnread}
+                            checked={filterState.showOnlyUnread}
+                            onChange={changeShowOnlyUnread}
                             inputProps={{'aria-label': 'controlled'}}
                         />
                     } label="Показывать только непрочитанные"
