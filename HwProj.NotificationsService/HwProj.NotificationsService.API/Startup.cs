@@ -46,6 +46,7 @@ namespace HwProj.NotificationsService.API
             services.AddTransient<IEventHandler<NewHomeworkEvent>, NewHomeworkEventHandler>();
             services.AddTransient<IEventHandler<InviteLecturerEvent>, InviteLecturerEventHandler>();
             services.AddTransient<IEventHandler<NewCourseMateEvent>, NewCourseMateHandler>();
+            services.AddSingleton<IEmailService, EmailService>();
 
             services.AddHttpClient();
             services.AddAuthServiceClient();

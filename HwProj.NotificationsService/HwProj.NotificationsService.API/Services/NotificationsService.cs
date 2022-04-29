@@ -21,6 +21,7 @@ namespace HwProj.NotificationsService.API.Services
             _mapper = mapper;
             _configuration = configuration.GetSection("Notification");
             _client = new MailKit.Net.Smtp.SmtpClient();
+            
         }
 
         public async Task<long> AddNotificationAsync(Notification notification)
@@ -57,11 +58,12 @@ namespace HwProj.NotificationsService.API.Services
                 Text = notification.Body
             };
 
-            await _client.ConnectAsync(_configuration["ConnectSite"], 465, true);
-            await _client.AuthenticateAsync(_configuration["Mail"], _configuration["Password"]);
-            await _client.SendAsync(emailMessage);
-	
-            await _client.DisconnectAsync(true);
+            using (_client)
+            {
+                await _client.ConnectAsync(_configuration["ConnectSite"], 465, true);
+                await _client.AuthenticateAsync(_configuration["Mail"], _configuration["Password"]);
+                await _client.SendAsync(emailMessage);
+            }
         }
     }
 }

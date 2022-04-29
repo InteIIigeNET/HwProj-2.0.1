@@ -16,16 +16,18 @@ namespace HwProj.NotificationsService.API.EventHandlers
         private readonly INotificationsService _notificationsService;
         private readonly IAuthServiceClient _authServiceClient;
         private readonly IConfigurationSection _configuration;
+        private readonly IEmailService _emailService;
 
         public NewCourseMateHandler(INotificationsRepository notificationRepository,
             INotificationsService notificationsService,
             IAuthServiceClient authServiceClient,
-            IConfiguration configuration
-        )
+            IConfiguration configuration, 
+            IEmailService emailService)
         {
             _notificationRepository = notificationRepository;
             _notificationsService = notificationsService;
             _authServiceClient = authServiceClient;
+            _emailService = emailService;
             _configuration = configuration.GetSection("Notification");
         }
 
@@ -49,7 +51,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 var mentor = await _authServiceClient.GetAccountData(notification.Owner);
                 
                 await _notificationRepository.AddAsync(notification);
-                await _notificationsService.SendEmailAsync(notification, mentor.Email, "HwProj");
+                await _emailService.SendEmailAsync(notification, mentor.Email, "HwProj");
             }
         }
     }

@@ -12,11 +12,13 @@ namespace HwProj.NotificationsService.API.EventHandlers
     {
         private readonly INotificationsRepository _notificationRepository;
         private readonly INotificationsService _notificationsService;
-
-        public RegisterEventHandler(INotificationsRepository notificationRepository, INotificationsService notificationsService)
+        private readonly IEmailService _emailService;
+        
+        public RegisterEventHandler(INotificationsRepository notificationRepository, INotificationsService notificationsService, IEmailService emailService)
         {
             _notificationRepository = notificationRepository;
             _notificationsService = notificationsService;
+            _emailService = emailService;
         }
 
         public async Task HandleAsync(StudentRegisterEvent @event)
@@ -32,7 +34,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             };
             
             await _notificationRepository.AddAsync(notification);
-            await _notificationsService.SendEmailAsync(notification, @event.Email, "HwProj");
+            await _emailService.SendEmailAsync(notification, @event.Email, "HwProj");
         }
     }
 }
