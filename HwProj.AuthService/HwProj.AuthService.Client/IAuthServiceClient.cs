@@ -16,5 +16,6 @@ namespace HwProj.AuthService.Client
         Task<Result> EditExternal(EditExternalViewModel model, string userId);
         Task<string> FindByEmailAsync(string email);
         Task<AccountDataDto[]> GetAllStudents();
+        Task<User[]> GetAllLecturers();
     }
 }

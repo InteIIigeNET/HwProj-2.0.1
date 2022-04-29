@@ -86,6 +86,7 @@ namespace HwProj.SolutionsService.API.Controllers
                 await _solutionsService.RateSolutionAsync(solutionId, newRating, lecturerComment);
                 return Ok();
             }
+
             return Forbid();
         }
         
@@ -123,11 +124,6 @@ namespace HwProj.SolutionsService.API.Controllers
             var course = await _coursesClient.GetCourseById(courseId, userId);
             course.CourseMates.RemoveAll(cm => !cm.IsAccepted);
 
-            if (!course.MentorIds.Contains(userId))
-            {
-                return Forbid();
-            }
-            
             var solutions =  (await _solutionsService.GetAllSolutionsAsync())
                 .Where(s => course.Homeworks
                     .Any(hw => hw.Tasks
@@ -150,7 +146,13 @@ namespace HwProj.SolutionsService.API.Controllers
                 CourseMatesData = courseMatesData
             };
 
-            var result = SolutionsStatsDomain.GetCourseStatistics(solutionsStatsContext);
+            var result = SolutionsStatsDomain.GetCourseStatistics(solutionsStatsContext).ToArray();
+
+            if (!course.MentorIds.Contains(userId))
+            {
+                return Ok(new[] { result.First(cm => cm.Id == userId) });
+            }
+
             return Ok(result);
         }
     }
