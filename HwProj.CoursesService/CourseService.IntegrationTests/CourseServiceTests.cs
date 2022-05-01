@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -42,6 +43,13 @@ namespace Tests
             return fixture.Create();
         }
 
+        private CreateHomeworkViewModel GenerateCreateHomeworkViewModel()
+        {
+            var fixture = new Fixture().Build<CreateHomeworkViewModel>()
+                .With(hvm => hvm.Tasks, new List<CreateTaskViewModel>());
+            return fixture.Create();
+        }
+        
         private CoursesServiceClient CreateCourseServiceClient(string userId)
         {
             var mockIConfiguration = new Mock<IConfiguration>();
@@ -92,9 +100,7 @@ namespace Tests
             var courseId = await courseClient.CreateCourse(newCourseViewModel, userId);
             // Assert
             var courseFromServer = await courseClient.GetCourseById(courseId, userId);
-            courseFromServer.Name.Should().Be(newCourseViewModel.Name);
-            courseFromServer.GroupName.Should().Be(newCourseViewModel.GroupName);
-            courseFromServer.MentorIds.Should().Contain(userId);
+            courseFromServer.Should().BeEquivalentTo(newCourseViewModel);
         }
 
         [Test]
@@ -125,10 +131,7 @@ namespace Tests
             await courseClient.UpdateCourse(updateCourse, courseId);
             // Assert
             var courseFromServer = await courseClient.GetCourseById(courseId, userId);
-            courseFromServer.Name.Should().Be(updateCourse.Name);
-            courseFromServer.GroupName.Should().Be(updateCourse.GroupName);
-            courseFromServer.IsCompleted.Should().Be(updateCourse.IsComplete);
-            courseFromServer.IsOpen.Should().Be(updateCourse.IsOpen);
+            courseFromServer.Should().BeEquivalentTo(updateCourse);
         }
         
         [Test]
@@ -172,6 +175,25 @@ namespace Tests
             courseBeforeRejectStudent.CourseMates.Should().Contain(s => s.StudentId == studentId).Which.IsAccepted
                 .Should().BeFalse();
             courseAfterRejectStudent.CourseMates.Should().NotContain(s => s.StudentId == studentId);
+        }
+
+        [Test]
+        public async Task TestAddHomeworkToCourse()
+        {
+            // Arrange
+            var (lectureId, _) = await CreateAndRegisterLecture();
+            var courseClient = CreateCourseServiceClient(lectureId);
+            var newCourseViewModel = GenerateCourseViewModel();
+            var newHomeworkViewModel = GenerateCreateHomeworkViewModel();
+            // Act
+            var courseId = await courseClient.CreateCourse(newCourseViewModel, lectureId);
+            var homeworkId = await courseClient.AddHomeworkToCourse(newHomeworkViewModel, courseId);
+            var course = await courseClient.GetCourseById(courseId, lectureId);
+            var homework = await courseClient.GetHomework(homeworkId);
+            // Arrange
+            homework.Should().BeEquivalentTo(newHomeworkViewModel);
+            course.Homeworks.Should().Contain(h => h.Id == homeworkId).Which.Should()
+                .BeEquivalentTo(newHomeworkViewModel);
         }
     }
 }
