@@ -14,6 +14,9 @@ using Microsoft.IdentityModel.Tokens;
 using Moq;
 using NUnit.Framework;
 using FluentAssertions;
+using Google.Apis.Auth.AspNetCore;
+using Google.Apis.Auth.OAuth2;
+using HwProj.Models.AuthService.DTO;
 using HwProj.Utils.Authorization;
 
 namespace HwProj.AuthService.IntegrationTests
@@ -64,7 +67,30 @@ namespace HwProj.AuthService.IntegrationTests
                 CurrentPassword = model.Password,
                 NewPassword = new Fixture().Create<string>()
             };
+        
+        private static InviteLecturerViewModel GenerateInviteNewLecturerViewModel(RegisterViewModel model)
+            => new InviteLecturerViewModel
+            {
+                Email = model.Email
+            };
 
+        private static AccountDataDto GenerateAccountDataDto(RegisterViewModel model)
+            => new AccountDataDto(model.Name, 
+                model.Surname,
+                model.Email,
+                "Student",
+                false,
+                model.MiddleName);
+        
+        private static User GenerateUser(RegisterViewModel model)
+            => new User
+            {
+                Name = model.Name,
+                Surname = model.Surname,
+                MiddleName = model.MiddleName,
+                IsExternalAuth = false
+            };
+        
         public static IEnumerable<object[]> DummyRegisterData()
         {
             yield return new object[] { GenerateRegisterViewModel() };
@@ -72,6 +98,14 @@ namespace HwProj.AuthService.IntegrationTests
             yield return new object[] { GenerateRegisterViewModel() } ;
             yield return new object[] { GenerateRegisterViewModel() };
         }
+        
+        /*public static IEnumerable<object[]> DummyGoogleRegisterData()
+        {
+            yield return new object[] { GenerateRegisterViewModel() };
+            yield return new object[] { GenerateRegisterViewModel() };
+            yield return new object[] { GenerateRegisterViewModel() } ;
+            yield return new object[] { GenerateRegisterViewModel() };
+        }*/
         
         [Test]
         [TestCaseSource(nameof(DummyRegisterData))]
@@ -134,6 +168,78 @@ namespace HwProj.AuthService.IntegrationTests
             
             resultData.Succeeded.Should().BeTrue();
             resultData.Errors.IsNullOrEmpty().Should().BeTrue();
+        }
+        
+        [Test]
+        [TestCaseSource(nameof(DummyRegisterData))]
+        public async Task TestInviteNewLecturer(RegisterViewModel userData)
+        {
+            var authClient = CreateAuthServiceClient();
+            await authClient.Register(userData);
+
+            var inviteLecturerData = GenerateInviteNewLecturerViewModel(userData);
+            var resultData = await authClient.InviteNewLecturer(inviteLecturerData);
+            
+            resultData.Succeeded.Should().BeTrue();
+            resultData.Errors.IsNullOrEmpty().Should().BeTrue();
+        }
+
+        // Google ?? 
+        
+        /*[Test]
+        [TestCaseSource(nameof(DummyGoogleRegisterData))]
+        public async Task TestGoogleRegister(IGoogleAuthProvider userData)
+        {
+            GoogleCredential cred = await userData.GetCredentialAsync();
+
+            var a = 10;
+            a.Should().BePositive();
+        }*/
+        
+        // EditExternal ??
+    
+        [Test]
+        [TestCaseSource(nameof(DummyRegisterData))]
+        public async Task TestFindByEmail(RegisterViewModel userData)
+        {
+            var authClient = CreateAuthServiceClient();
+            await authClient.Register(userData);
+
+            var userId = await authClient.FindByEmailAsync(userData.Email);
+
+            userId.IsNullOrEmpty().Should().BeFalse();
+        }
+        
+        [Test]
+        [TestCaseSource(nameof(DummyRegisterData))]
+        public async Task TestGetAllStudents(RegisterViewModel userData)
+        {
+            var authClient = CreateAuthServiceClient();
+            await authClient.Register(userData);
+
+            var allStudents = await authClient.GetAllStudents();
+
+            var a = 10;
+            
+            // allStudents.Should().Contain(GenerateAccountDataDto(userData)); ?? 
+            foreach (var student in allStudents)
+            {
+                student.Role.Should().Be("Student");
+            }
+        }
+
+        [Test]
+        [TestCaseSource(nameof(DummyRegisterData))]
+        public async Task TestGetAllLecturers(RegisterViewModel userData)
+        {
+            var authClient = CreateAuthServiceClient();
+            await authClient.Register(userData);
+
+            var allStudents = await authClient.GetAllLecturers();
+            var a = 10;
+            a.Should().BePositive();
+            
+            //allStudents.Should().Contain(GenerateUser(userData));
         }
     }
 }
