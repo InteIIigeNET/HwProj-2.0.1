@@ -58,6 +58,7 @@ namespace HwProj.CoursesService.Client
                 _coursesServiceUri + $"api/Courses/{courseId}");
             
             httpRequest.AddUserId(_httpContextAccessor);
+            
             await _httpClient.SendAsync(httpRequest);
         }
 
@@ -77,7 +78,6 @@ namespace HwProj.CoursesService.Client
 
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<long>();
-            ;
         }
 
         public async Task UpdateCourse(UpdateCourseViewModel model, long courseId)
