@@ -195,7 +195,7 @@ namespace Tests
             var homeworkId = await courseClient.AddHomeworkToCourse(newHomeworkViewModel, courseId);
             var course = await courseClient.GetCourseById(courseId, lectureId);
             var homework = await courseClient.GetHomework(homeworkId);
-            // Arrange
+            // Assert
             homework.Should().BeEquivalentTo(newHomeworkViewModel);
             course.Homeworks.Should().Contain(h => h.Id == homeworkId).Which.Should()
                 .BeEquivalentTo(newHomeworkViewModel);
@@ -216,7 +216,7 @@ namespace Tests
             await courseClient.UpdateHomework(updateHomeworkViewModel, homeworkId);
             var course = await courseClient.GetCourseById(courseId, lectureId);
             var homework = await courseClient.GetHomework(homeworkId);
-            // Arrange
+            // Assert
             homework.Should().BeEquivalentTo(updateHomeworkViewModel);
             course.Homeworks.Should().Contain(h => h.Id == homeworkId).Which.Should()
                 .BeEquivalentTo(updateHomeworkViewModel);
@@ -234,13 +234,14 @@ namespace Tests
             // Act
             await courseClient.DeleteHomework(homeworkId);
             var course = await courseClient.GetCourseById(courseId, lectureId);
-            // Arrange
+            // Assert
             course.Homeworks.Should().NotContain(h => h.Id == homeworkId);
         }
 
         [Test]
         public async Task TestAddTask()
         {
+            // Arrange
             var (lectureId, _) = await CreateAndRegisterLecture();
             var courseClient = CreateCourseServiceClient(lectureId);
             var newCourseViewModel = GenerateCreateCourseViewModel();
@@ -253,7 +254,7 @@ namespace Tests
             var course = await courseClient.GetCourseById(courseId, lectureId);
             var homework = await courseClient.GetHomework(homeworkId);
             var task = await courseClient.GetTask(taskId);
-            // Arrange
+            // Assert
             course.Homeworks.Should().Contain(h => h.Id == homeworkId)
                 .Which.Tasks.Should().Contain(t => t.Id == taskId)
                 .Which.Should().BeEquivalentTo(newTaskViewModel);
@@ -261,6 +262,55 @@ namespace Tests
                 .Which.Should().BeEquivalentTo(newTaskViewModel);
             task.Should().BeEquivalentTo(newTaskViewModel);
             task.HomeworkId.Should().Be(homeworkId);
+        }
+
+        [Test]
+        public async Task TestUpdateTask()
+        {   
+            // Arrange
+            var (lectureId, _) = await CreateAndRegisterLecture();
+            var courseClient = CreateCourseServiceClient(lectureId);
+            var newCourseViewModel = GenerateCreateCourseViewModel();
+            var newHomeworkViewModel = GenerateCreateHomeworkViewModel();
+            var newTaskViewModel = GenerateCreateTaskViewModel();
+            var updateTaskViewModel = GenerateCreateTaskViewModel();
+            var courseId = await courseClient.CreateCourse(newCourseViewModel, lectureId);
+            var homeworkId = await courseClient.AddHomeworkToCourse(newHomeworkViewModel, courseId);
+            var taskId = await courseClient.AddTask(newTaskViewModel, homeworkId);
+            // Act 
+            await courseClient.UpdateTask(updateTaskViewModel, taskId);
+            var course = await courseClient.GetCourseById(courseId, lectureId);
+            var homework = await courseClient.GetHomework(homeworkId);
+            var task = await courseClient.GetTask(taskId);
+            // Assert
+            course.Homeworks.Should().Contain(h => h.Id == homeworkId)
+                .Which.Tasks.Should().Contain(t => t.Id == taskId)
+                .Which.Should().BeEquivalentTo(updateTaskViewModel);
+            homework.Tasks.Should().Contain(t => t.Id == taskId)
+                .Which.Should().BeEquivalentTo(updateTaskViewModel);
+            task.Should().BeEquivalentTo(updateTaskViewModel);
+        }
+        
+        [Test]
+        public async Task TestDeleteTask()
+        {   
+            // Arrange
+            var (lectureId, _) = await CreateAndRegisterLecture();
+            var courseClient = CreateCourseServiceClient(lectureId);
+            var newCourseViewModel = GenerateCreateCourseViewModel();
+            var newHomeworkViewModel = GenerateCreateHomeworkViewModel();
+            var newTaskViewModel = GenerateCreateTaskViewModel();
+            var courseId = await courseClient.CreateCourse(newCourseViewModel, lectureId);
+            var homeworkId = await courseClient.AddHomeworkToCourse(newHomeworkViewModel, courseId);
+            var taskId = await courseClient.AddTask(newTaskViewModel, homeworkId);
+            // Act 
+            await courseClient.DeleteTask(taskId);
+            var course = await courseClient.GetCourseById(courseId, lectureId);
+            var homework = await courseClient.GetHomework(homeworkId);
+            // Assert
+            course.Homeworks.Should().Contain(h => h.Id == homeworkId)
+                .Which.Tasks.Should().NotContain(t => t.Id == taskId);
+            homework.Tasks.Should().NotContain(t => t.Id == taskId);
         }
     }
 }
