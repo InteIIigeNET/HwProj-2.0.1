@@ -29,7 +29,7 @@ namespace Tests
             return viewModel;
         }
 
-        private CreateCourseViewModel GenerateCourseViewModel()
+        private CreateCourseViewModel GenerateCreateCourseViewModel()
         {
             var fixture = new Fixture().Build<CreateCourseViewModel>()
                 .With(cvm => cvm.IsOpen, true);
@@ -49,7 +49,7 @@ namespace Tests
                 .With(hvm => hvm.Tasks, new List<CreateTaskViewModel>());
             return fixture.Create();
         }
-        
+
         private CoursesServiceClient CreateCourseServiceClient(string userId)
         {
             var mockIConfiguration = new Mock<IConfiguration>();
@@ -95,7 +95,7 @@ namespace Tests
             // Arrange
             var (userId, _) = await CreateAndRegisterLecture();
             var courseClient = CreateCourseServiceClient(userId);
-            var newCourseViewModel = GenerateCourseViewModel();
+            var newCourseViewModel = GenerateCreateCourseViewModel();
             // Act
             var courseId = await courseClient.CreateCourse(newCourseViewModel, userId);
             // Assert
@@ -109,7 +109,7 @@ namespace Tests
             // Arrange
             var (userId, _) = await CreateAndRegisterLecture();
             var courseClient = CreateCourseServiceClient(userId);
-            var newCourseViewModel = GenerateCourseViewModel();
+            var newCourseViewModel = GenerateCreateCourseViewModel();
             // Act
             var courseId = await courseClient.CreateCourse(newCourseViewModel, userId);
             await courseClient.DeleteCourse(courseId);
@@ -124,7 +124,7 @@ namespace Tests
             // Arrange
             var (userId, _) = await CreateAndRegisterLecture();
             var courseClient = CreateCourseServiceClient(userId);
-            var newCourseViewModel = GenerateCourseViewModel();
+            var newCourseViewModel = GenerateCreateCourseViewModel();
             // Act
             var courseId = await courseClient.CreateCourse(newCourseViewModel, userId);
             var updateCourse = GenerateUpdateCourseViewModel();
@@ -142,7 +142,7 @@ namespace Tests
             var (studentId, _) = await CreateAndRegisterUser();
             var lectureCourseClient = CreateCourseServiceClient(lectureId);
             var studentCourseClient = CreateCourseServiceClient(studentId);
-            var newCourseViewModel = GenerateCourseViewModel();
+            var newCourseViewModel = GenerateCreateCourseViewModel();
             // Act
             var courseId = await lectureCourseClient.CreateCourse(newCourseViewModel, lectureId);
             await studentCourseClient.SignInCourse(courseId, studentId);
@@ -164,7 +164,7 @@ namespace Tests
             var (studentId, _) = await CreateAndRegisterUser();
             var lectureCourseClient = CreateCourseServiceClient(lectureId);
             var studentCourseClient = CreateCourseServiceClient(studentId);
-            var newCourseViewModel = GenerateCourseViewModel();
+            var newCourseViewModel = GenerateCreateCourseViewModel();
             // Act
             var courseId = await lectureCourseClient.CreateCourse(newCourseViewModel, lectureId);
             await studentCourseClient.SignInCourse(courseId, studentId);
@@ -183,7 +183,7 @@ namespace Tests
             // Arrange
             var (lectureId, _) = await CreateAndRegisterLecture();
             var courseClient = CreateCourseServiceClient(lectureId);
-            var newCourseViewModel = GenerateCourseViewModel();
+            var newCourseViewModel = GenerateCreateCourseViewModel();
             var newHomeworkViewModel = GenerateCreateHomeworkViewModel();
             // Act
             var courseId = await courseClient.CreateCourse(newCourseViewModel, lectureId);
@@ -194,6 +194,43 @@ namespace Tests
             homework.Should().BeEquivalentTo(newHomeworkViewModel);
             course.Homeworks.Should().Contain(h => h.Id == homeworkId).Which.Should()
                 .BeEquivalentTo(newHomeworkViewModel);
+        }
+
+        [Test]
+        public async Task TestUpdateHomework()
+        {
+            // Arrange
+            var (lectureId, _) = await CreateAndRegisterLecture();
+            var courseClient = CreateCourseServiceClient(lectureId);
+            var newCourseViewModel = GenerateCreateCourseViewModel();
+            var newHomeworkViewModel = GenerateCreateHomeworkViewModel();
+            var courseId = await courseClient.CreateCourse(newCourseViewModel, lectureId);
+            var homeworkId = await courseClient.AddHomeworkToCourse(newHomeworkViewModel, courseId);
+            var updateHomeworkViewModel = GenerateCreateHomeworkViewModel();
+            // Act
+            await courseClient.UpdateHomework(updateHomeworkViewModel, homeworkId);
+            var course = await courseClient.GetCourseById(courseId, lectureId);
+            var homework = await courseClient.GetHomework(homeworkId);
+            // Arrange
+            homework.Should().BeEquivalentTo(updateHomeworkViewModel);
+            course.Homeworks.Should().Contain(h => h.Id == homeworkId).Which.Should()
+                .BeEquivalentTo(updateHomeworkViewModel);
+        }
+
+        [Test]
+        public async Task DeleteHomework()
+        {
+            var (lectureId, _) = await CreateAndRegisterLecture();
+            var courseClient = CreateCourseServiceClient(lectureId);
+            var newCourseViewModel = GenerateCreateCourseViewModel();
+            var newHomeworkViewModel = GenerateCreateHomeworkViewModel();
+            // Act
+            var courseId = await courseClient.CreateCourse(newCourseViewModel, lectureId);
+            var homeworkId = await courseClient.AddHomeworkToCourse(newHomeworkViewModel, courseId);
+            await courseClient.DeleteHomework(homeworkId);
+            var course = await courseClient.GetCourseById(courseId, lectureId);
+            // Arrange
+            course.Homeworks.Should().NotContain(h => h.Id == homeworkId);
         }
     }
 }
