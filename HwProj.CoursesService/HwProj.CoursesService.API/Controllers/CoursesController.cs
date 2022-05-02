@@ -78,7 +78,7 @@ namespace HwProj.CoursesService.API.Controllers
             {
                 Name = courseViewModel.Name,
                 GroupName = courseViewModel.GroupName,
-                IsCompleted = courseViewModel.IsComplete,
+                IsCompleted = courseViewModel.IsCompleted,
                 IsOpen = courseViewModel.IsOpen
             });
 
