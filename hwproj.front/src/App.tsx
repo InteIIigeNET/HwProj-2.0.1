@@ -10,7 +10,7 @@ import "./components/Courses/Course";
 import Course from "./components/Courses/Course";
 import Courses from "./components/Courses/Courses";
 import CreateCourse from "./components/Courses/CreateCourse";
-import Profile from "./components/Profile";
+import Notifications from "./components/Notifications";
 import TaskSolutionsPage from "./components/Solutions/TaskSolutionsPage";
 import {Header} from "./components/AppBar";
 import Login from "./components/Auth/Login";
@@ -59,8 +59,8 @@ class App extends Component<AppProps, AppState> {
                 <Header loggedIn={this.state.loggedIn} isLecturer={this.state.isLecturer} onLogout={this.logout}/>
                 <Route exact path="/user/edit" component={EditProfile}/>
                 <Route exact path="/" component={Courses}/>
-                <Route exact path="/profile" component={Profile}/>
-                <Route exact path="/profile/:id" component={Profile}/>
+                <Route exact path="/notifications" component={Notifications}/>
+                <Route exact path="/notifications/:id" component={Notifications}/>
                 <Route exact path="/create_course" component={CreateCourse}/>
                 <Route exact path="/courses/:id" component={Course}/>
                 <Route exact path="/courses/:courseId/edit" component={EditCourse}/>
