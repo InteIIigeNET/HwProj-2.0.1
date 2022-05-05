@@ -23,7 +23,7 @@ import {makeStyles} from "@material-ui/styles";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
 let CategoryEnum = CategorizedNotifications.CategoryEnum;
-const options = {year: '2-digit', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'};
+const dateTimeOptions = {year: '2-digit', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'};
 
 function getAll(data: CategorizedNotifications[]) {
     let list: NotificationViewModel[] = [];
@@ -141,7 +141,7 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
                                     {parse(n.body!)}
                                 </Typography>
                                 <Typography variant="body1">
-                                    {parse(ApiSingleton.utils.convertUTCDateToLocalDate(n.date!).toLocaleDateString("ru-RU", options))}
+                                    {parse(ApiSingleton.utils.convertUTCDateToLocalDate(n.date!).toLocaleDateString("ru-RU", dateTimeOptions))}
                                 </Typography>
                             </CardContent>
                             <Box display="flex" flexDirection="row-reverse">
@@ -159,8 +159,6 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
             </div>
         )
     }
-
-    const classes = useStyles()
 
     if (!ApiSingleton.authService.isLoggedIn()) {
         return <Redirect to={"/login"}/>;
