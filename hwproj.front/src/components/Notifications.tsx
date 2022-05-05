@@ -2,9 +2,6 @@ import * as React from "react";
 import {ChangeEvent, FC, useEffect, useState} from "react";
 import {RouteComponentProps} from 'react-router';
 import {
-    Accordion,
-    AccordionDetails,
-    AccordionSummary,
     Box,
     Card,
     CardContent,
@@ -12,7 +9,7 @@ import {
     CircularProgress,
     FormControlLabel, FormGroup,
     Grid,
-    Typography
+    Typography, Divider
 } from "@material-ui/core";
 import ApiSingleton from "api/ApiSingleton";
 import {AccountDataDto, CategorizedNotifications, NotificationViewModel} from "../api/";
@@ -20,7 +17,6 @@ import "./Styles/Profile.css";
 import parse from 'html-react-parser';
 import {Redirect} from "react-router-dom";
 import {makeStyles} from "@material-ui/styles";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
 let CategoryEnum = CategorizedNotifications.CategoryEnum;
 const dateTimeOptions = {year: '2-digit', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'};
@@ -219,30 +215,24 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
 
     if (profileState.isLoaded) {
         return <div style={{marginBottom: '50px'}}>
-            <Grid container justifyContent="center" style={{marginTop: "15px"}}>
-                <Grid item xs={11}>
-                    <FormControlLabel control={
-                        <Checkbox
-                            checked={filterState.showOnlyUnread}
-                            onChange={changeShowOnlyUnread}
-                            inputProps={{'aria-label': 'controlled'}}
-                        />
-                    } label="Показывать только непрочитанные"
-                    />
-                    <div style={{maxWidth: '300px'}}>
-                        <Accordion>
-                            <AccordionSummary
-                                expandIcon={<ExpandMoreIcon/>}
-                                aria-controls="panel1a-content"
-                                id="panel1a-header"
-                            >
+            <Grid container direction={"row"} justifyContent="space-around" style={{marginTop: "30px"}}>
+                <Box style={{marginTop: '16px', marginLeft: '20px'}}>
+                    <Card style={{backgroundColor: "#f7fafc"}}>
+                        <CardContent>
+                            <FormControlLabel control={
+                                <Checkbox
+                                    checked={filterState.showOnlyUnread}
+                                    onChange={changeShowOnlyUnread}
+                                    inputProps={{'aria-label': 'controlled'}}
+                                />
+                            } label="Показывать только непрочитанные"/>
+                            <Divider/>
+                            <div style={{maxWidth: '300px'}}>
                                 <div>
                                     <Typography style={{fontSize: '16px'}}>
                                         Фильтрация
                                     </Typography>
                                 </div>
-                            </AccordionSummary>
-                            <AccordionDetails>
                                 <FormGroup>
                                     <FormControlLabel control={
                                         <Checkbox
@@ -281,10 +271,11 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
                                     } label="Домашние задания"
                                     />
                                 </FormGroup>
-                            </AccordionDetails>
-                        </Accordion>
-                    </div>
-
+                            </div>
+                        </CardContent>
+                    </Card>
+                </Box>
+                <Grid xs={8}>
                     {renderNotifications(filterState.filteredNotifications)}
                 </Grid>
             </Grid>
