@@ -16,6 +16,8 @@ namespace HwProj.Models.TelegramBotService
         
         public string? Code { get; set; }
         
+        public string? Comment { get; set; }
+        
         public long? TaskIdToSend { get; set; }
         
         public string? GitHubUrl { get; set; }

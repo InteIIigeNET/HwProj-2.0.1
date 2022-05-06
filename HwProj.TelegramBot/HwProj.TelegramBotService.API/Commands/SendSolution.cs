@@ -31,8 +31,8 @@ namespace HwProj.TelegramBotService.API.Commands
 
             var solutionModel = new SolutionViewModel
             {
-                GithubUrl = message,
-                Comment = "",
+                GithubUrl = user.GitHubUrl,
+                Comment = message,
                 StudentId = user.AccountId,
                 PublicationDate = DateTime.Now,
                 LecturerComment = ""

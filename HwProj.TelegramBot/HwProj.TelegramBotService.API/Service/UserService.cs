@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using AutoMapper;
 using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.TelegramBotService;
@@ -22,7 +21,7 @@ namespace HwProj.TelegramBotService.API.Service
         private readonly IEventBus _eventBus;
 
         public UserService(TelegramBotContext context, IAuthServiceClient authClient, IEventBus eventBus,
-            ITelegramBotRepository telegramBotRepository, IMapper mapper)
+            ITelegramBotRepository telegramBotRepository)
         {
             _context = context;
             _authClient = authClient;
@@ -66,7 +65,7 @@ namespace HwProj.TelegramBotService.API.Service
         public async Task<UserTelegram> AddEmailToUser(Update update)
         {
             var message = update.Message?.Text;
-            var user =_telegramBotRepository.GetUserTelegramByChatId(update.Message.Chat.Id);
+            var user = _telegramBotRepository.GetUserTelegramByChatId(update.Message.Chat.Id);
             var userModel = user.ToArray()[0];
             if (userModel.Operation != "wait_code" || user == null)
             {
@@ -92,7 +91,7 @@ namespace HwProj.TelegramBotService.API.Service
             var userModel = user.ToArray()[0];
             if (userModel.Operation != "check_code" || userModel.Code != message || user == null)
             {
-                _context.Remove(user);
+                _context.Remove(userModel);
                 await _context.SaveChangesAsync();
                 return null;
             }
@@ -104,33 +103,41 @@ namespace HwProj.TelegramBotService.API.Service
         }
 
         public async Task<UserTelegram> UserByUpdate(Update update)
-            => update.Message == null
-                ? _context.TelegramUser.FirstOrDefaultAsync(x => x.ChatId == update.CallbackQuery.Message.Chat.Id)
-                    .Result
+        {
+            var user = update.Message == null
+                ? _context.TelegramUser.FirstOrDefaultAsync(x => x.ChatId == update.CallbackQuery.Message.Chat.Id).Result
                 : _context.TelegramUser.FirstOrDefaultAsync(x => x.ChatId == update.Message.Chat.Id).Result;
-
+            user.Operation = "finish";
+            await _context.SaveChangesAsync();
+            return user;
+        }
+          
         public async Task<bool> CheckTelegramUserModelByStudentId(string studentId)
         {
             var user = await _telegramBotRepository.FindAsync(cm => cm.AccountId == studentId).ConfigureAwait(false);
             return user != null;
         }
 
-        public async Task<UserTelegram> TelegramUserModelByStudentId(string studentId)
-            => await _telegramBotRepository.FindAsync(cm => cm.AccountId == studentId);
-
-        public async Task<long> GetChatIdByStudentId(string studentId)
+        public async Task<long> ChatIdByStudentId(string studentId)
         {
-            var user = await _telegramBotRepository.FindAsync(cm => cm.AccountId == studentId);
-            return user.ChatId;
+            var user = await _telegramBotRepository.FindAll(t => t.AccountId == studentId).Select(t => t.ChatId).ToArrayAsync();
+            return user[0];
         }
-
-
+        
         public async Task<UserTelegram> AddTaskIdAndWaitPullRequest(Update update, long taskId)
         {
             var user = _telegramBotRepository.GetUserTelegramByChatId(update.CallbackQuery.Message.Chat.Id).ToArray()[0];
-            var userModel = await _telegramBotRepository.FindAsync(cm => cm.ChatId == update.CallbackQuery.Message.Chat.Id).ConfigureAwait(false);
-            user.Operation = "wait_pull_request";
+            user.Operation = "wait_url";
             user.TaskIdToSend = taskId;
+            await _context.SaveChangesAsync();
+            return user;
+        }
+
+        public async Task<UserTelegram> AddGitHubUrlToTask(Update update, string url)
+        {
+            var user = _telegramBotRepository.GetUserTelegramByChatId(update.Message.Chat.Id).ToArray()[0];
+            user.Operation = "wait_comment";
+            user.GitHubUrl = url;
             await _context.SaveChangesAsync();
             return user;
         }

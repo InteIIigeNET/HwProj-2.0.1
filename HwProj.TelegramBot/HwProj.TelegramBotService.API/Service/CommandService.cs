@@ -44,22 +44,20 @@ namespace HwProj.TelegramBotService.API.Service
                 }
                 
                 var user = _context.TelegramUser.FirstOrDefaultAsync(x => x.ChatId == update.Message.Chat.Id).Result;
-                if (user.Operation is "wait_code" or "check_code")
+                switch (user.Operation)
                 {
-                    switch (user.Operation)
-                    {
-                        case "wait_code":
-                            await ExecuteCommand(CommandNames.WaitCodeCommand, update);
-                            return;
-                        case "check_code":
-                            await ExecuteCommand(CommandNames.CheckCodeCommand, update);
-                            return;
-                    }
-                }
-                if (user.Operation == "wait_pull_request")
-                {
-                    await ExecuteCommand(CommandNames.SendSolution, update);
-                    return;
+                    case "wait_code":
+                        await ExecuteCommand(CommandNames.WaitCodeCommand, update);
+                        return;
+                    case "check_code":
+                        await ExecuteCommand(CommandNames.CheckCodeCommand, update);
+                        return;
+                    case "wait_url":
+                        await ExecuteCommand(CommandNames.SaveUrlAndWaitComment, update);
+                        return;
+                    case "wait_comment":
+                        await ExecuteCommand(CommandNames.SendSolution, update);
+                        return;
                 }
             }
             else if (update.Type == UpdateType.CallbackQuery)

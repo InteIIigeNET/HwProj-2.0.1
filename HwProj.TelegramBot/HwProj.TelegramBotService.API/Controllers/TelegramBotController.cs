@@ -50,9 +50,10 @@ namespace HwProj.TelegramBotService.API.Controllers
         }
         
         [HttpGet("get/{studentId}")]
-        public async Task<UserTelegram> GetUserTelegram(string studentId)
+        public async Task<IActionResult> GetUserTelegram(string studentId)
         {
-            return await _userService.TelegramUserModelByStudentId(studentId);
+            var response =  await _userService.ChatIdByStudentId(studentId);
+            return Ok(response);
         }
     }
 }

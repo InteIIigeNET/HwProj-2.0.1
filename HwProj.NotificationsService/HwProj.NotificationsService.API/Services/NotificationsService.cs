@@ -82,7 +82,7 @@ namespace HwProj.NotificationsService.API.Services
             if (checkUser)
             {
                 var user = await _telegramBotServiceClient.GetTelegramUser(notification.Owner);
-                await _botClient.SendTextMessageAsync(user.ChatId, notification.Body, ParseMode.Markdown);
+                await _botClient.SendTextMessageAsync(user, notification.Body, ParseMode.Markdown);
             }
         }
 
@@ -92,7 +92,7 @@ namespace HwProj.NotificationsService.API.Services
             if (checkUser)
             {
                 var user = await _telegramBotServiceClient.GetTelegramUser(notification.Owner);
-                await _botClient.SendTextMessageAsync(user.ChatId, notification.Body, ParseMode.Markdown, replyMarkup:inlineKeyboard);
+                await _botClient.SendTextMessageAsync(user, notification.Body, ParseMode.Markdown, replyMarkup:inlineKeyboard);
             }
         }
     }
