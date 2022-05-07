@@ -1031,7 +1031,7 @@ export interface UpdateCourseViewModel {
      * @type {boolean}
      * @memberof UpdateCourseViewModel
      */
-    isComplete?: boolean;
+    isCompleted?: boolean;
 }
 
 /**
