@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -311,6 +313,35 @@ namespace Tests
             course.Homeworks.Should().Contain(h => h.Id == homeworkId)
                 .Which.Tasks.Should().NotContain(t => t.Id == taskId);
             homework.Tasks.Should().NotContain(t => t.Id == taskId);
+        }
+        
+        [Test]
+        public async Task TestPublicationDateForTask()
+        {   
+            // Arrange
+            var (lectureId, _) = await CreateAndRegisterLecture();
+            var (studentId, _) = await CreateAndRegisterUser();
+            var lectureCourseClient = CreateCourseServiceClient(lectureId);
+            var studentCourseClient = CreateCourseServiceClient(studentId);
+            var newCourseViewModel = GenerateCreateCourseViewModel();
+            var newHomeworkViewModel = GenerateCreateHomeworkViewModel();
+            var firstTaskViewModel = GenerateCreateTaskViewModel();
+            firstTaskViewModel.PublicationDate = DateTime.UtcNow.AddHours(3);
+            var secondTaskViewModel = GenerateCreateTaskViewModel();
+            secondTaskViewModel.PublicationDate = DateTime.UtcNow.AddHours(4);
+            var courseId = await lectureCourseClient.CreateCourse(newCourseViewModel, lectureId);
+            var homeworkId = await lectureCourseClient.AddHomeworkToCourse(newHomeworkViewModel, courseId);
+            var task1Id = await lectureCourseClient.AddTask(firstTaskViewModel, homeworkId);
+            var task2Id = await lectureCourseClient.AddTask(secondTaskViewModel, homeworkId);
+            var courseFromStudent = await studentCourseClient.GetCourseById(courseId, studentId);
+            var courseFromLecture = await lectureCourseClient.GetCourseById(courseId, lectureId);
+            // Assert
+            var hwFromStudent = courseFromStudent.Homeworks.First(h => h.Id == homeworkId);
+            var hwFromLecture = courseFromLecture.Homeworks.First(h => h.Id == homeworkId);
+            hwFromStudent.Tasks.Should().Contain(t => t.Id == task1Id);
+            hwFromStudent.Tasks.Should().NotContain(t => t.Id == task2Id);
+            hwFromLecture.Tasks.Should().Contain(t => t.Id == task1Id);
+            hwFromLecture.Tasks.Should().Contain(t => t.Id == task2Id);
         }
     }
 }
