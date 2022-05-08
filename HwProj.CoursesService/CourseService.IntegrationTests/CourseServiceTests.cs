@@ -16,7 +16,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 
-namespace Tests
+namespace CourseService.IntegrationTests
 {
     public class Tests
     {
@@ -342,6 +342,32 @@ namespace Tests
             hwFromStudent.Tasks.Should().NotContain(t => t.Id == task2Id);
             hwFromLecture.Tasks.Should().Contain(t => t.Id == task1Id);
             hwFromLecture.Tasks.Should().Contain(t => t.Id == task2Id);
+        }
+
+        [Test]
+        public async Task TestAttributeMentorCourseOnly()
+        {   
+            // Arrange
+            var (courseLectureId, _) = await CreateAndRegisterLecture();
+            var (studentInCourseId, _) = await CreateAndRegisterUser();
+            var (anotherLectureId, _) = await CreateAndRegisterLecture();
+            var (anotherStudentId, _) = await CreateAndRegisterUser();
+            var newCourseViewModel = GenerateCreateCourseViewModel();
+            var newHomeworkViewModel = GenerateCreateHomeworkViewModel();
+            var newTaskViewModel = GenerateCreateTaskViewModel();
+            var courseLectureClient = CreateCourseServiceClient(courseLectureId);
+            var studentInCourseClient = CreateCourseServiceClient(studentInCourseId);
+            var anotherLectureClient = CreateCourseServiceClient(anotherLectureId);
+            var anotherStudentClient = CreateCourseServiceClient(anotherStudentId);
+            var courseId = await courseLectureClient.CreateCourse(newCourseViewModel, courseLectureId);
+            var homeworkId = await courseLectureClient.AddHomeworkToCourse(newHomeworkViewModel, courseId);
+            var taskId = await courseLectureClient.AddTask(newTaskViewModel, homeworkId);
+            await studentInCourseClient.SignInCourse(courseId, studentInCourseId);
+            await courseLectureClient.AcceptStudent(courseId, studentInCourseId);
+            // Act and Assert UpdateCourse
+            var updateCourseViewModel = GenerateUpdateCourseViewModel();
+            await studentInCourseClient.UpdateCourse(updateCourseViewModel, courseId);
+            
         }
     }
 }

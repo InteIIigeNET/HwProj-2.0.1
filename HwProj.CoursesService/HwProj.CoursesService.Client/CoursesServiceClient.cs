@@ -124,7 +124,6 @@ namespace HwProj.CoursesService.Client
                 _coursesServiceUri + $"api/Courses/rejectStudent/{courseId}?studentId={studentId}");
 
             httpRequest.AddUserId(_httpContextAccessor);
-
             await _httpClient.SendAsync(httpRequest);
         }
 
