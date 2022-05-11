@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Mail;
 using System.Text;
@@ -90,36 +91,27 @@ namespace HwProj.AuthService.IntegrationTests
                 MiddleName = model.MiddleName,
                 IsExternalAuth = false
             };
+
+        private IAuthServiceClient _authServiceClient;
         
-        public static IEnumerable<object[]> DummyRegisterData()
+        [SetUp]
+        public void SetUp()
         {
-            yield return new object[] { GenerateRegisterViewModel() };
-            yield return new object[] { GenerateRegisterViewModel() };
-            yield return new object[] { GenerateRegisterViewModel() } ;
-            yield return new object[] { GenerateRegisterViewModel() };
+            _authServiceClient = CreateAuthServiceClient();
         }
         
-        /*public static IEnumerable<object[]> DummyGoogleRegisterData()
-        {
-            yield return new object[] { GenerateRegisterViewModel() };
-            yield return new object[] { GenerateRegisterViewModel() };
-            yield return new object[] { GenerateRegisterViewModel() } ;
-            yield return new object[] { GenerateRegisterViewModel() };
-        }*/
-        
         [Test]
-        [TestCaseSource(nameof(DummyRegisterData))]
-        public async Task TestRegisterUser(RegisterViewModel userData)
+        public async Task TestRegisterUser()
         {
-            var authClient = CreateAuthServiceClient();
-            var registerResult = await authClient.Register(userData);
+            var userData = GenerateRegisterViewModel();
+            var registerResult = await _authServiceClient.Register(userData);
             
             registerResult.Succeeded.Should().BeTrue();
             registerResult.Errors.IsNullOrEmpty().Should().BeTrue();
             registerResult.Value.AccessToken.IsNullOrEmpty().Should().BeFalse();
 
-            var userId = await authClient.FindByEmailAsync(userData.Email);
-            var resultData = await authClient.GetAccountData(userId);
+            var userId = await _authServiceClient.FindByEmailAsync(userData.Email);
+            var resultData = await _authServiceClient.GetAccountData(userId);
 
             resultData.Name.Should().Be(userData.Name);
             resultData.Surname.Should().Be(userData.Surname);
@@ -128,11 +120,11 @@ namespace HwProj.AuthService.IntegrationTests
             resultData.Role.Should().Be("Student");
             resultData.IsExternalAuth.Should().BeFalse();
         }
-        
+
         [Test]
-        [TestCaseSource(nameof(DummyRegisterData))]
-        public async Task TestLoginUser(RegisterViewModel userData)
+        public async Task TestLoginUser()
         {
+            var userData = GenerateRegisterViewModel();
             var authClient = CreateAuthServiceClient();
             await authClient.Register(userData);
 
@@ -153,12 +145,15 @@ namespace HwProj.AuthService.IntegrationTests
             };
             var claims = handler.ValidateToken(resultData.Value.AccessToken, validations, out var tokenSecure);
             claims.Identity.IsAuthenticated.Should().BeTrue();
+            var x = claims.Claims.ToList();
+
+            var y = 10;
         }
         
         [Test]
-        [TestCaseSource(nameof(DummyRegisterData))]
-        public async Task TestEditPassword(RegisterViewModel userData)
+        public async Task TestEditPassword()
         {
+            var userData = GenerateRegisterViewModel();
             var authClient = CreateAuthServiceClient();
             await authClient.Register(userData);
 
@@ -171,9 +166,9 @@ namespace HwProj.AuthService.IntegrationTests
         }
         
         [Test]
-        [TestCaseSource(nameof(DummyRegisterData))]
-        public async Task TestInviteNewLecturer(RegisterViewModel userData)
+        public async Task TestInviteNewLecturer()
         {
+            var userData = GenerateRegisterViewModel();
             var authClient = CreateAuthServiceClient();
             await authClient.Register(userData);
 
@@ -186,22 +181,12 @@ namespace HwProj.AuthService.IntegrationTests
 
         // Google ?? 
         
-        /*[Test]
-        [TestCaseSource(nameof(DummyGoogleRegisterData))]
-        public async Task TestGoogleRegister(IGoogleAuthProvider userData)
-        {
-            GoogleCredential cred = await userData.GetCredentialAsync();
-
-            var a = 10;
-            a.Should().BePositive();
-        }*/
-        
         // EditExternal ??
     
         [Test]
-        [TestCaseSource(nameof(DummyRegisterData))]
-        public async Task TestFindByEmail(RegisterViewModel userData)
+        public async Task TestFindByEmail()
         {
+            var userData = GenerateRegisterViewModel();
             var authClient = CreateAuthServiceClient();
             await authClient.Register(userData);
 
@@ -211,9 +196,9 @@ namespace HwProj.AuthService.IntegrationTests
         }
         
         [Test]
-        [TestCaseSource(nameof(DummyRegisterData))]
-        public async Task TestGetAllStudents(RegisterViewModel userData)
+        public async Task TestGetAllStudents()
         {
+            var userData = GenerateRegisterViewModel();
             var authClient = CreateAuthServiceClient();
             await authClient.Register(userData);
 
@@ -229,9 +214,9 @@ namespace HwProj.AuthService.IntegrationTests
         }
 
         [Test]
-        [TestCaseSource(nameof(DummyRegisterData))]
-        public async Task TestGetAllLecturers(RegisterViewModel userData)
+        public async Task TestGetAllLecturers()
         {
+            var userData = GenerateRegisterViewModel();
             var authClient = CreateAuthServiceClient();
             await authClient.Register(userData);
 
