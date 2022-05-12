@@ -46,16 +46,6 @@ namespace HwProj.TelegramBotService.API.Service
                 Code = code.ToString(),
                 Operation = "wait_code",
             };
-            //var user = await _context.TelegramUser.FirstOrDefaultAsync(x => x.ChatId == newUser.ChatId);
-            /*if (user != null)
-            {
-                return user;
-            }
-
-            var result = await _context.TelegramUser.AddAsync(newUser);
-            await _context.SaveChangesAsync();
-
-            return result.Entity;*/
             var user = await _telegramBotRepository.AddAsync(newUser);
             return await _telegramBotRepository.FindAsync(x => x.Id == user);
         }
@@ -66,8 +56,6 @@ namespace HwProj.TelegramBotService.API.Service
             var userModel = user.ToArray()[0];
             if (userModel.Operation != "wait_code" || user == null)
             {
-                /*_context.Remove(userModel);
-                await _context.SaveChangesAsync();*/
                 await _telegramBotRepository.DeleteAsync(userModel.Id);
                 return null;
             }
@@ -77,7 +65,6 @@ namespace HwProj.TelegramBotService.API.Service
             userModel.Operation = "check_code";
             userModel.AccountId = accountId;
             userModel.IsLecture = studentModel.Role == "Lecture";
-            /*await _context.SaveChangesAsync();*/
             var newUserModel = new UserTelegram
             {
                 ChatId = userModel.ChatId,
@@ -106,15 +93,12 @@ namespace HwProj.TelegramBotService.API.Service
             var userModel = user.ToArray()[0];
             if (userModel.Operation != "check_code" || userModel.Code != message || user == null)
             {
-                /*_context.Remove(userModel);
-                await _context.SaveChangesAsync();*/
                 await _telegramBotRepository.DeleteAsync(userModel.Id);
                 return null;
             }
 
             userModel.Operation = "finish";
             userModel.IsRegistered = true;
-            /*await _context.SaveChangesAsync();*/
             var newUserModel = new UserTelegram
             {
                 ChatId = userModel.ChatId,
@@ -138,11 +122,6 @@ namespace HwProj.TelegramBotService.API.Service
 
         public async Task<UserTelegram> UserByUpdate(Update update)
         {
-            /*var user = update.Message == null
-                ? _context.TelegramUser.FirstOrDefaultAsync(x => x.ChatId == update.CallbackQuery.Message.Chat.Id).Result
-                : _context.TelegramUser.FirstOrDefaultAsync(x => x.ChatId == update.Message.Chat.Id).Result;
-            user.Operation = "finish";
-            await _context.SaveChangesAsync();*/
             var user = update.Message == null
                 ? await _telegramBotRepository.FindAsync(x => x.ChatId == update.CallbackQuery.Message.Chat.Id)
                 : await _telegramBotRepository.FindAsync(x => x.ChatId == update.Message.Chat.Id);
@@ -173,11 +152,6 @@ namespace HwProj.TelegramBotService.API.Service
         
         public async Task<UserTelegram> AddTaskIdAndWaitPullRequest(Update update, long taskId)
         {
-            /*var user = _telegramBotRepository.GetUserTelegramByChatId(update.CallbackQuery.Message.Chat.Id).ToArray()[0];
-            user.Operation = "wait_url";
-            user.TaskIdToSend = taskId;
-            await _context.SaveChangesAsync();
-            return user;*/
             var user = _telegramBotRepository.GetUserTelegramByChatId(update.CallbackQuery.Message.Chat.Id).ToArray()[0];
             var newUserModel = new UserTelegram
             {
@@ -195,11 +169,6 @@ namespace HwProj.TelegramBotService.API.Service
 
         public async Task<UserTelegram> AddGitHubUrlToTask(Update update, string url)
         {
-            /*var user = _telegramBotRepository.GetUserTelegramByChatId(update.Message.Chat.Id).ToArray()[0];
-            user.Operation = "wait_comment";
-            user.GitHubUrl = url;
-            await _context.SaveChangesAsync();
-            return user;*/
             var user = _telegramBotRepository.GetUserTelegramByChatId(update.CallbackQuery.Message.Chat.Id).ToArray()[0];
             var newUserModel = new UserTelegram
             {
@@ -218,13 +187,6 @@ namespace HwProj.TelegramBotService.API.Service
 
         public async Task DeleteUser(Update update)
         {
-            /*var user1 = await _context.TelegramUser.FindAsync(update.Message.Chat.Id);
-            if (user1 != null)
-            {
-                var user = await _context.TelegramUser.FirstOrDefaultAsync(x => x.ChatId == update.Message.Chat.Id);
-                _context.Remove(user);
-                await _context.SaveChangesAsync();
-            }*/
             var user = update.Message == null
                 ? await _telegramBotRepository.FindAsync(x => x.ChatId == update.CallbackQuery.Message.Chat.Id)
                 : await _telegramBotRepository.FindAsync(x => x.ChatId == update.Message.Chat.Id);
