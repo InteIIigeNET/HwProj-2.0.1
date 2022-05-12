@@ -36,7 +36,7 @@ namespace HwProj.TelegramBotService.Client
             return await response.DeserializeAsync<bool>();
         }
         
-        public async Task<long> GetTelegramUser(string studentId)
+        public async Task<long> GetTelegramUserChatId(string studentId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get, 

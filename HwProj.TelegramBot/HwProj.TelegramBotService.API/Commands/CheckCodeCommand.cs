@@ -21,7 +21,7 @@ namespace HwProj.TelegramBotService.API.Commands
         
         public override async Task ExecuteAsync(Update update)
         {
-            var user = await _userService.AddFinishUser(update);
+            var user = await _userService.AddFinishUser(update.Message.Chat.Id, update.Message.Text);
             
             var inlineKeyboard = new InlineKeyboardMarkup(GetButton("Мои курсы", "/courses"));
 

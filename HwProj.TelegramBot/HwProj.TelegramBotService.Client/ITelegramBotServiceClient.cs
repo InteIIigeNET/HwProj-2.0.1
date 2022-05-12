@@ -6,6 +6,6 @@ namespace HwProj.TelegramBotService.Client
     public interface ITelegramBotServiceClient
     {
         Task<bool> CheckUser(string studentId);
-        Task<long> GetTelegramUser(string studentId);
+        Task<long> GetTelegramUserChatId(string studentId);
     }
 }

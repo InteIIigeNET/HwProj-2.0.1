@@ -23,7 +23,7 @@ namespace HwProj.TelegramBotService.API.Commands
         {
             await _userService.DeleteUser(update);
             
-            var user = await _userService.CreateUser(update);
+            var user = await _userService.CreateUser(update.Message.Chat.Id);
 
             await _botClient.SendTextMessageAsync(user.ChatId, "Добро пожаловать!\nВведите ваш e-mail на Hw-Proj2.0.1",
                 ParseMode.Markdown);
