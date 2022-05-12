@@ -3,6 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Mail;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using AutoFixture;
@@ -18,12 +19,33 @@ using FluentAssertions;
 using Google.Apis.Auth.AspNetCore;
 using Google.Apis.Auth.OAuth2;
 using HwProj.Models.AuthService.DTO;
+using HwProj.Models.Result;
+using HwProj.Models.Roles;
 using HwProj.Utils.Authorization;
 
 namespace HwProj.AuthService.IntegrationTests
 {
     public class Tests
     {
+        private Claim[] ValidateToken(Result<TokenCredentials> resultData)
+        {
+            const string secret = "this is a string used for encrypt and decrypt token";
+            var key = Encoding.ASCII.GetBytes(secret);
+            var handler = new JwtSecurityTokenHandler();
+            var validations = new TokenValidationParameters
+            {
+                ValidIssuer = "AuthService",
+                ValidateIssuer = true,
+                ValidateAudience = false,
+                ValidateLifetime = true,
+                IssuerSigningKey = AuthorizationKey.SecurityKey,
+                ValidateIssuerSigningKey = true
+            };
+            var claims = handler.ValidateToken(resultData.Value.AccessToken, validations, out var tokenSecure);
+
+            return claims.Claims.ToArray();
+        }
+
         private AuthServiceClient CreateAuthServiceClient()
         {
             var mockIConfiguration = new Mock<IConfiguration>();
@@ -68,6 +90,16 @@ namespace HwProj.AuthService.IntegrationTests
                 CurrentPassword = model.Password,
                 NewPassword = new Fixture().Create<string>()
             };
+
+        private static EditAccountViewModel GenerateEditAccountViewModel(RegisterViewModel model)
+            => new EditAccountViewModel
+            {
+                Name = new Fixture().Create<string>(),
+                Surname = new Fixture().Create<string>(),
+                MiddleName = new Fixture().Create<string>(),
+                CurrentPassword = model.Password,
+                NewPassword = model.Password
+            };
         
         private static InviteLecturerViewModel GenerateInviteNewLecturerViewModel(RegisterViewModel model)
             => new InviteLecturerViewModel
@@ -76,13 +108,13 @@ namespace HwProj.AuthService.IntegrationTests
             };
 
         private static AccountDataDto GenerateAccountDataDto(RegisterViewModel model)
-            => new AccountDataDto(model.Name, 
+            => new AccountDataDto(model.Name,
                 model.Surname,
                 model.Email,
                 "Student",
                 false,
                 model.MiddleName);
-        
+
         private static User GenerateUser(RegisterViewModel model)
             => new User
             {
@@ -93,19 +125,19 @@ namespace HwProj.AuthService.IntegrationTests
             };
 
         private IAuthServiceClient _authServiceClient;
-        
+
         [SetUp]
         public void SetUp()
         {
             _authServiceClient = CreateAuthServiceClient();
         }
-        
+
         [Test]
         public async Task TestRegisterUser()
         {
             var userData = GenerateRegisterViewModel();
             var registerResult = await _authServiceClient.Register(userData);
-            
+
             registerResult.Succeeded.Should().BeTrue();
             registerResult.Errors.IsNullOrEmpty().Should().BeTrue();
             registerResult.Value.AccessToken.IsNullOrEmpty().Should().BeFalse();
@@ -117,84 +149,139 @@ namespace HwProj.AuthService.IntegrationTests
             resultData.Surname.Should().Be(userData.Surname);
             resultData.MiddleName.Should().Be(userData.MiddleName);
             resultData.Email.Should().Be(userData.Email);
-            resultData.Role.Should().Be("Student");
+            resultData.Role.Should().Be(Roles.StudentRole);
             resultData.IsExternalAuth.Should().BeFalse();
+        }
+
+        [Test]
+        public async Task UserAlreadyExistRegisterTest()
+        {
+            var userData = GenerateRegisterViewModel();
+            var registerResult = await _authServiceClient.Register(userData);
+
+            registerResult.Succeeded.Should().BeTrue();
+            registerResult.Errors.IsNullOrEmpty().Should().BeTrue();
+            registerResult.Value.AccessToken.IsNullOrEmpty().Should().BeFalse();
+
+            var secondRegisterResult = await _authServiceClient.Register(userData);
+
+            secondRegisterResult.Succeeded.Should().BeFalse();
+            secondRegisterResult.Errors.Should().Contain("Пользователь уже зарегистрирован");
+            secondRegisterResult.Value.Should().BeNull();
+        }
+
+        [Test]
+        public async Task WrongPasswordRegisterTest()
+        {
+            var userData = GenerateRegisterViewModel();
+            userData.Password = userData.Password.Substring(0, 5);
+            var registerResult = await _authServiceClient.Register(userData);
+
+            registerResult.Succeeded.Should().BeFalse();
+            registerResult.Errors.Should().Contain("Пароль должен содержать не менее 6 символов");
+            registerResult.Value.Should().BeNull();
+        }
+
+        [Test]
+        public async Task PasswordsDoNotMatchRegisterTest()
+        {
+            var userData = GenerateRegisterViewModel();
+            userData.PasswordConfirm += 'a';
+            var registerResult = await _authServiceClient.Register(userData);
+
+            registerResult.Succeeded.Should().BeFalse();
+            registerResult.Errors.Should().Contain("Пароли не совпадают");
+            registerResult.Value.Should().BeNull();
         }
 
         [Test]
         public async Task TestLoginUser()
         {
             var userData = GenerateRegisterViewModel();
-            var authClient = CreateAuthServiceClient();
-            await authClient.Register(userData);
+            await _authServiceClient.Register(userData);
 
             var loginData = GenerateLoginViewModel(userData);
-            var resultData = await authClient.Login(loginData);
-            
-            string secret = "this is a string used for encrypt and decrypt token"; 
-            var key = Encoding.ASCII.GetBytes(secret);
-            var handler = new JwtSecurityTokenHandler();
-            var validations = new TokenValidationParameters
-            {
-                ValidIssuer = "AuthService",
-                ValidateIssuer = true,
-                ValidateAudience = false,
-                ValidateLifetime = true,
-                IssuerSigningKey = AuthorizationKey.SecurityKey,
-                ValidateIssuerSigningKey = true
-            };
-            var claims = handler.ValidateToken(resultData.Value.AccessToken, validations, out var tokenSecure);
-            claims.Identity.IsAuthenticated.Should().BeTrue();
-            var x = claims.Claims.ToList();
+            var resultData = await _authServiceClient.Login(loginData);
 
-            var y = 10;
+            resultData.Succeeded.Should().BeTrue();
+            resultData.Errors.IsNullOrEmpty().Should().BeTrue();
+            resultData.Value.AccessToken.IsNullOrEmpty().Should().BeFalse();
+
+            var claims = ValidateToken(resultData);
+
+            claims[2].Value.Should().Be(userData.Email);
+            claims[3].Value.Should().Be(Roles.StudentRole);
+        }
+
+        [Test]
+        public async Task UserIsNotExistLoginTest()
+        {
+            var userData = GenerateRegisterViewModel();
+            var loginData = GenerateLoginViewModel(userData);
+
+            var loginResult = await _authServiceClient.Login(loginData);
+
+            loginResult.Succeeded.Should().BeFalse();
+            loginResult.Errors.Should().Contain("Пользователь не найден");
+            loginResult.Value.Should().BeNull();
+        }
+
+        [Test]
+        public async Task TestEditAccountData()
+        {
+            var userData = GenerateRegisterViewModel();
+            await _authServiceClient.Register(userData);
+
+            var editData = GenerateEditAccountViewModel(userData);
+            var userId = await _authServiceClient.FindByEmailAsync(userData.Email);
+            var resultData = await _authServiceClient.Edit(editData, userId);
+
+            resultData.Succeeded.Should().BeTrue();
+            resultData.Errors.IsNullOrEmpty().Should().BeTrue();
         }
         
         [Test]
         public async Task TestEditPassword()
         {
             var userData = GenerateRegisterViewModel();
-            var authClient = CreateAuthServiceClient();
-            await authClient.Register(userData);
+            await _authServiceClient.Register(userData);
 
             var editData = GenerateEditViewModel(userData);
-            var userId = await authClient.FindByEmailAsync(userData.Email);
-            var resultData = await authClient.Edit(editData, userId);
-            
+            var userId = await _authServiceClient.FindByEmailAsync(userData.Email);
+            var resultData = await _authServiceClient.Edit(editData, userId);
+
             resultData.Succeeded.Should().BeTrue();
             resultData.Errors.IsNullOrEmpty().Should().BeTrue();
         }
-        
+
         [Test]
         public async Task TestInviteNewLecturer()
         {
             var userData = GenerateRegisterViewModel();
-            var authClient = CreateAuthServiceClient();
-            await authClient.Register(userData);
+            await _authServiceClient.Register(userData);
 
             var inviteLecturerData = GenerateInviteNewLecturerViewModel(userData);
-            var resultData = await authClient.InviteNewLecturer(inviteLecturerData);
-            
+            var resultData = await _authServiceClient.InviteNewLecturer(inviteLecturerData);
+
             resultData.Succeeded.Should().BeTrue();
             resultData.Errors.IsNullOrEmpty().Should().BeTrue();
         }
 
         // Google ?? 
-        
+
         // EditExternal ??
-    
+
         [Test]
         public async Task TestFindByEmail()
         {
             var userData = GenerateRegisterViewModel();
-            var authClient = CreateAuthServiceClient();
-            await authClient.Register(userData);
+            await _authServiceClient.Register(userData);
 
-            var userId = await authClient.FindByEmailAsync(userData.Email);
+            var userId = await _authServiceClient.FindByEmailAsync(userData.Email);
 
             userId.IsNullOrEmpty().Should().BeFalse();
         }
-        
+
         [Test]
         public async Task TestGetAllStudents()
         {
@@ -205,7 +292,7 @@ namespace HwProj.AuthService.IntegrationTests
             var allStudents = await authClient.GetAllStudents();
 
             var a = 10;
-            
+
             // allStudents.Should().Contain(GenerateAccountDataDto(userData)); ?? 
             foreach (var student in allStudents)
             {
@@ -223,7 +310,7 @@ namespace HwProj.AuthService.IntegrationTests
             var allStudents = await authClient.GetAllLecturers();
             var a = 10;
             a.Should().BePositive();
-            
+
             //allStudents.Should().Contain(GenerateUser(userData));
         }
     }
