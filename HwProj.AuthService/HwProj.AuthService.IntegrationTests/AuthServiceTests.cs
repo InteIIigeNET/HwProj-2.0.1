@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net.Http;
@@ -7,7 +6,6 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using AutoFixture;
-using Castle.Core.Internal;
 using HwProj.AuthService.Client;
 using HwProj.Models.AuthService.ViewModels;
 using Microsoft.Extensions.Configuration;
@@ -183,7 +181,7 @@ namespace HwProj.AuthService.IntegrationTests
         public async Task PasswordsDoNotMatchRegisterTest()
         {
             var userData = GenerateRegisterViewModel();
-            userData.PasswordConfirm += 'a';
+            userData.PasswordConfirm = new Fixture().Create<MailAddress>().Address;
             var registerResult = await _authServiceClient.Register(userData);
 
             registerResult.Succeeded.Should().BeFalse();
@@ -230,7 +228,7 @@ namespace HwProj.AuthService.IntegrationTests
             await _authServiceClient.Register(userData);
 
             var loginData = GenerateLoginViewModel(userData);
-            loginData.Password += '1';
+            loginData.Password = new Fixture().Create<string>();
             var resultData = await _authServiceClient.Login(loginData);
 
             resultData.Succeeded.Should().BeFalse();
@@ -245,7 +243,7 @@ namespace HwProj.AuthService.IntegrationTests
             await _authServiceClient.Register(userData);
 
             var loginData = GenerateLoginViewModel(userData);
-            loginData.Email += '1';
+            loginData.Email = new Fixture().Create<MailAddress>().Address;
             var resultData = await _authServiceClient.Login(loginData);
 
             resultData.Succeeded.Should().BeFalse();
@@ -303,7 +301,7 @@ namespace HwProj.AuthService.IntegrationTests
         {
             var userData = GenerateRegisterViewModel();
             var editData = GenerateEditAccountViewModel(userData);
-            var userId = "123";
+            var userId = new Fixture().Create<string>();
 
             var result = await _authServiceClient.Edit(editData, userId);
 
@@ -316,7 +314,7 @@ namespace HwProj.AuthService.IntegrationTests
         {
             var userData = GenerateRegisterViewModel();
             var editData = GenerateEditAccountViewModel(userData);
-            editData.CurrentPassword += '1';
+            editData.CurrentPassword = new Fixture().Create<string>();
             var userId = await _authServiceClient.FindByEmailAsync(userData.Email);
 
             var result = await _authServiceClient.Edit(editData, userId);
@@ -368,8 +366,8 @@ namespace HwProj.AuthService.IntegrationTests
             
             var result = await _authServiceClient.InviteNewLecturer(inviteLecturerData);
             
-            resultData.Succeeded.Should().BeFalse();
-            resultData.Errors.Should().BeNullOrEmpty();
+            result.Succeeded.Should().BeFalse();
+            result.Errors.Should().BeNullOrEmpty();
         }
 
         // GoogleLogin
@@ -388,33 +386,83 @@ namespace HwProj.AuthService.IntegrationTests
         }
 
         [Test]
-        public async Task TestGetAllStudents()
+        public async Task TestFindByEmailForUserThatDoesNotExist()
         {
             var userData = GenerateRegisterViewModel();
-            await _authServiceClient.Register(userData);
 
+            var userId = await _authServiceClient.FindByEmailAsync(userData.Email);
+
+            userId.Should().BeNullOrEmpty();
+        }
+
+        [Test]
+        public async Task TestGetAllStudents()
+        {
+            var firstUser = GenerateRegisterViewModel();
+            var secondUser = GenerateRegisterViewModel();
+
+            var firstResult = await _authServiceClient.Register(firstUser);
+            var secondResult = await _authServiceClient.Register(secondUser);
+
+            firstResult.Succeeded.Should().BeTrue();
+            secondResult.Succeeded.Should().BeTrue();
+            
             var allStudents = await _authServiceClient.GetAllStudents();
 
-            var a = 10;
+            allStudents.Should().ContainEquivalentOf(firstUser, options =>
+                options.ExcludingMissingMembers());
+            allStudents.Should().ContainEquivalentOf(secondUser, options =>
+                options.ExcludingMissingMembers());
 
-            // allStudents.Should().Contain(GenerateAccountDataDto(userData)); ?? 
-            foreach (var student in allStudents)
-            {
-                student.Role.Should().Be("Student");
-            }
+            var firstLecturerData = GenerateInviteNewLecturerViewModel(firstUser);
+            var secondLecturerData = GenerateInviteNewLecturerViewModel(secondUser);
+            var firstLecturer = await _authServiceClient.InviteNewLecturer(firstLecturerData);
+            var secondLecturer = await _authServiceClient.InviteNewLecturer(secondLecturerData);
+
+            firstLecturer.Succeeded.Should().BeTrue();
+            secondLecturer.Succeeded.Should().BeTrue();
+
+            var newStudents = await _authServiceClient.GetAllStudents();
+            
+            newStudents.Should().NotContainEquivalentOf(firstUser, options =>
+                options.ExcludingMissingMembers());
+            newStudents.Should().NotContainEquivalentOf(secondUser, options =>
+                options.ExcludingMissingMembers());
         }
 
         [Test]
         public async Task TestGetAllLecturers()
         {
-            var userData = GenerateRegisterViewModel();
-            await _authServiceClient.Register(userData);
+            var firstUser = GenerateRegisterViewModel();
+            var secondUser = GenerateRegisterViewModel();
 
-            var allStudents = await _authServiceClient.GetAllLecturers();
-            var a = 10;
-            a.Should().BePositive();
+            var firstResult = await _authServiceClient.Register(firstUser);
+            var secondResult = await _authServiceClient.Register(secondUser);
 
-            //allStudents.Should().Contain(GenerateUser(userData));
+            firstResult.Succeeded.Should().BeTrue();
+            secondResult.Succeeded.Should().BeTrue();
+            
+            var allLecturers = await _authServiceClient.GetAllLecturers();
+
+            allLecturers.Should().NotContainEquivalentOf(firstUser, options =>
+                options.ExcludingMissingMembers());
+            allLecturers.Should().NotContainEquivalentOf(secondUser, options =>
+                options.ExcludingMissingMembers());
+
+            var firstLecturerData = GenerateInviteNewLecturerViewModel(firstUser);
+            var secondLecturerData = GenerateInviteNewLecturerViewModel(secondUser);
+            var firstLecturer = await _authServiceClient.InviteNewLecturer(firstLecturerData);
+            var secondLecturer = await _authServiceClient.InviteNewLecturer(secondLecturerData);
+
+            firstLecturer.Succeeded.Should().BeTrue();
+            secondLecturer.Succeeded.Should().BeTrue();
+
+            var newLecturers = await _authServiceClient.GetAllLecturers();
+            
+            newLecturers.Should().ContainEquivalentOf(firstUser, options =>
+                options.ExcludingMissingMembers());
+            newLecturers.Should().ContainEquivalentOf(secondUser, options =>
+                options.ExcludingMissingMembers());
         }
 
         [Test]
