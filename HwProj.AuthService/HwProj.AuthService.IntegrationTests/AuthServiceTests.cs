@@ -286,10 +286,9 @@ namespace HwProj.AuthService.IntegrationTests
         public async Task TestGetAllStudents()
         {
             var userData = GenerateRegisterViewModel();
-            var authClient = CreateAuthServiceClient();
-            await authClient.Register(userData);
+            await _authServiceClient.Register(userData);
 
-            var allStudents = await authClient.GetAllStudents();
+            var allStudents = await _authServiceClient.GetAllStudents();
 
             var a = 10;
 
@@ -304,14 +303,22 @@ namespace HwProj.AuthService.IntegrationTests
         public async Task TestGetAllLecturers()
         {
             var userData = GenerateRegisterViewModel();
-            var authClient = CreateAuthServiceClient();
-            await authClient.Register(userData);
+            await _authServiceClient.Register(userData);
 
-            var allStudents = await authClient.GetAllLecturers();
+            var allStudents = await _authServiceClient.GetAllLecturers();
             var a = 10;
             a.Should().BePositive();
 
             //allStudents.Should().Contain(GenerateUser(userData));
+        }
+
+        [Test]
+        public async Task TestGetAccountData()
+        {
+            var userData = GenerateRegisterViewModel();
+            await _authServiceClient.Register(userData);
+
+            var resultData = _authServiceClient.GetAccountData("123");
         }
     }
 }
