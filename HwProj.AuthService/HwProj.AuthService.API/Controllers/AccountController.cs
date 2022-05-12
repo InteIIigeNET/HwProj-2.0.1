@@ -99,7 +99,7 @@ namespace HwProj.AuthService.API.Controllers
             return Ok(user);
         }
 
-        [HttpGet("getRole")]
+        [HttpPost("getRole")]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetRolesAsync([FromBody] User user)
         {
