@@ -141,6 +141,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                     {!props.loggedIn && (
                         <div className={classes.tools}>
                             <Link
+                                id="sign-in-button"
                                 onClick={() => window.location.assign("/login")}
                                 component="button"
                                 color="inherit"
@@ -150,6 +151,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                                 Вход
                             </Link>
                             <Link
+                                id="sign-up-button"
                                 onClick={() => window.location.assign("/register")}
                                 component="button"
                                 color="inherit"

@@ -145,6 +145,7 @@ const Login: FC<LoginProps> = (props) => {
                 <Grid container direction="column" justifyContent="center">
                     <Grid>
                         <TextField
+                            id="login-email-input"
                             required
                             type="email"
                             fullWidth
@@ -157,6 +158,7 @@ const Login: FC<LoginProps> = (props) => {
                     </Grid>
                     <Grid>
                         <TextField
+                            id="login-password-input"
                             required
                             type="password"
                             fullWidth
@@ -169,6 +171,7 @@ const Login: FC<LoginProps> = (props) => {
                     </Grid>
                     <Grid className={classes.button}>
                         <Button
+                            id="login-button"
                             fullWidth
                             variant="contained"
                             color="primary"

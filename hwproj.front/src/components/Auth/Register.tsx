@@ -102,6 +102,7 @@ const Register: FC<LoginProps> = (props) => {
                     <Grid container spacing={2}>
                         <Grid item xs={12} sm={6}>
                             <TextField
+                                id="register-name-input"
                                 fullWidth
                                 required
                                 label="Имя"
@@ -119,6 +120,7 @@ const Register: FC<LoginProps> = (props) => {
                         </Grid>
                         <Grid item xs={12} sm={6}>
                             <TextField
+                                id="register-surname-input"
                                 required
                                 fullWidth
                                 label="Фамилия"
@@ -136,6 +138,7 @@ const Register: FC<LoginProps> = (props) => {
                         </Grid>
                         <Grid item xs={12}>
                             <TextField
+                                id="register-middle-name-input"
                                 fullWidth
                                 label="Отчество"
                                 variant="outlined"
@@ -152,6 +155,7 @@ const Register: FC<LoginProps> = (props) => {
                         </Grid>
                         <Grid item xs={12}>
                             <TextField
+                                id="register-email-input"
                                 required
                                 fullWidth
                                 type="email"
@@ -170,6 +174,7 @@ const Register: FC<LoginProps> = (props) => {
                         </Grid>
                         <Grid item xs={12} sm={6}>
                             <TextField
+                                id="register-password-input"
                                 required
                                 fullWidth
                                 type="password"
@@ -188,6 +193,7 @@ const Register: FC<LoginProps> = (props) => {
                         </Grid>
                         <Grid item xs={12} sm={6}>
                             <TextField
+                                id="register-confirm-password-input"
                                 required
                                 fullWidth
                                 type="password"
@@ -206,6 +212,7 @@ const Register: FC<LoginProps> = (props) => {
                         </Grid>
                     </Grid>
                     <Button
+                        id="register-button"
                         style={{ marginTop: '15px'}}
                         fullWidth
                         variant="contained"
