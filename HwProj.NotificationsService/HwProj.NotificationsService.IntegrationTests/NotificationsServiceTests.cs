@@ -102,7 +102,7 @@ namespace HwProj.NotificationsService.IntegrationTests
             var notificationClient = CreateNotificationsServiceClient();
             
             var (studentId, _) = await CreateAndRegisterUser();
-            var notification1 = await notificationClient.Get(studentId, new NotificationFilter());
+            var notification1 = await notificationClient.Get(studentId, new NotificationFilter()).Wait();
             
             notification1.Should().HaveCount(1);
             notification1[0].Sender.Should().BeEquivalentTo("AuthService");
