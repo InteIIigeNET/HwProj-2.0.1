@@ -215,7 +215,7 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
 
     if (profileState.isLoaded) {
         return <div style={{marginBottom: '50px'}}>
-            <Grid container spacing={5} direction={"row"} alignItems={"flex-start"} style={{margin: "2%"}}>
+            <Grid container spacing={3} direction={"row"} alignItems={"flex-start"} style={{margin: "30px"}}>
                 <Grid item>
                     <Card style={{backgroundColor: "#f7fafc"}}>
                         <CardContent>
@@ -270,7 +270,7 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
                         </CardContent>
                     </Card>
                 </Grid>
-                <Grid item style={{minWidth: "60%"}}>
+                <Grid item>
                     {renderNotifications(filterState.filteredNotifications)}
                 </Grid>
             </Grid>
