@@ -102,10 +102,35 @@ namespace HwProj.NotificationsService.IntegrationTests
             var notificationClient = CreateNotificationsServiceClient();
             
             var (studentId, _) = await CreateAndRegisterUser();
-            var notification1 = await notificationClient.Get(studentId, new NotificationFilter()).Wait();
-            
+            var notification1 = await notificationClient.Get(studentId, new NotificationFilter());
+
             notification1.Should().HaveCount(1);
             notification1[0].Sender.Should().BeEquivalentTo("AuthService");
+        }
+
+        [Test]
+        public async Task GetMoreThanOneNotificationsTest()
+        {
+            var notificationClient = CreateNotificationsServiceClient();
+            
+            var (studentId, _) = await CreateAndRegisterUser();
+            var (lectureId, _) = await CreateAndRegisterLecture();
+            var notificationAfterAcceptUser = await notificationClient.Get(studentId, new NotificationFilter());
+            var studentCourseClient = CreateCourseServiceClient(studentId);
+            var lectureCourseClient = CreateCourseServiceClient(lectureId);
+            var course = GenerateCreateCourseViewModel();
+            var courseId = await lectureCourseClient.CreateCourse(course, lectureId);
+            await studentCourseClient.SignInCourse(courseId, studentId);
+            await lectureCourseClient.AcceptStudent(courseId, studentId);
+            
+            var notificationBeforeAcceptUser = await notificationClient.Get(studentId, new NotificationFilter());
+            while (notificationBeforeAcceptUser.Length != 2)
+            { 
+                notificationBeforeAcceptUser = await notificationClient.Get(studentId, new NotificationFilter());
+            }
+
+            notificationAfterAcceptUser.Should().HaveCount(1);
+            notificationBeforeAcceptUser.Should().HaveCount(2);
         }
 
         [Test]
