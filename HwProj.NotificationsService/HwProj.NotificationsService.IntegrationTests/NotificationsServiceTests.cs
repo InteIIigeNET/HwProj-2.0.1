@@ -96,7 +96,6 @@ namespace HwProj.NotificationsService.IntegrationTests
             return (userId, mail);
         }
 
-
         [Test]
         public async Task GetNotificationTest()
         { 
