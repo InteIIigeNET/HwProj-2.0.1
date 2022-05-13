@@ -28,7 +28,7 @@ namespace HwProj.AuthService.SeleniumTests
                 .MoveToLogin()
                 .Login("admin@gmail.com", "Admin@1234");
             
-            Thread.Sleep(1000);
+            //Thread.Sleep(1000);
         }
 
         [Test]
@@ -41,7 +41,7 @@ namespace HwProj.AuthService.SeleniumTests
                 .Register("Volodya", "Petrov", "bigvova228@sobaka.com", 
                     "2281337", "2281337");
             
-            Thread.Sleep(1000);
+            //Thread.Sleep(1000);
         }
         
         [TearDown]
