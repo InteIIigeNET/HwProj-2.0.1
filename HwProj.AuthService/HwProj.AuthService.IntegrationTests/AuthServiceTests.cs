@@ -14,8 +14,6 @@ using Microsoft.IdentityModel.Tokens;
 using Moq;
 using NUnit.Framework;
 using FluentAssertions;
-using Google.Apis.Auth.AspNetCore;
-using Google.Apis.Auth.OAuth2;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.Result;
 using HwProj.Models.Roles;
@@ -143,7 +141,7 @@ namespace HwProj.AuthService.IntegrationTests
             var userId = await _authServiceClient.FindByEmailAsync(userData.Email);
             var resultData = await _authServiceClient.GetAccountData(userId);
 
-            resultData.Should().BeEquivalentTo(userData,options =>
+            resultData.Should().BeEquivalentTo(userData, options =>
                 options.ExcludingMissingMembers());
             resultData.Role.Should().Be(Roles.StudentRole);
         }
@@ -161,7 +159,9 @@ namespace HwProj.AuthService.IntegrationTests
             var secondRegisterResult = await _authServiceClient.Register(userData);
 
             secondRegisterResult.Succeeded.Should().BeFalse();
-            secondRegisterResult.Errors.Should().Contain("Пользователь уже зарегистрирован");
+            secondRegisterResult.Errors.Should()
+                .BeEquivalentTo("Пользователь уже зарегистрирован");
+
             secondRegisterResult.Value.Should().BeNull();
         }
 
@@ -173,7 +173,8 @@ namespace HwProj.AuthService.IntegrationTests
             var registerResult = await _authServiceClient.Register(userData);
 
             registerResult.Succeeded.Should().BeFalse();
-            registerResult.Errors.Should().Contain("Пароль должен содержать не менее 6 символов");
+            registerResult.Errors.Should()
+                .BeEquivalentTo("Пароль должен содержать не менее 6 символов");
             registerResult.Value.Should().BeNull();
         }
 
@@ -185,7 +186,8 @@ namespace HwProj.AuthService.IntegrationTests
             var registerResult = await _authServiceClient.Register(userData);
 
             registerResult.Succeeded.Should().BeFalse();
-            registerResult.Errors.Should().Contain("Пароли не совпадают");
+            registerResult.Errors.Should()
+                .BeEquivalentTo("Пароли не совпадают");
             registerResult.Value.Should().BeNull();
         }
 
@@ -217,7 +219,8 @@ namespace HwProj.AuthService.IntegrationTests
             var loginResult = await _authServiceClient.Login(loginData);
 
             loginResult.Succeeded.Should().BeFalse();
-            loginResult.Errors.Should().Contain("Пользователь не найден");
+            loginResult.Errors.Should()
+                .BeEquivalentTo("Пользователь не найден");
             loginResult.Value.Should().BeNull();
         }
 
@@ -232,7 +235,8 @@ namespace HwProj.AuthService.IntegrationTests
             var resultData = await _authServiceClient.Login(loginData);
 
             resultData.Succeeded.Should().BeFalse();
-            resultData.Errors.Should().Contain("Неправильный логин или пароль");
+            resultData.Errors.Should()
+                .BeEquivalentTo("Неправильный логин или пароль");
             resultData.Value.Should().BeNull();
         }
 
@@ -247,7 +251,8 @@ namespace HwProj.AuthService.IntegrationTests
             var resultData = await _authServiceClient.Login(loginData);
 
             resultData.Succeeded.Should().BeFalse();
-            resultData.Errors.Should().Contain("Пользователь не найден");
+            resultData.Errors.Should()
+                .BeEquivalentTo("Пользователь не найден");
             resultData.Value.Should().BeNull();
         }
 
@@ -287,7 +292,8 @@ namespace HwProj.AuthService.IntegrationTests
             var failedResult = await _authServiceClient.Login(loginData);
 
             failedResult.Succeeded.Should().BeFalse();
-            failedResult.Errors.Should().Contain("Неправильный логин или пароль");
+            failedResult.Errors.Should()
+                .BeEquivalentTo("Неправильный логин или пароль");
 
             loginData.Password = editData.NewPassword;
             var result = await _authServiceClient.Login(loginData);
@@ -306,7 +312,8 @@ namespace HwProj.AuthService.IntegrationTests
             var result = await _authServiceClient.Edit(editData, userId);
 
             result.Succeeded.Should().BeFalse();
-            result.Errors.Should().Contain("Пользователь не найден");
+            result.Errors.Should()
+                .BeEquivalentTo("Пользователь не найден");
         }
 
         [Test]
@@ -349,7 +356,8 @@ namespace HwProj.AuthService.IntegrationTests
             var resultData = await _authServiceClient.InviteNewLecturer(inviteLecturerData);
 
             resultData.Succeeded.Should().BeFalse();
-            resultData.Errors.Should().Contain("Пользователь не найден");
+            resultData.Errors.Should()
+                .BeEquivalentTo("Пользователь не найден");
         }
 
         [Test]
@@ -363,16 +371,12 @@ namespace HwProj.AuthService.IntegrationTests
 
             resultData.Succeeded.Should().BeTrue();
             resultData.Errors.Should().BeNullOrEmpty();
-            
+
             var result = await _authServiceClient.InviteNewLecturer(inviteLecturerData);
-            
+
             result.Succeeded.Should().BeFalse();
             result.Errors.Should().BeNullOrEmpty();
         }
-
-        // GoogleLogin
-
-        // EditExternal
 
         [Test]
         public async Task TestFindByEmail()
@@ -406,7 +410,7 @@ namespace HwProj.AuthService.IntegrationTests
 
             firstResult.Succeeded.Should().BeTrue();
             secondResult.Succeeded.Should().BeTrue();
-            
+
             var allStudents = await _authServiceClient.GetAllStudents();
 
             allStudents.Should().ContainEquivalentOf(firstUser, options =>
@@ -423,7 +427,7 @@ namespace HwProj.AuthService.IntegrationTests
             secondLecturer.Succeeded.Should().BeTrue();
 
             var newStudents = await _authServiceClient.GetAllStudents();
-            
+
             newStudents.Should().NotContainEquivalentOf(firstUser, options =>
                 options.ExcludingMissingMembers());
             newStudents.Should().NotContainEquivalentOf(secondUser, options =>
@@ -441,7 +445,7 @@ namespace HwProj.AuthService.IntegrationTests
 
             firstResult.Succeeded.Should().BeTrue();
             secondResult.Succeeded.Should().BeTrue();
-            
+
             var allLecturers = await _authServiceClient.GetAllLecturers();
 
             allLecturers.Should().NotContainEquivalentOf(firstUser, options =>
@@ -458,7 +462,7 @@ namespace HwProj.AuthService.IntegrationTests
             secondLecturer.Succeeded.Should().BeTrue();
 
             var newLecturers = await _authServiceClient.GetAllLecturers();
-            
+
             newLecturers.Should().ContainEquivalentOf(firstUser, options =>
                 options.ExcludingMissingMembers());
             newLecturers.Should().ContainEquivalentOf(secondUser, options =>
@@ -481,7 +485,7 @@ namespace HwProj.AuthService.IntegrationTests
         [Test]
         public async Task TestGetAccountDataForUserThatDoesNotExist()
         {
-            var resultData = await _authServiceClient.GetAccountData("random string");
+            var resultData = await _authServiceClient.GetAccountData(new Fixture().Create<string>());
 
             resultData.Should().BeNull();
         }
