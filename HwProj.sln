@@ -24,7 +24,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HwProj.Common", "HwProj.Com
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HwProj.Utils", "HwProj.Common\HwProj.Utils\HwProj.Utils.csproj", "{F584B68E-B6A8-46F1-A692-CB87DE9996BE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HwProj.NotificationsService.Tests", "HwProj.NotificationsService\HwProj.NotificationsService.Tests\HwProj.NotificationsService.Tests.csproj", "{2B4D695D-1BAA-4BCC-AE5A-C1CDD4ACCCCA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HwProj.NotificationsService.IntegrationTests", "HwProj.NotificationsService\HwProj.NotificationsService.IntegrationTests\HwProj.NotificationsService.IntegrationTests.csproj", "{2B4D695D-1BAA-4BCC-AE5A-C1CDD4ACCCCA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HwProj.AuthService", "HwProj.AuthService", "{D7F8BC73-A6CB-4E07-984D-2D65B740BC69}"
 EndProject
