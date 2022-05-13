@@ -130,7 +130,7 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
         return (
             <div>
                 {notifications.map((n, index) =>
-                    <Box style={{marginTop: '16px'}} key={index}>
+                    <Box style={{marginBottom: '16px'}} key={index}>
                         <Card style={{backgroundColor: "AliceBlue"}}>
                             <CardContent>
                                 <Typography variant="body1" component="p">
@@ -215,8 +215,8 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
 
     if (profileState.isLoaded) {
         return <div style={{marginBottom: '50px'}}>
-            <Grid container direction={"row"} justifyContent="space-around" style={{marginTop: "30px"}}>
-                <Box style={{marginTop: '16px', marginLeft: '20px'}}>
+            <Grid container spacing={5} direction={"row"} alignItems={"flex-start"} style={{margin: "2%"}}>
+                <Grid item>
                     <Card style={{backgroundColor: "#f7fafc"}}>
                         <CardContent>
                             <FormControlLabel control={
@@ -228,11 +228,6 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
                             } label="Показывать только непрочитанные"/>
                             <Divider/>
                             <div style={{maxWidth: '300px'}}>
-                                <div>
-                                    <Typography style={{fontSize: '16px'}}>
-                                        Фильтрация
-                                    </Typography>
-                                </div>
                                 <FormGroup>
                                     <FormControlLabel control={
                                         <Checkbox
@@ -274,8 +269,8 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
                             </div>
                         </CardContent>
                     </Card>
-                </Box>
-                <Grid xs={8}>
+                </Grid>
+                <Grid item style={{minWidth: "60%"}}>
                     {renderNotifications(filterState.filteredNotifications)}
                 </Grid>
             </Grid>
