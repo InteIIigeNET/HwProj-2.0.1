@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
@@ -9,21 +11,21 @@ namespace HwProj.CoursesService.Client
     {
         Task<CourseViewModel[]> GetAllCourses();
         Task<CourseViewModel> GetCourseById(long courseId, string userId);
-        Task DeleteCourse(long courseId);
+        Task<HttpStatusCode> DeleteCourse(long courseId);
         Task<long> CreateCourse(CreateCourseViewModel model, string mentorId);
-        Task UpdateCourse(UpdateCourseViewModel model, long courseId);
+        Task<HttpStatusCode> UpdateCourse(UpdateCourseViewModel model, long courseId);
         Task SignInCourse(long courseId, string studentId);
-        Task AcceptStudent(long courseId, string studentId);
-        Task RejectStudent(long courseId, string studentId);
+        Task<HttpStatusCode> AcceptStudent(long courseId, string studentId);
+        Task<HttpStatusCode> RejectStudent(long courseId, string studentId);
         Task<UserCourseDescription[]> GetAllUserCourses(string userId);
-        Task<long> AddHomeworkToCourse(CreateHomeworkViewModel model, long courseId);
+        Task<(long, HttpStatusCode)> AddHomeworkToCourse(CreateHomeworkViewModel model, long courseId);
         Task<HomeworkViewModel> GetHomework(long homeworkId);
-        Task UpdateHomework(CreateHomeworkViewModel model, long homeworkId);
-        Task DeleteHomework(long homeworkId);
+        Task<HttpStatusCode> UpdateHomework(CreateHomeworkViewModel model, long homeworkId);
+        Task<HttpStatusCode> DeleteHomework(long homeworkId);
         Task<HomeworkTaskViewModel> GetTask(long taskId);
-        Task<long> AddTask(CreateTaskViewModel taskViewModel, long homeworkId);
-        Task DeleteTask(long taskId);
-        Task UpdateTask(CreateTaskViewModel taskViewModel, long taskId);
+        Task<(long, HttpStatusCode)> AddTask(CreateTaskViewModel taskViewModel, long homeworkId);
+        Task<HttpStatusCode> DeleteTask(long taskId);
+        Task<HttpStatusCode> UpdateTask(CreateTaskViewModel taskViewModel, long taskId);
         Task<GroupViewModel[]> GetAllCourseGroups(long courseId);
         Task<long> CreateCourseGroup(CreateGroupViewModel model, long courseId);
         Task DeleteCourseGroup(long courseId, long groupId);
@@ -33,7 +35,7 @@ namespace HwProj.CoursesService.Client
         Task RemoveStudentFromGroup(long courseId, long groupId, string userId);
         Task<GroupViewModel> GetGroupById(long groupId);
         Task<long[]> GetGroupTasks(long groupId);
-        Task AcceptLecturer(long courseId, string lecturerEmail);
-        Task<AccountDataDto[]> GetLecturersAvailableForCourse(long courseId);
+        Task<HttpStatusCode> AcceptLecturer(long courseId, string lecturerEmail);
+        Task<(AccountDataDto[], HttpStatusCode)> GetLecturersAvailableForCourse(long courseId);
     }
 }

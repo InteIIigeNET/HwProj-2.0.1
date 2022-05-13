@@ -35,7 +35,7 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> AddTask(CreateTaskViewModel taskViewModel, long homeworkId)
         {
-            var result = await _coursesClient.AddTask(taskViewModel, homeworkId);
+            var (result, _) = await _coursesClient.AddTask(taskViewModel, homeworkId);
             return Ok(result);
         }
 
