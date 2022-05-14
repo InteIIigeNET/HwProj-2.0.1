@@ -1,6 +1,7 @@
 ﻿using System;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
+using SeleniumExtras.WaitHelpers;
 
 namespace HwProj.PageObjects
 {
@@ -9,7 +10,7 @@ namespace HwProj.PageObjects
         public static void WaitElement(IWebDriver driver, By element, int time)
         {
             new WebDriverWait(driver, TimeSpan.FromSeconds(time))
-                .Until((drv) => drv.FindElement(element));
+                .Until(ExpectedConditions.ElementIsVisible(element));
         }
     }
 }

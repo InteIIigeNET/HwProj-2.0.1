@@ -1,6 +1,7 @@
 using System.IO;
 using System.Reflection;
 using System.Threading;
+using FluentAssertions;
 using HwProj.PageObjects.AuthServicePageObjects;
 using NUnit.Framework;
 using OpenQA.Selenium;
@@ -28,10 +29,9 @@ namespace HwProj.AuthService.SeleniumTests
             mainMenu
                 .MoveToLogin()
                 .Login("admin@gmail.com", "Admin@1234");
-            
-            Thread.Sleep(1000);
-            
+
             var currentUrl = _webDriver.Url;
+            
             Assert.AreEqual(_url, _webDriver.Url);
         }
 
@@ -48,7 +48,21 @@ namespace HwProj.AuthService.SeleniumTests
             var currentUrl = _webDriver.Url;
             Assert.AreEqual(_url, currentUrl);
         }
-        
+        [Test]
+        public void CheckProfileTest()
+        {
+            var mainMenu = new MainMenuPageObject(_webDriver);
+
+            var profileData = mainMenu
+                .MoveToLogin()
+                .Login("admin@gmail.com", "Admin@1234")
+                .MoveToMenu()
+                .MoveToProfile()
+                .GetProfileData();
+
+            profileData.Should().Contain("admin@gmail.com");
+        }
+
         [TearDown]
         public void TearDown()
         {

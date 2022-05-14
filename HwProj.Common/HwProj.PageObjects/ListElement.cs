@@ -1,28 +1,25 @@
-﻿using System;
-using System.Linq;
-using OpenQA.Selenium;
-using OpenQA.Selenium.Support.UI;
+﻿using OpenQA.Selenium;
 
 namespace HwProj.PageObjects
 {
-    public class Input
+    public class ListElement
     {
         private By Element { get; }
         private readonly IWebDriver _webDriver;
 
-        public Input(IWebDriver webDriver, string id)
+        public ListElement(IWebDriver webDriver, string id)
         {
             _webDriver = webDriver;
-            Element = By.XPath($"//input[@id='{id}']");
+            Element = By.XPath($"//li[@id='{id}']");
         }
 
-        public void SendKeys(string text)
+        public void Click()
         {
             WaitUntil.WaitElement(_webDriver, Element, 5);
 
             _webDriver
                 .FindElement(Element)
-                .SendKeys(text);
+                .Click();
         }
     }
 }
