@@ -1,0 +1,204 @@
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using AutoFixture;
+using HwProj.AuthService.Client;
+using HwProj.CoursesService.Client;
+using HwProj.Models.AuthService.ViewModels;
+using HwProj.Models.CoursesService.ViewModels;
+using HwProj.Models.SolutionsService;
+using HwProj.SolutionsService.Client;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
+using Moq;
+using NUnit.Framework;
+using FluentAssertions;
+
+namespace HwProj.SolutionsService.IntegrationTests
+{
+    [TestFixture]
+    public class SolutionsServiceTests
+    {
+        private RegisterViewModel GenerateRegisterViewModel()
+        {
+            var password = new Fixture().Create<string>();
+            var fixture = new Fixture().Build<RegisterViewModel>()
+                .With(vm => vm.Password, password)
+                .With(vm => vm.PasswordConfirm, password);
+            var viewModel = fixture.Create();
+            viewModel.Email += "@mail.ru";
+            return viewModel;
+        }
+
+        private AuthServiceClient CreateAuthServiceClient()
+        {
+            var mockIConfiguration = new Mock<IConfiguration>();
+            mockIConfiguration.Setup(x => x.GetSection("Services")["Auth"]).Returns("http://localhost:5001");
+            var mockClientFactory = new Mock<IHttpClientFactory>();
+            mockClientFactory.Setup(x => x.CreateClient(Options.DefaultName)).Returns(new HttpClient());
+            return new AuthServiceClient(mockClientFactory.Object, mockIConfiguration.Object);
+        }
+
+        private CreateCourseViewModel GenerateCreateCourseViewModel()
+        {
+            var fixture = new Fixture().Build<CreateCourseViewModel>()
+                .With(cvm => cvm.IsOpen, true);
+            return fixture.Create();
+        }
+        
+        private CreateHomeworkViewModel GenerateCreateHomeworkViewModel()
+        {
+            var fixture = new Fixture().Build<CreateHomeworkViewModel>()
+                .With(hvm => hvm.Tasks, new List<CreateTaskViewModel>());
+            return fixture.Create();
+        }
+
+        private CreateTaskViewModel GenerateCreateTaskViewModel()
+        {
+            return new Fixture().Build<CreateTaskViewModel>().Create();
+        }
+        
+        
+        private CoursesServiceClient CreateCourseServiceClient(string userId)
+        {
+            var mockIConfiguration = new Mock<IConfiguration>();
+            mockIConfiguration.Setup(x => x.GetSection("Services")["Courses"]).Returns("http://localhost:5002");
+            var mockClientFactory = new Mock<IHttpClientFactory>();
+            mockClientFactory.Setup(x => x.CreateClient(Options.DefaultName)).Returns(new HttpClient());
+            var mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
+            mockHttpContextAccessor.Setup(x => x.HttpContext.User.FindFirst("_id")).Returns(new Claim("", userId));
+            return new CoursesServiceClient(mockClientFactory.Object, mockHttpContextAccessor.Object,
+                mockIConfiguration.Object);
+        }
+        
+        private async Task<(string, string)> CreateAndRegisterUser()
+        {
+            var authClient = CreateAuthServiceClient();
+            var userData = GenerateRegisterViewModel();
+            await authClient.Register(userData);
+            var userId = await authClient.FindByEmailAsync(userData.Email);
+            return (userId, userData.Email);
+        }
+
+        private async Task<(string, string)> CreateAndRegisterLecture()
+        {
+            var (userId, mail) = await CreateAndRegisterUser();
+            var authClient = CreateAuthServiceClient();
+            await authClient.InviteNewLecturer(new InviteLecturerViewModel() {Email = mail});
+            return (userId, mail);
+        }
+
+        private async Task<long> CreateCourse(CoursesServiceClient courseClient, string userId)
+        {
+            var newCourseViewModel = GenerateCreateCourseViewModel();
+            var courseId = await courseClient.CreateCourse(newCourseViewModel, userId);
+            return courseId;
+        }
+
+        private async Task SignStudentInCourse(
+            CoursesServiceClient studentCourseClient,
+            CoursesServiceClient lectureCourseClient,
+            long courseId,
+            string studentId)
+        {
+            await studentCourseClient.SignInCourse(courseId, studentId);
+            await lectureCourseClient.AcceptStudent(courseId, studentId);
+        }
+
+        private SolutionViewModel GenerateSolutionViewModel(string userId)
+        {
+            var url = new Fixture().Create<string>();
+            var fixture = new Fixture().Build<SolutionViewModel>()
+                .With(h => h.GithubUrl, url)
+                .With(h => h.StudentId, userId);
+            var viewModel = fixture.Create();
+            return viewModel;
+        }
+        
+        private SolutionsServiceClient CreateSolutionsServiceClient()
+        {
+            var mockIConfiguration = new Mock<IConfiguration>();
+            mockIConfiguration.Setup(x => x.GetSection("Services")["Solutions"]).Returns("http://localhost:5007");
+            var mockClientFactory = new Mock<IHttpClientFactory>();
+            mockClientFactory.Setup(x => x.CreateClient(Options.DefaultName)).Returns(new HttpClient());
+            return new SolutionsServiceClient(mockClientFactory.Object, mockIConfiguration.Object);
+        }
+
+        private async Task<(string, string)> CreateUserAndLecture()
+        {
+            var (studentId, _) = await CreateAndRegisterUser();
+            var (lectureId, _) = await CreateAndRegisterLecture();
+            return (studentId, lectureId);
+        }
+
+        private async Task<(long, long, long)> CreateCourseHomeworkTask(CoursesServiceClient lectureCourseClient, string lectureId)
+        {
+            var courseId = await CreateCourse(lectureCourseClient, lectureId);
+            var newHomeworkViewModel = GenerateCreateHomeworkViewModel();
+            var newTaskViewModel = GenerateCreateTaskViewModel();
+            var homeworkId = await lectureCourseClient.AddHomeworkToCourse(newHomeworkViewModel, courseId);
+            var taskId = await lectureCourseClient.AddTask(newTaskViewModel, homeworkId);
+            return (courseId, homeworkId, taskId);
+        }
+
+        [Test]
+        public async Task PostAndGetSolutionByIdTest()
+        {
+            var (studentId, lectureId) = await CreateUserAndLecture();
+            var studentCourseClient = CreateCourseServiceClient(studentId);
+            var lectureCourseClient = CreateCourseServiceClient(lectureId);
+            var (courseId, homeworkId, taskId) = await CreateCourseHomeworkTask(lectureCourseClient, lectureId);
+            await SignStudentInCourse(studentCourseClient, lectureCourseClient, courseId, studentId);
+            var solutionClient = CreateSolutionsServiceClient();
+            var solutionViewModel = GenerateSolutionViewModel(studentId);
+            
+            var solutionId = await solutionClient.PostSolution(solutionViewModel, taskId);
+            var solutionIdGet = await solutionClient.GetSolutionById(solutionId);
+
+            solutionIdGet.Id.Should().Be(solutionId);
+        }
+        
+        [Test]
+        public async Task PostAndGetUserSolutionTest()
+        {
+            var (studentId, lectureId) = await CreateUserAndLecture();
+            var studentCourseClient = CreateCourseServiceClient(studentId);
+            var lectureCourseClient = CreateCourseServiceClient(lectureId);
+            var (courseId, homeworkId, taskId) = await CreateCourseHomeworkTask(lectureCourseClient, lectureId);
+            await SignStudentInCourse(studentCourseClient, lectureCourseClient, courseId, studentId);
+            var solutionClient = CreateSolutionsServiceClient();
+            var solutionViewModel1 = GenerateSolutionViewModel(studentId);
+            var solutionViewModel2 = GenerateSolutionViewModel(studentId);
+            
+            var solutionId1 = await solutionClient.PostSolution(solutionViewModel1, taskId);
+            var solutionId2 = await solutionClient.PostSolution(solutionViewModel2, taskId);
+            var solutionIdGet = await solutionClient.GetUserSolution(taskId, studentId);
+
+            solutionIdGet.Should().HaveCount(2);
+            solutionIdGet.Should().Contain(s => s.Id == solutionId1 || s.Id == solutionId2);
+        }
+
+        [Test]
+        public async Task PostAndGetSolutionTest()
+        {
+            var (studentId1, lectureId) = await CreateUserAndLecture();
+            var (studentId2, _) = await CreateAndRegisterUser();
+            var student1CourseClient = CreateCourseServiceClient(studentId1);
+            var student2CourseClient = CreateCourseServiceClient(studentId2);
+            var lectureCourseClient = CreateCourseServiceClient(lectureId);
+            var (courseId, homeworkId, taskId) = await CreateCourseHomeworkTask(lectureCourseClient, lectureId);
+            await SignStudentInCourse(student1CourseClient, lectureCourseClient, courseId, studentId1);
+            await SignStudentInCourse(student1CourseClient, lectureCourseClient, courseId, studentId2);
+            var solutionClient = CreateSolutionsServiceClient();
+            var solutionViewModelFromStudent1 = GenerateSolutionViewModel(studentId1);
+            var solutionViewModelFromStudent2 = GenerateSolutionViewModel(studentId2);
+            
+            var solutionIdFromStudent1 = await solutionClient.PostSolution(solutionViewModelFromStudent1, taskId);
+            var solutionIdFromStudent2 = await solutionClient.PostSolution(solutionViewModelFromStudent2, taskId);
+            var solutionIdGet = await solutionClient.GetAllSolutions();
+
+        }
+    }
+}
