@@ -22,6 +22,12 @@ namespace HwProj.PageObjects
 
             _webDriver
                 .FindElement(Element)
+                .SendKeys(Keys.LeftShift + Keys.Home);
+            
+            WaitUntil.WaitElement(_webDriver, Element, 5);
+            
+            _webDriver
+                .FindElement(Element)
                 .SendKeys(text);
         }
     }

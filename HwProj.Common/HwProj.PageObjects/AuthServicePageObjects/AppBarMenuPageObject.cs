@@ -20,7 +20,7 @@ namespace HwProj.PageObjects.AuthServicePageObjects
         public ProfilePageObject MoveToProfile()
         {
             ProfileButton.Click();
-
+            
             return new ProfilePageObject(_webDriver);
         }
 

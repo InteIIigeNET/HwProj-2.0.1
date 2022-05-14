@@ -5,49 +5,42 @@ namespace HwProj.PageObjects.AuthServicePageObjects
     public class RegisterPageObject
     {
         private readonly IWebDriver _webDriver;
-        private readonly By _nameField = By.XPath("//input[@id='register-name-input']");
-        private readonly By _surnameField = By.XPath("//input[@id='register-surname-input']");
-        private readonly By _middleNameField = By.XPath("//input[@id='register-middle-name-input']");
-        private readonly By _emailField = By.XPath("//input[@id='register-email-input']");
-        private readonly By _passwordField = By.XPath("//input[@id='register-password-input']");
-        private readonly By _confirmPasswordField = By.XPath("//input[@id='register-confirm-password-input']");
-        private readonly By _registerButton = By.XPath("//button[@id='register-button']");
+        private Input Name { get; }
+        private Input Surname { get; }
+        private Input MiddleName { get; }
+        private Input Email { get; }
+        private Input Password { get; }
+        private Input ConfirmPassword { get; }
+        private Button RegisterButton { get; }
 
         public RegisterPageObject(IWebDriver webDriver)
         {
             _webDriver = webDriver;
+            Name = new Input(webDriver, "register-name-input");
+            Surname = new Input(webDriver, "register-surname-input");
+            MiddleName = new Input(webDriver, "register-middle-name-input");
+            Email = new Input(webDriver, "register-email-input");
+            Password = new Input(webDriver, "register-password-input");
+            ConfirmPassword = new Input(webDriver, "register-confirm-password-input");
+            RegisterButton = new Button(webDriver, "register-button");
         }
 
         public MainMenuPageObject Register(string name, string surname, string email, string password,
             string confirmPassword, string middleName = "")
         {
-            _webDriver
-                .FindElement(_nameField)
-                .SendKeys(name);
-
-            _webDriver
-                .FindElement(_surnameField)
-                .SendKeys(surname);
+            Name.SendKeys(name);
             
-            _webDriver
-                .FindElement(_middleNameField)
-                .SendKeys(middleName);
+            Surname.SendKeys(surname);
 
-            _webDriver
-                .FindElement(_emailField)
-                .SendKeys(email);
+            MiddleName.SendKeys(middleName);
             
-            _webDriver
-                .FindElement(_passwordField)
-                .SendKeys(password);
+            Email.SendKeys(email);
 
-            _webDriver
-                .FindElement(_confirmPasswordField)
-                .SendKeys(confirmPassword);
+            Password.SendKeys(password);
+
+            ConfirmPassword.SendKeys(confirmPassword);
             
-            _webDriver
-                .FindElement(_registerButton)
-                .Click();
+            RegisterButton.Click();
 
             return new MainMenuPageObject(_webDriver);
         }

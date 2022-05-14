@@ -128,6 +128,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                     {props.loggedIn && !props.isLecturer && (
                         <div className={classes.tools}>
                             <IconButton
+                                id="menu-button"
                                 edge="start"
                                 color="inherit"
                                 aria-label="menu"
