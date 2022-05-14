@@ -18,5 +18,10 @@ namespace HwProj.TelegramBotService.API.Repositories
         {
             return Context.Set<UserTelegram>().Where(h => h.ChatId == chatId);
         }
+
+        public async Task<UserTelegram> GetChatIdByAccountId(string accountId)
+        {
+            return await Context.Set<UserTelegram>().FirstAsync(h => h.AccountId == accountId);
+        }
     }
 }

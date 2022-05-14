@@ -24,6 +24,7 @@
       <ProjectReference Include="..\HwProj.Common\HwProj.HttpUtils\HwProj.HttpUtils.csproj" />
       <ProjectReference Include="..\HwProj.Common\HwProj.Models\HwProj.Models.csproj" />
       <ProjectReference Include="..\HwProj.Common\HwProj.Repositories\HwProj.Repositories.csproj" />
+      <ProjectReference Include="..\HwProj.NotificationsService\HwProj.NotificationsService.Client\HwProj.NotificationsService.Client.csproj" />
       <ProjectReference Include="..\HwProj.TelegramBot\HwProj.TelegramBotService.API\HwProj.TelegramBotService.API.csproj" />
       <ProjectReference Include="..\HwProj.TelegramBot\HwProj.TelegramBotService.Client\HwProj.TelegramBotService.Client.csproj" />
     </ItemGroup>

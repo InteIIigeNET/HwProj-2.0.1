@@ -78,20 +78,18 @@ namespace HwProj.NotificationsService.API.Services
 
         public async Task SendTelegramMessageAsync(Notification notification)
         {
-            var checkUser = await _telegramBotServiceClient.CheckUser(notification.Owner);
+            var (checkUser, user) = await _telegramBotServiceClient.CheckUser(notification.Owner);
             if (checkUser)
             {
-                var user = await _telegramBotServiceClient.GetTelegramUserChatId(notification.Owner);
                 await _botClient.SendTextMessageAsync(user, notification.Body, ParseMode.Markdown);
             }
         }
 
         public async Task SendTelegramMessageWithKeyboardAsync(Notification notification, InlineKeyboardMarkup inlineKeyboard)
         {
-            var checkUser = await _telegramBotServiceClient.CheckUser(notification.Owner);
+            var (checkUser, user) = await _telegramBotServiceClient.CheckUser(notification.Owner);
             if (checkUser)
             {
-                var user = await _telegramBotServiceClient.GetTelegramUserChatId(notification.Owner);
                 await _botClient.SendTextMessageAsync(user, notification.Body, ParseMode.Markdown, replyMarkup:inlineKeyboard);
             }
         }

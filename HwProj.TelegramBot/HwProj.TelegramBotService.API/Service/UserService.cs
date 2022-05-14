@@ -123,10 +123,9 @@ namespace HwProj.TelegramBotService.API.Service
         public async Task<UserTelegram> UserByUpdate(Update update)
         {
             var user = update.Message == null
-                ? await _telegramBotRepository.FindAsync(x => x.ChatId == update.CallbackQuery.Message.Chat.Id)
-                : await _telegramBotRepository.FindAsync(x => x.ChatId == update.Message.Chat.Id);
-            var newUserModel = new UserTelegram
-            {
+                ? await _telegramBotRepository.FindAsync(cm => cm.ChatId ==update.CallbackQuery.Message.Chat.Id)
+                : await _telegramBotRepository.FindAsync(cm => cm.ChatId ==update.Message.Chat.Id);
+            var newUserModel = new UserTelegram {
                 ChatId = user.ChatId,
                 AccountId = user.AccountId,
                 IsLecture = user.IsLecture,
@@ -134,23 +133,31 @@ namespace HwProj.TelegramBotService.API.Service
                 Code = user.Code,
                 Operation = "finish",
             };
-            await _telegramBotRepository.UpdateAsync(user.Id, x => newUserModel);
+            await _telegramBotRepository.UpdateAsync(user.Id, x => new UserTelegram
+            {
+                ChatId = user.ChatId,
+                AccountId = user.AccountId,
+                IsLecture = user.IsLecture,
+                IsRegistered = user.IsRegistered,
+                Code = user.Code,
+                Operation = "finish",
+            });
             return newUserModel;
         }
           
-        public async Task<bool> CheckTelegramUserModelByStudentId(string studentId)
+        public async Task<(bool, long)> CheckTelegramUserModelByStudentId(string studentId)
         {
             var user = await _telegramBotRepository.FindAsync(cm => cm.AccountId == studentId).ConfigureAwait(false);
-            return user != null;
+            return (user != null, user?.ChatId ?? 0);
         }
 
         public async Task<long> ChatIdByStudentId(string studentId)
         {
-            var user = await _telegramBotRepository.FindAll(t => t.AccountId == studentId).Select(t => t.ChatId).ToArrayAsync();
-            return user[0];
+            var user = await _telegramBotRepository.FindAsync(cm => cm.AccountId == studentId).ConfigureAwait(false);
+            return user.ChatId;
         }
-        
-        public async Task<UserTelegram> AddTaskIdAndWaitPullRequest(Update update, long taskId)
+
+            public async Task<UserTelegram> AddTaskIdAndWaitPullRequest(Update update, long taskId)
         {
             var user = _telegramBotRepository.GetUserTelegramByChatId(update.CallbackQuery.Message.Chat.Id).ToArray()[0];
             var newUserModel = new UserTelegram

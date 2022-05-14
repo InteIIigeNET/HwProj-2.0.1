@@ -22,23 +22,14 @@ namespace HwProj.TelegramBotService.API.Controllers
         }
         
         [HttpPost]
-        public async Task<IActionResult> Update(Update update)
+        public async Task<IActionResult> Update([FromBody] Update update)
         {
             
             if (update?.Message?.Chat == null && update?.CallbackQuery == null)
             {
                 return Ok();
             }
-
-            try
-            {
-                await _commandService.Execute(update);
-            }
-            catch (Exception e)
-            {
-                return Ok();
-            }
-            
+            await _commandService.Execute(update);
             return Ok();
         }
         
@@ -46,13 +37,6 @@ namespace HwProj.TelegramBotService.API.Controllers
         public async Task<IActionResult> CheckUserTelegram(string studentId)
         {
             var response =  await _userService.CheckTelegramUserModelByStudentId(studentId);
-            return Ok(response);
-        }
-        
-        [HttpGet("get/{studentId}")]
-        public async Task<IActionResult> GetUserTelegram(string studentId)
-        {
-            var response =  await _userService.ChatIdByStudentId(studentId);
             return Ok(response);
         }
     }
