@@ -33,8 +33,8 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> AddHomework(CreateHomeworkViewModel homeworkViewModel, long courseId)
         {
-            var (result, _) = await _coursesClient.AddHomeworkToCourse(homeworkViewModel, courseId);
-            return Ok(result);
+            var result = await _coursesClient.AddHomeworkToCourse(homeworkViewModel, courseId);
+            return Ok(result.Value);
         } 
 
         [HttpDelete("delete/{homeworkId}")]
