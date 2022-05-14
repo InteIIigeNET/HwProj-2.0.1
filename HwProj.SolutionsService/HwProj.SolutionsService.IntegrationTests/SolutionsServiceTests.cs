@@ -157,7 +157,7 @@ namespace HwProj.SolutionsService.IntegrationTests
             var solutionId = await solutionClient.PostSolution(solutionViewModel, taskId);
             var solutionIdGet = await solutionClient.GetSolutionById(solutionId);
 
-            solutionIdGet.Id.Should().Be(solutionId);
+            solutionIdGet.Id.Should().Be(solutionId) ;
         }
         
         [Test]
@@ -181,7 +181,7 @@ namespace HwProj.SolutionsService.IntegrationTests
         }
 
         [Test]
-        public async Task PostAndGetSolutionTest()
+        public async Task PostAndGetAllSolutionTest()
         {
             var (studentId1, lectureId) = await CreateUserAndLecture();
             var (studentId2, _) = await CreateAndRegisterUser();
@@ -197,8 +197,47 @@ namespace HwProj.SolutionsService.IntegrationTests
             
             var solutionIdFromStudent1 = await solutionClient.PostSolution(solutionViewModelFromStudent1, taskId);
             var solutionIdFromStudent2 = await solutionClient.PostSolution(solutionViewModelFromStudent2, taskId);
-            var solutionIdGet = await solutionClient.GetAllSolutions();
+            var solutionsGet = await solutionClient.GetAllSolutions();
+            
+            solutionsGet.Should().Contain(s => s.Id == solutionIdFromStudent1 || s.Id == solutionIdFromStudent2);
+        }
+        
+        [Test]
+        public async Task RateSolutionTest()
+        {
+            var (studentId, lectureId) = await CreateUserAndLecture();
+            var studentCourseClient = CreateCourseServiceClient(studentId);
+            var lectureCourseClient = CreateCourseServiceClient(lectureId);
+            var (courseId, homeworkId, taskId) = await CreateCourseHomeworkTask(lectureCourseClient, lectureId);
+            await SignStudentInCourse(studentCourseClient, lectureCourseClient, courseId, studentId);
+            var solutionClient = CreateSolutionsServiceClient();
+            var solutionViewModelFromStudent = GenerateSolutionViewModel(studentId);
 
+            var solutionId = await solutionClient.PostSolution(solutionViewModelFromStudent, taskId);
+            await solutionClient.RateSolution(solutionId, 2, "Not Bad", lectureId);
+            var solutionsGet = await solutionClient.GetSolutionById(solutionId);
+
+            solutionsGet.LecturerComment.Should().Be("Not Bad");
+            solutionsGet.Rating.Should().Be(2);
+        }
+        
+        
+        [Test]
+        public async Task MarkSolutionTest()
+        {
+            var (studentId, lectureId) = await CreateUserAndLecture();
+            var studentCourseClient = CreateCourseServiceClient(studentId);
+            var lectureCourseClient = CreateCourseServiceClient(lectureId);
+            var (courseId, homeworkId, taskId) = await CreateCourseHomeworkTask(lectureCourseClient, lectureId);
+            await SignStudentInCourse(studentCourseClient, lectureCourseClient, courseId, studentId);
+            var solutionClient = CreateSolutionsServiceClient();
+            var solutionViewModelFromStudent = GenerateSolutionViewModel(studentId);
+
+            var solutionId = await solutionClient.PostSolution(solutionViewModelFromStudent, taskId);
+            await solutionClient.MarkSolution(solutionId);
+            var solutionsGet = await solutionClient.GetSolutionById(solutionId);
+
+            solutionsGet.State.Should().Be(SolutionState.Final);
         }
     }
 }
