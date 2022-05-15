@@ -121,7 +121,7 @@ namespace HwProj.APIGateway.API.Controllers
         public async Task<IActionResult> GetLecturersAvailableForCourse(long courseId)
         {
             var result = await _coursesClient.GetLecturersAvailableForCourse(courseId);
-            return Ok(result);
+            return Ok(result.Value);
         }
     }
 }
