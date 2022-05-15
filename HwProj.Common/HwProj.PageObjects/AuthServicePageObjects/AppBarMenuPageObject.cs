@@ -5,6 +5,7 @@ namespace HwProj.PageObjects.AuthServicePageObjects
     public class AppBarMenuPageObject
     {
         private readonly IWebDriver _webDriver;
+        private ListElement InviteLecturerButton { get; }
         private ListElement ProfileButton { get; }
         private ListElement EditProfileButton { get; }
         private ListElement SignOffButton { get; }
@@ -13,6 +14,7 @@ namespace HwProj.PageObjects.AuthServicePageObjects
         {
             _webDriver = webDriver;
             ProfileButton = new ListElement(webDriver, "profile-button");
+            InviteLecturerButton = new ListElement(webDriver, "edit-profile-button");
             EditProfileButton = new ListElement(webDriver, "edit-profile-button");
             SignOffButton = new ListElement(webDriver, "sign-off-button");
         }
@@ -22,6 +24,13 @@ namespace HwProj.PageObjects.AuthServicePageObjects
             ProfileButton.Click();
             
             return new ProfilePageObject(_webDriver);
+        }
+
+        public InviteLecturerPageObject MoveToInviteLecturer()
+        {
+            InviteLecturerButton.Click();
+
+            return new InviteLecturerPageObject(_webDriver);
         }
 
         public EditProfilePageObject MoveToEditProfile()

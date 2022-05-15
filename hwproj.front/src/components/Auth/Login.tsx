@@ -136,7 +136,7 @@ const Login: FC<LoginProps> = (props) => {
                     Войти
                 </Typography>
                 {loginState.error && (
-                    <p style={{color: "red", marginBottom: "0"}}>
+                    <p id="login-result" style={{color: "red", marginBottom: "0"}}>
                         {loginState.error}
                     </p>
                 )}

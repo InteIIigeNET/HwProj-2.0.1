@@ -111,12 +111,12 @@ const InviteLecturer: FC<InviteLecturer> = (props) => {
                         </Typography>
                         <div style={{textAlign: 'center', marginBottom: "0"}}>
                             {lecturerState.info && (
-                                <p style={{color: "green", marginBottom: "0"}}>
+                                <p id="invite-lecturer-result" style={{color: "green", marginBottom: "0"}}>
                                     {lecturerState.info}
                                 </p>
                             )}
                             {lecturerState.errors && (
-                                <p style={{color: "red", marginBottom: "0"}}>
+                                <p id="invite-lecturer-result" style={{color: "red", marginBottom: "0"}}>
                                     {lecturerState.errors}
                                 </p>
                             )}
@@ -160,6 +160,7 @@ const InviteLecturer: FC<InviteLecturer> = (props) => {
                                         renderInput={(params) => (
                                             <TextField
                                                 {...params}
+                                                id="invite-lecturer-email-input"
                                                 label="Введите email или ФИО"
                                                 InputProps={{
                                                     ...params.InputProps,
@@ -178,6 +179,7 @@ const InviteLecturer: FC<InviteLecturer> = (props) => {
                                 >
                                     <Grid item>
                                         <Button
+                                            id="close-invite-lecturer-form-button"
                                             onClick={close}
                                             color="primary"
                                             variant="contained"
@@ -188,6 +190,7 @@ const InviteLecturer: FC<InviteLecturer> = (props) => {
                                     </Grid>
                                     <Grid item>
                                         <Button
+                                            id="invite-lecturer-button"
                                             variant="contained"
                                             color="primary"
                                             type="submit"

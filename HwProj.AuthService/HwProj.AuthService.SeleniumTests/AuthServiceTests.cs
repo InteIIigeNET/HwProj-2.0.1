@@ -25,6 +25,27 @@ namespace HwProj.AuthService.SeleniumTests
         }
 
         [Test]
+        public void RegisterTest()
+        {
+            var mainMenu = new MainMenuPageObject(_webDriver);
+            var name = new Fixture().Create<string>().Substring(0,6);;
+            var surname = new Fixture().Create<string>().Substring(0,6);;
+            var middleName = new Fixture().Create<string>().Substring(0,6);;
+            var email = new Fixture().Create<MailAddress>().Address;
+            var password = new Fixture().Create<string>().Substring(0,6);;
+
+            mainMenu
+                .MoveToRegister()
+                .Register(name, surname, email, password, password, middleName);
+
+            WaitUntil.WaitLocation(_webDriver, _url, 5);
+
+            var currentUrl = _webDriver.Url;
+            Console.WriteLine(currentUrl + " no way");
+            currentUrl.Should().Contain(_url);
+        }
+        
+        [Test]
         public void LoginTest()
         {
             var mainMenu = new MainMenuPageObject(_webDriver);
@@ -38,28 +59,47 @@ namespace HwProj.AuthService.SeleniumTests
             var currentUrl = _webDriver.Url;
             currentUrl.Should().Be(_url);
         }
-
+        
         [Test]
-        public void RegisterTest()
+        public void TryLoginUnregisteredUserTest()
         {
             var mainMenu = new MainMenuPageObject(_webDriver);
-            var name = new Fixture().Create<string>();
-            var surname = new Fixture().Create<string>();
-            var middleName = new Fixture().Create<string>();
             var email = new Fixture().Create<MailAddress>().Address;
-            var password = new Fixture().Create<string>();
-
+            var password = new Fixture().Create<string>().Substring(0,6);
+            
             mainMenu
-                .MoveToRegister()
-                .Register(name, surname, email, password, password, middleName);
+                .MoveToLogin()
+                .Login(email, password);
 
-            WaitUntil.WaitLocation(_webDriver, _url, 5);
-
-            var currentUrl = _webDriver.Url;
-            Console.WriteLine(currentUrl + " no way");
-            currentUrl.Should().Contain(_url);
+            var result = new LoginPageObject(_webDriver).GetResult();
+            
+            result.Should().Be("Пользователь не найден");
         }
 
+        [Test]
+        public void TryLoginWithIncorrectPasswordTest()
+        {
+            var mainMenu = new MainMenuPageObject(_webDriver);
+            var name = new Fixture().Create<string>().Substring(0,6);;
+            var surname = new Fixture().Create<string>().Substring(0,6);;
+            var middleName = new Fixture().Create<string>().Substring(0,6);;
+            var email = new Fixture().Create<MailAddress>().Address;
+            var password = new Fixture().Create<string>().Substring(0,6);;
+            var incorrectPassword = new Fixture().Create<string>().Substring(0,6);
+            
+            mainMenu
+                .MoveToRegister()
+                .Register(name, surname, email, password, password, middleName)
+                .MoveToMenu()
+                .SignOff()
+                .MoveToLogin()
+                .Login(email, incorrectPassword);
+
+            var result = new LoginPageObject(_webDriver).GetResult();
+            
+            result.Should().Be("Неправильный логин или пароль");
+        }
+        
         [Test]
         public void EditAccountDataTest()
         {
@@ -88,6 +128,36 @@ namespace HwProj.AuthService.SeleniumTests
             profileData[0].Should().Be(newName);
             profileData[1].Should().Be(newMiddleName);
             profileData[2].Should().Be(newSurname);
+        }
+        
+        [Test]
+        public void EditPasswordTest()
+        {
+            var mainMenu = new MainMenuPageObject(_webDriver);
+            var name = new Fixture().Create<string>().Substring(0,6);
+            var surname = new Fixture().Create<string>().Substring(0,6);
+            var middleName = new Fixture().Create<string>().Substring(0,6);
+            var email = new Fixture().Create<MailAddress>().Address;
+            var password = new Fixture().Create<string>().Substring(0,6);
+
+            var newPassword = new Fixture().Create<string>().Substring(0,6);
+
+            mainMenu
+                .MoveToRegister()
+                .Register(name, surname, email, password, password, middleName)
+                .MoveToMenu()
+                .MoveToEditProfile()
+                .EditProfile(name, surname, password, middleName, newPassword)
+                .MoveToMenu()
+                .SignOff()
+                .MoveToLogin()
+                .Login(email, newPassword);
+            
+            WaitUntil.WaitLocation(_webDriver, _url, 5);
+
+            var currentUrl = _webDriver.Url;
+            Console.WriteLine(currentUrl + " no way");
+            currentUrl.Should().Contain(_url);
         }
 
         [Test]
