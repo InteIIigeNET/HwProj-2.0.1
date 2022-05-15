@@ -239,5 +239,25 @@ namespace HwProj.SolutionsService.IntegrationTests
 
             solutionsGet.State.Should().Be(SolutionState.Final);
         }
+        
+        [Test]
+        public async Task DeleteSolutionTest()
+        {
+            var (studentId, lectureId) = await CreateUserAndLecture();
+            var studentCourseClient = CreateCourseServiceClient(studentId);
+            var lectureCourseClient = CreateCourseServiceClient(lectureId);
+            var (courseId, homeworkId, taskId) = await CreateCourseHomeworkTask(lectureCourseClient, lectureId);
+            await SignStudentInCourse(studentCourseClient, lectureCourseClient, courseId, studentId);
+            var solutionClient = CreateSolutionsServiceClient();
+            var solutionViewModel = GenerateSolutionViewModel(studentId);
+            
+            var solutionId = await solutionClient.PostSolution(solutionViewModel, taskId);
+            var solutionIdBefore = await solutionClient.GetSolutionById(solutionId);
+            await solutionClient.DeleteSolution(solutionId);
+            var solutionIdAfter = await solutionClient.GetUserSolution(taskId, studentId);
+
+            solutionIdBefore.Id.Should().Be(solutionId);
+            solutionIdAfter.Should().NotContain(s => s.Id == solutionIdBefore.Id);
+        }
     }
 }
