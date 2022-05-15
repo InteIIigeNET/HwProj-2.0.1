@@ -15,7 +15,7 @@ namespace HwProj.AuthService.SeleniumTests
     public class Tests
     {
         private IWebDriver _webDriver;
-        private readonly string _url = "http://localhost:3000";
+        private readonly string _url = "http://localhost:3000/";
 
         [SetUp]
         public void Setup()
@@ -39,10 +39,9 @@ namespace HwProj.AuthService.SeleniumTests
                 .Register(name, surname, email, password, password, middleName);
 
             WaitUntil.WaitLocation(_webDriver, _url, 5);
-
+            
             var currentUrl = _webDriver.Url;
-            Console.WriteLine(currentUrl + " no way");
-            currentUrl.Should().Contain(_url);
+            currentUrl.Should().Be(_url);
         }
 
         [Test]
@@ -109,8 +108,7 @@ namespace HwProj.AuthService.SeleniumTests
             WaitUntil.WaitLocation(_webDriver, _url, 5);
 
             var currentUrl = _webDriver.Url;
-            //currentUrl.Should().Be(_url);
-            currentUrl.Should().Contain(_url);
+            currentUrl.Should().Be(_url);
         }
 
         [Test]
@@ -210,7 +208,7 @@ namespace HwProj.AuthService.SeleniumTests
 
             var currentUrl = _webDriver.Url;
 
-            currentUrl.Should().Contain(_url);
+            currentUrl.Should().Be(_url);
         }
 
         [Test]

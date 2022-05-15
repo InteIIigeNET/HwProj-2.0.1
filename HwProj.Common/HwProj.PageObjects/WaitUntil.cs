@@ -9,7 +9,7 @@ namespace HwProj.PageObjects
         public static void WaitLocation(IWebDriver driver, string location, int time)
         {
             new WebDriverWait(driver, TimeSpan.FromSeconds(time))
-                .Until(ExpectedConditions.UrlMatches(location));
+                .Until(ExpectedConditions.UrlToBe(location));
         }
 
         public static void WaitElement(IWebDriver driver, By element, int time)
