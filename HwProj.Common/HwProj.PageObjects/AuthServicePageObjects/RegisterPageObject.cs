@@ -12,6 +12,7 @@ namespace HwProj.PageObjects.AuthServicePageObjects
         private Input Password { get; }
         private Input ConfirmPassword { get; }
         private Button RegisterButton { get; }
+        private Text Result { get; }
 
         public RegisterPageObject(IWebDriver webDriver)
         {
@@ -23,6 +24,7 @@ namespace HwProj.PageObjects.AuthServicePageObjects
             Password = new Input(webDriver, "register-password-input");
             ConfirmPassword = new Input(webDriver, "register-confirm-password-input");
             RegisterButton = new Button(webDriver, "register-button");
+            Result = new Text(webDriver, "register-result");
         }
 
         public MainMenuPageObject Register(string name, string surname, string email, string password,
@@ -43,6 +45,11 @@ namespace HwProj.PageObjects.AuthServicePageObjects
             RegisterButton.Click();
 
             return new MainMenuPageObject(_webDriver);
+        }
+        
+        public string GetResult()
+        {
+            return Result.GetText();
         }
     }
 }

@@ -96,7 +96,7 @@ const Register: FC<LoginProps> = (props) => {
                     Регистрация
                 </Typography>
                 {commonState.error.length > 0 && (
-                    <p style={{ color: "red", marginBottom: "0" }}>{commonState.error}</p>
+                    <p id="register-result" style={{ color: "red", marginBottom: "0" }}>{commonState.error}</p>
                 )}
                 <form onSubmit={handleSubmit} className={classes.form}>
                     <Grid container spacing={2}>

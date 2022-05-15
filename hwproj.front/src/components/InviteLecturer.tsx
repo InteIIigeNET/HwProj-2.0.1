@@ -111,12 +111,12 @@ const InviteLecturer: FC<InviteLecturer> = (props) => {
                         </Typography>
                         <div style={{textAlign: 'center', marginBottom: "0"}}>
                             {lecturerState.info && (
-                                <p id="invite-lecturer-result" style={{color: "green", marginBottom: "0"}}>
+                                <p id="invite-lecturer-success" style={{color: "green", marginBottom: "0"}}>
                                     {lecturerState.info}
                                 </p>
                             )}
                             {lecturerState.errors && (
-                                <p id="invite-lecturer-result" style={{color: "red", marginBottom: "0"}}>
+                                <p id="invite-lecturer-error" style={{color: "red", marginBottom: "0"}}>
                                     {lecturerState.errors}
                                 </p>
                             )}
@@ -125,6 +125,7 @@ const InviteLecturer: FC<InviteLecturer> = (props) => {
                             <Grid container justifyContent="flex-end">
                                 <Grid item xs={12}>
                                     <Autocomplete
+                                        id="invite-lecturer-email-input"
                                         onChange={(e, values) => {
                                             e.persist()
                                             setLecturerState((prevState) => ({
@@ -160,7 +161,6 @@ const InviteLecturer: FC<InviteLecturer> = (props) => {
                                         renderInput={(params) => (
                                             <TextField
                                                 {...params}
-                                                id="invite-lecturer-email-input"
                                                 label="Введите email или ФИО"
                                                 InputProps={{
                                                     ...params.InputProps,

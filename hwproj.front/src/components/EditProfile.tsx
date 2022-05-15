@@ -146,7 +146,7 @@ const EditProfile: FC = () => {
                                 Редактировать профиль
                             </Typography>
                             {profile.errors && (
-                                <p style={{color: "red", marginBottom: "0"}}>{profile.errors}</p>
+                                <p id="edit-result" style={{color: "red", marginBottom: "0"}}>{profile.errors}</p>
                             )}
                             <form
                                 onSubmit={(e) => handleSubmit(e)}

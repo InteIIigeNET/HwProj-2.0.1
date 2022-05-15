@@ -14,7 +14,7 @@ namespace HwProj.PageObjects.AuthServicePageObjects
         {
             _webDriver = webDriver;
             ProfileButton = new ListElement(webDriver, "profile-button");
-            InviteLecturerButton = new ListElement(webDriver, "edit-profile-button");
+            InviteLecturerButton = new ListElement(webDriver, "invite-lecturer-button");
             EditProfileButton = new ListElement(webDriver, "edit-profile-button");
             SignOffButton = new ListElement(webDriver, "sign-off-button");
         }

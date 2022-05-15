@@ -11,6 +11,7 @@ namespace HwProj.PageObjects.AuthServicePageObjects
         private Input Password { get; }
         private Input NewPassword { get; }
         private Button EditButton { get; }
+        private Text Result { get; }
 
         public EditProfilePageObject(IWebDriver webDriver)
         {
@@ -21,6 +22,7 @@ namespace HwProj.PageObjects.AuthServicePageObjects
             Password = new Input(webDriver, "edit-password-input");
             NewPassword = new Input(webDriver, "edit-new-password-input");
             EditButton = new Button(webDriver, "complete-edit-profile-button");
+            Result = new Text(webDriver, "edit-result");
         }
 
         public MainMenuPageObject EditProfile(string name, string surname, string password, string middleName = "",
@@ -39,6 +41,11 @@ namespace HwProj.PageObjects.AuthServicePageObjects
             EditButton.Click();
 
             return new MainMenuPageObject(_webDriver);
+        }
+
+        public string GetResult()
+        {
+            return Result.GetText();
         }
     }
 }

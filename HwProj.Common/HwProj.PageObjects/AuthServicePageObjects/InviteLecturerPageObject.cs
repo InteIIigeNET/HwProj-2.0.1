@@ -8,7 +8,8 @@ namespace HwProj.PageObjects.AuthServicePageObjects
         private Input Email { get; }
         private Button InviteButton { get; }
         private Button CloseButton { get; }
-        private Text Result { get; }
+        private Text Success { get; }
+        private Text Error { get; }
 
         public InviteLecturerPageObject(IWebDriver webDriver)
         {
@@ -16,14 +17,14 @@ namespace HwProj.PageObjects.AuthServicePageObjects
             Email = new Input(webDriver, "invite-lecturer-email-input");
             InviteButton = new Button(webDriver, "invite-lecturer-button");
             CloseButton = new Button(webDriver, "close-invite-lecturer-form-button");
-            Result = new Text(webDriver, "invite-lecturer-result");
+            Success = new Text(webDriver, "invite-lecturer-success");
+            Error = new Text(webDriver, "invite-lecturer-error");
         }
-
 
         public InviteLecturerPageObject InviteLecturer(string email)
         {
-            Email.SendKeys(email);
-
+            Email.Enter(email);
+            
             InviteButton.Click();
 
             return new InviteLecturerPageObject(_webDriver);
@@ -36,9 +37,14 @@ namespace HwProj.PageObjects.AuthServicePageObjects
             return new MainMenuPageObject(_webDriver);
         }
 
-        public string GetResult()
+        public string GetSuccess()
         {
-            return Result.GetText();
+            return Success.GetText();
+        }
+        
+        public string GetError()
+        {
+            return Error.GetText();
         }
     }
 }
