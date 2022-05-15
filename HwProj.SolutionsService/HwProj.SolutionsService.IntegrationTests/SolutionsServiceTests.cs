@@ -15,6 +15,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 using FluentAssertions;
+using HwProj.Exceptions;
 
 namespace HwProj.SolutionsService.IntegrationTests
 {
@@ -275,6 +276,30 @@ namespace HwProj.SolutionsService.IntegrationTests
 
             solutionIdBefore.Id.Should().Be(solutionId);
             solutionIdAfter.Should().NotContain(s => s.Id == solutionIdBefore.Id);
+        }
+
+        [Test]
+        public async Task GetCourseStatisticsTest()
+        {
+            var (studentId, lectureId) = await CreateUserAndLecture();
+            var studentCourseClient = CreateCourseServiceClient(studentId);
+            var lectureCourseClient = CreateCourseServiceClient(lectureId);
+            var (courseId, homeworkId, taskId) = await CreateCourseHomeworkTask(lectureCourseClient, lectureId);
+            await SignStudentInCourse(studentCourseClient, lectureCourseClient, courseId, studentId);
+            var solutionClient = CreateSolutionsServiceClient();
+            var solutionViewModel = GenerateSolutionViewModel(studentId);
+            
+            var solutionId = await solutionClient.PostSolution(solutionViewModel, taskId);
+            await solutionClient.RateSolution(solutionId, 2, "Not Bad", lectureId);
+            var statisticsFromStudent = await solutionClient.GetCourseStatistics(courseId, studentId);
+            var statisticsFromLecture = await solutionClient.GetCourseStatistics(courseId, lectureId);
+            
+            statisticsFromStudent.Should().BeNull();
+            statisticsFromLecture.Should().HaveCount(1);
+            statisticsFromLecture[0].Homeworks.Should().HaveCount(1);
+            statisticsFromLecture[0].Homeworks[0].Tasks.Should().HaveCount(1);
+            statisticsFromLecture[0].Homeworks[0].Tasks[0].Solution.Should().HaveCount(1);
+            statisticsFromLecture[0].Homeworks[0].Tasks[0].Solution[0].Rating.Should().Be(2);
         }
 
         /*[Test]
