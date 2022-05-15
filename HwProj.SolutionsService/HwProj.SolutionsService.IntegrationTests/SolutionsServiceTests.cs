@@ -15,7 +15,6 @@ using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 using FluentAssertions;
-using HwProj.Exceptions;
 
 namespace HwProj.SolutionsService.IntegrationTests
 {
