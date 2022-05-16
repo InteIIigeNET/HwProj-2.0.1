@@ -205,7 +205,9 @@ namespace HwProj.AuthService.IntegrationTests
             resultData.Value.AccessToken.Should().NotBeNullOrEmpty();
 
             var claims = ValidateToken(resultData);
+            var userId = await _authServiceClient.FindByEmailAsync(userData.Email);
 
+            claims[1].Value.Should().Be(userId);
             claims[2].Value.Should().Be(userData.Email);
             claims[3].Value.Should().Be(Roles.StudentRole);
         }
@@ -320,13 +322,16 @@ namespace HwProj.AuthService.IntegrationTests
         public async Task EditAccountDataForUserWithWrongCurrentPasswordTest()
         {
             var userData = GenerateRegisterViewModel();
+            await _authServiceClient.Register(userData);
             var editData = GenerateEditAccountViewModel(userData);
             editData.CurrentPassword = new Fixture().Create<string>();
             var userId = await _authServiceClient.FindByEmailAsync(userData.Email);
 
             var result = await _authServiceClient.Edit(editData, userId);
 
-            result.Should().BeNull();
+            result.Succeeded.Should().BeFalse();
+            result.Errors.Should()
+                .BeEquivalentTo("Неправильный логин или пароль");
         }
 
         [Test]
@@ -375,7 +380,8 @@ namespace HwProj.AuthService.IntegrationTests
             var result = await _authServiceClient.InviteNewLecturer(inviteLecturerData);
 
             result.Succeeded.Should().BeFalse();
-            result.Errors.Should().BeNullOrEmpty();
+            result.Errors.Should()
+                .BeEquivalentTo("Пользователь уже является преподавателем");
         }
 
         [Test]
