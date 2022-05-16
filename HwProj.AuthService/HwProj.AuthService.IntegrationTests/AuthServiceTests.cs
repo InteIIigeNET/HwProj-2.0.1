@@ -203,7 +203,7 @@ namespace HwProj.AuthService.IntegrationTests
             resultData.Succeeded.Should().BeTrue();
             resultData.Errors.Should().BeNullOrEmpty();
             resultData.Value.AccessToken.Should().NotBeNullOrEmpty();
-            
+
             var claims = ValidateToken(resultData);
             var userId = await _authServiceClient.FindByEmailAsync(userData.Email);
 
