@@ -10,5 +10,7 @@ namespace HwProj.NotificationsService.API.Repositories
     {
         Task UpdateBatchAsync(string userId, long[] ids, Expression<Func<Notification, Notification>> updateFactory);
         Task<Notification[]> GetAllByUserAsync(string userId, NotificationFilter filter = null);
+        Task MarkAsSeenAsync(string userId, long[] notificationIds);
+        Task<long> AddNotificationAsync(Notification notification);
     }
 }

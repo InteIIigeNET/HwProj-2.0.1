@@ -11,10 +11,10 @@ namespace HwProj.NotificationsService.API.Controllers
     [ApiController]
     public class NotificationsController : ControllerBase
     {
-        private readonly INotificationsService _notificationsService;
+        private readonly NotificationsDomain _notificationsService;
         private readonly INotificationsRepository _repository;
 
-        public NotificationsController(INotificationsService notificationsService, INotificationsRepository repository)
+        public NotificationsController(NotificationsDomain notificationsService, INotificationsRepository repository)
         {
             _notificationsService = notificationsService;
             _repository = repository;
@@ -25,14 +25,14 @@ namespace HwProj.NotificationsService.API.Controllers
         public async Task<IActionResult> Get(string userId)
         {
             var notifications = await _repository.GetAllByUserAsync(userId);
-            var groupedNotifications = _notificationsService.GroupAsync(notifications);
-            return Ok(groupedNotifications ?? new CategorizedNotifications[] { });
+            var groupedNotifications = _notificationsService.Group(notifications);
+            return Ok(groupedNotifications);
         }
 
         [HttpPut("markAsSeen/{userId}")]
         public async Task<IActionResult> MarkNotifications([FromBody] long[] notificationIds, string userId)
         {
-            await _notificationsService.MarkAsSeenAsync(userId, notificationIds);
+            await _repository.MarkAsSeenAsync(userId, notificationIds);
             return Ok();
         }
     }

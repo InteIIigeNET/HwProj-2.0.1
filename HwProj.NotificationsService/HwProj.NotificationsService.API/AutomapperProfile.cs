@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using AutoMapper;
+﻿using AutoMapper;
 using HwProj.Models.NotificationsService;
 
 namespace HwProj.NotificationsService.API

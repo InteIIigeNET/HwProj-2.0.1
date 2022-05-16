@@ -8,13 +8,13 @@ using MimeKit;
 
 namespace HwProj.NotificationsService.API.Services
 {
-    public class NotificationsDomain : INotificationsService
+    public class NotificationsDomain
     {
-        private readonly INotificationsRepository _repository;
         private readonly IMapper _mapper;
         private readonly IConfigurationSection _configuration;
         private readonly MailKit.Net.Smtp.SmtpClient _client;
 
+        public NotificationsDomain(IMapper mapper) => _mapper = mapper;
         public NotificationsDomain(INotificationsRepository repository, IMapper mapper, IConfiguration configuration)
         {
             _repository = repository;
@@ -24,31 +24,18 @@ namespace HwProj.NotificationsService.API.Services
             
         }
 
-        public async Task<long> AddNotificationAsync(Notification notification)
-        {
-            var id = await _repository.AddAsync(notification);
-            return id;
-        }
-
-        public CategorizedNotifications[] GroupAsync(Notification[] notifications)
+        public CategorizedNotifications[] Group(Notification[] notifications)
         {
             var groupedNotifications = notifications.GroupBy(t => t.Category).Select(
                 category => (category.Key,
                     category.Where(t => t.HasSeen).ToArray(),
                     category.Where(t => !t.HasSeen).ToArray()));
 
-            //return groupedNotifications.Select(element => _mapper.Map<CategorizedNotifications>(element)).ToArray();
             return groupedNotifications.Select(element =>
-                    new CategorizedNotifications(element.Key,
-                        _mapper.Map<NotificationViewModel[]>(element.Item2),
-                        _mapper.Map<NotificationViewModel[]>(element.Item3))
-                ).ToArray();
-        }
-
-        public async Task MarkAsSeenAsync(string userId, long[] notificationIds)
-        {
-            await _repository.UpdateBatchAsync(userId, notificationIds,
-                t => new Notification {HasSeen = true});
+                new CategorizedNotifications(element.Key,
+                    _mapper.Map<NotificationViewModel[]>(element.Item2),
+                    _mapper.Map<NotificationViewModel[]>(element.Item3))
+            ).ToArray();
         }
         
         public async Task SendEmailAsync(Notification notification, string email, string topic)
