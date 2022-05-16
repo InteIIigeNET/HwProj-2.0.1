@@ -190,7 +190,7 @@ namespace HwProj.AuthService.API.Services
                 return Result.Success();
             }
 
-            return Result.Failed();
+            return Result.Failed("Пользователь уже является преподавателем");
         }
 
         public async Task<IList<User>> GetUsersInRole(string role)
