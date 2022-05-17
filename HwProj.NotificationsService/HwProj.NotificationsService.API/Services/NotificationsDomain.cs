@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
@@ -8,7 +7,7 @@ using MimeKit;
 
 namespace HwProj.NotificationsService.API.Services
 {
-    public class NotificationsDomain
+    public record NotificationsDomain
     {
         private readonly IMapper _mapper;
         private readonly IConfigurationSection _configuration;

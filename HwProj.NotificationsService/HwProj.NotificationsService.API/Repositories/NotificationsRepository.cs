@@ -33,53 +33,11 @@ namespace HwProj.NotificationsService.API.Repositories
                 .Where(t => t.Owner == userId && ids.Contains(t.Id))
                 .UpdateAsync(updateFactory);
 
-        public async Task<Notification[]> GetAllByUserAsync(string userId, NotificationFilter filter = null)
+        public async Task<Notification[]> GetAllByUserAsync(string userId)
         {
             var result = Context.Set<Notification>().Where(t => t.Owner == userId);
 
-            if (filter == null)
-            {
-                return await result.OrderByDescending(t => t.Date).ToArrayAsync();
-            }
-
-            if (filter.Category != CategoryState.None)
-            {
-                result = result.Where(t => t.Category == filter.Category);
-            }
-
-            if (filter.HasSeen != null)
-            {
-                result = result.Where(t => t.HasSeen == filter.HasSeen);
-            }
-
-            if (!string.IsNullOrWhiteSpace(filter.Sender))
-            {
-                result = result.Where(t => t.Sender == filter.Sender);
-            }
-
-            if (filter.LastNotificationsId != null)
-            {
-                result = result.Where(t => t.Id <= filter.LastNotificationsId);
-            }
-
-            if (filter.LastDate != null)
-            {
-                result = result.Where(t => t.Date <= filter.LastDate);
-            }
-
-            result = result.OrderByDescending(t => t.Date);
-
-            if (filter.Offset != null)
-            {
-                result = result.Skip(filter.Offset.Value);
-            }
-
-            if (filter.MaxCount != null)
-            {
-                result = result.Take(filter.MaxCount.Value);
-            }
-
-            return await result.ToArrayAsync();
+            return await result.OrderByDescending(t => t.Date).ToArrayAsync();
         }
     }
 }
