@@ -23,7 +23,7 @@ const dateTimeOptions = {year: '2-digit', month: 'numeric', day: 'numeric', hour
 function getAll(data: CategorizedNotifications[]) {
     let list: NotificationViewModel[] = [];
     data.forEach(function (item) {
-            if (item != null && item.seenNotifications != undefined)
+            if (item && item.seenNotifications)
                 list = list.concat(item.seenNotifications);
             if (item != null && item.notSeenNotifications != undefined)
                 list = list.concat(item.notSeenNotifications);
