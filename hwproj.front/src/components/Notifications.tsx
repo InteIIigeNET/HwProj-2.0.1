@@ -25,7 +25,7 @@ function getAll(data: CategorizedNotifications[]) {
     data.forEach(function (item) {
             if (item && item.seenNotifications)
                 list = list.concat(item.seenNotifications);
-            if (item != null && item.notSeenNotifications != undefined)
+            if (item && item.notSeenNotifications)
                 list = list.concat(item.notSeenNotifications);
         }
     );
