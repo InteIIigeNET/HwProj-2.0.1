@@ -12,11 +12,10 @@ import {
     Typography, Divider
 } from "@material-ui/core";
 import ApiSingleton from "api/ApiSingleton";
-import {AccountDataDto, CategorizedNotifications, NotificationViewModel} from "../api/";
+import {CategorizedNotifications, NotificationViewModel} from "../api/";
 import "./Styles/Profile.css";
 import parse from 'html-react-parser';
 import {Redirect} from "react-router-dom";
-import {makeStyles} from "@material-ui/styles";
 
 let CategoryEnum = CategorizedNotifications.CategoryEnum;
 const dateTimeOptions = {year: '2-digit', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'};
@@ -49,25 +48,10 @@ interface IFilterState {
     isCheckAll: boolean;
 }
 
-const useStyles = makeStyles(theme => ({
-    info: {
-        display: "flex",
-        justifyContent: "space-between",
-    },
-}))
-
 const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
     const [profileState, setProfileState] = useState<IProfileState>({
         isLoaded: false,
         notifications: []
-    })
-
-    const [accountState, setAccountState] = useState<AccountDataDto>({
-        name: "",
-        surname: "",
-        middleName: "",
-        email: "",
-        role: ""
     })
 
     const [filterState, setFilterState] = useState<IFilterState>({
@@ -86,15 +70,6 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
     }, [])
 
     const getUserInfo = async () => {
-        if (props.match.params.id) {
-            const data = await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(props.match.params.id)
-            setProfileState((prevState) => ({
-                ...prevState,
-                isLoaded: true
-            }))
-            setAccountState(data)
-            return
-        }
         const data = await ApiSingleton.accountApi.apiAccountGetUserDataGet()
         setProfileState((prevState) => ({
             ...prevState,
@@ -105,7 +80,6 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
             ...prevState,
             filteredNotifications: getAll(data.notifications!)?.filter(notification => !notification.hasSeen)!
         }))
-        setAccountState(data.userData!)
     }
 
     const markAsSeenNotification = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -188,7 +162,7 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
 
     let isAllChecked = () => {
         let result = true;
-        filterState.categoryFlag.forEach((value, key) => result = result && value);
+        filterState.categoryFlag.forEach((value) => result = result && value);
         return result;
     }
 
@@ -215,7 +189,7 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
 
     if (profileState.isLoaded) {
         return <div style={{marginBottom: '50px'}}>
-            <Grid container spacing={3} direction={"row"} alignItems={"flex-start"} style={{margin: "30px"}}>
+            <Grid container lg={11} spacing={5} direction={"row"} style={{margin: "2%", marginRight: "15px"}}>
                 <Grid item>
                     <Card style={{backgroundColor: "#f7fafc"}}>
                         <CardContent>

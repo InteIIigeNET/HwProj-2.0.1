@@ -58,7 +58,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
 
     return (
         <div>
-            <AppBar style={{position: "static", width: "100vw"}}>
+            <AppBar style={{position: "static", width: "100vw", maxWidth: "100%"}}>
                 <Toolbar>
                     <Typography>
                         <Link
