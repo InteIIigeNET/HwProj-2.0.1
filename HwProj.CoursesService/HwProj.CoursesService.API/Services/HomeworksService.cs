@@ -33,7 +33,7 @@ namespace HwProj.CoursesService.API.Services
             _eventBus.Publish(new NewHomeworkEvent(homework.Title, courseModel));
 
             return await _homeworksRepository.AddAsync(homework);
-        }                   
+        }
 
         public async Task<Homework> GetHomeworkAsync(long homeworkId)
         {
