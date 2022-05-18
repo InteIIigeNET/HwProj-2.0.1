@@ -48,7 +48,7 @@ interface IFilterState {
     showAll: boolean;
 }
 
-const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
+const Notifications: FC<RouteComponentProps<IProfileProps>> = () => {
     const [profileState, setProfileState] = useState<IProfileState>({
         isLoaded: false,
         notifications: []
@@ -259,4 +259,4 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
     )
 }
 
-export default Profile
+export default Notifications

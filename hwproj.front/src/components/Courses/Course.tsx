@@ -7,11 +7,10 @@ import AddHomework from "../Homeworks/AddHomework";
 import CourseStudents from "./CourseStudents";
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
-import {Button, Grid, ListItem, Typography, Link} from "@material-ui/core";
+import {Button, Grid, Typography} from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
 import {useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
-import List from "@material-ui/core/List";
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import Lecturers from "./Lecturers";
@@ -39,7 +38,7 @@ interface ICourseProps {
     id: string;
 }
 
-const styles = makeStyles(theme => ({
+const styles = makeStyles(() => ({
     info: {
         display: "flex",
         justifyContent: "space-between",
@@ -103,7 +102,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
     const joinCourse = async () => {
         await ApiSingleton.coursesApi
             .apiCoursesSignInCourseByCourseIdPost(+courseId)
-            .then((res) => setCurrentState());
+            .then(() => setCurrentState());
     }
 
     const {isFound, course, createHomework, mentors, newStudents, acceptedStudents, isReadingMode} = courseState;

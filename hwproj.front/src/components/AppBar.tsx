@@ -96,6 +96,9 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                                     <MenuItem onClick={() => window.location.assign("/create_course")}>
                                         Создать курс
                                     </MenuItem>
+                                    <MenuItem onClick={() => window.location.assign("/profile")}>
+                                        Профиль
+                                    </MenuItem>
                                     <MenuItem onClick={() => window.location.assign("/notifications")}>
                                         Уведомления
                                     </MenuItem>
@@ -125,6 +128,9 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                                 open={Boolean(anchorEl)}
                                 onClose={handleClose}
                             >
+                                <MenuItem onClick={() => window.location.assign("/profile")}>
+                                    Профиль
+                                </MenuItem>
                                 <MenuItem onClick={() => window.location.assign("/notifications")}>
                                     Уведомления
                                 </MenuItem>
