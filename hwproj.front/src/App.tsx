@@ -60,7 +60,6 @@ class App extends Component<AppProps, AppState> {
                 <Route exact path="/user/edit" component={EditProfile}/>
                 <Route exact path="/" component={Courses}/>
                 <Route exact path="/notifications" component={Notifications}/>
-                <Route exact path="/notifications/:id" component={Notifications}/>
                 <Route exact path="/create_course" component={CreateCourse}/>
                 <Route exact path="/courses/:id" component={Course}/>
                 <Route exact path="/courses/:courseId/edit" component={EditCourse}/>

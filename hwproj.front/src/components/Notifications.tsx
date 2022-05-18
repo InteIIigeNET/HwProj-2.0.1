@@ -45,7 +45,7 @@ interface IFilterState {
     categoryFlag: Map<CategorizedNotifications.CategoryEnum, boolean>;
     filteredNotifications: NotificationViewModel[];
     showOnlyUnread: boolean;
-    isCheckAll: boolean;
+    showAll: boolean;
 }
 
 const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
@@ -62,7 +62,7 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
         ]),
         filteredNotifications: [],
         showOnlyUnread: true,
-        isCheckAll: true
+        showAll: true
     });
 
     useEffect(() => {
@@ -173,7 +173,7 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
         setFilterState((prevState) => ({
             ...prevState,
             filteredNotifications: getNotifications(),
-            isCheckAll: isAllChecked()
+            showAll: isAllChecked()
         }));
     };
 
@@ -183,7 +183,7 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
         setFilterState((prevState) => ({
             ...prevState,
             filteredNotifications: getNotifications(),
-            isCheckAll: !prevState.isCheckAll
+            showAll: !prevState.showAll
         }));
     };
 
@@ -205,9 +205,9 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
                                 <FormGroup>
                                     <FormControlLabel control={
                                         <Checkbox
-                                            checked={filterState.isCheckAll}
+                                            checked={filterState.showAll}
                                             onChange={changeCheckAll}
-                                            value={filterState.isCheckAll}
+                                            value={filterState.showAll}
                                             inputProps={{'aria-label': 'controlled'}}
                                         />
                                     } label="Показать все"
@@ -244,15 +244,16 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
                         </CardContent>
                     </Card>
                 </Grid>
-                <Grid item>
-                    {renderNotifications(filterState.filteredNotifications)}
+                <Grid item style={{minWidth: "60%"}}>
+                    {renderNotifications(filterState.filteredNotifications
+                        .sort((first, second) => first.date! <= second.date! ? 1 : -1))}
                 </Grid>
             </Grid>
         </div>
     }
     return (
         <Box sx={{minWidth: 150}}>
-            <p>Loading...</p>
+            <p>Загрузка...</p>
             <CircularProgress/>
         </Box>
     )
