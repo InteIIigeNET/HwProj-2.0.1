@@ -314,6 +314,56 @@ namespace CourseService.IntegrationTests
                 .Which.Tasks.Should().NotContain(t => t.Id == taskId);
             homework.Tasks.Should().NotContain(t => t.Id == taskId);
         }
+    
+        [Test]
+        public async Task TestAcceptLecture()
+        {   
+            // Arrange
+            var (lectureId, _) = await CreateAndRegisterLecture();
+            var (anotherLectureId, anotherLectureMail) = await CreateAndRegisterLecture();
+            var lectureClient = CreateCourseServiceClient(lectureId);
+            var newCourseViewModel = GenerateCreateCourseViewModel();
+            var courseId = await lectureClient.CreateCourse(newCourseViewModel, lectureId);
+            // Act
+            await lectureClient.AcceptLecturer(courseId, anotherLectureMail);
+            var course = await lectureClient.GetCourseById(courseId, lectureId);
+            // Assert
+            course.MentorIds.Should().Contain(anotherLectureId);
+        }
+
+        [Test]
+        public async Task TestStudentCannotBeAcceptedAsLecture()
+        {
+            var (lectureId, _) = await CreateAndRegisterLecture();
+            var (studentId, studentEmail) = await CreateAndRegisterUser();
+            var lectureClient = CreateCourseServiceClient(lectureId);
+            var newCourseViewModel = GenerateCreateCourseViewModel();
+            var courseId = await lectureClient.CreateCourse(newCourseViewModel, lectureId);
+            // Act
+            await lectureClient.AcceptLecturer(courseId, studentEmail);
+            var course = await lectureClient.GetCourseById(courseId, lectureId);
+            // Assert
+            course.MentorIds.Should().NotContain(studentId);
+        }
+
+        [Test]
+        public async Task TestLectureWhenWasAcceptedShouldNotBeContainedInCourseMates()
+        {
+            // Arrange
+            var (lectureId, _) = await CreateAndRegisterLecture();
+            var (anotherLectureId, anotherLectureMail) = await CreateAndRegisterLecture();
+            var lectureClient = CreateCourseServiceClient(lectureId);
+            var anotherLectureClient = CreateCourseServiceClient(anotherLectureId);
+            var newCourseViewModel = GenerateCreateCourseViewModel();
+            var courseId = await lectureClient.CreateCourse(newCourseViewModel, lectureId);
+            // Act
+            await anotherLectureClient.SignInCourse(courseId, anotherLectureId);
+            await lectureClient.AcceptLecturer(courseId, anotherLectureMail);
+            var course = await lectureClient.GetCourseById(courseId, lectureId);
+            // Assert
+            course.MentorIds.Should().Contain(anotherLectureId);
+            course.CourseMates.Should().NotContain(m => m.StudentId == anotherLectureId);
+        }
         
         [Test]
         public async Task TestPublicationDateForTask()
