@@ -194,7 +194,7 @@ namespace CourseService.IntegrationTests
             var newHomeworkViewModel = GenerateCreateHomeworkViewModel();
             // Act
             var courseId = await courseClient.CreateCourse(newCourseViewModel, lectureId);
-            var homeworkId = await courseClient.AddHomeworkToCourse(newHomeworkViewModel, courseId);
+            var homeworkId = (await courseClient.AddHomeworkToCourse(newHomeworkViewModel, courseId)).Value;
             var course = await courseClient.GetCourseById(courseId, lectureId);
             var homework = await courseClient.GetHomework(homeworkId);
             // Assert
@@ -212,7 +212,7 @@ namespace CourseService.IntegrationTests
             var newCourseViewModel = GenerateCreateCourseViewModel();
             var newHomeworkViewModel = GenerateCreateHomeworkViewModel();
             var courseId = await courseClient.CreateCourse(newCourseViewModel, lectureId);
-            var homeworkId = await courseClient.AddHomeworkToCourse(newHomeworkViewModel, courseId);
+            var homeworkId = (await courseClient.AddHomeworkToCourse(newHomeworkViewModel, courseId)).Value;
             var updateHomeworkViewModel = GenerateCreateHomeworkViewModel();
             // Act
             await courseClient.UpdateHomework(updateHomeworkViewModel, homeworkId);
@@ -232,7 +232,7 @@ namespace CourseService.IntegrationTests
             var newCourseViewModel = GenerateCreateCourseViewModel();
             var newHomeworkViewModel = GenerateCreateHomeworkViewModel();
             var courseId = await courseClient.CreateCourse(newCourseViewModel, lectureId);
-            var homeworkId = await courseClient.AddHomeworkToCourse(newHomeworkViewModel, courseId);
+            var homeworkId = (await courseClient.AddHomeworkToCourse(newHomeworkViewModel, courseId)).Value;
             // Act
             await courseClient.DeleteHomework(homeworkId);
             var course = await courseClient.GetCourseById(courseId, lectureId);
@@ -250,9 +250,9 @@ namespace CourseService.IntegrationTests
             var newHomeworkViewModel = GenerateCreateHomeworkViewModel();
             var newTaskViewModel = GenerateCreateTaskViewModel();
             var courseId = await courseClient.CreateCourse(newCourseViewModel, lectureId);
-            var homeworkId = await courseClient.AddHomeworkToCourse(newHomeworkViewModel, courseId);
+            var homeworkId = (await courseClient.AddHomeworkToCourse(newHomeworkViewModel, courseId)).Value;
             // Act
-            var taskId = await courseClient.AddTask(newTaskViewModel, homeworkId);
+            var taskId = (await courseClient.AddTask(newTaskViewModel, homeworkId)).Value;
             var course = await courseClient.GetCourseById(courseId, lectureId);
             var homework = await courseClient.GetHomework(homeworkId);
             var task = await courseClient.GetTask(taskId);
@@ -277,8 +277,8 @@ namespace CourseService.IntegrationTests
             var newTaskViewModel = GenerateCreateTaskViewModel();
             var updateTaskViewModel = GenerateCreateTaskViewModel();
             var courseId = await courseClient.CreateCourse(newCourseViewModel, lectureId);
-            var homeworkId = await courseClient.AddHomeworkToCourse(newHomeworkViewModel, courseId);
-            var taskId = await courseClient.AddTask(newTaskViewModel, homeworkId);
+            var homeworkId = (await courseClient.AddHomeworkToCourse(newHomeworkViewModel, courseId)).Value;
+            var taskId = (await courseClient.AddTask(newTaskViewModel, homeworkId)).Value;
             // Act 
             await courseClient.UpdateTask(updateTaskViewModel, taskId);
             var course = await courseClient.GetCourseById(courseId, lectureId);
@@ -303,8 +303,8 @@ namespace CourseService.IntegrationTests
             var newHomeworkViewModel = GenerateCreateHomeworkViewModel();
             var newTaskViewModel = GenerateCreateTaskViewModel();
             var courseId = await courseClient.CreateCourse(newCourseViewModel, lectureId);
-            var homeworkId = await courseClient.AddHomeworkToCourse(newHomeworkViewModel, courseId);
-            var taskId = await courseClient.AddTask(newTaskViewModel, homeworkId);
+            var homeworkId = (await courseClient.AddHomeworkToCourse(newHomeworkViewModel, courseId)).Value;
+            var taskId = (await courseClient.AddTask(newTaskViewModel, homeworkId)).Value;
             // Act 
             await courseClient.DeleteTask(taskId);
             var course = await courseClient.GetCourseById(courseId, lectureId);
@@ -330,9 +330,9 @@ namespace CourseService.IntegrationTests
             var secondTaskViewModel = GenerateCreateTaskViewModel();
             secondTaskViewModel.PublicationDate = DateTime.UtcNow.AddHours(4);
             var courseId = await lectureCourseClient.CreateCourse(newCourseViewModel, lectureId);
-            var homeworkId = await lectureCourseClient.AddHomeworkToCourse(newHomeworkViewModel, courseId);
-            var task1Id = await lectureCourseClient.AddTask(firstTaskViewModel, homeworkId);
-            var task2Id = await lectureCourseClient.AddTask(secondTaskViewModel, homeworkId);
+            var homeworkId = (await lectureCourseClient.AddHomeworkToCourse(newHomeworkViewModel, courseId)).Value;
+            var task1Id = (await lectureCourseClient.AddTask(firstTaskViewModel, homeworkId)).Value;
+            var task2Id = (await lectureCourseClient.AddTask(secondTaskViewModel, homeworkId)).Value;
             var courseFromStudent = await studentCourseClient.GetCourseById(courseId, studentId);
             var courseFromLecture = await lectureCourseClient.GetCourseById(courseId, lectureId);
             // Assert
@@ -343,9 +343,148 @@ namespace CourseService.IntegrationTests
             hwFromLecture.Tasks.Should().Contain(t => t.Id == task1Id);
             hwFromLecture.Tasks.Should().Contain(t => t.Id == task2Id);
         }
+        
+        [Test]
+        public async Task TestUpdateCourseOnlyForCourseMentor()
+        {   
+            // Arrange
+            var (courseLectureId, _) = await CreateAndRegisterLecture();
+            var (studentInCourseId, _) = await CreateAndRegisterUser();
+            var (anotherLectureId, _) = await CreateAndRegisterLecture();
+            var (anotherStudentId, _) = await CreateAndRegisterUser();
+            var newCourseViewModel = GenerateCreateCourseViewModel();
+            var updateViewModel = GenerateUpdateCourseViewModel();
+            var courseLectureClient = CreateCourseServiceClient(courseLectureId);
+            var studentInCourseClient = CreateCourseServiceClient(studentInCourseId);
+            var anotherLectureClient = CreateCourseServiceClient(anotherLectureId);
+            var anotherStudentClient = CreateCourseServiceClient(anotherStudentId);
+            var courseId = await courseLectureClient.CreateCourse(newCourseViewModel, courseLectureId);
+            await studentInCourseClient.SignInCourse(courseId, studentInCourseId);
+            await courseLectureClient.AcceptStudent(courseId, studentInCourseId);
+            // Act
+            var responseForStudentInCourse = await studentInCourseClient.UpdateCourse(updateViewModel, courseId);
+            var responseForAnotherStudent = await anotherStudentClient.UpdateCourse(updateViewModel, courseId);
+            var responseForAnotherLecture = await anotherLectureClient.UpdateCourse(updateViewModel, courseId);
+            // Assert
+            responseForAnotherLecture.Succeeded.Should().BeFalse();
+            responseForAnotherStudent.Succeeded.Should().BeFalse();
+            responseForStudentInCourse.Succeeded.Should().BeFalse();
+        }
+        
+        [Test]
+        public async Task TestDeleteCourseOnlyForCourseMentor()
+        {   
+            // Arrange
+            var (courseLectureId, _) = await CreateAndRegisterLecture();
+            var (studentInCourseId, _) = await CreateAndRegisterUser();
+            var (anotherLectureId, _) = await CreateAndRegisterLecture();
+            var (anotherStudentId, _) = await CreateAndRegisterUser();
+            var newCourseViewModel = GenerateCreateCourseViewModel();
+            var courseLectureClient = CreateCourseServiceClient(courseLectureId);
+            var studentInCourseClient = CreateCourseServiceClient(studentInCourseId);
+            var anotherLectureClient = CreateCourseServiceClient(anotherLectureId);
+            var anotherStudentClient = CreateCourseServiceClient(anotherStudentId);
+            var courseId = await courseLectureClient.CreateCourse(newCourseViewModel, courseLectureId);
+            await studentInCourseClient.SignInCourse(courseId, studentInCourseId);
+            await courseLectureClient.AcceptStudent(courseId, studentInCourseId);
+            // Act
+            var responseForStudentInCourse = await studentInCourseClient.DeleteCourse(courseId);
+            var responseForAnotherStudent = await anotherStudentClient.DeleteCourse(courseId);
+            var responseForAnotherLecture = await anotherLectureClient.DeleteCourse(courseId);
+            // Assert
+            responseForAnotherLecture.Succeeded.Should().BeFalse();
+            responseForAnotherStudent.Succeeded.Should().BeFalse();
+            responseForStudentInCourse.Succeeded.Should().BeFalse();
+        }
 
         [Test]
-        public async Task TestAttributeMentorCourseOnly()
+        public async Task TestAddHomeworkOnlyForCourseMentor()
+        {
+            // Arrange
+            var (courseLectureId, _) = await CreateAndRegisterLecture();
+            var (studentInCourseId, _) = await CreateAndRegisterUser();
+            var (anotherLectureId, _) = await CreateAndRegisterLecture();
+            var (anotherStudentId, _) = await CreateAndRegisterUser();
+            var newCourseViewModel = GenerateCreateCourseViewModel();
+            var newHomeworkViewModel = GenerateCreateHomeworkViewModel();
+            var courseLectureClient = CreateCourseServiceClient(courseLectureId);
+            var studentInCourseClient = CreateCourseServiceClient(studentInCourseId);
+            var anotherLectureClient = CreateCourseServiceClient(anotherLectureId);
+            var anotherStudentClient = CreateCourseServiceClient(anotherStudentId);
+            var courseId = await courseLectureClient.CreateCourse(newCourseViewModel, courseLectureId);
+            await studentInCourseClient.SignInCourse(courseId, studentInCourseId);
+            await courseLectureClient.AcceptStudent(courseId, studentInCourseId);
+            // Act
+            var responseForStudentInCourse = await studentInCourseClient.AddHomeworkToCourse(newHomeworkViewModel, courseId);
+            var responseForAnotherStudent =
+                await anotherStudentClient.AddHomeworkToCourse(newHomeworkViewModel, courseId);
+            var responseForAnotherLecture = await anotherLectureClient.AddHomeworkToCourse(newHomeworkViewModel, courseId);
+            //Assert
+            responseForAnotherLecture.Succeeded.Should().BeFalse();
+            responseForAnotherStudent.Succeeded.Should().BeFalse();
+            responseForStudentInCourse.Succeeded.Should().BeFalse();
+        }
+
+        [Test]
+        public async Task TestUpdateHomeworkOnlyForCourseMentor()
+        {
+            var (courseLectureId, _) = await CreateAndRegisterLecture();
+            var (studentInCourseId, _) = await CreateAndRegisterUser();
+            var (anotherLectureId, _) = await CreateAndRegisterLecture();
+            var (anotherStudentId, _) = await CreateAndRegisterUser();
+            var newCourseViewModel = GenerateCreateCourseViewModel();
+            var newHomeworkViewModel = GenerateCreateHomeworkViewModel();
+            var updateHomeworkViewModel = GenerateCreateHomeworkViewModel();
+            var courseLectureClient = CreateCourseServiceClient(courseLectureId);
+            var studentInCourseClient = CreateCourseServiceClient(studentInCourseId);
+            var anotherLectureClient = CreateCourseServiceClient(anotherLectureId);
+            var anotherStudentClient = CreateCourseServiceClient(anotherStudentId);
+            var courseId = await courseLectureClient.CreateCourse(newCourseViewModel, courseLectureId);
+            await studentInCourseClient.SignInCourse(courseId, studentInCourseId);
+            await courseLectureClient.AcceptStudent(courseId, studentInCourseId);
+            var homeworkId = (await courseLectureClient.AddHomeworkToCourse(newHomeworkViewModel, courseId)).Value;
+            // Act
+            var responseForStudentInCourse = await studentInCourseClient.UpdateHomework(updateHomeworkViewModel, homeworkId);
+            var responseForAnotherStudent =
+                await anotherStudentClient.UpdateHomework(updateHomeworkViewModel, homeworkId);
+            var responseForAnotherLecture = await anotherLectureClient.UpdateHomework(updateHomeworkViewModel, homeworkId);
+            //Assert
+            responseForAnotherLecture.Succeeded.Should().BeFalse();
+            responseForAnotherStudent.Succeeded.Should().BeFalse();
+            responseForStudentInCourse.Succeeded.Should().BeFalse();
+        }
+
+        [Test]
+        public async Task TestDeleteHomeworkOnlyForCourseMentor()
+        {
+            // Arrange
+            var (courseLectureId, _) = await CreateAndRegisterLecture();
+            var (studentInCourseId, _) = await CreateAndRegisterUser();
+            var (anotherLectureId, _) = await CreateAndRegisterLecture();
+            var (anotherStudentId, _) = await CreateAndRegisterUser();
+            var newCourseViewModel = GenerateCreateCourseViewModel();
+            var newHomeworkViewModel = GenerateCreateHomeworkViewModel();
+            var courseLectureClient = CreateCourseServiceClient(courseLectureId);
+            var studentInCourseClient = CreateCourseServiceClient(studentInCourseId);
+            var anotherLectureClient = CreateCourseServiceClient(anotherLectureId);
+            var anotherStudentClient = CreateCourseServiceClient(anotherStudentId);
+            var courseId = await courseLectureClient.CreateCourse(newCourseViewModel, courseLectureId);
+            await studentInCourseClient.SignInCourse(courseId, studentInCourseId);
+            await courseLectureClient.AcceptStudent(courseId, studentInCourseId);
+            var homeworkId = (await courseLectureClient.AddHomeworkToCourse(newHomeworkViewModel, courseId)).Value;
+            // Act
+            var responseForStudentInCourse = await studentInCourseClient.DeleteHomework(homeworkId);
+            var responseForAnotherStudent =
+                await anotherStudentClient.DeleteHomework(homeworkId);
+            var responseForAnotherLecture = await anotherLectureClient.DeleteHomework(homeworkId);
+            //Assert
+            responseForAnotherLecture.Succeeded.Should().BeFalse();
+            responseForAnotherStudent.Succeeded.Should().BeFalse();
+            responseForStudentInCourse.Succeeded.Should().BeFalse();
+        }
+
+        [Test]
+        public async Task TestAddTaskForCourseMentorOnly()
         {   
             // Arrange
             var (courseLectureId, _) = await CreateAndRegisterLecture();
@@ -360,14 +499,105 @@ namespace CourseService.IntegrationTests
             var anotherLectureClient = CreateCourseServiceClient(anotherLectureId);
             var anotherStudentClient = CreateCourseServiceClient(anotherStudentId);
             var courseId = await courseLectureClient.CreateCourse(newCourseViewModel, courseLectureId);
-            var homeworkId = await courseLectureClient.AddHomeworkToCourse(newHomeworkViewModel, courseId);
-            var taskId = await courseLectureClient.AddTask(newTaskViewModel, homeworkId);
             await studentInCourseClient.SignInCourse(courseId, studentInCourseId);
             await courseLectureClient.AcceptStudent(courseId, studentInCourseId);
-            // Act and Assert UpdateCourse
-            var updateCourseViewModel = GenerateUpdateCourseViewModel();
-            await studentInCourseClient.UpdateCourse(updateCourseViewModel, courseId);
-            
+            var homeworkId = (await courseLectureClient.AddHomeworkToCourse(newHomeworkViewModel, courseId)).Value;
+            // Act
+            var responseForStudentInCourse = await studentInCourseClient.AddTask(newTaskViewModel, homeworkId);
+            var responseForAnotherStudent = await anotherStudentClient.AddTask(newTaskViewModel, homeworkId);
+            var responseForAnotherLecture = await anotherLectureClient.AddTask(newTaskViewModel, homeworkId);
+            //Assert
+            responseForAnotherLecture.Succeeded.Should().BeFalse();
+            responseForAnotherStudent.Succeeded.Should().BeFalse();
+            responseForStudentInCourse.Succeeded.Should().BeFalse();
+        }
+        
+        [Test]
+        public async Task TestUpdateTaskForCourseMentorOnly()
+        {   
+            // Arrange
+            var (courseLectureId, _) = await CreateAndRegisterLecture();
+            var (studentInCourseId, _) = await CreateAndRegisterUser();
+            var (anotherLectureId, _) = await CreateAndRegisterLecture();
+            var (anotherStudentId, _) = await CreateAndRegisterUser();
+            var newCourseViewModel = GenerateCreateCourseViewModel();
+            var newHomeworkViewModel = GenerateCreateHomeworkViewModel();
+            var newTaskViewModel = GenerateCreateTaskViewModel();
+            var updateTaskViewModel = GenerateCreateTaskViewModel();
+            var courseLectureClient = CreateCourseServiceClient(courseLectureId);
+            var studentInCourseClient = CreateCourseServiceClient(studentInCourseId);
+            var anotherLectureClient = CreateCourseServiceClient(anotherLectureId);
+            var anotherStudentClient = CreateCourseServiceClient(anotherStudentId);
+            var courseId = await courseLectureClient.CreateCourse(newCourseViewModel, courseLectureId);
+            await studentInCourseClient.SignInCourse(courseId, studentInCourseId);
+            await courseLectureClient.AcceptStudent(courseId, studentInCourseId);
+            var homeworkId = (await courseLectureClient.AddHomeworkToCourse(newHomeworkViewModel, courseId)).Value;
+            var taskId = (await courseLectureClient.AddTask(newTaskViewModel, homeworkId)).Value;
+            // Act
+            var responseForStudentInCourse = await studentInCourseClient.UpdateTask(updateTaskViewModel, taskId);
+            var responseForAnotherStudent = await anotherStudentClient.UpdateTask(updateTaskViewModel, taskId);
+            var responseForAnotherLecture = await anotherLectureClient.UpdateTask(updateTaskViewModel, taskId);
+            //Assert
+            responseForAnotherLecture.Succeeded.Should().BeFalse();
+            responseForAnotherStudent.Succeeded.Should().BeFalse();
+            responseForStudentInCourse.Succeeded.Should().BeFalse();
+        }
+        
+        [Test]
+        public async Task TestDeleteTaskForCourseMentorOnly()
+        {
+            // Arrange
+            var (courseLectureId, _) = await CreateAndRegisterLecture();
+            var (studentInCourseId, _) = await CreateAndRegisterUser();
+            var (anotherLectureId, _) = await CreateAndRegisterLecture();
+            var (anotherStudentId, _) = await CreateAndRegisterUser();
+            var newCourseViewModel = GenerateCreateCourseViewModel();
+            var newHomeworkViewModel = GenerateCreateHomeworkViewModel();
+            var newTaskViewModel = GenerateCreateTaskViewModel();
+            var courseLectureClient = CreateCourseServiceClient(courseLectureId);
+            var studentInCourseClient = CreateCourseServiceClient(studentInCourseId);
+            var anotherLectureClient = CreateCourseServiceClient(anotherLectureId);
+            var anotherStudentClient = CreateCourseServiceClient(anotherStudentId);
+            var courseId = await courseLectureClient.CreateCourse(newCourseViewModel, courseLectureId);
+            await studentInCourseClient.SignInCourse(courseId, studentInCourseId);
+            await courseLectureClient.AcceptStudent(courseId, studentInCourseId);
+            var homeworkId = (await courseLectureClient.AddHomeworkToCourse(newHomeworkViewModel, courseId)).Value;
+            var taskId = (await courseLectureClient.AddTask(newTaskViewModel, homeworkId)).Value;
+            // Act
+            var responseForStudentInCourse = await studentInCourseClient.DeleteTask(taskId);
+            var responseForAnotherStudent = await anotherStudentClient.DeleteTask(taskId);
+            var responseForAnotherLecture = await anotherLectureClient.DeleteTask(taskId);
+            //Assert
+            responseForAnotherLecture.Succeeded.Should().BeFalse();
+            responseForAnotherStudent.Succeeded.Should().BeFalse();
+            responseForStudentInCourse.Succeeded.Should().BeFalse();
+        }
+
+        [Test]
+        public async Task TestAcceptStudentForCourseMentorOnly()
+        {   
+            // Assert
+            var (courseLectureId, _) = await CreateAndRegisterLecture();
+            var (studentInCourseId, _) = await CreateAndRegisterUser();
+            var (anotherLectureId, _) = await CreateAndRegisterLecture();
+            var (anotherStudentId, _) = await CreateAndRegisterUser();
+            var newCourseViewModel = GenerateCreateCourseViewModel();
+            var courseLectureClient = CreateCourseServiceClient(courseLectureId);
+            var studentInCourseClient = CreateCourseServiceClient(studentInCourseId);
+            var anotherLectureClient = CreateCourseServiceClient(anotherLectureId);
+            var anotherStudentClient = CreateCourseServiceClient(anotherStudentId);
+            var courseId = await courseLectureClient.CreateCourse(newCourseViewModel, courseLectureId);
+            await studentInCourseClient.SignInCourse(courseId, studentInCourseId);
+            await courseLectureClient.AcceptStudent(courseId, studentInCourseId);
+            // Act
+            await anotherStudentClient.SignInCourse(courseId, anotherStudentId);
+            var responseForStudentInCourse = await studentInCourseClient.AcceptStudent(courseId, anotherStudentId);
+            var responseForAnotherStudent = await anotherStudentClient.AcceptStudent(courseId, anotherStudentId);
+            var responseForAnotherLecture = await anotherLectureClient.AcceptStudent(courseId, anotherStudentId);
+            //Assert
+            responseForAnotherLecture.Succeeded.Should().BeFalse();
+            responseForAnotherStudent.Succeeded.Should().BeFalse();
+            responseForStudentInCourse.Succeeded.Should().BeFalse();
         }
     }
 }
