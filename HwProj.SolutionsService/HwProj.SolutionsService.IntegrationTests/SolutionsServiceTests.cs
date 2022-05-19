@@ -156,35 +156,16 @@ namespace HwProj.SolutionsService.IntegrationTests
             return (courseId, homeworkId, taskId);
         }
 
-        private CreateGroupViewModel GenerateCreateGroupMateViewModel(string studentId, string studentId2, long courseId, long taskId)
-        {
-            var groupMateViewModel1 = new GroupMateViewModel {StudentId = studentId};
-            var groupMateViewModel2 = new GroupMateViewModel {StudentId = studentId2};
-            var list = new List<GroupMateViewModel>
-            {
-                groupMateViewModel1,
-                groupMateViewModel1
-            };
-            var task = new List<long> {taskId};
-            var groupViewModel = new Fixture().Build<CreateGroupViewModel>()
-                .With(g => g.GroupMates, list)
-                .With(g => g.CourseId, courseId)
-                .With(g => g.Tasks, task);
-            return groupViewModel.Create();
-        }
-        
         [Test]
         public async Task PostByStudentNotFromThisCourseTest()
         {
             var (studentId, lectureId) = await CreateUserAndLecture();
-            var studentCourseClient = CreateCourseServiceClient(studentId);
             var lectureCourseClient = CreateCourseServiceClient(lectureId);
             var (courseId, homeworkId, taskId) = await CreateCourseHomeworkTaskWithOutDeadLine(lectureCourseClient, lectureId);
             var solutionClient = CreateSolutionsServiceClient();
             var solutionViewModel = GenerateSolutionViewModel(studentId);
 
             Assert.ThrowsAsync<ForbiddenException>(async () => await solutionClient.PostSolution(solutionViewModel, taskId));
-
         }
 
         [Test]
@@ -393,54 +374,5 @@ namespace HwProj.SolutionsService.IntegrationTests
 
             Assert.ThrowsAsync<ForbiddenException>(async () => await solutionsClient.PostSolution(solutionViewModel, taskId));
         }
-
-        /*[Test]
-        public async Task PostGroupSolutionTest()
-        {
-            var (studentId, lectureId) = await CreateUserAndLecture();
-            var (studentId1, _) = await CreateAndRegisterUser();
-            var studentCourseClient = CreateCourseServiceClient(studentId);
-            var lectureCourseClient = CreateCourseServiceClient(lectureId);
-            var (courseId, homeworkId, taskId) = await CreateCourseHomeworkTask(lectureCourseClient, lectureId);
-            await SignStudentInCourse(studentCourseClient, lectureCourseClient, courseId, studentId);
-            var solutionClient = CreateSolutionsServiceClient();
-            var groupViewModel = GenerateCreateGroupMateViewModel(studentId, studentId1, courseId, taskId);
-            var groupId = await lectureCourseClient.CreateCourseGroup(groupViewModel, courseId);
-            var solutionViewModel = GenerateSolutionViewModel(studentId);
-            var solutionViewModel1 = GenerateSolutionViewModel(studentId1);
-            
-            var solutionId = await solutionClient.PostGroupSolution(solutionViewModel, taskId, groupId);
-            var solutionId1 = await solutionClient.PostGroupSolution(solutionViewModel1, taskId, groupId);
-            var solution = await solutionClient.GetSolutionById(solutionId);
-            var solution1 = await solutionClient.GetSolutionById(solutionId1);
-            
-            
-            solution.GroupId.Should().Be(groupId);
-            solution1.GroupId.Should().Be(groupId);
-        }
-
-        [Test]
-        public async Task GetTaskSolutionsTest()
-        {
-            var (studentId, lectureId) = await CreateUserAndLecture();
-            var (studentId1, _) = await CreateAndRegisterUser();
-            var studentCourseClient = CreateCourseServiceClient(studentId);
-            var lectureCourseClient = CreateCourseServiceClient(lectureId);
-            var (courseId, homeworkId, taskId) = await CreateCourseHomeworkTask(lectureCourseClient, lectureId);
-            var taskViewModel2 = GenerateCreateTaskViewModel();
-            var solutionClient = CreateSolutionsServiceClient();
-            var groupViewModel = GenerateCreateGroupMateViewModel(studentId, studentId1, courseId, taskId);
-            var groupId = await lectureCourseClient.CreateCourseGroup(groupViewModel, courseId);
-            var solutionViewModelForTask1 = GenerateSolutionViewModel(studentId);
-            var solutionViewModelForTask2 = GenerateSolutionViewModel(studentId);
-
-            var solutionId1 = await solutionClient.PostSolution(solutionViewModelForTask1, taskId);
-            var solutionId2 = await solutionClient.PostSolution(solutionViewModelForTask2, taskId);
-
-            var solution = await solutionClient.GetTaskSolutions(groupId, taskId);
-
-            solution.Should().HaveCount(2);
-            solution.Should().Contain(s => s.Id == solutionId1 || s.Id == solutionId2);
-        }*/
     }
 }
