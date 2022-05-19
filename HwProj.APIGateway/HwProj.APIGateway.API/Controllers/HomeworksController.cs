@@ -34,7 +34,7 @@ namespace HwProj.APIGateway.API.Controllers
         public async Task<IActionResult> AddHomework(CreateHomeworkViewModel homeworkViewModel, long courseId)
         {
             var result = await _coursesClient.AddHomeworkToCourse(homeworkViewModel, courseId);
-            return Ok(result);
+            return Ok(result.Value);
         } 
 
         [HttpDelete("delete/{homeworkId}")]

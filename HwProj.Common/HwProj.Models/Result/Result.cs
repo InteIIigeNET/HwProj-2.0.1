@@ -2,7 +2,7 @@
 
 namespace HwProj.Models.Result
 {
-    public sealed class Result<T> where T : class
+    public sealed class Result<T> 
     {
         public T Value { get; }
         public bool Succeeded { get; }
@@ -23,7 +23,7 @@ namespace HwProj.Models.Result
 
         public static Result<T> Failed(params string[] errors)
         {
-            return new Result<T>(null, false, errors);
+            return new Result<T>(default, false, errors);
         }
     }
     
