@@ -25,6 +25,7 @@ namespace HwProj.CoursesService.API.Controllers
         {
             _coursesService = coursesService;
             _mapper = mapper;
+            
         }
 
         [HttpGet]
