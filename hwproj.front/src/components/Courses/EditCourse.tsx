@@ -23,7 +23,7 @@ interface IEditCourseState {
     isLoaded: boolean,
     name: string,
     groupName?: string,
-    isComplete: boolean,
+    isCompleted: boolean,
     mentors: AccountDataDto[],
     edited: boolean,
     deleted: boolean,
@@ -66,7 +66,7 @@ const EditCourse: FC<RouteComponentProps<IEditCourseProps>> = (props) => {
         isLoaded: false,
         name: "",
         groupName: "",
-        isComplete: false,
+        isCompleted: false,
         mentors: [],
         edited: false,
         deleted: false,
@@ -89,7 +89,7 @@ const EditCourse: FC<RouteComponentProps<IEditCourseProps>> = (props) => {
             name: course.name!,
             groupName: course.groupName!,
             isOpen: course.isOpen!,
-            isComplete: course.isCompleted!,
+            isCompleted: course.isCompleted!,
             mentors: mentors,
         }))
     }
@@ -100,7 +100,7 @@ const EditCourse: FC<RouteComponentProps<IEditCourseProps>> = (props) => {
             name: courseState.name,
             groupName: courseState.groupName,
             isOpen: true,
-            isComplete: courseState.isComplete
+            isCompleted: courseState.isCompleted
         };
 
         await ApiSingleton.coursesApi.apiCoursesUpdateByCourseIdPost(+props.match.params.courseId, courseViewModel)
@@ -223,12 +223,12 @@ const EditCourse: FC<RouteComponentProps<IEditCourseProps>> = (props) => {
                                             <Checkbox
                                                 defaultChecked
                                                 color="primary"
-                                                checked={courseState.isComplete}
+                                                checked={courseState.isCompleted}
                                                 onChange={(e) => {
                                                     e.persist()
                                                     setCourseState((prevState) => ({
                                                         ...prevState,
-                                                        isComplete: e.target.checked
+                                                        isCompleted: e.target.checked
                                                     }))
                                                 }}
                                             />

@@ -18,7 +18,7 @@
     "@types/react-syntax-highlighter": "^10.2.1",
     "@types/remarkable": "^1.7.4",
     "@types/request": "^2.48.7",
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "bootstrap": "^4.3.1",
     "classnames": "^2.3.1",
     "date-fns": "^2.23.0",

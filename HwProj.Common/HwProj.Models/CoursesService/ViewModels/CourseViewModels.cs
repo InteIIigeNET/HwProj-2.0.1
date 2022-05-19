@@ -26,7 +26,7 @@ namespace HwProj.Models.CoursesService.ViewModels
         [Required]
         public bool IsOpen { get; set; }
 
-        public bool IsComplete { get; set; }
+        public bool IsCompleted { get; set; }
     }
 
     public class CourseViewModel

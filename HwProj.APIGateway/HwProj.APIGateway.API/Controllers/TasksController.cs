@@ -36,7 +36,7 @@ namespace HwProj.APIGateway.API.Controllers
         public async Task<IActionResult> AddTask(CreateTaskViewModel taskViewModel, long homeworkId)
         {
             var result = await _coursesClient.AddTask(taskViewModel, homeworkId);
-            return Ok(result);
+            return Ok(result.Value);
         }
 
         [HttpDelete("delete/{taskId}")]
