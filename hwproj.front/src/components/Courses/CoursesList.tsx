@@ -31,7 +31,7 @@ export class CoursesList extends React.Component<ICoursesProps, {}> {
                                     style={{ color: "#212529" }}
                                 >
                                     <Typography style={{ fontSize: "18px" }}>
-                                        {course.name} / {course.groupName}
+                                        {course.name} {course.groupName?.length != 0 ? "/ " + course.groupName : ""}
                                     </Typography>
                                 </RouterLink>  
                             </div>
