@@ -152,8 +152,8 @@ namespace HwProj.SolutionsService.IntegrationTests
             var newHomeworkViewModel = GenerateCreateHomeworkViewModel();
             var newTaskViewModel = GenerateCreateTaskViewModelWithoutDeadLine();
             var homeworkId = await lectureCourseClient.AddHomeworkToCourse(newHomeworkViewModel, courseId);
-            var taskId = await lectureCourseClient.AddTask(newTaskViewModel, homeworkId);
-            return (courseId, homeworkId, taskId);
+            var taskId = await lectureCourseClient.AddTask(newTaskViewModel, homeworkId.Value);
+            return (courseId, homeworkId.Value, taskId.Value);
         }
 
         [Test]
@@ -322,7 +322,7 @@ namespace HwProj.SolutionsService.IntegrationTests
             var statisticsFromStudent = await solutionClient.GetCourseStatistics(courseId, studentId);
             var statisticsFromLecture = await solutionClient.GetCourseStatistics(courseId, lectureId);
             
-            statisticsFromStudent.Should().BeNull();
+            statisticsFromStudent.Should().HaveCount(1);
             statisticsFromLecture.Should().HaveCount(1);
             statisticsFromLecture[0].Homeworks.Should().HaveCount(1);
             statisticsFromLecture[0].Homeworks[0].Tasks.Should().HaveCount(1);
@@ -341,15 +341,15 @@ namespace HwProj.SolutionsService.IntegrationTests
             var homeworkId = await lectureCourseClient.AddHomeworkToCourse(homeworkViewModel, courseId);
             var taskViewModel = GenerateCreateTaskViewModelWithStrictDeadLine();
             taskViewModel.IsDeadlineStrict = false;
-            var taskId = await lectureCourseClient.AddTask(taskViewModel, homeworkId);
+            var taskId = await lectureCourseClient.AddTask(taskViewModel, homeworkId.Value);
             await SignStudentInCourse(studentCourseClient, lectureCourseClient, courseId, studentId);
             var solutionsClient = CreateSolutionsServiceClient();
             
             var solutionViewModel = GenerateSolutionViewModel(studentId);
             solutionViewModel.PublicationDate = DateTime.MaxValue;
 
-            var solutionId = await solutionsClient.PostSolution(solutionViewModel, taskId);
-            var solutionIdGet = await solutionsClient.GetUserSolution(taskId, studentId);
+            var solutionId = await solutionsClient.PostSolution(solutionViewModel, taskId.Value);
+            var solutionIdGet = await solutionsClient.GetUserSolution(taskId.Value, studentId);
 
             solutionIdGet.Should().HaveCount(1);
             solutionIdGet.Should().Contain(s => s.Id == solutionId);
@@ -365,14 +365,14 @@ namespace HwProj.SolutionsService.IntegrationTests
             var homeworkViewModel =  GenerateCreateHomeworkViewModel();
             var homeworkId = await lectureCourseClient.AddHomeworkToCourse(homeworkViewModel, courseId);
             var taskViewModel = GenerateCreateTaskViewModelWithStrictDeadLine();
-            var taskId = await lectureCourseClient.AddTask(taskViewModel, homeworkId);
+            var taskId = await lectureCourseClient.AddTask(taskViewModel, homeworkId.Value);
             await SignStudentInCourse(studentCourseClient, lectureCourseClient, courseId, studentId);
             var solutionsClient = CreateSolutionsServiceClient();
             
             var solutionViewModel = GenerateSolutionViewModel(studentId);
             solutionViewModel.PublicationDate = DateTime.MaxValue;
 
-            Assert.ThrowsAsync<ForbiddenException>(async () => await solutionsClient.PostSolution(solutionViewModel, taskId));
+            Assert.ThrowsAsync<ForbiddenException>(async () => await solutionsClient.PostSolution(solutionViewModel, taskId.Value));
         }
     }
 }
