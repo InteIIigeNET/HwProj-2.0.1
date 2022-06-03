@@ -106,8 +106,11 @@ const Notifications: FC<RouteComponentProps<IProfileProps>> = () => {
         const notifications = profileState.notifications;
         notifications.forEach((item) => {
                 const temp = item.notSeenNotifications!.find(notification => notification.id === id);
-                if (temp != null)
+                if (temp != null) {
                     temp.hasSeen = true;
+                    item.seenNotifications?.push(temp)
+                    item.notSeenNotifications?.splice(item.notSeenNotifications?.indexOf(temp), 1)
+                }
             }
         );
 
@@ -116,6 +119,10 @@ const Notifications: FC<RouteComponentProps<IProfileProps>> = () => {
             ...prevState,
             notifications: notifications
         }))
+        setFilterState((prevState) => ({
+            ...prevState,
+            filteredNotifications: getNotifications()
+        }));
     }
 
     const changeShowOnlyUnread = (event: ChangeEvent<HTMLInputElement>) => {
