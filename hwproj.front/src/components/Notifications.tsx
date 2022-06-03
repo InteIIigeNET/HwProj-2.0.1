@@ -82,6 +82,24 @@ const Notifications: FC<RouteComponentProps<IProfileProps>> = () => {
         }))
     }
 
+    let getNotifications = () => {
+        const notifications = profileState.notifications.filter(notification =>
+            filterState.categoryFlag.get(notification.category!));
+        let array: NotificationViewModel[] = [];
+        notifications.forEach(notification =>
+            filterState.showOnlyUnread
+                ? array = array.concat(notification.notSeenNotifications!)
+                : array = array.concat(notification.notSeenNotifications!, notification.seenNotifications!)
+        );
+        return array;
+    }
+
+    let isAllChecked = () => {
+        let result = true;
+        filterState.categoryFlag.forEach((value) => result = result && value);
+        return result;
+    }
+
     const markAsSeenNotification = async (e: ChangeEvent<HTMLInputElement>) => {
         const id = parseInt(e.target.id)
         await ApiSingleton.notificationsApi.apiNotificationsMarkAsSeenPut([id]);
@@ -99,6 +117,41 @@ const Notifications: FC<RouteComponentProps<IProfileProps>> = () => {
             notifications: notifications
         }))
     }
+
+    const changeShowOnlyUnread = (event: ChangeEvent<HTMLInputElement>) => {
+        let notifications = filterState.filteredNotifications;
+        if (event.target.checked) {
+            notifications = notifications.filter(notification => !notification.hasSeen);
+        } else {
+            notifications = getAll(profileState.notifications);
+        }
+        setFilterState((prevState) => ({
+            ...prevState,
+            filteredNotifications: notifications,
+            showOnlyUnread: !prevState.showOnlyUnread
+        }));
+    };
+
+    const changeCategory = (event: ChangeEvent<HTMLInputElement>) => {
+        filterState.categoryFlag.forEach((value, key) =>
+            key.toString() == event.target.value ? filterState.categoryFlag.set(key, !value) : value);
+
+        setFilterState((prevState) => ({
+            ...prevState,
+            filteredNotifications: getNotifications(),
+            showAll: isAllChecked()
+        }));
+    };
+
+    const changeCheckAll = (event: ChangeEvent<HTMLInputElement>) => {
+        filterState.categoryFlag.forEach((value, key) => filterState.categoryFlag.set(key, event.target.checked));
+
+        setFilterState((prevState) => ({
+            ...prevState,
+            filteredNotifications: getNotifications(),
+            showAll: !prevState.showAll
+        }));
+    };
 
     const renderNotifications = (notifications: NotificationViewModel[]) => {
         return (
@@ -133,59 +186,6 @@ const Notifications: FC<RouteComponentProps<IProfileProps>> = () => {
     if (!ApiSingleton.authService.isLoggedIn()) {
         return <Redirect to={"/login"}/>;
     }
-
-    const changeShowOnlyUnread = (event: ChangeEvent<HTMLInputElement>) => {
-        let notifications = filterState.filteredNotifications;
-        if (event.target.checked) {
-            notifications = notifications.filter(notification => !notification.hasSeen);
-        } else {
-            notifications = getAll(profileState.notifications);
-        }
-        setFilterState((prevState) => ({
-            ...prevState,
-            filteredNotifications: notifications,
-            showOnlyUnread: !prevState.showOnlyUnread
-        }));
-    };
-
-    let getNotifications = () => {
-        const notifications = profileState.notifications.filter(notification =>
-            filterState.categoryFlag.get(notification.category!));
-        let array: NotificationViewModel[] = [];
-        notifications.forEach(notification =>
-            filterState.showOnlyUnread
-                ? array = array.concat(notification.notSeenNotifications!)
-                : array = array.concat(notification.notSeenNotifications!, notification.seenNotifications!)
-        );
-        return array;
-    }
-
-    let isAllChecked = () => {
-        let result = true;
-        filterState.categoryFlag.forEach((value) => result = result && value);
-        return result;
-    }
-
-    const changeCategory = (event: ChangeEvent<HTMLInputElement>) => {
-        filterState.categoryFlag.forEach((value, key) =>
-            key.toString() == event.target.value ? filterState.categoryFlag.set(key, !value) : value);
-
-        setFilterState((prevState) => ({
-            ...prevState,
-            filteredNotifications: getNotifications(),
-            showAll: isAllChecked()
-        }));
-    };
-
-    const changeCheckAll = (event: ChangeEvent<HTMLInputElement>) => {
-        filterState.categoryFlag.forEach((value, key) => filterState.categoryFlag.set(key, event.target.checked));
-
-        setFilterState((prevState) => ({
-            ...prevState,
-            filteredNotifications: getNotifications(),
-            showAll: !prevState.showAll
-        }));
-    };
 
     if (profileState.isLoaded) {
         return <div style={{marginBottom: '50px'}}>
