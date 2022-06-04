@@ -28,31 +28,31 @@ namespace HwProj.AuthService.SeleniumTests
         public void RegisterTest()
         {
             var mainMenu = new MainMenuPageObject(_webDriver);
-            var name = new Fixture().Create<string>().Substring(0, 6);
-            var surname = new Fixture().Create<string>().Substring(0, 6);
-            var middleName = new Fixture().Create<string>().Substring(0, 6);
-            var email = new Fixture().Create<MailAddress>().Address;
-            var password = new Fixture().Create<string>().Substring(0, 6);
+            var name = GenerateString();
+            var surname = GenerateString();
+            var middleName = GenerateString();
+            var email = GenerateEmail();
+            var password = GenerateString();
 
             mainMenu
                 .MoveToRegister()
                 .Register(name, surname, email, password, password, middleName);
 
             WaitUntil.WaitLocation(_webDriver, _url, 5);
-            
+
             var currentUrl = _webDriver.Url;
             currentUrl.Should().Be(_url);
         }
 
         [Test]
-        public void RegisterUserTwiceTest()
+        public void UserRegistrationTwiceTest()
         {
             var mainMenu = new MainMenuPageObject(_webDriver);
-            var name = new Fixture().Create<string>().Substring(0, 6);
-            var surname = new Fixture().Create<string>().Substring(0, 6);
-            var middleName = new Fixture().Create<string>().Substring(0, 6);
-            var email = new Fixture().Create<MailAddress>().Address;
-            var password = new Fixture().Create<string>().Substring(0, 6);
+            var name = GenerateString();
+            var surname = GenerateString();
+            var middleName = GenerateString();
+            var email = GenerateEmail();
+            var password = GenerateString();
 
             mainMenu
                 .MoveToRegister()
@@ -71,12 +71,12 @@ namespace HwProj.AuthService.SeleniumTests
         public void RegisterUserWithDifferentPasswordsTest()
         {
             var mainMenu = new MainMenuPageObject(_webDriver);
-            var name = new Fixture().Create<string>().Substring(0, 6);
-            var surname = new Fixture().Create<string>().Substring(0, 6);
-            var middleName = new Fixture().Create<string>().Substring(0, 6);
-            var email = new Fixture().Create<MailAddress>().Address;
-            var password = new Fixture().Create<string>().Substring(0, 6);
-            var confirmPassword = new Fixture().Create<string>().Substring(0, 6);
+            var name = GenerateString();
+            var surname = GenerateString();
+            var middleName = GenerateString();
+            var email = GenerateEmail();
+            var password = GenerateString();
+            var confirmPassword = GenerateString();
 
             mainMenu
                 .MoveToRegister()
@@ -91,11 +91,11 @@ namespace HwProj.AuthService.SeleniumTests
         public void LoginTest()
         {
             var mainMenu = new MainMenuPageObject(_webDriver);
-            var name = new Fixture().Create<string>().Substring(0, 6);
-            var surname = new Fixture().Create<string>().Substring(0, 6);
-            var middleName = new Fixture().Create<string>().Substring(0, 6);
-            var email = new Fixture().Create<MailAddress>().Address;
-            var password = new Fixture().Create<string>().Substring(0, 6);
+            var name = GenerateString();
+            var surname = GenerateString();
+            var middleName = GenerateString();
+            var email = GenerateEmail();
+            var password = GenerateString();
 
             mainMenu
                 .MoveToRegister()
@@ -115,8 +115,8 @@ namespace HwProj.AuthService.SeleniumTests
         public void LoginUnregisteredUserTest()
         {
             var mainMenu = new MainMenuPageObject(_webDriver);
-            var email = new Fixture().Create<MailAddress>().Address;
-            var password = new Fixture().Create<string>().Substring(0, 6);
+            var email = GenerateEmail();
+            var password = GenerateString();
 
             mainMenu
                 .MoveToLogin()
@@ -131,12 +131,12 @@ namespace HwProj.AuthService.SeleniumTests
         public void LoginWithIncorrectPasswordTest()
         {
             var mainMenu = new MainMenuPageObject(_webDriver);
-            var name = new Fixture().Create<string>().Substring(0, 6);
-            var surname = new Fixture().Create<string>().Substring(0, 6);
-            var middleName = new Fixture().Create<string>().Substring(0, 6);
-            var email = new Fixture().Create<MailAddress>().Address;
-            var password = new Fixture().Create<string>().Substring(0, 6);
-            var incorrectPassword = new Fixture().Create<string>().Substring(0, 6);
+            var name = GenerateString();
+            var surname = GenerateString();
+            var middleName = GenerateString();
+            var email = GenerateEmail();
+            var password = GenerateString();
+            var incorrectPassword = GenerateString();
 
             mainMenu
                 .MoveToRegister()
@@ -155,15 +155,15 @@ namespace HwProj.AuthService.SeleniumTests
         public void EditAccountDataTest()
         {
             var mainMenu = new MainMenuPageObject(_webDriver);
-            var name = new Fixture().Create<string>().Substring(0, 6);
-            var surname = new Fixture().Create<string>().Substring(0, 6);
-            var middleName = new Fixture().Create<string>().Substring(0, 6);
-            var email = new Fixture().Create<MailAddress>().Address;
-            var password = new Fixture().Create<string>().Substring(0, 6);
+            var name = GenerateString();
+            var surname = GenerateString();
+            var middleName = GenerateString();
+            var email = GenerateEmail();
+            var password = GenerateString();
 
-            var newName = new Fixture().Create<string>().Substring(0, 6);
-            var newSurname = new Fixture().Create<string>().Substring(0, 6);
-            var newMiddleName = new Fixture().Create<string>().Substring(0, 6);
+            var newName = GenerateString();
+            var newSurname = GenerateString();
+            var newMiddleName = GenerateString();
 
             var profileData = mainMenu
                 .MoveToRegister()
@@ -185,13 +185,13 @@ namespace HwProj.AuthService.SeleniumTests
         public void EditPasswordTest()
         {
             var mainMenu = new MainMenuPageObject(_webDriver);
-            var name = new Fixture().Create<string>().Substring(0, 6);
-            var surname = new Fixture().Create<string>().Substring(0, 6);
-            var middleName = new Fixture().Create<string>().Substring(0, 6);
-            var email = new Fixture().Create<MailAddress>().Address;
-            var password = new Fixture().Create<string>().Substring(0, 6);
+            var name = GenerateString();
+            var surname = GenerateString();
+            var middleName = GenerateString();
+            var email = GenerateEmail();
+            var password = GenerateString();
 
-            var newPassword = new Fixture().Create<string>().Substring(0, 6);
+            var newPassword = GenerateString();
 
             mainMenu
                 .MoveToRegister()
@@ -203,9 +203,7 @@ namespace HwProj.AuthService.SeleniumTests
                 .SignOff()
                 .MoveToLogin()
                 .Login(email, newPassword);
-
             WaitUntil.WaitLocation(_webDriver, _url, 5);
-
             var currentUrl = _webDriver.Url;
 
             currentUrl.Should().Be(_url);
@@ -215,16 +213,16 @@ namespace HwProj.AuthService.SeleniumTests
         public void EditAccountDataWithIncorrectCurrentPasswordTest()
         {
             var mainMenu = new MainMenuPageObject(_webDriver);
-            var name = new Fixture().Create<string>().Substring(0, 6);
-            var surname = new Fixture().Create<string>().Substring(0, 6);
-            var middleName = new Fixture().Create<string>().Substring(0, 6);
-            var email = new Fixture().Create<MailAddress>().Address;
-            var password = new Fixture().Create<string>().Substring(0, 6);
+            var name = GenerateString();
+            var surname = GenerateString();
+            var middleName = GenerateString();
+            var email = GenerateEmail();
+            var password = GenerateString();
 
-            var newName = new Fixture().Create<string>().Substring(0, 6);
-            var newSurname = new Fixture().Create<string>().Substring(0, 6);
-            var newMiddleName = new Fixture().Create<string>().Substring(0, 6);
-            var newPassword = new Fixture().Create<string>().Substring(0, 6);
+            var newName = GenerateString();
+            var newSurname = GenerateString();
+            var newMiddleName = GenerateString();
+            var newPassword = GenerateString();
 
             mainMenu
                 .MoveToRegister()
@@ -252,11 +250,11 @@ namespace HwProj.AuthService.SeleniumTests
         public void InviteNewLecturerTest()
         {
             var mainMenu = new MainMenuPageObject(_webDriver);
-            var name = new Fixture().Create<string>().Substring(0, 6);
-            var surname = new Fixture().Create<string>().Substring(0, 6);
-            var middleName = new Fixture().Create<string>().Substring(0, 6);
-            var email = new Fixture().Create<MailAddress>().Address;
-            var password = new Fixture().Create<string>().Substring(0, 6);
+            var name = GenerateString();
+            var surname = GenerateString();
+            var middleName = GenerateString();
+            var email = GenerateEmail();
+            var password = GenerateString();
 
             mainMenu
                 .MoveToRegister()
@@ -278,11 +276,11 @@ namespace HwProj.AuthService.SeleniumTests
         public void InviteOneLecturerTwoTimes()
         {
             var mainMenu = new MainMenuPageObject(_webDriver);
-            var name = new Fixture().Create<string>().Substring(0, 6);
-            var surname = new Fixture().Create<string>().Substring(0, 6);
-            var middleName = new Fixture().Create<string>().Substring(0, 6);
-            var email = new Fixture().Create<MailAddress>().Address;
-            var password = new Fixture().Create<string>().Substring(0, 6);
+            var name = GenerateString();
+            var surname = GenerateString();
+            var middleName = GenerateString();
+            var email = GenerateEmail();
+            var password = GenerateString();
 
             mainMenu
                 .MoveToRegister()
@@ -307,7 +305,7 @@ namespace HwProj.AuthService.SeleniumTests
 
             inviteResult.Should().Be("Некорректный адрес электронной почты.");
         }
-        
+
         [Test]
         public void CheckProfileTest()
         {
@@ -328,5 +326,11 @@ namespace HwProj.AuthService.SeleniumTests
         {
             _webDriver.Quit();
         }
+
+        private string GenerateString()
+            => new Fixture().Create<string>().Substring(0, 6);
+
+        private string GenerateEmail()
+            => new Fixture().Create<MailAddress>().Address;
     }
 }
