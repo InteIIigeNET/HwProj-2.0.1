@@ -77,6 +77,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                     (
                         <div className={classes.tools}>
                             <IconButton
+                                id="menu-button"
                                 edge="start"
                                 color="inherit"
                                 aria-label="menu"
@@ -91,19 +92,34 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                                 open={Boolean(anchorEl)}
                                 onClose={handleClose}
                             >
-                                <MenuItem onClick={openInviteLecturer}>
+                                <MenuItem
+                                    id="invite-lecturer-button"
+                                    onClick={openInviteLecturer}
+                                >
                                     Пригласить преподавателя
                                 </MenuItem>
-                                <MenuItem onClick={() => window.location.assign("/create_course")}>
+                                <MenuItem
+                                    id="create-course-button"
+                                    onClick={() => window.location.assign("/create_course")}
+                                >
                                     Создать курс
                                 </MenuItem>
-                                <MenuItem onClick={() => window.location.assign("/profile")}>
+                                <MenuItem
+                                    id="profile-button"
+                                    onClick={() => window.location.assign("/profile")}
+                                >
                                     Профиль
                                 </MenuItem>
-                                <MenuItem onClick={() => window.location.assign("/user/edit")}>
+                                <MenuItem
+                                    id="edit-profile-button"
+                                    onClick={() => window.location.assign("/user/edit")}
+                                >
                                     Редактировать данные
                                 </MenuItem>
-                                <MenuItem onClick={props.onLogout}>
+                                <MenuItem
+                                    id="sign-off-button"
+                                    onClick={props.onLogout}
+                                >
                                     Выйти
                                 </MenuItem>
                             </Menu>
@@ -112,6 +128,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                     {props.loggedIn && !props.isLecturer && (
                         <div className={classes.tools}>
                             <IconButton
+                                id="menu-button"
                                 edge="start"
                                 color="inherit"
                                 aria-label="menu"
@@ -126,13 +143,22 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                                 open={Boolean(anchorEl)}
                                 onClose={handleClose}
                             >
-                                <MenuItem onClick={() => window.location.assign("/profile")}>
+                                <MenuItem
+                                    id="profile-button"
+                                    onClick={() => window.location.assign("/profile")}
+                                >
                                     Профиль
                                 </MenuItem>
-                                <MenuItem onClick={() => window.location.assign("/user/edit")}>
+                                <MenuItem
+                                    id="edit-profile-button"
+                                    onClick={() => window.location.assign("/user/edit")}
+                                >
                                     Редактировать данные
                                 </MenuItem>
-                                <MenuItem onClick={props.onLogout}>
+                                <MenuItem
+                                    id="sign-off-button"
+                                    onClick={props.onLogout}
+                                >
                                     Выйти
                                 </MenuItem>
                             </Menu>
@@ -141,6 +167,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                     {!props.loggedIn && (
                         <div className={classes.tools}>
                             <Link
+                                id="sign-in-button"
                                 onClick={() => window.location.assign("/login")}
                                 component="button"
                                 color="inherit"
@@ -150,6 +177,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                                 Вход
                             </Link>
                             <Link
+                                id="sign-up-button"
                                 onClick={() => window.location.assign("/register")}
                                 component="button"
                                 color="inherit"

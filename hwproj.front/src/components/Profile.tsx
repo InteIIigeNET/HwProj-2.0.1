@@ -125,10 +125,16 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
 			<div style={{ marginBottom: '50px' }}>
 				<Grid container justifyContent="center" style={{ marginTop: "15px" }}>
 					<Grid item xs={11} className={classes.info}>
-						<Typography style={{ fontSize: '20px' }}>
+						<Typography
+							id="full-name-text"
+							style={{ fontSize: '20px' }}
+						>
 							{fullName}
 						</Typography>
-						<Typography style={{ fontSize: '20px' }}>
+						<Typography
+							id="email-text"
+							style={{ fontSize: '20px' }}
+						>
 							{accountState.email}
 						</Typography>
 					</Grid>

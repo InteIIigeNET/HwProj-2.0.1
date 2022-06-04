@@ -156,13 +156,12 @@ namespace HwProj.AuthService.IntegrationTests
             registerResult.Errors.Should().BeNullOrEmpty();
             registerResult.Value.AccessToken.Should().NotBeNullOrEmpty();
 
-            var secondRegisterResult = await _authServiceClient.Register(userData);
+            var result = await _authServiceClient.Register(userData);
 
-            secondRegisterResult.Succeeded.Should().BeFalse();
-            secondRegisterResult.Errors.Should()
+            result.Succeeded.Should().BeFalse();
+            result.Errors.Should()
                 .BeEquivalentTo("Пользователь уже зарегистрирован");
-
-            secondRegisterResult.Value.Should().BeNull();
+            result.Value.Should().BeNull();
         }
 
         [Test]

@@ -146,7 +146,7 @@ const EditProfile: FC = () => {
                                 Редактировать профиль
                             </Typography>
                             {profile.errors && (
-                                <p style={{color: "red", marginBottom: "0"}}>{profile.errors}</p>
+                                <p id="edit-result" style={{color: "red", marginBottom: "0"}}>{profile.errors}</p>
                             )}
                             <form
                                 onSubmit={(e) => handleSubmit(e)}
@@ -155,6 +155,7 @@ const EditProfile: FC = () => {
                                 <Grid container spacing={2}>
                                     <Grid item xs={12} sm={6}>
                                         <TextField
+                                            id="edit-name-input"
                                             fullWidth
                                             required
                                             label="Имя"
@@ -172,6 +173,7 @@ const EditProfile: FC = () => {
                                     </Grid>
                                     <Grid item xs={12} sm={6}>
                                         <TextField
+                                            id="edit-surname-input"
                                             required
                                             fullWidth
                                             label="Фамилия"
@@ -189,6 +191,7 @@ const EditProfile: FC = () => {
                                     </Grid>
                                     <Grid item xs={12}>
                                         <TextField
+                                            id="edit-middle-name-input"
                                             fullWidth
                                             label="Отчество"
                                             variant="outlined"
@@ -205,6 +208,7 @@ const EditProfile: FC = () => {
                                     </Grid>
                                     <Grid item xs={12}>
                                         <TextField
+                                            id="edit-password-input"
                                             fullWidth
                                             required
                                             label="Пароль"
@@ -222,6 +226,7 @@ const EditProfile: FC = () => {
                                     </Grid>
                                     <Grid item xs={12}>
                                         <TextField
+                                            id="edit-new-password-input"
                                             fullWidth
                                             required
                                             label="Новый пароль"
@@ -239,6 +244,7 @@ const EditProfile: FC = () => {
                                     </Grid>
                                 </Grid>
                                 <Button
+                                    id="complete-edit-profile-button"
                                     style={{ marginTop: '15px'}}
                                     fullWidth
                                     variant="contained"
