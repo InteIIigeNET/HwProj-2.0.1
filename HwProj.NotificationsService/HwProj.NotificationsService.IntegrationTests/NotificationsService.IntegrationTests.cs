@@ -242,7 +242,7 @@ namespace HwProj.NotificationsService.IntegrationTests
             var hwCreateViewModel = GenerateCreateHomeworkViewModel();
             var taskCreateViewModel = GenerateCreateTaskViewModel();
             var homeworkId = await lectureCourseClient.AddHomeworkToCourse(hwCreateViewModel, courseId);
-            await lectureCourseClient.AddTask(taskCreateViewModel, homeworkId);
+            await lectureCourseClient.AddTask(taskCreateViewModel, homeworkId.Value);
             
             Thread.Sleep(5000);
             var notificationClient = CreateNotificationsServiceClient();
@@ -273,8 +273,8 @@ namespace HwProj.NotificationsService.IntegrationTests
             var taskCreateViewModel = GenerateCreateTaskViewModel();
             var homeworkId = await lectureCourseClient.AddHomeworkToCourse(hwCreateViewModel, courseId);
             hwCreateViewModel.Description = "Update";
-            await lectureCourseClient.UpdateHomework(hwCreateViewModel, homeworkId);
-            var taskId = await lectureCourseClient.AddTask(taskCreateViewModel, homeworkId);
+            await lectureCourseClient.UpdateHomework(hwCreateViewModel, homeworkId.Value);
+            var taskId = await lectureCourseClient.AddTask(taskCreateViewModel, homeworkId.Value);
             
             Thread.Sleep(5000);
             var notificationClient = CreateNotificationsServiceClient();
@@ -306,16 +306,16 @@ namespace HwProj.NotificationsService.IntegrationTests
             var hwCreateViewModel = GenerateCreateHomeworkViewModel();
             var taskCreateViewModel = GenerateCreateTaskViewModel();
             var homeworkId = await lectureCourseClient.AddHomeworkToCourse(hwCreateViewModel, courseId);
-            var taskId = await lectureCourseClient.AddTask(taskCreateViewModel, homeworkId);
+            var taskId = await lectureCourseClient.AddTask(taskCreateViewModel, homeworkId.Value);
             taskCreateViewModel.Description = "Update";
-            await lectureCourseClient.UpdateTask(taskCreateViewModel, taskId);
+            await lectureCourseClient.UpdateTask(taskCreateViewModel, taskId.Value);
             
             Thread.Sleep(5000);
             var notificationClient = CreateNotificationsServiceClient();
             var notificationStudent = await notificationClient.Get(studentId, new NotificationFilter());
             var notificationStudent1 = await notificationClient.Get(studentId1, new NotificationFilter());
 
-            var notificationBody = $"<a href='task/{taskId}'>Задача</a> обновлена.";
+            var notificationBody = $"<a href='task/{taskId.Value}'>Задача</a> обновлена.";
             
             notificationStudent.Should().Contain(n => n.Body == notificationBody);
             notificationStudent1.Should().Contain(n => n.Body == notificationBody);
@@ -338,10 +338,10 @@ namespace HwProj.NotificationsService.IntegrationTests
             var hwCreateViewModel = GenerateCreateHomeworkViewModel();
             var taskCreateViewModel = GenerateCreateTaskViewModel();
             var homeworkId = await lectureCourseClient.AddHomeworkToCourse(hwCreateViewModel, courseId);
-            var taskId = await lectureCourseClient.AddTask(taskCreateViewModel, homeworkId);
+            var taskId = await lectureCourseClient.AddTask(taskCreateViewModel, homeworkId.Value);
             var solutionViewModel = GenerateSolutionViewModel(studentId);
             var solutionServiceClient = CreateSolutionsServiceClient();
-            var solutionId = await solutionServiceClient.PostSolution(solutionViewModel, taskId);
+            var solutionId = await solutionServiceClient.PostSolution(solutionViewModel, taskId.Value);
             
             Thread.Sleep(5000);
             var notificationClient = CreateNotificationsServiceClient();
@@ -367,10 +367,10 @@ namespace HwProj.NotificationsService.IntegrationTests
             var hwCreateViewModel = GenerateCreateHomeworkViewModel();
             var taskCreateViewModel = GenerateCreateTaskViewModel();
             var homeworkId = await lectureCourseClient.AddHomeworkToCourse(hwCreateViewModel, courseId);
-            var taskId = await lectureCourseClient.AddTask(taskCreateViewModel, homeworkId);
+            var taskId = await lectureCourseClient.AddTask(taskCreateViewModel, homeworkId.Value);
             var solutionViewModel = GenerateSolutionViewModel(studentId);
             var solutionServiceClient = CreateSolutionsServiceClient();
-            var solutionId = await solutionServiceClient.PostSolution(solutionViewModel, taskId);
+            var solutionId = await solutionServiceClient.PostSolution(solutionViewModel, taskId.Value);
             await solutionServiceClient.RateSolution(solutionId, 3, "", lectureId);
             
             Thread.Sleep(5000);
