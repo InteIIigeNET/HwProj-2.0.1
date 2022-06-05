@@ -235,7 +235,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                 <CourseStudents
                                     homeworks={courseState.courseHomework}
                                     userId={userId as string}
-                                    isMentor={isMentor && ! isReadingMode!}
+                                    isMentor={isMentor}
                                     course={courseState.course}
                                 />
                             </Grid>
