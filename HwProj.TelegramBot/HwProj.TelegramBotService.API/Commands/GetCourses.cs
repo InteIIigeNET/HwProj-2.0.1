@@ -13,20 +13,20 @@ namespace HwProj.TelegramBotService.API.Commands
     {
         private readonly ICoursesServiceClient _coursesServiceClient;
         private readonly TelegramBotClient _botClient;
-        private readonly IUserService _userService;
+        private readonly IUserTelegramService _userTelegramService;
 
-        public GetCourses(TelegramBot telegramBot, ICoursesServiceClient coursesServiceClient, IUserService userService)
+        public GetCourses(TelegramBot telegramBot, ICoursesServiceClient coursesServiceClient, IUserTelegramService userTelegramService)
         {
             _botClient = telegramBot.GetBot().Result;
             _coursesServiceClient = coursesServiceClient;
-            _userService = userService;
+            _userTelegramService = userTelegramService;
         }
 
         public override string Name => CommandNames.GetCourses;
         
         public override async Task ExecuteAsync(Update update)
         {
-            var user = await _userService.UserByUpdate(update);
+            var user = await _userTelegramService.UserByUpdate(update);
             var courses = _coursesServiceClient.GetAllUserCourses(user.AccountId).Result;
             
             await _botClient.SendTextMessageAsync(user.ChatId, "*Выберите курс для просмотра домашних работ или статистики:*", ParseMode.Markdown);

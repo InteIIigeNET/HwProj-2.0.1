@@ -9,19 +9,19 @@ namespace HwProj.TelegramBotService.API.Commands
     public class WaitCodeCommand : Commands
     {
         private readonly TelegramBotClient _botClient;
-        private readonly IUserService _userService;
+        private readonly IUserTelegramService _userTelegramService;
 
-        public WaitCodeCommand(TelegramBot telegramBot, IUserService userService)
+        public WaitCodeCommand(TelegramBot telegramBot, IUserTelegramService userTelegramService)
         {
             _botClient = telegramBot.GetBot().Result;
-            _userService = userService;
+            _userTelegramService = userTelegramService;
         }
 
         public override string Name => CommandNames.WaitCodeCommand;
         
         public override async Task ExecuteAsync(Update update)
         {
-            var user = await _userService.AddEmailToUser(update.Message.Chat.Id, update.Message?.Text);
+            var user = await _userTelegramService.AddEmailToUser(update.Message.Chat.Id, update.Message?.Text);
 
             if (user == null)
             {

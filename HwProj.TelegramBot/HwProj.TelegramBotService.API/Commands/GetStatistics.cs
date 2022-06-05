@@ -14,14 +14,14 @@ namespace HwProj.TelegramBotService.API.Commands
     public class GetStatistics: Commands
     {
         private readonly TelegramBotClient _botClient;
-        private readonly IUserService _userService;
+        private readonly IUserTelegramService _userTelegramService;
         private readonly ISolutionsServiceClient _solutionsServiceClient;
         private readonly ICoursesServiceClient _coursesServiceClient;
 
-        public GetStatistics(TelegramBot telegramBot, IUserService userService, ICoursesServiceClient coursesServiceClient, ISolutionsServiceClient solutionsServiceClient)
+        public GetStatistics(TelegramBot telegramBot, IUserTelegramService userTelegramService, ICoursesServiceClient coursesServiceClient, ISolutionsServiceClient solutionsServiceClient)
         {
             _botClient = telegramBot.GetBot().Result;
-            _userService = userService;
+            _userTelegramService = userTelegramService;
             _coursesServiceClient = coursesServiceClient;
             _solutionsServiceClient = solutionsServiceClient;
         }
@@ -30,7 +30,7 @@ namespace HwProj.TelegramBotService.API.Commands
         
         public override async Task ExecuteAsync(Update update)
         {
-            var user = await _userService.UserByUpdate(update);
+            var user = await _userTelegramService.UserByUpdate(update);
             var message = update.CallbackQuery.Data;
             var text = message.Split(' ');
             var course = _coursesServiceClient.GetCourseById(Int64.Parse(text[1]), user.AccountId).Result;

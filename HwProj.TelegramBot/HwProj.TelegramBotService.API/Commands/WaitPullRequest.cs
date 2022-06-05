@@ -12,12 +12,12 @@ namespace HwProj.TelegramBotService.API.Commands
     public class WaitPullRequest : Commands
     {
         private readonly TelegramBotClient _botClient;
-        private readonly IUserService _userService;
+        private readonly IUserTelegramService _userTelegramService;
 
-        public WaitPullRequest(TelegramBot telegramBot, IUserService userService)
+        public WaitPullRequest(TelegramBot telegramBot, IUserTelegramService userTelegramService)
         {
             _botClient = telegramBot.GetBot().Result;
-            _userService = userService;
+            _userTelegramService = userTelegramService;
         }
 
         public override string Name => CommandNames.WaitPullRequest;
@@ -27,7 +27,7 @@ namespace HwProj.TelegramBotService.API.Commands
             var message = update.CallbackQuery.Data;
             var text = message.Split(' ');
 
-            var user = await _userService.AddTaskIdAndWaitPullRequest(update, Int64.Parse(text[1]));
+            var user = await _userTelegramService.AddTaskIdAndWaitPullRequest(update, Int64.Parse(text[1]));
 
             await _botClient.SendTextMessageAsync(user.ChatId, "Отправьте ссылку на pull request.",
                 ParseMode.Markdown);

@@ -10,12 +10,12 @@ namespace HwProj.TelegramBotService.API.Commands
     public class SaveUrlAndWaitComment : Commands
     {
         private readonly TelegramBotClient _botClient;
-        private readonly IUserService _userService;
+        private readonly IUserTelegramService _userTelegramService;
 
-        public SaveUrlAndWaitComment(TelegramBot telegramBot, IUserService userService)
+        public SaveUrlAndWaitComment(TelegramBot telegramBot, IUserTelegramService userTelegramService)
         {
             _botClient = telegramBot.GetBot().Result;
-            _userService = userService;
+            _userTelegramService = userTelegramService;
         }
 
         public override string Name => CommandNames.SaveUrlAndWaitComment;
@@ -25,7 +25,7 @@ namespace HwProj.TelegramBotService.API.Commands
             var message = update.Message.Text;
             
 
-            var user = await _userService.AddGitHubUrlToTask(update, message);
+            var user = await _userTelegramService.AddGitHubUrlToTask(update, message);
 
             await _botClient.SendTextMessageAsync(user.ChatId, "Добавьте комментарий к решению.",
                 ParseMode.Markdown);

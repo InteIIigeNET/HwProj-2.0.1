@@ -13,13 +13,13 @@ using Telegram.Bot.Types;
 
 namespace HwProj.TelegramBotService.API.Service
 {
-    public class UserService : IUserService
+    public class UserTelegramTelegramService : IUserTelegramService
     {
         private readonly ITelegramBotRepository _telegramBotRepository;
         private readonly IAuthServiceClient _authClient;
         private readonly IEventBus _eventBus;
 
-        public UserService(IAuthServiceClient authClient, IEventBus eventBus, ITelegramBotRepository telegramBotRepository)
+        public UserTelegramTelegramService(IAuthServiceClient authClient, IEventBus eventBus, ITelegramBotRepository telegramBotRepository)
         {
             _authClient = authClient;
             _eventBus = eventBus;

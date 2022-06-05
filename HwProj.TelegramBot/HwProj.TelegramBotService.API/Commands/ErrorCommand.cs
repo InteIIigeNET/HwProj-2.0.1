@@ -9,19 +9,19 @@ namespace HwProj.TelegramBotService.API.Commands
     public class ErrorCommand : Commands
     {
         private readonly TelegramBotClient _botClient;
-        private readonly IUserService _userService;
+        private readonly IUserTelegramService _userTelegramService;
 
-        public ErrorCommand(TelegramBot telegramBot, IUserService userService)
+        public ErrorCommand(TelegramBot telegramBot, IUserTelegramService userTelegramService)
         {
             _botClient = telegramBot.GetBot().Result;
-            _userService = userService;
+            _userTelegramService = userTelegramService;
         }
 
         public override string Name => CommandNames.ErrorCommand;
         
         public override async Task ExecuteAsync(Update update)
         {
-            var user = await _userService.UserByUpdate(update);
+            var user = await _userTelegramService.UserByUpdate(update);
 
             await _botClient.SendTextMessageAsync(user.ChatId, "Повторите ещё раз!", ParseMode.Markdown);
         }

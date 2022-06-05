@@ -9,21 +9,21 @@ namespace HwProj.TelegramBotService.API.Commands
     public class StartCommand : Commands
     {
         private readonly TelegramBotClient _botClient;
-        private readonly IUserService _userService;
+        private readonly IUserTelegramService _userTelegramService;
 
-        public StartCommand(TelegramBot telegramBot, IUserService userService)
+        public StartCommand(TelegramBot telegramBot, IUserTelegramService userTelegramService)
         {
             _botClient = telegramBot.GetBot().Result;
-            _userService = userService;
+            _userTelegramService = userTelegramService;
         }
 
         public override string Name => CommandNames.StartCommand;
         
         public override async Task ExecuteAsync(Update update)
         {
-            await _userService.DeleteUser(update);
+            await _userTelegramService.DeleteUser(update);
             
-            var user = await _userService.CreateUser(update.Message.Chat.Id);
+            var user = await _userTelegramService.CreateUser(update.Message.Chat.Id);
 
             await _botClient.SendTextMessageAsync(user.ChatId, "Добро пожаловать!\nВведите ваш e-mail на Hw-Proj2.0.1",
                 ParseMode.Markdown);

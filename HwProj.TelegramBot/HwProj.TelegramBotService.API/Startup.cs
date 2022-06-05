@@ -31,7 +31,7 @@ namespace HwProj.TelegramBotService.API
             services.AddScoped<TelegramBot>();
             services.AddScoped<ITelegramBotRepository, TelegramBotRepository>();
             services.AddScoped<ICommandService, CommandService>();
-            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IUserTelegramService, UserTelegramTelegramService>();
             services.AddScoped<Commands.Commands, StartCommand>();
             services.AddScoped<Commands.Commands, GetCourses>();
             services.AddScoped<Commands.Commands, GetHomeworks>();

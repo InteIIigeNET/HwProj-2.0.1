@@ -34,7 +34,7 @@ namespace HwProj.TelegramBotService.Test
 {
     public class Tests
     {
-        private readonly UserService _userService;
+        private readonly UserTelegramTelegramService _userTelegramTelegramService;
         private readonly AuthServiceClient _authService;
 
         public Tests()
@@ -43,7 +43,7 @@ namespace HwProj.TelegramBotService.Test
             _authService = CreateAuthServiceClient();
             var mock = new Mock<IAuthServiceClient>();
             var repo = new Mock<ITelegramBotRepository>();
-            _userService = new UserService(mock.Object, eventBus.Object, repo.Object);
+            _userTelegramTelegramService = new UserTelegramTelegramService(mock.Object, eventBus.Object, repo.Object);
         }
         
         private TelegramBotServiceClient CreateTelegramBotServiceClient()
@@ -117,9 +117,9 @@ namespace HwProj.TelegramBotService.Test
                Code = "AAAAA",
                Operation = "wait_code"
             };
-            await _userService.CreateUser(chatId);
-            userTelegram = await _userService.AddEmailToUser(chatId, email);
-            await _userService.AddFinishUser(chatId, userTelegram.Code);
+            await _userTelegramTelegramService.CreateUser(chatId);
+            userTelegram = await _userTelegramTelegramService.AddEmailToUser(chatId, email);
+            await _userTelegramTelegramService.AddFinishUser(chatId, userTelegram.Code);
             return userTelegram.ChatId;
         }
 

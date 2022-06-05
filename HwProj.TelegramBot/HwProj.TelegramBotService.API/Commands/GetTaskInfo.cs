@@ -14,21 +14,21 @@ namespace HwProj.TelegramBotService.API.Commands
     {
         private readonly ICoursesServiceClient _coursesServiceClient;
         private readonly TelegramBotClient _botClient;
-        private readonly IUserService _userService;
+        private readonly IUserTelegramService _userTelegramService;
 
         public GetTaskInfo(TelegramBot telegramBot, ICoursesServiceClient coursesServiceClient,
-            IUserService userService)
+            IUserTelegramService userTelegramService)
         {
             _botClient = telegramBot.GetBot().Result;
             _coursesServiceClient = coursesServiceClient;
-            _userService = userService;
+            _userTelegramService = userTelegramService;
         }
         
         public override string Name => CommandNames.GetTaskInfo;
         
         public override async Task ExecuteAsync(Update update)
         {
-            var user = await _userService.UserByUpdate(update);
+            var user = await _userTelegramService.UserByUpdate(update);
             var message = update.CallbackQuery.Data;
             var text = message.Split(' ');
             var task = _coursesServiceClient.GetTask(Int64.Parse(text[1])).Result;

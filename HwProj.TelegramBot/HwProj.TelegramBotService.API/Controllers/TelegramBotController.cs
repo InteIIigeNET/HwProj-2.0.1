@@ -13,12 +13,12 @@ namespace HwProj.TelegramBotService.API.Controllers
     public class TelegramBotController : Controller
     {
         private readonly ICommandService _commandService;
-        private readonly IUserService _userService;
+        private readonly IUserTelegramService _userTelegramService;
 
-        public TelegramBotController(ICommandService commandService, IUserService userService)
+        public TelegramBotController(ICommandService commandService, IUserTelegramService userTelegramService)
         {
             _commandService = commandService;
-            _userService = userService;
+            _userTelegramService = userTelegramService;
         }
         
         [HttpPost]
@@ -36,7 +36,7 @@ namespace HwProj.TelegramBotService.API.Controllers
         [HttpGet("check/{studentId}")]
         public async Task<IActionResult> CheckUserTelegram(string studentId)
         {
-            var response =  await _userService.CheckTelegramUserModelByStudentId(studentId);
+            var response =  await _userTelegramService.CheckTelegramUserModelByStudentId(studentId);
             return Ok(response);
         }
     }

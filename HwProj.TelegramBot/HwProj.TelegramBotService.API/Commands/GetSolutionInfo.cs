@@ -16,14 +16,14 @@ namespace HwProj.TelegramBotService.API.Commands
         private readonly ISolutionsServiceClient _solutionsServiceClient;
         private readonly ICoursesServiceClient _coursesServiceClient;
         private readonly TelegramBotClient _botClient;
-        private readonly IUserService _userService;
+        private readonly IUserTelegramService _userTelegramService;
 
         public GetSolutionInfo(TelegramBot telegramBot, ISolutionsServiceClient solutionsServiceClient,
-            IUserService userService, ICoursesServiceClient coursesServiceClient)
+            IUserTelegramService userTelegramService, ICoursesServiceClient coursesServiceClient)
         {
             _botClient = telegramBot.GetBot().Result;
             _solutionsServiceClient = solutionsServiceClient;
-            _userService = userService;
+            _userTelegramService = userTelegramService;
             _coursesServiceClient = coursesServiceClient;
         }
         
@@ -31,7 +31,7 @@ namespace HwProj.TelegramBotService.API.Commands
         
         public override async Task ExecuteAsync(Update update)
         {
-            var user = await _userService.UserByUpdate(update);
+            var user = await _userTelegramService.UserByUpdate(update);
             var message = update.CallbackQuery.Data;
             var text = message.Split(' ');
             var solution =_solutionsServiceClient.GetSolutionById(Int32.Parse(text[1])).Result;
