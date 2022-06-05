@@ -4,26 +4,27 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using HwProj.AuthService.Client;
-using HwProj.Models.AuthService.ViewModels;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
-using Moq;
-using NUnit.Framework;
 using AutoFixture;
 using FluentAssertions;
+using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
+using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.NotificationsService;
 using HwProj.Models.SolutionsService;
 using HwProj.NotificationsService.Client;
 using HwProj.SolutionsService.Client;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
+using Moq;
+using NUnit.Framework;
+
 
 namespace HwProj.NotificationsService.IntegrationTests
 {
     [TestFixture]
-    public class Tests
+    public class NotificationsServiceTests
     {
         private AuthServiceClient CreateAuthServiceClient()
         {
@@ -241,7 +242,7 @@ namespace HwProj.NotificationsService.IntegrationTests
             var hwCreateViewModel = GenerateCreateHomeworkViewModel();
             var taskCreateViewModel = GenerateCreateTaskViewModel();
             var homeworkId = await lectureCourseClient.AddHomeworkToCourse(hwCreateViewModel, courseId);
-            var taskId = await lectureCourseClient.AddTask(taskCreateViewModel, homeworkId);
+            await lectureCourseClient.AddTask(taskCreateViewModel, homeworkId);
             
             Thread.Sleep(5000);
             var notificationClient = CreateNotificationsServiceClient();
