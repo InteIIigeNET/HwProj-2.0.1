@@ -54,10 +54,11 @@ namespace HwProj.Models.CoursesService.ViewModels
         [Required]
         public int MaxRating { get; set; }
         
-        public void InitializeDeadline()
+        public void InitializeDeadline() 
         {
             if (!HasDeadline || DeadlineDate == null)
             {
+                IsDeadlineStrict = false;
                 HasDeadline = false;
                 DeadlineDate = null;
             }
