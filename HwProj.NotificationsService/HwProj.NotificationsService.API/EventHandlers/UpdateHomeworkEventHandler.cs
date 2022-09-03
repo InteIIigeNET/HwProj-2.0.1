@@ -13,18 +13,16 @@ namespace HwProj.NotificationsService.API.EventHandlers
     public class UpdateHomeworkEventHandler : IEventHandler<UpdateHomeworkEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
-        private readonly INotificationsService _notificationsService;
         private readonly IAuthServiceClient _authServiceClient;
         private readonly IConfigurationSection _configuration;
         private readonly IEmailService _emailService;
 
-        public UpdateHomeworkEventHandler(INotificationsRepository notificationRepository,
-            INotificationsService notificationsService,
+        public UpdateHomeworkEventHandler(
+            INotificationsRepository notificationRepository,
             IAuthServiceClient authServiceClient,
-            IConfiguration configuration, 
+            IConfiguration configuration,
             IEmailService emailService)
         {
-            _notificationsService = notificationsService;
             _notificationRepository = notificationRepository;
             _authServiceClient = authServiceClient;
             _emailService = emailService;
@@ -39,15 +37,18 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 var notification = new Notification
                 {
                     Sender = "CourseService",
-                    Body = $"В курсе <a href='{_configuration["Url"]}/courses/{@event.Course.Id}'>{@event.Course.Name}</a> домашнее задание <i>{@event.Homework.Title}</i> обновлено.",
+                    Body =
+                        $"В курсе <a href='{_configuration["Url"]}/courses/{@event.Course.Id}'>{@event.Course.Name}</a> домашнее задание <i>{@event.Homework.Title}</i> обновлено.",
                     Category = "CourseService",
                     Date = DateTime.UtcNow,
                     HasSeen = false,
                     Owner = student.StudentId
                 };
-                
-                await _notificationRepository.AddAsync(notification);
-                await _emailService.SendEmailAsync(notification, studentModel.Email, "Домашняя работа");
+
+                var addNotificationTask = _notificationRepository.AddAsync(notification);
+                var sendEmailTask = _emailService.SendEmailAsync(notification, studentModel.Email, "Домашняя работа");
+
+                await Task.WhenAll(addNotificationTask, sendEmailTask);
             }
         }
     }

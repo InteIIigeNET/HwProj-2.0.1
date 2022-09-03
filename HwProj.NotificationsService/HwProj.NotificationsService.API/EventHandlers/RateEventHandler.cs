@@ -13,19 +13,17 @@ namespace HwProj.NotificationsService.API.EventHandlers
     public class RateEventHandler : IEventHandler<RateEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
-        private readonly INotificationsService _notificationsService;
         private readonly IAuthServiceClient _authServiceClient;
         private readonly IConfigurationSection _configuration;
         private readonly IEmailService _emailService;
 
-        public RateEventHandler(INotificationsRepository notificationRepository,
-            INotificationsService notificationsService,
+        public RateEventHandler(
+            INotificationsRepository notificationRepository,
             IAuthServiceClient authServiceClient,
-            IConfiguration configuration, 
+            IConfiguration configuration,
             IEmailService emailService)
         {
             _notificationRepository = notificationRepository;
-            _notificationsService = notificationsService;
             _authServiceClient = authServiceClient;
             _emailService = emailService;
             _configuration = configuration.GetSection("Notification");
@@ -36,17 +34,20 @@ namespace HwProj.NotificationsService.API.EventHandlers
             var notification = new Notification
             {
                 Sender = "SolutionService",
-                Body = $"Задача <a href='{_configuration["Url"]}/task/{@event.Task.Id}' target='_blank'>{@event.Task.Title}</a> оценена.",
+                Body =
+                    $"Задача <a href='{_configuration["Url"]}/task/{@event.Task.Id}' target='_blank'>{@event.Task.Title}</a> оценена.",
                 Category = "SolutionService",
                 Date = DateTime.UtcNow,
                 HasSeen = false,
                 Owner = @event.Solution.StudentId
             };
-            
-            var studentModel = await _authServiceClient.GetAccountData(notification.Owner);
-            
-            await _notificationRepository.AddAsync(notification);
-            await _emailService.SendEmailAsync(notification, studentModel.Email, "Оценка");
+
+            var student = await _authServiceClient.GetAccountData(notification.Owner);
+
+            var addNotificationTask = _notificationRepository.AddAsync(notification);
+            var sendEmailTask = _emailService.SendEmailAsync(notification, student.Email, "Оценка");
+
+            await Task.WhenAll(addNotificationTask, sendEmailTask);
         }
     }
 }

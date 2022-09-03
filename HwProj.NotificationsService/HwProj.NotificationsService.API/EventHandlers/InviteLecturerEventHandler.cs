@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
 using HwProj.AuthService.API.Events;
-using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
@@ -12,15 +11,11 @@ namespace HwProj.NotificationsService.API.EventHandlers
     public class InviteLecturerEventHandler : IEventHandler<InviteLecturerEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
-        private readonly INotificationsService _notificationsService;
-        private readonly IAuthServiceClient _authServiceClient;
         private readonly IEmailService _emailService;
 
-        public InviteLecturerEventHandler(INotificationsRepository notificationRepository, INotificationsService notificationsService, IAuthServiceClient authServiceClient, IEmailService emailService)
+        public InviteLecturerEventHandler(INotificationsRepository notificationRepository, IEmailService emailService)
         {
             _notificationRepository = notificationRepository;
-            _notificationsService = notificationsService;
-            _authServiceClient = authServiceClient;
             _emailService = emailService;
         }
 
@@ -32,14 +27,13 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 Body = "Вас добавили в список лекторов.",
                 Category = "AuthService",
                 Date = DateTime.UtcNow,
-                HasSeen = false,
                 Owner = @event.UserId
             };
-            
-            var student = await _authServiceClient.GetAccountData(notification.Owner);
-            
-            await _notificationRepository.AddAsync(notification);
-            await _emailService.SendEmailAsync(notification, student.Email, "HwProj");
+
+            var addNotificationTask = _notificationRepository.AddAsync(notification);
+            var sendEmailTask = _emailService.SendEmailAsync(notification, @event.UserEmail, "HwProj");
+
+            await Task.WhenAll(addNotificationTask, sendEmailTask);
         }
     }
 }

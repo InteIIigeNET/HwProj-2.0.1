@@ -15,20 +15,18 @@ namespace HwProj.NotificationsService.API.EventHandlers
     public class UpdateTaskMaxRatingEventHandler : IEventHandler<UpdateTaskMaxRatingEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
-        private readonly INotificationsService _notificationsService;
         private readonly IAuthServiceClient _authServiceClient;
         private readonly IMapper _mapper;
         private readonly IConfigurationSection _configuration;
         private readonly IEmailService _emailService;
 
-        public UpdateTaskMaxRatingEventHandler(INotificationsRepository notificationRepository,
-            INotificationsService notificationsService,
+        public UpdateTaskMaxRatingEventHandler(
+            INotificationsRepository notificationRepository,
             IMapper mapper,
             IAuthServiceClient authServiceClient,
-            IConfiguration configuration, 
+            IConfiguration configuration,
             IEmailService emailService)
         {
-            _notificationsService = notificationsService;
             _notificationRepository = notificationRepository;
             _mapper = mapper;
             _authServiceClient = authServiceClient;
@@ -52,9 +50,11 @@ namespace HwProj.NotificationsService.API.EventHandlers
                     HasSeen = false,
                     Owner = student.StudentId
                 };
-               
-                await _notificationRepository.AddAsync(notification);
-                await _emailService.SendEmailAsync(notification, studentModel.Email, "Домашняя работа");
+
+                var addNotificationTask = _notificationRepository.AddAsync(notification);
+                var sendEmailTask = _emailService.SendEmailAsync(notification, studentModel.Email, "Домашняя работа");
+
+                await Task.WhenAll(addNotificationTask, sendEmailTask);
             }
         }
     }

@@ -13,18 +13,16 @@ namespace HwProj.NotificationsService.API.EventHandlers
     public class StudentPassTaskEventHandler : IEventHandler<StudentPassTaskEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
-        private readonly INotificationsService _notificationsService;
         private readonly IAuthServiceClient _authServiceClient;
         private readonly IConfigurationSection _configuration;
         private readonly IEmailService _emailService;
 
-        public StudentPassTaskEventHandler(INotificationsRepository notificationRepository,
-            INotificationsService notificationsService,
+        public StudentPassTaskEventHandler(
+            INotificationsRepository notificationRepository,
             IAuthServiceClient authServiceClient,
-            IConfiguration configuration, 
+            IConfiguration configuration,
             IEmailService emailService)
         {
-            _notificationsService = notificationsService;
             _notificationRepository = notificationRepository;
             _authServiceClient = authServiceClient;
             _emailService = emailService;
@@ -47,11 +45,13 @@ namespace HwProj.NotificationsService.API.EventHandlers
                     HasSeen = false,
                     Owner = m
                 };
-            
+
                 var mentor = await _authServiceClient.GetAccountData(notification.Owner);
-                
-                await _notificationRepository.AddAsync(notification);
-                await _emailService.SendEmailAsync(notification, mentor.Email, "HwProj");
+
+                var addNotificationTask = _notificationRepository.AddAsync(notification);
+                var sendEmailTask = _emailService.SendEmailAsync(notification, mentor.Email, "HwProj");
+
+                await Task.WhenAll(addNotificationTask, sendEmailTask);
             }
         }
     }

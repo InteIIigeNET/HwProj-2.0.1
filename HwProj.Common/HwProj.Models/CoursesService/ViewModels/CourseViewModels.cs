@@ -36,6 +36,8 @@ namespace HwProj.Models.CoursesService.ViewModels
         public string GroupName { get; set; }
         public bool IsOpen { get; set; }
         public bool IsCompleted { get; set; }
+
+        // TODO: исправить
         public string MentorIds { get; set; }
         public string InviteCode { get; set; }
         public List<CourseMateViewModel> CourseMates { get; set; } = new List<CourseMateViewModel>();

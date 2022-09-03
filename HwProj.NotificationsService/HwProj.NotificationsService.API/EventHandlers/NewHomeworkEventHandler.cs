@@ -15,21 +15,19 @@ namespace HwProj.NotificationsService.API.EventHandlers
     public class NewHomeworkEventHandler : IEventHandler<NewHomeworkEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
-        private readonly INotificationsService _notificationsService;
         private readonly IAuthServiceClient _authServiceClient;
         private readonly IMapper _mapper;
         private readonly IConfigurationSection _configuration;
         private readonly IEmailService _emailService;
 
-        public NewHomeworkEventHandler(INotificationsRepository notificationRepository,
-            INotificationsService notificationsService,
+        public NewHomeworkEventHandler(
+            INotificationsRepository notificationRepository,
             IMapper mapper,
             IAuthServiceClient authServiceClient,
-            IConfiguration configuration, 
+            IConfiguration configuration,
             IEmailService emailService)
         {
             _notificationRepository = notificationRepository;
-            _notificationsService = notificationsService;
             _mapper = mapper;
             _authServiceClient = authServiceClient;
             _emailService = emailService;
@@ -38,23 +36,26 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
         public async Task HandleAsync(NewHomeworkEvent @event)
         {
-            foreach(var student in @event.Course.CourseMates)
+            foreach (var student in @event.Course.CourseMates)
             {
                 var studentAccount = await _authServiceClient.GetAccountData(student.StudentId);
                 var studentModel = _mapper.Map<AccountDataDto>(studentAccount);
                 var notification = new Notification
                 {
                     Sender = "CourseService",
-                    Body = $"В курсе <a href='{_configuration["Url"]}/courses/{@event.Course.Id}'>{@event.Course.Name}</a>" +
-                           $" опубликована новая домашняя работа <i>{@event.Homework}</i>.",
+                    Body =
+                        $"В курсе <a href='{_configuration["Url"]}/courses/{@event.Course.Id}'>{@event.Course.Name}</a>" +
+                        $" опубликована новая домашняя работа <i>{@event.Homework}</i>.",
                     Category = "CourseService",
                     Date = DateTime.UtcNow,
                     HasSeen = false,
                     Owner = student.StudentId
                 };
-                
-                await _notificationRepository.AddAsync(notification);
-                await _emailService.SendEmailAsync(notification, studentModel.Email, "Домашняя работа");
+
+                var addNotificationTask = _notificationRepository.AddAsync(notification);
+                var sendEmailTask = _emailService.SendEmailAsync(notification, studentModel.Email, "Домашняя работа");
+
+                await Task.WhenAll(addNotificationTask, sendEmailTask);
             }
         }
     }

@@ -13,19 +13,17 @@ namespace HwProj.NotificationsService.API.EventHandlers
     public class LecturerRejectToCourseEventHandler : IEventHandler<LecturerRejectToCourseEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
-        private readonly INotificationsService _notificationsService;
         private readonly IAuthServiceClient _authServiceClient;
         private readonly IConfigurationSection _configuration;
         private readonly IEmailService _emailService;
 
-        public LecturerRejectToCourseEventHandler(INotificationsRepository notificationRepository,
-            INotificationsService notificationsService,
+        public LecturerRejectToCourseEventHandler(
+            INotificationsRepository notificationRepository,
             IAuthServiceClient authServiceClient,
-            IConfiguration configuration, 
+            IConfiguration configuration,
             IEmailService emailService)
         {
             _notificationRepository = notificationRepository;
-            _notificationsService = notificationsService;
             _authServiceClient = authServiceClient;
             _emailService = emailService;
             _configuration = configuration.GetSection("Notification");
@@ -36,17 +34,19 @@ namespace HwProj.NotificationsService.API.EventHandlers
             var notification = new Notification
             {
                 Sender = "CourseService",
-                Body = $"Вас не приняли на курс <a href='{_configuration["Url"]}/courses/{@event.CourseId}'>{@event.CourseName}</a>.",
+                Body =
+                    $"Вас не приняли на курс <a href='{_configuration["Url"]}/courses/{@event.CourseId}'>{@event.CourseName}</a>.",
                 Category = "CourseService",
                 Date = DateTime.UtcNow,
-                HasSeen = false,
                 Owner = @event.StudentId
             };
-            
+
             var student = await _authServiceClient.GetAccountData(notification.Owner);
-            
-            await _notificationRepository.AddAsync(notification);
-            await _emailService.SendEmailAsync(notification, student.Email, "HwProj");
+
+            var addNotificationTask = _notificationRepository.AddAsync(notification);
+            var sendEmailTask = _emailService.SendEmailAsync(notification, student.Email, "HwProj");
+
+            await Task.WhenAll(addNotificationTask, sendEmailTask);
         }
     }
 }
