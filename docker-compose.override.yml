@@ -1,0 +1,79 @@
+version: '2.0'
+
+services:
+  mssqllocaldb:
+    container_name: mssqllocaldb
+    environment:
+      SA_PASSWORD: "Your_password123"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1488:1433"
+
+  front:
+    environment:
+      - REACT_APP_BASE_PATH=http://localhost:5000
+    ports:
+      - "3000:3000"
+
+  rabbitmq:
+    container_name: rabbitmq
+    #environment:
+     #- RABBITMQ_DEFAULT_USER=guest
+     #- RABBITMQ_DEFAULT_PASS=guest
+    ports:
+      - "2000:5672"
+      - "2001:15672"
+
+  hwproj.apigateway.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5000
+      - Services:Auth=http://hwproj.authservice.api
+      - Services:Courses=http://hwproj.coursesservice.api
+      - Services:Solutions=http://hwproj.solutionsservice.api
+      - Services:Notifications=http://hwproj.notificationsservice.api
+    ports:
+      - "5000:5000"
+
+  hwproj.authservice.api:
+    environment:
+      - ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=AuthServiceDB;User=sa;Password=Your_password123;
+      - ASPNETCORE_ENVIRONMENT=Development
+      - EventBus:EventBusHostName=rabbitmq
+    ports:
+      - "5001:5001"
+    #volumes:
+     #- ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+     #- /root/.microsoft/usersecrets:/root/.microsoft/usersecrets:ro
+
+  hwproj.coursesservice.api:
+    environment:
+      - ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=CourseWorksServiceDB;MultipleActiveResultSets=True;User=sa;Password=Your_password123;
+      - ASPNETCORE_ENVIRONMENT=Development
+      - EventBus:EventBusHostName=rabbitmq
+      - Services:Auth=http://hwproj.authservice.api
+    ports:
+      - "5002:5002"
+
+  hwproj.notificationsservice.api:
+    environment:
+      - ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=NotificationsServiceDB;MultipleActiveResultSets=True;User=sa;Password=Your_password123;
+      - ASPNETCORE_ENVIRONMENT=Development
+      - EventBus:EventBusHostName=rabbitmq
+      - Services:Auth=http://hwproj.authservice.api
+      - Services:Courses=http://hwproj.coursesservice.api
+      - Services:Solutions=http://hwproj.solutionsservice.api
+    ports:
+      - "5006:5006"
+
+  hwproj.solutionsservice.api:
+    environment:
+      - ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=SolutionServiceDB;User=sa;Password=Your_password123;
+      - ASPNETCORE_ENVIRONMENT=Development
+      - EventBus:EventBusHostName=rabbitmq
+      - Services:Auth=http://hwproj.authservice.api
+      - Services:Courses=http://hwproj.coursesservice.api
+    ports:
+      - "5007:5007"
+    #volumes:
+      #- ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro

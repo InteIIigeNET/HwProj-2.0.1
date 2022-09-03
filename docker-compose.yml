@@ -1,0 +1,78 @@
+version: '2.0'
+
+services:
+  mssqllocaldb:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+
+  front:
+    image: docker.io/intelligenet/hwproj:front-latest
+    #image: ${DOCKER_REGISTRY-}front
+    build:
+      context: ./hwproj.front
+      dockerfile: ./Dockerfile
+    depends_on:
+      - hwproj.apigateway.api
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+
+  hwproj.apigateway.api:
+    image: docker.io/intelligenet/hwproj:apigateway-latest
+    # or 
+    #image: ${REGISTRY:-organization}/hwproj.apigateway.api:${PLATFORM:-linux}-${TAG:-tag}
+    #image: ${DOCKER_REGISTRY-}hwprojapigatewayapi
+    build:
+      context: .
+      dockerfile: HwProj.APIGateway/HwProj.APIGateway.API/Dockerfile
+    depends_on:
+      - rabbitmq
+      - hwproj.authservice.api
+      - hwproj.solutionsservice.api
+      - hwproj.coursesservice.api
+      - hwproj.notificationsservice.api
+
+  hwproj.authservice.api:
+    #image: ${DOCKER_REGISTRY-}hwprojauthserviceapi
+    image: docker.io/intelligenet/hwproj:authservice-latest
+    build:
+      context: .
+      dockerfile: HwProj.AuthService/HwProj.AuthService.API/Dockerfile
+    depends_on:
+      - rabbitmq
+      - mssqllocaldb
+
+  hwproj.coursesservice.api:
+    #image: ${DOCKER_REGISTRY-}hwprojcoursesserviceapi
+    image: docker.io/intelligenet/hwproj:coursesservice-latest
+    build:
+      context: .
+      dockerfile: HwProj.CoursesService/HwProj.CoursesService.API/Dockerfile
+    depends_on:
+      - rabbitmq
+      - hwproj.authservice.api
+      - mssqllocaldb
+
+  hwproj.notificationsservice.api:
+    #image: ${DOCKER_REGISTRY-}hwprojnotificationsserviceapi
+    image: docker.io/intelligenet/hwproj:notificationsservice-latest
+    build:
+      context: .
+      dockerfile: HwProj.NotificationsService/HwProj.NotificationsService.API/Dockerfile
+    depends_on:
+      - rabbitmq
+      - hwproj.authservice.api
+      - hwproj.coursesservice.api
+      - hwproj.solutionsservice.api
+      - mssqllocaldb
+
+  hwproj.solutionsservice.api:
+    #image: ${DOCKER_REGISTRY-}hwprojsolutionsserviceapi
+    image: docker.io/intelligenet/hwproj:solutionsservice-latest
+    build:
+      context: .
+      dockerfile: HwProj.SolutionsService/HwProj.SolutionsService.API/Dockerfile
+    depends_on:
+      - rabbitmq
+      - hwproj.authservice.api
+      - hwproj.coursesservice.api
+      - mssqllocaldb

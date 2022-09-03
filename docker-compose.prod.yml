@@ -1,0 +1,85 @@
+version: '2.0'
+
+# Set ASPNETCORE_ENVIRONMENT= Development or Production, depending if you want to show up errors while testing.
+#
+# You need to start it with the following CLI command:
+# docker-compose -f docker-compose.yml -f docker-compose.prod.yml up
+
+services:
+  mssqllocaldb:
+    container_name: mssqllocaldb
+    environment:
+      SA_PASSWORD: "Your_password123"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433"
+
+  front:
+    ports:
+      - "3000"
+
+  rabbitmq:
+    container_name: rabbitmq
+    #environment:
+     #- RABBITMQ_DEFAULT_USER=guest
+     #- RABBITMQ_DEFAULT_PASS=guest
+    ports:
+      - "5672"
+      - "15672"
+  hwproj.apigateway.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:80
+      - Services:Auth=http://hwproj.authservice.api
+      - Services:Courses=http://hwproj.coursesservice.api
+      - Services:Solutions=http://hwproj.solutionsservice.api
+    ports:
+      - "80"
+
+  hwproj.authservice.api:
+    environment:
+      - ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=AuthServiceDB;User=sa;Password=Your_password123;
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:80
+      - EventBus:EventBusHostName=rabbitmq
+    ports:
+      - "80"
+    #volumes:
+      #- /root/.microsoft/usersecrets:/root/.microsoft/usersecrets:ro
+      #- ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+
+  hwproj.coursesservice.api:
+    environment:
+      - ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=CourseWorksServiceDB;MultipleActiveResultSets=True;User=sa;Password=Your_password123;
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:80
+      - EventBus:EventBusHostName=rabbitmq
+      - Services:Auth=http://hwproj.authservice.api
+    ports:
+      - "80"
+
+  hwproj.notificationsservice.api:
+    environment:
+      - ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=NotificationsServiceDB;MultipleActiveResultSets=True;User=sa;Password=Your_password123;
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:80
+      - EventBus:EventBusHostName=rabbitmq
+      - Services:Auth=http://hwproj.authservice.api
+      - Services:Courses=http://hwproj.coursesservice.api
+      - Services:Solutions=http://hwproj.solutionsservice.api
+    ports:
+      - "80"
+
+  hwproj.solutionsservice.api:
+    environment:
+      - ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=SolutionServiceDB;User=sa;Password=Your_password123;
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:80
+      - EventBus:EventBusHostName=rabbitmq
+      - Services:Auth=http://hwproj.authservice.api
+      - Services:Courses=http://hwproj.coursesservice.api
+    ports:
+      - "80"
+    volumes:
+      - /root/.asp.net/https:/root/.aspnet/https:ro
+      #- ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro

@@ -39,9 +39,9 @@ class Api {
   }
 }
 
-const basePath = "http://localhost:5000";
+const basePath = process.env.REACT_APP_BASE_PATH!
+const authService = new AuthService()
 
-const authService = new AuthService();
 let ApiSingleton: Api;
 ApiSingleton = new Api(
   new AccountApi({ basePath: basePath, apiKey: () => "Bearer " + authService.getToken()! }),

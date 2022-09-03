@@ -1,6 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
+    <DockerfileContext>..\..</DockerfileContext>
     <LangVersion>$(CSharpLanguageVersion)</LangVersion>
     <Nullable>$(NullableReferenceTypes)</Nullable>
     <UserSecretsId>467aaa56-ee17-4f11-b2da-7d9a74c68753</UserSecretsId>
@@ -16,9 +19,11 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="9.0.0" />
+    <PackageReference Include="Docker.DotNet" Version="3.125.5" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.3" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.9" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\HwProj.AuthService\HwProj.AuthService.Client\HwProj.AuthService.Client.csproj" />
