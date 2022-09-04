@@ -9,28 +9,28 @@ using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.Client
 {
-    public class NotificationsServiceClient: INotificationsServiceClient
+    public class NotificationsServiceClient : INotificationsServiceClient
     {
         private readonly HttpClient _httpClient;
         private readonly Uri _notificationServiceUri;
-        
+
         public NotificationsServiceClient(IHttpClientFactory clientFactory, IConfiguration configuration)
         {
             _httpClient = clientFactory.CreateClient();
             _notificationServiceUri = new Uri(configuration.GetSection("Services")["Notifications"]);
         }
 
-        public async Task<NotificationViewModel[]> Get(string userId, NotificationFilter filter)
+        public async Task<CategorizedNotifications[]> Get(string userId, NotificationFilter filter)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
                 _notificationServiceUri + $"api/notifications/get/{userId}");
-            
+
             var jsonFilter = JsonConvert.SerializeObject(filter);
             httpRequest.Content = new StringContent(jsonFilter, Encoding.UTF8, "application/json");
-            
+
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<NotificationViewModel[]>() ?? new NotificationViewModel[] { };
+            return await response.DeserializeAsync<CategorizedNotifications[]>() ?? new CategorizedNotifications[] { };
         }
 
         public async Task MarkAsSeen(string userId, long[] notificationIds)

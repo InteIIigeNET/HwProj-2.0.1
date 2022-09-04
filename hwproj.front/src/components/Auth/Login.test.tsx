@@ -11,7 +11,7 @@ const loginMock = ApiSingleton.authService.login as jest.Mock;
 test("makes an api call on 'Войти' button click", async () => {
   const errorMsg = "Invalid Password";
   loginMock.mockRejectedValue(errorMsg);
-  render(<Login />);
+  render(<Login onLogin={() => {}}/>);
 
   const loginBtn = screen.getByRole("button", { name: "Войти" });
 

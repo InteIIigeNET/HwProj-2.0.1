@@ -40,7 +40,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                            $"<a href='{@event.Solution.GithubUrl}' target='_blank'>решение</a>" +
                            $" задачи <a href='{_configuration["Url"]}/task/{@event.Task.Id}'>{@event.Task.Title}</a>" +
                            $" из курса <a href='{_configuration["Url"]}/courses/{@event.Course.Id}'>{@event.Course.Name}</a>.",
-                    Category = "SolutionService",
+                    Category = CategoryState.Homeworks,
                     Date = DateTime.UtcNow,
                     HasSeen = false,
                     Owner = m

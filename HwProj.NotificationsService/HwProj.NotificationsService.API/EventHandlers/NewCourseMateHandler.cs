@@ -42,7 +42,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                     Body =
                         $"Пользователь <a href='{_configuration["Url"]}/profile/{@event.StudentId}'>{user.Name} {user.Surname}</a>" +
                         $" подал заявку на вступление в курс <a href='/courses/{@event.CourseId}'>{@event.CourseName}</a>.",
-                    Category = "CourseService",
+                    Category = CategoryState.Courses,
                     Date = DateTime.UtcNow,
                     HasSeen = false,
                     Owner = m

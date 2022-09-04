@@ -46,7 +46,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                     Body =
                         $"В курсе <a href='{_configuration["Url"]}/courses/{@event.Course.Id}'>{@event.Course.Name}</a>" +
                         $" опубликована новая домашняя работа <i>{@event.Homework}</i>.",
-                    Category = "CourseService",
+                    Category = CategoryState.Homeworks,
                     Date = DateTime.UtcNow,
                     HasSeen = false,
                     Owner = student.StudentId

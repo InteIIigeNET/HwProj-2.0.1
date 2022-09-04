@@ -28,7 +28,7 @@ export default class Courses extends React.Component<{}, ICoursesState> {
         if (!isLoaded) {
             return (
                 <div className="container">
-                    <p>Loading courses...</p>
+                    <p>Загрузка курсов...</p>
                     <CircularProgress/>
                 </div>
             );

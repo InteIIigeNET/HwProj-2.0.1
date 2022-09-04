@@ -2,7 +2,6 @@ import React, {useState} from "react";
 import {makeStyles} from '@material-ui/styles';
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
-import useMediaQuery from "@material-ui/core/useMediaQuery";
 import Link from "@material-ui/core/Link";
 import {IconButton, MenuItem, Typography} from "@material-ui/core";
 import MenuIcon from "@material-ui/icons/Menu";
@@ -59,7 +58,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
 
     return (
         <div>
-            <AppBar style={{position: "static", width: "100vw"}}>
+            <AppBar style={{position: "static", width: "100vw", maxWidth: "100%"}}>
                 <Toolbar>
                     <Typography>
                         <Link
@@ -74,41 +73,44 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                         </Link>
                     </Typography>
                     {props.loggedIn && props.isLecturer &&
-                    (
-                        <div className={classes.tools}>
-                            <IconButton
-                                edge="start"
-                                color="inherit"
-                                aria-label="menu"
-                                onClick={handleClick}
-                            >
-                                <MenuIcon/>
-                            </IconButton>
-                            <Menu
-                                id="simple-menu"
-                                anchorEl={anchorEl}
-                                keepMounted
-                                open={Boolean(anchorEl)}
-                                onClose={handleClose}
-                            >
-                                <MenuItem onClick={openInviteLecturer}>
-                                    Пригласить преподавателя
-                                </MenuItem>
-                                <MenuItem onClick={() => window.location.assign("/create_course")}>
-                                    Создать курс
-                                </MenuItem>
-                                <MenuItem onClick={() => window.location.assign("/profile")}>
-                                    Профиль
-                                </MenuItem>
-                                <MenuItem onClick={() => window.location.assign("/user/edit")}>
-                                    Редактировать данные
-                                </MenuItem>
-                                <MenuItem onClick={props.onLogout}>
-                                    Выйти
-                                </MenuItem>
-                            </Menu>
-                        </div>
-                    )}
+                        (
+                            <div className={classes.tools}>
+                                <IconButton
+                                    edge="start"
+                                    color="inherit"
+                                    aria-label="menu"
+                                    onClick={handleClick}
+                                >
+                                    <MenuIcon/>
+                                </IconButton>
+                                <Menu
+                                    id="simple-menu"
+                                    anchorEl={anchorEl}
+                                    keepMounted
+                                    open={Boolean(anchorEl)}
+                                    onClose={handleClose}
+                                >
+                                    <MenuItem onClick={openInviteLecturer}>
+                                        Пригласить преподавателя
+                                    </MenuItem>
+                                    <MenuItem onClick={() => window.location.assign("/create_course")}>
+                                        Создать курс
+                                    </MenuItem>
+                                    <MenuItem onClick={() => window.location.assign("/profile")}>
+                                        Профиль
+                                    </MenuItem>
+                                    <MenuItem onClick={() => window.location.assign("/notifications")}>
+                                        Уведомления
+                                    </MenuItem>
+                                    <MenuItem onClick={() => window.location.assign("/user/edit")}>
+                                        Редактировать данные
+                                    </MenuItem>
+                                    <MenuItem onClick={props.onLogout}>
+                                        Выйти
+                                    </MenuItem>
+                                </Menu>
+                            </div>
+                        )}
                     {props.loggedIn && !props.isLecturer && (
                         <div className={classes.tools}>
                             <IconButton
@@ -128,6 +130,9 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                             >
                                 <MenuItem onClick={() => window.location.assign("/profile")}>
                                     Профиль
+                                </MenuItem>
+                                <MenuItem onClick={() => window.location.assign("/notifications")}>
+                                    Уведомления
                                 </MenuItem>
                                 <MenuItem onClick={() => window.location.assign("/user/edit")}>
                                     Редактировать данные

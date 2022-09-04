@@ -3,7 +3,7 @@ import {FC, FormEvent, useEffect, useState} from "react";
 import { Redirect } from "react-router-dom";
 import Avatar from '@material-ui/core/Avatar';
 
-import {Button, TextField, Typography, Container, Grid, CircularProgress} from "@material-ui/core";
+import {Button, TextField, Typography, Container, Grid} from "@material-ui/core";
 
 import ApiSingleton from "../api/ApiSingleton";
 import makeStyles from "@material-ui/styles/makeStyles";
