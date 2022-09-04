@@ -59,99 +59,94 @@ const TaskSolutionsPage: FC<RouteComponentProps<ITaskSolutionsProps>> = (props) 
         : undefined
 
     if (taskSolution.isLoaded) {
-        if (
-            !ApiSingleton.authService.isLoggedIn() ||
-            !taskSolution.course.courseMates!.some(
-                (cm) => cm.isAccepted! && cm.studentId == userId
-            ) ||
-            !taskSolution.course.mentorIds!.includes(userId!)
-        )
-        {
+        if (ApiSingleton.authService.isLoggedIn() &&
+            (taskSolution.course.courseMates!.some((cm) => cm.isAccepted! && cm.studentId == userId)
+                || taskSolution.course.mentorIds!.includes(userId!))) {
             return (
-                <Typography variant="h6">
-                    Страница не найдена
-                </Typography>
-            )
-        }
-
-        return (
-            <div style={{ marginBottom: '50px' }}>
-                <Grid container justify="center" style={{marginTop: '20px'}}>
-                    <Grid container justifyContent="space-between" xs={11} >
-                        <Grid item>
-                            <Link
-                                component="button"
-                                style={{color: '#212529'}}
-                                onClick={() => window.location.assign('/courses/' + taskSolution.course.id)}
-                            >
-                                <Typography>
-                                    Назад к курсу
-                                </Typography>
-                            </Link>
+                <div style={{marginBottom: '50px'}}>
+                    <Grid container justify="center" style={{marginTop: '20px'}}>
+                        <Grid container justifyContent="space-between" xs={11}>
+                            <Grid item>
+                                <Link
+                                    component="button"
+                                    style={{color: '#212529'}}
+                                    onClick={() => window.location.assign('/courses/' + taskSolution.course.id)}
+                                >
+                                    <Typography>
+                                        Назад к курсу
+                                    </Typography>
+                                </Link>
+                            </Grid>
                         </Grid>
-                    </Grid>
-                    <Grid container xs={11}>
-                        <Grid item xs={12}>
-                            <Task
-                                task={taskSolution.task}
-                                forStudent={true}
-                                forMentor={false}
-                                onDeleteClick={() => 3}
-                                isExpanded={true}
-                                showForCourse={false}
-                            />
-                        </Grid>
-                        {!taskSolution.addSolution && (
-                            <Grid item xs={6}>
-                                <TaskSolutions
+                        <Grid container xs={11}>
+                            <Grid item xs={12}>
+                                <Task
+                                    task={taskSolution.task}
+                                    forStudent={true}
                                     forMentor={false}
-                                    taskId={+props.match.params.taskId}
-                                    studentId={userId as string}
-                                    maxRating={taskSolution.task!.maxRating!}
+                                    onDeleteClick={() => 3}
+                                    isExpanded={true}
+                                    showForCourse={false}
                                 />
                             </Grid>
-                        )}
-                        {(!taskSolution.addSolution && taskSolution.task.canSendSolution) && (
-                            <Grid item xs={12} style={{ marginTop: "16px" }}>
-                                <Button
-                                    size="small"
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={(e) => {
-                                        e.persist()
-                                        setTaskSolution((prevState) => ({
-                                            ...prevState,
-                                            addSolution: true,
-                                        }))
-                                    }}
-                                >
-                                    Добавить решение
-                                </Button>
-                            </Grid>
-                        )}
-                        {taskSolution.addSolution && (
-                            <Grid item xs={6}>
-                                <div>
+                            {!taskSolution.addSolution && (
+                                <Grid item xs={6}>
                                     <TaskSolutions
                                         forMentor={false}
                                         taskId={+props.match.params.taskId}
                                         studentId={userId as string}
                                         maxRating={taskSolution.task!.maxRating!}
                                     />
-                                </div>
-                                <div style={{ marginTop: "16px" }}>
-                                    <AddSolution
-                                        taskId={+props.match.params.taskId}
-                                        onAdd={getTask}
-                                        onCancel={onCancelAddSolution}
-                                    />
-                                </div>
-                            </Grid>
-                        )}
+                                </Grid>
+                            )}
+                            {(!taskSolution.addSolution && taskSolution.task.canSendSolution) && (
+                                <Grid item xs={12} style={{marginTop: "16px"}}>
+                                    <Button
+                                        size="small"
+                                        variant="contained"
+                                        color="primary"
+                                        onClick={(e) => {
+                                            e.persist()
+                                            setTaskSolution((prevState) => ({
+                                                ...prevState,
+                                                addSolution: true,
+                                            }))
+                                        }}
+                                    >
+                                        Добавить решение
+                                    </Button>
+                                </Grid>
+                            )}
+                            {taskSolution.addSolution && (
+                                <Grid item xs={6}>
+                                    <div>
+                                        <TaskSolutions
+                                            forMentor={false}
+                                            taskId={+props.match.params.taskId}
+                                            studentId={userId as string}
+                                            maxRating={taskSolution.task!.maxRating!}
+                                        />
+                                    </div>
+                                    <div style={{marginTop: "16px"}}>
+                                        <AddSolution
+                                            taskId={+props.match.params.taskId}
+                                            onAdd={getTask}
+                                            onCancel={onCancelAddSolution}
+                                        />
+                                    </div>
+                                </Grid>
+                            )}
+                        </Grid>
                     </Grid>
-                </Grid>
-            </div>
-        )
+                </div>
+            )
+        } else {
+            return (
+                <Typography variant="h6">
+                    Страница не найдена
+                </Typography>
+            )
+        }
     }
     return (
         <div>
