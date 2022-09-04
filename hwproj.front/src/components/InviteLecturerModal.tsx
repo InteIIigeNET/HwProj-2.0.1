@@ -10,7 +10,7 @@ import ApiSingleton from "../api/ApiSingleton";
 import Typography from "@material-ui/core/Typography";
 import Grid from '@material-ui/core/Grid';
 import {Autocomplete} from "@material-ui/lab";
-import {AccountDataDto, UserDataDto} from "../api";
+import {AccountDataDto} from "../api";
 import {Box} from "@material-ui/core";
 
 
@@ -31,7 +31,7 @@ interface InviteLecturerState {
     data: AccountDataDto[];
 }
 
-const InviteLecturer: FC<InviteLecturer> = (props) => {
+const InviteLecturerModal: FC<InviteLecturer> = (props) => {
 
     const [lecturerState, setLecturerState] = useState<InviteLecturerState>({
         email: '',
@@ -53,11 +53,9 @@ const InviteLecturer: FC<InviteLecturer> = (props) => {
             const result = await ApiSingleton.accountApi
                 .apiAccountInviteNewLecturerPost({email: lecturerState.email})
             if (result.succeeded) {
-                const data = await ApiSingleton.accountApi.apiAccountGetAllStudentsGet();
                 setLecturerState((prevState) => ({
                     ...prevState,
-                    info: ['Запрос отправлен'],
-                    data: data
+                    info: ['Запрос отправлен']
                 }))
                 return
             }
@@ -207,4 +205,4 @@ const InviteLecturer: FC<InviteLecturer> = (props) => {
     )
 }
 
-export default InviteLecturer
+export default InviteLecturerModal

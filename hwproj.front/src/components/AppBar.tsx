@@ -7,7 +7,7 @@ import Link from "@material-ui/core/Link";
 import {IconButton, MenuItem, Typography} from "@material-ui/core";
 import MenuIcon from "@material-ui/icons/Menu";
 import Menu from '@material-ui/core/Menu';
-import InviteLecturer from "./InviteLecturer";
+import InviteLecturerModal from "./InviteLecturerModal";
 
 const styles = makeStyles(theme => ({
     tools: {
