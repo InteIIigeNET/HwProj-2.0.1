@@ -72,7 +72,7 @@ const Homework: FC<IHomeworkProps> = (props) => {
                     <div className={classes.tools}>
                         <div className={classes.tool}>
                             <Typography style={{fontSize: '18px'}}>
-                                Домашнее задание {props.homework.title}
+                                {props.homework.title}
                             </Typography>
                         </div>
                         <div>

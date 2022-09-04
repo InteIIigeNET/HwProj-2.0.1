@@ -75,7 +75,7 @@ const Task: FC<ITaskProp> = (props) => {
                 >
                     <div className={classes.tools}>
                         <Typography style={{fontSize: '18px'}}>
-                            Задача {task.title}
+                            {task.title}
                         </Typography>
                         {props.forMentor &&
                         <IconButton aria-label="Delete" onClick={openDialogDeleteTask}>
