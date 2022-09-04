@@ -19,7 +19,7 @@ namespace HwProj.APIGateway.API.Controllers
         }
 
         [HttpGet("get")]
-        [ProducesResponseType(typeof(NotificationViewModel[]), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(CategorizedNotifications[]), (int) HttpStatusCode.OK)]
         public async Task<IActionResult> Get()
         {
             var userId = Request.GetUserId();

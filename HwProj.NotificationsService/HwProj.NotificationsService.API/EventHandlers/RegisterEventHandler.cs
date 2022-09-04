@@ -25,7 +25,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             {
                 Sender = "AuthService",
                 Body = $"{@event.Name} {@event.Surname}, Добро Пожаловать в HwProj2.",
-                Category = "AuthService",
+                Category = CategoryState.Profile,
                 Date = DateTime.UtcNow,
                 HasSeen = false,
                 Owner = @event.UserId

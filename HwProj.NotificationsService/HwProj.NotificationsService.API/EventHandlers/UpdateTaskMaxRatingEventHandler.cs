@@ -45,7 +45,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                     Sender = "CourseService",
                     Body = $"Задача <a href='{_configuration["Url"]}task/{@event.Task.Id}'>{@event.Task.Title}</a>" +
                            $" из курса <a href='{_configuration["Url"]}courses/{@event.Course.Id}'>{@event.Course.Name}</a> обновлена.",
-                    Category = "CourseService",
+                    Category = CategoryState.Courses,
                     Date = DateTime.UtcNow,
                     HasSeen = false,
                     Owner = student.StudentId

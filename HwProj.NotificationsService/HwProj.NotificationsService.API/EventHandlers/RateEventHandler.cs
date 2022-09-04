@@ -36,7 +36,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 Sender = "SolutionService",
                 Body =
                     $"Задача <a href='{_configuration["Url"]}/task/{@event.Task.Id}' target='_blank'>{@event.Task.Title}</a> оценена.",
-                Category = "SolutionService",
+                Category = CategoryState.Homeworks,
                 Date = DateTime.UtcNow,
                 HasSeen = false,
                 Owner = @event.Solution.StudentId
