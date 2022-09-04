@@ -142,8 +142,7 @@ namespace HwProj.CoursesService.API.Services
                 CourseId = courseId,
                 CourseName = course.Name,
                 MentorIds = course.MentorIds,
-                StudentId = studentId,
-                IsAccepted = false
+                StudentId = studentId
             });
 
             return true;
@@ -169,8 +168,7 @@ namespace HwProj.CoursesService.API.Services
                 CourseId = courseId,
                 CourseName = course.Name,
                 MentorIds = course.MentorIds,
-                StudentId = studentId,
-                IsAccepted = false
+                StudentId = studentId
             });
 
             return true;

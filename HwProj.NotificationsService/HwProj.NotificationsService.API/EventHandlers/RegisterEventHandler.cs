@@ -4,22 +4,24 @@ using HwProj.AuthService.API.Events;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
+using HwProj.NotificationsService.API.Services;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {
-    // ReSharper disable once UnusedType.Global
     public class RegisterEventHandler : IEventHandler<StudentRegisterEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
+        private readonly IEmailService _emailService;
 
-        public RegisterEventHandler(INotificationsRepository notificationRepository)
+        public RegisterEventHandler(INotificationsRepository notificationRepository, IEmailService emailService)
         {
             _notificationRepository = notificationRepository;
+            _emailService = emailService;
         }
 
         public async Task HandleAsync(StudentRegisterEvent @event)
         {
-            await _notificationRepository.AddAsync(new Notification
+            var notification = new Notification
             {
                 Sender = "AuthService",
                 Body = $"{@event.Name} {@event.Surname}, Добро Пожаловать в HwProj2.",
@@ -27,7 +29,12 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 Date = DateTime.UtcNow,
                 HasSeen = false,
                 Owner = @event.UserId
-            });
+            };
+
+            var addNotificationTask = _notificationRepository.AddAsync(notification);
+            var sendEmailTask = _emailService.SendEmailAsync(notification, @event.Email, "HwProj");
+
+            await Task.WhenAll(addNotificationTask, sendEmailTask);
         }
     }
 }

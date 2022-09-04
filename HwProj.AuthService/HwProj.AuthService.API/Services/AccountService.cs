@@ -45,7 +45,8 @@ namespace HwProj.AuthService.API.Services
 
             var userRoles = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
             var userRole = userRoles.FirstOrDefault() ?? Roles.StudentRole;
-            return new AccountDataDto(user.Name, user.Surname, user.Email, userRole, user.IsExternalAuth, user.MiddleName);
+            return new AccountDataDto(user.Name, user.Surname, user.Email, userRole, user.IsExternalAuth,
+                user.MiddleName);
         }
 
         public async Task<Result> EditAccountAsync(string id, EditDataDTO model)
@@ -67,7 +68,6 @@ namespace HwProj.AuthService.API.Services
 
             if (result.Succeeded)
             {
-                _eventBus.Publish(new EditProfileEvent(id));
                 return Result.Success();
             }
 
@@ -101,11 +101,11 @@ namespace HwProj.AuthService.API.Services
             var token = await _tokenService.GetTokenAsync(user).ConfigureAwait(false);
             return Result<TokenCredentials>.Success(token);
         }
-        
+
         public async Task<Result<TokenCredentials>> LoginUserByGoogleAsync(GoogleJsonWebSignature.Payload payload)
         {
             if (await _userManager.FindByEmailAsync(payload.Email).ConfigureAwait(false)
-                is var user && user == null)
+                    is var user && user == null)
             {
                 var userModel = new RegisterDataDTO()
                 {
@@ -117,7 +117,7 @@ namespace HwProj.AuthService.API.Services
 
                 return await RegisterUserAsync(userModel);
             }
-            
+
             return await GetToken(user);
         }
 
@@ -127,7 +127,7 @@ namespace HwProj.AuthService.API.Services
             {
                 return Result<TokenCredentials>.Failed("Пользователь уже зарегистрирован");
             }
-            
+
             if (!model.IsExternalAuth && model.Password.Length < 6)
             {
                 return Result<TokenCredentials>.Failed("Пароль должен содержать не менее 6 символов");
@@ -140,11 +140,12 @@ namespace HwProj.AuthService.API.Services
                 ? _userManager.CreateAsync(user)
                 : _userManager.CreateAsync(user, model.Password);
 
-            if (!model.IsExternalAuth && createUserTask.Result.Succeeded && !await _userManager.CheckPasswordAsync(user, model.PasswordConfirm))
+            if (!model.IsExternalAuth && createUserTask.Result.Succeeded &&
+                !await _userManager.CheckPasswordAsync(user, model.PasswordConfirm))
             {
                 return Result<TokenCredentials>.Failed("Пароли не совпадают");
             }
-            
+
             var result = await createUserTask
                 .Then(() => _userManager.AddToRoleAsync(user, Roles.StudentRole))
                 .Then(() =>
@@ -159,7 +160,7 @@ namespace HwProj.AuthService.API.Services
                 var registerEvent = new StudentRegisterEvent(newUser.Id, newUser.Email, newUser.Name,
                     newUser.Surname, newUser.MiddleName);
                 _eventBus.Publish(registerEvent);
-                
+
                 if (!model.IsExternalAuth)
                 {
                     await SignIn(user, model.Password);
@@ -185,7 +186,11 @@ namespace HwProj.AuthService.API.Services
 
             if (result.Succeeded)
             {
-                var inviteEvent = new InviteLecturerEvent(invitedUser.Id);
+                var inviteEvent = new InviteLecturerEvent
+                {
+                    UserId = invitedUser.Id,
+                    UserEmail = invitedUser.Email
+                };
                 _eventBus.Publish(inviteEvent);
                 return Result.Success();
             }
@@ -204,10 +209,12 @@ namespace HwProj.AuthService.API.Services
             {
                 user.Name = model.Name;
             }
+
             if (!string.IsNullOrWhiteSpace(model.Name))
             {
                 user.Surname = model.Surname;
             }
+
             if (!string.IsNullOrWhiteSpace(model.Name))
             {
                 user.MiddleName = model.MiddleName;

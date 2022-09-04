@@ -38,7 +38,6 @@ namespace HwProj.NotificationsService.API
             services.AddEventBus(Configuration);
             services.AddTransient<IEventHandler<StudentRegisterEvent>, RegisterEventHandler>();
             services.AddTransient<IEventHandler<RateEvent>, RateEventHandler>();
-            services.AddTransient<IEventHandler<EditProfileEvent>, EditProfileEventHandler>();
             services.AddTransient<IEventHandler<StudentPassTaskEvent>, StudentPassTaskEventHandler>();
             services.AddTransient<IEventHandler<UpdateHomeworkEvent>, UpdateHomeworkEventHandler>();
             services.AddTransient<IEventHandler<UpdateTaskMaxRatingEvent>, UpdateTaskMaxRatingEventHandler>();
@@ -47,6 +46,7 @@ namespace HwProj.NotificationsService.API
             services.AddTransient<IEventHandler<NewHomeworkEvent>, NewHomeworkEventHandler>();
             services.AddTransient<IEventHandler<InviteLecturerEvent>, InviteLecturerEventHandler>();
             services.AddTransient<IEventHandler<NewCourseMateEvent>, NewCourseMateHandler>();
+            services.AddSingleton<IEmailService, EmailService>();
 
             services.AddHttpClient();
             services.AddAuthServiceClient();
@@ -61,7 +61,6 @@ namespace HwProj.NotificationsService.API
             eventBus.Subscribe<StudentRegisterEvent>();
             eventBus.Subscribe<InviteLecturerEvent>();
             eventBus.Subscribe<RateEvent>();
-            eventBus.Subscribe<EditProfileEvent>();
             eventBus.Subscribe<UpdateHomeworkEvent>();
             eventBus.Subscribe<StudentPassTaskEvent>();
             eventBus.Subscribe<UpdateTaskMaxRatingEvent>();
