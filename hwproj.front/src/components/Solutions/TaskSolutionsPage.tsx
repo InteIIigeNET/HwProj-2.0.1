@@ -61,10 +61,10 @@ const TaskSolutionsPage: FC<RouteComponentProps<ITaskSolutionsProps>> = (props) 
     if (taskSolution.isLoaded) {
         if (
             !ApiSingleton.authService.isLoggedIn() ||
-            taskSolution.course.mentorIds!.includes(userId!) ||
             !taskSolution.course.courseMates!.some(
                 (cm) => cm.isAccepted! && cm.studentId == userId
-            )
+            ) ||
+            !taskSolution.course.mentorIds!.includes(userId!)
         )
         {
             return (
