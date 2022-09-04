@@ -163,7 +163,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                 </Toolbar>
             </AppBar>
             {isOpenInviteLecturer && (
-                <InviteLecturer isOpen={isOpenInviteLecturer} close={closeInviteLecturer}/>
+                <InviteLecturerModal isOpen={isOpenInviteLecturer} close={closeInviteLecturer}/>
             )}
         </div>
     );
