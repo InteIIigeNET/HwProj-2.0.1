@@ -50,7 +50,7 @@ export default class AddHomework extends React.Component<IAddHomeworkProps,
                     <TextField
                         size="small"
                         required
-                        label="Название домашки"
+                        label="Название"
                         variant="outlined"
                         margin="normal"
                         name={this.state.title}
@@ -71,7 +71,7 @@ export default class AddHomework extends React.Component<IAddHomeworkProps,
                             fullWidth
                             rows="4"
                             rowsMax="20"
-                            label="Описание домашки"
+                            label="Описание"
                             variant="outlined"
                             margin="normal"
                             name={this.state.description}
@@ -245,7 +245,7 @@ export default class AddHomework extends React.Component<IAddHomeworkProps,
                             color="primary"
                             type="submit"
                         >
-                            Добавить домашку
+                            Добавить домашнее задание
                         </Button>
                         &nbsp;
                         <Button
