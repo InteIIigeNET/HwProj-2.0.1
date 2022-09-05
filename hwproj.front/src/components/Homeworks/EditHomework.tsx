@@ -94,7 +94,7 @@ const EditHomework: FC<RouteComponentProps<IEditHomeworkProps>> = (props) => {
         ) {
             return (
                 <Typography variant="h6" gutterBottom>
-                    Только преподаватель может редактировать домашку
+                    Только преподаватель может редактировать домашнюю работу
                 </Typography>
             );
         }
@@ -167,7 +167,7 @@ const EditHomework: FC<RouteComponentProps<IEditHomeworkProps>> = (props) => {
                                         rows="4"
                                         fullWidth
                                         rowsMax="20"
-                                        label="Описание домашки"
+                                        label="Описание"
                                         variant="outlined"
                                         margin="normal"
                                         value={editHomework.description}
