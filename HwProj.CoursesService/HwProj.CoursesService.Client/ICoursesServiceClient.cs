@@ -1,8 +1,5 @@
-﻿using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using HwProj.Models.AuthService.DTO;
-using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Result;
 
@@ -10,7 +7,7 @@ namespace HwProj.CoursesService.Client
 {
     public interface ICoursesServiceClient
     {
-        Task<CourseViewModel[]> GetAllCourses();
+        Task<CoursePreview[]> GetAllCourses();
         Task<CourseViewModel> GetCourseById(long courseId, string userId);
         Task<Result> DeleteCourse(long courseId);
         Task<long> CreateCourse(CreateCourseViewModel model, string mentorId);
@@ -18,7 +15,7 @@ namespace HwProj.CoursesService.Client
         Task SignInCourse(long courseId, string studentId);
         Task<Result> AcceptStudent(long courseId, string studentId);
         Task<Result> RejectStudent(long courseId, string studentId);
-        Task<UserCourseDescription[]> GetAllUserCourses(string userId);
+        Task<CoursePreview[]> GetAllUserCourses();
         Task<Result<long>> AddHomeworkToCourse(CreateHomeworkViewModel model, long courseId);
         Task<HomeworkViewModel> GetHomework(long homeworkId);
         Task<Result> UpdateHomework(CreateHomeworkViewModel model, long homeworkId);

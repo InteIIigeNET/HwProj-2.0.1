@@ -1,10 +1,8 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
-using HwProj.Models.Roles;
 using HwProj.Models.StatisticsService;
 using HwProj.SolutionsService.Client;
 using HwProj.Utils.Authorization;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.APIGateway.API.Controllers

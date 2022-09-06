@@ -1,12 +1,13 @@
-﻿namespace HwProj.Models.CoursesService.DTO
+using HwProj.Models.AuthService.DTO;
+
+namespace HwProj.APIGateway.API.Models
 {
-    public class UserCourseDescription
+    public class CoursePreviewView
     {
         public long Id { get; set; }
         public string Name { get; set; }
         public string GroupName { get; set; }
-        public bool IsOpen { get; set; }
         public bool IsCompleted { get; set; }
-        public bool UserIsMentor { get; set; }
+        public AccountDataDto[] Mentors { get; set; }
     }
 }

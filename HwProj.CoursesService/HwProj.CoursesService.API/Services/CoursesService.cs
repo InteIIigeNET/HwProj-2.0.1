@@ -10,9 +10,11 @@ using HwProj.CoursesService.API.Repositories;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
+using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
 using HwProj.Utils;
 using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -174,7 +176,7 @@ namespace HwProj.CoursesService.API.Services
             return true;
         }
 
-        public async Task<UserCourseDescription[]> GetUserCoursesAsync(string userId)
+        public async Task<Course[]> GetUserCoursesAsync(string userId)
         {
             var studentCoursesIds = await _courseMatesRepository
                 .FindAll(cm => cm.StudentId == userId && cm.IsAccepted == true)
@@ -194,16 +196,7 @@ namespace HwProj.CoursesService.API.Services
 
             var mentorCourses = await getMentorCoursesTask.ConfigureAwait(false);
 
-            return studentCourses
-                .Union(mentorCourses)
-                .Select(c =>
-                {
-                    var userCourseDescription = _mapper.Map<UserCourseDescription>(c);
-                    userCourseDescription.UserIsMentor = c.MentorIds.Contains(userId);
-                    return userCourseDescription;
-                })
-                .OrderBy(c => c.UserIsMentor).ThenBy(c => c.Name)
-                .ToArray();
+            return studentCourses.Union(mentorCourses).ToArray();
         }
 
         public async Task AcceptLecturerAsync(long courseId, string lecturerEmail)

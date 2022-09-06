@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using HwProj.APIGateway.API.Models;
+using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.Models.AuthService.DTO;
-using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
 using HwProj.Utils.Authorization;
@@ -19,21 +18,23 @@ namespace HwProj.APIGateway.API.Controllers
     public class CoursesController : ControllerBase
     {
         private readonly ICoursesServiceClient _coursesClient;
+        private readonly IAuthServiceClient _authServiceClient;
 
-        public CoursesController(ICoursesServiceClient coursesClient)
+        public CoursesController(ICoursesServiceClient coursesClient, IAuthServiceClient authServiceClient)
         {
             _coursesClient = coursesClient;
+            _authServiceClient = authServiceClient;
         }
 
         [HttpGet]
-        [ProducesResponseType(typeof(CourseViewModel[]), (int)HttpStatusCode.OK)]
         [Authorize]
-        public async Task<IActionResult> GetAllCourses()
+        public async Task<CoursePreviewView[]> GetAllCourses()
         {
-            var result = await _coursesClient.GetAllCourses();
-            return Ok(result);
+            var courses = await _coursesClient.GetAllCourses();
+            var result = await GetCoursePreviews(courses);
+            return result;
         }
-        
+
         [HttpGet("{courseId}")]
         [ProducesResponseType(typeof(CourseViewModel), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetCourseData(long courseId)
@@ -41,9 +42,9 @@ namespace HwProj.APIGateway.API.Controllers
             var result = await _coursesClient.GetCourseById(courseId, Request.GetUserId());
             return result == null
                 ? NotFound()
-                : Ok(result) as IActionResult;
+                : Ok(result);
         }
-        
+
         [HttpDelete("{courseId}")]
         [Authorize(Roles = Roles.LecturerRole)]
         public async Task<IActionResult> DeleteCourse(long courseId)
@@ -51,7 +52,7 @@ namespace HwProj.APIGateway.API.Controllers
             await _coursesClient.DeleteCourse(courseId);
             return Ok();
         }
-        
+
         [HttpPost("create")]
         [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
@@ -61,7 +62,7 @@ namespace HwProj.APIGateway.API.Controllers
             var result = await _coursesClient.CreateCourse(model, mentorId);
             return Ok(result);
         }
-        
+
         [HttpPost("update/{courseId}")]
         [Authorize(Roles = Roles.LecturerRole)]
         public async Task<IActionResult> UpdateCourse(UpdateCourseViewModel model, long courseId)
@@ -69,7 +70,7 @@ namespace HwProj.APIGateway.API.Controllers
             await _coursesClient.UpdateCourse(model, courseId);
             return Ok();
         }
-        
+
         [HttpPost("signInCourse/{courseId}")]
         [Authorize]
         public async Task<IActionResult> SignInCourse(long courseId)
@@ -78,7 +79,7 @@ namespace HwProj.APIGateway.API.Controllers
             await _coursesClient.SignInCourse(courseId, studentId);
             return Ok();
         }
-        
+
         [HttpPost("acceptStudent/{courseId}/{studentId}")]
         [Authorize(Roles = Roles.LecturerRole)]
         public async Task<IActionResult> AcceptStudent(long courseId, string studentId)
@@ -86,7 +87,7 @@ namespace HwProj.APIGateway.API.Controllers
             await _coursesClient.AcceptStudent(courseId, studentId);
             return Ok();
         }
-        
+
         [HttpPost("rejectStudent/{courseId}/{studentId}")]
         [Authorize(Roles = Roles.LecturerRole)]
         public async Task<IActionResult> RejectStudent(long courseId, string studentId)
@@ -94,17 +95,14 @@ namespace HwProj.APIGateway.API.Controllers
             await _coursesClient.RejectStudent(courseId, studentId);
             return Ok();
         }
-        
+
         [HttpGet("userCourses")]
         [Authorize]
-        [ProducesResponseType(typeof(UserCourseDescription[]), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetAllUserCourses()
+        public async Task<CoursePreviewView[]> GetAllUserCourses()
         {
-            var userId = Request.GetUserId();
-            var result = await _coursesClient.GetAllUserCourses(userId);
-            return result == null
-                ? NotFound()
-                : Ok(result) as IActionResult;
+            var userCourses = await _coursesClient.GetAllUserCourses();
+            var result = await GetCoursePreviews(userCourses);
+            return result;
         }
 
         [HttpGet("acceptLecturer/{courseId}/{lecturerEmail}")]
@@ -114,7 +112,7 @@ namespace HwProj.APIGateway.API.Controllers
             await _coursesClient.AcceptLecturer(courseId, lecturerEmail);
             return Ok();
         }
-        
+
         [HttpGet("getLecturersAvailableForCourse/{courseId}")]
         [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(AccountDataDto[]), (int)HttpStatusCode.OK)]
@@ -122,6 +120,25 @@ namespace HwProj.APIGateway.API.Controllers
         {
             var result = await _coursesClient.GetLecturersAvailableForCourse(courseId);
             return Ok(result.Value);
+        }
+
+        private async Task<CoursePreviewView[]> GetCoursePreviews(CoursePreview[] courses)
+        {
+            var getMentorsTasks = courses.Select(t => _authServiceClient.GetAccountsData(t.MentorIds)).ToList();
+            await Task.WhenAll(getMentorsTasks);
+            var mentorDTOs = getMentorsTasks.Select(t => t.Result);
+
+            var result = courses.Zip(mentorDTOs, (course, mentors) =>
+                new CoursePreviewView
+                {
+                    Id = course.Id,
+                    Name = course.Name,
+                    GroupName = course.GroupName,
+                    IsCompleted = course.IsCompleted,
+                    Mentors = mentors.Where(t => t != null).ToArray()
+                }).ToArray();
+
+            return result;
         }
     }
 }
