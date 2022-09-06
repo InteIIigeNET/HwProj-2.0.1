@@ -25,7 +25,7 @@ namespace HwProj.APIGateway.API.Controllers
         {
             var result = await _coursesClient.GetTask(taskId);
             return result == null
-                ? NotFound()
+                ? NotFound() as IActionResult
                 : Ok(result);
         }
         

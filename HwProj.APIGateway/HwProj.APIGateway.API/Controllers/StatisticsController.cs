@@ -23,7 +23,7 @@ namespace HwProj.APIGateway.API.Controllers
         {
             var result = await _solutionClient.GetCourseStatistics(courseId, UserId);
             return result == null
-                ? Forbid()
+                ? Forbid() as IActionResult
                 : Ok(result);
         }
     }

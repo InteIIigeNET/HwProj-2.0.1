@@ -35,7 +35,7 @@ namespace HwProj.APIGateway.API.Controllers
         {
             var result = await _solutionsClient.GetSolutionById(solutionId);
             return result == null
-                ? NotFound()
+                ? NotFound() as IActionResult
                 : Ok(result);
         }
 
@@ -46,7 +46,7 @@ namespace HwProj.APIGateway.API.Controllers
         {
             var result = await _solutionsClient.GetUserSolution(taskId, studentId);
             return result == null
-                ? NotFound()
+                ? NotFound() as IActionResult
                 : Ok(result);
         }
 
@@ -101,7 +101,7 @@ namespace HwProj.APIGateway.API.Controllers
         {
             var result = await _solutionsClient.GetTaskSolutions(groupId, taskId);
             return result == null
-                ? NotFound()
+                ? NotFound() as IActionResult
                 : Ok(result);
         }
     }
