@@ -8,6 +8,7 @@ namespace HwProj.AuthService.Client
     public interface IAuthServiceClient
     {
         Task<AccountDataDto> GetAccountData(string userId);
+        Task<AccountDataDto?[]> GetAccountsData(string[] userId);
         Task<Result<TokenCredentials>> Register(RegisterViewModel model);
         Task<Result<TokenCredentials>> Login(LoginViewModel model);
         Task<Result> Edit(EditAccountViewModel model, string userId);

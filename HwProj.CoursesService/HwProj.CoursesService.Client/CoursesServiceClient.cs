@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using HwProj.HttpUtils;
 using HwProj.Models.AuthService.DTO;
-using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Result;
 using Microsoft.AspNetCore.Http;
@@ -28,14 +26,14 @@ namespace HwProj.CoursesService.Client
             _coursesServiceUri = new Uri(configuration.GetSection("Services")["Courses"]);
         }
 
-        public async Task<CourseViewModel[]> GetAllCourses()
+        public async Task<CoursePreview[]> GetAllCourses()
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
                 _coursesServiceUri + "api/Courses");
 
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<CourseViewModel[]>();
+            return await response.DeserializeAsync<CoursePreview[]>();
         }
 
         public async Task<CourseViewModel> GetCourseById(long courseId, string userId)
@@ -58,7 +56,7 @@ namespace HwProj.CoursesService.Client
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Delete,
                 _coursesServiceUri + $"api/Courses/{courseId}");
-            
+
             httpRequest.AddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
             return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
@@ -128,14 +126,15 @@ namespace HwProj.CoursesService.Client
             return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
         }
 
-        public async Task<UserCourseDescription[]> GetAllUserCourses(string userId)
+        public async Task<CoursePreview[]> GetAllUserCourses()
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
-                _coursesServiceUri + $"api/Courses/userCourses/{userId}");
+                _coursesServiceUri + "api/Courses/userCourses");
 
+            httpRequest.AddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<UserCourseDescription[]>();
+            return await response.DeserializeAsync<CoursePreview[]>();
         }
 
         public async Task<Result<long>> AddHomeworkToCourse(CreateHomeworkViewModel model, long courseId)

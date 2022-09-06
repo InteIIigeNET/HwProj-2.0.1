@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
@@ -15,7 +14,6 @@ namespace HwProj.CoursesService.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    
     public class CoursesController : Controller
     {
         private readonly ICoursesService _coursesService;
@@ -28,13 +26,11 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpGet]
-        public async Task<CourseViewModel[]> GetAll()
+        public async Task<CoursePreview[]> GetAll()
         {
-            var coursesFromDb = await _coursesService.GetAllAsync().ConfigureAwait(false);
-            var courses = _mapper.Map<CourseViewModel[]>(coursesFromDb).ToList();
-            courses.ForEach(c => c.Homeworks.ForEach(h => h.Tasks.ForEach(t => t.PutPossibilityForSendingSolution())));
-
-            return courses.ToArray();
+            var coursesFromDb = await _coursesService.GetAllAsync();
+            var courses = _mapper.Map<CoursePreview[]>(coursesFromDb).ToArray();
+            return courses;
         }
 
         [HttpGet("{courseId}")]
@@ -55,7 +51,8 @@ namespace HwProj.CoursesService.API.Controllers
 
         [HttpPost("create")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        public async Task<IActionResult> AddCourse([FromBody] CreateCourseViewModel courseViewModel, [FromQuery] string mentorId)
+        public async Task<IActionResult> AddCourse([FromBody] CreateCourseViewModel courseViewModel,
+            [FromQuery] string mentorId)
         {
             var course = _mapper.Map<Course>(courseViewModel);
             var id = await _coursesService.AddAsync(course, mentorId);
@@ -90,7 +87,7 @@ namespace HwProj.CoursesService.API.Controllers
         {
             return await _coursesService.AddStudentAsync(courseId, studentId)
                 ? Ok()
-                : NotFound() as IActionResult;
+                : NotFound();
         }
 
         [HttpPost("acceptStudent/{courseId}")]
@@ -99,7 +96,7 @@ namespace HwProj.CoursesService.API.Controllers
         {
             return await _coursesService.AcceptCourseMateAsync(courseId, studentId)
                 ? Ok()
-                : NotFound() as IActionResult;
+                : NotFound();
         }
 
         [HttpPost("rejectStudent/{courseId}")]
@@ -108,14 +105,16 @@ namespace HwProj.CoursesService.API.Controllers
         {
             return await _coursesService.RejectCourseMateAsync(courseId, studentId)
                 ? Ok()
-                : NotFound() as IActionResult;
+                : NotFound();
         }
 
-        [HttpGet("userCourses/{userId}")]
-        public async Task<IActionResult> GetCourses(string userId)
+        [HttpGet("userCourses")]
+        public async Task<CoursePreview[]> GetCourses()
         {
-            var courses = await _coursesService.GetUserCoursesAsync(userId);
-            return Ok(courses);
+            var userId = Request.GetUserId();
+            var coursesFromDb = await _coursesService.GetUserCoursesAsync(userId);
+            var courses = _mapper.Map<CoursePreview[]>(coursesFromDb).ToArray();
+            return courses;
         }
 
         [HttpGet("acceptLecturer/{courseId}")]
@@ -125,7 +124,7 @@ namespace HwProj.CoursesService.API.Controllers
             await _coursesService.AcceptLecturerAsync(courseId, lecturerEmail);
             return Ok();
         }
-        
+
         [HttpGet("getLecturersAvailableForCourse/{courseId}")]
         [ProducesResponseType(typeof(AccountDataDto[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetLecturersAvailableForCourse(long courseId)
@@ -134,7 +133,7 @@ namespace HwProj.CoursesService.API.Controllers
             var result = await _coursesService.GetLecturersAvailableForCourse(courseId, mentorId);
             return result == null
                 ? NotFound()
-                : Ok(result) as IActionResult;
+                : Ok(result);
         }
     }
 }

@@ -11,8 +11,9 @@ namespace HwProj.CoursesService.API
     {
         public ApplicationProfile()
         {
-            CreateMap<Course, UserCourseDescription>();
-            CreateMap<Course, CourseViewModel>().ReverseMap();
+            CreateMap<Course, CoursePreview>().ForMember(
+                t => t.MentorIds,
+                cm => cm.MapFrom(course => course.MentorIds.Split("/", StringSplitOptions.None)));
             CreateMap<Course, CreateCourseViewModel>().ReverseMap();
             CreateMap<Course, UpdateCourseViewModel>().ReverseMap();
 

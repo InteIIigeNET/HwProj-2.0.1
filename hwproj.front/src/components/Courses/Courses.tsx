@@ -1,13 +1,13 @@
 import * as React from "react";
 import {Tab, Tabs, CircularProgress} from "@material-ui/core";
 import {CoursesList} from "./CoursesList";
-import {CourseViewModel} from "../../api/";
+import {CoursePreviewView} from "../../api/";
 import ApiSingleton from "../../api/ApiSingleton";
 
 interface ICoursesState {
     isLoaded: boolean;
-    myCourses: CourseViewModel[];
-    allCourses: CourseViewModel[];
+    myCourses: CoursePreviewView[];
+    allCourses: CoursePreviewView[];
     tabValue: number;
 }
 
@@ -23,7 +23,7 @@ export default class Courses extends React.Component<{}, ICoursesState> {
     }
 
     public render() {
-        const {isLoaded, myCourses: courses, tabValue} = this.state;
+        const {isLoaded, allCourses, myCourses: courses, tabValue} = this.state;
 
         if (!isLoaded) {
             return (
@@ -49,11 +49,11 @@ export default class Courses extends React.Component<{}, ICoursesState> {
                     }}
                 >
                     <Tab label="Все курсы"/>
-                    {activeCourses.length > 0 && <Tab label="Текущие курсы"/>}
+                    {activeCourses.length > 0 && <Tab label="Ваши курсы"/>}
                     {completedCourses.length > 0 && <Tab label="Завершенные курсы"/>}
                 </Tabs>
                 <br/>
-                {tabValue === 0 && <CoursesList courses={this.state.allCourses}/>}
+                {tabValue === 0 && <CoursesList courses={allCourses}/>}
                 {tabValue === activeCoursesTab && <CoursesList courses={activeCourses}/>}
                 {tabValue === completedCoursesTab && <CoursesList courses={completedCourses}/>}
             </div>
@@ -69,8 +69,8 @@ export default class Courses extends React.Component<{}, ICoursesState> {
             const allCourses = await ApiSingleton.coursesApi.apiCoursesGet();
             this.setState({
                 isLoaded: true,
-                myCourses: courses,
-                allCourses: allCourses,
+                myCourses: courses.reverse(),
+                allCourses: allCourses.reverse(),
             })
         } catch (error) {
             this.setState({

@@ -9,13 +9,8 @@ namespace HwProj.Utils.Authorization
 {
     public static class AuthExtensions
     {
-        public static string GetUserId(this HttpRequest request)
-        {
-            var id = request.HttpContext.User.Claims.FirstOrDefault(claim => claim.Type.ToString() == "_id");
-            return id == null
-                ? null
-                : id.Value;
-        }
+        public static string? GetUserId(this HttpRequest request) =>
+            request.Headers.TryGetValue("UserId", out var id) ? id.FirstOrDefault() : null;
 
         public static string GetUserName(this HttpRequest request)
         {
@@ -39,8 +34,8 @@ namespace HwProj.Utils.Authorization
         public static string GetMentorId(this HttpRequest request)
         {
             request.HttpContext.Request.Headers.TryGetValue("UserId", out var userId);
-            return StringValues.IsNullOrEmpty(userId) 
-                ? null 
+            return StringValues.IsNullOrEmpty(userId)
+                ? null
                 : userId.ToString();
         }
     }

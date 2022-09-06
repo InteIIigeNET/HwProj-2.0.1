@@ -35,7 +35,16 @@ namespace HwProj.AuthService.API.Controllers
 
             return accountData != null
                 ? Ok(accountData)
-                : NotFound() as IActionResult;
+                : NotFound();
+        }
+
+        [HttpGet("getUsersData")]
+        public async Task<AccountDataDto?[]> GetUsersData([FromBody] string[] userIds)
+        {
+            var getAccountsDataTasks = userIds.Select(_accountService.GetAccountDataAsync).ToList();
+            await Task.WhenAll(getAccountsDataTasks);
+
+            return getAccountsDataTasks.Select(t => t.Result).ToArray();
         }
 
         [HttpPost("register")]
@@ -54,7 +63,7 @@ namespace HwProj.AuthService.API.Controllers
             var tokenMeta = await _accountService.LoginUserAsync(model).ConfigureAwait(false);
             return Ok(tokenMeta);
         }
-        
+
         [HttpPut("edit/{userId}")]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Edit([FromBody] EditAccountViewModel model, string userId)
@@ -63,7 +72,7 @@ namespace HwProj.AuthService.API.Controllers
             var result = await _accountService.EditAccountAsync(userId, newModel).ConfigureAwait(false);
             return Ok(result);
         }
-        
+
         [HttpPost("inviteNewLecturer")]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> InviteNewLecturer(InviteLecturerViewModel model)
@@ -71,16 +80,17 @@ namespace HwProj.AuthService.API.Controllers
             var result = await _accountService.InviteNewLecturer(model.Email).ConfigureAwait(false);
             return Ok(result);
         }
-        
+
         [HttpPost("google/{tokenId}")]
         [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GoogleRegister(string tokenId)
         {
-            var payload = await GoogleJsonWebSignature.ValidateAsync(tokenId, new GoogleJsonWebSignature.ValidationSettings());
+            var payload =
+                await GoogleJsonWebSignature.ValidateAsync(tokenId, new GoogleJsonWebSignature.ValidationSettings());
             var result = await _accountService.LoginUserByGoogleAsync(payload).ConfigureAwait(false);
             return Ok(result);
         }
-        
+
         [HttpPut("editExternal/{userId}")]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> EditExternal([FromBody] EditExternalViewModel model, string userId)
@@ -113,19 +123,20 @@ namespace HwProj.AuthService.API.Controllers
         {
             var allStudents = await _accountService.GetUsersInRole(Roles.StudentRole);
             var result = allStudents
-                .Select(u => new AccountDataDto(u.Name, u.Surname, u.Email, Roles.StudentRole, u.IsExternalAuth, u.MiddleName))
+                .Select(u =>
+                    new AccountDataDto(u.Name, u.Surname, u.Email, Roles.StudentRole, u.IsExternalAuth, u.MiddleName))
                 .ToArray();
-            
+
             return Ok(result);
         }
-        
+
         [HttpGet("getAllLecturers")]
         [ProducesResponseType(typeof(User[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetAllLecturers()
         {
             var allLecturers = await _accountService.GetUsersInRole(Roles.LecturerRole);
             var result = allLecturers.ToArray();
-            
+
             return Ok(result);
         }
     }

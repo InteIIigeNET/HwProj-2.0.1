@@ -2,6 +2,7 @@
 using HwProj.CoursesService.API.Models;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
+using HwProj.Models.CoursesService.ViewModels;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -15,7 +16,7 @@ namespace HwProj.CoursesService.API.Services
         Task<bool> AddStudentAsync(long courseId, string studentId);
         Task<bool> AcceptCourseMateAsync(long courseId, string studentId);
         Task<bool> RejectCourseMateAsync(long courseId, string studentId);
-        Task<UserCourseDescription[]> GetUserCoursesAsync(string userId);
+        Task<Course[]> GetUserCoursesAsync(string userId);
         Task AcceptLecturerAsync(long courseId, string lecturerEmail);
         Task<AccountDataDto[]> GetLecturersAvailableForCourse(long courseId, string mentorId);
         Task<string[]> GetCourseLecturers(long courseId);
