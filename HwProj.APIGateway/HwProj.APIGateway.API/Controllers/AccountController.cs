@@ -2,14 +2,12 @@ using System.Net;
 using System.Threading.Tasks;
 using HwProj.AuthService.Client;
 using HwProj.Models.ApiGateway;
-using HwProj.Models.AuthService;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.NotificationsService;
 using HwProj.Models.Result;
 using HwProj.Models.Roles;
 using HwProj.NotificationsService.Client;
-using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,7 +15,7 @@ namespace HwProj.APIGateway.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AccountController : ControllerBase
+    public class AccountController : AggregationController
     {
         private readonly INotificationsServiceClient _notificationsClient;
         private readonly IAuthServiceClient _authClient;
@@ -35,7 +33,7 @@ namespace HwProj.APIGateway.API.Controllers
             var result = await _authClient.GetAccountData(userId);
             return result == null
                 ? NotFound()
-                : Ok(result) as IActionResult;
+                : Ok(result);
         }
 
         [HttpGet("getUserData")]
@@ -43,10 +41,8 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(UserDataDto), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetUserData()
         {
-            var userId = Request.GetUserId();
-
-            var getAccountDataTask = _authClient.GetAccountData(userId);
-            var getNotificationsTask = _notificationsClient.Get(userId, new NotificationFilter());
+            var getAccountDataTask = _authClient.GetAccountData(UserId);
+            var getNotificationsTask = _notificationsClient.Get(UserId, new NotificationFilter());
 
             await Task.WhenAll(getAccountDataTask, getNotificationsTask);
 
@@ -79,8 +75,7 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Edit(EditAccountViewModel model)
         {
-            var userId = Request.GetUserId();
-            var result = await _authClient.Edit(model, userId).ConfigureAwait(false);
+            var result = await _authClient.Edit(model, UserId);
             return Ok(result);
         }
 
@@ -92,7 +87,7 @@ namespace HwProj.APIGateway.API.Controllers
             var result = await _authClient.InviteNewLecturer(model).ConfigureAwait(false);
             return Ok(result);
         }
-        
+
         [HttpPost("google")]
         [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> LoginByGoogle(string tokenId)
@@ -100,14 +95,13 @@ namespace HwProj.APIGateway.API.Controllers
             var tokenMeta = await _authClient.LoginByGoogle(tokenId).ConfigureAwait(false);
             return Ok(tokenMeta);
         }
-        
+
         [HttpPut("editExternal")]
         [Authorize]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> EditExternal(EditExternalViewModel model)
         {
-            var userId = Request.GetUserId();
-            var result = await _authClient.EditExternal(model, userId).ConfigureAwait(false);
+            var result = await _authClient.EditExternal(model, UserId);
             return Ok(result);
         }
 

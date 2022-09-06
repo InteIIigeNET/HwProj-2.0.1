@@ -7,7 +7,6 @@ using HwProj.CoursesService.Client;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
-using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,7 +14,7 @@ namespace HwProj.APIGateway.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CoursesController : ControllerBase
+    public class CoursesController : AggregationController
     {
         private readonly ICoursesServiceClient _coursesClient;
         private readonly IAuthServiceClient _authServiceClient;
@@ -39,7 +38,7 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(CourseViewModel), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetCourseData(long courseId)
         {
-            var result = await _coursesClient.GetCourseById(courseId, Request.GetUserId());
+            var result = await _coursesClient.GetCourseById(courseId, UserId);
             return result == null
                 ? NotFound()
                 : Ok(result);
@@ -58,8 +57,7 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> CreateCourse(CreateCourseViewModel model)
         {
-            var mentorId = Request.GetUserId();
-            var result = await _coursesClient.CreateCourse(model, mentorId);
+            var result = await _coursesClient.CreateCourse(model, UserId);
             return Ok(result);
         }
 
@@ -75,8 +73,7 @@ namespace HwProj.APIGateway.API.Controllers
         [Authorize]
         public async Task<IActionResult> SignInCourse(long courseId)
         {
-            var studentId = Request.GetUserId();
-            await _coursesClient.SignInCourse(courseId, studentId);
+            await _coursesClient.SignInCourse(courseId, UserId);
             return Ok();
         }
 

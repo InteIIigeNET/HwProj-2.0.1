@@ -11,6 +11,7 @@ namespace HwProj.CoursesService.API
     {
         public ApplicationProfile()
         {
+            CreateMap<Course, CourseViewModel>();
             CreateMap<Course, CoursePreview>().ForMember(
                 t => t.MentorIds,
                 cm => cm.MapFrom(course => course.MentorIds.Split("/", StringSplitOptions.None)));

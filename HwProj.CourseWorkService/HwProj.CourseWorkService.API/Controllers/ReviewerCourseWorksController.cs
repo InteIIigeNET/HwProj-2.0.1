@@ -39,7 +39,7 @@ namespace HwProj.CourseWorkService.API.Controllers
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ReviewerOverviewCourseWorkDTO[]))]
 		public async Task<IActionResult> GetCourseWorksInBidding()
 		{
-			var userId = Request.GetUserId();
+			var userId = Request.GetUserIdFromHeader();
 			var courseWorksDTO = await _reviewService.GetCourseWorksInBiddingForReviewer(userId)
 				.ConfigureAwait(false);
 			return Ok(courseWorksDTO);
@@ -52,7 +52,7 @@ namespace HwProj.CourseWorkService.API.Controllers
 			{
 				return NotFound();
 			}
-			var userId = Request.GetUserId();
+			var userId = Request.GetUserIdFromHeader();
 
 			await _reviewService.CreateCourseWorkBid(userId, courseWorkId, biddingValue).ConfigureAwait(false);
 			return Ok();

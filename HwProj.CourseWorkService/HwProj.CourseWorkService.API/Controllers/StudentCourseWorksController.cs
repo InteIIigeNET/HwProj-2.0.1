@@ -48,7 +48,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         [HttpPut("profile")]
         public async Task<IActionResult> UpdateProfileAsync([FromBody]StudentProfileViewModel studentProfileViewModel)
         {
-            var userId = Request.GetUserId();
+            var userId = Request.GetUserIdFromHeader();
             await _userService.UpdateUserRoleProfile<StudentProfile, StudentProfileViewModel>(userId, studentProfileViewModel)
                 .ConfigureAwait(false);
             return Ok();
@@ -58,7 +58,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         [ProducesResponseType(typeof(StudentApplicationDTO), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetStudentApplication(long appId)
         {
-            var userId = Request.GetUserId();
+            var userId = Request.GetUserIdFromHeader();
             var studentApplicationDTO = await _applicationsService.GetApplicationForStudentAsync(userId, appId)
                 .ConfigureAwait(false);
             return Ok(studentApplicationDTO);
@@ -67,7 +67,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         [HttpDelete("applications/{appId}")]
         public async Task<IActionResult> CancelApplicationToCourseWork(long appId)
         {
-            var userId = Request.GetUserId();
+            var userId = Request.GetUserIdFromHeader();
             await _applicationsService.CancelApplicationAsync(userId, appId);
             return Ok();
         }
@@ -76,7 +76,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> ApplyToCourseWork([FromBody] CreateApplicationViewModel createApplicationViewModel, long courseWorkId)
         {
-	        var userId = Request.GetUserId();
+	        var userId = Request.GetUserIdFromHeader();
 	        var id = await _courseWorksService
 		        .ApplyToCourseWorkAsync(userId, courseWorkId, createApplicationViewModel)
 		        .ConfigureAwait(false);
@@ -87,7 +87,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         [ProducesResponseType(typeof(DeadlineDTO[]), (int) HttpStatusCode.OK)]
         public async Task<IActionResult> GetChoiceThemeDeadlineAsync()
         {
-	        var userId = Request.GetUserId();
+	        var userId = Request.GetUserIdFromHeader();
 	        var deadlineDTO = await _universityService.GetChoiceThemeDeadlineAsync(userId).ConfigureAwait(false);
 	        var result = new List<DeadlineDTO>();
 	        if (deadlineDTO != null)

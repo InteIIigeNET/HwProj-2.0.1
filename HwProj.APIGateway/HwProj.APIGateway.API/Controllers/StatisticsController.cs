@@ -2,14 +2,13 @@
 using System.Threading.Tasks;
 using HwProj.Models.StatisticsService;
 using HwProj.SolutionsService.Client;
-using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.APIGateway.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class StatisticsController : ControllerBase
+    public class StatisticsController : AggregationController
     {
         private readonly ISolutionsServiceClient _solutionClient;
 
@@ -22,11 +21,10 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(StatisticsCourseMatesModel[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetCourseStatistics(long courseId)
         {
-            var userId = Request.GetUserId();
-            var result = await _solutionClient.GetCourseStatistics(courseId, userId);
+            var result = await _solutionClient.GetCourseStatistics(courseId, UserId);
             return result == null
                 ? Forbid()
-                : Ok(result) as IActionResult;
+                : Ok(result);
         }
     }
 }

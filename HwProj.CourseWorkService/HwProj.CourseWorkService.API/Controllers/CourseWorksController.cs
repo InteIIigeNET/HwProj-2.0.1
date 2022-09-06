@@ -65,7 +65,7 @@ namespace HwProj.CourseWorkService.API.Controllers
                 return NotFound();
             }
 
-            var userId = Request.GetUserId();
+            var userId = Request.GetUserIdFromHeader();
             var courseWorks = await _courseWorksService
                 .GetFilteredCourseWorksAsync(courseWork => courseWork.IsCompleted == (status == "completed") && 
                     role == Roles.Student ? courseWork.StudentProfileId == userId :
@@ -112,7 +112,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         [ProducesResponseType(typeof(RoleDTO[]), (int) HttpStatusCode.OK)]
         public async Task<IActionResult> GetUserRoles()
         {
-            var userId = Request.GetUserId();
+            var userId = Request.GetUserIdFromHeader();
             var rolesDTO = await _userService.GetUserRoles(userId).ConfigureAwait(false);
             return Ok(rolesDTO);
         }
@@ -122,7 +122,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         [ProducesResponseType(typeof(UserFullInfoDTO), (int) HttpStatusCode.OK)]
         public async Task<IActionResult> GetUserFullInfo()
         {
-            var userId = Request.GetUserId();
+            var userId = Request.GetUserIdFromHeader();
             var userFullInfoDTO = await _userService.GetUserFullInfo(userId).ConfigureAwait(false);
             return Ok(userFullInfoDTO);
         }
@@ -137,7 +137,7 @@ namespace HwProj.CourseWorkService.API.Controllers
                 return NotFound();
             }
 
-            var userId = Request.GetUserId();
+            var userId = Request.GetUserIdFromHeader();
             var applications = await _applicationsService
                 .GetFilteredApplicationsAsync(app => app.StudentProfileId == userId || app.CourseWork.LecturerProfileId == userId)
                 .ConfigureAwait(false);
@@ -148,7 +148,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         [HttpPost("{courseWorkId}/reference")]
         public async Task<IActionResult> AddReference([FromBody] UpdateReferenceViewModel referenceViewModel, long courseWorkId)
         {
-	        var userId = Request.GetUserId();
+	        var userId = Request.GetUserIdFromHeader();
 	        await _courseWorksService.UpdateReferenceInCourseWorkAsync(userId, courseWorkId, referenceViewModel.Reference)
 		        .ConfigureAwait(false);
 	        return Ok();
@@ -158,7 +158,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         [HttpDelete("{courseWorkId}/reference")]
         public async Task<IActionResult> DeleteReference(long courseWorkId)
         {
-	        var userId = Request.GetUserId();
+	        var userId = Request.GetUserIdFromHeader();
 	        await _courseWorksService.UpdateReferenceInCourseWorkAsync(userId, courseWorkId, remove: true);
 
 	        return Ok();
@@ -179,7 +179,7 @@ namespace HwProj.CourseWorkService.API.Controllers
 		        return BadRequest();
 	        }
 
-	        var userId = Request.GetUserId();
+	        var userId = Request.GetUserIdFromHeader();
 	        var id = await _courseWorksService.AddWorkFileToCourseWorkAsync(userId, courseWorkId, fileType, file);
 
 	        return Ok(id);
@@ -189,7 +189,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         [HttpDelete("{courseWorkId}/files/{fileId}")]
         public async Task<IActionResult> DeleteFile(long fileId, long courseWorkId)
         {
-	        var userId = Request.GetUserId();
+	        var userId = Request.GetUserIdFromHeader();
 	        await _courseWorksService.RemoveWorkFileAsync(userId, courseWorkId, fileId).ConfigureAwait(false);
 	        return Ok();
         }
@@ -214,7 +214,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         [ProducesResponseType(typeof(DeadlineDTO[]), (int) HttpStatusCode.OK)]
         public async Task<IActionResult> GetCourseWorkDeadlines(long courseWorkId)
         {
-	        var userId = Request.GetUserId();
+	        var userId = Request.GetUserIdFromHeader();
 	        var deadlinesDTO = await _universityService.GetCourseWorkDeadlinesAsync(userId, courseWorkId)
 		        .ConfigureAwait(false);
 	        return Ok(deadlinesDTO);
@@ -224,7 +224,7 @@ namespace HwProj.CourseWorkService.API.Controllers
 		[HttpPost("reviewers/new")]
 		public async Task<IActionResult> BecomeReviewer()
 		{
-			var userId = Request.GetUserId();
+			var userId = Request.GetUserIdFromHeader();
 			await _userService.AddReviewerRoleToUser(userId).ConfigureAwait(false);
 			return Ok();
 		}
@@ -233,7 +233,7 @@ namespace HwProj.CourseWorkService.API.Controllers
 		[HttpDelete("reviewers/remove")]
 		public async Task<IActionResult> RemoveReviewerRole()
 		{
-			var userId = Request.GetUserId();
+			var userId = Request.GetUserIdFromHeader();
 			await _userService.RemoveReviewerRole(userId).ConfigureAwait(false);
 			return Ok();
 		}

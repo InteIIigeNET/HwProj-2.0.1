@@ -50,7 +50,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         [ProducesResponseType(typeof(int), (int) HttpStatusCode.OK)]
         public async Task<IActionResult> AddCourseWorkAsync([FromBody] CreateCourseWorkViewModel createCourseWorkViewModel)
         {
-            var userId = Request.GetUserId();
+            var userId = Request.GetUserIdFromHeader();
             var id = await _courseWorksService.AddCourseWorkAsync(createCourseWorkViewModel, userId, true);
             return Ok(id);
         }
@@ -64,7 +64,7 @@ namespace HwProj.CourseWorkService.API.Controllers
 		        return NotFound();
 	        }
 
-	        var userId = Request.GetUserId();
+	        var userId = Request.GetUserIdFromHeader();
 	        var courseWorks = await _courseWorksService
 		        .GetFilteredCourseWorksAsync(courseWork =>
 			        courseWork.IsCompleted == (status == "completed") &&
@@ -77,7 +77,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         [HttpPut("profile")]
         public async Task<IActionResult> UpdateProfileAsync([FromBody] CuratorProfileViewModel curatorProfileViewModel)
         {
-            var userId = Request.GetUserId();
+            var userId = Request.GetUserIdFromHeader();
             await _userService.UpdateUserRoleProfile<CuratorProfile, CuratorProfileViewModel>(userId, curatorProfileViewModel)
                 .ConfigureAwait(false);
             return Ok();
@@ -124,7 +124,7 @@ namespace HwProj.CourseWorkService.API.Controllers
 		[ProducesResponseType(typeof(DeadlineDTO[]), (int)HttpStatusCode.OK)]
 		public async Task<IActionResult> GetDeadlinesAsync()
 		{
-			var userId = Request.GetUserId();
+			var userId = Request.GetUserIdFromHeader();
 			var deadlinesDTO = await _universityService.GetCuratorDeadlines(userId).ConfigureAwait(false);
 			return Ok(deadlinesDTO);
 		}
@@ -141,7 +141,7 @@ namespace HwProj.CourseWorkService.API.Controllers
 				return BadRequest();
 			}
 
-			var userId = Request.GetUserId();
+			var userId = Request.GetUserIdFromHeader();
 			var id = await _universityService.AddDeadlineAsync(userId, addDeadlineViewModel).ConfigureAwait(false);
 			return Ok(id);
 		}
@@ -149,7 +149,7 @@ namespace HwProj.CourseWorkService.API.Controllers
 		[HttpDelete("deadlines/{deadlineId}")]
 		public async Task<IActionResult> DeleteDeadlineAsync(long deadlineId)
 		{
-			var userId = Request.GetUserId();
+			var userId = Request.GetUserIdFromHeader();
 			await _universityService.DeleteDeadlineAsync(userId, deadlineId).ConfigureAwait(false);
 			return Ok();
 		}
@@ -174,7 +174,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserDTO[]))]
         public async Task<IActionResult> GetReviewersInBidding()
         {
-            var userId = Request.GetUserId();
+            var userId = Request.GetUserIdFromHeader();
             var usersDTO = await _reviewService.GetReviewersInBidding(userId).ConfigureAwait(false);
 	        return Ok(usersDTO);
         }
@@ -182,7 +182,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         [HttpPost("reviewers/set_to_bidding")]
 		public async Task<IActionResult> SetReviewersToBidding([FromBody] ReviewersForBiddingListViewModel reviewersListViewModel)
 		{
-			var userId = Request.GetUserId();
+			var userId = Request.GetUserIdFromHeader();
 			await _reviewService.SetReviewersToBidding(userId, reviewersListViewModel.ReviewersId)
 				.ConfigureAwait(false);
 			return Ok();
