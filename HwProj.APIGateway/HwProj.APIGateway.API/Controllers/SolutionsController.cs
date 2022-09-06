@@ -3,9 +3,7 @@ using System.Threading.Tasks;
 using HwProj.APIGateway.API.ExceptionFilters;
 using HwProj.Models.Roles;
 using HwProj.Models.SolutionsService;
-using HwProj.NotificationsService.Client;
 using HwProj.SolutionsService.Client;
-using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,17 +12,15 @@ namespace HwProj.APIGateway.API.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [ForbiddenExceptionFilter]
-    public class SolutionsController : ControllerBase
+    public class SolutionsController : AggregationController
     {
-        private readonly INotificationsServiceClient _notificationsClient;
         private readonly ISolutionsServiceClient _solutionsClient;
 
-        public SolutionsController(ISolutionsServiceClient solutionsClient, INotificationsServiceClient notificationsClient)
+        public SolutionsController(ISolutionsServiceClient solutionsClient)
         {
-            _notificationsClient = notificationsClient;
             _solutionsClient = solutionsClient;
         }
-        
+
         [HttpGet]
         [ProducesResponseType(typeof(Solution[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetAllSolutions()
@@ -40,9 +36,9 @@ namespace HwProj.APIGateway.API.Controllers
             var result = await _solutionsClient.GetSolutionById(solutionId);
             return result == null
                 ? NotFound()
-                : Ok(result) as IActionResult;
+                : Ok(result);
         }
-        
+
         [HttpGet("taskSolution/{taskId}/{studentId}")]
         [Authorize]
         [ProducesResponseType(typeof(Solution[]), (int)HttpStatusCode.OK)]
@@ -51,27 +47,28 @@ namespace HwProj.APIGateway.API.Controllers
             var result = await _solutionsClient.GetUserSolution(taskId, studentId);
             return result == null
                 ? NotFound()
-                : Ok(result) as IActionResult;
+                : Ok(result);
         }
-        
+
         [HttpPost("{taskId}")]
         [Authorize]
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> PostSolution(SolutionViewModel model, long taskId)
         {
-            model.StudentId = Request.GetUserId();
+            model.StudentId = UserId;
             var result = await _solutionsClient.PostSolution(model, taskId);
             return Ok(result);
         }
-        
+
         [HttpPost("rateSolution/{solutionId}/{newRating}")]
         [Authorize(Roles = Roles.LecturerRole)]
-        public async Task<IActionResult> RateSolution(long solutionId, int newRating, [FromQuery] string lecturerComment)
+        public async Task<IActionResult> RateSolution(long solutionId, int newRating,
+            [FromQuery] string lecturerComment)
         {
-            await _solutionsClient.RateSolution(solutionId, newRating, lecturerComment, Request.GetUserId());
+            await _solutionsClient.RateSolution(solutionId, newRating, lecturerComment, UserId);
             return Ok();
         }
-        
+
         [HttpPost("markSolutionFinal/{solutionId}")]
         [Authorize(Roles = Roles.LecturerRole)]
         public async Task<IActionResult> MarkSolution(long solutionId)
@@ -79,7 +76,7 @@ namespace HwProj.APIGateway.API.Controllers
             await _solutionsClient.MarkSolution(solutionId);
             return Ok();
         }
-        
+
         [HttpDelete("delete/{solutionId}")]
         [Authorize(Roles = Roles.LecturerRole)]
         public async Task<IActionResult> DeleteSolution(long solutionId)
@@ -96,7 +93,7 @@ namespace HwProj.APIGateway.API.Controllers
             var result = await _solutionsClient.PostGroupSolution(model, taskId, groupId);
             return Ok(result);
         }
-        
+
         [HttpGet("{groupId}/taskSolutions/{taskId}")]
         [Authorize]
         [ProducesResponseType(typeof(Solution[]), (int)HttpStatusCode.OK)]
@@ -105,7 +102,7 @@ namespace HwProj.APIGateway.API.Controllers
             var result = await _solutionsClient.GetTaskSolutions(groupId, taskId);
             return result == null
                 ? NotFound()
-                : Ok(result) as IActionResult;
+                : Ok(result);
         }
     }
 }

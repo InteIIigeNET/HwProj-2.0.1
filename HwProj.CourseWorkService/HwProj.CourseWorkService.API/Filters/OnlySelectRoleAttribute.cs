@@ -22,7 +22,7 @@ namespace HwProj.CourseWorkService.API.Filters
 
         public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
-            var userId = context.HttpContext.Request.GetUserId();
+            var userId = context.HttpContext.Request.GetUserIdFromHeader();
             var userRoles = await _usersRepository.GetRolesTypesAsync(userId).ConfigureAwait(false);
             if (!userRoles.Contains(_role))
             {

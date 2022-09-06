@@ -46,7 +46,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> AddCourseWorkAsync([FromBody] CreateCourseWorkViewModel createCourseWorkViewModel)
         {
-            var userId = Request.GetUserId();
+            var userId = Request.GetUserIdFromHeader();
             var id = await _courseWorksService.AddCourseWorkAsync(createCourseWorkViewModel, userId, false);
             return Ok(id);
         }
@@ -54,7 +54,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         [HttpDelete("course_works/{courseWorkId}")]
         public async Task<IActionResult> DeleteCourseWorkAsync(long courseWorkId)
         {
-            var userId = Request.GetUserId();
+            var userId = Request.GetUserIdFromHeader();
             await _courseWorksService.DeleteCourseWorkAsync(courseWorkId, userId);
             return Ok();
         }
@@ -62,7 +62,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         [HttpPut("course_works/{courseWorkId}")]
         public async Task<IActionResult> UpdateCourseWorkAsync([FromBody] CreateCourseWorkViewModel createCourseWorkViewModel, long courseWorkId)
         {
-            var userId = Request.GetUserId();
+            var userId = Request.GetUserIdFromHeader();
             await _courseWorksService.UpdateCourseWorkAsync(courseWorkId, userId, createCourseWorkViewModel)
                 .ConfigureAwait(false);
             return Ok();
@@ -71,7 +71,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         [HttpDelete("course_works/{courseWorkId}/exclude")]
         public async Task<IActionResult> ExcludeStudent(long courseWorkId)
         {
-	        var userId = Request.GetUserId();
+	        var userId = Request.GetUserIdFromHeader();
 	        await _courseWorksService.ExcludeStudentAsync(userId, courseWorkId);
 	        return Ok();
         }
@@ -79,7 +79,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         [HttpPut("profile")]
         public async Task<IActionResult> UpdateProfileAsync([FromBody] LecturerProfileViewModel lecturerProfileViewModel)
         {
-            var userId = Request.GetUserId();
+            var userId = Request.GetUserIdFromHeader();
             await _userService.UpdateUserRoleProfile<LecturerProfile, LecturerProfileViewModel>(userId, lecturerProfileViewModel)
                 .ConfigureAwait(false);
             return Ok();
@@ -89,7 +89,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         [ProducesResponseType(typeof(LecturerApplicationDTO), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetLecturerApplication(long appId)
         {
-            var userId = Request.GetUserId();
+            var userId = Request.GetUserIdFromHeader();
             var lecturerApplicationDTO = await _applicationsService.GetApplicationForLecturerAsync(userId, appId)
                 .ConfigureAwait(false);
             return Ok(lecturerApplicationDTO);
@@ -108,7 +108,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         [HttpPost("applications/{appId}/accept")]
         public async Task<IActionResult> AcceptStudent(long appId)
         {
-            var userId = Request.GetUserId();
+            var userId = Request.GetUserIdFromHeader();
             await _applicationsService.AcceptStudentApplicationAsync(userId, appId);
             return Ok();
         }
@@ -116,7 +116,7 @@ namespace HwProj.CourseWorkService.API.Controllers
         [HttpDelete("applications/{appId}/reject")]
         public async Task<IActionResult> RejectStudent(long appId)
         {
-            var userId = Request.GetUserId();
+            var userId = Request.GetUserIdFromHeader();
             await _applicationsService.RejectApplicationAsync(userId, appId);
             return Ok();
         }

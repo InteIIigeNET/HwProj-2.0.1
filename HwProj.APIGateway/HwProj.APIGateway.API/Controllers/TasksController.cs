@@ -26,7 +26,7 @@ namespace HwProj.APIGateway.API.Controllers
             var result = await _coursesClient.GetTask(taskId);
             return result == null
                 ? NotFound()
-                : Ok(result) as IActionResult;
+                : Ok(result);
         }
         
         [HttpPost("add/{homeworkId}")]

@@ -122,53 +122,44 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
             (cm: any) => cm.id === userId
         )
         return (
-            <Grid style={{ marginBottom: '50px' }}>
+            <Grid style={{marginBottom: '50px'}}>
                 <Grid container justify="center" style={{marginTop: "15px"}}>
                     <Grid container xs={11} className={classes.info}>
                         <Grid item>
-                            <Typography style={{ fontSize: '22px'}}>
-                                {course.name} &nbsp;
+                            <Typography style={{fontSize: '22px'}}>
+                                {`${course.name} / ${course.groupName}`} &nbsp;
                                 {isMentor &&
                                     (isReadingMode
-                                    ? <VisibilityOffIcon 
-                                        titleAccess="Режим чтения включен"
-                                        onClick={async () => 
-                                            setCourseState(prevState => ({
-                                                ...prevState,
-                                                isReadingMode: false}))}
-                                    />
-                                    : <VisibilityIcon 
-                                        titleAccess="Режим чтения выключен"
-                                        onClick={async () =>
-                                            setCourseState(prevState => ({
-                                                ...prevState,
-                                                isReadingMode: true }))}
-                                    />)
+                                        ? <VisibilityOffIcon
+                                            titleAccess="Режим чтения включен"
+                                            onClick={async () =>
+                                                setCourseState(prevState => ({
+                                                    ...prevState,
+                                                    isReadingMode: false
+                                                }))}/>
+                                        : <VisibilityIcon
+                                            titleAccess="Режим чтения выключен"
+                                            onClick={async () =>
+                                                setCourseState(prevState => ({
+                                                    ...prevState,
+                                                    isReadingMode: true
+                                                }))}
+                                        />)
                                 }
-                                {isMentor && ! isReadingMode! && (
+                                {isMentor && !isReadingMode! && (
                                     <RouterLink to={"./" + courseId! + "/edit"}>
                                         <EditIcon fontSize="small"/>
                                     </RouterLink>
                                 )}
-
-                                
                             </Typography>
-                            <Typography variant="subtitle1" gutterBottom>
-                                Группа: {course.groupName}
+                            <Typography style={{fontSize: "18px", color: "GrayText"}}>
+                                {mentors.map(t => `${t.name} ${t.surname}`).join(", ")}
                             </Typography>
                         </Grid>
-                        <Grid item style={{ width: '187px'}}>
+                        <Grid item style={{width: '187px'}}>
                             <Grid container alignItems="flex-end" direction="column" xs={12}>
-                                <Grid item>
-                                    <Lecturers
-                                        update={() => {}}
-                                        mentors={mentors}
-                                        courseId={courseId}
-                                        isEditCourse={false}
-                                    />
-                                </Grid>
                                 {isLogged && !isSignedInCourse && !isMentor && !isAcceptedStudent && (
-                                    <Grid item style={{ width: '100%', marginTop: '16px'}}>
+                                    <Grid item style={{width: '100%', marginTop: '16px'}}>
                                         <Button
                                             fullWidth
                                             variant="contained"
@@ -180,11 +171,11 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                     </Grid>
                                 )}
                                 {isLogged && isSignedInCourse && !isAcceptedStudent &&
-                                <Grid item style={{ width: '100%', marginTop: '16px'}}>
-                                    <Typography style={{ fontSize: '15px' }}>
-                                        Ваша заявка рассматривается
-                                    </Typography>
-                                </Grid>
+                                    <Grid item style={{width: '100%', marginTop: '16px'}}>
+                                        <Typography style={{fontSize: '15px'}}>
+                                            Ваша заявка рассматривается
+                                        </Typography>
+                                    </Grid>
                                 }
                             </Grid>
                         </Grid>
@@ -240,7 +231,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                             </Grid>
                         </Grid>
                         <Grid container justifyContent="center">
-                            { ! isReadingMode! &&
+                            {!isReadingMode! &&
                                 <Grid item xs={11}>
                                     <NewCourseStudents
                                         onUpdate={() => setCurrentState()}
@@ -250,28 +241,28 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                     />
                                 </Grid>
                             }
-                            { ! isReadingMode! &&
+                            {!isReadingMode! &&
                                 <Grid item xs={11} style={{marginTop: "15px"}}>
-                                <Button
-                                    size="small"
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={() => {
-                                        setCourseState(prevState => ({
-                                            ...prevState,
-                                            createHomework: true
-                                        }));
-                                    }}
-                                >
-                                    Добавить задание
-                                </Button>
-                            </Grid>
+                                    <Button
+                                        size="small"
+                                        variant="contained"
+                                        color="primary"
+                                        onClick={() => {
+                                            setCourseState(prevState => ({
+                                                ...prevState,
+                                                createHomework: true
+                                            }));
+                                        }}
+                                    >
+                                        Добавить задание
+                                    </Button>
+                                </Grid>
                             }
                             <Grid item xs={11} style={{marginTop: "15px"}}>
                                 <CourseHomework
                                     onDelete={() => setCurrentState()}
                                     isStudent={isAcceptedStudent}
-                                    isMentor={isMentor && ! isReadingMode!}
+                                    isMentor={isMentor && !isReadingMode!}
                                     homework={courseState.courseHomework}
                                 />
                             </Grid>

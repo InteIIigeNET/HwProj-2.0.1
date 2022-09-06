@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Security.Claims;
+﻿using System.Linq;
 using HwProj.Models.Roles;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
@@ -9,7 +7,7 @@ namespace HwProj.Utils.Authorization
 {
     public static class AuthExtensions
     {
-        public static string? GetUserId(this HttpRequest request) =>
+        public static string? GetUserIdFromHeader(this HttpRequest request) =>
             request.Headers.TryGetValue("UserId", out var id) ? id.FirstOrDefault() : null;
 
         public static string GetUserName(this HttpRequest request)
