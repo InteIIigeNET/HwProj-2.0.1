@@ -40,7 +40,7 @@ namespace HwProj.APIGateway.API.Controllers
         {
             var result = await _coursesClient.GetCourseById(courseId, UserId);
             return result == null
-                ? NotFound()
+                ? NotFound() as IActionResult
                 : Ok(result);
         }
 

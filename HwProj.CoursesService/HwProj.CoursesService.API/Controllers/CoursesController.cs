@@ -86,7 +86,7 @@ namespace HwProj.CoursesService.API.Controllers
         public async Task<IActionResult> SignInCourse(long courseId, [FromQuery] string studentId)
         {
             return await _coursesService.AddStudentAsync(courseId, studentId)
-                ? Ok()
+                ? Ok() as IActionResult
                 : NotFound();
         }
 
@@ -95,7 +95,7 @@ namespace HwProj.CoursesService.API.Controllers
         public async Task<IActionResult> AcceptStudent(long courseId, [FromQuery] string studentId)
         {
             return await _coursesService.AcceptCourseMateAsync(courseId, studentId)
-                ? Ok()
+                ? Ok() as IActionResult
                 : NotFound();
         }
 
@@ -104,7 +104,7 @@ namespace HwProj.CoursesService.API.Controllers
         public async Task<IActionResult> RejectStudent(long courseId, [FromQuery] string studentId)
         {
             return await _coursesService.RejectCourseMateAsync(courseId, studentId)
-                ? Ok()
+                ? Ok() as IActionResult
                 : NotFound();
         }
 
@@ -132,7 +132,7 @@ namespace HwProj.CoursesService.API.Controllers
             var mentorId = Request.GetMentorId();
             var result = await _coursesService.GetLecturersAvailableForCourse(courseId, mentorId);
             return result == null
-                ? NotFound()
+                ? NotFound() as IActionResult
                 : Ok(result);
         }
     }

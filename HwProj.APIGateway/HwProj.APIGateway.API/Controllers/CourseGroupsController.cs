@@ -25,7 +25,7 @@ namespace HwProj.APIGateway.API.Controllers
         {
             var result = await _coursesClient.GetAllCourseGroups(courseId);
             return result == null
-                ? NotFound()
+                ? NotFound() as IActionResult
                 : Ok(result);
         }
 
@@ -61,7 +61,7 @@ namespace HwProj.APIGateway.API.Controllers
         {
             var result = await _coursesClient.GetCourseGroupsById(courseId, UserId);
             return result == null
-                ? NotFound()
+                ? NotFound() as IActionResult
                 : Ok(result);
         }
 
@@ -87,7 +87,7 @@ namespace HwProj.APIGateway.API.Controllers
         {
             var result = await _coursesClient.GetGroupById(groupId);
             return result == null
-                ? NotFound()
+                ? NotFound() as IActionResult
                 : Ok(result);
         }
 

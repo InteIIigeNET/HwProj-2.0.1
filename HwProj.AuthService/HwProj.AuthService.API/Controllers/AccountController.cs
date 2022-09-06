@@ -34,7 +34,7 @@ namespace HwProj.AuthService.API.Controllers
             var accountData = await _accountService.GetAccountDataAsync(userId).ConfigureAwait(false);
 
             return accountData != null
-                ? Ok(accountData)
+                ? Ok(accountData) as IActionResult
                 : NotFound();
         }
 
