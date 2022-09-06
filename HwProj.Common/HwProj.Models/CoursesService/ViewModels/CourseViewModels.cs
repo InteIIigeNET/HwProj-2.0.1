@@ -39,8 +39,8 @@ namespace HwProj.Models.CoursesService.ViewModels
         // TODO: исправить
         public string MentorIds { get; set; }
         public string InviteCode { get; set; }
-        public List<CourseMateViewModel> CourseMates { get; set; } = new();
-        public List<HomeworkViewModel> Homeworks { get; set; } = new();
+        public List<CourseMateViewModel> CourseMates { get; set; } = new List<CourseMateViewModel>();
+        public List<HomeworkViewModel> Homeworks { get; set; } = new List<HomeworkViewModel>();
     }
 
     // Модель для списка всех курсов
