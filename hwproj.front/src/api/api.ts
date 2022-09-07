@@ -1167,50 +1167,6 @@ export interface UpdateGroupViewModel {
 /**
  *
  * @export
- * @interface UserCourseDescription
- */
-export interface UserCourseDescription {
-    /**
-     *
-     * @type {number}
-     * @memberof UserCourseDescription
-     */
-    id?: number;
-    /**
-     *
-     * @type {string}
-     * @memberof UserCourseDescription
-     */
-    name?: string;
-    /**
-     *
-     * @type {string}
-     * @memberof UserCourseDescription
-     */
-    groupName?: string;
-    /**
-     *
-     * @type {boolean}
-     * @memberof UserCourseDescription
-     */
-    isOpen?: boolean;
-    /**
-     *
-     * @type {boolean}
-     * @memberof UserCourseDescription
-     */
-    isCompleted?: boolean;
-    /**
-     *
-     * @type {boolean}
-     * @memberof UserCourseDescription
-     */
-    userIsMentor?: boolean;
-}
-
-/**
- *
- * @export
  * @interface UserDataDto
  */
 export interface UserDataDto {
@@ -3286,7 +3242,7 @@ export const CoursesApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCoursesUserCoursesGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<UserCourseDescription>> {
+        apiCoursesUserCoursesGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<CoursePreviewView>> {
             const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesUserCoursesGet(options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
