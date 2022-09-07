@@ -33,10 +33,10 @@
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-google-login": "^5.2.2",
-    "react-markdown": "^8.0.1",
+    "react-markdown": "^4.3.1",
     "react-query": "^3.21.1",
     "react-router-dom": "^5.2.1",
-    "react-scripts": "^5.0.0",
+    "react-scripts": "^4.0.3",
     "react-social-login-buttons": "^3.5.1"
   },
   "scripts": {
@@ -56,7 +56,7 @@
     "not op_mini all"
   ],
   "devDependencies": {
-    "@storybook/react": "^6.1.21",
+    "@storybook/react": "^6.3.7",
     "@testing-library/dom": "^7.31.2",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^11.2.7",

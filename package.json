@@ -1,8 +1,0 @@
-{
-  "dependencies": {
-    "@mui/x-data-grid": "^5.1.0"
-  },
-  "devDependencies": {
-    "eslint-plugin-react-hooks": "^4.3.0"
-  }
-}
