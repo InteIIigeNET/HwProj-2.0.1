@@ -385,5 +385,18 @@ namespace HwProj.CoursesService.Client
                 ? Result<AccountDataDto[]>.Success(await response.DeserializeAsync<AccountDataDto[]>())
                 : Result<AccountDataDto[]>.Failed(response.ReasonPhrase);
         }
+
+        public async Task<bool> Ping()
+        {
+            try
+            {
+                await _httpClient.GetAsync(_coursesServiceUri + "api/system/ping");
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }

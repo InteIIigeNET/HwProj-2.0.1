@@ -35,5 +35,6 @@ namespace HwProj.CoursesService.Client
         Task<long[]> GetGroupTasks(long groupId);
         Task<Result> AcceptLecturer(long courseId, string lecturerEmail);
         Task<Result<AccountDataDto[]>> GetLecturersAvailableForCourse(long courseId);
+        Task<bool> Ping();
     }
 }

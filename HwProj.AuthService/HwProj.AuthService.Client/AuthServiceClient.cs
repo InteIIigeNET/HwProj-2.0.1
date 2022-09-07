@@ -159,7 +159,7 @@ namespace HwProj.AuthService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
-                _authServiceUri + $"api/account/getAllStudents");
+                _authServiceUri + "api/account/getAllStudents");
 
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<AccountDataDto[]>().ConfigureAwait(false);
@@ -169,10 +169,23 @@ namespace HwProj.AuthService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
-                _authServiceUri + $"api/account/getAllLecturers");
+                _authServiceUri + "api/account/getAllLecturers");
 
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<User[]>().ConfigureAwait(false);
+        }
+
+        public async Task<bool> Ping()
+        {
+            try
+            {
+                await _httpClient.GetAsync(_authServiceUri + "api/system/ping");
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

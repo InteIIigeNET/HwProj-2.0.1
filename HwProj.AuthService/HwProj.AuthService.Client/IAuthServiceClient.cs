@@ -18,5 +18,6 @@ namespace HwProj.AuthService.Client
         Task<string> FindByEmailAsync(string email);
         Task<AccountDataDto[]> GetAllStudents();
         Task<User[]> GetAllLecturers();
+        Task<bool> Ping();
     }
 }

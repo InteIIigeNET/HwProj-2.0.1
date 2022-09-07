@@ -37,12 +37,25 @@ namespace HwProj.NotificationsService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Put,
-                _notificationServiceUri + $"api/notifications/markAsSeen/" + userId);
+                _notificationServiceUri + "api/notifications/markAsSeen/" + userId);
 
             var jsonIds = JsonConvert.SerializeObject(notificationIds);
             httpRequest.Content = new StringContent(jsonIds, Encoding.UTF8, "application/json");
 
             await _httpClient.SendAsync(httpRequest);
+        }
+
+        public async Task<bool> Ping()
+        {
+            try
+            {
+                await _httpClient.GetAsync(_notificationServiceUri + "api/system/ping");
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

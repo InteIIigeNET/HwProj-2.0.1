@@ -22,6 +22,7 @@ import Register from "./components/Auth/Register";
 import StudentSolutionsPage from "./components/Solutions/StudentSolutionsPage";
 import EditProfile from "./components/EditProfile";
 import ApiSingleton from "./api/ApiSingleton";
+import SystemInfoComponent from "./components/System/SystemInfoComponent";
 
 type AppProps = RouteComponentProps;
 
@@ -58,6 +59,7 @@ class App extends Component<AppProps, AppState> {
         return (
             <>
                 <Header loggedIn={this.state.loggedIn} isLecturer={this.state.isLecturer} onLogout={this.logout}/>
+                <Route exact path="/system" component={SystemInfoComponent}/>
                 <Route exact path="/user/edit" component={EditProfile}/>
                 <Route exact path="/" component={Courses}/>
                 <Route exact path="/notifications" component={Notifications}/>

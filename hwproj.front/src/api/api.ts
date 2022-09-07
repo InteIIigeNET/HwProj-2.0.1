@@ -1089,6 +1089,26 @@ export interface StatisticsCourseTasksModel {
 /**
  *
  * @export
+ * @interface SystemInfo
+ */
+export interface SystemInfo {
+    /**
+     *
+     * @type {string}
+     * @memberof SystemInfo
+     */
+    service?: string;
+    /**
+     *
+     * @type {boolean}
+     * @memberof SystemInfo
+     */
+    isAvailable?: boolean;
+}
+
+/**
+ *
+ * @export
  * @interface TokenCredentials
  */
 export interface TokenCredentials {
@@ -4880,6 +4900,107 @@ export class StatisticsApi extends BaseAPI {
      */
     public apiStatisticsByCourseIdGet(courseId: number, options?: any) {
         return StatisticsApiFp(this.configuration).apiStatisticsByCourseIdGet(courseId, options)(this.fetch, this.basePath);
+    }
+
+}
+
+/**
+ * SystemApi - fetch parameter creator
+ * @export
+ */
+export const SystemApiFetchParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         *
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSystemStatusGet(options: any = {}): FetchArgs {
+            const localVarPath = `/api/System/status`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+                    ? configuration.apiKey("Authorization")
+                    : configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * SystemApi - functional programming interface
+ * @export
+ */
+export const SystemApiFp = function(configuration?: Configuration) {
+    return {
+        /**
+         *
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSystemStatusGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<SystemInfo>> {
+            const localVarFetchArgs = SystemApiFetchParamCreator(configuration).apiSystemStatusGet(options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+    }
+};
+
+/**
+ * SystemApi - factory interface
+ * @export
+ */
+export const SystemApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         *
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSystemStatusGet(options?: any) {
+            return SystemApiFp(configuration).apiSystemStatusGet(options)(fetch, basePath);
+        },
+    };
+};
+
+/**
+ * SystemApi - object-oriented interface
+ * @export
+ * @class SystemApi
+ * @extends {BaseAPI}
+ */
+export class SystemApi extends BaseAPI {
+    /**
+     *
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SystemApi
+     */
+    public apiSystemStatusGet(options?: any) {
+        return SystemApiFp(this.configuration).apiSystemStatusGet(options)(this.fetch, this.basePath);
     }
 
 }

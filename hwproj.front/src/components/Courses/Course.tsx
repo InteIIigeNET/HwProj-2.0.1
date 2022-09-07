@@ -13,7 +13,6 @@ import {useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import VisibilityIcon from '@material-ui/icons/Visibility';
-import Lecturers from "./Lecturers";
 
 interface ICourseMate {
     name: string;

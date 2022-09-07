@@ -140,5 +140,18 @@ namespace HwProj.SolutionsService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<StatisticsCourseMatesModel[]>();
         }
+
+        public async Task<bool> Ping()
+        {
+            try
+            {
+                await _httpClient.GetAsync(_solutionServiceUri + "api/system/ping");
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }
