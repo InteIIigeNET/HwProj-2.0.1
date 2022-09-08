@@ -6,4 +6,12 @@ namespace HwProj.EventBus.Client.Interfaces
     {
         Task HandleAsync(TEvent @event);
     }
+
+    public abstract class EventHandlerBase<TEvent> : IEventHandler<Event> where TEvent : Event
+    {
+        public Task HandleAsync(Event @event) =>
+            @event as TEvent is { } x ? HandleAsync(x) : Task.CompletedTask;
+
+        public abstract Task HandleAsync(TEvent @event);
+    }
 }

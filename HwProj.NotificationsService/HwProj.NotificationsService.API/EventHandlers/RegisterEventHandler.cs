@@ -8,7 +8,7 @@ using HwProj.NotificationsService.API.Services;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {
-    public class RegisterEventHandler : IEventHandler<StudentRegisterEvent>
+    public class RegisterEventHandler : EventHandlerBase<StudentRegisterEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
         private readonly IEmailService _emailService;
@@ -19,7 +19,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             _emailService = emailService;
         }
 
-        public async Task HandleAsync(StudentRegisterEvent @event)
+        public override async Task HandleAsync(StudentRegisterEvent @event)
         {
             var notification = new Notification
             {

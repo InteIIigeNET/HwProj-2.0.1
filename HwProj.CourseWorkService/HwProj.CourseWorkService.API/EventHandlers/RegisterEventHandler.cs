@@ -6,7 +6,7 @@ using HwProj.EventBus.Client.Interfaces;
 
 namespace HwProj.CourseWorkService.API.EventHandlers
 {
-    public class RegisterEventHandler : IEventHandler<StudentRegisterEvent>
+    public class RegisterEventHandler : EventHandlerBase<StudentRegisterEvent>
     {
         private readonly IUsersRepository _usersRepository;
 
@@ -15,7 +15,7 @@ namespace HwProj.CourseWorkService.API.EventHandlers
             _usersRepository = usersRepository;
         }
 
-        public async Task HandleAsync(StudentRegisterEvent @event)
+        public override async Task HandleAsync(StudentRegisterEvent @event)
         {
             var user = new User()
             {

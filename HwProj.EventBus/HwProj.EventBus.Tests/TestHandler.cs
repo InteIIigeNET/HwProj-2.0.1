@@ -4,8 +4,8 @@ using HwProj.EventBus.Client.Interfaces;
 
 namespace HwProj.EventBus.Tests
 {
-    public class TestHandler : IEventHandler<Event>
-    { 
+    public class TestHandler : EventHandlerBase<TestEvent>
+    {
         public bool IsHandled { get; set; }
 
         public TestHandler()
@@ -13,11 +13,9 @@ namespace HwProj.EventBus.Tests
             IsHandled = false;
         }
 
-        public Task HandleAsync(Event @event)
+        public override Task HandleAsync(TestEvent @event)
         {
-            IsHandled = true;
-
-            return Task.CompletedTask;
+            throw new System.NotImplementedException();
         }
     }
 }

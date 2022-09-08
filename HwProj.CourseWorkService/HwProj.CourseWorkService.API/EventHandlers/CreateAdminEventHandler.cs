@@ -6,7 +6,7 @@ using HwProj.EventBus.Client.Interfaces;
 
 namespace HwProj.CourseWorkService.API.EventHandlers
 {
-    public class CreateAdminEventHandler : IEventHandler<AdminRegisterEvent>
+    public class CreateAdminEventHandler : EventHandlerBase<AdminRegisterEvent>
     {
         private readonly IUsersRepository _usersRepository;
 
@@ -15,7 +15,7 @@ namespace HwProj.CourseWorkService.API.EventHandlers
             _usersRepository = usersRepository;
         }
 
-        public async Task HandleAsync(AdminRegisterEvent @event)
+        public override async Task HandleAsync(AdminRegisterEvent @event)
         {
             var user = new User()
             {

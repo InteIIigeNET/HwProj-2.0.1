@@ -10,7 +10,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {
-    public class RateEventHandler : IEventHandler<RateEvent>
+    public class RateEventHandler : EventHandlerBase<RateEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
         private readonly IAuthServiceClient _authServiceClient;
@@ -29,7 +29,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             _configuration = configuration.GetSection("Notification");
         }
 
-        public async Task HandleAsync(RateEvent @event)
+        public override async Task HandleAsync(RateEvent @event)
         {
             var notification = new Notification
             {

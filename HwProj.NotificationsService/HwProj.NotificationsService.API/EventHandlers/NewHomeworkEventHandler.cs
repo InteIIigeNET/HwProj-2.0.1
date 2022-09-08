@@ -12,7 +12,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {
-    public class NewHomeworkEventHandler : IEventHandler<NewHomeworkEvent>
+    public class NewHomeworkEventHandler : EventHandlerBase<NewHomeworkEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
         private readonly IAuthServiceClient _authServiceClient;
@@ -34,7 +34,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             _configuration = configuration.GetSection("Notification");
         }
 
-        public async Task HandleAsync(NewHomeworkEvent @event)
+        public override async Task HandleAsync(NewHomeworkEvent @event)
         {
             foreach (var student in @event.Course.CourseMates)
             {

@@ -9,7 +9,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {
-    public class LecturerInvitedToCourseEventHandler : IEventHandler<LecturerInvitedToCourseEvent>
+    public class LecturerInvitedToCourseEventHandler : EventHandlerBase<LecturerInvitedToCourseEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
         private readonly IConfigurationSection _configuration;
@@ -25,7 +25,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             _configuration = configuration.GetSection("Notification");
         }
 
-        public async Task HandleAsync(LecturerInvitedToCourseEvent @event)
+        public override async Task HandleAsync(LecturerInvitedToCourseEvent @event)
         {
             var notification = new Notification
             {

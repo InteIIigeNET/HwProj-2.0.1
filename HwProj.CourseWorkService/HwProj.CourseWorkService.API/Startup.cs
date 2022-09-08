@@ -49,10 +49,10 @@ namespace HwProj.CourseWorkService.API
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IEventBus eventBus)
         {
-            eventBus.Subscribe<StudentRegisterEvent>();
-            eventBus.Subscribe<InviteLecturerEvent>();
-            eventBus.Subscribe<AdminRegisterEvent>();
-            eventBus.Subscribe<EditEvent>();
+            //eventBus.Subscribe<StudentRegisterEvent>();
+            //eventBus.Subscribe<InviteLecturerEvent>();
+            //eventBus.Subscribe<AdminRegisterEvent>();
+            //eventBus.Subscribe<EditEvent>();
 
             app.UseDeveloperExceptionPage();
             app.ConfigureHwProj(env, "CourseWorks API");

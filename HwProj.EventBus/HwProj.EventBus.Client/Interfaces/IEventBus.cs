@@ -1,10 +1,18 @@
-﻿namespace HwProj.EventBus.Client.Interfaces
+﻿using System;
+
+namespace HwProj.EventBus.Client.Interfaces
 {
     public interface IEventBus
     {
         void Publish(Event @event);
 
-        void Subscribe<TEvent>()
-            where TEvent : Event;
+        IEventBusSubscriber CreateSubscriber();
+    }
+
+    public interface IEventBusSubscriber : IDisposable
+    {
+        void Subscribe<TEvent, THandler>()
+            where TEvent : Event
+            where THandler : EventHandlerBase<TEvent>;
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,7 +23,12 @@ namespace HwProj.EventBus.Client.Implementations
         private readonly string _queueName;
         private readonly RetryPolicy _policy;
 
-        private  IModel _consumerChannel;
+        private IModel _consumerChannel;
+
+        private readonly Dictionary<string, Type> _eventTypes = new Dictionary<string, Type>();
+
+        private readonly Dictionary<string, List<Type>> _handlers =
+            new Dictionary<string, List<Type>>();
 
         public EventBusRabbitMq(IDefaultConnection connection, IServiceProvider serviceProvider,
             IServiceScopeFactory scopeFactory, RetryPolicy policy)
@@ -50,23 +56,31 @@ namespace HwProj.EventBus.Client.Implementations
                 _policy.Execute(() =>
                 {
                     channel.BasicPublish(exchange: BrokerName,
-                                    routingKey: eventName, 
-                                    mandatory: true,
-                                    basicProperties: properties,  
-                                    body: body);
+                        routingKey: eventName,
+                        mandatory: true,
+                        basicProperties: properties,
+                        body: body);
                 });
             }
         }
 
-        public void Subscribe<TEvent>()
+        public IEventBusSubscriber CreateSubscriber() => new EventBusSubscriber(this);
+
+        internal void Subscribe<TEvent, THandler>()
             where TEvent : Event
+            where THandler : EventHandlerBase<TEvent>
         {
-            using (var channel = _connection.CreateModel())
+            using var channel = _connection.CreateModel();
+            var eventName = GetEventName<TEvent>();
+            if (!_handlers.TryGetValue(eventName, out var handlers))
             {
-                var eventName = GetEventName<TEvent>();
-                channel.QueueBind(queue: _queueName, exchange: BrokerName, routingKey: eventName);
+                handlers = new List<Type>();
+                _handlers.Add(eventName, handlers);
             }
-            StartBasicConsume();
+
+            handlers.Add(typeof(THandler));
+            _eventTypes[eventName] = typeof(TEvent);
+            channel.QueueBind(queue: _queueName, exchange: BrokerName, routingKey: eventName);
         }
 
         private IModel CreateConsumerChannel()
@@ -75,10 +89,10 @@ namespace HwProj.EventBus.Client.Implementations
 
             channel.ExchangeDeclare(exchange: BrokerName, type: ExchangeType.Direct, durable: true);
             channel.QueueDeclare(queue: _queueName,
-                                 durable: true,
-                                 exclusive: false,
-                                 autoDelete: false,
-                                 arguments: null);
+                durable: true,
+                exclusive: false,
+                autoDelete: false,
+                arguments: null);
 
             channel.CallbackException += (sender, ea) =>
             {
@@ -90,7 +104,7 @@ namespace HwProj.EventBus.Client.Implementations
             return channel;
         }
 
-        private void StartBasicConsume()
+        internal void StartBasicConsume()
         {
             var consumer = new EventingBasicConsumer(_consumerChannel);
             consumer.Received += Consumer_Received;
@@ -102,37 +116,23 @@ namespace HwProj.EventBus.Client.Implementations
             var eventName = eventArgs.RoutingKey;
             var message = Encoding.UTF8.GetString(eventArgs.Body);
 
-            await ProcessEvent(eventName, message).ConfigureAwait(false);
+            await ProcessEvent(eventName, message);
 
             _consumerChannel.BasicAck(deliveryTag: eventArgs.DeliveryTag, multiple: false);
         }
 
         private async Task ProcessEvent(string eventName, string message)
         {
-            var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes()).ToList();
-            var eventType = types.FirstOrDefault(x => x.Name == eventName);
-            if (eventType != null)
-            {
-                var @event = JsonConvert.DeserializeObject(message, eventType) as Event;
-                var fullTypeInterface = typeof(IEventHandler<>).MakeGenericType(eventType);
-                var handlers =
-                    types.Where(x => fullTypeInterface.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
+            if (!_handlers.TryGetValue(eventName, out var handlers) ||
+                !_eventTypes.TryGetValue(eventName, out var eventType) ||
+                !(JsonConvert.DeserializeObject(message, eventType) is Event @event)) return;
 
-                using (var scope = _scopeFactory.CreateScope())
-                {
-                    foreach (var handler in handlers)
-                    {
-                        var handlerObject = scope.ServiceProvider.GetRequiredService(handler);
-                        // ReSharper disable once PossibleNullReferenceException
-                        await ((Task)handler.GetMethod("HandleAsync")
-                            ?.Invoke(handlerObject, new object[] { @event }))
-                            .ConfigureAwait(false);
-                    }
-                }
-            }
-            else
+            //TODO: log
+            using var scope = _scopeFactory.CreateScope();
+            foreach (var handler in handlers)
             {
-                await Task.CompletedTask;
+                var eventHandler = scope.ServiceProvider.GetRequiredService(handler) as IEventHandler<Event>;
+                await eventHandler?.HandleAsync(@event);
             }
         }
 

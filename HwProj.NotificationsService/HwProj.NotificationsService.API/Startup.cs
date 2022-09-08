@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.Client;
+using HwProj.EventBus.Client;
 using HwProj.SolutionsService.API.Events;
 using HwProj.SolutionsService.Client;
 using UpdateTaskMaxRatingEvent = HwProj.CoursesService.API.Events.UpdateTaskMaxRatingEvent;
@@ -57,17 +58,21 @@ namespace HwProj.NotificationsService.API
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IEventBus eventBus)
         {
-            eventBus.Subscribe<StudentRegisterEvent>();
-            eventBus.Subscribe<InviteLecturerEvent>();
-            eventBus.Subscribe<RateEvent>();
-            eventBus.Subscribe<UpdateHomeworkEvent>();
-            eventBus.Subscribe<StudentPassTaskEvent>();
-            eventBus.Subscribe<UpdateTaskMaxRatingEvent>();
-            eventBus.Subscribe<LecturerAcceptToCourseEvent>();
-            eventBus.Subscribe<LecturerRejectToCourseEvent>();
-            eventBus.Subscribe<LecturerInvitedToCourseEvent>();
-            eventBus.Subscribe<NewHomeworkEvent>();
-            eventBus.Subscribe<NewCourseMateEvent>();
+            using (var eventBustSubscriber = eventBus.CreateSubscriber())
+            {
+                eventBustSubscriber.Subscribe<StudentRegisterEvent, RegisterEventHandler>();
+                eventBustSubscriber.Subscribe<RateEvent, RateEventHandler>();
+                eventBustSubscriber.Subscribe<StudentPassTaskEvent, StudentPassTaskEventHandler>();
+                eventBustSubscriber.Subscribe<UpdateHomeworkEvent, UpdateHomeworkEventHandler>();
+                eventBustSubscriber.Subscribe<UpdateTaskMaxRatingEvent, UpdateTaskMaxRatingEventHandler>();
+                eventBustSubscriber.Subscribe<LecturerAcceptToCourseEvent, LecturerAcceptToCourseEventHandler>();
+                eventBustSubscriber.Subscribe<LecturerRejectToCourseEvent, LecturerRejectToCourseEventHandler>();
+                eventBustSubscriber.Subscribe<LecturerInvitedToCourseEvent, LecturerInvitedToCourseEventHandler>();
+                eventBustSubscriber.Subscribe<NewHomeworkEvent, NewHomeworkEventHandler>();
+                eventBustSubscriber.Subscribe<InviteLecturerEvent, InviteLecturerEventHandler>();
+                eventBustSubscriber.Subscribe<NewCourseMateEvent, NewCourseMateHandler>();
+            }
+
             app.ConfigureHwProj(env, "Notifications API");
         }
     }
