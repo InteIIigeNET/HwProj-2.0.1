@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="StartAll" type="CompoundRunConfigurationType">
+    <toRun name="HwProj.APIGateway.API" type="LaunchSettings" />
+    <toRun name="HwProj.AuthService.API" type="LaunchSettings" />
+    <toRun name="HwProj.CoursesService.API" type="LaunchSettings" />
+    <toRun name="HwProj.NotificationsService.API" type="LaunchSettings" />
+    <toRun name="HwProj.SolutionsService.API" type="LaunchSettings" />
+    <toRun name="start" type="js.build_tools.npm" />
+    <method v="2" />
+  </configuration>
+</component>
