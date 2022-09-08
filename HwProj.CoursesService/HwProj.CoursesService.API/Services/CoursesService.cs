@@ -201,13 +201,12 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task AcceptLecturerAsync(long courseId, string lecturerEmail)
         {
-            var course = await _coursesRepository.GetAsync(courseId);
-
             var userId = await _authServiceClient.FindByEmailAsync(lecturerEmail);
             if (!(userId is null))
             {
+                var course = await _coursesRepository.GetAsync(courseId);
                 var user = await _authServiceClient.GetAccountData(userId);
-                if (user.Role == "Lecturer" && !course.MentorIds.Contains(userId))
+                if (user.Role == Roles.LecturerRole && !course.MentorIds.Contains(userId))
                 {
                     string newMentors = course.MentorIds + "/" + userId;
                     await _coursesRepository.UpdateAsync(courseId, с => new Course
@@ -215,6 +214,15 @@ namespace HwProj.CoursesService.API.Services
                         MentorIds = newMentors,
                     });
 
+                    _eventBus.Publish(new LecturerInvitedToCourseEvent
+                    {
+                        CourseId = courseId,
+                        CourseName = course.Name,
+                        MentorId = userId,
+                        MentorEmail = lecturerEmail
+                    });
+
+                    //TODO: remove
                     await RejectCourseMateAsync(courseId, userId);
                 }
             }
