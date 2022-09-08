@@ -93,7 +93,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
             isFound: true,
             course: course,
             courseHomework: course.homeworks!,
-            createHomework: prevState.createHomework,
+            createHomework: false,
             mentors: mentors,
             acceptedStudents: acceptedStudents,
             newStudents: newStudents,
