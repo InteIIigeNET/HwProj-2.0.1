@@ -65,6 +65,7 @@ namespace HwProj.NotificationsService.API
             eventBus.Subscribe<UpdateTaskMaxRatingEvent>();
             eventBus.Subscribe<LecturerAcceptToCourseEvent>();
             eventBus.Subscribe<LecturerRejectToCourseEvent>();
+            eventBus.Subscribe<LecturerInvitedToCourseEvent>();
             eventBus.Subscribe<NewHomeworkEvent>();
             eventBus.Subscribe<NewCourseMateEvent>();
             app.ConfigureHwProj(env, "Notifications API");
