@@ -7,7 +7,7 @@ import AddHomework from "../Homeworks/AddHomework";
 import CourseStudents from "./CourseStudents";
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
-import {Button, Grid, Typography} from "@material-ui/core";
+import {Button, Grid, Tab, Tabs, Typography} from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
 import {useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
@@ -31,6 +31,7 @@ interface ICourseState {
     acceptedStudents: ICourseMate[];
     newStudents: ICourseMate[];
     isReadingMode: boolean;
+    tabValue: number;
 }
 
 interface ICourseProps {
@@ -57,41 +58,48 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
         acceptedStudents: [],
         newStudents: [],
         isReadingMode: true,
+        tabValue: 0
     })
     const setCurrentState = async () => {
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+courseId)
-        setCourseState({
+        const mentors = await Promise.all(course.mentorIds!.split('/').map(mentor => ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(mentor)))
+        const acceptedStudents = await Promise.all(course.courseMates!
+            .filter(cm => cm.isAccepted)
+            .map(async (cm) => {
+                const user = await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(cm.studentId!);
+                return {
+                    name: user.name!,
+                    surname: user.surname!,
+                    middleName: user.middleName!,
+                    email: user.email!,
+                    id: cm.studentId!,
+                }
+            }))
+
+        const newStudents = await Promise.all(course.courseMates!
+            .filter(cm => !cm.isAccepted)
+            .map(async (cm) => {
+                const user = await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(cm.studentId!);
+                return {
+                    name: user.name!,
+                    surname: user.surname!,
+                    middleName: user.middleName!,
+                    email: user.email!,
+                    id: cm.studentId!,
+                }
+            }))
+
+        setCourseState(prevState => ({
             isFound: true,
             course: course,
             courseHomework: course.homeworks!,
-            createHomework: false,
-            mentors: await Promise.all(course.mentorIds!.split('/').map(mentor => ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(mentor))),
-            acceptedStudents: await Promise.all(course.courseMates!
-                .filter(cm => cm.isAccepted)
-                .map(async (cm) => {
-                    const user = await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(cm.studentId!);
-                    return {
-                        name: user.name!,
-                        surname: user.surname!,
-                        middleName: user.middleName!,
-                        email: user.email!,
-                        id: cm.studentId!,
-                    }
-                })),
-            newStudents: await Promise.all(course.courseMates!
-                .filter(cm => !cm.isAccepted)
-                .map(async (cm) => {
-                    const user = await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(cm.studentId!);
-                    return {
-                        name: user.name!,
-                        surname: user.surname!,
-                        middleName: user.middleName!,
-                        email: user.email!,
-                        id: cm.studentId!,
-                    }
-                })),
-            isReadingMode: true,
-        })
+            createHomework: prevState.createHomework,
+            mentors: mentors,
+            acceptedStudents: acceptedStudents,
+            newStudents: newStudents,
+            isReadingMode: prevState.isReadingMode,
+            tabValue: prevState.tabValue
+        }))
     }
 
     useEffect(() => {
@@ -104,7 +112,16 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
             .then(() => setCurrentState());
     }
 
-    const {isFound, course, createHomework, mentors, newStudents, acceptedStudents, isReadingMode} = courseState;
+    const {
+        isFound,
+        course,
+        tabValue,
+        createHomework,
+        mentors,
+        newStudents,
+        acceptedStudents,
+        isReadingMode
+    } = courseState;
     if (isFound) {
         const isLogged = ApiSingleton.authService.isLoggedIn()
 
@@ -120,69 +137,156 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
         const isAcceptedStudent = isLogged && acceptedStudents!.some(
             (cm: any) => cm.id === userId
         )
+
         return (
-            <Grid style={{marginBottom: '50px'}}>
-                <Grid container justify="center" style={{marginTop: "15px"}}>
-                    <Grid container xs={11} className={classes.info}>
-                        <Grid item>
-                            <Typography style={{fontSize: '22px'}}>
-                                {`${course.name} / ${course.groupName}`} &nbsp;
-                                {isMentor &&
-                                    (isReadingMode
-                                        ? <VisibilityOffIcon
-                                            titleAccess="Режим чтения включен"
-                                            onClick={async () =>
-                                                setCourseState(prevState => ({
-                                                    ...prevState,
-                                                    isReadingMode: false
-                                                }))}/>
-                                        : <VisibilityIcon
-                                            titleAccess="Режим чтения выключен"
-                                            onClick={async () =>
-                                                setCourseState(prevState => ({
-                                                    ...prevState,
-                                                    isReadingMode: true
-                                                }))}
-                                        />)
-                                }
-                                {isMentor && !isReadingMode! && (
-                                    <RouterLink to={"./" + courseId! + "/edit"}>
-                                        <EditIcon fontSize="small"/>
-                                    </RouterLink>
-                                )}
-                            </Typography>
-                            <Typography style={{fontSize: "18px", color: "GrayText"}}>
-                                {mentors.map(t => `${t.name} ${t.surname}`).join(", ")}
-                            </Typography>
-                        </Grid>
-                        <Grid item style={{width: '187px'}}>
-                            <Grid container alignItems="flex-end" direction="column" xs={12}>
-                                {isLogged && !isSignedInCourse && !isMentor && !isAcceptedStudent && (
-                                    <Grid item style={{width: '100%', marginTop: '16px'}}>
-                                        <Button
-                                            fullWidth
-                                            variant="contained"
-                                            color="primary"
-                                            onClick={() => joinCourse()}
-                                        >
-                                            Записаться
-                                        </Button>
-                                    </Grid>
-                                )}
-                                {isLogged && isSignedInCourse && !isAcceptedStudent &&
-                                    <Grid item style={{width: '100%', marginTop: '16px'}}>
-                                        <Typography style={{fontSize: '15px'}}>
-                                            Ваша заявка рассматривается
-                                        </Typography>
-                                    </Grid>
-                                }
+            <div className="container">
+                <Grid style={{marginBottom: '50px'}}>
+                    <Grid container style={{marginTop: "15px"}}>
+                        <Grid container xs={11} className={classes.info}>
+                            <Grid item>
+                                <Typography style={{fontSize: '22px'}}>
+                                    {`${course.name} / ${course.groupName}`} &nbsp;
+                                    {isMentor &&
+                                        (isReadingMode
+                                            ? <VisibilityOffIcon
+                                                titleAccess="Режим чтения включен"
+                                                onClick={async () =>
+                                                    setCourseState(prevState => ({
+                                                        ...prevState,
+                                                        isReadingMode: false
+                                                    }))}/>
+                                            : <VisibilityIcon
+                                                titleAccess="Режим чтения выключен"
+                                                onClick={async () =>
+                                                    setCourseState(prevState => ({
+                                                        ...prevState,
+                                                        isReadingMode: true
+                                                    }))}
+                                            />)
+                                    }
+                                    {isMentor && !isReadingMode! && (
+                                        <RouterLink to={"./" + courseId! + "/edit"}>
+                                            <EditIcon fontSize="small"/>
+                                        </RouterLink>
+                                    )}
+                                </Typography>
+                                <Typography style={{fontSize: "18px", color: "GrayText"}}>
+                                    {mentors.map(t => `${t.name} ${t.surname}`).join(", ")}
+                                </Typography>
+                            </Grid>
+                            <Grid item style={{width: '187px'}}>
+                                <Grid container alignItems="flex-end" direction="column" xs={12}>
+                                    {isLogged && !isSignedInCourse && !isMentor && !isAcceptedStudent && (
+                                        <Grid item style={{width: '100%', marginTop: '16px'}}>
+                                            <Button
+                                                fullWidth
+                                                variant="contained"
+                                                color="primary"
+                                                onClick={() => joinCourse()}
+                                            >
+                                                Записаться
+                                            </Button>
+                                        </Grid>
+                                    )}
+                                    {isLogged && isSignedInCourse && !isAcceptedStudent &&
+                                        <Grid item style={{width: '100%', marginTop: '16px'}}>
+                                            <Typography style={{fontSize: '15px'}}>
+                                                Ваша заявка рассматривается
+                                            </Typography>
+                                        </Grid>
+                                    }
+                                </Grid>
                             </Grid>
                         </Grid>
                     </Grid>
-                </Grid>
-                {createHomework && (
-                    <div>
-                        <Grid container justifyContent="center" style={{marginTop: "15px", marginBottom: "15px"}}>
+                    <Tabs
+                        value={tabValue}
+                        style={{marginTop: 15}}
+                        indicatorColor="primary"
+                        onChange={(event, value) => {
+                            setCourseState(prevState => ({
+                                ...prevState,
+                                tabValue: value
+                            }));
+                        }}
+                    >
+                        <Tab label="Домашние задания"/>
+                        {isMentor && <Tab label="Решения"/>}
+                        {isMentor && <Tab label={`Заявки (${newStudents.length})`}/>}
+                    </Tabs>
+                    <br/>
+                    {tabValue === 0 &&
+                        <div>
+                            {createHomework && (
+                                <div>
+                                    <Grid container>
+                                        <Grid item xs={11}>
+                                            <AddHomework
+                                                id={+courseId}
+                                                onCancel={() => setCurrentState()}
+                                                onSubmit={() => setCurrentState()}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={11}>
+                                            <CourseHomework
+                                                onDelete={() => setCurrentState()}
+                                                isStudent={isAcceptedStudent}
+                                                isMentor={isMentor}
+                                                isReadingMode={isReadingMode}
+                                                homework={courseState.courseHomework}
+                                            />
+                                        </Grid>
+                                    </Grid>
+                                </div>
+                            )}
+                            {isMentor && !createHomework && (
+                                <div>
+                                    <Grid container>
+                                        {!isReadingMode! &&
+                                            <Grid item xs={11} style={{marginBottom: 15}}>
+                                                <Button
+                                                    size="small"
+                                                    variant="contained"
+                                                    color="primary"
+                                                    onClick={() => {
+                                                        setCourseState(prevState => ({
+                                                            ...prevState,
+                                                            createHomework: true
+                                                        }));
+                                                    }}
+                                                >
+                                                    Добавить задание
+                                                </Button>
+                                            </Grid>
+                                        }
+                                        <Grid item xs={11}>
+                                            <CourseHomework
+                                                onDelete={() => setCurrentState()}
+                                                isStudent={isAcceptedStudent}
+                                                isMentor={isMentor}
+                                                isReadingMode={isReadingMode}
+                                                homework={courseState.courseHomework}
+                                            />
+                                        </Grid>
+                                    </Grid>
+                                </div>
+                            )}
+                            {!isMentor && (
+                                <Grid container>
+                                    <Grid xs={11}>
+                                        <CourseHomework
+                                            onDelete={() => setCurrentState()}
+                                            homework={courseState.courseHomework}
+                                            isStudent={isAcceptedStudent}
+                                            isMentor={isMentor}
+                                            isReadingMode={isReadingMode}
+                                        />
+                                    </Grid>
+                                </Grid>
+                            )}
+                        </div>}
+                    {tabValue === 1 && isMentor &&
+                        <Grid container style={{marginBottom: "15px"}}>
                             <Grid item xs={11}>
                                 <CourseStudents
                                     homeworks={courseState.courseHomework}
@@ -191,111 +295,19 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                     course={courseState.course}
                                 />
                             </Grid>
-                            <Grid item xs={11}>
-                                <NewCourseStudents
-                                    onUpdate={() => setCurrentState()}
-                                    course={course}
-                                    students={newStudents}
-                                    courseId={courseId}
-                                />
-                            </Grid>
-                            <Grid item xs={11} style={{marginTop: "15px"}}>
-                                <AddHomework
-                                    id={+courseId}
-                                    onCancel={() => setCurrentState()}
-                                    onSubmit={() => setCurrentState()}
-                                />
-                            </Grid>
-                            <Grid item xs={11} style={{marginTop: "15px"}}>
-                                <CourseHomework
-                                    onDelete={() => setCurrentState()}
-                                    isStudent={isAcceptedStudent}
-                                    isMentor={isMentor}
-                                    isReadingMode={isReadingMode}
-                                    homework={courseState.courseHomework}
-                                />
-                            </Grid>
-                        </Grid>
-                    </div>
-                )}
-                {isMentor && !createHomework && (
-                    <div>
-                        <Grid container justifyContent="center" style={{marginTop: "15px", marginBottom: "15px"}}>
-                            <Grid item xs={11}>
-                                <CourseStudents
-                                    homeworks={courseState.courseHomework}
-                                    userId={userId as string}
-                                    isMentor={isMentor}
-                                    course={courseState.course}
-                                />
-                            </Grid>
-                        </Grid>
-                        <Grid container justifyContent="center">
-                            {!isReadingMode! &&
-                                <Grid item xs={11}>
-                                    <NewCourseStudents
-                                        onUpdate={() => setCurrentState()}
-                                        course={courseState.course}
-                                        students={courseState.newStudents}
-                                        courseId={courseId}
-                                    />
-                                </Grid>
-                            }
-                            {!isReadingMode! &&
-                                <Grid item xs={11} style={{marginTop: "15px"}}>
-                                    <Button
-                                        size="small"
-                                        variant="contained"
-                                        color="primary"
-                                        onClick={() => {
-                                            setCourseState(prevState => ({
-                                                ...prevState,
-                                                createHomework: true
-                                            }));
-                                        }}
-                                    >
-                                        Добавить задание
-                                    </Button>
-                                </Grid>
-                            }
-                            <Grid item xs={11} style={{marginTop: "15px"}}>
-                                <CourseHomework
-                                    onDelete={() => setCurrentState()}
-                                    isStudent={isAcceptedStudent}
-                                    isMentor={isMentor}
-                                    isReadingMode={isReadingMode}
-                                    homework={courseState.courseHomework}
-                                />
-                            </Grid>
-                        </Grid>
-                    </div>
-                )}
-                {isAcceptedStudent && (
-                    <Grid container justifyContent="center" style={{marginTop: "15px", marginBottom: "15px"}}>
+                        </Grid>}
+                    {tabValue === 2 && isMentor &&
                         <Grid item xs={11}>
-                            <CourseStudents
-                                homeworks={courseState.courseHomework}
-                                userId={userId as string}
-                                isMentor={isMentor}
+                            <NewCourseStudents
+                                onUpdate={() => setCurrentState()}
                                 course={courseState.course}
+                                students={courseState.newStudents}
+                                courseId={courseId}
                             />
                         </Grid>
-                    </Grid>
-                )}
-                {!isMentor && (
-                    <Grid container justifyContent="center" style={{marginTop: "15px", marginBottom: "15px"}}>
-                        <Grid xs={11}>
-                            <CourseHomework
-                                onDelete={() => setCurrentState()}
-                                homework={courseState.courseHomework}
-                                isStudent={isAcceptedStudent}
-                                isMentor={isMentor}
-                                isReadingMode={isReadingMode}
-                            />
-                        </Grid>
-                    </Grid>
-                )}
-            </Grid>
+                    }
+                </Grid>
+            </div>
         );
     }
     return (

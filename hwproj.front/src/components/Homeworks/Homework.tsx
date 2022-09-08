@@ -138,7 +138,7 @@ const Homework: FC<IHomeworkProps> = (props) => {
                                 />
                                 {!props.isReadingMode &&
                                     <Button
-                                        style={{marginTop: "10px"}}
+                                        style={{marginTop: "15px"}}
                                         size="small"
                                         variant="contained"
                                         color="primary"

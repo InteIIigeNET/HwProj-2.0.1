@@ -3,7 +3,7 @@ import {CourseViewModel} from '../../api/';
 import Button from '@material-ui/core/Button'
 import ApiSingleton from "../../api/ApiSingleton";
 import {FC} from "react";
-import {ListItem, Paper} from "@material-ui/core";
+import {Divider, ListItem, Paper} from "@material-ui/core";
 import List from "@material-ui/core/List";
 import Typography from "@material-ui/core/Typography";
 import {makeStyles} from "@material-ui/styles";
@@ -46,8 +46,9 @@ const NewCourseStudents: FC<INewCourseStudentsProps> = (props) => {
     }
 
     const classes = useStyles()
+    const studentsLength = props.students.length
 
-    if (props.students.length === 0) {
+    if (studentsLength === 0) {
         return (
             <div>
                 Нет новых заявок в курс.
@@ -55,48 +56,40 @@ const NewCourseStudents: FC<INewCourseStudentsProps> = (props) => {
         )
     }
     return (
+        //TODO: add user separator
         <div style={{width: "300px"}}>
-            <div>
-                <Typography>
-                    Новые заявки на вступление в курс:
-                </Typography>
-            </div>
-            <List>
-                {props.students.map((cm, index) => (
-                    <ListItem>
+            {props.students.map((cm, i) => (
+                <div>
+                    <div>
+                        <Typography>
+                            {cm.surname} {cm.name}
+                        </Typography>
+                    </div>
+                    <div className={classes.item}>
                         <div>
-                            <div>
-                                <Typography>
-                                    {cm.surname} {cm.name}
-                                </Typography>
-                            </div>
-                            <div className={classes.item}>
-                                <div>
-                                    <Button
-                                        onClick={() => acceptStudent(cm.id)}
-                                        color="primary"
-                                        variant="contained"
-                                        size="small"
-                                    >
-                                        Принять
-                                    </Button>
-                                </div>
-                                <div>
-                                    <Button
-                                        onClick={() => rejectStudent(cm.id!)}
-                                        color="primary"
-                                        variant="contained"
-                                        size="small"
-                                    >
-                                        Отклонить
-                                    </Button>
-                                </div>
-                            </div>
+                            <Button
+                                onClick={() => acceptStudent(cm.id)}
+                                color="primary"
+                                variant="contained"
+                                size="small"
+                            >
+                                Принять
+                            </Button>
                         </div>
-                    </ListItem>
-                ))
-                }
-            </List>
+                        <div>
+                            <Button
+                                onClick={() => rejectStudent(cm.id!)}
+                                color="primary"
+                                variant="contained"
+                                size="small"
+                            >
+                                Отклонить
+                            </Button>
+                        </div>
+                    </div>
+                    {i < studentsLength - 1 ? <Divider style={{marginTop: 15, marginBottom: 10}}/> : null}
+                </div>
+            ))}
         </div>
     )
 }

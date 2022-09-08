@@ -11,7 +11,6 @@ interface ICoursesProps {
 }
 
 export class CoursesList extends React.Component<ICoursesProps, {}> {
-
     public render() {
         const {courses} = this.props;
 

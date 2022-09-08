@@ -43,7 +43,7 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
         return (
             <div>
                 {this.state.isLoaded &&
-                <TableContainer component={Paper}>
+                <TableContainer>
                     <Table aria-label="simple table">
                         <TableHead>
                             <TableRow>

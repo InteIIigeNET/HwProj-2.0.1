@@ -238,7 +238,7 @@ export default class AddHomework extends React.Component<IAddHomeworkProps,
                             Ещё задачу
                         </Button>
                     </div>
-                    <Grid container style={{marginTop: "15px"}}>
+                    <Grid container style={{marginTop: "15px", marginBottom: 15}}>
                         <Button
                             size="small"
                             variant="contained"
