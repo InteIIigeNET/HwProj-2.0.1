@@ -61,8 +61,8 @@ export default class AddHomework extends React.Component<IAddHomeworkProps,
                         indicatorColor="primary"
                         value={this.state.isPreview ? 1 : 0}
                     >
-                        <Tab label="Write" id="simple-tab-0" aria-controls="simple-tabpanel-0"/>
-                        <Tab label="Preview" id="simple-tab-1" aria-controls="simple-tabpanel-1"/>
+                        <Tab label="Редактировать" id="simple-tab-0" aria-controls="simple-tabpanel-0"/>
+                        <Tab label="Превью" id="simple-tab-1" aria-controls="simple-tabpanel-1"/>
                     </Tabs>
 
                     <div role="tabpanel" hidden={this.state.isPreview} id="simple-tab-0">

@@ -81,6 +81,7 @@ const StudentSolutionsPage: FC<RouteComponentProps<IStudentSolutionsPageProps>> 
                             task={studentSolutions.task}
                             forStudent={false}
                             forMentor={true}
+                            isReadingMode={true}
                             onDeleteClick={() => 0}
                             isExpanded={true}
                             showForCourse={false}

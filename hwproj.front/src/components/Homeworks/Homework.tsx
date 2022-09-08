@@ -18,6 +18,7 @@ interface IHomeworkProps {
     homework: HomeworkViewModel,
     forMentor: boolean,
     forStudent: boolean,
+    isReadingMode: boolean,
     onDeleteClick: () => void
 }
 
@@ -59,7 +60,7 @@ const Homework: FC<IHomeworkProps> = (props) => {
 
     const classes = useStyles()
     const homeworkDateString = ApiSingleton.utils.convertUTCDateToLocalDate(props.homework.date!).toLocaleDateString("ru-RU");
-    const deferredHomework = props.homework.tasks!.filter(t => t.isDeferred!);
+    const deferredHomeworks = props.homework.tasks!.filter(t => t.isDeferred!);
     return (
         <div style={{width: '100%'}}>
             <Accordion>
@@ -80,26 +81,26 @@ const Homework: FC<IHomeworkProps> = (props) => {
                                 {homeworkDateString}
                             </Typography>
                         </div>
-                        <div>
-                            {props.forMentor &&
-                            <IconButton aria-label="Delete" onClick={openDialogDeleteHomework}>
-                                <DeleteIcon fontSize="small"/>
-                            </IconButton>
-                            }
-                        </div>
-                        <div>
-                            {props.forMentor &&
-                            <RouterLink to={'/homework/' + props.homework.id!.toString() + '/edit'}>
-                                <EditIcon fontSize="small"/>
-                            </RouterLink>
-                            }
-                        </div>
-                        <div style={{ marginLeft: '8px' }}>
-                            {props.forMentor && deferredHomework!.length > 0 &&
+                        <div style={{marginLeft: '8px'}}>
+                            {props.forMentor && deferredHomeworks!.length > 0 &&
                                 <Typography>
                                     <HourglassEmpty/>
-                                    {deferredHomework!.length}
+                                    {deferredHomeworks!.length}
                                 </Typography>
+                            }
+                        </div>
+                        <div>
+                            {props.forMentor && !props.isReadingMode &&
+                                <IconButton aria-label="Delete" onClick={openDialogDeleteHomework}>
+                                    <DeleteIcon fontSize="small"/>
+                                </IconButton>
+                            }
+                        </div>
+                        <div>
+                            {props.forMentor && !props.isReadingMode &&
+                                <RouterLink to={'/homework/' + props.homework.id!.toString() + '/edit'}>
+                                    <EditIcon fontSize="small"/>
+                                </RouterLink>
                             }
                         </div>
                     </div>
@@ -108,53 +109,57 @@ const Homework: FC<IHomeworkProps> = (props) => {
                     <div style={{width: '100%'}}>
                         <ReactMarkdown children={props.homework.description!}/>
                         {(props.forMentor && homeworkState.createTask) &&
-                        <div style={{width: '100%'}}>
-                            <HomeworkTasks
-                                onDelete={() => props.onDeleteClick()}
-                                tasks={props.homework.tasks!}
-                                forStudent={props.forStudent}
-                                forMentor={props.forMentor}
-                            />
-                            <AddTask
-                                id={props.homework.id!}
-                                onAdding={() => window.location.reload()}
-                                onCancel={() => setHomeworkState({
-                                    createTask: false
-                                })}
-                                update={() => props.onDeleteClick()}
-                            />
-                        </div>
+                            <div style={{width: '100%'}}>
+                                <HomeworkTasks
+                                    onDelete={() => props.onDeleteClick()}
+                                    tasks={props.homework.tasks!}
+                                    forStudent={props.forStudent}
+                                    forMentor={props.forMentor}
+                                    isReadingMode={props.isReadingMode}
+                                />
+                                <AddTask
+                                    id={props.homework.id!}
+                                    onAdding={() => window.location.reload()}
+                                    onCancel={() => setHomeworkState({
+                                        createTask: false
+                                    })}
+                                    update={() => props.onDeleteClick()}
+                                />
+                            </div>
                         }
                         {(props.forMentor && !homeworkState.createTask) &&
-                        <div style={{width: '100%'}}>
+                            <div style={{width: '100%'}}>
+                                <HomeworkTasks
+                                    onDelete={() => props.onDeleteClick()}
+                                    tasks={props.homework.tasks!}
+                                    forStudent={props.forStudent}
+                                    forMentor={props.forMentor}
+                                    isReadingMode={props.isReadingMode}
+                                />
+                                {!props.isReadingMode &&
+                                    <Button
+                                        style={{marginTop: "10px"}}
+                                        size="small"
+                                        variant="contained"
+                                        color="primary"
+                                        onClick={() => {
+                                            setHomeworkState({
+                                                createTask: true
+                                            })
+                                        }}
+                                    >
+                                        Добавить задачу
+                                    </Button>}
+                            </div>
+                        }
+                        {!props.forMentor &&
                             <HomeworkTasks
                                 onDelete={() => props.onDeleteClick()}
                                 tasks={props.homework.tasks!}
                                 forStudent={props.forStudent}
                                 forMentor={props.forMentor}
+                                isReadingMode={props.isReadingMode}
                             />
-                            <Button
-                                style={{marginTop: "10px"}}
-                                size="small"
-                                variant="contained"
-                                color="primary"
-                                onClick={() => {
-                                    setHomeworkState({
-                                        createTask: true
-                                    })
-                                }}
-                            >
-                                Добавить задачу
-                            </Button>
-                        </div>
-                        }
-                        {!props.forMentor &&
-                        <HomeworkTasks
-                            onDelete={() => props.onDeleteClick()}
-                            tasks={props.homework.tasks!}
-                            forStudent={props.forStudent}
-                            forMentor={props.forMentor}
-                        />
                         }
                     </div>
                 </AccordionDetails>

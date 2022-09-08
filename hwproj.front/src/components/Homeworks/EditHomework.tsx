@@ -156,8 +156,8 @@ const EditHomework: FC<RouteComponentProps<IEditHomeworkProps>> = (props) => {
                                             isPreview: newValue === 1
                                         }))}
                                     >
-                                        <Tab label="Write" id="simple-tab-0" aria-controls="simple-tabpanel-0"/>
-                                        <Tab label="Preview" id="simple-tab-1" aria-controls="simple-tabpanel-1"/>
+                                        <Tab label="Редактировать" id="simple-tab-0" aria-controls="simple-tabpanel-0"/>
+                                        <Tab label="Превью" id="simple-tab-1" aria-controls="simple-tabpanel-1"/>
                                     </Tabs>
                                 </Grid>
 

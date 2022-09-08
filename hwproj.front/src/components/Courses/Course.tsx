@@ -211,6 +211,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                     onDelete={() => setCurrentState()}
                                     isStudent={isAcceptedStudent}
                                     isMentor={isMentor}
+                                    isReadingMode={isReadingMode}
                                     homework={courseState.courseHomework}
                                 />
                             </Grid>
@@ -261,7 +262,8 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                 <CourseHomework
                                     onDelete={() => setCurrentState()}
                                     isStudent={isAcceptedStudent}
-                                    isMentor={isMentor && !isReadingMode!}
+                                    isMentor={isMentor}
+                                    isReadingMode={isReadingMode}
                                     homework={courseState.courseHomework}
                                 />
                             </Grid>
@@ -288,6 +290,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                 homework={courseState.courseHomework}
                                 isStudent={isAcceptedStudent}
                                 isMentor={isMentor}
+                                isReadingMode={isReadingMode}
                             />
                         </Grid>
                     </Grid>

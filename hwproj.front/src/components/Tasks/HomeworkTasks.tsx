@@ -10,6 +10,7 @@ interface IHomeworkTasksProps {
     tasks: HomeworkTaskViewModel[],
     forMentor: boolean,
     forStudent: boolean,
+    isReadingMode: boolean,
     onDelete: () => void
 }
 
@@ -25,6 +26,7 @@ const HomeworkTasks: FC<IHomeworkTasksProps> = (props) => {
                             task={task}
                             forStudent={props.forStudent}
                             forMentor={props.forMentor}
+                            isReadingMode={props.isReadingMode}
                             onDeleteClick={() => props.onDelete()}
                             isExpanded={false}
                             showForCourse={true}

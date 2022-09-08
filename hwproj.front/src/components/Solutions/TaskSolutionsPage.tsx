@@ -36,6 +36,7 @@ const TaskSolutionsPage: FC<RouteComponentProps<ITaskSolutionsProps>> = (props) 
     }, [])
 
     const getTask = async () => {
+        //TODO: fix
         const task = await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+props.match.params.taskId)
         const homework = await ApiSingleton.homeworksApi.apiHomeworksGetByHomeworkIdGet(task.homeworkId!)
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(homework.courseId!)
@@ -84,6 +85,7 @@ const TaskSolutionsPage: FC<RouteComponentProps<ITaskSolutionsProps>> = (props) 
                                     task={taskSolution.task}
                                     forStudent={true}
                                     forMentor={false}
+                                    isReadingMode={true}
                                     onDeleteClick={() => 3}
                                     isExpanded={true}
                                     showForCourse={false}

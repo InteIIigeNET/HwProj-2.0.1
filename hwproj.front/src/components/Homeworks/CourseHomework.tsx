@@ -10,6 +10,7 @@ interface ICourseHomeworkProps {
     homework: HomeworkViewModel[];
     isMentor: boolean;
     isStudent: boolean;
+    isReadingMode: boolean;
     onDelete: () => void;
 }
 
@@ -22,6 +23,7 @@ const CourseHomework: FC<ICourseHomeworkProps> = (props) => {
                     homework={hw}
                     forStudent={props.isStudent}
                     forMentor={props.isMentor}
+                    isReadingMode={props.isReadingMode}
                     onDeleteClick={() => props.onDelete()}
                 />
 

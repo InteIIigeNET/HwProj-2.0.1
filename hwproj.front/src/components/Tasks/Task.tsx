@@ -12,12 +12,14 @@ import {Accordion, AccordionDetails, AccordionSummary, Button} from '@material-u
 import {FC, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
 import DeletionConfirmation from "../DeletionConfirmation";
+import HourglassEmpty from "@material-ui/icons/HourglassEmpty";
 
 interface ITaskProp {
     task: HomeworkTaskViewModel,
     forMentor: boolean,
     forStudent: boolean,
     isExpanded: boolean,
+    isReadingMode: boolean,
     onDeleteClick: () => void,
     showForCourse: boolean
 }
@@ -77,16 +79,18 @@ const Task: FC<ITaskProp> = (props) => {
                         <Typography style={{fontSize: '18px'}}>
                             {task.title}
                         </Typography>
-                        {props.forMentor &&
-                        <IconButton aria-label="Delete" onClick={openDialogDeleteTask}>
-                            <DeleteIcon fontSize="small"/>
-                        </IconButton>
+                        {props.forMentor && !props.isReadingMode &&
+                            <IconButton aria-label="Delete" onClick={openDialogDeleteTask}>
+                                <DeleteIcon fontSize="small"/>
+                            </IconButton>
                         }
-
-                        {props.forMentor &&
-                        <RouterLink to={'/task/' + task.id!.toString() + '/edit'}>
-                            <EditIcon fontSize="small"/>
-                        </RouterLink>
+                        {props.forMentor && task.isDeferred && <Typography>
+                            <HourglassEmpty/>
+                        </Typography>}
+                        {props.forMentor && !props.isReadingMode &&
+                            <RouterLink to={'/task/' + task.id!.toString() + '/edit'}>
+                                <EditIcon fontSize="small"/>
+                            </RouterLink>
                         }
                     </div>
                 </AccordionSummary>
@@ -100,29 +104,29 @@ const Task: FC<ITaskProp> = (props) => {
                                 Максимальный балл: {task.maxRating}
                             </Typography>
                         </div>
-                        <div style={{ marginTop: '5px'}}>
+                        <div style={{marginTop: '5px'}}>
                             <Typography>
                                 Дата публикации: {publicationDate}
                             </Typography>
                         </div>
                         {(task.hasDeadline) &&
-                        <div style={{ marginTop: '5px'}}>
-                            <Typography>
-                                Дедлайн: {deadlineDate}
-                            </Typography>
-                        </div>
+                            <div style={{marginTop: '5px'}}>
+                                <Typography>
+                                    Дедлайн: {deadlineDate}
+                                </Typography>
+                            </div>
                         }
                         {!task.hasDeadline &&
-                        <div style={{ marginTop: '5px'}}>
-                            <Typography>
-                                Дедлайн: Отсутствует
-                            </Typography>
-                        </div>
+                            <div style={{marginTop: '5px'}}>
+                                <Typography>
+                                    Дедлайн: Отсутствует
+                                </Typography>
+                            </div>
                         }
                         {props.showForCourse && props.forStudent &&
-                            <div style={{ marginTop: '15px' }}>
+                            <div style={{marginTop: '15px'}}>
                                 <Button
-                                    style={{ width: '150px'}}
+                                    style={{width: '150px'}}
                                     size="small"
                                     variant="contained"
                                     color="primary"
