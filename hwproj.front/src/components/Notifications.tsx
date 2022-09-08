@@ -165,7 +165,7 @@ const Notifications: FC<RouteComponentProps<IProfileProps>> = () => {
             <div>
                 {notifications.map((n, index) =>
                     <Box style={{marginBottom: '16px'}} key={index}>
-                        <Card style={{backgroundColor: "AliceBlue"}}>
+                        <Card style={{backgroundColor: n.hasSeen! ? "#eceef8" : "aliceblue"}}>
                             <CardContent>
                                 <Typography variant="body1" component="p">
                                     {parse(n.body!)}
@@ -174,7 +174,7 @@ const Notifications: FC<RouteComponentProps<IProfileProps>> = () => {
                                     {parse(ApiSingleton.utils.convertUTCDateToLocalDate(n.date!).toLocaleDateString("ru-RU", dateTimeOptions))}
                                 </Typography>
                             </CardContent>
-                            <Box display="flex" flexDirection="row-reverse">
+                            {!n.hasSeen && <Box display="flex" flexDirection="row-reverse">
                                 <Checkbox
                                     title="Прочитано"
                                     color="primary"
@@ -182,7 +182,7 @@ const Notifications: FC<RouteComponentProps<IProfileProps>> = () => {
                                     checked={n.hasSeen}
                                     onChange={markAsSeenNotification}
                                 />
-                            </Box>
+                            </Box>}
                         </Card>
                     </Box>
                 )}
