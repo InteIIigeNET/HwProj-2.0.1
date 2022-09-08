@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.Client;
+using HwProj.EventBus.Client;
 using HwProj.SolutionsService.API.Events;
 using HwProj.SolutionsService.Client;
 using UpdateTaskMaxRatingEvent = HwProj.CoursesService.API.Events.UpdateTaskMaxRatingEvent;

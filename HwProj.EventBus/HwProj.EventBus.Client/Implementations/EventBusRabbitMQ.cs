@@ -68,7 +68,7 @@ namespace HwProj.EventBus.Client.Implementations
 
         internal void Subscribe<TEvent, THandler>()
             where TEvent : Event
-            where THandler : IEventHandler<TEvent>
+            where THandler : EventHandlerBase<TEvent>
         {
             using var channel = _connection.CreateModel();
             var eventName = GetEventName<TEvent>();
@@ -124,9 +124,8 @@ namespace HwProj.EventBus.Client.Implementations
         private async Task ProcessEvent(string eventName, string message)
         {
             if (!_handlers.TryGetValue(eventName, out var handlers) ||
-                !_eventTypes.TryGetValue(eventName, out var eventType)) return;
-
-            var @event = JsonConvert.DeserializeObject(message, eventType) as Event;
+                !_eventTypes.TryGetValue(eventName, out var eventType) ||
+                !(JsonConvert.DeserializeObject(message, eventType) is Event @event)) return;
 
             //TODO: log
             using var scope = _scopeFactory.CreateScope();

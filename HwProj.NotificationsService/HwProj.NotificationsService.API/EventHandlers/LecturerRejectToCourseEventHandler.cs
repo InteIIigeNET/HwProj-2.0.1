@@ -10,7 +10,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {
-    public class LecturerRejectToCourseEventHandler : IEventHandler<LecturerRejectToCourseEvent>
+    public class LecturerRejectToCourseEventHandler : EventHandlerBase<LecturerRejectToCourseEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
         private readonly IAuthServiceClient _authServiceClient;
@@ -29,7 +29,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             _configuration = configuration.GetSection("Notification");
         }
 
-        public async Task HandleAsync(LecturerRejectToCourseEvent @event)
+        public override async Task HandleAsync(LecturerRejectToCourseEvent @event)
         {
             var notification = new Notification
             {

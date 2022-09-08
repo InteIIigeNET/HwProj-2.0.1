@@ -18,6 +18,6 @@ namespace HwProj.EventBus.Client.Implementations
 
         public void Subscribe<TEvent, THandler>()
             where TEvent : Event
-            where THandler : IEventHandler<TEvent> => _eventBusRabbitMq.Subscribe<TEvent, THandler>();
+            where THandler : EventHandlerBase<TEvent> => _eventBusRabbitMq.Subscribe<TEvent, THandler>();
     }
 }

@@ -6,7 +6,7 @@ using HwProj.EventBus.Client.Interfaces;
 
 namespace HwProj.CourseWorkService.API.EventHandlers
 {
-    public class InviteLecturerEventHandler : IEventHandler<InviteLecturerEvent>
+    public class InviteLecturerEventHandler : EventHandlerBase<InviteLecturerEvent>
     {
         private readonly IUsersRepository _usersRepository;
 
@@ -15,7 +15,7 @@ namespace HwProj.CourseWorkService.API.EventHandlers
             _usersRepository = usersRepository;
         }
 
-        public async Task HandleAsync(InviteLecturerEvent @event)
+        public override async Task HandleAsync(InviteLecturerEvent @event)
         {
             await _usersRepository.AddRoleToUserAsync(@event.UserId, Roles.Lecturer).ConfigureAwait(false);
             await _usersRepository.RemoveRoleFromUserAsync(@event.UserId, Roles.Student).ConfigureAwait(false);

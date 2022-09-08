@@ -12,7 +12,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {
-    public class UpdateTaskMaxRatingEventHandler : IEventHandler<UpdateTaskMaxRatingEvent>
+    public class UpdateTaskMaxRatingEventHandler : EventHandlerBase<UpdateTaskMaxRatingEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
         private readonly IAuthServiceClient _authServiceClient;
@@ -34,7 +34,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             _configuration = configuration.GetSection("Notification");
         }
 
-        public async Task HandleAsync(UpdateTaskMaxRatingEvent @event)
+        public override async Task HandleAsync(UpdateTaskMaxRatingEvent @event)
         {
             foreach (var student in @event.Course.CourseMates)
             {

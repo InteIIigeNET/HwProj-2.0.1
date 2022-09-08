@@ -13,6 +13,6 @@ namespace HwProj.EventBus.Client.Interfaces
     {
         void Subscribe<TEvent, THandler>()
             where TEvent : Event
-            where THandler : IEventHandler<TEvent>;
+            where THandler : EventHandlerBase<TEvent>;
     }
 }

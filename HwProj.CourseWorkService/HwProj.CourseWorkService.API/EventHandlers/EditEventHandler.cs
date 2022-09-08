@@ -6,7 +6,7 @@ using HwProj.EventBus.Client.Interfaces;
 
 namespace HwProj.CourseWorkService.API.EventHandlers
 {
-    public class EditEventHandler : IEventHandler<EditEvent>
+    public class EditEventHandler : EventHandlerBase<EditEvent>
     {
         private readonly IUsersRepository _usersRepository;
 
@@ -15,7 +15,7 @@ namespace HwProj.CourseWorkService.API.EventHandlers
             _usersRepository = usersRepository;
         }
 
-        public async Task HandleAsync(EditEvent @event)
+        public override async Task HandleAsync(EditEvent @event)
         {
             await _usersRepository.UpdateAsync(@event.UserId, u => new User()
             {

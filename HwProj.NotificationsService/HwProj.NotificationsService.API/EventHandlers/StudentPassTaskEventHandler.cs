@@ -10,7 +10,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {
-    public class StudentPassTaskEventHandler : IEventHandler<StudentPassTaskEvent>
+    public class StudentPassTaskEventHandler : EventHandlerBase<StudentPassTaskEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
         private readonly IAuthServiceClient _authServiceClient;
@@ -29,7 +29,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             _configuration = configuration.GetSection("Notification");
         }
 
-        public async Task HandleAsync(StudentPassTaskEvent @event)
+        public override async Task HandleAsync(StudentPassTaskEvent @event)
         {
             foreach (var m in @event.Course.MentorIds.Split('/'))
             {

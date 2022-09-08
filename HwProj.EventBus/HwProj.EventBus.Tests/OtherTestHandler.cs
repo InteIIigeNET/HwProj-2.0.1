@@ -4,7 +4,7 @@ using HwProj.EventBus.Client.Interfaces;
 
 namespace HwProj.EventBus.Tests
 {
-    public class OtherTestHandler : IEventHandler<TestEvent>
+    public class OtherTestHandler : EventHandlerBase<TestEvent>
     {
         public int NewPrice { get; set; }
         public int OldPrice { get; set; }
@@ -17,7 +17,7 @@ namespace HwProj.EventBus.Tests
             OldPrice = 0;
         }
 
-        public Task HandleAsync(TestEvent @event)
+        public override Task HandleAsync(TestEvent @event)
         {
             NewPrice = @event.NewPrice;
             OldPrice = @event.OldPrice;
