@@ -81,8 +81,6 @@ const EditCourse: FC<RouteComponentProps<IEditCourseProps>> = (props) => {
 
     const getCourse = async () => {
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+props.match.params.courseId)
-        const mentors = await Promise.all(course.mentorIds!.split('/')
-                .map(async (mentorId) => await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(mentorId)))
         setCourseState((prevState) => ({
             ...prevState,
             isLoaded: true,
@@ -90,7 +88,7 @@ const EditCourse: FC<RouteComponentProps<IEditCourseProps>> = (props) => {
             groupName: course.groupName!,
             isOpen: course.isOpen!,
             isCompleted: course.isCompleted!,
-            mentors: mentors,
+            mentors: course.mentors!,
         }))
     }
 

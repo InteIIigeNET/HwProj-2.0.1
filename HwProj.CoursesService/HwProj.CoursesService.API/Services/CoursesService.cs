@@ -2,19 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AutoMapper;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.AuthService.DTO;
-using HwProj.Models.CoursesService.DTO;
-using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
-using HwProj.Utils;
 using Microsoft.EntityFrameworkCore;
-using StackExchange.Redis;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -23,20 +18,17 @@ namespace HwProj.CoursesService.API.Services
         private readonly ICoursesRepository _coursesRepository;
         private readonly ICourseMatesRepository _courseMatesRepository;
         private readonly IEventBus _eventBus;
-        private readonly IMapper _mapper;
         private readonly IAuthServiceClient _authServiceClient;
 
         public CoursesService(ICoursesRepository coursesRepository,
             ICourseMatesRepository courseMatesRepository,
             IEventBus eventBus,
-            IMapper mapper,
             IAuthServiceClient authServiceClient
         )
         {
             _coursesRepository = coursesRepository;
             _courseMatesRepository = courseMatesRepository;
             _eventBus = eventBus;
-            _mapper = mapper;
             _authServiceClient = authServiceClient;
         }
 
@@ -45,14 +37,18 @@ namespace HwProj.CoursesService.API.Services
             return await _coursesRepository.GetAllWithCourseMatesAndHomeworks().ToArrayAsync();
         }
 
-        public async Task<Course> GetAsync(long id, string userId)
+        public async Task<Course?> GetAsync(long id, string userId)
         {
             var course = await _coursesRepository.GetWithCourseMatesAsync(id);
+            if (course == null) return null;
+
             if (!course.MentorIds.Contains(userId))
             {
                 var currentDate = DateTime.UtcNow.AddHours(3);
                 course.Homeworks.ForEach(hw =>
                     hw.Tasks = new List<HomeworkTask>(hw.Tasks.Where(t => currentDate >= t.PublicationDate)));
+
+                course.CourseMates = course.CourseMates.Where(t => t.IsAccepted || t.StudentId == userId).ToList();
             }
 
             return course;
@@ -244,8 +240,8 @@ namespace HwProj.CoursesService.API.Services
             var availableLecturers = lecturers.Where(u => !mentorIds.Contains(u.Id));
 
             return availableLecturers
-                .Select(u =>
-                    new AccountDataDto(u.Name, u.Surname, u.Email, Roles.LecturerRole, u.IsExternalAuth, u.MiddleName))
+                .Select(u => new AccountDataDto(u.Id, u.Name, u.Surname, u.Email, Roles.LecturerRole, u.IsExternalAuth,
+                    u.MiddleName))
                 .ToArray();
         }
     }

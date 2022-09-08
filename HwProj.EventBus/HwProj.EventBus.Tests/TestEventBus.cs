@@ -1,13 +1,4 @@
-using Moq;
-using Polly;
-using RabbitMQ.Client;
-using RabbitMQ.Client.Exceptions;
-using System;
-using System.Net.Sockets;
 using System.Threading;
-using HwProj.EventBus.Client;
-using HwProj.EventBus.Client.Implementations;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace HwProj.EventBus.Tests

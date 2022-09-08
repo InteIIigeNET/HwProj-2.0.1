@@ -1,24 +1,15 @@
 import * as React from 'react';
-import {CourseViewModel} from '../../api/';
+import {AccountDataDto, CourseViewModel} from '../../api/';
 import Button from '@material-ui/core/Button'
 import ApiSingleton from "../../api/ApiSingleton";
 import {FC} from "react";
-import {Divider, ListItem, Paper} from "@material-ui/core";
-import List from "@material-ui/core/List";
+import {Divider} from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 import {makeStyles} from "@material-ui/styles";
 
-interface ICourseMate {
-    name: string;
-    surname: string;
-    middleName: string;
-    email: string;
-    id: string;
-}
-
 interface INewCourseStudentsProps {
     course: CourseViewModel,
-    students: ICourseMate[],
+    students: AccountDataDto[],
     onUpdate: () => void,
     courseId: string,
 }
@@ -68,7 +59,7 @@ const NewCourseStudents: FC<INewCourseStudentsProps> = (props) => {
                     <div className={classes.item}>
                         <div>
                             <Button
-                                onClick={() => acceptStudent(cm.id)}
+                                onClick={() => acceptStudent(cm.userId!)}
                                 color="primary"
                                 variant="contained"
                                 size="small"
@@ -78,7 +69,7 @@ const NewCourseStudents: FC<INewCourseStudentsProps> = (props) => {
                         </div>
                         <div>
                             <Button
-                                onClick={() => rejectStudent(cm.id!)}
+                                onClick={() => rejectStudent(cm.userId!)}
                                 color="primary"
                                 variant="contained"
                                 size="small"

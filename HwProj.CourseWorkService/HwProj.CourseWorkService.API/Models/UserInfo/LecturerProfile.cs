@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using HwProj.Repositories;
 
 namespace HwProj.CourseWorkService.API.Models.UserInfo
 {

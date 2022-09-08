@@ -89,6 +89,12 @@ export interface AccountDataDto {
      * @type {string}
      * @memberof AccountDataDto
      */
+    userId?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof AccountDataDto
+     */
     name?: string;
     /**
      *
@@ -168,26 +174,6 @@ export namespace CategorizedNotifications {
 /**
  *
  * @export
- * @interface CourseMateViewModel
- */
-export interface CourseMateViewModel {
-    /**
-     *
-     * @type {string}
-     * @memberof CourseMateViewModel
-     */
-    studentId?: string;
-    /**
-     *
-     * @type {boolean}
-     * @memberof CourseMateViewModel
-     */
-    isAccepted?: boolean;
-}
-
-/**
- *
- * @export
  * @interface CoursePreviewView
  */
 export interface CoursePreviewView {
@@ -261,22 +247,22 @@ export interface CourseViewModel {
     isCompleted?: boolean;
     /**
      *
-     * @type {string}
+     * @type {Array<AccountDataDto>}
      * @memberof CourseViewModel
      */
-    mentorIds?: string;
+    mentors?: Array<AccountDataDto>;
     /**
      *
-     * @type {string}
+     * @type {Array<AccountDataDto>}
      * @memberof CourseViewModel
      */
-    inviteCode?: string;
+    acceptedStudents?: Array<AccountDataDto>;
     /**
      *
-     * @type {Array<CourseMateViewModel>}
+     * @type {Array<AccountDataDto>}
      * @memberof CourseViewModel
      */
-    courseMates?: Array<CourseMateViewModel>;
+    newStudents?: Array<AccountDataDto>;
     /**
      *
      * @type {Array<HomeworkViewModel>}

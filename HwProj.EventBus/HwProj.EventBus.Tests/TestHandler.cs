@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using HwProj.EventBus.Client;
 using HwProj.EventBus.Client.Interfaces;
 
 namespace HwProj.EventBus.Tests

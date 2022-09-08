@@ -18,7 +18,7 @@ interface IEditTaskState {
     description: string;
     maxRating: number;
     courseId: number;
-    courseMentorId: string;
+    courseMentorIds: string[];
     edited: boolean;
     hasDeadline: boolean;
     deadlineDate: Date | undefined;
@@ -55,7 +55,7 @@ const EditTask: FC<RouteComponentProps<IEditTaskProps>> = (props) => {
         description: "",
         maxRating: 0,
         courseId: 0,
-        courseMentorId: "",
+        courseMentorIds: [],
         edited: false,
         hasDeadline: false,
         deadlineDate: new Date(),
@@ -78,7 +78,7 @@ const EditTask: FC<RouteComponentProps<IEditTaskProps>> = (props) => {
             description: task.description!,
             maxRating: task.maxRating!,
             courseId: homework.courseId!,
-            courseMentorId: course.mentorIds!,
+            courseMentorId: course.mentors!.map(x => x.userId)!,
             hasDeadline: task.hasDeadline!,
             deadlineDate: task.deadlineDate!,
             isDeadlineStrict: task.isDeadlineStrict!,
@@ -106,7 +106,7 @@ const EditTask: FC<RouteComponentProps<IEditTaskProps>> = (props) => {
     if (taskState.isLoaded) {
         if (
             !ApiSingleton.authService.isLoggedIn() ||
-            !taskState.courseMentorId.includes(ApiSingleton.authService.getUserId())
+            !taskState.courseMentorIds.includes(ApiSingleton.authService.getUserId())
         ) {
             return (
                 <Typography variant="h6" gutterBottom>

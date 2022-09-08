@@ -1,3 +1,4 @@
+using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net.Http;
@@ -104,7 +105,7 @@ namespace HwProj.AuthService.IntegrationTests
             };
 
         private static AccountDataDto GenerateAccountDataDto(RegisterViewModel model)
-            => new AccountDataDto(model.Name,
+            => new AccountDataDto(Guid.NewGuid().ToString(), model.Name,
                 model.Surname,
                 model.Email,
                 "Student",

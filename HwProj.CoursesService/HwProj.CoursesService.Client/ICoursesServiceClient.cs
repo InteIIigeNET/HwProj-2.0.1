@@ -8,7 +8,7 @@ namespace HwProj.CoursesService.Client
     public interface ICoursesServiceClient
     {
         Task<CoursePreview[]> GetAllCourses();
-        Task<CourseViewModel> GetCourseById(long courseId, string userId);
+        Task<CourseDTO?> GetCourseById(long courseId, string userId);
         Task<Result> DeleteCourse(long courseId);
         Task<long> CreateCourse(CreateCourseViewModel model, string mentorId);
         Task<Result> UpdateCourse(UpdateCourseViewModel model, long courseId);

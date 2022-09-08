@@ -7,7 +7,7 @@ namespace HwProj.SolutionsService.API.Models
 {
     public class StatisticsAggregateModel
     {
-        public CourseViewModel Course { get; set; }
+        public CourseDTO Course { get; set; }
         public List<Solution> Solutions { get; set; }
         public Dictionary<string, AccountDataDto> CourseMatesData { get; set; }
     }

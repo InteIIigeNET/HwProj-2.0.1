@@ -36,7 +36,7 @@ namespace HwProj.CoursesService.Client
             return await response.DeserializeAsync<CoursePreview[]>();
         }
 
-        public async Task<CourseViewModel> GetCourseById(long courseId, string userId)
+        public async Task<CourseDTO?> GetCourseById(long courseId, string userId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
@@ -48,7 +48,7 @@ namespace HwProj.CoursesService.Client
                     "application/json")
             };
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<CourseViewModel>();
+            return response.IsSuccessStatusCode ? await response.DeserializeAsync<CourseDTO>() : null;
         }
 
         public async Task<Result> DeleteCourse(long courseId)

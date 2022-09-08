@@ -28,8 +28,8 @@ interface ICourseState {
     courseHomework: HomeworkViewModel[];
     createHomework: boolean;
     mentors: AccountDataDto[];
-    acceptedStudents: ICourseMate[];
-    newStudents: ICourseMate[];
+    acceptedStudents: AccountDataDto[];
+    newStudents: AccountDataDto[];
     isReadingMode: boolean;
     tabValue: number;
 }
@@ -62,41 +62,15 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
     })
     const setCurrentState = async () => {
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+courseId)
-        const mentors = await Promise.all(course.mentorIds!.split('/').map(mentor => ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(mentor)))
-        const acceptedStudents = await Promise.all(course.courseMates!
-            .filter(cm => cm.isAccepted)
-            .map(async (cm) => {
-                const user = await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(cm.studentId!);
-                return {
-                    name: user.name!,
-                    surname: user.surname!,
-                    middleName: user.middleName!,
-                    email: user.email!,
-                    id: cm.studentId!,
-                }
-            }))
-
-        const newStudents = await Promise.all(course.courseMates!
-            .filter(cm => !cm.isAccepted)
-            .map(async (cm) => {
-                const user = await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(cm.studentId!);
-                return {
-                    name: user.name!,
-                    surname: user.surname!,
-                    middleName: user.middleName!,
-                    email: user.email!,
-                    id: cm.studentId!,
-                }
-            }))
 
         setCourseState(prevState => ({
             isFound: true,
             course: course,
             courseHomework: course.homeworks!,
             createHomework: false,
-            mentors: mentors,
-            acceptedStudents: acceptedStudents,
-            newStudents: newStudents,
+            mentors: course.mentors!,
+            acceptedStudents: course.acceptedStudents!,
+            newStudents: course.newStudents!,
             isReadingMode: prevState.isReadingMode,
             tabValue: prevState.tabValue
         }))
@@ -125,18 +99,18 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
     if (isFound) {
         const isLogged = ApiSingleton.authService.isLoggedIn()
 
+        //TODO: move to authservice
         const userId = isLogged
             ? ApiSingleton.authService.getUserId()
             : undefined
 
-        const isMentor = isLogged && course.mentorIds!.includes(userId!)
+        const isMentor = isLogged && mentors.some(t => t.userId === userId)
 
         const isSignedInCourse =
-            isLogged && newStudents!.some((cm: any) => cm.id === userId)
+            isLogged && newStudents!.some(cm => cm.userId === userId)
 
-        const isAcceptedStudent = isLogged && acceptedStudents!.some(
-            (cm: any) => cm.id === userId
-        )
+        const isAcceptedStudent =
+            isLogged && acceptedStudents!.some(cm => cm.userId === userId)
 
         return (
             <div className="container">

@@ -51,7 +51,7 @@ const StudentSolutionsPage: FC<RouteComponentProps<IStudentSolutionsPageProps>> 
     if (isLoaded) {
         if (
             !ApiSingleton.authService.isLoggedIn() ||
-            !studentSolutions.course.mentorIds?.includes(userId!)
+            !studentSolutions.course.mentors!.map(x => x.userId).includes(userId!)
         )
         {
             return (

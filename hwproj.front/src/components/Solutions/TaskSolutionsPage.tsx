@@ -27,7 +27,7 @@ const TaskSolutionsPage: FC<RouteComponentProps<ITaskSolutionsProps>> = (props) 
         task: {},
         addSolution: false,
         course: {
-            mentorIds: "",
+            mentors: [],
         },
     })
 
@@ -61,8 +61,8 @@ const TaskSolutionsPage: FC<RouteComponentProps<ITaskSolutionsProps>> = (props) 
 
     if (taskSolution.isLoaded) {
         if (ApiSingleton.authService.isLoggedIn() &&
-            (taskSolution.course.courseMates!.some((cm) => cm.isAccepted! && cm.studentId == userId)
-                || taskSolution.course.mentorIds!.includes(userId!))) {
+            (taskSolution.course.acceptedStudents!.some((cm) => cm.userId == userId)
+                || taskSolution.course.mentors!.map(x => x.userId)!.includes(userId!))) {
             return (
                 <div style={{marginBottom: '50px'}}>
                     <Grid container justify="center" style={{marginTop: '20px'}}>

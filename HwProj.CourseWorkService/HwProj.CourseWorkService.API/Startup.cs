@@ -1,5 +1,4 @@
-﻿using HwProj.CourseWorkService.API.Events;
-using HwProj.CourseWorkService.API.Models;
+﻿using HwProj.CourseWorkService.API.Models;
 using HwProj.CourseWorkService.API.Repositories.Implementations;
 using HwProj.CourseWorkService.API.Repositories.Interfaces;
 using HwProj.CourseWorkService.API.Services.Implementations;

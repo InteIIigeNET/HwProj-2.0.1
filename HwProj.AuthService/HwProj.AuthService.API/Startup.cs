@@ -11,7 +11,6 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using HwProj.Utils.Configuration;
 using HwProj.Utils.Authorization;
-using Microsoft.AspNetCore.Authentication.Google;
 using HwProj.Models.AuthService.ViewModels;
 
 namespace HwProj.AuthService.API

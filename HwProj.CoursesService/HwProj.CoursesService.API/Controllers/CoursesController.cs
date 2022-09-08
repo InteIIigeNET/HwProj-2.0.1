@@ -37,14 +37,13 @@ namespace HwProj.CoursesService.API.Controllers
         public async Task<IActionResult> Get(long courseId, [FromBody] string userId)
         {
             var courseFromDb = await _coursesService.GetAsync(courseId, userId);
+            if (courseFromDb == null) return NotFound();
 
-            if (courseFromDb == null)
-            {
-                return NotFound();
-            }
+            var course = _mapper.Map<CourseDTO>(courseFromDb);
 
-            var course = _mapper.Map<CourseViewModel>(courseFromDb);
-            course.Homeworks.ForEach(h => h.Tasks.ForEach(t => t.PutPossibilityForSendingSolution()));
+            //TODO: move to service
+            foreach (var homework in course.Homeworks)
+                homework.Tasks.ForEach(t => t.PutPossibilityForSendingSolution());
 
             return Ok(course);
         }

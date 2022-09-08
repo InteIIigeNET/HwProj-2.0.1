@@ -13,7 +13,7 @@ namespace HwProj.CoursesService.API.Repositories
         {
         }
 
-        public async Task<Course> GetWithCourseMatesAsync(long id)
+        public async Task<Course?> GetWithCourseMatesAsync(long id)
         {
             return await Context.Set<Course>()
                 .Include(c => c.CourseMates)

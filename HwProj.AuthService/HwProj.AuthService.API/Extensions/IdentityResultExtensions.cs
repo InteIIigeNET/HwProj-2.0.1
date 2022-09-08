@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using HwProj.AuthService.API.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace HwProj.AuthService.API.Extensions

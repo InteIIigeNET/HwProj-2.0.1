@@ -29,7 +29,7 @@ namespace HwProj.CoursesService.API.Services
             homework.Date = DateTime.UtcNow;
 
             var course = await _coursesRepository.GetWithCourseMatesAsync(courseId);
-            var courseModel = _mapper.Map<CourseViewModel>(course);
+            var courseModel = _mapper.Map<CourseDTO>(course);
             _eventBus.Publish(new NewHomeworkEvent(homework.Title, courseModel));
 
             return await _homeworksRepository.AddAsync(homework);
@@ -49,7 +49,7 @@ namespace HwProj.CoursesService.API.Services
         {
             var homework = await _homeworksRepository.GetAsync(homeworkId);
             var course = await _coursesRepository.GetWithCourseMatesAsync(homework.CourseId);
-            var courseModel = _mapper.Map<CourseViewModel>(course);
+            var courseModel = _mapper.Map<CourseDTO>(course);
             var homeworkModel = _mapper.Map<HomeworkViewModel>(homework);
             _eventBus.Publish(new UpdateHomeworkEvent(homeworkModel, courseModel));
 

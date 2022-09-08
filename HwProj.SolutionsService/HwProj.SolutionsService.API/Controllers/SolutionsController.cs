@@ -6,13 +6,11 @@ using AutoMapper;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.Models.AuthService.DTO;
-using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.SolutionsService;
 using HwProj.Models.StatisticsService;
 using HwProj.SolutionsService.API.Domains;
 using HwProj.SolutionsService.API.Models;
 using HwProj.SolutionsService.API.Services;
-using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.SolutionsService.API.Controllers
@@ -25,8 +23,9 @@ namespace HwProj.SolutionsService.API.Controllers
         private readonly ISolutionsService _solutionsService;
         private readonly IMapper _mapper;
         private readonly ICoursesServiceClient _coursesClient;
-        
-        public SolutionsController(ISolutionsService solutionsService, IMapper mapper, ICoursesServiceClient coursesClient, IAuthServiceClient authClient)
+
+        public SolutionsController(ISolutionsService solutionsService, IMapper mapper,
+            ICoursesServiceClient coursesClient, IAuthServiceClient authClient)
         {
             _solutionsService = solutionsService;
             _coursesClient = coursesClient;
@@ -63,18 +62,22 @@ namespace HwProj.SolutionsService.API.Controllers
             var homework = await _coursesClient.GetHomework(task.HomeworkId);
             var course = await _coursesClient.GetCourseById(homework.CourseId, solutionViewModel.StudentId);
 
-            if (course.CourseMates.Exists(courseMate => courseMate.StudentId == solutionViewModel.StudentId && courseMate.IsAccepted) && task.CanSendSolution)
+            if (course.CourseMates.Any(courseMate =>
+                    courseMate.StudentId == solutionViewModel.StudentId && courseMate.IsAccepted) &&
+                task.CanSendSolution)
             {
                 var solution = _mapper.Map<Solution>(solutionViewModel);
                 solution.TaskId = taskId;
                 var solutionId = await _solutionsService.PostOrUpdateAsync(taskId, solution);
                 return Ok(solutionId);
             }
+
             return Forbid();
         }
 
         [HttpPost("rateSolution/{solutionId}")]
-        public async Task<IActionResult> RateSolution(long solutionId, [FromQuery] int newRating, [FromQuery] string lecturerComment, [FromQuery] string lecturerId)
+        public async Task<IActionResult> RateSolution(long solutionId, [FromQuery] int newRating,
+            [FromQuery] string lecturerComment, [FromQuery] string lecturerId)
         {
             var solution = await _solutionsService.GetSolutionAsync(solutionId);
             var task = await _coursesClient.GetTask(solution.TaskId);
@@ -89,7 +92,7 @@ namespace HwProj.SolutionsService.API.Controllers
 
             return Forbid();
         }
-        
+
         [HttpPost("markSolutionFinal/{solutionId}")]
         public async Task MarkSolutionFinal(long solutionId)
         {
@@ -101,7 +104,7 @@ namespace HwProj.SolutionsService.API.Controllers
         {
             await _solutionsService.DeleteSolutionAsync(solutionId);
         }
-        
+
         [HttpPost("{groupId}/{taskId}")]
         public async Task<long> PostSolution(long groupId, long taskId, [FromBody] SolutionViewModel solutionViewModel)
         {
@@ -122,24 +125,26 @@ namespace HwProj.SolutionsService.API.Controllers
         public async Task<IActionResult> GetCourseStat(long courseId, [FromQuery] string userId)
         {
             var course = await _coursesClient.GetCourseById(courseId, userId);
-            course.CourseMates.RemoveAll(cm => !cm.IsAccepted);
+            if (course == null) return NotFound();
 
-            var solutions =  (await _solutionsService.GetAllSolutionsAsync())
+            var courseMates = course.CourseMates.Where(cm => cm.IsAccepted).ToArray();
+
+            var solutions = (await _solutionsService.GetAllSolutionsAsync())
                 .Where(s => course.Homeworks
                     .Any(hw => hw.Tasks
                         .Any(t => t.Id == s.TaskId)))
                 .ToList();
-            
+
             var courseMatesData = new Dictionary<string, AccountDataDto>();
 
             //course.CourseMates.ForEach(async cm => courseMatesData.Add(cm.StudentId, await _authClient.GetAccountData(cm.StudentId)));
-            
-            foreach (var cm in course.CourseMates)
+
+            foreach (var cm in courseMates)
             {
                 courseMatesData.Add(cm.StudentId, await _authClient.GetAccountData(cm.StudentId));
             }
 
-            var solutionsStatsContext = new StatisticsAggregateModel()
+            var solutionsStatsContext = new StatisticsAggregateModel
             {
                 Course = course,
                 Solutions = solutions,

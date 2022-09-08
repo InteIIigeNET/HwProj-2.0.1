@@ -124,7 +124,8 @@ namespace HwProj.AuthService.API.Controllers
             var allStudents = await _accountService.GetUsersInRole(Roles.StudentRole);
             var result = allStudents
                 .Select(u =>
-                    new AccountDataDto(u.Name, u.Surname, u.Email, Roles.StudentRole, u.IsExternalAuth, u.MiddleName))
+                    new AccountDataDto(u.Id, u.Name, u.Surname, u.Email, Roles.StudentRole, u.IsExternalAuth,
+                        u.MiddleName))
                 .ToArray();
 
             return Ok(result);

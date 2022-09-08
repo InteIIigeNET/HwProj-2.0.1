@@ -31,7 +31,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
         public override async Task HandleAsync(StudentPassTaskEvent @event)
         {
-            foreach (var m in @event.Course.MentorIds.Split('/'))
+            foreach (var m in @event.Course.MentorIds)
             {
                 var notification = new Notification
                 {

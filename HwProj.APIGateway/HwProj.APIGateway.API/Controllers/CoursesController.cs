@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using HwProj.APIGateway.API.Models;
@@ -38,10 +39,40 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(CourseViewModel), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetCourseData(long courseId)
         {
-            var result = await _coursesClient.GetCourseById(courseId, UserId);
-            return result == null
-                ? NotFound() as IActionResult
-                : Ok(result);
+            var course = await _coursesClient.GetCourseById(courseId, UserId);
+            if (course == null) return NotFound();
+
+            var studentIds = course.CourseMates.Select(t => t.StudentId).ToArray();
+            var getStudentsTask = _authServiceClient.GetAccountsData(studentIds);
+            var getMentorsTask = _authServiceClient.GetAccountsData(course.MentorIds);
+
+            await Task.WhenAll(getStudentsTask, getMentorsTask);
+
+            var students = getStudentsTask.Result;
+
+            var acceptedStudents = new List<AccountDataDto>();
+            var newStudents = new List<AccountDataDto>();
+            for (var i = 0; i < students.Length; i++)
+            {
+                if (!(students[i] is { } student)) continue;
+                if (course.CourseMates[i].IsAccepted) acceptedStudents.Add(student);
+                else newStudents.Add(student);
+            }
+
+            var result = new CourseViewModel
+            {
+                Id = courseId,
+                Name = course.Name,
+                GroupName = course.GroupName,
+                Mentors = getMentorsTask.Result.Where(t => t != null).ToArray(),
+                AcceptedStudents = acceptedStudents.ToArray(),
+                NewStudents = newStudents.ToArray(),
+                Homeworks = course.Homeworks,
+                IsCompleted = course.IsCompleted,
+                IsOpen = course.IsOpen,
+            };
+
+            return Ok(result);
         }
 
         [HttpDelete("{courseId}")]

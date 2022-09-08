@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
 using HwProj.AuthService.API.Events;
-using HwProj.EventBus.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;

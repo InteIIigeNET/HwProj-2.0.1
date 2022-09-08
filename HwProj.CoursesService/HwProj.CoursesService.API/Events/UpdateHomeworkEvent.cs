@@ -6,9 +6,9 @@ namespace HwProj.CoursesService.API.Events
     public class UpdateHomeworkEvent : Event
     {
         public HomeworkViewModel Homework { get; set; }
-        public CourseViewModel Course { get; set; }
+        public CourseDTO Course { get; set; }
 
-        public UpdateHomeworkEvent(HomeworkViewModel homework, CourseViewModel course)
+        public UpdateHomeworkEvent(HomeworkViewModel homework, CourseDTO course)
         {
             Homework = homework;
             Course = course;

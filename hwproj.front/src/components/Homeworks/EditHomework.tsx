@@ -18,7 +18,7 @@ interface IEditHomeworkState {
     title: string;
     description: string;
     courseId: number;
-    courseMentorId: string;
+    courseMentorIds: string[];
     edited: boolean;
     isPreview: boolean;
 }
@@ -44,7 +44,7 @@ const EditHomework: FC<RouteComponentProps<IEditHomeworkProps>> = (props) => {
         title: "",
         description: "",
         courseId: 0,
-        courseMentorId: "",
+        courseMentorIds: [],
         edited: false,
         isPreview: false,
     })
@@ -62,7 +62,7 @@ const EditHomework: FC<RouteComponentProps<IEditHomeworkProps>> = (props) => {
             title: homework.title!,
             description: homework.description!,
             courseId: homework.courseId!,
-            courseMentorId: course.mentorIds!,
+            courseMentorId: course.mentors!.map(x => x.userId)!,
         }))
     }
 
@@ -90,7 +90,7 @@ const EditHomework: FC<RouteComponentProps<IEditHomeworkProps>> = (props) => {
     if (editHomework.isLoaded) {
         if (
             !ApiSingleton.authService.isLoggedIn() ||
-            !editHomework.courseMentorId.includes(ApiSingleton.authService.getUserId())
+            !editHomework.courseMentorIds.includes(ApiSingleton.authService.getUserId())
         ) {
             return (
                 <Typography variant="h6" gutterBottom>

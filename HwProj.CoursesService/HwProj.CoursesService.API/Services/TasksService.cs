@@ -48,7 +48,7 @@ namespace HwProj.CoursesService.API.Services
             var taskModel = _mapper.Map<HomeworkTaskViewModel>(task);
             var homework = await _homeworksRepository.GetAsync(task.HomeworkId);
             var course = await _coursesRepository.GetWithCourseMatesAsync(homework.CourseId);
-            var courseModel = _mapper.Map<CourseViewModel>(course);
+            var courseModel = _mapper.Map<CourseDTO>(course);
             _eventBus.Publish(new UpdateTaskMaxRatingEvent(courseModel, taskModel, update.MaxRating));
 
             await _tasksRepository.UpdateAsync(taskId, t => new HomeworkTask()
