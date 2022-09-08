@@ -79,14 +79,15 @@ const Task: FC<ITaskProp> = (props) => {
                         <Typography style={{fontSize: '18px'}}>
                             {task.title}
                         </Typography>
+                        {props.forMentor && task.isDeferred &&
+                            <Typography>
+                                <HourglassEmpty/>
+                            </Typography>}
                         {props.forMentor && !props.isReadingMode &&
                             <IconButton aria-label="Delete" onClick={openDialogDeleteTask}>
                                 <DeleteIcon fontSize="small"/>
                             </IconButton>
                         }
-                        {props.forMentor && task.isDeferred && <Typography>
-                            <HourglassEmpty/>
-                        </Typography>}
                         {props.forMentor && !props.isReadingMode &&
                             <RouterLink to={'/task/' + task.id!.toString() + '/edit'}>
                                 <EditIcon fontSize="small"/>
