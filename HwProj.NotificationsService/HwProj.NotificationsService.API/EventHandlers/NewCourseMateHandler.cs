@@ -32,6 +32,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
         public override async Task HandleAsync(NewCourseMateEvent @event)
         {
             var user = await _authServiceClient.GetAccountData(@event.StudentId);
+            var url = _configuration["Url"];
 
             //TODO: fix
             foreach (var m in @event.MentorIds.Split('/'))
@@ -40,8 +41,8 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 {
                     Sender = "CourseService",
                     Body =
-                        $"Пользователь <a href='{_configuration["Url"]}/profile/{@event.StudentId}'>{user.Name} {user.Surname}</a>" +
-                        $" подал заявку на вступление в курс <a href='/courses/{@event.CourseId}'>{@event.CourseName}</a>.",
+                        $"Пользователь <a href='{url}/profile/{@event.StudentId}'>{user.Name} {user.Surname}</a>" +
+                        $" подал заявку на вступление в курс <a href='{url}/courses/{@event.CourseId}'>{@event.CourseName}</a>.",
                     Category = CategoryState.Courses,
                     Date = DateTime.UtcNow,
                     HasSeen = false,
