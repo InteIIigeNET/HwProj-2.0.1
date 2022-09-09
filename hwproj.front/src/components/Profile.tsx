@@ -58,7 +58,7 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
     }
 
     const {userData, courses} = accountState
-
+    const isUserProfile = userData!.userId === ApiSingleton.authService.getUserId()
 
     if (!ApiSingleton.authService.isLoggedIn()) {
         return <Redirect to={"/login"}/>;
@@ -73,9 +73,10 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
             <div className="container" style={{marginBottom: '50px'}}>
                 <Grid container style={{marginTop: "15px"}} spacing={2}>
                     <Grid item>
-                        <RouterLink to={"/user/edit"}>
+                        {isUserProfile && <RouterLink to={"/user/edit"}>
                             <EditIcon fontSize="small"/>
-                        </RouterLink></Grid>
+                        </RouterLink>}
+                    </Grid>
                     <Grid item xs={11} className={classes.info}>
                         <Typography style={{fontSize: '20px'}}>
                             {fullName}
