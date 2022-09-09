@@ -195,9 +195,9 @@ const Notifications: FC<RouteComponentProps<IProfileProps>> = () => {
     }
 
     if (profileState.isLoaded) {
-        return <div style={{marginBottom: '50px'}}>
-            <Grid container lg={11} spacing={5} direction={"row"} style={{margin: "2%", marginRight: "15px"}}>
-                <Grid item>
+        return <div className="container" style={{marginTop: 15}}>
+            <Grid container spacing={2} direction={"row"}>
+                <Grid lg={4} item>
                     <Card style={{backgroundColor: "#f7fafc"}}>
                         <CardContent>
                             <FormControlLabel control={
@@ -251,7 +251,7 @@ const Notifications: FC<RouteComponentProps<IProfileProps>> = () => {
                         </CardContent>
                     </Card>
                 </Grid>
-                <Grid item style={{minWidth: "60%"}}>
+                <Grid item lg={8}>
                     {renderNotifications(filterState.filteredNotifications
                         .sort((first, second) => first.date! <= second.date! ? 1 : -1))}
                 </Grid>
