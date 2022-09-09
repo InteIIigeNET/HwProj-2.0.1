@@ -91,7 +91,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                     </Grid>
                     {props.loggedIn && props.isLecturer &&
                         (
-                            <div className={classes.tools}>
+                            <div>
                                 <IconButton
                                     edge="start"
                                     color="inherit"
