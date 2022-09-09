@@ -58,13 +58,13 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
     }
 
     const {userData, courses} = accountState
-    const isUserProfile = userData!.userId === ApiSingleton.authService.getUserId()
 
     if (!ApiSingleton.authService.isLoggedIn()) {
         return <Redirect to={"/login"}/>;
     }
 
     if (profileState.isLoaded) {
+        const isUserProfile = userData!.userId === ApiSingleton.authService.getUserId()
         const fullName = userData?.middleName
             ? userData.name + ' ' + userData.middleName + ' ' + userData.surname
             : userData!.name + ' ' + userData!.surname
