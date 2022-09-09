@@ -24,11 +24,14 @@ import EditProfile from "./components/EditProfile";
 import ApiSingleton from "./api/ApiSingleton";
 import SystemInfoComponent from "./components/System/SystemInfoComponent";
 
+// TODO: add flux
+
 type AppProps = RouteComponentProps;
 
 interface AppState {
     loggedIn: boolean;
     isLecturer: boolean;
+    newNotificationsCount: number;
 }
 
 class App extends Component<AppProps, AppState> {
@@ -36,8 +39,20 @@ class App extends Component<AppProps, AppState> {
         super(props);
         this.state = {
             loggedIn: ApiSingleton.authService.isLoggedIn(),
-            isLecturer: ApiSingleton.authService.isLecturer()
+            isLecturer: ApiSingleton.authService.isLecturer(),
+            newNotificationsCount: 0
         };
+    }
+
+    componentDidMount = async () => {
+        await this.updatedNewNotificationsCount()
+    }
+
+    updatedNewNotificationsCount = async () => {
+        if (ApiSingleton.authService.isLoggedIn()) {
+            const data = await ApiSingleton.notificationsApi.apiNotificationsGetNewNotificationsCountGet()
+            this.setState({newNotificationsCount: data})
+        }
     }
 
     login = () => {
@@ -55,14 +70,19 @@ class App extends Component<AppProps, AppState> {
         this.props.history.push("/login");
     }
 
+
     render() {
         return (
             <>
-                <Header loggedIn={this.state.loggedIn} isLecturer={this.state.isLecturer} onLogout={this.logout}/>
+                <Header loggedIn={this.state.loggedIn}
+                        newNotificationsCount={this.state.newNotificationsCount}
+                        isLecturer={this.state.isLecturer}
+                        onLogout={this.logout}/>
                 <Route exact path="/system" component={SystemInfoComponent}/>
                 <Route exact path="/user/edit" component={EditProfile}/>
                 <Route exact path="/" component={Courses}/>
-                <Route exact path="/notifications" component={Notifications}/>
+                <Route exact path="/notifications"
+                       render={() => <Notifications onMarkAsSeen={this.updatedNewNotificationsCount}/>}/>
                 <Route exact path="/profile" component={Profile}/>
                 <Route exact path="/profile/:id" component={Profile}/>
                 <Route exact path="/create_course" component={CreateCourse}/>

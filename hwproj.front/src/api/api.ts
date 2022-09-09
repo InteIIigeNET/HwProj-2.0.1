@@ -1184,12 +1184,6 @@ export interface UserDataDto {
     userData?: AccountDataDto;
     /**
      *
-     * @type {Array<CategorizedNotifications>}
-     * @memberof UserDataDto
-     */
-    notifications?: Array<CategorizedNotifications>;
-    /**
-     *
      * @type {Array<CoursePreviewView>}
      * @memberof UserDataDto
      */
@@ -3897,6 +3891,36 @@ export const NotificationsApiFetchParamCreator = function (configuration?: Confi
         },
         /**
          *
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiNotificationsGetNewNotificationsCountGet(options: any = {}): FetchArgs {
+            const localVarPath = `/api/Notifications/getNewNotificationsCount`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+                    ? configuration.apiKey("Authorization")
+                    : configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         *
          * @param {Array<number>} [notificationIds]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -3958,6 +3982,23 @@ export const NotificationsApiFp = function(configuration?: Configuration) {
         },
         /**
          *
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiNotificationsGetNewNotificationsCountGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
+            const localVarFetchArgs = NotificationsApiFetchParamCreator(configuration).apiNotificationsGetNewNotificationsCountGet(options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         *
          * @param {Array<number>} [notificationIds]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -3993,6 +4034,14 @@ export const NotificationsApiFactory = function (configuration?: Configuration, 
         },
         /**
          *
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiNotificationsGetNewNotificationsCountGet(options?: any) {
+            return NotificationsApiFp(configuration).apiNotificationsGetNewNotificationsCountGet(options)(fetch, basePath);
+        },
+        /**
+         *
          * @param {Array<number>} [notificationIds]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -4018,6 +4067,16 @@ export class NotificationsApi extends BaseAPI {
      */
     public apiNotificationsGetGet(options?: any) {
         return NotificationsApiFp(this.configuration).apiNotificationsGetGet(options)(this.fetch, this.basePath);
+    }
+
+    /**
+     *
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof NotificationsApi
+     */
+    public apiNotificationsGetNewNotificationsCountGet(options?: any) {
+        return NotificationsApiFp(this.configuration).apiNotificationsGetNewNotificationsCountGet(options)(this.fetch, this.basePath);
     }
 
     /**

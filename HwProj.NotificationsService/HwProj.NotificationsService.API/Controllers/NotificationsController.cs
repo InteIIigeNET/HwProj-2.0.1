@@ -5,6 +5,7 @@ using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.NotificationsService.API.Controllers
 {
@@ -21,7 +22,7 @@ namespace HwProj.NotificationsService.API.Controllers
             _mapper = mapper;
         }
 
-        [HttpPost("get/{userId}")]
+        [HttpGet("get/{userId}")]
         [ProducesResponseType(typeof(CategorizedNotifications[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Get(string userId)
         {
@@ -36,6 +37,13 @@ namespace HwProj.NotificationsService.API.Controllers
         {
             await _repository.MarkAsSeenAsync(userId, notificationIds);
             return Ok();
+        }
+
+        [HttpGet("new/{userId}")]
+        public async Task<int> GetNewNotificationsCount(string userId)
+        {
+            var count = await _repository.FindAll(t => t.Owner == userId && !t.HasSeen).CountAsync();
+            return count;
         }
     }
 }

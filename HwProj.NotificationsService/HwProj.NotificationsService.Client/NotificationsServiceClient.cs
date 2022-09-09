@@ -20,16 +20,10 @@ namespace HwProj.NotificationsService.Client
             _notificationServiceUri = new Uri(configuration.GetSection("Services")["Notifications"]);
         }
 
-        public async Task<CategorizedNotifications[]> Get(string userId, NotificationFilter filter)
+        public async Task<CategorizedNotifications[]> Get(string userId)
         {
-            using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Post,
-                _notificationServiceUri + $"api/notifications/get/{userId}");
-
-            var jsonFilter = JsonConvert.SerializeObject(filter);
-            httpRequest.Content = new StringContent(jsonFilter, Encoding.UTF8, "application/json");
-
-            var response = await _httpClient.SendAsync(httpRequest);
+            using var response =
+                await _httpClient.GetAsync(_notificationServiceUri + $"api/notifications/get/{userId}");
             return await response.DeserializeAsync<CategorizedNotifications[]>() ?? new CategorizedNotifications[] { };
         }
 
@@ -43,6 +37,13 @@ namespace HwProj.NotificationsService.Client
             httpRequest.Content = new StringContent(jsonIds, Encoding.UTF8, "application/json");
 
             await _httpClient.SendAsync(httpRequest);
+        }
+
+        public async Task<int> GetNewNotificationsCount(string userId)
+        {
+            using var response =
+                await _httpClient.GetAsync(_notificationServiceUri + $"api/notifications/new/{userId}");
+            return await response.DeserializeAsync<int>();
         }
 
         public async Task<bool> Ping()

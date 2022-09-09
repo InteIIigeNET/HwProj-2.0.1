@@ -1,6 +1,5 @@
 import * as React from "react";
 import {ChangeEvent, FC, useEffect, useState} from "react";
-import {RouteComponentProps} from 'react-router';
 import {
     Box,
     Card,
@@ -38,7 +37,7 @@ interface IProfileState {
 }
 
 interface IProfileProps {
-    id: string;
+    onMarkAsSeen: () => void;
 }
 
 interface IFilterState {
@@ -48,7 +47,7 @@ interface IFilterState {
     showAll: boolean;
 }
 
-const Notifications: FC<RouteComponentProps<IProfileProps>> = () => {
+const Notifications: FC<IProfileProps> = (props) => {
     const [profileState, setProfileState] = useState<IProfileState>({
         isLoaded: false,
         notifications: []
@@ -70,15 +69,15 @@ const Notifications: FC<RouteComponentProps<IProfileProps>> = () => {
     }, [])
 
     const getUserInfo = async () => {
-        const data = await ApiSingleton.accountApi.apiAccountGetUserDataGet()
+        const data = await ApiSingleton.notificationsApi.apiNotificationsGetGet()
         setProfileState((prevState) => ({
             ...prevState,
             isLoaded: true,
-            notifications: data.notifications!
+            notifications: data!
         }))
         setFilterState((prevState) => ({
             ...prevState,
-            filteredNotifications: getAll(data.notifications!)?.filter(notification => !notification.hasSeen)!
+            filteredNotifications: getAll(data!)?.filter(notification => !notification.hasSeen)!
         }))
     }
 
@@ -103,6 +102,7 @@ const Notifications: FC<RouteComponentProps<IProfileProps>> = () => {
     const markAsSeenNotification = async (e: ChangeEvent<HTMLInputElement>) => {
         const id = parseInt(e.target.id)
         await ApiSingleton.notificationsApi.apiNotificationsMarkAsSeenPut([id]);
+        await props.onMarkAsSeen()
         const notifications = profileState.notifications;
         notifications.forEach((item) => {
                 const temp = item.notSeenNotifications!.find(notification => notification.id === id);

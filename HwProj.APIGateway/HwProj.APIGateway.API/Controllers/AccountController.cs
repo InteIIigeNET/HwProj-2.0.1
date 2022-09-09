@@ -46,15 +46,13 @@ namespace HwProj.APIGateway.API.Controllers
         public async Task<IActionResult> GetUserData()
         {
             var getAccountDataTask = AuthServiceClient.GetAccountData(UserId);
-            var getNotificationsTask = _notificationsClient.Get(UserId, new NotificationFilter());
             var getCoursesTask = _coursesClient.GetAllUserCourses();
 
-            await Task.WhenAll(getAccountDataTask, getNotificationsTask, getCoursesTask);
+            await Task.WhenAll(getAccountDataTask, getCoursesTask);
 
             var aggregatedResult = new UserDataDto
             {
                 UserData = getAccountDataTask.Result,
-                Notifications = getNotificationsTask.Result,
                 Courses = await GetCoursePreviews(getCoursesTask.Result)
             };
             return Ok(aggregatedResult);
