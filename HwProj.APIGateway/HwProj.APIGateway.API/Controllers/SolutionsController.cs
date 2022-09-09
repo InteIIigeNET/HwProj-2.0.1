@@ -16,7 +16,7 @@ namespace HwProj.APIGateway.API.Controllers
     {
         private readonly ISolutionsServiceClient _solutionsClient;
 
-        public SolutionsController(ISolutionsServiceClient solutionsClient)
+        public SolutionsController(ISolutionsServiceClient solutionsClient) : base(null)
         {
             _solutionsClient = solutionsClient;
         }

@@ -18,12 +18,11 @@ namespace HwProj.APIGateway.API.Controllers
     public class CoursesController : AggregationController
     {
         private readonly ICoursesServiceClient _coursesClient;
-        private readonly IAuthServiceClient _authServiceClient;
 
-        public CoursesController(ICoursesServiceClient coursesClient, IAuthServiceClient authServiceClient)
+        public CoursesController(ICoursesServiceClient coursesClient, IAuthServiceClient authServiceClient) : base(
+            authServiceClient)
         {
             _coursesClient = coursesClient;
-            _authServiceClient = authServiceClient;
         }
 
         [HttpGet]
@@ -43,8 +42,8 @@ namespace HwProj.APIGateway.API.Controllers
             if (course == null) return NotFound();
 
             var studentIds = course.CourseMates.Select(t => t.StudentId).ToArray();
-            var getStudentsTask = _authServiceClient.GetAccountsData(studentIds);
-            var getMentorsTask = _authServiceClient.GetAccountsData(course.MentorIds);
+            var getStudentsTask = AuthServiceClient.GetAccountsData(studentIds);
+            var getMentorsTask = AuthServiceClient.GetAccountsData(course.MentorIds);
 
             await Task.WhenAll(getStudentsTask, getMentorsTask);
 
@@ -148,25 +147,6 @@ namespace HwProj.APIGateway.API.Controllers
         {
             var result = await _coursesClient.GetLecturersAvailableForCourse(courseId);
             return Ok(result.Value);
-        }
-
-        private async Task<CoursePreviewView[]> GetCoursePreviews(CoursePreview[] courses)
-        {
-            var getMentorsTasks = courses.Select(t => _authServiceClient.GetAccountsData(t.MentorIds)).ToList();
-            await Task.WhenAll(getMentorsTasks);
-            var mentorDTOs = getMentorsTasks.Select(t => t.Result);
-
-            var result = courses.Zip(mentorDTOs, (course, mentors) =>
-                new CoursePreviewView
-                {
-                    Id = course.Id,
-                    Name = course.Name,
-                    GroupName = course.GroupName,
-                    IsCompleted = course.IsCompleted,
-                    Mentors = mentors.Where(t => t != null).ToArray()
-                }).ToArray();
-
-            return result;
         }
     }
 }

@@ -14,7 +14,7 @@ namespace HwProj.APIGateway.API.Controllers
     {
         private readonly ICoursesServiceClient _coursesClient;
 
-        public CourseGroupsController(ICoursesServiceClient coursesClient)
+        public CourseGroupsController(ICoursesServiceClient coursesClient) : base(null)
         {
             _coursesClient = coursesClient;
         }

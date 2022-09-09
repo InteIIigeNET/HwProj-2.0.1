@@ -12,13 +12,13 @@ namespace HwProj.APIGateway.API.Controllers
     {
         private readonly INotificationsServiceClient _client;
 
-        public NotificationsController(INotificationsServiceClient client)
+        public NotificationsController(INotificationsServiceClient client) : base(null)
         {
             _client = client;
         }
 
         [HttpGet("get")]
-        [ProducesResponseType(typeof(CategorizedNotifications[]), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(CategorizedNotifications[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Get()
         {
             var result = await _client.Get(UserId, new NotificationFilter());

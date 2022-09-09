@@ -12,7 +12,6 @@ namespace HwProj.APIGateway.API.Controllers
     [ApiController]
     public class SystemController : AggregationController
     {
-        private readonly IAuthServiceClient _authServiceClient;
         private readonly ICoursesServiceClient _coursesServiceClient;
         private readonly INotificationsServiceClient _notificationsServiceClient;
         private readonly ISolutionsServiceClient _solutionsServiceClient;
@@ -21,9 +20,8 @@ namespace HwProj.APIGateway.API.Controllers
             IAuthServiceClient authServiceClient,
             ICoursesServiceClient coursesServiceClient,
             INotificationsServiceClient notificationsServiceClient,
-            ISolutionsServiceClient solutionsServiceClient)
+            ISolutionsServiceClient solutionsServiceClient) : base(authServiceClient)
         {
-            _authServiceClient = authServiceClient;
             _coursesServiceClient = coursesServiceClient;
             _notificationsServiceClient = notificationsServiceClient;
             _solutionsServiceClient = solutionsServiceClient;
@@ -32,7 +30,7 @@ namespace HwProj.APIGateway.API.Controllers
         [HttpGet("status")]
         public async Task<SystemInfo[]> Status()
         {
-            var authPing = _authServiceClient.Ping();
+            var authPing = AuthServiceClient.Ping();
             var coursesPing = _coursesServiceClient.Ping();
             var notificationsPing = _notificationsServiceClient.Ping();
             var solutionsPing = _solutionsServiceClient.Ping();

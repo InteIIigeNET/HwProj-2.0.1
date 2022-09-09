@@ -1,7 +1,8 @@
 using System.Net;
 using System.Threading.Tasks;
+using HwProj.APIGateway.API.Models;
 using HwProj.AuthService.Client;
-using HwProj.Models.ApiGateway;
+using HwProj.CoursesService.Client;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.NotificationsService;
@@ -18,19 +19,22 @@ namespace HwProj.APIGateway.API.Controllers
     public class AccountController : AggregationController
     {
         private readonly INotificationsServiceClient _notificationsClient;
-        private readonly IAuthServiceClient _authClient;
+        private readonly ICoursesServiceClient _coursesClient;
 
-        public AccountController(IAuthServiceClient authClient, INotificationsServiceClient notificationsClient)
+        public AccountController(
+            IAuthServiceClient authClient,
+            INotificationsServiceClient notificationsClient,
+            ICoursesServiceClient coursesClient) : base(authClient)
         {
             _notificationsClient = notificationsClient;
-            _authClient = authClient;
+            _coursesClient = coursesClient;
         }
 
         [HttpGet("getUserData/{userId}")]
         [ProducesResponseType(typeof(AccountDataDto), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetUserDataById(string userId)
         {
-            var result = await _authClient.GetAccountData(userId);
+            var result = await AuthServiceClient.GetAccountData(userId);
             return result == null
                 ? NotFound() as IActionResult
                 : Ok(result);
@@ -41,15 +45,17 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(UserDataDto), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetUserData()
         {
-            var getAccountDataTask = _authClient.GetAccountData(UserId);
+            var getAccountDataTask = AuthServiceClient.GetAccountData(UserId);
             var getNotificationsTask = _notificationsClient.Get(UserId, new NotificationFilter());
+            var getCoursesTask = _coursesClient.GetAllUserCourses();
 
-            await Task.WhenAll(getAccountDataTask, getNotificationsTask);
+            await Task.WhenAll(getAccountDataTask, getNotificationsTask, getCoursesTask);
 
             var aggregatedResult = new UserDataDto
             {
                 UserData = getAccountDataTask.Result,
-                Notifications = getNotificationsTask.Result
+                Notifications = getNotificationsTask.Result,
+                Courses = await GetCoursePreviews(getCoursesTask.Result)
             };
             return Ok(aggregatedResult);
         }
@@ -58,7 +64,7 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            var result = await _authClient.Register(model);
+            var result = await AuthServiceClient.Register(model);
             return Ok(result);
         }
 
@@ -66,7 +72,7 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
-            var tokenMeta = await _authClient.Login(model).ConfigureAwait(false);
+            var tokenMeta = await AuthServiceClient.Login(model).ConfigureAwait(false);
             return Ok(tokenMeta);
         }
 
@@ -75,7 +81,7 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Edit(EditAccountViewModel model)
         {
-            var result = await _authClient.Edit(model, UserId);
+            var result = await AuthServiceClient.Edit(model, UserId);
             return Ok(result);
         }
 
@@ -84,7 +90,7 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> InviteNewLecturer(InviteLecturerViewModel model)
         {
-            var result = await _authClient.InviteNewLecturer(model).ConfigureAwait(false);
+            var result = await AuthServiceClient.InviteNewLecturer(model).ConfigureAwait(false);
             return Ok(result);
         }
 
@@ -92,7 +98,7 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> LoginByGoogle(string tokenId)
         {
-            var tokenMeta = await _authClient.LoginByGoogle(tokenId).ConfigureAwait(false);
+            var tokenMeta = await AuthServiceClient.LoginByGoogle(tokenId).ConfigureAwait(false);
             return Ok(tokenMeta);
         }
 
@@ -101,7 +107,7 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> EditExternal(EditExternalViewModel model)
         {
-            var result = await _authClient.EditExternal(model, UserId);
+            var result = await AuthServiceClient.EditExternal(model, UserId);
             return Ok(result);
         }
 
@@ -110,7 +116,7 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(AccountDataDto[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetAllStudents()
         {
-            var result = await _authClient.GetAllStudents();
+            var result = await AuthServiceClient.GetAllStudents();
             return Ok(result);
         }
     }

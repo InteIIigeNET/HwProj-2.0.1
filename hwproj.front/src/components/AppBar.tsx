@@ -3,7 +3,7 @@ import {makeStyles} from '@material-ui/styles';
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Link from "@material-ui/core/Link";
-import {IconButton, MenuItem, Typography} from "@material-ui/core";
+import {Button, Grid, IconButton, MenuItem, Typography} from "@material-ui/core";
 import MenuIcon from "@material-ui/icons/Menu";
 import Menu from '@material-ui/core/Menu';
 import InviteLecturerModal from "./InviteLecturerModal";
@@ -60,18 +60,35 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
         <div>
             <AppBar style={{position: "static", width: "100vw", maxWidth: "100%"}}>
                 <Toolbar>
-                    <Typography>
-                        <Link
-                            className={classes.logo}
-                            onClick={() => window.location.assign("/")}
-                            component="button"
-                            variant="h6"
-                            color="inherit"
-                            style={{fontFamily: "Helvetica"}}
-                        >
-                            HwProj
-                        </Link>
-                    </Typography>
+                    <Grid container spacing={2}>
+                        <Grid item>
+                            <Typography>
+                                <Link
+                                    className={classes.logo}
+                                    onClick={() => window.location.assign("/")}
+                                    component="button"
+                                    variant="h6"
+                                    color="inherit"
+                                    style={{fontFamily: "Helvetica"}}
+                                >
+                                    HwProj
+                                </Link>
+                            </Typography>
+                        </Grid>
+                        {props.loggedIn &&
+                            <Grid item>
+                                <Typography>
+                                    <Button
+                                        onClick={() => window.location.assign(`/profile`)}
+                                        color="inherit"
+                                        style={{fontFamily: "Helvetica"}}
+                                    >
+                                        Профиль
+                                    </Button>
+                                </Typography>
+                            </Grid>
+                        }
+                    </Grid>
                     {props.loggedIn && props.isLecturer &&
                         (
                             <div className={classes.tools}>
@@ -96,14 +113,8 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                                     <MenuItem onClick={() => window.location.assign("/create_course")}>
                                         Создать курс
                                     </MenuItem>
-                                    <MenuItem onClick={() => window.location.assign("/profile")}>
-                                        Профиль
-                                    </MenuItem>
                                     <MenuItem onClick={() => window.location.assign("/notifications")}>
                                         Уведомления
-                                    </MenuItem>
-                                    <MenuItem onClick={() => window.location.assign("/user/edit")}>
-                                        Редактировать данные
                                     </MenuItem>
                                     <MenuItem onClick={props.onLogout}>
                                         Выйти
@@ -128,14 +139,8 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                                 open={Boolean(anchorEl)}
                                 onClose={handleClose}
                             >
-                                <MenuItem onClick={() => window.location.assign("/profile")}>
-                                    Профиль
-                                </MenuItem>
                                 <MenuItem onClick={() => window.location.assign("/notifications")}>
                                     Уведомления
-                                </MenuItem>
-                                <MenuItem onClick={() => window.location.assign("/user/edit")}>
-                                    Редактировать данные
                                 </MenuItem>
                                 <MenuItem onClick={props.onLogout}>
                                     Выйти

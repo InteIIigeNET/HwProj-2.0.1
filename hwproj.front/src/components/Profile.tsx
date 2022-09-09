@@ -1,12 +1,14 @@
 ﻿import * as React from "react";
 import {RouteComponentProps} from 'react-router';
-import {Typography, CircularProgress, Box, Grid} from "@material-ui/core";
+import {Typography, CircularProgress, Box, Grid, Divider, IconButton} from "@material-ui/core";
 import ApiSingleton from "api/ApiSingleton";
-import {AccountDataDto} from "../api/";
+import {AccountDataDto, UserDataDto} from "../api/";
 import "./Styles/Profile.css";
 import {FC, useEffect, useState} from "react";
-import {Redirect} from "react-router-dom";
+import {Link as RouterLink, Redirect} from "react-router-dom";
 import {makeStyles} from "@material-ui/styles";
+import {CoursesList} from "./Courses/CoursesList";
+import EditIcon from "@material-ui/icons/Edit";
 
 interface IProfileState {
     isLoaded: boolean;
@@ -28,12 +30,9 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
         isLoaded: false
     })
 
-    const [accountState, setAccountState] = useState<AccountDataDto>({
-        name: "",
-        surname: "",
-        middleName: "",
-        email: "",
-        role: ""
+    const [accountState, setAccountState] = useState<UserDataDto>({
+        userData: undefined,
+        notifications: []
     })
 
     const classes = useStyles()
@@ -45,18 +44,20 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
     const getUserInfo = async () => {
         if (props.match.params.id) {
             const data = await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(props.match.params.id)
+            setAccountState({userData: data, courses: [], notifications: []})
             setProfileState(() => ({
                 isLoaded: true
             }))
-            setAccountState(data)
             return
         }
         const data = await ApiSingleton.accountApi.apiAccountGetUserDataGet()
+        setAccountState(data!)
         setProfileState(() => ({
             isLoaded: true
         }))
-        setAccountState(data.userData!)
     }
+
+    const {userData, courses} = accountState
 
 
     if (!ApiSingleton.authService.isLoggedIn()) {
@@ -64,22 +65,26 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
     }
 
     if (profileState.isLoaded) {
-        const fullName = accountState.middleName && accountState.surname
-            ? accountState.name + ' ' + accountState.middleName + ' ' + accountState.surname
-            : accountState.surname
-                ? accountState.name + ' ' + accountState.surname
-                : accountState.name
+        const fullName = userData?.middleName
+            ? userData.name + ' ' + userData.middleName + ' ' + userData.surname
+            : userData!.name + ' ' + userData!.surname
+
         return (
-            <div style={{marginBottom: '50px'}}>
-                <Grid container justifyContent="center" style={{marginTop: "15px"}}>
+            <div className="container" style={{marginBottom: '50px'}}>
+                <Grid container style={{marginTop: "15px"}} spacing={2}>
+                    <Grid item>
+                        <RouterLink to={"/user/edit"}>
+                            <EditIcon fontSize="small"/>
+                        </RouterLink></Grid>
                     <Grid item xs={11} className={classes.info}>
                         <Typography style={{fontSize: '20px'}}>
                             {fullName}
                         </Typography>
-                        <Typography style={{fontSize: '20px'}}>
-                            {accountState.email}
+                        <Typography style={{fontSize: '20px', color: "GrayText"}}>
+                            {userData!.email}
                         </Typography>
                     </Grid>
+                    {courses && <div style={{marginTop: 30}}><CoursesList courses={courses!}/></div>}
                 </Grid>
             </div>
         )

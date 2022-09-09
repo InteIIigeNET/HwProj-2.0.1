@@ -1188,6 +1188,12 @@ export interface UserDataDto {
      * @memberof UserDataDto
      */
     notifications?: Array<CategorizedNotifications>;
+    /**
+     *
+     * @type {Array<CoursePreviewView>}
+     * @memberof UserDataDto
+     */
+    courses?: Array<CoursePreviewView>;
 }
 
 
