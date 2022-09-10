@@ -114,19 +114,20 @@ const Workspace: FC<RouteComponentProps<IWorkspaceProps>> = (props) => {
                                 }));
                             }}
                         >
-                            <Tab label="Курсы"/>
                             {isLecturer
                                 ? <Tab
                                     label={`Ожидают проверки (${(unratedSolutionPreviews!.unratedSolutions!.length)})`}/>
                                 : <Tab label={`Дедлайны (${(taskDeadlines!.length)})`}/>}
+                            <Tab label="Курсы"/>
                         </Tabs>
-                        {tabValue === 0 && courses &&
-                            <div style={{marginTop: 15}}><CoursesList courses={courses!}/></div>}
-                        {tabValue === 1 &&
+                        {tabValue === 0 &&
                             (isLecturer
-                                ? <div style={{marginTop: 15}}><UnratedSolutions unratedSolutionsPreviews={unratedSolutionPreviews!}/>
+                                ? <div style={{marginTop: 15}}><UnratedSolutions
+                                    unratedSolutionsPreviews={unratedSolutionPreviews!}/>
                                 </div>
                                 : <div style={{marginTop: 15}}><TaskDeadlines taskDeadlines={taskDeadlines!}/></div>)}
+                        {tabValue === 1 && courses &&
+                            <div style={{marginTop: 15}}><CoursesList courses={courses!}/></div>}
                     </Grid>}
                 </Grid>
             </div>
