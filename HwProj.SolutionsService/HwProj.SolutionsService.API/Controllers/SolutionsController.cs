@@ -134,7 +134,7 @@ namespace HwProj.SolutionsService.API.Controllers
                 .Select(t => t.Id)
                 .ToArray();
 
-            var solutions = await _solutionsRepository.FindAll(t => taskIds.Contains(t.Id)).ToListAsync();
+            var solutions = await _solutionsRepository.FindAll(t => taskIds.Contains(t.TaskId)).ToListAsync();
             var courseMates = course.MentorIds.Contains(userId)
                 ? course.CourseMates.Where(t => t.IsAccepted)
                 : course.CourseMates.Where(t => t.StudentId == userId);
