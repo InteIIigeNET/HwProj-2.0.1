@@ -23,7 +23,6 @@ interface IProfileProps {
 
 const useStyles = makeStyles(() => ({
     info: {
-        display: "flex",
         justifyContent: "space-between",
     },
 }))
@@ -80,18 +79,25 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
         return (
             <div className="container" style={{marginBottom: '50px'}}>
                 <Grid container style={{marginTop: "15px"}} spacing={2}>
-                    <Grid item>
-                        {isUserProfile && <RouterLink to={"/user/edit"}>
-                            <EditIcon fontSize="small"/>
-                        </RouterLink>}
-                    </Grid>
-                    <Grid item xs={11} className={classes.info}>
-                        <Typography style={{fontSize: '20px'}}>
-                            {fullName}
-                        </Typography>
-                        <Typography style={{fontSize: '20px', color: "GrayText"}}>
-                            {userData!.email}
-                        </Typography>
+                    <Grid item container className={classes.info} direction={"row"}>
+                        <Grid item direction={"row"} spacing={2} style={{display: "flex"}}>
+                            {isUserProfile &&
+                                <Grid item style={{paddingRight: 5}}>
+                                    <RouterLink to={"/user/edit"}>
+                                        <EditIcon fontSize="small"/>
+                                    </RouterLink>
+                                </Grid>}
+                            <Grid item>
+                                <Typography style={{fontSize: '20px'}}>
+                                    {fullName}
+                                </Typography>
+                            </Grid>
+                        </Grid>
+                        <Grid item>
+                            <Typography style={{fontSize: '20px', color: "GrayText"}}>
+                                {userData!.email}
+                            </Typography>
+                        </Grid>
                     </Grid>
                     <Grid item>
                         <Tabs
