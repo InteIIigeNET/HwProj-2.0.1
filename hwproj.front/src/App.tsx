@@ -23,6 +23,7 @@ import StudentSolutionsPage from "./components/Solutions/StudentSolutionsPage";
 import EditProfile from "./components/EditProfile";
 import ApiSingleton from "./api/ApiSingleton";
 import SystemInfoComponent from "./components/System/SystemInfoComponent";
+import WrongPath from "./components/WrongPath";
 
 // TODO: add flux
 
@@ -78,32 +79,33 @@ class App extends Component<AppProps, AppState> {
                         newNotificationsCount={this.state.newNotificationsCount}
                         isLecturer={this.state.isLecturer}
                         onLogout={this.logout}/>
-                <Route exact path="/system" component={SystemInfoComponent}/>
-                <Route exact path="/user/edit" component={EditProfile}/>
-                <Route exact path="/" component={Courses}/>
-                <Route exact path="/notifications"
-                       render={() => <Notifications onMarkAsSeen={this.updatedNewNotificationsCount}/>}/>
-                <Route exact path="/profile" component={Profile}/>
-                <Route exact path="/profile/:id" component={Profile}/>
-                <Route exact path="/create_course" component={CreateCourse}/>
-                <Route exact path="/courses/:id" component={Course}/>
-                <Route exact path="/courses/:courseId/edit" component={EditCourse}/>
-                <Route exact path="/homework/:homeworkId/edit" component={EditHomework}/>
                 <Switch>
+                    <Route exact path="/system" component={SystemInfoComponent}/>
+                    <Route exact path="/user/edit" component={EditProfile}/>
+                    <Route exact path="/" component={Courses}/>
+                    <Route exact path="/notifications"
+                           render={() => <Notifications onMarkAsSeen={this.updatedNewNotificationsCount}/>}/>
+                    <Route exact path="/profile" component={Profile}/>
+                    <Route exact path="/profile/:id" component={Profile}/>
+                    <Route exact path="/create_course" component={CreateCourse}/>
+                    <Route exact path="/courses/:id" component={Course}/>
+                    <Route exact path="/courses/:courseId/edit" component={EditCourse}/>
+                    <Route exact path="/homework/:homeworkId/edit" component={EditHomework}/>
                     <Route exact path="/task/:taskId/edit" component={EditTask}/>
                     <Route exact path="/task/:taskId/:studentId" component={StudentSolutionsPage}/>
                     <Route exact path="/task/:taskId/" component={TaskSolutionsPage}/>
+                    <Route
+                        exact
+                        path="/login"
+                        render={(props) => <Login {...props} onLogin={this.login}/>}
+                    />
+                    <Route
+                        exact
+                        path="/register"
+                        render={(props) => <Register {...props} onLogin={this.login}/>}
+                    />
+                    <Route exact path={"*"} component={WrongPath}/>
                 </Switch>
-                <Route
-                    exact
-                    path="/login"
-                    render={(props) => <Login {...props} onLogin={this.login}/>}
-                />
-                <Route
-                    exact
-                    path="/register"
-                    render={(props) => <Register {...props} onLogin={this.login}/>}
-                />
             </>
         );
     }
