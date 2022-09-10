@@ -3,6 +3,7 @@ import * as React from "react";
 import {BrowserRouter as Router, Link as RouterLink} from "react-router-dom";
 import {FormControl, InputLabel, Select, Divider, Grid, ListItem, MenuItem, Typography} from "@mui/material";
 import {FC, useState} from "react";
+import Utils from "../../services/Utils";
 
 interface IUnratedSolutionsProps {
     unratedSolutionsPreviews: UnratedSolutionPreviews
@@ -88,7 +89,7 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
                             <Typography style={{fontSize: "18px", color: "GrayText"}}>
                                 {solution.courseTitle + " • " + solution.homeworkTitle}
                             </Typography>
-                            {new Date(solution.publicationDate!).toLocaleDateString("ru-RU")}
+                            {Utils.convertUTCDateToLocalDate(new Date(solution.publicationDate!)).toLocaleDateString("ru-RU")}
                             {i < filteredUnratedSolutions.length - 1 ?
                                 <Divider style={{marginTop: 10, marginBottom: 10}}/> : null}
                         </Grid>
