@@ -1,6 +1,12 @@
-﻿using System.Net;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using HwProj.APIGateway.API.ExceptionFilters;
+using HwProj.APIGateway.API.Models.Solutions;
+using HwProj.AuthService.Client;
+using HwProj.CoursesService.Client;
+using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
 using HwProj.Models.SolutionsService;
 using HwProj.SolutionsService.Client;
@@ -15,10 +21,14 @@ namespace HwProj.APIGateway.API.Controllers
     public class SolutionsController : AggregationController
     {
         private readonly ISolutionsServiceClient _solutionsClient;
+        private readonly ICoursesServiceClient _coursesServiceClient;
 
-        public SolutionsController(ISolutionsServiceClient solutionsClient) : base(null)
+        public SolutionsController(ISolutionsServiceClient solutionsClient, IAuthServiceClient authServiceClient,
+            ICoursesServiceClient coursesServiceClient) :
+            base(authServiceClient)
         {
             _solutionsClient = solutionsClient;
+            _coursesServiceClient = coursesServiceClient;
         }
 
         [HttpGet]
@@ -103,6 +113,47 @@ namespace HwProj.APIGateway.API.Controllers
             return result == null
                 ? NotFound() as IActionResult
                 : Ok(result);
+        }
+
+        [HttpGet("unratedSolutions")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        public async Task<UnratedSolutionPreviews> GetUnratedSolutions()
+        {
+            var mentorCourses = await _coursesServiceClient.GetAllUserCourses();
+            var tasks = new Dictionary<long, (CourseDTO course, string homeworkTitle, HomeworkTaskViewModel task)>();
+
+            foreach (var course in mentorCourses)
+            foreach (var homework in course.Homeworks)
+            foreach (var task in homework.Tasks)
+                tasks.Add(task.Id, (course, homework.Title, task));
+
+            var taskIds = tasks.Select(t => t.Key).ToArray();
+            var solutions = await _solutionsClient.GetAllUnratedSolutionsForTasks(taskIds);
+
+            var studentIds = solutions.Select(t => t.StudentId).Distinct().ToArray();
+            var accountsData = await AuthServiceClient.GetAccountsData(studentIds);
+
+            var unratedSolutions = solutions
+                .Join(accountsData, s => s.StudentId, s => s.UserId, (solution, account) =>
+                {
+                    var (course, homeworkTitle, task) = tasks[solution.TaskId];
+                    return new SolutionPreviewView
+                    {
+                        Student = account,
+                        CourseTitle = $"{course.Name} / {course.GroupName}",
+                        CourseId = course.Id,
+                        HomeworkTitle = homeworkTitle,
+                        TaskTitle = task.Title,
+                        TaskId = task.Id,
+                        PublicationDate = task.PublicationDate
+                    };
+                })
+                .ToArray();
+
+            return new UnratedSolutionPreviews
+            {
+                UnratedSolutions = unratedSolutions,
+            };
         }
     }
 }

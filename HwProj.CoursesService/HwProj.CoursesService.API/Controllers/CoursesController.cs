@@ -118,11 +118,11 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpGet("userCourses")]
-        public async Task<CoursePreview[]> GetCourses()
+        public async Task<CourseDTO[]> GetUserCourses()
         {
             var userId = Request.GetUserIdFromHeader();
             var coursesFromDb = await _coursesService.GetUserCoursesAsync(userId);
-            var courses = _mapper.Map<CoursePreview[]>(coursesFromDb).ToArray();
+            var courses = _mapper.Map<CourseDTO[]>(coursesFromDb).ToArray();
             return courses;
         }
 

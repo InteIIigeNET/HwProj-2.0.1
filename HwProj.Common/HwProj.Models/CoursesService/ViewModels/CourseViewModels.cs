@@ -28,16 +28,9 @@ namespace HwProj.Models.CoursesService.ViewModels
         public bool IsCompleted { get; set; }
     }
 
-    public class CourseDTO
+    public class CourseDTO : CoursePreview
     {
-        public long Id { get; set; }
-        public string Name { get; set; }
-        public string GroupName { get; set; }
         public bool IsOpen { get; set; }
-        public bool IsCompleted { get; set; }
-
-        // TODO: исправить
-        public string[] MentorIds { get; set; }
         public string InviteCode { get; set; }
         public CourseMateViewModel[] CourseMates { get; set; }
         public HomeworkViewModel[] Homeworks { get; set; }

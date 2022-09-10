@@ -8,7 +8,6 @@ using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.NotificationsService;
 using HwProj.Models.Result;
 using HwProj.Models.Roles;
-using HwProj.NotificationsService.Client;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,15 +17,12 @@ namespace HwProj.APIGateway.API.Controllers
     [ApiController]
     public class AccountController : AggregationController
     {
-        private readonly INotificationsServiceClient _notificationsClient;
         private readonly ICoursesServiceClient _coursesClient;
 
         public AccountController(
             IAuthServiceClient authClient,
-            INotificationsServiceClient notificationsClient,
             ICoursesServiceClient coursesClient) : base(authClient)
         {
-            _notificationsClient = notificationsClient;
             _coursesClient = coursesClient;
         }
 

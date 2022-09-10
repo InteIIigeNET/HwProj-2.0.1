@@ -127,7 +127,7 @@ namespace HwProj.CoursesService.Client
             return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
         }
 
-        public async Task<CoursePreview[]> GetAllUserCourses()
+        public async Task<CourseDTO[]> GetAllUserCourses()
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
@@ -135,7 +135,7 @@ namespace HwProj.CoursesService.Client
 
             httpRequest.AddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<CoursePreview[]>();
+            return await response.DeserializeAsync<CourseDTO[]>();
         }
 
         public async Task<TaskDeadlineDto[]> GetTaskDeadlines()

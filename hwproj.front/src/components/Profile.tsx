@@ -1,8 +1,8 @@
 ﻿import * as React from "react";
 import {RouteComponentProps} from 'react-router';
-import {Typography, CircularProgress, Box, Grid, Divider, IconButton, Tabs, Tab} from "@material-ui/core";
+import {Typography, CircularProgress, Box, Grid, Tabs, Tab} from "@material-ui/core";
 import ApiSingleton from "api/ApiSingleton";
-import {AccountDataDto, UserDataDto} from "../api/";
+import {SolutionPreviewView, UnratedSolutionPreviews, UserDataDto} from "../api/";
 import "./Styles/Profile.css";
 import {FC, useEffect, useState} from "react";
 import {Link as RouterLink, Redirect} from "react-router-dom";
@@ -10,7 +10,7 @@ import {makeStyles} from "@material-ui/styles";
 import {CoursesList} from "./Courses/CoursesList";
 import EditIcon from "@material-ui/icons/Edit";
 import {TaskDeadlines} from "./Tasks/TaskDeadlines";
-import task from "./Tasks/Task";
+import UnratedSolutions from "./Solutions/UnratedSolutions";
 
 interface IProfileState {
     isLoaded: boolean;
@@ -33,12 +33,13 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
         tabValue: 0
     })
 
-    const [accountState, setAccountState] = useState<UserDataDto>({
+    const [accountState, setAccountState] = useState<UserDataDto & { unratedSolutionPreviews: UnratedSolutionPreviews | undefined }>({
         userData: undefined,
-        notifications: []
+        unratedSolutionPreviews: undefined
     })
 
     const classes = useStyles()
+    const isLecturer = ApiSingleton.authService.isLecturer()
 
     useEffect(() => {
         getUserInfo()
@@ -47,7 +48,7 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
     const getUserInfo = async () => {
         if (props.match.params.id) {
             const data = await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(props.match.params.id)
-            setAccountState({userData: data, courses: [], notifications: []})
+            setAccountState({userData: data, taskDeadlines: [], courses: [], unratedSolutionPreviews: undefined})
             setProfileState(prevState => ({
                 ...prevState,
                 isLoaded: true
@@ -55,16 +56,18 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
             return
         }
         const data = await ApiSingleton.accountApi.apiAccountGetUserDataGet()
-        setAccountState(data!)
+        const unratedSolutions = isLecturer
+            ? await ApiSingleton.solutionsApi.apiSolutionsUnratedSolutionsGet()
+            : []
+        setAccountState({...data, unratedSolutionPreviews: unratedSolutions})
         setProfileState(prevState => ({
             ...prevState,
             isLoaded: true
         }))
     }
 
-    const {userData, courses, taskDeadlines} = accountState
+    const {userData, courses, taskDeadlines, unratedSolutionPreviews} = accountState
     const {tabValue} = profileState
-    const isLecturer = ApiSingleton.authService.isLecturer()
 
     if (!ApiSingleton.authService.isLoggedIn()) {
         return <Redirect to={"/login"}/>;
@@ -112,12 +115,18 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
                             }}
                         >
                             <Tab label="Курсы"/>
-                            {!isLecturer && <Tab label={`Дедлайны (${(taskDeadlines!.length)})`}/>}
+                            {isLecturer
+                                ? <Tab
+                                    label={`Ожидают проверки (${(unratedSolutionPreviews!.unratedSolutions!.length)})`}/>
+                                : <Tab label={`Дедлайны (${(taskDeadlines!.length)})`}/>}
                         </Tabs>
                         {tabValue === 0 && courses &&
                             <div style={{marginTop: 15}}><CoursesList courses={courses!}/></div>}
-                        {!isLecturer && tabValue === 1 &&
-                            <div style={{marginTop: 15}}><TaskDeadlines taskDeadlines={taskDeadlines!}/></div>}
+                        {tabValue === 1 &&
+                            (isLecturer
+                                ? <div style={{marginTop: 15}}><UnratedSolutions unratedSolutionsPreviews={unratedSolutionPreviews!}/>
+                                </div>
+                                : <div style={{marginTop: 15}}><TaskDeadlines taskDeadlines={taskDeadlines!}/></div>)}
                     </Grid>
                 </Grid>
             </div>

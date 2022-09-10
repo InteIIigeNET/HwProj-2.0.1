@@ -188,6 +188,7 @@ namespace HwProj.CoursesService.API.Services
 
             var getMentorCoursesTask = _coursesRepository
                 .FindAll(c => c.MentorIds.Contains(userId))
+                .Include(c => c.Homeworks).ThenInclude(t => t.Tasks)
                 .ToArrayAsync();
 
             var mentorCourses = await getMentorCoursesTask.ConfigureAwait(false);
