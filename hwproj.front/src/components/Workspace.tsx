@@ -2,7 +2,7 @@
 import {RouteComponentProps} from 'react-router';
 import {Typography, CircularProgress, Box, Grid, Tabs, Tab} from "@material-ui/core";
 import ApiSingleton from "api/ApiSingleton";
-import {SolutionPreviewView, UnratedSolutionPreviews, UserDataDto} from "../api/";
+import {UnratedSolutionPreviews, UserDataDto} from "../api/";
 import "./Styles/Profile.css";
 import {FC, useEffect, useState} from "react";
 import {Link as RouterLink, Redirect} from "react-router-dom";
@@ -12,12 +12,12 @@ import EditIcon from "@material-ui/icons/Edit";
 import {TaskDeadlines} from "./Tasks/TaskDeadlines";
 import UnratedSolutions from "./Solutions/UnratedSolutions";
 
-interface IProfileState {
+interface IWorkspaceState {
     isLoaded: boolean;
     tabValue: number;
 }
 
-interface IProfileProps {
+interface IWorkspaceProps {
     id: string;
 }
 
@@ -27,8 +27,8 @@ const useStyles = makeStyles(() => ({
     },
 }))
 
-const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
-    const [profileState, setProfileState] = useState<IProfileState>({
+const Workspace: FC<RouteComponentProps<IWorkspaceProps>> = (props) => {
+    const [profileState, setProfileState] = useState<IWorkspaceState>({
         isLoaded: false,
         tabValue: 0
     })
@@ -58,7 +58,7 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
         const data = await ApiSingleton.accountApi.apiAccountGetUserDataGet()
         const unratedSolutions = isLecturer
             ? await ApiSingleton.solutionsApi.apiSolutionsUnratedSolutionsGet()
-            : []
+            : undefined
         setAccountState({...data, unratedSolutionPreviews: unratedSolutions})
         setProfileState(prevState => ({
             ...prevState,
@@ -102,7 +102,7 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
                             </Typography>
                         </Grid>
                     </Grid>
-                    <Grid item>
+                    {isUserProfile && <Grid item>
                         <Tabs
                             value={tabValue}
                             style={{marginTop: 15}}
@@ -127,7 +127,7 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
                                 ? <div style={{marginTop: 15}}><UnratedSolutions unratedSolutionsPreviews={unratedSolutionPreviews!}/>
                                 </div>
                                 : <div style={{marginTop: 15}}><TaskDeadlines taskDeadlines={taskDeadlines!}/></div>)}
-                    </Grid>
+                    </Grid>}
                 </Grid>
             </div>
         )
@@ -140,4 +140,4 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
     )
 }
 
-export default Profile
+export default Workspace

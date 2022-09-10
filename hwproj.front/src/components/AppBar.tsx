@@ -93,11 +93,11 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                             <Grid item>
                                 <Typography>
                                     <Button
-                                        onClick={() => window.location.assign(`/profile`)}
+                                        onClick={() => window.location.assign(`/courses`)}
                                         color="inherit"
                                         style={{fontFamily: "Helvetica"}}
                                     >
-                                        Профиль
+                                        Курсы
                                     </Button>
                                 </Typography>
                             </Grid>
