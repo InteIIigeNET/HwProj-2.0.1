@@ -151,35 +151,6 @@ namespace HwProj.SolutionsService.API.Controllers
             return Ok(result);
         }
 
-        [HttpGet("getCourseStat/{courseId}")]
-        [ProducesResponseType(typeof(StatisticsCourseMatesDto[]), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Get(long courseId, [FromQuery] string userId)
-        {
-            var course = await _coursesClient.GetCourseById(courseId, userId);
-            if (course == null) return NotFound();
-
-            var taskIds = course.Homeworks
-                .SelectMany(t => t.Tasks)
-                .Select(t => t.Id)
-                .ToArray();
-
-            var solutions = await _solutionsRepository.FindAll(t => taskIds.Contains(t.TaskId)).ToListAsync();
-            var courseMates = course.MentorIds.Contains(userId)
-                ? course.CourseMates.Where(t => t.IsAccepted)
-                : course.CourseMates.Where(t => t.StudentId == userId);
-
-            var solutionsStatsContext = new StatisticsAggregateModel
-            {
-                CourseMates = courseMates,
-                Homeworks = course.Homeworks,
-                Solutions = solutions
-            };
-
-            var result = SolutionsStatsDomain.GetCourseStatistics(solutionsStatsContext).ToArray();
-
-            return Ok(result);
-        }
-
         [HttpPost("allUnrated")]
         public async Task<SolutionPreviewDto[]> GetAllUnratedSolutionsForTasks([FromBody] long[] taskIds)
         {
