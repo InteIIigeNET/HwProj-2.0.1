@@ -43,37 +43,36 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
         return (
             <div>
                 {this.state.isLoaded &&
-                <TableContainer>
-                    <Table stickyHeader aria-label="sticky table">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell align="center" padding="none" component="td">
-                                </TableCell>
-                                {this.props.homeworks.map((homework, index) => (
-                                    <TableCell
-                                        padding="none"
-                                        component="td"
-                                        align="center"
-                                        colSpan={homework.tasks!.length}
-                                    >
-                                        {homework.title}
+                    <TableContainer>
+                        <Table stickyHeader aria-label="sticky table">
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell align="center" padding="none" component="td">
                                     </TableCell>
-                                ))}
-                            </TableRow>
-                            <TableRow>
-                                <TableCell component="td"></TableCell>
-                                {this.props.homeworks.map((homework) =>
-                                    homework.tasks!.map((task) => (
-                                        <TableCell padding="none" component="td" align="center">
-                                            {task.title}
+                                    {this.props.homeworks.map((homework, index) => (
+                                        <TableCell
+                                            padding="none"
+                                            component="td"
+                                            align="center"
+                                            colSpan={homework.tasks!.length}
+                                        >
+                                            {homework.title}
                                         </TableCell>
-                                    ))
-                                )}
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {this.props.isMentor && this.state.stat
-                                .map((cm, index) => (
+                                    ))}
+                                </TableRow>
+                                <TableRow>
+                                    <TableCell component="td"></TableCell>
+                                    {this.props.homeworks.map((homework) =>
+                                        homework.tasks!.map((task) => (
+                                            <TableCell padding="none" component="td" align="center">
+                                                {task.title}
+                                            </TableCell>
+                                        ))
+                                    )}
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {this.state.stat.map((cm, index) => (
                                     <TableRow key={index}>
                                         <TableCell
                                             align="center"
@@ -99,36 +98,9 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
                                         )}
                                     </TableRow>
                                 ))}
-                            {!this.props.isMentor &&
-                                <TableRow key={1}>
-                                    <TableCell
-                                        align="center"
-                                        padding="none"
-                                        component="td"
-                                        scope="row"
-                                    >
-                                        {this.state.stat.find(cm => cm.id == this.props.userId)!.surname}
-                                        {this.state.stat.find(cm => cm.id == this.props.userId)!.name}
-                                    </TableCell>
-                                    {this.state.stat.find(cm => cm.id == this.props.userId)!.homeworks!.map((homework) =>
-                                        homework.tasks!.map((task) => (
-                                            <TaskStudentCell
-                                                solutions={this.state.stat
-                                                    .find(s => s.id == this.props.userId)!.homeworks!
-                                                    .find(h => h.id == homework.id)!.tasks!
-                                                    .find(t => t.id == task.id)!.solution!.slice(-1)[0]}
-                                                userId={this.props.userId}
-                                                forMentor={this.props.isMentor}
-                                                studentId={this.props.userId}
-                                                taskId={task.id!}
-                                            />
-                                        ))
-                                    )}
-                                </TableRow>
-                            }
-                        </TableBody>
-                    </Table>
-                </TableContainer>}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>}
             </div>
         );
     }
