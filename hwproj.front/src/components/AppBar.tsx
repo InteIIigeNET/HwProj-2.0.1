@@ -134,7 +134,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                             </div>
                         )}
                     {props.loggedIn && !props.isLecturer && (
-                        <div className={classes.tools}>
+                        <div>
                             <IconButton
                                 edge="start"
                                 color="inherit"
