@@ -13,6 +13,7 @@ import {FC, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
 import DeletionConfirmation from "../DeletionConfirmation";
 import HourglassEmpty from "@material-ui/icons/HourglassEmpty";
+import Utils from "../../services/Utils";
 
 interface ITaskProp {
     task: HomeworkTaskViewModel,
@@ -60,10 +61,10 @@ const Task: FC<ITaskProp> = (props) => {
     let deadlineDate
 
     if (task.hasDeadline) {
-        deadlineDate = ApiSingleton.utils.convertUTCDateToLocalDate(task.deadlineDate!).toLocaleString("ru-RU")
+        deadlineDate = Utils.convertUTCDateToLocalDate(task.deadlineDate!).toLocaleString("ru-RU")
     }
 
-    const publicationDate = ApiSingleton.utils.convertUTCDateToLocalDate(task.publicationDate!).toLocaleString("ru-RU")
+    const publicationDate = Utils.convertUTCDateToLocalDate(task.publicationDate!).toLocaleString("ru-RU")
     const classes = useStyles()
 
     return (

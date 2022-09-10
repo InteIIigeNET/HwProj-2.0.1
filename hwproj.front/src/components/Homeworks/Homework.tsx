@@ -13,6 +13,7 @@ import ApiSingleton from '../../api/ApiSingleton';
 import {FC, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
 import DeletionConfirmation from "../DeletionConfirmation";
+import Utils from "../../services/Utils";
 
 interface IHomeworkProps {
     homework: HomeworkViewModel,
@@ -59,7 +60,7 @@ const Homework: FC<IHomeworkProps> = (props) => {
     }
 
     const classes = useStyles()
-    const homeworkDateString = ApiSingleton.utils.convertUTCDateToLocalDate(props.homework.date!).toLocaleDateString("ru-RU");
+    const homeworkDateString = Utils.convertUTCDateToLocalDate(props.homework.date!).toLocaleDateString("ru-RU");
     const deferredHomeworks = props.homework.tasks!.filter(t => t.isDeferred!);
     return (
         <div style={{width: '100%'}}>

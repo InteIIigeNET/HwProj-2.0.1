@@ -24,7 +24,6 @@ class Api {
     readonly statisticsApi: StatisticsApi;
     readonly systemApi: SystemApi;
     readonly authService: AuthService;
-    readonly utils: Utils
 
     constructor(
         accountApi: AccountApi,
@@ -35,8 +34,7 @@ class Api {
         tasksApi: TasksApi,
         statisticsApi: StatisticsApi,
         systemApi: SystemApi,
-        authService: AuthService,
-        utils: Utils
+        authService: AuthService
     ) {
         this.accountApi = accountApi;
         this.coursesApi = coursesApi;
@@ -47,7 +45,6 @@ class Api {
         this.statisticsApi = statisticsApi;
         this.systemApi = systemApi;
         this.authService = authService;
-        this.utils = utils;
     }
 }
 

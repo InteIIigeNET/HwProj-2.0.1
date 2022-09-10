@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using HwProj.Models.AuthService.DTO;
+using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Result;
 
@@ -16,6 +17,7 @@ namespace HwProj.CoursesService.Client
         Task<Result> AcceptStudent(long courseId, string studentId);
         Task<Result> RejectStudent(long courseId, string studentId);
         Task<CoursePreview[]> GetAllUserCourses();
+        Task<TaskDeadlineDto[]> GetTaskDeadlines();
         Task<Result<long>> AddHomeworkToCourse(CreateHomeworkViewModel model, long courseId);
         Task<HomeworkViewModel> GetHomework(long homeworkId);
         Task<Result> UpdateHomework(CreateHomeworkViewModel model, long homeworkId);

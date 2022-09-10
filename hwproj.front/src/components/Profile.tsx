@@ -1,6 +1,6 @@
 ﻿import * as React from "react";
 import {RouteComponentProps} from 'react-router';
-import {Typography, CircularProgress, Box, Grid, Divider, IconButton} from "@material-ui/core";
+import {Typography, CircularProgress, Box, Grid, Divider, IconButton, Tabs, Tab} from "@material-ui/core";
 import ApiSingleton from "api/ApiSingleton";
 import {AccountDataDto, UserDataDto} from "../api/";
 import "./Styles/Profile.css";
@@ -9,9 +9,12 @@ import {Link as RouterLink, Redirect} from "react-router-dom";
 import {makeStyles} from "@material-ui/styles";
 import {CoursesList} from "./Courses/CoursesList";
 import EditIcon from "@material-ui/icons/Edit";
+import {TaskDeadlines} from "./Tasks/TaskDeadlines";
+import task from "./Tasks/Task";
 
 interface IProfileState {
     isLoaded: boolean;
+    tabValue: number;
 }
 
 interface IProfileProps {
@@ -27,7 +30,8 @@ const useStyles = makeStyles(() => ({
 
 const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
     const [profileState, setProfileState] = useState<IProfileState>({
-        isLoaded: false
+        isLoaded: false,
+        tabValue: 0
     })
 
     const [accountState, setAccountState] = useState<UserDataDto>({
@@ -45,19 +49,23 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
         if (props.match.params.id) {
             const data = await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(props.match.params.id)
             setAccountState({userData: data, courses: [], notifications: []})
-            setProfileState(() => ({
+            setProfileState(prevState => ({
+                ...prevState,
                 isLoaded: true
             }))
             return
         }
         const data = await ApiSingleton.accountApi.apiAccountGetUserDataGet()
         setAccountState(data!)
-        setProfileState(() => ({
+        setProfileState(prevState => ({
+            ...prevState,
             isLoaded: true
         }))
     }
 
-    const {userData, courses} = accountState
+    const {userData, courses, taskDeadlines} = accountState
+    const {tabValue} = profileState
+    const isLecturer = ApiSingleton.authService.isLecturer()
 
     if (!ApiSingleton.authService.isLoggedIn()) {
         return <Redirect to={"/login"}/>;
@@ -85,7 +93,26 @@ const Profile: FC<RouteComponentProps<IProfileProps>> = (props) => {
                             {userData!.email}
                         </Typography>
                     </Grid>
-                    {courses && <div style={{marginTop: 30}}><CoursesList courses={courses!}/></div>}
+                    <Grid item>
+                        <Tabs
+                            value={tabValue}
+                            style={{marginTop: 15}}
+                            indicatorColor="primary"
+                            onChange={(event, value) => {
+                                setProfileState(prevState => ({
+                                    ...prevState,
+                                    tabValue: value
+                                }));
+                            }}
+                        >
+                            <Tab label="Курсы"/>
+                            {!isLecturer && <Tab label={`Дедлайны (${(taskDeadlines!.length)})`}/>}
+                        </Tabs>
+                        {tabValue === 0 && courses &&
+                            <div style={{marginTop: 15}}><CoursesList courses={courses!}/></div>}
+                        {!isLecturer && tabValue === 1 &&
+                            <div style={{marginTop: 15}}><TaskDeadlines taskDeadlines={taskDeadlines!}/></div>}
+                    </Grid>
                 </Grid>
             </div>
         )

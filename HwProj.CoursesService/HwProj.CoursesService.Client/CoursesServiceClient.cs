@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using HwProj.HttpUtils;
 using HwProj.Models.AuthService.DTO;
+using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Result;
 using Microsoft.AspNetCore.Http;
@@ -135,6 +136,17 @@ namespace HwProj.CoursesService.Client
             httpRequest.AddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<CoursePreview[]>();
+        }
+
+        public async Task<TaskDeadlineDto[]> GetTaskDeadlines()
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + "api/Courses/taskDeadlines");
+
+            httpRequest.AddUserId(_httpContextAccessor);
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<TaskDeadlineDto[]>();
         }
 
         public async Task<Result<long>> AddHomeworkToCourse(CreateHomeworkViewModel model, long courseId)

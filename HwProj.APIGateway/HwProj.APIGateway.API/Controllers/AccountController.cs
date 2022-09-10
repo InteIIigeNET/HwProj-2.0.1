@@ -47,13 +47,15 @@ namespace HwProj.APIGateway.API.Controllers
         {
             var getAccountDataTask = AuthServiceClient.GetAccountData(UserId);
             var getCoursesTask = _coursesClient.GetAllUserCourses();
+            var getTaskDeadlines = _coursesClient.GetTaskDeadlines();
 
-            await Task.WhenAll(getAccountDataTask, getCoursesTask);
+            await Task.WhenAll(getAccountDataTask, getCoursesTask, getTaskDeadlines);
 
             var aggregatedResult = new UserDataDto
             {
                 UserData = getAccountDataTask.Result,
-                Courses = await GetCoursePreviews(getCoursesTask.Result)
+                Courses = await GetCoursePreviews(getCoursesTask.Result),
+                TaskDeadlines = getTaskDeadlines.Result
             };
             return Ok(aggregatedResult);
         }

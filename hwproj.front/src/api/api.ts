@@ -1095,6 +1095,44 @@ export interface SystemInfo {
 /**
  *
  * @export
+ * @interface TaskDeadlineDto
+ */
+export interface TaskDeadlineDto {
+    /**
+     *
+     * @type {number}
+     * @memberof TaskDeadlineDto
+     */
+    taskId?: number;
+    /**
+     *
+     * @type {string}
+     * @memberof TaskDeadlineDto
+     */
+    taskTitle?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof TaskDeadlineDto
+     */
+    courseTitle?: string;
+    /**
+     *
+     * @type {Date}
+     * @memberof TaskDeadlineDto
+     */
+    publicationDate?: Date;
+    /**
+     *
+     * @type {Date}
+     * @memberof TaskDeadlineDto
+     */
+    deadlineDate?: Date;
+}
+
+/**
+ *
+ * @export
  * @interface TokenCredentials
  */
 export interface TokenCredentials {
@@ -1188,6 +1226,12 @@ export interface UserDataDto {
      * @memberof UserDataDto
      */
     courses?: Array<CoursePreviewView>;
+    /**
+     *
+     * @type {Array<TaskDeadlineDto>}
+     * @memberof UserDataDto
+     */
+    taskDeadlines?: Array<TaskDeadlineDto>;
 }
 
 

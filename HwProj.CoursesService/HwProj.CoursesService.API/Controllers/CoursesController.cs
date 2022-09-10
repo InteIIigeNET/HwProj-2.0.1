@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
@@ -8,7 +9,10 @@ using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Net;
+using HwProj.CoursesService.API.Repositories;
 using HwProj.Models.AuthService.DTO;
+using HwProj.Models.CoursesService.DTO;
+using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.CoursesService.API.Controllers
 {
@@ -17,11 +21,17 @@ namespace HwProj.CoursesService.API.Controllers
     public class CoursesController : Controller
     {
         private readonly ICoursesService _coursesService;
+        private readonly ICoursesRepository _coursesRepository;
+        private readonly ICourseMatesRepository _courseMatesRepository;
         private readonly IMapper _mapper;
 
-        public CoursesController(ICoursesService coursesService, IMapper mapper)
+        public CoursesController(ICoursesService coursesService,
+            ICoursesRepository coursesRepository,
+            ICourseMatesRepository courseMatesRepository, IMapper mapper)
         {
             _coursesService = coursesService;
+            _coursesRepository = coursesRepository;
+            _courseMatesRepository = courseMatesRepository;
             _mapper = mapper;
         }
 
@@ -133,6 +143,39 @@ namespace HwProj.CoursesService.API.Controllers
             return result == null
                 ? NotFound() as IActionResult
                 : Ok(result);
+        }
+
+        //TODO: optimize
+        [HttpGet("taskDeadlines")]
+        public async Task<TaskDeadlineDto[]> GetUserDeadlines()
+        {
+            var userId = Request.GetUserIdFromHeader();
+            var courseIds = await _courseMatesRepository.FindAll(t => t.StudentId == userId).Select(t => t.CourseId)
+                .ToListAsync();
+
+            var currentDate = DateTime.UtcNow;
+            var courses = await _coursesRepository
+                .FindAll(t => courseIds.Contains(t.Id))
+                .Include(t => t.Homeworks)
+                .ThenInclude(t => t.Tasks)
+                .ToListAsync();
+
+            var result = courses
+                .SelectMany(course => course.Homeworks
+                    .SelectMany(x => x.Tasks)
+                    .Where(t => t.HasDeadline && t.PublicationDate <= currentDate && t.DeadlineDate > currentDate)
+                    .Select(task => new TaskDeadlineDto
+                    {
+                        TaskId = task.Id,
+                        TaskTitle = task.Title,
+                        CourseTitle = course.Name + " / " + course.GroupName,
+                        PublicationDate = task.PublicationDate,
+                        DeadlineDate = task.DeadlineDate!.Value
+                    }))
+                .OrderBy(t => t.DeadlineDate)
+                .ToArray();
+
+            return result;
         }
     }
 }

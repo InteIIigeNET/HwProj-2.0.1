@@ -15,6 +15,7 @@ import {CategorizedNotifications, NotificationViewModel} from "../api/";
 import "./Styles/Profile.css";
 import parse from 'html-react-parser';
 import {Redirect} from "react-router-dom";
+import Utils from "../services/Utils";
 
 let CategoryEnum = CategorizedNotifications.CategoryEnum;
 const dateTimeOptions = {year: '2-digit', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'};
@@ -171,7 +172,7 @@ const Notifications: FC<IProfileProps> = (props) => {
                                     {parse(n.body!)}
                                 </Typography>
                                 <Typography variant="body1">
-                                    {parse(ApiSingleton.utils.convertUTCDateToLocalDate(n.date!).toLocaleDateString("ru-RU", dateTimeOptions))}
+                                    {parse(Utils.convertUTCDateToLocalDate(n.date!).toLocaleDateString("ru-RU", dateTimeOptions))}
                                 </Typography>
                             </CardContent>
                             {!n.hasSeen && <Box display="flex" flexDirection="row-reverse">
