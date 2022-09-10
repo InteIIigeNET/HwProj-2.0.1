@@ -185,7 +185,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                         }}
                     >
                         <Tab label="Домашние задания"/>
-                        {isMentor && <Tab label="Решения"/>}
+                        {(isMentor || isAcceptedStudent) && <Tab label="Решения"/>}
                         {isMentor && <Tab label={`Заявки (${newStudents.length})`}/>}
                     </Tabs>
                     <br/>
@@ -259,7 +259,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                 </Grid>
                             )}
                         </div>}
-                    {tabValue === 1 && isMentor &&
+                    {tabValue === 1 &&
                         <Grid container style={{marginBottom: "15px"}}>
                             <Grid item xs={11}>
                                 <CourseStudents

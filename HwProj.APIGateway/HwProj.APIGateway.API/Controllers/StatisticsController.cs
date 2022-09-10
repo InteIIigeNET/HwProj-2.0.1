@@ -1,6 +1,8 @@
-﻿using System.Net;
+﻿using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
-using HwProj.Models.StatisticsService;
+using HwProj.APIGateway.API.Models;
+using HwProj.AuthService.Client;
 using HwProj.SolutionsService.Client;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,7 +14,8 @@ namespace HwProj.APIGateway.API.Controllers
     {
         private readonly ISolutionsServiceClient _solutionClient;
 
-        public StatisticsController(ISolutionsServiceClient solutionClient) : base(null)
+        public StatisticsController(ISolutionsServiceClient solutionClient, IAuthServiceClient authServiceClient) :
+            base(authServiceClient)
         {
             _solutionClient = solutionClient;
         }
@@ -21,10 +24,21 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(StatisticsCourseMatesModel[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetCourseStatistics(long courseId)
         {
-            var result = await _solutionClient.GetCourseStatistics(courseId, UserId);
-            return result == null
-                ? Forbid() as IActionResult
-                : Ok(result);
+            var statistics = await _solutionClient.GetCourseStatistics(courseId, UserId);
+            if (statistics == null) return Forbid();
+
+            var studentIds = statistics.Select(t => t.StudentId).ToArray();
+            var students = await AuthServiceClient.GetAccountsData(studentIds);
+
+            var result = statistics.Zip(students, (stats, student) => new StatisticsCourseMatesModel
+            {
+                Id = student.UserId,
+                Name = student.Name,
+                Surname = student.Surname,
+                Homeworks = stats.Homeworks
+            });
+
+            return Ok(result);
         }
     }
 }

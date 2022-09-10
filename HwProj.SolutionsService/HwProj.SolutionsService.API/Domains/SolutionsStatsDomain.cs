@@ -8,15 +8,13 @@ namespace HwProj.SolutionsService.API.Domains
     public static class SolutionsStatsDomain
     {
         //TODO: rewrite
-        public static StatisticsCourseMatesModel[] GetCourseStatistics(StatisticsAggregateModel model) =>
-            model.Course.CourseMates
+        public static StatisticsCourseMatesDto[] GetCourseStatistics(StatisticsAggregateModel model) =>
+            model.CourseMates
                 .Where(t => t.IsAccepted)
-                .Select(m => new StatisticsCourseMatesModel
+                .Select(m => new StatisticsCourseMatesDto
                 {
-                    Id = m.StudentId,
-                    Name = model.CourseMatesData.FirstOrDefault(kvp => kvp.Key.Contains(m.StudentId)).Value.Name,
-                    Surname = model.CourseMatesData.FirstOrDefault(kvp => kvp.Key.Contains(m.StudentId)).Value.Surname,
-                    Homeworks = new List<StatisticsCourseHomeworksModel>(model.Course.Homeworks.Select(h =>
+                    StudentId = m.StudentId,
+                    Homeworks = new List<StatisticsCourseHomeworksModel>(model.Homeworks.Select(h =>
                         new StatisticsCourseHomeworksModel
                         {
                             Id = h.Id,
@@ -27,7 +25,7 @@ namespace HwProj.SolutionsService.API.Domains
                                 var solutionsInRightModel =
                                     new List<StatisticsCourseSolutionsModel>(solutions.Select(s =>
                                         new StatisticsCourseSolutionsModel(s)));
-                                return new StatisticsCourseTasksModel()
+                                return new StatisticsCourseTasksModel
                                 {
                                     Id = t.Id,
                                     Solution = solutionsInRightModel

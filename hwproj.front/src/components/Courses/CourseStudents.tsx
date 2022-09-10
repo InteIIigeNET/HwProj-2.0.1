@@ -44,13 +44,10 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
             <div>
                 {this.state.isLoaded &&
                 <TableContainer>
-                    <Table aria-label="simple table">
+                    <Table stickyHeader aria-label="sticky table">
                         <TableHead>
                             <TableRow>
                                 <TableCell align="center" padding="none" component="td">
-                                    <Typography>
-                                      Студент
-                                    </Typography>
                                 </TableCell>
                                 {this.props.homeworks.map((homework, index) => (
                                     <TableCell
@@ -59,7 +56,7 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
                                         align="center"
                                         colSpan={homework.tasks!.length}
                                     >
-                                        {index + 1}
+                                        {homework.title}
                                     </TableCell>
                                 ))}
                             </TableRow>

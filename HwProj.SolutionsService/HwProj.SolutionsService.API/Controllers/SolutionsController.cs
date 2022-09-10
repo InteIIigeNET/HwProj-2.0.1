@@ -1,17 +1,16 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
-using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
-using HwProj.Models.AuthService.DTO;
 using HwProj.Models.SolutionsService;
 using HwProj.Models.StatisticsService;
 using HwProj.SolutionsService.API.Domains;
 using HwProj.SolutionsService.API.Models;
+using HwProj.SolutionsService.API.Repositories;
 using HwProj.SolutionsService.API.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.SolutionsService.API.Controllers
 {
@@ -19,17 +18,20 @@ namespace HwProj.SolutionsService.API.Controllers
     [ApiController]
     public class SolutionsController : Controller
     {
-        private readonly IAuthServiceClient _authClient;
         private readonly ISolutionsService _solutionsService;
+        private readonly ISolutionsRepository _solutionsRepository;
         private readonly IMapper _mapper;
         private readonly ICoursesServiceClient _coursesClient;
 
-        public SolutionsController(ISolutionsService solutionsService, IMapper mapper,
-            ICoursesServiceClient coursesClient, IAuthServiceClient authClient)
+        public SolutionsController(
+            ISolutionsService solutionsService,
+            ISolutionsRepository solutionsRepository,
+            IMapper mapper,
+            ICoursesServiceClient coursesClient)
         {
             _solutionsService = solutionsService;
+            _solutionsRepository = solutionsRepository;
             _coursesClient = coursesClient;
-            _authClient = authClient;
             _mapper = mapper;
         }
 
@@ -121,42 +123,30 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpGet("getCourseStat/{courseId}")]
-        [ProducesResponseType(typeof(StatisticsCourseMatesModel[]), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(StatisticsCourseMatesDto[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetCourseStat(long courseId, [FromQuery] string userId)
         {
             var course = await _coursesClient.GetCourseById(courseId, userId);
             if (course == null) return NotFound();
 
-            var courseMates = course.CourseMates.Where(cm => cm.IsAccepted).ToArray();
+            var taskIds = course.Homeworks
+                .SelectMany(t => t.Tasks)
+                .Select(t => t.Id)
+                .ToArray();
 
-            var solutions = (await _solutionsService.GetAllSolutionsAsync())
-                .Where(s => course.Homeworks
-                    .Any(hw => hw.Tasks
-                        .Any(t => t.Id == s.TaskId)))
-                .ToList();
-
-            var courseMatesData = new Dictionary<string, AccountDataDto>();
-
-            //course.CourseMates.ForEach(async cm => courseMatesData.Add(cm.StudentId, await _authClient.GetAccountData(cm.StudentId)));
-
-            foreach (var cm in courseMates)
-            {
-                courseMatesData.Add(cm.StudentId, await _authClient.GetAccountData(cm.StudentId));
-            }
+            var solutions = await _solutionsRepository.FindAll(t => taskIds.Contains(t.Id)).ToListAsync();
+            var courseMates = course.MentorIds.Contains(userId)
+                ? course.CourseMates.Where(t => t.IsAccepted)
+                : course.CourseMates.Where(t => t.StudentId == userId);
 
             var solutionsStatsContext = new StatisticsAggregateModel
             {
-                Course = course,
-                Solutions = solutions,
-                CourseMatesData = courseMatesData
+                CourseMates = courseMates,
+                Homeworks = course.Homeworks,
+                Solutions = solutions
             };
 
             var result = SolutionsStatsDomain.GetCourseStatistics(solutionsStatsContext).ToArray();
-
-            if (!course.MentorIds.Contains(userId))
-            {
-                return Ok(new[] { result.First(cm => cm.Id == userId) });
-            }
 
             return Ok(result);
         }

@@ -131,14 +131,14 @@ namespace HwProj.SolutionsService.Client
             return await response.DeserializeAsync<Solution[]>();
         }
 
-        public async Task<StatisticsCourseMatesModel[]> GetCourseStatistics(long courseId, string userId)
+        public async Task<StatisticsCourseMatesDto[]> GetCourseStatistics(long courseId, string userId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
                 _solutionServiceUri + $"api/Solutions/getCourseStat/{courseId}?userId={userId}");
 
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<StatisticsCourseMatesModel[]>();
+            return await response.DeserializeAsync<StatisticsCourseMatesDto[]>();
         }
 
         public async Task<bool> Ping()

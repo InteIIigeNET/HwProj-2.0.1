@@ -15,7 +15,7 @@ namespace HwProj.SolutionsService.Client
         Task DeleteSolution(long solutionId);
         Task<long> PostGroupSolution(SolutionViewModel model, long taskId, long groupId);
         Task<Solution[]> GetTaskSolutions(long groupId, long taskId);
-        Task<StatisticsCourseMatesModel[]> GetCourseStatistics(long courseId, string userId);
+        Task<StatisticsCourseMatesDto[]> GetCourseStatistics(long courseId, string userId);
         Task<bool> Ping();
     }
 }
