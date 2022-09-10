@@ -78,7 +78,7 @@ const EditTask: FC<RouteComponentProps<IEditTaskProps>> = (props) => {
             description: task.description!,
             maxRating: task.maxRating!,
             courseId: homework.courseId!,
-            courseMentorId: course.mentors!.map(x => x.userId)!,
+            courseMentorIds: course.mentors!.map(x => x.userId!),
             hasDeadline: task.hasDeadline!,
             deadlineDate: task.deadlineDate!,
             isDeadlineStrict: task.isDeadlineStrict!,

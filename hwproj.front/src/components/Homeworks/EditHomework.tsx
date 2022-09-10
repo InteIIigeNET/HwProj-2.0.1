@@ -62,7 +62,7 @@ const EditHomework: FC<RouteComponentProps<IEditHomeworkProps>> = (props) => {
             title: homework.title!,
             description: homework.description!,
             courseId: homework.courseId!,
-            courseMentorId: course.mentors!.map(x => x.userId)!,
+            courseMentorIds: course.mentors!.map(x => x.userId!),
         }))
     }
 

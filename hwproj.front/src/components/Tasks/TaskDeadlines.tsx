@@ -1,9 +1,8 @@
 import {TaskDeadlineDto} from "../../api";
 import * as React from "react";
 import {BrowserRouter as Router, Link as RouterLink} from "react-router-dom";
-import {Divider, ListItem, Typography} from "@material-ui/core";
+import {Divider, Grid, ListItem, Typography} from "@material-ui/core";
 import {LinearProgress} from "@mui/material";
-import ApiSingleton from "../../api/ApiSingleton";
 import Utils from "../../services/Utils";
 
 interface ITaskDeadlinesProps {
@@ -26,7 +25,7 @@ export class TaskDeadlines extends React.Component<ITaskDeadlinesProps, {}> {
             <div className="container">
                 <Router>
                     {taskDeadlines.map((taskDeadline, i) => (
-                        <div>
+                        <Grid item>
                             <ListItem
                                 key={taskDeadline.taskId}
                                 onClick={() => window.location.assign(`/task/${taskDeadline.taskId}`)}
@@ -50,7 +49,7 @@ export class TaskDeadlines extends React.Component<ITaskDeadlinesProps, {}> {
                             {new Date(taskDeadline.deadlineDate!).toLocaleDateString("ru-RU")}
                             {i < taskDeadlines.length - 1 ?
                                 <Divider style={{marginTop: 10, marginBottom: 10}}/> : null}
-                        </div>
+                        </Grid>
                     ))}
                 </Router>
             </div>
