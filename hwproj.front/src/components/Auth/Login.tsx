@@ -178,31 +178,17 @@ const Login: FC<LoginProps> = (props) => {
                         </Button>
                     </Grid>
                 </Grid>
-                <div className={classes.login}>
-                    <GoogleLogin
-                        clientId={clientId}
-                        onSuccess={googleResponse}
-                        render={renderProps => (
-                            <GoogleLoginButton
-                                style={{height: '36px', margin: 0, width: '100%'}}
-                                onClick={renderProps.onClick}
-                            >
-                                <Typography>
-                                    Войти с помощью Google
-                                </Typography>
-                            </GoogleLoginButton>
-                        )}
-                    />
-                    {/*<GithubLoginButton*/}
-                    {/*    style={{ height: '36px', marginTop: '15px' }}*/}
-                    {/*    onClick={() => {}}*/}
-                    {/*>*/}
-                    {/*  <Typography>*/}
-                    {/*    GitHub*/}
-                    {/*  </Typography>*/}
-                    {/*</GithubLoginButton>*/}
-                </div>
             </form>
+            <Grid className={classes.button}>
+                <Button
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    onClick={() => window.location.assign("/register")}
+                >
+                    Зарегистрироваться
+                </Button>
+            </Grid>
         </Container>
     )
 }
