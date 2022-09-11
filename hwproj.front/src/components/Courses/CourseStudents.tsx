@@ -5,8 +5,6 @@ import {Paper, createStyles, Theme} from "@material-ui/core";
 import TaskStudentCell from "../Tasks/TaskStudentCell";
 import ApiSingleton from "../../api/ApiSingleton";
 import {withStyles} from '@material-ui/styles';
-import {RouteComponentProps} from "react-router-dom";
-import Typography from "@material-ui/core/Typography";
 
 
 interface ICourseStudentsProps {
@@ -20,15 +18,6 @@ interface ICourseStudentsState {
     stat: StatisticsCourseMatesModel[];
     isLoaded: boolean;
 }
-
-const styles = (theme: Theme) =>
-    createStyles({
-        paper: {
-            //width: "100%",
-            // marginTop: theme.spacing.unit * 3,
-            overflowX: "auto",
-        },
-    });
 
 class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStudentsState> {
     constructor(props: ICourseStudentsProps) {
@@ -73,7 +62,7 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
                             </TableHead>
                             <TableBody>
                                 {this.state.stat.map((cm, index) => (
-                                    <TableRow key={index}>
+                                    <TableRow key={index} hover role="checkbox" style={{height: 35}}>
                                         <TableCell
                                             align="center"
                                             padding="none"
@@ -111,4 +100,4 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
     }
 }
 
-export default withStyles(styles)(CourseStudents);
+export default CourseStudents;
