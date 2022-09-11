@@ -9,6 +9,7 @@ import {CourseViewModel, HomeworkTaskViewModel} from "../../api/";
 import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useEffect, useState} from "react";
 import {Grid, Link} from "@material-ui/core";
+import {Divider} from "@mui/material";
 
 interface ITaskSolutionsProps {
     taskId: string;
@@ -102,7 +103,8 @@ const TaskSolutionsPage: FC<RouteComponentProps<ITaskSolutionsProps>> = (props) 
                                 </Grid>
                             )}
                             {(!taskSolution.addSolution && taskSolution.task.canSendSolution) && (
-                                <Grid item xs={12} style={{marginTop: "16px"}}>
+                                <Grid item xs={12} style={{marginTop: "10px"}}>
+                                    <Divider style={{marginBottom: 15}}/>
                                     <Button
                                         size="small"
                                         variant="contained"
@@ -129,7 +131,8 @@ const TaskSolutionsPage: FC<RouteComponentProps<ITaskSolutionsProps>> = (props) 
                                             maxRating={taskSolution.task!.maxRating!}
                                         />
                                     </div>
-                                    <div style={{marginTop: "16px"}}>
+                                    <div style={{marginTop: "10px"}}>
+                                        <Divider style={{marginBottom: 15}}/>
                                         <AddSolution
                                             taskId={+props.match.params.taskId}
                                             onAdd={getTask}

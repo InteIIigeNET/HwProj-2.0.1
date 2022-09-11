@@ -22,7 +22,9 @@ namespace HwProj.SolutionsService.API.Services
         private readonly IMapper _mapper;
         private readonly ICoursesServiceClient _coursesServiceClient;
         private readonly IAuthServiceClient _authServiceClient;
-        public SolutionsService(ISolutionsRepository solutionsRepository, IEventBus eventBus, IMapper mapper, ICoursesServiceClient coursesServiceClient, IAuthServiceClient authServiceClient)
+
+        public SolutionsService(ISolutionsRepository solutionsRepository, IEventBus eventBus, IMapper mapper,
+            ICoursesServiceClient coursesServiceClient, IAuthServiceClient authServiceClient)
         {
             _solutionsRepository = solutionsRepository;
             _eventBus = eventBus;
@@ -45,14 +47,15 @@ namespace HwProj.SolutionsService.API.Services
         {
             return await _solutionsRepository
                 .FindAll(solution => solution.TaskId == taskId && solution.StudentId == studentId)
+                .OrderBy(t => t.PublicationDate)
                 .ToArrayAsync();
         }
-        
-        
+
+
         public async Task<long> PostOrUpdateAsync(long taskId, Solution solution)
         {
             solution.PublicationDate = DateTime.UtcNow;
-            var allSolutionsForTask= await GetTaskSolutionsFromStudentAsync(taskId, solution.StudentId);
+            var allSolutionsForTask = await GetTaskSolutionsFromStudentAsync(taskId, solution.StudentId);
             var currentSolution = allSolutionsForTask.FirstOrDefault(s => s.Id == solution.Id);
             var solutionModel = _mapper.Map<SolutionViewModel>(solution);
             var task = await _coursesServiceClient.GetTask(solution.TaskId);
@@ -69,7 +72,7 @@ namespace HwProj.SolutionsService.API.Services
                 var id = await _solutionsRepository.AddAsync(solution);
                 return id;
             }
-    
+
             await _solutionsRepository.UpdateAsync(currentSolution.Id, s => new Solution()
                 {
                     State = SolutionState.Rated,

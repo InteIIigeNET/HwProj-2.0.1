@@ -7,6 +7,8 @@ import TaskSolutions from "./TaskSolutions";
 import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useEffect, useState} from "react";
 import {Grid, Link} from "@material-ui/core";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import {Accordion, AccordionSummary} from "@mui/material";
 
 interface IStudentSolutionsPageProps {
     taskId: string;
@@ -52,8 +54,7 @@ const StudentSolutionsPage: FC<RouteComponentProps<IStudentSolutionsPageProps>> 
         if (
             !ApiSingleton.authService.isLoggedIn() ||
             !studentSolutions.course.mentors!.map(x => x.userId).includes(userId!)
-        )
-        {
+        ) {
             return (
                 <Typography variant="h6">
                     Страница не найдена
@@ -61,9 +62,9 @@ const StudentSolutionsPage: FC<RouteComponentProps<IStudentSolutionsPageProps>> 
             )
         }
         return (
-            <div style={{ marginBottom: '50px', marginTop: '15px' }}>
+            <div className={"container"} style={{marginBottom: '50px', marginTop: '15px'}}>
                 <Grid container justify="center" style={{marginTop: '20px'}}>
-                    <Grid container justifyContent="space-between" xs={11} >
+                    <Grid container justifyContent="space-between" xs={11}>
                         <Grid item>
                             <Link
                                 component="button"
@@ -83,19 +84,17 @@ const StudentSolutionsPage: FC<RouteComponentProps<IStudentSolutionsPageProps>> 
                             forMentor={true}
                             isReadingMode={true}
                             onDeleteClick={() => 0}
-                            isExpanded={true}
+                            isExpanded={false}
                             showForCourse={false}
                         />
                     </Grid>
-                    <Grid container xs={11} >
-                        <Grid container xs={6}>
-                            <TaskSolutions
-                                forMentor={true}
-                                taskId={+props.match.params.taskId}
-                                studentId={props.match.params.studentId}
-                                maxRating={studentSolutions.task!.maxRating!}
-                            />
-                        </Grid>
+                    <Grid container xs={11}>
+                        <TaskSolutions
+                            forMentor={true}
+                            taskId={+props.match.params.taskId}
+                            studentId={props.match.params.studentId}
+                            maxRating={studentSolutions.task!.maxRating!}
+                        />
                     </Grid>
                 </Grid>
             </div>

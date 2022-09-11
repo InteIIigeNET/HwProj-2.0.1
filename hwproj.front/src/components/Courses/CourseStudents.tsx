@@ -62,7 +62,7 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
                             </TableHead>
                             <TableBody>
                                 {this.state.stat.map((cm, index) => (
-                                    <TableRow key={index} hover role="checkbox" style={{height: 35}}>
+                                    <TableRow key={index} hover style={{height: 35}}>
                                         <TableCell
                                             align="center"
                                             padding="none"

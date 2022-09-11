@@ -1,13 +1,10 @@
 import * as React from 'react';
-import SolutionComponent from './Solution'
-import NonRatedSolutionComponent from "./NonRatedSolutions";
-import RatedSolutionComponent from "./RatedSolutions"
-import Typography from '@material-ui/core/Typography'
+import TaskSolutionComponent from "./TaskSolutionComponent";
 import ApiSingleton from "../../api/ApiSingleton";
 import {Solution} from '../../api';
-import {ListItem, Grid, Accordion, AccordionDetails, AccordionSummary} from "@material-ui/core";
-import List from "@material-ui/core/List";
+import {ListItem, Grid, Tabs, Tab} from "@material-ui/core";
 import {FC, useEffect, useState} from "react";
+import {Divider} from "@mui/material";
 
 interface ITaskSolutionsProps {
     taskId: number,
@@ -18,14 +15,16 @@ interface ITaskSolutionsProps {
 
 interface ITaskSolutionsState {
     isLoaded: boolean,
+    tabValue: number
     solutions: Solution[],
 }
 
 const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
 
-    const [taskSolutions, setTaskSolutions] = useState<ITaskSolutionsState>({
+    const [state, setState] = useState<ITaskSolutionsState>({
         isLoaded: false,
-        solutions:[],
+        tabValue: 0,
+        solutions: [],
     })
 
     useEffect(() => {
@@ -37,86 +36,56 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
             props.taskId,
             props.studentId
         )
-        setTaskSolutions({
+        setState(prevState => ({
             isLoaded: true,
-            solutions: solutions
-        })
+            solutions: solutions,
+            tabValue: prevState.tabValue
+        }))
     }
 
-    const {isLoaded, solutions} = taskSolutions
-    const arrayOfNonRatedSolutions = solutions.filter(solution => solution.state!.toString() === 'Posted')
-    const arrayOfRatedSolutions = solutions.filter(solution => solution.state!.toString() !== 'Posted')
-    const componentsOfNonRatedSolutions = arrayOfNonRatedSolutions.map((sol) => (
-            <Grid item style={{ marginTop: '16px' }}>
-                <NonRatedSolutionComponent
+    const {isLoaded, solutions, tabValue} = state
+    const lastSolution = solutions[solutions.length - 1]
+    const arrayOfRatedSolutions = solutions.slice(0, solutions.length - 1)
+
+    if (!isLoaded) return <div></div>
+    return <Grid container alignItems="stretch" direction="column">
+        <Tabs
+            value={tabValue}
+            style={{marginTop: 15}}
+            indicatorColor="primary"
+            onChange={(event, value) => {
+                setState(prevState => ({
+                    ...prevState,
+                    tabValue: value
+                }));
+            }}
+        >
+            <Tab label="Последнее решение"/>
+            {arrayOfRatedSolutions.length > 0 && <Tab label="Предыдущие попытки"/>}
+        </Tabs>
+        {tabValue === 0 && <Grid item style={{marginTop: '16px'}}>
+            {lastSolution
+                ? <TaskSolutionComponent
                     forMentor={props.forMentor}
-                    solution={sol}
+                    solution={lastSolution!}
                     isExpanded={true}
                     maxRating={props.maxRating}
                 />
-            </Grid>
-        )
-    ).reverse()
-
-    const componentsOfRatedSolutions = arrayOfRatedSolutions.map((sol) => (
-            <Grid item style={{ marginTop: '16px' }}>
-                <RatedSolutionComponent forMentor={props.forMentor} solution={sol}/>
-            </Grid>
-        )
-    ).reverse()
-
-    if (isLoaded) {
-        return (
-            <Grid container alignItems="stretch" direction="column">
-                {arrayOfNonRatedSolutions.length > 0 &&
-                <Grid item>
-                    <Accordion>
-                        <AccordionSummary
-                            aria-controls="panel1a-content"
-                            id="panel1a-header"
-                            style={{backgroundColor: "#c6cceb"}}
-                        >
-                            <Typography>
-                                Непроверенные решения
-                            </Typography>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                            <Grid container direction="column" alignItems="stretch">
-                                {componentsOfNonRatedSolutions}
-                            </Grid>
-                        </AccordionDetails>
-                    </Accordion>
-                </Grid>
-                }
-                {arrayOfRatedSolutions.length > 0 &&
-                <Grid item style={{ marginTop: '16px' }}>
-                    <Accordion>
-                        <AccordionSummary
-                            aria-controls="panel1a-content"
-                            id="panel1a-header"
-                            style={{backgroundColor: "#c6cceb"}}
-                        >
-                            <Typography>
-                                Проверенные решения
-                            </Typography>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                            <Grid container direction="column" alignItems="stretch">
-                                {componentsOfRatedSolutions}
-                            </Grid>
-                        </AccordionDetails>
-                    </Accordion>
-                </Grid>
-                }
-            </Grid>
-        )
-    }
-
-    return (
-        <div>
-
-        </div>
-    )
+                : "Студент не отправил ни одного решения."}
+        </Grid>}
+        {tabValue === 1 &&
+            arrayOfRatedSolutions.map((x, i) =>
+                <Grid item style={{marginTop: '16px'}}>
+                    <TaskSolutionComponent
+                        forMentor={false}
+                        solution={x}
+                        isExpanded={true}
+                        maxRating={props.maxRating}
+                    />
+                    {i < arrayOfRatedSolutions.length - 1 ?
+                        <Divider style={{marginTop: 10, marginBottom: 4}}/> : null}
+                </Grid>)}
+    </Grid>
 }
 
 export default TaskSolutions
