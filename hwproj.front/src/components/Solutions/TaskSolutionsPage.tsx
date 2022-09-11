@@ -65,7 +65,7 @@ const TaskSolutionsPage: FC<RouteComponentProps<ITaskSolutionsProps>> = (props) 
             (taskSolution.course.acceptedStudents!.some((cm) => cm.userId == userId)
                 || taskSolution.course.mentors!.map(x => x.userId)!.includes(userId!))) {
             return (
-                <div style={{marginBottom: '50px'}}>
+                <div className={"container"} style={{marginBottom: '50px'}}>
                     <Grid container justify="center" style={{marginTop: '20px'}}>
                         <Grid container justifyContent="space-between" xs={11}>
                             <Grid item>
