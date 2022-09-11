@@ -56,6 +56,12 @@ namespace HwProj.SolutionsService.API.Controllers
             return await _solutionsService.GetTaskSolutionsFromStudentAsync(taskId, studentId);
         }
 
+        [HttpPost("taskSolutions/{studentId}")]
+        public async Task<Solution?[]> GetLastTaskSolutions([FromBody] long[] taskIds, string studentId)
+        {
+            return await _solutionsService.GetLastTaskSolutions(taskIds, studentId);
+        }
+
         [HttpPost("{taskId}")]
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> PostSolution(long taskId, [FromBody] SolutionViewModel solutionViewModel)

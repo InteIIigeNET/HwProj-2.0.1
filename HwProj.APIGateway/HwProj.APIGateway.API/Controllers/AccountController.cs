@@ -1,13 +1,16 @@
+using System;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using HwProj.APIGateway.API.Models;
+using HwProj.APIGateway.API.Models.Tasks;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
-using HwProj.Models.NotificationsService;
 using HwProj.Models.Result;
 using HwProj.Models.Roles;
+using HwProj.SolutionsService.Client;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,12 +21,15 @@ namespace HwProj.APIGateway.API.Controllers
     public class AccountController : AggregationController
     {
         private readonly ICoursesServiceClient _coursesClient;
+        private readonly ISolutionsServiceClient _solutionsServiceClient;
 
         public AccountController(
             IAuthServiceClient authClient,
-            ICoursesServiceClient coursesClient) : base(authClient)
+            ICoursesServiceClient coursesClient,
+            ISolutionsServiceClient solutionsServiceClient) : base(authClient)
         {
             _coursesClient = coursesClient;
+            _solutionsServiceClient = solutionsServiceClient;
         }
 
         [HttpGet("getUserData/{userId}")]
@@ -36,6 +42,7 @@ namespace HwProj.APIGateway.API.Controllers
                 : Ok(result);
         }
 
+        //TODO: separate for mentor and student
         [HttpGet("getUserData")]
         [Authorize]
         [ProducesResponseType(typeof(UserDataDto), (int)HttpStatusCode.OK)]
@@ -43,15 +50,37 @@ namespace HwProj.APIGateway.API.Controllers
         {
             var getAccountDataTask = AuthServiceClient.GetAccountData(UserId);
             var getCoursesTask = _coursesClient.GetAllUserCourses();
-            var getTaskDeadlines = _coursesClient.GetTaskDeadlines();
 
-            await Task.WhenAll(getAccountDataTask, getCoursesTask, getTaskDeadlines);
+            await Task.WhenAll(getAccountDataTask, getCoursesTask);
+
+            var courses = GetCoursePreviews(getCoursesTask.Result);
+
+            if (User.IsInRole(Roles.LecturerRole))
+            {
+                return Ok(new UserDataDto
+                {
+                    UserData = getAccountDataTask.Result,
+                    Courses = await courses,
+                    TaskDeadlines = Array.Empty<TaskDeadlineView>()
+                });
+            }
+
+            var taskDeadlines = await _coursesClient.GetTaskDeadlines();
+            var taskIds = taskDeadlines.Select(t => t.TaskId).ToArray();
+            var solutions = await _solutionsServiceClient.GetLastTaskSolutions(taskIds, UserId);
+            var taskDeadlinesInfo = taskDeadlines.Select((d, i) => new TaskDeadlineView
+            {
+                Deadline = d,
+                SolutionState = solutions[i]?.State,
+                Rating = solutions[i]?.Rating,
+                MaxRating = taskDeadlines[i].MaxRating
+            }).ToArray();
 
             var aggregatedResult = new UserDataDto
             {
                 UserData = getAccountDataTask.Result,
-                Courses = await GetCoursePreviews(getCoursesTask.Result),
-                TaskDeadlines = getTaskDeadlines.Result
+                Courses = await courses,
+                TaskDeadlines = taskDeadlinesInfo
             };
             return Ok(aggregatedResult);
         }

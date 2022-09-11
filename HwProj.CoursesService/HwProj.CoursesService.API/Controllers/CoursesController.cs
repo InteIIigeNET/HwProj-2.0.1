@@ -170,6 +170,7 @@ namespace HwProj.CoursesService.API.Controllers
                         TaskTitle = task.Title,
                         CourseTitle = course.Name + " / " + course.GroupName,
                         PublicationDate = task.PublicationDate,
+                        MaxRating = task.MaxRating,
                         DeadlineDate = task.DeadlineDate!.Value
                     }))
                 .OrderBy(t => t.DeadlineDate)

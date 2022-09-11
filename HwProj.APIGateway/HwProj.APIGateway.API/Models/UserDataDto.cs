@@ -1,5 +1,5 @@
+using HwProj.APIGateway.API.Models.Tasks;
 using HwProj.Models.AuthService.DTO;
-using HwProj.Models.CoursesService.DTO;
 
 namespace HwProj.APIGateway.API.Models
 {
@@ -7,6 +7,6 @@ namespace HwProj.APIGateway.API.Models
     {
         public AccountDataDto UserData { get; set; }
         public CoursePreviewView[] Courses { get; set; }
-        public TaskDeadlineDto[] TaskDeadlines { get; set; }
+        public TaskDeadlineView[] TaskDeadlines { get; set; }
     }
 }

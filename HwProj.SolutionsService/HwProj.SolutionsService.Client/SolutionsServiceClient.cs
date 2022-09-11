@@ -141,6 +141,22 @@ namespace HwProj.SolutionsService.Client
             return await response.DeserializeAsync<StatisticsCourseMatesDto[]>();
         }
 
+        public async Task<Solution?[]> GetLastTaskSolutions(long[] taskIds, string userId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _solutionServiceUri + $"api/Solutions/taskSolutions/{userId}")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(taskIds),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<Solution?[]>();
+        }
+
         public async Task<SolutionPreviewDto[]> GetAllUnratedSolutionsForTasks(long[] taskIds)
         {
             using var httpRequest = new HttpRequestMessage(

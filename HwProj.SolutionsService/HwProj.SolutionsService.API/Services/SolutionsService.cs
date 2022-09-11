@@ -51,6 +51,16 @@ namespace HwProj.SolutionsService.API.Services
                 .ToArrayAsync();
         }
 
+        public async Task<Solution?[]> GetLastTaskSolutions(long[] taskIds, string studentId)
+        {
+            var solutions = await _solutionsRepository
+                .FindAll(s => s.StudentId == studentId && taskIds.Contains(s.TaskId))
+                .GroupBy(t => t.TaskId)
+                .Select(t => t.OrderByDescending(s => s.PublicationDate).FirstOrDefault())
+                .ToArrayAsync();
+
+            return taskIds.Select(t => solutions.FirstOrDefault(s => s?.TaskId == t)).ToArray();
+        }
 
         public async Task<long> PostOrUpdateAsync(long taskId, Solution solution)
         {

@@ -1180,6 +1180,12 @@ export interface TaskDeadlineDto {
     courseTitle?: string;
     /**
      *
+     * @type {number}
+     * @memberof TaskDeadlineDto
+     */
+    maxRating?: number;
+    /**
+     *
      * @type {Date}
      * @memberof TaskDeadlineDto
      */
@@ -1190,6 +1196,54 @@ export interface TaskDeadlineDto {
      * @memberof TaskDeadlineDto
      */
     deadlineDate?: Date;
+}
+
+/**
+ *
+ * @export
+ * @interface TaskDeadlineView
+ */
+export interface TaskDeadlineView {
+    /**
+     *
+     * @type {TaskDeadlineDto}
+     * @memberof TaskDeadlineView
+     */
+    deadline?: TaskDeadlineDto;
+    /**
+     *
+     * @type {number}
+     * @memberof TaskDeadlineView
+     */
+    solutionState?: TaskDeadlineView.SolutionStateEnum;
+    /**
+     *
+     * @type {number}
+     * @memberof TaskDeadlineView
+     */
+    rating?: number;
+    /**
+     *
+     * @type {number}
+     * @memberof TaskDeadlineView
+     */
+    maxRating?: number;
+}
+
+/**
+ * @export
+ * @namespace TaskDeadlineView
+ */
+export namespace TaskDeadlineView {
+    /**
+     * @export
+     * @enum {string}
+     */
+    export enum SolutionStateEnum {
+        NUMBER_0 = <any> 0,
+        NUMBER_1 = <any> 1,
+        NUMBER_2 = <any> 2
+    }
 }
 
 /**
@@ -1304,10 +1358,10 @@ export interface UserDataDto {
     courses?: Array<CoursePreviewView>;
     /**
      *
-     * @type {Array<TaskDeadlineDto>}
+     * @type {Array<TaskDeadlineView>}
      * @memberof UserDataDto
      */
-    taskDeadlines?: Array<TaskDeadlineDto>;
+    taskDeadlines?: Array<TaskDeadlineView>;
 }
 
 
