@@ -974,6 +974,12 @@ export interface SolutionPreviewView {
      * @memberof SolutionPreviewView
      */
     publicationDate?: Date;
+    /**
+     *
+     * @type {boolean}
+     * @memberof SolutionPreviewView
+     */
+    isFirstTry?: boolean;
 }
 
 /**

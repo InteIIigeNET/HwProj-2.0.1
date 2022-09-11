@@ -9,5 +9,6 @@ namespace HwProj.Models.SolutionsService
         public long TaskId { get; set; }
 
         public DateTime PublicationDate { get; set; }
+        public bool IsFirstTry { get; set; }
     }
 }

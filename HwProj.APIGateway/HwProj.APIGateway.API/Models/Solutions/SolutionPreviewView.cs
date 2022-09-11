@@ -13,6 +13,7 @@ namespace HwProj.APIGateway.API.Models.Solutions
         public string TaskTitle { get; set; }
         public long TaskId { get; set; }
         public DateTime PublicationDate { get; set; }
+        public bool IsFirstTry { get; set; }
     }
 
     public class UnratedSolutionPreviews

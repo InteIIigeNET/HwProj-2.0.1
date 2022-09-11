@@ -1,7 +1,7 @@
 import {AccountDataDto, SolutionPreviewView, UnratedSolutionPreviews} from "../../api";
 import * as React from "react";
 import {BrowserRouter as Router, Link as RouterLink} from "react-router-dom";
-import {FormControl, InputLabel, Select, Divider, Grid, ListItem, MenuItem, Typography} from "@mui/material";
+import {FormControl, InputLabel, Select, Divider, Grid, ListItem, MenuItem, Typography, Badge} from "@mui/material";
 import {FC, useState} from "react";
 import Utils from "../../services/Utils";
 
@@ -85,6 +85,9 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
                                         {solution.student!.surname} {solution.student!.name} {" • "} {solution.taskTitle}
                                     </Typography>
                                 </RouterLink>
+                                {!solution.isFirstTry &&
+                                    <Badge color="secondary" badgeContent="Повторно" variant="standard"
+                                           style={{marginLeft: 35}}><div style={{width: 5}}></div></Badge>}
                             </ListItem>
                             <Typography style={{fontSize: "18px", color: "GrayText"}}>
                                 {solution.courseTitle + " • " + solution.homeworkTitle}

@@ -167,7 +167,13 @@ namespace HwProj.SolutionsService.API.Controllers
             solutions = solutions.GroupBy(t => t.TaskId)
                 .Select(taskGroups => taskGroups
                     .GroupBy(studentGroups => studentGroups.StudentId)
-                    .Select(s => s.OrderByDescending(x => x.PublicationDate).First()))
+                    .Select(s =>
+                    {
+                        var solutions = s.OrderByDescending(x => x.PublicationDate);
+                        var lastSolution = solutions.First();
+                        lastSolution.IsFirstTry = !solutions.Skip(1).Any();
+                        return lastSolution;
+                    }))
                 .SelectMany(t => t)
                 .OrderBy(t => t.PublicationDate)
                 .ToArray();

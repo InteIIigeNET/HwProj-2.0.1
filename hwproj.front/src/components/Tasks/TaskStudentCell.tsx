@@ -8,7 +8,7 @@ interface ITaskStudentCellProps {
     taskId: number;
     forMentor: boolean;
     userId: string;
-    solutions?: StatisticsCourseSolutionsModel;
+    solutions?: StatisticsCourseSolutionsModel[];
 }
 
 interface ITaskStudentCellState {
@@ -84,9 +84,9 @@ export default class TaskStudentCell extends React.Component<ITaskStudentCellPro
         this.setState({redirectForStudent: true});
     }
 
-    getCellBackgroundColor = (state: Solution.StateEnum | undefined): string => {
+    getCellBackgroundColor = (state: Solution.StateEnum | undefined, isFirstTry: boolean): string => {
         if (state == Solution.StateEnum.NUMBER_0)
-            return "#d0fcc7"
+            return isFirstTry ? "#d0fcc7" : "#ffeb99"
         if (state == Solution.StateEnum.NUMBER_1)
             return "#ffc346"
         if (state == Solution.StateEnum.NUMBER_2)
@@ -95,8 +95,9 @@ export default class TaskStudentCell extends React.Component<ITaskStudentCellPro
     }
 
     async componentDidMount() {
-        const solution = this.props.solutions
-        if (solution === undefined) {
+        const solutions = this.props.solutions
+        const lastSolution = solutions!.slice(-1)[0]
+        if (lastSolution === undefined) {
             this.setState({
                 color: "",
                 isLoaded: true,
@@ -105,9 +106,9 @@ export default class TaskStudentCell extends React.Component<ITaskStudentCellPro
             return
         }
         this.setState({
-            color: this.getCellBackgroundColor(solution.state),
+            color: this.getCellBackgroundColor(lastSolution.state, solutions!.length > 1),
             isLoaded: true,
-            solution: solution
+            solution: lastSolution
         })
     }
 }
