@@ -87,7 +87,9 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
                                 </RouterLink>
                                 {!solution.isFirstTry &&
                                     <Badge color="secondary" badgeContent="Повторно" variant="standard"
-                                           style={{marginLeft: 35}}><div style={{width: 5}}></div></Badge>}
+                                           style={{marginLeft: 35}}>
+                                        <div style={{width: 5}}></div>
+                                    </Badge>}
                             </ListItem>
                             <Typography style={{fontSize: "18px", color: "GrayText"}}>
                                 {solution.courseTitle + " • " + solution.homeworkTitle}

@@ -106,7 +106,7 @@ export default class TaskStudentCell extends React.Component<ITaskStudentCellPro
             return
         }
         this.setState({
-            color: this.getCellBackgroundColor(lastSolution.state, solutions!.length > 1),
+            color: this.getCellBackgroundColor(lastSolution.state, solutions!.length === 1),
             isLoaded: true,
             solution: lastSolution
         })
