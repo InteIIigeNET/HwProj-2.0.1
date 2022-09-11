@@ -145,7 +145,7 @@ namespace HwProj.APIGateway.API.Controllers
                         HomeworkTitle = homeworkTitle,
                         TaskTitle = task.Title,
                         TaskId = task.Id,
-                        PublicationDate = task.PublicationDate,
+                        PublicationDate = solution.PublicationDate,
                         IsFirstTry = solution.IsFirstTry
                     };
                 })
