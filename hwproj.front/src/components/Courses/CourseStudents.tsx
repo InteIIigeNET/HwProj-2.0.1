@@ -1,11 +1,8 @@
 import React from "react";
 import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api/";
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
-import {Paper, createStyles, Theme} from "@material-ui/core";
 import TaskStudentCell from "../Tasks/TaskStudentCell";
 import ApiSingleton from "../../api/ApiSingleton";
-import {withStyles} from '@material-ui/styles';
-
 
 interface ICourseStudentsProps {
     course: CourseViewModel;
@@ -71,7 +68,7 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
                                         >
                                             {cm.surname} {cm.name}
                                         </TableCell>
-                                        {cm.homeworks!.map((homework) =>
+                                        {this.props.homeworks.map((homework) =>
                                             homework.tasks!.map((task) => (
                                                 <TaskStudentCell
                                                     solutions={this.state.stat
