@@ -155,28 +155,26 @@ namespace HwProj.SolutionsService.API.Controllers
         public async Task<SolutionPreviewDto[]> GetAllUnratedSolutionsForTasks([FromBody] long[] taskIds)
         {
             var solutions = await _solutionsRepository
-                .FindAll(t => taskIds.Contains(t.TaskId) && t.State == SolutionState.Posted)
+                .FindAll(t => taskIds.Contains(t.TaskId))
+                .GroupBy(t => new { t.TaskId, t.StudentId })
+                .Select(t => new
+                {
+                    LastPosted = t
+                        .Where(s => s.State == SolutionState.Posted)
+                        .OrderByDescending(x => x.PublicationDate)
+                        .FirstOrDefault(),
+                    IsFirstTry = !t.Skip(1).Any()
+                })
+                .Where(t => t.LastPosted != null)
+                .OrderBy(t => t.LastPosted!.PublicationDate)
                 .Select(t => new SolutionPreviewDto
                 {
-                    StudentId = t.StudentId,
-                    TaskId = t.TaskId,
-                    PublicationDate = t.PublicationDate
+                    StudentId = t.LastPosted!.StudentId,
+                    TaskId = t.LastPosted.TaskId,
+                    PublicationDate = t.LastPosted.PublicationDate,
+                    IsFirstTry = t.IsFirstTry
                 })
                 .ToArrayAsync();
-
-            solutions = solutions.GroupBy(t => t.TaskId)
-                .Select(taskGroups => taskGroups
-                    .GroupBy(studentGroups => studentGroups.StudentId)
-                    .Select(s =>
-                    {
-                        var solutions = s.OrderByDescending(x => x.PublicationDate);
-                        var lastSolution = solutions.First();
-                        lastSolution.IsFirstTry = !solutions.Skip(1).Any();
-                        return lastSolution;
-                    }))
-                .SelectMany(t => t)
-                .OrderBy(t => t.PublicationDate)
-                .ToArray();
 
             return solutions;
         }
