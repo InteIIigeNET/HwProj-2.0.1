@@ -12,6 +12,7 @@ interface ISolutionProps {
     solution: Solution,
     forMentor: boolean,
     isExpanded: boolean,
+    lastRating?: number,
     maxRating: number,
 }
 
@@ -41,7 +42,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         window.location.reload()
     }
 
-    const {solution, maxRating} = props
+    const {solution, maxRating, lastRating} = props
     //TODO: enum instead of string
     const isRated = solution.state!.toString() != "Posted"
     const {points, lecturerComment} = state
@@ -129,7 +130,13 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                         </Typography>
                     </Grid>
                 }
-                {(props.forMentor || isRated) && renderRateInput()}
+                {(props.forMentor || isRated) &&
+                    <Grid item container direction={"column"}>
+                        {renderRateInput()}
+                        {!!lastRating && <Typography style={{color: "GrayText", fontSize: "medium", marginBottom: 5}}>
+                            Оценка за предыдущее решение: {lastRating} ⭐
+                        </Typography>}
+                    </Grid>}
                 {((isRated && lecturerComment) || state.clickedForRate) &&
                     <Grid item style={{marginTop: -15, marginBottom: -15}}>
                         <TextField

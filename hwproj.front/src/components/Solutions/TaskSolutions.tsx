@@ -46,6 +46,9 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
     const {isLoaded, solutions, tabValue} = state
     const lastSolution = solutions[solutions.length - 1]
     const arrayOfRatedSolutions = solutions.slice(0, solutions.length - 1)
+    const lastRating = arrayOfRatedSolutions
+        ? arrayOfRatedSolutions[arrayOfRatedSolutions.length - 1]?.rating
+        : undefined
 
     if (!isLoaded) return <div></div>
     return <Grid container alignItems="stretch" direction="column">
@@ -69,6 +72,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                     forMentor={props.forMentor}
                     solution={lastSolution!}
                     isExpanded={true}
+                    lastRating={lastRating}
                     maxRating={props.maxRating}
                 />
                 : "Студент не отправил ни одного решения."}
@@ -84,7 +88,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                     />
                     {i < arrayOfRatedSolutions.length - 1 ?
                         <Divider style={{marginTop: 10, marginBottom: 4}}/> : null}
-                </Grid>)}
+                </Grid>).reverse()}
     </Grid>
 }
 

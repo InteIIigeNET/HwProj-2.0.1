@@ -122,24 +122,18 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                 <Typography style={{fontSize: '22px'}}>
                                     {`${course.name} / ${course.groupName}`} &nbsp;
                                     {isMentor &&
-                                        <IconButton style={{marginLeft: -5}}>
+                                        <IconButton style={{marginLeft: -5}} onClick={() =>
+                                            setCourseState(prevState => ({
+                                                ...prevState,
+                                                isReadingMode: !isReadingMode
+                                            }))}>
                                             {isReadingMode
                                                 ? <VisibilityIcon
                                                     titleAccess="Режим чтения включен"
-                                                    fontSize={"small"}
-                                                    onClick={() =>
-                                                        setCourseState(prevState => ({
-                                                            ...prevState,
-                                                            isReadingMode: false
-                                                        }))}/>
+                                                    fontSize={"small"}/>
                                                 : <VisibilityOffIcon
                                                     titleAccess="Режим чтения выключен"
                                                     fontSize={"small"}
-                                                    onClick={() =>
-                                                        setCourseState(prevState => ({
-                                                            ...prevState,
-                                                            isReadingMode: true
-                                                        }))}
                                                 />}
                                         </IconButton>
                                     }

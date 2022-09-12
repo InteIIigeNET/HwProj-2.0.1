@@ -77,14 +77,9 @@ const Homework: FC<IHomeworkProps> = (props) => {
                             <Typography>
                                 {homeworkDateString}
                             </Typography>
-                            <div style={{marginLeft: '8px'}}>
-                                {props.forMentor && deferredHomeworks!.length > 0 &&
-                                    <Typography>
-                                        <HourglassEmpty/>
-                                        {deferredHomeworks!.length}
-                                    </Typography>
-                                }
-                            </div>
+                            {props.forMentor && deferredHomeworks!.length > 0 &&
+                                <Chip label={"🕘 " + deferredHomeworks!.length}/>
+                            }
                             <Chip label={props.homework.tasks!.length + " заданий"}/>
                             {props.forMentor && !props.isReadingMode && <div>
                                 <IconButton aria-label="Delete" onClick={openDialogDeleteHomework}>

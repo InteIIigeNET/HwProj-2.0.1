@@ -82,10 +82,7 @@ const Task: FC<ITaskProp> = (props) => {
                             <Typography style={{fontSize: '18px'}}>
                                 {task.title}
                             </Typography>
-                            {props.forMentor && task.isDeferred &&
-                                <Typography>
-                                    <HourglassEmpty fontSize={"small"}/>
-                                </Typography>}
+                            {props.forMentor && task.isDeferred && <Chip label={"🕘 " + publicationDate}/>}
                             {task.hasDeadline && <Chip label={"⌛ " + deadlineDate}/>}
                             {!task.hasDeadline && <Chip label={"без дедлайна"}/>}
                             <Chip label={"⭐ " + task.maxRating}/>
