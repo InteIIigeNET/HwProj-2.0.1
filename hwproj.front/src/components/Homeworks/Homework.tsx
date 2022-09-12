@@ -65,7 +65,7 @@ const Homework: FC<IHomeworkProps> = (props) => {
     const deferredHomeworks = props.homework.tasks!.filter(t => t.isDeferred!);
     return (
         <div style={{width: '100%'}}>
-            <Accordion expanded={props.isExpanded}>
+            <Accordion defaultExpanded={props.isExpanded}>
                 <AccordionSummary
                     expandIcon={<ExpandMoreIcon/>}
                     aria-controls="panel1a-content"
