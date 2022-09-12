@@ -165,19 +165,18 @@ namespace HwProj.SolutionsService.API.Controllers
                 .GroupBy(t => new { t.TaskId, t.StudentId })
                 .Select(t => new
                 {
-                    LastPosted = t
-                        .Where(s => s.State == SolutionState.Posted)
+                    LastSolution = t
                         .OrderByDescending(x => x.PublicationDate)
                         .FirstOrDefault(),
                     IsFirstTry = !t.Skip(1).Any()
                 })
-                .Where(t => t.LastPosted != null)
-                .OrderBy(t => t.LastPosted!.PublicationDate)
+                .Where(t => t.LastSolution != null && t.LastSolution.State == SolutionState.Posted)
+                .OrderBy(t => t.LastSolution!.PublicationDate)
                 .Select(t => new SolutionPreviewDto
                 {
-                    StudentId = t.LastPosted!.StudentId,
-                    TaskId = t.LastPosted.TaskId,
-                    PublicationDate = t.LastPosted.PublicationDate,
+                    StudentId = t.LastSolution!.StudentId,
+                    TaskId = t.LastSolution.TaskId,
+                    PublicationDate = t.LastSolution.PublicationDate,
                     IsFirstTry = t.IsFirstTry
                 })
                 .ToArrayAsync();
