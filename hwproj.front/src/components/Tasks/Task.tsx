@@ -14,6 +14,7 @@ import {makeStyles} from "@material-ui/styles";
 import DeletionConfirmation from "../DeletionConfirmation";
 import HourglassEmpty from "@material-ui/icons/HourglassEmpty";
 import Utils from "../../services/Utils";
+import {Chip, Stack} from "@mui/material";
 
 interface ITaskProp {
     task: HomeworkTaskViewModel,
@@ -77,23 +78,27 @@ const Task: FC<ITaskProp> = (props) => {
                     style={{backgroundColor: task.isDeferred! ? "#d3d5db" : "#eceef8"}}
                 >
                     <div className={classes.tools}>
-                        <Typography style={{fontSize: '18px'}}>
-                            {task.title}
-                        </Typography>
-                        {props.forMentor && task.isDeferred &&
-                            <Typography>
-                                <HourglassEmpty/>
-                            </Typography>}
-                        {props.forMentor && !props.isReadingMode &&
-                            <IconButton aria-label="Delete" onClick={openDialogDeleteTask}>
-                                <DeleteIcon fontSize="small"/>
-                            </IconButton>
-                        }
-                        {props.forMentor && !props.isReadingMode &&
-                            <RouterLink to={'/task/' + task.id!.toString() + '/edit'}>
-                                <EditIcon fontSize="small"/>
-                            </RouterLink>
-                        }
+                        <Stack direction={"row"} spacing={2} alignItems={"center"}>
+                            <Typography style={{fontSize: '18px'}}>
+                                {task.title}
+                            </Typography>
+                            {props.forMentor && task.isDeferred &&
+                                <Typography>
+                                    <HourglassEmpty fontSize={"small"}/>
+                                </Typography>}
+                            {task.hasDeadline && <Chip label={"⌛ " + deadlineDate}/>}
+                            {!task.hasDeadline && <Chip label={"без дедлайна"}/>}
+                            <Chip label={"⭐ " + task.maxRating}/>
+                            {props.forMentor && !props.isReadingMode && <div>
+                                <IconButton aria-label="Delete" onClick={openDialogDeleteTask}>
+                                    <DeleteIcon fontSize="small"/>
+                                </IconButton>
+                                <RouterLink to={'/task/' + task.id!.toString() + '/edit'}>
+                                    <EditIcon fontSize="small"/>
+                                </RouterLink>
+                            </div>
+                            }
+                        </Stack>
                     </div>
                 </AccordionSummary>
                 <AccordionDetails>
@@ -101,30 +106,6 @@ const Task: FC<ITaskProp> = (props) => {
                         <Typography variant="body1">
                             <ReactMarkdown children={task.description!}/>
                         </Typography>
-                        <div className={classes.text}>
-                            <Typography>
-                                Максимальный балл: {task.maxRating}
-                            </Typography>
-                        </div>
-                        <div style={{marginTop: '5px'}}>
-                            <Typography>
-                                Дата публикации: {publicationDate}
-                            </Typography>
-                        </div>
-                        {(task.hasDeadline) &&
-                            <div style={{marginTop: '5px'}}>
-                                <Typography>
-                                    Дедлайн: {deadlineDate}
-                                </Typography>
-                            </div>
-                        }
-                        {!task.hasDeadline &&
-                            <div style={{marginTop: '5px'}}>
-                                <Typography>
-                                    Дедлайн: Отсутствует
-                                </Typography>
-                            </div>
-                        }
                         {props.showForCourse && props.forStudent &&
                             <div style={{marginTop: '15px'}}>
                                 <Button
