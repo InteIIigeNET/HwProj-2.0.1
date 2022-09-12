@@ -123,7 +123,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                     {isMentor &&
                                         <IconButton style={{marginLeft: -5}}>
                                             {isReadingMode
-                                                ? <VisibilityOffIcon
+                                                ? <VisibilityIcon
                                                     titleAccess="Режим чтения включен"
                                                     fontSize={"small"}
                                                     onClick={() =>
@@ -131,7 +131,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                                             ...prevState,
                                                             isReadingMode: false
                                                         }))}/>
-                                                : <VisibilityIcon
+                                                : <VisibilityOffIcon
                                                     titleAccess="Режим чтения выключен"
                                                     fontSize={"small"}
                                                     onClick={() =>
