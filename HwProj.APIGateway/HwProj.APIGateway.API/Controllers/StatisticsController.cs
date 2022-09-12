@@ -36,7 +36,7 @@ namespace HwProj.APIGateway.API.Controllers
                 Name = student.Name,
                 Surname = student.Surname,
                 Homeworks = stats.Homeworks
-            }).OrderBy(t => t.Name).ThenBy(t => t.Surname);
+            }).OrderBy(t => t.Surname).ThenBy(t => t.Name);
 
             return Ok(result);
         }
