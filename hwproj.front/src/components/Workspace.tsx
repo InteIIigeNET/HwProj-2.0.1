@@ -11,6 +11,7 @@ import {CoursesList} from "./Courses/CoursesList";
 import EditIcon from "@material-ui/icons/Edit";
 import {TaskDeadlines} from "./Tasks/TaskDeadlines";
 import UnratedSolutions from "./Solutions/UnratedSolutions";
+import {Chip, Stack} from "@mui/material";
 
 interface IWorkspaceState {
     isLoaded: boolean;
@@ -116,8 +117,18 @@ const Workspace: FC<RouteComponentProps<IWorkspaceProps>> = (props) => {
                         >
                             {isLecturer
                                 ? <Tab
-                                    label={`Ожидают проверки (${(unratedSolutionPreviews!.unratedSolutions!.length)})`}/>
-                                : <Tab label={`Дедлайны (${(taskDeadlines!.length)})`}/>}
+                                    label={
+                                        <Stack direction="row" spacing={1}>
+                                            <div>Ожидают проверки</div>
+                                            <Chip size={"small"} color={"default"}
+                                                  label={(unratedSolutionPreviews!.unratedSolutions!.length)}/>
+                                        </Stack>}/>
+                                : <Tab label={
+                                    <Stack direction="row" spacing={1}>
+                                        <div>Дедлайны</div>
+                                        <Chip size={"small"} color={"default"}
+                                              label={(taskDeadlines!.length)}/>
+                                    </Stack>}/>}
                             <Tab label="Курсы"/>
                         </Tabs>
                         {tabValue === 0 &&

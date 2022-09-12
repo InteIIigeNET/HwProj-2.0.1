@@ -13,6 +13,7 @@ import {useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import VisibilityIcon from '@material-ui/icons/Visibility';
+import {Chip, Stack} from "@mui/material";
 
 interface ICourseMate {
     name: string;
@@ -190,7 +191,12 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                     >
                         <Tab label="Домашние задания"/>
                         {(isMentor || isAcceptedStudent) && <Tab label="Решения"/>}
-                        {isMentor && <Tab label={`Заявки (${newStudents.length})`}/>}
+                        {isMentor && <Tab label={
+                            <Stack direction="row" spacing={1}>
+                                <div>Заявки</div>
+                                <Chip size={"small"} color={"default"}
+                                      label={newStudents.length}/>
+                            </Stack>}/>}
                     </Tabs>
                     <br/>
                     {tabValue === 0 &&
