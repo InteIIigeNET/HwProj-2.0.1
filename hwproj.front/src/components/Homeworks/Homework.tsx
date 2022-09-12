@@ -14,6 +14,7 @@ import {FC, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
 import DeletionConfirmation from "../DeletionConfirmation";
 import Utils from "../../services/Utils";
+import {Chip, Stack} from '@mui/material';
 
 interface IHomeworkProps {
     homework: HomeworkViewModel,
@@ -29,10 +30,6 @@ const useStyles = makeStyles(theme => ({
         display: "flex",
         flexDirection: 'row',
         alignItems: 'center',
-    },
-    tool: {
-        marginRight: theme.spacing(2),
-        marginLeft: theme.spacing(2),
     }
 }))
 
@@ -73,38 +70,33 @@ const Homework: FC<IHomeworkProps> = (props) => {
                     style={{backgroundColor: "#c6cceb"}}
                 >
                     <div className={classes.tools}>
-                        <div className={classes.tool}>
+                        <Stack direction={"row"} spacing={1} alignItems={"center"}>
                             <Typography style={{fontSize: '18px'}}>
                                 {props.homework.title}
                             </Typography>
-                        </div>
-                        <div>
                             <Typography>
                                 {homeworkDateString}
                             </Typography>
-                        </div>
-                        <div style={{marginLeft: '8px'}}>
-                            {props.forMentor && deferredHomeworks!.length > 0 &&
-                                <Typography>
-                                    <HourglassEmpty/>
-                                    {deferredHomeworks!.length}
-                                </Typography>
-                            }
-                        </div>
-                        <div>
-                            {props.forMentor && !props.isReadingMode &&
+                            <div style={{marginLeft: '8px'}}>
+                                {props.forMentor && deferredHomeworks!.length > 0 &&
+                                    <Typography>
+                                        <HourglassEmpty/>
+                                        {deferredHomeworks!.length}
+                                    </Typography>
+                                }
+                            </div>
+                            <Chip label={props.homework.tasks!.length + " заданий"}/>
+                            {props.forMentor && !props.isReadingMode && <div>
                                 <IconButton aria-label="Delete" onClick={openDialogDeleteHomework}>
                                     <DeleteIcon fontSize="small"/>
                                 </IconButton>
-                            }
-                        </div>
-                        <div>
-                            {props.forMentor && !props.isReadingMode &&
+
                                 <RouterLink to={'/homework/' + props.homework.id!.toString() + '/edit'}>
                                     <EditIcon fontSize="small"/>
                                 </RouterLink>
+                            </div>
                             }
-                        </div>
+                        </Stack>
                     </div>
                 </AccordionSummary>
                 <AccordionDetails>
