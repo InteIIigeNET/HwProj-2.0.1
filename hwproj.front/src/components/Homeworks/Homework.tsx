@@ -20,6 +20,7 @@ interface IHomeworkProps {
     forMentor: boolean,
     forStudent: boolean,
     isReadingMode: boolean,
+    isExpanded: boolean,
     onDeleteClick: () => void
 }
 
@@ -64,7 +65,7 @@ const Homework: FC<IHomeworkProps> = (props) => {
     const deferredHomeworks = props.homework.tasks!.filter(t => t.isDeferred!);
     return (
         <div style={{width: '100%'}}>
-            <Accordion>
+            <Accordion expanded={props.isExpanded}>
                 <AccordionSummary
                     expandIcon={<ExpandMoreIcon/>}
                     aria-controls="panel1a-content"
