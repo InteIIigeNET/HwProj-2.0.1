@@ -17,11 +17,10 @@ interface ICourseHomeworkProps {
 const CourseHomework: FC<ICourseHomeworkProps> = (props) => {
 
     const homeworkList = props.homework
-        .reverse()
         .map((hw, i) => (
             <ListItem key={hw.id} style={{padding: 0, marginBottom: 15, width: '100%'}}>
                 <Homework
-                    isExpanded={i === 0}
+                    isExpanded={i === props.homework.length - 1}
                     homework={hw}
                     forStudent={props.isStudent}
                     forMentor={props.isMentor}
@@ -30,7 +29,7 @@ const CourseHomework: FC<ICourseHomeworkProps> = (props) => {
                 />
 
             </ListItem>
-        ))
+        )).reverse()
 
     if (homeworkList.length > 0) {
         return (
