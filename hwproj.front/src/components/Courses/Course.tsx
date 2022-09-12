@@ -7,7 +7,7 @@ import AddHomework from "../Homeworks/AddHomework";
 import CourseStudents from "./CourseStudents";
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
-import {Button, Grid, Tab, Tabs, Typography} from "@material-ui/core";
+import {Button, Grid, Tab, Tabs, Typography, IconButton} from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
 import {useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
@@ -121,22 +121,26 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                 <Typography style={{fontSize: '22px'}}>
                                     {`${course.name} / ${course.groupName}`} &nbsp;
                                     {isMentor &&
-                                        (isReadingMode
-                                            ? <VisibilityOffIcon
-                                                titleAccess="Режим чтения включен"
-                                                onClick={async () =>
-                                                    setCourseState(prevState => ({
-                                                        ...prevState,
-                                                        isReadingMode: false
-                                                    }))}/>
-                                            : <VisibilityIcon
-                                                titleAccess="Режим чтения выключен"
-                                                onClick={async () =>
-                                                    setCourseState(prevState => ({
-                                                        ...prevState,
-                                                        isReadingMode: true
-                                                    }))}
-                                            />)
+                                        <IconButton style={{marginLeft: -5}}>
+                                            {isReadingMode
+                                                ? <VisibilityOffIcon
+                                                    titleAccess="Режим чтения включен"
+                                                    fontSize={"small"}
+                                                    onClick={() =>
+                                                        setCourseState(prevState => ({
+                                                            ...prevState,
+                                                            isReadingMode: false
+                                                        }))}/>
+                                                : <VisibilityIcon
+                                                    titleAccess="Режим чтения выключен"
+                                                    fontSize={"small"}
+                                                    onClick={() =>
+                                                        setCourseState(prevState => ({
+                                                            ...prevState,
+                                                            isReadingMode: true
+                                                        }))}
+                                                />}
+                                        </IconButton>
                                     }
                                     {isMentor && !isReadingMode! && (
                                         <RouterLink to={"./" + courseId! + "/edit"}>
