@@ -207,7 +207,7 @@ const Notifications: FC<IProfileProps> = (props) => {
                                     onChange={changeShowOnlyUnread}
                                     inputProps={{'aria-label': 'controlled'}}
                                 />
-                            } label="Показывать только непрочитанные"/>
+                            } label="Только непрочитанные"/>
                             <Divider/>
                             <div style={{maxWidth: '300px'}}>
                                 <FormGroup>
