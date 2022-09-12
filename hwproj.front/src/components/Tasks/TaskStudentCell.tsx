@@ -2,6 +2,7 @@ import * as React from "react";
 import TableCell from "@material-ui/core/TableCell";
 import {Redirect} from "react-router-dom";
 import {Solution, StatisticsCourseSolutionsModel} from "api";
+import {Chip, Stack} from "@mui/material";
 
 interface ITaskStudentCellProps {
     studentId: string;
@@ -58,7 +59,10 @@ export default class TaskStudentCell extends React.Component<ITaskStudentCellPro
                     : () => 0;
             const result = this.state.solution === undefined || this.state.solution.state! === Solution.StateEnum.NUMBER_0
                 ? ""
-                : this.state.solution.rating!.toString()
+                : <Stack direction="row" spacing={0.3} justifyContent={"center"} alignItems={"center"}>
+                    <div>{this.state.solution.rating!}</div>
+                    <Chip color={"default"} size={"small"} label={this.props.solutions!.length}/>
+                </Stack>
             return (
                 <TableCell
                     onClick={onClick}
