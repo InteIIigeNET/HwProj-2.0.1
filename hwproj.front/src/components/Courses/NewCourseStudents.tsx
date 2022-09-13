@@ -1,11 +1,8 @@
 import * as React from 'react';
 import {AccountDataDto, CourseViewModel} from '../../api/';
-import Button from '@material-ui/core/Button'
 import ApiSingleton from "../../api/ApiSingleton";
 import {FC} from "react";
-import {Divider} from "@material-ui/core";
-import Typography from "@material-ui/core/Typography";
-import {makeStyles} from "@material-ui/styles";
+import {Card, CardContent, CardActions, Grid, Button, Typography} from '@mui/material';
 
 interface INewCourseStudentsProps {
     course: CourseViewModel,
@@ -13,16 +10,6 @@ interface INewCourseStudentsProps {
     onUpdate: () => void,
     courseId: string,
 }
-
-const useStyles = makeStyles(theme => ({
-    item: {
-        width: '200px',
-        marginTop: '16px',
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-    },
-}))
 
 const NewCourseStudents: FC<INewCourseStudentsProps> = (props) => {
 
@@ -36,7 +23,6 @@ const NewCourseStudents: FC<INewCourseStudentsProps> = (props) => {
         props.onUpdate()
     }
 
-    const classes = useStyles()
     const studentsLength = props.students.length
 
     if (studentsLength === 0) {
@@ -46,43 +32,37 @@ const NewCourseStudents: FC<INewCourseStudentsProps> = (props) => {
             </div>
         )
     }
-    return (
-        //TODO: add user separator
-        <div style={{width: "300px"}}>
-            {props.students.map((cm, i) => (
-                <div>
-                    <div>
-                        <Typography>
+    return <Grid container spacing={1} direction={"column"}>
+        {props.students.map((cm, i) => (
+            <Grid item>
+                <Card variant="elevation" style={{backgroundColor: "whitesmoke"}}>
+                    <CardContent>
+                        <Typography variant="h5" component="div">
                             {cm.surname} {cm.name}
                         </Typography>
-                    </div>
-                    <div className={classes.item}>
-                        <div>
-                            <Button
-                                onClick={() => acceptStudent(cm.userId!)}
-                                color="primary"
-                                variant="contained"
-                                size="small"
-                            >
-                                Принять
-                            </Button>
-                        </div>
-                        <div>
-                            <Button
-                                onClick={() => rejectStudent(cm.userId!)}
-                                color="primary"
-                                variant="contained"
-                                size="small"
-                            >
-                                Отклонить
-                            </Button>
-                        </div>
-                    </div>
-                    {i < studentsLength - 1 ? <Divider style={{marginTop: 15, marginBottom: 10}}/> : null}
-                </div>
-            ))}
-        </div>
-    )
+                        <Typography style={{color: "GrayText"}} gutterBottom className="antiLongWords">
+                            {cm.email}
+                        </Typography>
+                    </CardContent>
+                    <CardActions>
+                        <Button
+                            onClick={() => acceptStudent(cm.userId!)}
+                            size="small"
+                            color={"primary"}
+                        >
+                            Принять
+                        </Button>
+                        <Button
+                            onClick={() => rejectStudent(cm.userId!)}
+                            size="small"
+                            color={"error"}
+                        >
+                            Отклонить
+                        </Button>
+                    </CardActions>
+                </Card>
+            </Grid>))}
+    </Grid>
 }
 
 export default NewCourseStudents
