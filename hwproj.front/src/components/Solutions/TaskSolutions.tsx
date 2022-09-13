@@ -78,7 +78,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                 : "Студент не отправил ни одного решения."}
         </Grid>}
         {tabValue === 1 &&
-            arrayOfRatedSolutions.map((x, i) =>
+            arrayOfRatedSolutions.reverse().map((x, i) =>
                 <Grid item style={{marginTop: '16px'}}>
                     <TaskSolutionComponent
                         forMentor={false}
@@ -88,7 +88,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                     />
                     {i < arrayOfRatedSolutions.length - 1 ?
                         <Divider style={{marginTop: 10, marginBottom: 4}}/> : null}
-                </Grid>).reverse()}
+                </Grid>)}
     </Grid>
 }
 
