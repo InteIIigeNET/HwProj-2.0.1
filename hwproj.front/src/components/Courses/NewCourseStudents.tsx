@@ -35,9 +35,9 @@ const NewCourseStudents: FC<INewCourseStudentsProps> = (props) => {
     return <Grid container spacing={1} direction={"column"}>
         {props.students.map((cm, i) => (
             <Grid item>
-                <Card variant="elevation" style={{backgroundColor: "whitesmoke"}}>
+                <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
                     <CardContent>
-                        <Typography variant="h5" component="div">
+                        <Typography variant="h6" component="div">
                             {cm.surname} {cm.name}
                         </Typography>
                         <Typography style={{color: "GrayText"}} gutterBottom className="antiLongWords">
