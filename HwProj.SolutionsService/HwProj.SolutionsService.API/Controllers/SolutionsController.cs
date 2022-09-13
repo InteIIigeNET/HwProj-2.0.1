@@ -168,7 +168,7 @@ namespace HwProj.SolutionsService.API.Controllers
                     LastSolution = t
                         .OrderByDescending(x => x.PublicationDate)
                         .FirstOrDefault(),
-                    IsFirstTry = !t.Skip(1).Any()
+                    IsFirstTry = t.Skip(1).All(s => s.State == SolutionState.Posted)
                 })
                 .Where(t => t.LastSolution != null && t.LastSolution.State == SolutionState.Posted)
                 .OrderBy(t => t.LastSolution!.PublicationDate)
