@@ -100,6 +100,9 @@ export default class TaskStudentCell extends React.Component<ITaskStudentCellPro
 
     async componentDidMount() {
         const solutions = this.props.solutions
+        const isFirstUnratedTry = solutions!
+            .filter(x => x.state != Solution.StateEnum.NUMBER_0)
+            .length === 0
         const lastSolution = solutions!.slice(-1)[0]
         if (lastSolution === undefined) {
             this.setState({
@@ -110,7 +113,7 @@ export default class TaskStudentCell extends React.Component<ITaskStudentCellPro
             return
         }
         this.setState({
-            color: this.getCellBackgroundColor(lastSolution.state, solutions!.length === 1),
+            color: this.getCellBackgroundColor(lastSolution.state, isFirstUnratedTry),
             isLoaded: true,
             solution: lastSolution
         })
