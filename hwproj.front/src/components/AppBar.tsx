@@ -61,50 +61,80 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
     return (
         <div>
             <AppBar style={{position: "static", width: "100vw", maxWidth: "100%"}}>
-                <Toolbar>
-                    <Grid container spacing={1} alignItems={"center"}>
-                        <Grid item style={{marginRight: 1}}>
-                            <Typography>
-                                <Link
-                                    className={classes.logo}
-                                    onClick={() => window.location.assign("/")}
-                                    component="button"
-                                    variant="h6"
-                                    color="inherit"
-                                    style={{fontFamily: "Helvetica"}}
-                                >
-                                    HW
-                                </Link>
-                            </Typography>
-                        </Grid>
-                        {props.loggedIn &&
-                            <Grid item>
-                                <IconButton onClick={() => window.location.assign(`/notifications`)}>
-                                    {props.newNotificationsCount > 0
-                                        ? <Badge badgeContent={props.newNotificationsCount} color="primary">
-                                            <MailIcon fontSize={"small"} htmlColor={"white"}/>
-                                        </Badge>
-                                        : <MailIcon fontSize={"small"} htmlColor={"white"}/>
-                                    }
-                                </IconButton>
-                            </Grid>
-                        }
-                        {props.loggedIn &&
-                            <Grid item>
+                <div className={"container"}>
+                    <Toolbar>
+                        <Grid container spacing={1} alignItems={"center"}>
+                            <Grid item style={{marginRight: 1}}>
                                 <Typography>
-                                    <Button
-                                        onClick={() => window.location.assign(`/courses`)}
+                                    <Link
+                                        className={classes.logo}
+                                        onClick={() => window.location.assign("/")}
+                                        component="button"
+                                        variant="h6"
                                         color="inherit"
                                         style={{fontFamily: "Helvetica"}}
                                     >
-                                        Курсы
-                                    </Button>
+                                        HW
+                                    </Link>
                                 </Typography>
                             </Grid>
-                        }
-                    </Grid>
-                    {props.loggedIn && props.isLecturer &&
-                        (
+                            {props.loggedIn &&
+                                <Grid item>
+                                    <IconButton onClick={() => window.location.assign(`/notifications`)}>
+                                        {props.newNotificationsCount > 0
+                                            ? <Badge badgeContent={props.newNotificationsCount} color="primary">
+                                                <MailIcon fontSize={"small"} htmlColor={"white"}/>
+                                            </Badge>
+                                            : <MailIcon fontSize={"small"} htmlColor={"white"}/>
+                                        }
+                                    </IconButton>
+                                </Grid>
+                            }
+                            {props.loggedIn &&
+                                <Grid item>
+                                    <Typography>
+                                        <Button
+                                            onClick={() => window.location.assign(`/courses`)}
+                                            color="inherit"
+                                            style={{fontFamily: "Helvetica"}}
+                                        >
+                                            Курсы
+                                        </Button>
+                                    </Typography>
+                                </Grid>
+                            }
+                        </Grid>
+                        {props.loggedIn && props.isLecturer &&
+                            (
+                                <div>
+                                    <IconButton
+                                        edge="start"
+                                        color="inherit"
+                                        aria-label="menu"
+                                        onClick={handleClick}
+                                    >
+                                        <MenuIcon/>
+                                    </IconButton>
+                                    <Menu
+                                        id="simple-menu"
+                                        anchorEl={anchorEl}
+                                        keepMounted
+                                        open={Boolean(anchorEl)}
+                                        onClose={handleClose}
+                                    >
+                                        <MenuItem onClick={openInviteLecturer}>
+                                            Пригласить преподавателя
+                                        </MenuItem>
+                                        <MenuItem onClick={() => window.location.assign("/create_course")}>
+                                            Создать курс
+                                        </MenuItem>
+                                        <MenuItem onClick={props.onLogout}>
+                                            Выйти
+                                        </MenuItem>
+                                    </Menu>
+                                </div>
+                            )}
+                        {props.loggedIn && !props.isLecturer && (
                             <div>
                                 <IconButton
                                     edge="start"
@@ -121,64 +151,36 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                                     open={Boolean(anchorEl)}
                                     onClose={handleClose}
                                 >
-                                    <MenuItem onClick={openInviteLecturer}>
-                                        Пригласить преподавателя
-                                    </MenuItem>
-                                    <MenuItem onClick={() => window.location.assign("/create_course")}>
-                                        Создать курс
-                                    </MenuItem>
                                     <MenuItem onClick={props.onLogout}>
                                         Выйти
                                     </MenuItem>
                                 </Menu>
                             </div>
                         )}
-                    {props.loggedIn && !props.isLecturer && (
-                        <div>
-                            <IconButton
-                                edge="start"
-                                color="inherit"
-                                aria-label="menu"
-                                onClick={handleClick}
-                            >
-                                <MenuIcon/>
-                            </IconButton>
-                            <Menu
-                                id="simple-menu"
-                                anchorEl={anchorEl}
-                                keepMounted
-                                open={Boolean(anchorEl)}
-                                onClose={handleClose}
-                            >
-                                <MenuItem onClick={props.onLogout}>
-                                    Выйти
-                                </MenuItem>
-                            </Menu>
-                        </div>
-                    )}
-                    {!props.loggedIn && (
-                        <div className={classes.tools}>
-                            <Link
-                                onClick={() => window.location.assign("/login")}
-                                component="button"
-                                color="inherit"
-                                className={classes.item}
-                                style={{marginLeft: "10px"}}
-                            >
-                                Вход
-                            </Link>
-                            <Link
-                                onClick={() => window.location.assign("/register")}
-                                component="button"
-                                color="inherit"
-                                className={classes.item}
-                                style={{marginLeft: "10px"}}
-                            >
-                                Регистрация
-                            </Link>
-                        </div>
-                    )}
-                </Toolbar>
+                        {!props.loggedIn && (
+                            <div className={classes.tools}>
+                                <Link
+                                    onClick={() => window.location.assign("/login")}
+                                    component="button"
+                                    color="inherit"
+                                    className={classes.item}
+                                    style={{marginLeft: "10px"}}
+                                >
+                                    Вход
+                                </Link>
+                                <Link
+                                    onClick={() => window.location.assign("/register")}
+                                    component="button"
+                                    color="inherit"
+                                    className={classes.item}
+                                    style={{marginLeft: "10px"}}
+                                >
+                                    Регистрация
+                                </Link>
+                            </div>
+                        )}
+                    </Toolbar>
+                </div>
             </AppBar>
             {isOpenInviteLecturer && (
                 <InviteLecturerModal isOpen={isOpenInviteLecturer} close={closeInviteLecturer}/>
