@@ -1,7 +1,7 @@
 import * as React from "react";
 import {Link as RouterLink} from "react-router-dom";
 import {RouteComponentProps} from 'react-router';
-import {AccountDataDto, CourseViewModel, HomeworkViewModel} from "../../api";
+import {AccountDataDto, CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api";
 import CourseHomework from "../Homeworks/CourseHomework";
 import AddHomework from "../Homeworks/AddHomework";
 import CourseStudents from "./CourseStudents";
@@ -15,14 +15,6 @@ import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import {Chip, Stack} from "@mui/material";
 
-interface ICourseMate {
-    name: string;
-    surname: string;
-    middleName: string;
-    email: string;
-    id: string;
-}
-
 interface ICourseState {
     isFound: boolean;
     course: CourseViewModel;
@@ -33,6 +25,7 @@ interface ICourseState {
     newStudents: AccountDataDto[];
     isReadingMode: boolean;
     tabValue: number;
+    studentSolutions: StatisticsCourseMatesModel[];
 }
 
 interface ICourseProps {
@@ -59,12 +52,15 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
         acceptedStudents: [],
         newStudents: [],
         isReadingMode: true,
-        tabValue: 0
+        tabValue: 0,
+        studentSolutions: []
     })
     const setCurrentState = async () => {
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+courseId)
+        const solutions = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdGet(+courseId)
 
         setCourseState(prevState => ({
+            ...prevState,
             isFound: true,
             course: course,
             courseHomework: course.homeworks!,
@@ -72,8 +68,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
             mentors: course.mentors!,
             acceptedStudents: course.acceptedStudents!,
             newStudents: course.newStudents!,
-            isReadingMode: prevState.isReadingMode,
-            tabValue: prevState.tabValue
+            studentSolutions: solutions
         }))
     }
 
@@ -95,8 +90,16 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
         mentors,
         newStudents,
         acceptedStudents,
-        isReadingMode
+        isReadingMode,
+        studentSolutions
     } = courseState;
+
+    const unratedSolutionsCount = studentSolutions
+        .flatMap(x => x.homeworks)
+        .flatMap(x => x!.tasks)
+        .filter(t => t!.solution!.slice(-1)[0]?.state === 0) //last solution
+        .length
+
     if (isFound) {
         const isLogged = ApiSingleton.authService.isLoggedIn()
 
@@ -184,7 +187,13 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                         }}
                     >
                         <Tab label="Домашние задания"/>
-                        {(isMentor || isAcceptedStudent) && <Tab label="Решения"/>}
+                        {(isMentor || isAcceptedStudent) && <Tab label={
+                            <Stack direction="row" spacing={1}>
+                                <div>Решения</div>
+                                <Chip size={"small"} color={"default"}
+                                      label={unratedSolutionsCount}/>
+                            </Stack>
+                        }/>}
                         {isMentor && <Tab label={
                             <Stack direction="row" spacing={1}>
                                 <div>Заявки</div>
@@ -271,6 +280,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                     userId={userId as string}
                                     isMentor={isMentor}
                                     course={courseState.course}
+                                    solutions={studentSolutions}
                                 />
                             </Grid>
                         </Grid>}
