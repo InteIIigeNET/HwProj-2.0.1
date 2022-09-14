@@ -1,8 +1,8 @@
-using System;
 using System.Threading.Tasks;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.API.Events;
 using HwProj.EventBus.Client.Interfaces;
+using HwProj.Models;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
@@ -44,7 +44,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                         $"Пользователь <a href='{url}/profile/{@event.StudentId}'>{user.Name} {user.Surname}</a>" +
                         $" подал заявку на вступление в курс <a href='{url}/courses/{@event.CourseId}'>{@event.CourseName}</a>.",
                     Category = CategoryState.Courses,
-                    Date = DateTime.UtcNow,
+                    Date = DateTimeUtils.GetMoscowNow(),
                     HasSeen = false,
                     Owner = m
                 };

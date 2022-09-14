@@ -1,7 +1,7 @@
-using System;
 using System.Threading.Tasks;
 using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
+using HwProj.Models;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
@@ -41,7 +41,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                            $" задачи <a href='{_configuration["Url"]}/task/{@event.Task.Id}/{@event.Student.UserId}'>{@event.Task.Title}</a>" +
                            $" из курса <a href='{_configuration["Url"]}/courses/{@event.Course.Id}'>{@event.Course.Name}</a>.",
                     Category = CategoryState.Homeworks,
-                    Date = DateTime.UtcNow,
+                    Date = DateTimeUtils.GetMoscowNow(),
                     HasSeen = false,
                     Owner = m
                 };

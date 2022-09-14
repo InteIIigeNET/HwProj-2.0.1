@@ -94,7 +94,7 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
                             <Typography style={{fontSize: "18px", color: "GrayText"}}>
                                 {solution.courseTitle + " • " + solution.homeworkTitle}
                             </Typography>
-                            {Utils.convertUTCDateToLocalDate(new Date(solution.publicationDate!)).toLocaleDateString("ru-RU")}
+                            {new Date(solution.publicationDate!).toLocaleString("ru-RU")}
                             {i < filteredUnratedSolutions.length - 1 ?
                                 <Divider style={{marginTop: 10, marginBottom: 10}}/> : null}
                         </Grid>

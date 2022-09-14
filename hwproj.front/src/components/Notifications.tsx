@@ -172,7 +172,7 @@ const Notifications: FC<IProfileProps> = (props) => {
                                     {parse(n.body!)}
                                 </Typography>
                                 <Typography variant="body1">
-                                    {parse(Utils.convertUTCDateToLocalDate(n.date!).toLocaleDateString("ru-RU", dateTimeOptions))}
+                                    {parse(new Date(n.date!).toLocaleString("ru-RU", dateTimeOptions))}
                                 </Typography>
                             </CardContent>
                             {!n.hasSeen && <Box display="flex" flexDirection="row-reverse">

@@ -58,7 +58,7 @@ const Homework: FC<IHomeworkProps> = (props) => {
     }
 
     const classes = useStyles()
-    const homeworkDateString = Utils.convertUTCDateToLocalDate(props.homework.date!).toLocaleDateString("ru-RU");
+    const homeworkDateString = new Date(props.homework.date!).toLocaleDateString("ru-RU");
     const deferredHomeworks = props.homework.tasks!.filter(t => t.isDeferred!);
     return (
         <div style={{width: '100%'}}>

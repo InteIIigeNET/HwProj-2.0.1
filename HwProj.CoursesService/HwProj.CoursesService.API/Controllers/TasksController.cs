@@ -32,8 +32,6 @@ namespace HwProj.CoursesService.API.Controllers
             }
 
             var task = _mapper.Map<HomeworkTaskViewModel>(taskFromDb);
-            task.PutPossibilityForSendingSolution();
-            
             return Ok(task);
         }
         

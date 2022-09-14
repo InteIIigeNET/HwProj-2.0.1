@@ -85,7 +85,7 @@ export default class AddTask extends React.Component<IAddTaskProps,
                                     id="datetime-local"
                                     label="Дата публикации"
                                     type="datetime-local"
-                                    defaultValue={this.state.publicationDate}
+                                    defaultValue={this.state.publicationDate?.toLocaleString("ru-RU")}
                                     onChange={(e) => this.setState({publicationDate: new Date(e.target.value)})}
                                     InputLabelProps={{
                                         shrink: true,
@@ -120,7 +120,7 @@ export default class AddTask extends React.Component<IAddTaskProps,
                                     id="datetime-local"
                                     label="Дедлайн задачи"
                                     type="datetime-local"
-                                    defaultValue={this.state.deadlineDate}
+                                    defaultValue={this.state.deadlineDate?.toLocaleString("ru-RU")}
                                     InputLabelProps={{
                                         shrink: true,
                                     }}

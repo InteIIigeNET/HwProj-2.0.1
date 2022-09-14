@@ -1,10 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.CoursesService.API.Events;
+using HwProj.Models;
 using HwProj.Models.CoursesService.ViewModels;
 
 namespace HwProj.CoursesService.API.Services
@@ -26,7 +26,7 @@ namespace HwProj.CoursesService.API.Services
         public async Task<long> AddHomeworkAsync(long courseId, Homework homework)
         {
             homework.CourseId = courseId;
-            homework.Date = DateTime.UtcNow;
+            homework.Date = DateTimeUtils.GetMoscowNow();
 
             var course = await _coursesRepository.GetWithCourseMatesAsync(courseId);
             var courseModel = _mapper.Map<CourseDTO>(course);

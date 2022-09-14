@@ -12,9 +12,9 @@ interface ITaskDeadlinesProps {
 export class TaskDeadlines extends React.Component<ITaskDeadlinesProps, {}> {
     clamp = (num: number, min: number, max: number) => Math.min(Math.max(num, min), max)
     getPercent = (startDate: Date, endDate: Date) => {
-        const startDateNumber = Utils.convertUTCDateToLocalDate(new Date(startDate)).getTime()
-        const endDateNumber = Utils.convertUTCDateToLocalDate(new Date(endDate)).getTime()
-        const currentDateNumber = Utils.convertUTCDateToLocalDate(new Date(Date.now())).getTime()
+        const startDateNumber = new Date(startDate).getTime()
+        const endDateNumber = new Date(endDate).getTime()
+        const currentDateNumber = new Date(Date.now()).getTime()
         return this.clamp((currentDateNumber - startDateNumber) * 100 / (endDateNumber - startDateNumber), 0, 100)
     }
 
@@ -65,7 +65,7 @@ export class TaskDeadlines extends React.Component<ITaskDeadlinesProps, {}> {
                             <LinearProgress variant="determinate"
                                             style={{marginTop: 5}}
                                             value={this.getPercent(deadline!.publicationDate!, deadline!.deadlineDate!)}/>
-                            {new Date(deadline!.deadlineDate!).toLocaleDateString("ru-RU")}
+                            {new Date(deadline!.deadlineDate!).toLocaleString("ru-RU")}
                             {i < taskDeadlines.length - 1 ?
                                 <Divider style={{marginTop: 10, marginBottom: 10}}/> : null}
                         </Grid>

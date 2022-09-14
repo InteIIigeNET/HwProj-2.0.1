@@ -1,7 +1,7 @@
-using System;
 using System.Threading.Tasks;
 using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
+using HwProj.Models;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
@@ -37,7 +37,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 Body =
                     $"Задача <a href='{_configuration["Url"]}/task/{@event.Task.Id}' target='_blank'>{@event.Task.Title}</a> оценена.",
                 Category = CategoryState.Homeworks,
-                Date = DateTime.UtcNow,
+                Date = DateTimeUtils.GetMoscowNow(),
                 HasSeen = false,
                 Owner = @event.Solution.StudentId
             };

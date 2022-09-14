@@ -7,6 +7,7 @@ using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.EventBus.Client.Interfaces;
+using HwProj.Models;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.Roles;
 using Microsoft.EntityFrameworkCore;
@@ -44,7 +45,7 @@ namespace HwProj.CoursesService.API.Services
 
             if (!course.MentorIds.Contains(userId))
             {
-                var currentDate = DateTime.UtcNow.AddHours(3);
+                var currentDate = DateTimeUtils.GetMoscowNow();
                 course.Homeworks.ForEach(hw =>
                     hw.Tasks = new List<HomeworkTask>(hw.Tasks.Where(t => currentDate >= t.PublicationDate)));
 

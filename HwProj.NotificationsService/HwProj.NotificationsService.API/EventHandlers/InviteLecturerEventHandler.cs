@@ -1,7 +1,7 @@
-using System;
 using System.Threading.Tasks;
 using HwProj.AuthService.API.Events;
 using HwProj.EventBus.Client.Interfaces;
+using HwProj.Models;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
@@ -26,7 +26,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 Sender = "AuthService",
                 Body = "Вас добавили в список лекторов.",
                 Category = CategoryState.Courses,
-                Date = DateTime.UtcNow,
+                Date = DateTimeUtils.GetMoscowNow(),
                 Owner = @event.UserId
             };
 

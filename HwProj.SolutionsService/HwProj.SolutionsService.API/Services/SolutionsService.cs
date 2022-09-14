@@ -1,10 +1,10 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.EventBus.Client.Interfaces;
+using HwProj.Models;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.SolutionsService;
@@ -64,7 +64,7 @@ namespace HwProj.SolutionsService.API.Services
 
         public async Task<long> PostOrUpdateAsync(long taskId, Solution solution)
         {
-            solution.PublicationDate = DateTime.UtcNow;
+            solution.PublicationDate = DateTimeUtils.GetMoscowNow();
             var allSolutionsForTask = await GetTaskSolutionsFromStudentAsync(taskId, solution.StudentId);
             var currentSolution = allSolutionsForTask.FirstOrDefault(s => s.Id == solution.Id);
             var solutionModel = _mapper.Map<SolutionViewModel>(solution);

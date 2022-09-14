@@ -202,10 +202,9 @@ const EditTask: FC<RouteComponentProps<IEditTaskProps>> = (props) => {
                                         id="datetime-local"
                                         label="Дата публикации"
                                         type="datetime-local"
-                                        defaultValue={taskState.publicationDate}
+                                        defaultValue={taskState.publicationDate?.toLocaleString("ru-RU")}
                                         onChange={(e) => {
                                             let date = new Date(e.target.value)
-                                            date = new Date(date.setHours(date.getHours() + 3))
                                             e.persist()
                                             setTaskState((prevState) => ({
                                                 ...prevState,
@@ -242,7 +241,7 @@ const EditTask: FC<RouteComponentProps<IEditTaskProps>> = (props) => {
                                             id="datetime-local"
                                             label="Дедлайн задачи"
                                             type="datetime-local"
-                                            defaultValue={taskState.deadlineDate}
+                                            defaultValue={taskState.deadlineDate?.toLocaleString("ru-RU")}
                                             InputLabelProps={{
                                                 shrink: true,
                                             }}
@@ -250,7 +249,6 @@ const EditTask: FC<RouteComponentProps<IEditTaskProps>> = (props) => {
                                             onChange={(e) => {
                                                 e.persist()
                                                 let date = new Date(e.target.value)
-                                                date = new Date(date.setHours(date.getHours() + 3))
                                                 setTaskState((prevState) => ({
                                                     ...prevState,
                                                     deadlineDate: date,

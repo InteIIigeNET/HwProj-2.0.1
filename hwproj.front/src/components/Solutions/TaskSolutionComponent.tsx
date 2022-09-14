@@ -46,7 +46,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     //TODO: enum instead of string
     const isRated = solution.state!.toString() != "Posted"
     const {points, lecturerComment} = state
-    const postedSolutionTime = Utils.convertUTCDateToLocalDate(new Date(solution.publicationDate!)).toLocaleString("ru-RU")
+    const postedSolutionTime = new Date(solution.publicationDate!).toLocaleString("ru-RU")
 
     const renderRateInput = () => {
         if (maxRating <= 10)

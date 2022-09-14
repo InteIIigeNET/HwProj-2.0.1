@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
@@ -10,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Net;
 using HwProj.CoursesService.API.Repositories;
+using HwProj.Models;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
 using Microsoft.EntityFrameworkCore;
@@ -50,11 +50,6 @@ namespace HwProj.CoursesService.API.Controllers
             if (courseFromDb == null) return NotFound();
 
             var course = _mapper.Map<CourseDTO>(courseFromDb);
-
-            //TODO: move to service
-            foreach (var homework in course.Homeworks)
-                homework.Tasks.ForEach(t => t.PutPossibilityForSendingSolution());
-
             return Ok(course);
         }
 
@@ -153,7 +148,7 @@ namespace HwProj.CoursesService.API.Controllers
             var courseIds = await _courseMatesRepository.FindAll(t => t.StudentId == userId).Select(t => t.CourseId)
                 .ToListAsync();
 
-            var currentDate = DateTime.UtcNow;
+            var currentDate = DateTimeUtils.GetMoscowNow();
             var courses = await _coursesRepository
                 .FindAll(t => courseIds.Contains(t.Id))
                 .Include(t => t.Homeworks)

@@ -154,7 +154,7 @@ export default class AddHomework extends React.Component<IAddHomeworkProps,
                                                     id="datetime-local"
                                                     label="Дата публикации"
                                                     type="datetime-local"
-                                                    defaultValue={task.publicationDate}
+                                                    defaultValue={task.publicationDate?.toLocaleString("ru-RU")}
                                                     onChange={(e) => task.publicationDate = new Date(e.target.value)}
                                                     InputLabelProps={{
                                                         shrink: true,
@@ -190,7 +190,7 @@ export default class AddHomework extends React.Component<IAddHomeworkProps,
                                                         id="datetime-local"
                                                         label="Дедлайн задачи"
                                                         type="datetime-local"
-                                                        defaultValue={task.deadlineDate}
+                                                        defaultValue={task.deadlineDate?.toLocaleString("ru-RU")}
                                                         onChange={(e) => {
                                                             task.deadlineDate = new Date(e.target.value)
                                                         }}

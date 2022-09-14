@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.AuthService.Client;
@@ -6,6 +5,7 @@ using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.CoursesService.API.Events;
+using HwProj.Models;
 using HwProj.Models.AuthService.DTO;
 using HwProj.NotificationsService.API.Services;
 using Microsoft.Extensions.Configuration;
@@ -46,7 +46,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                     Body = $"Задача <a href='{_configuration["Url"]}task/{@event.Task.Id}'>{@event.Task.Title}</a>" +
                            $" из курса <a href='{_configuration["Url"]}courses/{@event.Course.Id}'>{@event.Course.Name}</a> обновлена.",
                     Category = CategoryState.Courses,
-                    Date = DateTime.UtcNow,
+                    Date = DateTimeUtils.GetMoscowNow(),
                     HasSeen = false,
                     Owner = student.StudentId
                 };

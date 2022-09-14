@@ -36,7 +36,6 @@ namespace HwProj.CoursesService.API.Controllers
         {
             var homeworkFromDb = await _homeworksService.GetHomeworkAsync(homeworkId);
             var homework = _mapper.Map<HomeworkViewModel>(homeworkFromDb);
-            homework.Tasks.ForEach(t => t.PutPossibilityForSendingSolution());
             return homework;
         }
 
