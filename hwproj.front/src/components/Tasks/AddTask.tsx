@@ -6,6 +6,7 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {CreateTaskViewModel} from "../../api";
 import Checkbox from "@material-ui/core/Checkbox";
 import Grid from "@material-ui/core/Grid";
+import Utils from "../../services/Utils";
 
 interface IAddTaskProps {
     id: number;
@@ -86,7 +87,11 @@ export default class AddTask extends React.Component<IAddTaskProps,
                                     label="Дата публикации"
                                     type="datetime-local"
                                     defaultValue={this.state.publicationDate?.toLocaleString("ru-RU")}
-                                    onChange={(e) => this.setState({publicationDate: new Date(e.target.value)})}
+                                    onChange={(e) => {
+                                        let date = new Date(e.target.value)
+                                        date = Utils.toMoscowDate(date)
+                                        this.setState({publicationDate: date})
+                                    }}
                                     InputLabelProps={{
                                         shrink: true,
                                     }}
@@ -108,43 +113,47 @@ export default class AddTask extends React.Component<IAddTaskProps,
                             </Grid>
                         </Grid>
                         {this.state.hasDeadline &&
-                        <Grid
-                            container
-                            direction="row"
-                            alignItems="center"
-                            justifyContent="space-between"
-                            style={{marginTop: '16px'}}
-                        >
-                            <Grid item>
-                                <TextField
-                                    id="datetime-local"
-                                    label="Дедлайн задачи"
-                                    type="datetime-local"
-                                    defaultValue={this.state.deadlineDate?.toLocaleString("ru-RU")}
-                                    InputLabelProps={{
-                                        shrink: true,
-                                    }}
-                                    required
-                                    onChange={(e) => this.setState({deadlineDate: new Date(e.target.value)})}
-                                />
-                            </Grid>
-                            <Grid item>
-                                <label>
-                                    <Checkbox
-                                        color="primary"
-                                        onChange={(e) => this.setState({isDeadlineStrict: e.target.checked})}
+                            <Grid
+                                container
+                                direction="row"
+                                alignItems="center"
+                                justifyContent="space-between"
+                                style={{marginTop: '16px'}}
+                            >
+                                <Grid item>
+                                    <TextField
+                                        id="datetime-local"
+                                        label="Дедлайн задачи"
+                                        type="datetime-local"
+                                        defaultValue={this.state.deadlineDate?.toLocaleString("ru-RU")}
+                                        InputLabelProps={{
+                                            shrink: true,
+                                        }}
+                                        required
+                                        onChange={(e) => {
+                                            let date = new Date(e.target.value)
+                                            date = Utils.toMoscowDate(date)
+                                            this.setState({deadlineDate: date})
+                                        }}
                                     />
-                                    Запретить отправку решений после дедлайна
-                                </label>
+                                </Grid>
+                                <Grid item>
+                                    <label>
+                                        <Checkbox
+                                            color="primary"
+                                            onChange={(e) => this.setState({isDeadlineStrict: e.target.checked})}
+                                        />
+                                        Запретить отправку решений после дедлайна
+                                    </label>
+                                </Grid>
                             </Grid>
-                        </Grid>
                         }
                         <Grid
                             container
-                            style={{ marginTop: '16px' }}
+                            style={{marginTop: '16px'}}
                         >
                             <Button
-                                style={{ marginRight: '5px'}}
+                                style={{marginRight: '5px'}}
                                 size="small"
                                 variant="contained"
                                 color="primary"

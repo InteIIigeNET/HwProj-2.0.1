@@ -11,6 +11,7 @@ import Grid from "@material-ui/core/Grid";
 import EditIcon from "@material-ui/icons/Edit";
 import {makeStyles} from "@material-ui/styles";
 import Container from "@material-ui/core/Container";
+import Utils from "../../services/Utils";
 
 interface IEditTaskState {
     isLoaded: boolean;
@@ -205,6 +206,7 @@ const EditTask: FC<RouteComponentProps<IEditTaskProps>> = (props) => {
                                         defaultValue={taskState.publicationDate?.toLocaleString("ru-RU")}
                                         onChange={(e) => {
                                             let date = new Date(e.target.value)
+                                            date = Utils.toMoscowDate(date)
                                             e.persist()
                                             setTaskState((prevState) => ({
                                                 ...prevState,
@@ -249,6 +251,7 @@ const EditTask: FC<RouteComponentProps<IEditTaskProps>> = (props) => {
                                             onChange={(e) => {
                                                 e.persist()
                                                 let date = new Date(e.target.value)
+                                                date = Utils.toMoscowDate(date)
                                                 setTaskState((prevState) => ({
                                                     ...prevState,
                                                     deadlineDate: date,
