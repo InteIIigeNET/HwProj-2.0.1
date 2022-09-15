@@ -21,7 +21,8 @@ namespace HwProj.SolutionsService.API.Domains
                             Tasks = new List<StatisticsCourseTasksModel>(h.Tasks.Select(t =>
                             {
                                 var solutions =
-                                    model.Solutions.Where(s => s.TaskId == t.Id && s.StudentId == m.StudentId);
+                                    model.Solutions.Where(s => s.TaskId == t.Id && s.StudentId == m.StudentId)
+                                        .OrderBy(s => s.PublicationDate);
                                 var solutionsInRightModel =
                                     new List<StatisticsCourseSolutionsModel>(solutions.Select(s =>
                                         new StatisticsCourseSolutionsModel(s)));
