@@ -18,6 +18,7 @@ interface ITaskStudentCellState {
     redirectForMentor: boolean;
     redirectForStudent: boolean;
     color: string;
+    ratedSolutionsCount: number;
 }
 
 export default class TaskStudentCell extends React.Component<ITaskStudentCellProps,
@@ -30,6 +31,7 @@ export default class TaskStudentCell extends React.Component<ITaskStudentCellPro
             redirectForMentor: false,
             redirectForStudent: false,
             color: "",
+            ratedSolutionsCount: 0
         };
     }
 
@@ -61,7 +63,7 @@ export default class TaskStudentCell extends React.Component<ITaskStudentCellPro
                 ? ""
                 : <Stack direction="row" spacing={0.3} justifyContent={"center"} alignItems={"center"}>
                     <div>{this.state.solution.rating!}</div>
-                    <Chip color={"default"} size={"small"} label={this.props.solutions!.length}/>
+                    <Chip color={"default"} size={"small"} label={this.state.ratedSolutionsCount}/>
                 </Stack>
             return (
                 <TableCell
@@ -100,9 +102,8 @@ export default class TaskStudentCell extends React.Component<ITaskStudentCellPro
 
     async componentDidMount() {
         const solutions = this.props.solutions
-        const isFirstUnratedTry = solutions!
-            .filter(x => x.state != Solution.StateEnum.NUMBER_0)
-            .length === 0
+        const ratedSolutionsCount = solutions!.filter(x => x.state != Solution.StateEnum.NUMBER_0).length
+        const isFirstUnratedTry = ratedSolutionsCount === 0
         const lastSolution = solutions!.slice(-1)[0]
         if (lastSolution === undefined) {
             this.setState({
@@ -115,7 +116,8 @@ export default class TaskStudentCell extends React.Component<ITaskStudentCellPro
         this.setState({
             color: this.getCellBackgroundColor(lastSolution.state, isFirstUnratedTry),
             isLoaded: true,
-            solution: lastSolution
+            solution: lastSolution,
+            ratedSolutionsCount: ratedSolutionsCount
         })
     }
 }
