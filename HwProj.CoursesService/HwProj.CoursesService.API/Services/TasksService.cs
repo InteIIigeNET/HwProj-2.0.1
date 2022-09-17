@@ -4,6 +4,7 @@ using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.EventBus.Client.Interfaces;
+using HwProj.Models;
 using HwProj.Models.CoursesService.ViewModels;
 
 namespace HwProj.CoursesService.API.Services
@@ -38,7 +39,8 @@ namespace HwProj.CoursesService.API.Services
             var homework = await _homeworksRepository.GetAsync(task.HomeworkId);
             var course = await _coursesRepository.GetWithCourseMatesAsync(homework.CourseId);
             var courseModel = _mapper.Map<CourseDTO>(course);
-            _eventBus.Publish(new NewHomeworkTaskEvent(task.Title, task.Id, task.DeadlineDate, courseModel));
+            if (task.PublicationDate <= DateTimeUtils.GetMoscowNow())
+                _eventBus.Publish(new NewHomeworkTaskEvent(task.Title, task.Id, task.DeadlineDate, courseModel));
 
             return await _tasksRepository.AddAsync(task);
         }
