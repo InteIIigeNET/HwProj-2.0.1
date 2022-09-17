@@ -40,7 +40,13 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
 
     const renderDate = (date: Date) => {
         date = new Date(date)
-        const options = {month: 'long', day: 'numeric', hour: "2-digit", minute: "2-digit"};
+        const options = {month: 'long', day: 'numeric'};
+        return date.toLocaleString("ru-RU", options)
+    }
+
+    const renderTime = (date: Date) => {
+        date = new Date(date)
+        const options = {hour: "2-digit", minute: "2-digit"};
         return date.toLocaleString("ru-RU", options)
     }
 
@@ -109,9 +115,9 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         </Card>
     }
 
-    return <Grid container direction={"row"} spacing={10}>
-        <Grid item xs={4}>
-            <Timeline style={{maxHeight: 500, overflow: 'auto', width: 400}}
+    return <Grid container direction={"row"} spacing={1}>
+        <Grid item xs={5}>
+            <Timeline style={{maxHeight: 500, overflow: 'auto'}}
                       sx={{'&::-webkit-scrollbar': {display: "none"}}}>
                 {homeworks.map(x => <div><TimelineItem
                     sx={{":hover": {backgroundColor: "ghostwhite", borderRadius: "15px", cursor: "pointer"}}}
@@ -128,7 +134,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                         <TimelineConnector/>
                     </TimelineSeparator>
                     <TimelineContent>
-                        <Typography variant="h6" component="span">
+                        <Typography variant="h6" component="span" className="antiLongWords">
                             {x.title}
                         </Typography>
                     </TimelineContent>
@@ -143,13 +149,15 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                         sx={{":hover": {backgroundColor: "ghostwhite", borderRadius: "15px", cursor: "pointer"}}}>
                         <TimelineOppositeContent color="textSecondary">
                             {t.deadlineDate ? renderDate(t.deadlineDate) : ""}
+                            <br/>
+                            {t.deadlineDate ? renderTime(t.deadlineDate) : ""}
                         </TimelineOppositeContent>
                         <TimelineSeparator>
                             <TimelineDot variant={"outlined"}/>
                             <TimelineConnector/>
                         </TimelineSeparator>
                         <TimelineContent>
-                            <Typography>
+                            <Typography className="antiLongWords">
                                 {t.title}
                             </Typography>
                         </TimelineContent>
@@ -158,7 +166,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             </Timeline>
         </Grid>
 
-        <Grid item xs={8}>
+        <Grid item xs={7}>
             {renderSelectedItem()}
         </Grid>
     </Grid>
