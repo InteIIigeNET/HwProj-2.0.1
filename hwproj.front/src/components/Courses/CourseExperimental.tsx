@@ -4,6 +4,7 @@ import {
     HomeworkViewModel, StatisticsCourseMatesModel
 } from "../../api";
 import {
+    Button,
     Grid,
     Typography
 } from "@material-ui/core";
@@ -15,7 +16,8 @@ import TimelineConnector from '@mui/lab/TimelineConnector';
 import TimelineContent from '@mui/lab/TimelineContent';
 import TimelineDot from '@mui/lab/TimelineDot';
 import TimelineOppositeContent from '@mui/lab/TimelineOppositeContent';
-import {Card, CardContent, Chip, Divider} from "@mui/material";
+import {Card, CardActions, CardContent, Chip, Divider} from "@mui/material";
+import ReactMarkdown from "react-markdown";
 
 interface ICourseExperimentalProps {
     homeworks: HomeworkViewModel[];
@@ -57,8 +59,8 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 <Grid item><Chip label={homework.tasks!.length + " заданий"}/></Grid>
             </Grid>
             <Divider style={{marginTop: 15, marginBottom: 15}}/>
-            <Typography style={{color: "GrayText"}} gutterBottom className="antiLongWords">
-                {homework.description}
+            <Typography style={{color: "GrayText"}} gutterBottom variant="body1">
+                <ReactMarkdown children={homework.description!}/>
             </Typography>
         </CardContent>
     }
@@ -76,8 +78,8 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 </Grid>
             </Grid>
             <Divider style={{marginTop: 15, marginBottom: 15}}/>
-            <Typography style={{color: "GrayText"}} gutterBottom className="antiLongWords">
-                {task.description}
+            <Typography style={{color: "GrayText"}} gutterBottom variant="body1">
+                <ReactMarkdown children={task.description!}/>
             </Typography>
         </CardContent>
     }
@@ -86,8 +88,24 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         if (!data) return null
 
         const isTask = (data as HomeworkTaskViewModel).maxRating !== undefined
+        if (!isTask) return <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
+            {renderHomework(data as HomeworkViewModel)}
+        </Card>
+
+        const task = data as HomeworkTaskViewModel
         return <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
-            {isTask ? renderTask(data as HomeworkTaskViewModel) : renderHomework(data as HomeworkViewModel)}
+            {renderTask(task)}
+            <CardActions>
+                <Button
+                    style={{width: '150px'}}
+                    size="small"
+                    variant="contained"
+                    color="primary"
+                    onClick={() => window.location.assign("/task/" + task.id!.toString())}
+                >
+                    Решения
+                </Button>
+            </CardActions>
         </Card>
     }
 
