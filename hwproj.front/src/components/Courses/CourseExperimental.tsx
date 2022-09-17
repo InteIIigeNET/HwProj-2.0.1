@@ -16,8 +16,9 @@ import TimelineConnector from '@mui/lab/TimelineConnector';
 import TimelineContent from '@mui/lab/TimelineContent';
 import TimelineDot from '@mui/lab/TimelineDot';
 import TimelineOppositeContent from '@mui/lab/TimelineOppositeContent';
-import {Card, CardActions, CardContent, Chip, Divider} from "@mui/material";
+import {Box, Card, CardActions, CardContent, Chip, Divider} from "@mui/material";
 import ReactMarkdown from "react-markdown";
+import makeStyles from "@material-ui/styles/makeStyles";
 
 interface ICourseExperimentalProps {
     homeworks: HomeworkViewModel[];
@@ -120,26 +121,19 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         <Grid item xs={5}>
             <Timeline style={{maxHeight: 500, overflow: 'auto'}}
                       sx={{'&::-webkit-scrollbar': {display: "none"}}}>
-                {homeworks.map(x => <div><TimelineItem
-                    sx={{":hover": {backgroundColor: "ghostwhite", borderRadius: "15px", cursor: "pointer"}}}
-                    onClick={() => {
-                        setState(prevState => ({
-                            ...prevState,
-                            data: x
-                        }))
-                    }}>
-                    <TimelineOppositeContent color="textSecondary">
-                    </TimelineOppositeContent>
-                    <TimelineSeparator>
-                        <TimelineDot/>
-                        <TimelineConnector/>
-                    </TimelineSeparator>
-                    <TimelineContent>
-                        <Typography variant="h6" component="span" className="antiLongWords">
+                {homeworks.map(x => <div>
+                    <Box sx={{":hover": {backgroundColor: "ghostwhite", borderRadius: "15px", cursor: "pointer"}}}
+                         style={{marginTop: 10, marginBottom: 10}}
+                         onClick={() => {
+                             setState(prevState => ({
+                                 ...prevState,
+                                 data: x
+                             }))
+                         }}>
+                        <Typography variant="h6" align={"center"}>
                             {x.title}
                         </Typography>
-                    </TimelineContent>
-                </TimelineItem>
+                    </Box>
                     {x.tasks?.map(t => <TimelineItem
                         onClick={() => {
                             setState(prevState => ({
