@@ -34,6 +34,12 @@ namespace HwProj.CoursesService.API.Services
         public async Task<long> AddTaskAsync(long homeworkId, HomeworkTask task)
         {
             task.HomeworkId = homeworkId;
+
+            var homework = await _homeworksRepository.GetAsync(task.HomeworkId);
+            var course = await _coursesRepository.GetWithCourseMatesAsync(homework.CourseId);
+            var courseModel = _mapper.Map<CourseDTO>(course);
+            _eventBus.Publish(new NewHomeworkTaskEvent(task.Title, task.Id, task.DeadlineDate, courseModel));
+
             return await _tasksRepository.AddAsync(task);
         }
 

@@ -8,7 +8,6 @@
     <Nullable>$(NullableReferenceTypes)</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="EventHandlers\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
   <ItemGroup>
