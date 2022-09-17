@@ -130,8 +130,8 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                  data: x
                              }))
                          }}>
-                        <Typography variant="h6" align={"center"}>
-                            {x.title}
+                        <Typography variant="subtitle1" align={"center"}>
+                            <b>{x.title}</b>
                         </Typography>
                     </Box>
                     {x.tasks?.map(t => <TimelineItem
