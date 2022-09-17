@@ -101,7 +101,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         const task = data as HomeworkTaskViewModel
         return <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
             {renderTask(task)}
-            <CardActions>
+            {!props.isMentor && <CardActions>
                 <Button
                     style={{width: '150px'}}
                     size="small"
@@ -111,7 +111,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 >
                     Решения
                 </Button>
-            </CardActions>
+            </CardActions>}
         </Card>
     }
 
