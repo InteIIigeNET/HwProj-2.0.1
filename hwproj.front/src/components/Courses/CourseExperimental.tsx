@@ -1,7 +1,7 @@
 import * as React from "react";
 import {
     HomeworkTaskViewModel,
-    HomeworkViewModel, StatisticsCourseMatesModel
+    HomeworkViewModel, Solution, StatisticsCourseMatesModel, StatisticsCourseSolutionsModel
 } from "../../api";
 import {
     Button,
@@ -18,13 +18,15 @@ import TimelineDot from '@mui/lab/TimelineDot';
 import TimelineOppositeContent from '@mui/lab/TimelineOppositeContent';
 import {Box, Card, CardActions, CardContent, Chip, Divider} from "@mui/material";
 import ReactMarkdown from "react-markdown";
-import makeStyles from "@material-ui/styles/makeStyles";
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import {CheckCircleOutline} from "@mui/icons-material";
 
 interface ICourseExperimentalProps {
-    homeworks: HomeworkViewModel[];
-    studentSolutions: StatisticsCourseMatesModel[];
+    homeworks: HomeworkViewModel[]
+    studentSolutions: StatisticsCourseMatesModel[]
     isMentor: boolean
     isStudentAccepted: boolean
+    userId: string
 }
 
 interface ICourseExperimentalState {
@@ -33,6 +35,7 @@ interface ICourseExperimentalState {
 
 const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const homeworks = props.homeworks.slice().reverse()
+    const {isMentor, studentSolutions, isStudentAccepted, userId} = props
 
     const [state, setState] = useState<ICourseExperimentalState>({
         data: homeworks && homeworks[0]
@@ -92,6 +95,30 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         </CardContent>
     }
 
+    const taskSolutionsMap = new Map<number, StatisticsCourseSolutionsModel[]>()
+
+    if (!isMentor && isStudentAccepted) {
+        studentSolutions
+            .filter(t => t.id === userId)
+            .flatMap(t => t.homeworks!)
+            .flatMap(t => t.tasks!)
+            .forEach(x => taskSolutionsMap.set(x.id!, x.solution!))
+    }
+
+    const renderTaskStatus = (taskId: number) => {
+        if (taskSolutionsMap.has(taskId)) {
+            const solutions = taskSolutionsMap.get(taskId)
+            /// final
+            if (solutions!.some(x => x.state === Solution.StateEnum.NUMBER_2))
+                return <CheckCircleIcon color={"disabled"} fontSize={"small"}/>
+            /// rated
+            if (solutions!.some(x => x.state === Solution.StateEnum.NUMBER_1))
+                return <CheckCircleOutline color={"disabled"} fontSize={"small"}/>
+            return <TimelineDot variant={"outlined"}/>
+        }
+        return <TimelineDot variant={"outlined"}/>
+    }
+
     const renderSelectedItem = () => {
         if (!data) return null
 
@@ -148,10 +175,10 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                             {t.deadlineDate ? renderTime(t.deadlineDate) : ""}
                         </TimelineOppositeContent>
                         <TimelineSeparator>
-                            <TimelineDot variant={"outlined"}/>
+                            {renderTaskStatus(t.id!)}
                             <TimelineConnector/>
                         </TimelineSeparator>
-                        <TimelineContent>
+                        <TimelineContent alignItems={"center"}>
                             <Typography className="antiLongWords">
                                 {t.title}
                             </Typography>

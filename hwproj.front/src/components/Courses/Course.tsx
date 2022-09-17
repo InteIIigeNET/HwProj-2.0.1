@@ -217,7 +217,9 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                         {
                             showExperimentalFeature ?
                                 <CourseExperimental homeworks={courseState.courseHomework} isMentor={isMentor}
-                                                    studentSolutions={[]} isStudentAccepted={isAcceptedStudent}/> :
+                                                    studentSolutions={studentSolutions}
+                                                    isStudentAccepted={isAcceptedStudent}
+                                                    userId={userId!}/> :
                                 <div>
                                     {createHomework && (
                                         <div>
