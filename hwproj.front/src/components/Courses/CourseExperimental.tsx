@@ -23,6 +23,7 @@ interface ICourseExperimentalProps {
     homeworks: HomeworkViewModel[];
     studentSolutions: StatisticsCourseMatesModel[];
     isMentor: boolean
+    isStudentAccepted: boolean
 }
 
 interface ICourseExperimentalState {
@@ -101,8 +102,8 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         const task = data as HomeworkTaskViewModel
         return <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
             {renderTask(task)}
-            {!props.isMentor && <CardActions>
-                <Button
+            {!props.isMentor && props.isStudentAccepted && < CardActions>
+                < Button
                     style={{width: '150px'}}
                     size="small"
                     variant="contained"
