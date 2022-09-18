@@ -163,11 +163,10 @@ namespace HwProj.SolutionsService.API.Controllers
             var solutions = await _solutionsRepository
                 .FindAll(t => taskIds.Contains(t.TaskId))
                 .GroupBy(t => new { t.TaskId, t.StudentId })
+                .Select(t => t.OrderByDescending(x => x.PublicationDate))
                 .Select(t => new
                 {
-                    LastSolution = t
-                        .OrderByDescending(x => x.PublicationDate)
-                        .FirstOrDefault(),
+                    LastSolution = t.FirstOrDefault(),
                     IsFirstTry = t.Skip(1).All(s => s.State == SolutionState.Posted)
                 })
                 .Where(t => t.LastSolution != null && t.LastSolution.State == SolutionState.Posted)
