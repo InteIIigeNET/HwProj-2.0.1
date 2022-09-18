@@ -30,7 +30,11 @@ interface ICourseExperimentalProps {
 }
 
 interface ICourseExperimentalState {
-    data: HomeworkViewModel | HomeworkTaskViewModel | undefined
+    selectedItem: {
+        isHomework: boolean,
+        id: number | undefined,
+        data: HomeworkViewModel | HomeworkTaskViewModel | undefined
+    }
 }
 
 const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
@@ -38,10 +42,14 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const {isMentor, studentSolutions, isStudentAccepted, userId} = props
 
     const [state, setState] = useState<ICourseExperimentalState>({
-        data: homeworks && homeworks[0]
+        selectedItem: {
+            isHomework: true,
+            id: homeworks && homeworks[0].id,
+            data: homeworks && homeworks[0]
+        }
     })
 
-    const {data} = state
+    const {data, id, isHomework} = state.selectedItem
 
     const renderDate = (date: Date) => {
         date = new Date(date)
@@ -54,6 +62,11 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         const options = {hour: "2-digit", minute: "2-digit"};
         return date.toLocaleString("ru-RU", options)
     }
+
+    const hoveredItemStyle = {backgroundColor: "ghostwhite", borderRadius: "10px", cursor: "pointer"}
+
+    const getStyle = (itemIsHomework: boolean, itemId: number) =>
+        itemIsHomework === isHomework && itemId === id ? hoveredItemStyle : {}
 
     const renderHomework = (homework: HomeworkViewModel) => {
         const deferredHomeworks = homework.tasks!.filter(t => t.isDeferred!)
@@ -122,8 +135,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const renderSelectedItem = () => {
         if (!data) return null
 
-        const isTask = (data as HomeworkTaskViewModel).maxRating !== undefined
-        if (!isTask) return <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
+        if (isHomework) return <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
             {renderHomework(data as HomeworkViewModel)}
         </Card>
 
@@ -149,12 +161,16 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             <Timeline style={{maxHeight: 500, overflow: 'auto'}}
                       sx={{'&::-webkit-scrollbar': {display: "none"}}}>
                 {homeworks.map(x => <div>
-                    <Box sx={{":hover": {backgroundColor: "ghostwhite", borderRadius: "15px", cursor: "pointer"}}}
-                         style={{marginTop: 10, marginBottom: 10}}
+                    <Box sx={{":hover": hoveredItemStyle}}
+                         style={{...getStyle(true, x.id!), marginTop: 10, marginBottom: 10}}
                          onClick={() => {
                              setState(prevState => ({
                                  ...prevState,
-                                 data: x
+                                 selectedItem: {
+                                     data: x,
+                                     isHomework: true,
+                                     id: x.id
+                                 }
                              }))
                          }}>
                         <Typography variant="subtitle1" align={"center"}>
@@ -165,10 +181,15 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                         onClick={() => {
                             setState(prevState => ({
                                 ...prevState,
-                                data: t
+                                selectedItem: {
+                                    data: t,
+                                    isHomework: false,
+                                    id: t.id
+                                }
                             }))
                         }}
-                        sx={{":hover": {backgroundColor: "ghostwhite", borderRadius: "15px", cursor: "pointer"}}}>
+                        style={{...getStyle(false, t.id!)}}
+                        sx={{":hover": hoveredItemStyle}}>
                         <TimelineOppositeContent color="textSecondary">
                             {t.deadlineDate ? renderDate(t.deadlineDate) : ""}
                             <br/>
