@@ -112,7 +112,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
 
     return (<div>
             <Grid container direction="column" spacing={2}>
-                <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                <Stack direction={"row"} spacing={1} alignItems={"center"} style={{marginLeft: 7}}>
                     <Avatar {...AvatarUtils.stringAvatar(student.name!, student.surname!)} />
                     <Grid item spacing={1} container direction="column">
                         {solution.comment &&
