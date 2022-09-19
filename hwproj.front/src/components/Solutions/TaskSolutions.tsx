@@ -1,7 +1,7 @@
 import * as React from 'react';
 import TaskSolutionComponent from "./TaskSolutionComponent";
 import ApiSingleton from "../../api/ApiSingleton";
-import {Solution} from '../../api';
+import {AccountDataDto, Solution} from '../../api';
 import {ListItem, Grid, Tabs, Tab} from "@material-ui/core";
 import {FC, useEffect, useState} from "react";
 import {Divider} from "@mui/material";
@@ -17,6 +17,7 @@ interface ITaskSolutionsState {
     isLoaded: boolean,
     tabValue: number
     solutions: Solution[],
+    student: AccountDataDto | undefined,
 }
 
 const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
@@ -25,6 +26,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
         isLoaded: false,
         tabValue: 0,
         solutions: [],
+        student: undefined
     })
 
     useEffect(() => {
@@ -32,18 +34,19 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
     }, [])
 
     const getSolutions = async () => {
-        const solutions = await ApiSingleton.solutionsApi.apiSolutionsTaskSolutionByTaskIdByStudentIdGet(
+        const userTaskSolutions = await ApiSingleton.solutionsApi.apiSolutionsTaskSolutionByTaskIdByStudentIdGet(
             props.taskId,
             props.studentId
         )
         setState(prevState => ({
             isLoaded: true,
-            solutions: solutions,
+            solutions: userTaskSolutions.solutions!,
+            student: userTaskSolutions.user!,
             tabValue: prevState.tabValue
         }))
     }
 
-    const {isLoaded, solutions, tabValue} = state
+    const {isLoaded, solutions, tabValue, student} = state
     const lastSolution = solutions[solutions.length - 1]
     const arrayOfRatedSolutions = solutions.slice(0, solutions.length - 1)
     const lastRating = arrayOfRatedSolutions
@@ -71,6 +74,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                 ? <TaskSolutionComponent
                     forMentor={props.forMentor}
                     solution={lastSolution!}
+                    student={student!}
                     isExpanded={true}
                     lastRating={lastRating}
                     maxRating={props.maxRating}
@@ -83,6 +87,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                     <TaskSolutionComponent
                         forMentor={false}
                         solution={x}
+                        student={student!}
                         isExpanded={true}
                         maxRating={props.maxRating}
                     />

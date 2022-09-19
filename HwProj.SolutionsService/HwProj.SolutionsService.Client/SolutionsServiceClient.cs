@@ -42,7 +42,7 @@ namespace HwProj.SolutionsService.Client
             return await response.DeserializeAsync<Solution>();
         }
 
-        public async Task<Solution[]> GetUserSolution(long taskId, string studentId)
+        public async Task<Solution[]> GetUserSolutions(long taskId, string studentId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,

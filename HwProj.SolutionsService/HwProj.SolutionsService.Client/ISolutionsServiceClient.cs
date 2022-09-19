@@ -8,7 +8,7 @@ namespace HwProj.SolutionsService.Client
     { 
         Task<Solution[]> GetAllSolutions();
         Task<Solution> GetSolutionById(long solutionId);
-        Task<Solution[]> GetUserSolution(long taskId, string studentId);
+        Task<Solution[]> GetUserSolutions(long taskId, string studentId);
         Task<long> PostSolution(SolutionViewModel model, long taskId);
         Task RateSolution(long solutionId, int newRating, string lecturerComment, string lecturerId);
         Task MarkSolution(long solutionId);

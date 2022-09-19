@@ -3,13 +3,14 @@ import {FC, useState} from 'react';
 import {Button, Grid, TextField, Typography} from "@material-ui/core";
 import Link from '@material-ui/core/Link'
 import './style.css'
-import {HomeworkTaskViewModel, Solution} from '../../api'
+import {AccountDataDto, HomeworkTaskViewModel, Solution} from '../../api'
 import ApiSingleton from "../../api/ApiSingleton";
-import {Rating} from "@mui/material";
-import Utils from "../../services/Utils";
+import {Avatar, Rating, Stack} from "@mui/material";
+import AvatarUtils from "../Utils/AvatarUtils";
 
 interface ISolutionProps {
     solution: Solution,
+    student: AccountDataDto,
     forMentor: boolean,
     isExpanded: boolean,
     lastRating?: number,
@@ -42,7 +43,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         window.location.reload()
     }
 
-    const {solution, maxRating, lastRating} = props
+    const {solution, maxRating, lastRating, student} = props
     //TODO: enum instead of string
     const isRated = solution.state!.toString() != "Posted"
     const {points, lecturerComment} = state
@@ -111,25 +112,30 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
 
     return (<div>
             <Grid container direction="column" spacing={2}>
-                <Grid item>
-                    <Link
-                        href={solution.githubUrl}
-                        target="_blank"
-                        style={{color: 'darkblue'}}
-                    >
-                        Ссылка на решение
-                    </Link>
-                    <Typography style={{color: "GrayText"}}>
-                        {postedSolutionTime}
-                    </Typography>
-                </Grid>
-                {solution.comment &&
-                    <Grid item>
-                        <Typography className="antiLongWords">
-                            Комментарий студента: {solution.comment}
-                        </Typography>
+                <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                    <Avatar {...AvatarUtils.stringAvatar(student.name!, student.surname!)} />
+                    <Grid item spacing={1} container direction="column">
+                        {solution.comment &&
+                            <Grid item>
+                                <Typography className="antiLongWords">
+                                    {solution.comment}
+                                </Typography>
+                            </Grid>
+                        }
+                        <Grid item>
+                            <Link
+                                href={solution.githubUrl}
+                                target="_blank"
+                                style={{color: 'darkblue'}}
+                            >
+                                Ссылка на решение
+                            </Link>
+                            <Typography style={{color: "GrayText"}}>
+                                {postedSolutionTime}
+                            </Typography>
+                        </Grid>
                     </Grid>
-                }
+                </Stack>
                 {(props.forMentor || isRated) &&
                     <Grid item container direction={"column"}>
                         {renderRateInput()}

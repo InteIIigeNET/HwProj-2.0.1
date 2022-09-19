@@ -1364,6 +1364,26 @@ export interface UserDataDto {
     taskDeadlines?: Array<TaskDeadlineView>;
 }
 
+/**
+ *
+ * @export
+ * @interface UserTaskSolutions
+ */
+export interface UserTaskSolutions {
+    /**
+     *
+     * @type {Array<Solution>}
+     * @memberof UserTaskSolutions
+     */
+    solutions?: Array<Solution>;
+    /**
+     *
+     * @type {AccountDataDto}
+     * @memberof UserTaskSolutions
+     */
+    user?: AccountDataDto;
+}
+
 
 /**
  * AccountApi - fetch parameter creator
@@ -4824,7 +4844,7 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSolutionsTaskSolutionByTaskIdByStudentIdGet(taskId: number, studentId: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<Solution>> {
+        apiSolutionsTaskSolutionByTaskIdByStudentIdGet(taskId: number, studentId: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<UserTaskSolutions> {
             const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsTaskSolutionByTaskIdByStudentIdGet(taskId, studentId, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {

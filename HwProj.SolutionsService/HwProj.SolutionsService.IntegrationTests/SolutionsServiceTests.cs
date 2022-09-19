@@ -202,7 +202,7 @@ namespace HwProj.SolutionsService.IntegrationTests
             
             var solutionId1 = await solutionClient.PostSolution(solutionViewModel1, taskId);
             var solutionId2 = await solutionClient.PostSolution(solutionViewModel2, taskId);
-            var solutionIdGet = await solutionClient.GetUserSolution(taskId, studentId);
+            var solutionIdGet = await solutionClient.GetUserSolutions(taskId, studentId);
 
             solutionIdGet.Should().HaveCount(2);
             solutionIdGet.Should().ContainSingle(s => s.Id == solutionId1);
@@ -300,7 +300,7 @@ namespace HwProj.SolutionsService.IntegrationTests
             var solutionId = await solutionClient.PostSolution(solutionViewModel, taskId);
             var solutionIdBefore = await solutionClient.GetSolutionById(solutionId);
             await solutionClient.DeleteSolution(solutionId);
-            var solutionIdAfter = await solutionClient.GetUserSolution(taskId, studentId);
+            var solutionIdAfter = await solutionClient.GetUserSolutions(taskId, studentId);
 
             solutionIdBefore.Id.Should().Be(solutionId);
             solutionIdAfter.Should().NotContain(s => s.Id == solutionIdBefore.Id);
@@ -349,7 +349,7 @@ namespace HwProj.SolutionsService.IntegrationTests
             solutionViewModel.PublicationDate = DateTime.MaxValue;
 
             var solutionId = await solutionsClient.PostSolution(solutionViewModel, taskId.Value);
-            var solutionIdGet = await solutionsClient.GetUserSolution(taskId.Value, studentId);
+            var solutionIdGet = await solutionsClient.GetUserSolutions(taskId.Value, studentId);
 
             solutionIdGet.Should().HaveCount(1);
             solutionIdGet.Should().Contain(s => s.Id == solutionId);
