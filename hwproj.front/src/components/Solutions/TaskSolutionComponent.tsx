@@ -5,21 +5,20 @@ import Link from '@material-ui/core/Link'
 import './style.css'
 import {AccountDataDto, HomeworkTaskViewModel, Solution} from '../../api'
 import ApiSingleton from "../../api/ApiSingleton";
-import {Avatar, Rating, Stack} from "@mui/material";
+import {Avatar, Rating, Stack, Alert} from "@mui/material";
 import AvatarUtils from "../Utils/AvatarUtils";
 
 interface ISolutionProps {
     solution: Solution,
     student: AccountDataDto,
+    task: HomeworkTaskViewModel,
     forMentor: boolean,
     isExpanded: boolean,
-    lastRating?: number,
-    maxRating: number,
+    lastRating?: number
 }
 
 interface ISolutionState {
     points: number,
-    task: HomeworkTaskViewModel,
     lecturerComment: string,
     clickedForRate: boolean,
 }
@@ -28,7 +27,6 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
 
     const [state, setState] = useState<ISolutionState>({
         points: props.solution.rating || 0,
-        task: {},
         lecturerComment: props.solution.lecturerComment || "",
         clickedForRate: false,
     })
@@ -43,11 +41,21 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         window.location.reload()
     }
 
-    const {solution, maxRating, lastRating, student} = props
+    const {solution, lastRating, student, task} = props
+    const maxRating = task.maxRating!
     //TODO: enum instead of string
     const isRated = solution.state!.toString() != "Posted"
     const {points, lecturerComment} = state
     const postedSolutionTime = new Date(solution.publicationDate!).toLocaleString("ru-RU")
+
+    const getDatesDiff = (_date1: Date, _date2: Date) => {
+        const date1 = new Date(_date1).getTime()
+        const date2 = new Date(_date2).getTime()
+        const diffTime = date1 - date2
+        if (diffTime <= 0) return ""
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays === 0 ? diffTime + " часов" : diffDays + " дней"
+    }
 
     const renderRateInput = () => {
         if (maxRating <= 10)
@@ -78,7 +86,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 <TextField
                     style={{width: 100}}
                     required
-                    error={state.clickedForRate && points > props.maxRating}
+                    error={state.clickedForRate && points > maxRating}
                     label="Баллы за решение"
                     variant="outlined"
                     margin="normal"
@@ -87,7 +95,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                     disabled={!props.forMentor}
                     InputProps={{
                         readOnly: !props.forMentor,
-                        inputProps: {max: props.maxRating, min: 0},
+                        inputProps: {max: maxRating, min: 0},
                     }}
                     defaultValue={points!}
                     maxRows={10}
@@ -109,6 +117,8 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
             </Grid>
         </Grid>)
     }
+
+    const sentAfterDeadline = getDatesDiff(solution.publicationDate!, task.deadlineDate!)
 
     return (<div>
             <Grid container direction="column" spacing={2}>
@@ -136,6 +146,11 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                         </Grid>
                     </Grid>
                 </Stack>
+                {sentAfterDeadline && <Grid item>
+                    <Alert variant="standard" severity="warning">
+                        Данное решение было отправлено на {sentAfterDeadline} позже дедлайна.
+                    </Alert>
+                </Grid>}
                 {(props.forMentor || isRated) &&
                     <Grid item container direction={"column"}>
                         {renderRateInput()}

@@ -1,16 +1,15 @@
 import * as React from 'react';
+import {FC, useEffect, useState} from 'react';
 import TaskSolutionComponent from "./TaskSolutionComponent";
 import ApiSingleton from "../../api/ApiSingleton";
-import {AccountDataDto, Solution} from '../../api';
-import {ListItem, Grid, Tabs, Tab} from "@material-ui/core";
-import {FC, useEffect, useState} from "react";
+import {AccountDataDto, HomeworkTaskViewModel, Solution} from '../../api';
+import {Grid, Tab, Tabs} from "@material-ui/core";
 import {Divider} from "@mui/material";
 
 interface ITaskSolutionsProps {
-    taskId: number,
+    task: HomeworkTaskViewModel,
     studentId: string,
-    forMentor: boolean,
-    maxRating: number,
+    forMentor: boolean
 }
 
 interface ITaskSolutionsState {
@@ -35,7 +34,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
 
     const getSolutions = async () => {
         const userTaskSolutions = await ApiSingleton.solutionsApi.apiSolutionsTaskSolutionByTaskIdByStudentIdGet(
-            props.taskId,
+            props.task.id!,
             props.studentId
         )
         setState(prevState => ({
@@ -72,12 +71,12 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
         {tabValue === 0 && <Grid item style={{marginTop: '16px'}}>
             {lastSolution
                 ? <TaskSolutionComponent
+                    task={props.task}
                     forMentor={props.forMentor}
                     solution={lastSolution!}
                     student={student!}
                     isExpanded={true}
                     lastRating={lastRating}
-                    maxRating={props.maxRating}
                 />
                 : "Студент не отправил ни одного решения."}
         </Grid>}
@@ -85,11 +84,11 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
             arrayOfRatedSolutions.reverse().map((x, i) =>
                 <Grid item style={{marginTop: '16px'}}>
                     <TaskSolutionComponent
+                        task={props.task}
                         forMentor={false}
                         solution={x}
                         student={student!}
                         isExpanded={true}
-                        maxRating={props.maxRating}
                     />
                     {i < arrayOfRatedSolutions.length - 1 ?
                         <Divider style={{marginTop: 10, marginBottom: 4}}/> : null}

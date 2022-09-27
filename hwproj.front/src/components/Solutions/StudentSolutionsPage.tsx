@@ -7,8 +7,6 @@ import TaskSolutions from "./TaskSolutions";
 import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useEffect, useState} from "react";
 import {Grid, Link} from "@material-ui/core";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import {Accordion, AccordionSummary} from "@mui/material";
 
 interface IStudentSolutionsPageProps {
     taskId: string;
@@ -91,9 +89,8 @@ const StudentSolutionsPage: FC<RouteComponentProps<IStudentSolutionsPageProps>> 
                     <Grid container xs={11}>
                         <TaskSolutions
                             forMentor={true}
-                            taskId={+props.match.params.taskId}
+                            task={studentSolutions.task}
                             studentId={props.match.params.studentId}
-                            maxRating={studentSolutions.task!.maxRating!}
                         />
                     </Grid>
                 </Grid>
