@@ -153,7 +153,8 @@ namespace HwProj.APIGateway.API.Controllers
                         TaskId = task.Id,
                         PublicationDate = solution.PublicationDate,
                         IsFirstTry = solution.IsFirstTry,
-                        SentAfterDeadline = task.DeadlineDate != null && solution.PublicationDate > task.DeadlineDate
+                        SentAfterDeadline = solution.IsFirstTry && task.DeadlineDate != null &&
+                                            solution.PublicationDate > task.DeadlineDate
                     };
                 })
                 .ToArray();
