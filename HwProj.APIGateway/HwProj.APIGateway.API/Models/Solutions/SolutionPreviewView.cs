@@ -9,11 +9,11 @@ namespace HwProj.APIGateway.API.Models.Solutions
         public string CourseTitle { get; set; }
         public long CourseId { get; set; }
         public string HomeworkTitle { get; set; }
-        public long HomeworkId { get; set; }
         public string TaskTitle { get; set; }
         public long TaskId { get; set; }
         public DateTime PublicationDate { get; set; }
         public bool IsFirstTry { get; set; }
+        public bool SentAfterDeadline { get; set; }
     }
 
     public class UnratedSolutionPreviews

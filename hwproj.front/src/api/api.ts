@@ -952,12 +952,6 @@ export interface SolutionPreviewView {
     homeworkTitle?: string;
     /**
      *
-     * @type {number}
-     * @memberof SolutionPreviewView
-     */
-    homeworkId?: number;
-    /**
-     *
      * @type {string}
      * @memberof SolutionPreviewView
      */
@@ -980,6 +974,12 @@ export interface SolutionPreviewView {
      * @memberof SolutionPreviewView
      */
     isFirstTry?: boolean;
+    /**
+     *
+     * @type {boolean}
+     * @memberof SolutionPreviewView
+     */
+    sentAfterDeadline?: boolean;
 }
 
 /**
