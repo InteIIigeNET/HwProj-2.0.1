@@ -2,7 +2,6 @@ import React from "react";
 import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api/";
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import TaskStudentCell from "../Tasks/TaskStudentCell";
-import ApiSingleton from "../../api/ApiSingleton";
 
 interface ICourseStudentsProps {
     course: CourseViewModel;
@@ -14,7 +13,7 @@ interface ICourseStudentsProps {
 
 class CourseStudents extends React.Component<ICourseStudentsProps, {}> {
     public render() {
-        const homeworks = this.props.homeworks.filter(h => h.tasks)
+        const homeworks = this.props.homeworks.filter(h => h.tasks && h.tasks.length > 0)
         return (
             <div>
                 <TableContainer>
