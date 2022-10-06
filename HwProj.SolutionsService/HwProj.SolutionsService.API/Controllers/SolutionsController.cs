@@ -148,7 +148,7 @@ namespace HwProj.SolutionsService.API.Controllers
             var solutionsStatsContext = new StatisticsAggregateModel
             {
                 CourseMates = courseMates,
-                Homeworks = course.Homeworks,
+                Homeworks = course.Homeworks.Where(t => t.Tasks.Any()).ToList(),
                 Solutions = solutions
             };
 
