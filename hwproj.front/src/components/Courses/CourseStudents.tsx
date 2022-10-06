@@ -14,6 +14,7 @@ interface ICourseStudentsProps {
 
 class CourseStudents extends React.Component<ICourseStudentsProps, {}> {
     public render() {
+        const homeworks = this.props.homeworks.filter(h => h.tasks)
         return (
             <div>
                 <TableContainer>
@@ -22,7 +23,7 @@ class CourseStudents extends React.Component<ICourseStudentsProps, {}> {
                             <TableRow>
                                 <TableCell align="center" padding="none" component="td">
                                 </TableCell>
-                                {this.props.homeworks.map((homework, index) => (
+                                {homeworks.map((homework, index) => (
                                     <TableCell
                                         padding="none"
                                         component="td"
@@ -35,7 +36,7 @@ class CourseStudents extends React.Component<ICourseStudentsProps, {}> {
                             </TableRow>
                             <TableRow>
                                 <TableCell component="td"></TableCell>
-                                {this.props.homeworks.map((homework) =>
+                                {homeworks.map((homework) =>
                                     homework.tasks!.map((task) => (
                                         <TableCell padding="none" component="td" align="center">
                                             {task.title}
@@ -55,7 +56,7 @@ class CourseStudents extends React.Component<ICourseStudentsProps, {}> {
                                     >
                                         {cm.surname} {cm.name}
                                     </TableCell>
-                                    {this.props.homeworks.map((homework) =>
+                                    {homeworks.map((homework) =>
                                         homework.tasks!.map((task) => (
                                             <TaskStudentCell
                                                 solutions={this.props.solutions
