@@ -167,8 +167,16 @@ namespace HwProj.APIGateway.API.Controllers
             foreach (var course in courses)
             foreach (var homework in course.Homeworks)
             foreach (var task in homework.Tasks)
-                if (taskId is { } id && task.Id == id || !taskId.HasValue)
+            {
+                if (taskId is { } id && task.Id == id)
+                {
                     yield return (task.Id, (course, homework.Title, task));
+                    yield break;
+                }
+
+                if (!taskId.HasValue)
+                    yield return (task.Id, (course, homework.Title, task));
+            }
         }
     }
 }
