@@ -62,8 +62,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HwProj.SolutionsService.Cli
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HwProj.Exceptions", "HwProj.Common\HwProj.Exceptions\HwProj.Exceptions.csproj", "{51463655-7668-4C7D-9FDE-D4D7CDAA82B8}"
 EndProject
-Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{20B1C1AF-F6B6-4253-AF1A-B24B9B66136D}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.SolutionsService.IntegrationTests", "HwProj.SolutionsService\HwProj.SolutionsService.IntegrationTests\HwProj.SolutionsService.IntegrationTests.csproj", "{9751B4E3-50A6-4678-A3AF-BE5CD828B151}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.AuthService.IntegrationTests", "HwProj.AuthService\HwProj.AuthService.IntegrationTests\HwProj.AuthService.IntegrationTests.csproj", "{EA822D2F-88C2-4B82-AA20-DD07FF0A9A1E}"
@@ -150,10 +148,6 @@ Global
 		{51463655-7668-4C7D-9FDE-D4D7CDAA82B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{51463655-7668-4C7D-9FDE-D4D7CDAA82B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{51463655-7668-4C7D-9FDE-D4D7CDAA82B8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{20B1C1AF-F6B6-4253-AF1A-B24B9B66136D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{20B1C1AF-F6B6-4253-AF1A-B24B9B66136D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{20B1C1AF-F6B6-4253-AF1A-B24B9B66136D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{20B1C1AF-F6B6-4253-AF1A-B24B9B66136D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9751B4E3-50A6-4678-A3AF-BE5CD828B151}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9751B4E3-50A6-4678-A3AF-BE5CD828B151}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9751B4E3-50A6-4678-A3AF-BE5CD828B151}.Release|Any CPU.ActiveCfg = Release|Any CPU

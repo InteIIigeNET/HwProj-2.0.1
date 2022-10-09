@@ -118,7 +118,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         </Grid>)
     }
 
-    const sentAfterDeadline = getDatesDiff(solution.publicationDate!, task.deadlineDate!)
+    const sentAfterDeadline = task.hasDeadline && getDatesDiff(solution.publicationDate!, task.deadlineDate!)
 
     return (<div>
             <Grid container direction="column" spacing={2}>

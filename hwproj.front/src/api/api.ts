@@ -4651,10 +4651,11 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
         },
         /**
          *
+         * @param {number} [taskId]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSolutionsUnratedSolutionsGet(options: any = {}): FetchArgs {
+        apiSolutionsUnratedSolutionsGet(taskId?: number, options: any = {}): FetchArgs {
             const localVarPath = `/api/Solutions/unratedSolutions`;
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
@@ -4667,6 +4668,10 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
                     ? configuration.apiKey("Authorization")
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            if (taskId !== undefined) {
+                localVarQueryParameter['taskId'] = taskId;
             }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
@@ -4858,11 +4863,12 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
         },
         /**
          *
+         * @param {number} [taskId]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSolutionsUnratedSolutionsGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<UnratedSolutionPreviews> {
-            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsUnratedSolutionsGet(options);
+        apiSolutionsUnratedSolutionsGet(taskId?: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<UnratedSolutionPreviews> {
+            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsUnratedSolutionsGet(taskId, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -4971,11 +4977,12 @@ export const SolutionsApiFactory = function (configuration?: Configuration, fetc
         },
         /**
          *
+         * @param {number} [taskId]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSolutionsUnratedSolutionsGet(options?: any) {
-            return SolutionsApiFp(configuration).apiSolutionsUnratedSolutionsGet(options)(fetch, basePath);
+        apiSolutionsUnratedSolutionsGet(taskId?: number, options?: any) {
+            return SolutionsApiFp(configuration).apiSolutionsUnratedSolutionsGet(taskId, options)(fetch, basePath);
         },
     };
 };
@@ -5094,12 +5101,13 @@ export class SolutionsApi extends BaseAPI {
 
     /**
      *
+     * @param {number} [taskId]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof SolutionsApi
      */
-    public apiSolutionsUnratedSolutionsGet(options?: any) {
-        return SolutionsApiFp(this.configuration).apiSolutionsUnratedSolutionsGet(options)(this.fetch, this.basePath);
+    public apiSolutionsUnratedSolutionsGet(taskId?: number, options?: any) {
+        return SolutionsApiFp(this.configuration).apiSolutionsUnratedSolutionsGet(taskId, options)(this.fetch, this.basePath);
     }
 
 }

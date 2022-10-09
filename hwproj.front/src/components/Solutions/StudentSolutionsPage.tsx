@@ -1,6 +1,6 @@
 import * as React from "react";
 import {RouteComponentProps} from "react-router-dom";
-import {CourseViewModel, HomeworkTaskViewModel} from "../../api/";
+import {CourseViewModel, HomeworkTaskViewModel, SolutionPreviewView} from "../../api/";
 import Typography from "@material-ui/core/Typography";
 import Task from "../Tasks/Task";
 import TaskSolutions from "./TaskSolutions";
@@ -27,17 +27,27 @@ const StudentSolutionsPage: FC<RouteComponentProps<IStudentSolutionsPageProps>> 
         course: {},
     })
 
+    const [nextUnratedSolution, setNextUnratedSolution] = useState<{
+        nexUnratedSolution?: SolutionPreviewView,
+        state: "initial" | "loaded"
+    }>({
+        state: "initial"
+    })
+
     const {isLoaded} = studentSolutions
     const userId = ApiSingleton.authService.isLoggedIn()
         ? ApiSingleton.authService.getUserId()
         : undefined
 
+    const studentId = props.match.params.studentId
+    const taskId = +props.match.params.taskId
+
     useEffect(() => {
-        getStudentSolutions()
+        getTaskData()
     }, [])
 
-    const getStudentSolutions = async () => {
-        const task = await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+props.match.params.taskId)
+    const getTaskData = async () => {
+        const task = await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(taskId)
         const homework = await ApiSingleton.homeworksApi.apiHomeworksGetByHomeworkIdGet(task.homeworkId!)
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(homework.courseId!)
 
@@ -46,6 +56,35 @@ const StudentSolutionsPage: FC<RouteComponentProps<IStudentSolutionsPageProps>> 
             isLoaded: true,
             course: course,
         })
+    }
+
+    const getNextUnratedSolution = async () => {
+        const unratedSolutions = await ApiSingleton.solutionsApi.apiSolutionsUnratedSolutionsGet(taskId)
+        const nextUnratedSolution = unratedSolutions.unratedSolutions!.filter(t => t.student!.userId !== studentId)[0]
+
+        if (nextUnratedSolution) {
+            window.location.assign(`/task/${nextUnratedSolution.taskId}/${nextUnratedSolution.student!.userId}`)
+        } else
+            setNextUnratedSolution({
+                state: "loaded",
+                nexUnratedSolution: nextUnratedSolution
+            })
+    }
+
+    const renderNextUnratedSolutionLink = () => {
+        return nextUnratedSolution.state === "initial"
+            ? <Link
+                component="button"
+                style={{color: '#212529'}}
+                onClick={() => getNextUnratedSolution()}
+            >
+                <Typography>
+                    Следующее непровереннное решение задачи
+                </Typography>
+            </Link>
+            : <Typography>
+                ✅ Все решения задачи проверены!
+            </Typography>
     }
 
     if (isLoaded) {
@@ -74,6 +113,9 @@ const StudentSolutionsPage: FC<RouteComponentProps<IStudentSolutionsPageProps>> 
                                 </Typography>
                             </Link>
                         </Grid>
+                        <Grid item>
+                            {renderNextUnratedSolutionLink()}
+                        </Grid>
                     </Grid>
                     <Grid container xs={11}>
                         <Task
@@ -90,7 +132,7 @@ const StudentSolutionsPage: FC<RouteComponentProps<IStudentSolutionsPageProps>> 
                         <TaskSolutions
                             forMentor={true}
                             task={studentSolutions.task}
-                            studentId={props.match.params.studentId}
+                            studentId={studentId}
                         />
                     </Grid>
                 </Grid>

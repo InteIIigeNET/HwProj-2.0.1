@@ -123,15 +123,10 @@ namespace HwProj.APIGateway.API.Controllers
 
         [HttpGet("unratedSolutions")]
         [Authorize(Roles = Roles.LecturerRole)]
-        public async Task<UnratedSolutionPreviews> GetUnratedSolutions()
+        public async Task<UnratedSolutionPreviews> GetUnratedSolutions(long? taskId)
         {
             var mentorCourses = await _coursesServiceClient.GetAllUserCourses();
-            var tasks = new Dictionary<long, (CourseDTO course, string homeworkTitle, HomeworkTaskViewModel task)>();
-
-            foreach (var course in mentorCourses)
-            foreach (var homework in course.Homeworks)
-            foreach (var task in homework.Tasks)
-                tasks.Add(task.Id, (course, homework.Title, task));
+            var tasks = FilterTasks(mentorCourses, taskId).ToDictionary(t => t.taskId, t => t.data);
 
             var taskIds = tasks.Select(t => t.Key).ToArray();
             var solutions = await _solutionsClient.GetAllUnratedSolutionsForTasks(taskIds);
@@ -163,6 +158,17 @@ namespace HwProj.APIGateway.API.Controllers
             {
                 UnratedSolutions = unratedSolutions,
             };
+        }
+
+        private static IEnumerable<(long taskId,
+                (CourseDTO course, string homeworkTitle, HomeworkTaskViewModel task) data)>
+            FilterTasks(CourseDTO[] courses, long? taskId)
+        {
+            foreach (var course in courses)
+            foreach (var homework in course.Homeworks)
+            foreach (var task in homework.Tasks)
+                if (taskId is { } id && task.Id == id || !taskId.HasValue)
+                    yield return (task.Id, (course, homework.Title, task));
         }
     }
 }

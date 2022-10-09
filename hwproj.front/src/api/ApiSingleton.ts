@@ -62,6 +62,5 @@ ApiSingleton = new Api(
     new StatisticsApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!}),
     new SystemApi({basePath: basePath}),
     authService,
-    new Utils(),
 );
 export default ApiSingleton;
