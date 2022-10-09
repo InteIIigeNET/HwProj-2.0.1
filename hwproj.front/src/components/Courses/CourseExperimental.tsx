@@ -176,8 +176,14 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                         <Typography variant="subtitle1" align={"center"}>
                             <b>{x.title}</b>
                         </Typography>
+                        {x.tasks?.length === 0 &&
+                            <TimelineItem style={{minHeight: 30, marginBottom: -5}}>
+                                <TimelineOppositeContent></TimelineOppositeContent>
+                                <TimelineSeparator><TimelineConnector/></TimelineSeparator>
+                                <TimelineContent></TimelineContent>
+                            </TimelineItem>}
                     </Box>
-                    {x.tasks && x.tasks.length > 0 ? x.tasks.map(t => <TimelineItem
+                    {x.tasks!.map(t => <TimelineItem
                         onClick={() => {
                             setState(prevState => ({
                                 ...prevState,
@@ -204,9 +210,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                 {t.title}
                             </Typography>
                         </TimelineContent>
-                    </TimelineItem>) : <TimelineItem><TimelineSeparator>
-                        <TimelineConnector/>
-                    </TimelineSeparator></TimelineItem>}
+                    </TimelineItem>)}
                 </div>)}
             </Timeline>
         </Grid>
