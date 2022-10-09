@@ -204,9 +204,9 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                 {t.title}
                             </Typography>
                         </TimelineContent>
-                    </TimelineItem>) : <TimelineSeparator>
+                    </TimelineItem>) : <TimelineItem><TimelineSeparator>
                         <TimelineConnector/>
-                    </TimelineSeparator>}
+                    </TimelineSeparator></TimelineItem>}
                 </div>)}
             </Timeline>
         </Grid>
