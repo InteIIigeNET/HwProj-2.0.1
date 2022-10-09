@@ -177,7 +177,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                             <b>{x.title}</b>
                         </Typography>
                     </Box>
-                    {x.tasks?.map(t => <TimelineItem
+                    {x.tasks && x.tasks.length > 0 ? x.tasks.map(t => <TimelineItem
                         onClick={() => {
                             setState(prevState => ({
                                 ...prevState,
@@ -204,7 +204,9 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                 {t.title}
                             </Typography>
                         </TimelineContent>
-                    </TimelineItem>)}
+                    </TimelineItem>) : <TimelineSeparator>
+                        <TimelineConnector/>
+                    </TimelineSeparator>}
                 </div>)}
             </Timeline>
         </Grid>
