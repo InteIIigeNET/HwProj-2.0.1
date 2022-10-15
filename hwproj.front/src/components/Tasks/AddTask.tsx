@@ -42,10 +42,8 @@ export default class AddTask extends React.Component<IAddTaskProps,
 
     public async handleSubmit(e: any) {
         e.preventDefault();
-        console.log(this.state)
-        console.log(JSON.stringify(this.state))
         await ApiSingleton.tasksApi.apiTasksAddByHomeworkIdPost(this.props.id, this.state);
-       // this.props.onAdding()
+        this.props.onAdding()
     }
 
     public render() {
