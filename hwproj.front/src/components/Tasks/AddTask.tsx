@@ -19,21 +19,33 @@ export default class AddTask extends React.Component<IAddTaskProps,
     CreateTaskViewModel> {
     constructor(props: IAddTaskProps) {
         super(props);
+
+        const twoWeeks = 2 * 7 * 24 * 60 * 60 * 1000
+        const now = Date.now()
+
+        const publicationDay = Utils.toMoscowDate(new Date(now))
+        publicationDay.setHours(0, 0, 0, 0)
+
+        const deadlineDate = Utils.toMoscowDate(new Date(now + twoWeeks))
+        deadlineDate.setHours(23, 59, 0, 0)
+
         this.state = {
             title: "",
             description: "",
             maxRating: 10,
-            publicationDate: new Date(),
-            hasDeadline: false,
-            deadlineDate: undefined,
+            publicationDate: Utils.toMoscowDate(publicationDay),
+            hasDeadline: true,
+            deadlineDate: Utils.toMoscowDate(deadlineDate),
             isDeadlineStrict: false
         };
     }
 
     public async handleSubmit(e: any) {
         e.preventDefault();
+        console.log(this.state)
+        console.log(JSON.stringify(this.state))
         await ApiSingleton.tasksApi.apiTasksAddByHomeworkIdPost(this.props.id, this.state);
-        this.props.onAdding()
+       // this.props.onAdding()
     }
 
     public render() {
@@ -86,7 +98,7 @@ export default class AddTask extends React.Component<IAddTaskProps,
                                     id="datetime-local"
                                     label="Дата публикации"
                                     type="datetime-local"
-                                    defaultValue={this.state.publicationDate?.toLocaleString("ru-RU")}
+                                    defaultValue={this.state.publicationDate?.toISOString().slice(0, -1)}
                                     onChange={(e) => {
                                         let date = new Date(e.target.value)
                                         date = Utils.toMoscowDate(date)
@@ -103,10 +115,10 @@ export default class AddTask extends React.Component<IAddTaskProps,
                                         color="primary"
                                         onChange={(e) => {
                                             this.setState({
-                                                hasDeadline: e.target.checked,
-                                                deadlineDate: undefined,
+                                                hasDeadline: e.target.checked
                                             })
                                         }}
+                                        checked={this.state.hasDeadline}
                                     />
                                     Добавить дедлайн
                                 </label>
@@ -125,7 +137,7 @@ export default class AddTask extends React.Component<IAddTaskProps,
                                         id="datetime-local"
                                         label="Дедлайн задачи"
                                         type="datetime-local"
-                                        defaultValue={this.state.deadlineDate?.toLocaleString("ru-RU")}
+                                        defaultValue={this.state.deadlineDate?.toISOString().slice(0, -1)}
                                         InputLabelProps={{
                                             shrink: true,
                                         }}
