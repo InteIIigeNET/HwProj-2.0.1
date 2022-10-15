@@ -1258,12 +1258,6 @@ export interface TokenCredentials {
      * @memberof TokenCredentials
      */
     accessToken?: string;
-    /**
-     *
-     * @type {number}
-     * @memberof TokenCredentials
-     */
-    expiresIn?: number;
 }
 
 /**

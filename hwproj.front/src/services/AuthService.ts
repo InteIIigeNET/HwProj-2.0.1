@@ -72,8 +72,8 @@ export default class AuthService {
 
     isTokenExpired(token: any) {
         try {
-            let decoded = decode(token);
-            return (decoded as any).exp + 300 < Date.now() / 1000;
+            let decoded = decode<TokenPayload>(token);
+            return decoded.exp < Date.now() / 1000;
         } catch (err) {
 
             return false;

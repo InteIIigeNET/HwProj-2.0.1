@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
@@ -34,7 +34,7 @@ namespace HwProj.AuthService.API.Services
             var token = new JwtSecurityToken(
                 issuer: _configuration["ApiName"],
                 notBefore: timeNow,
-                expires: timeNow.AddMinutes(int.Parse(_configuration["ExpireInForToken"])),
+                expires: timeNow.AddMinutes(int.Parse(_configuration["ExpiresIn"])),
                 claims: new[]
                 {
                     new Claim("_userName", user.UserName),
@@ -46,8 +46,7 @@ namespace HwProj.AuthService.API.Services
 
             var tokenCredentials = new TokenCredentials
             {
-                AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
-                ExpiresIn = (int) TimeSpan.FromMinutes(int.Parse(_configuration["ExpireInForResponse"])).TotalSeconds
+                AccessToken = new JwtSecurityTokenHandler().WriteToken(token)
             };
 
             return tokenCredentials;
