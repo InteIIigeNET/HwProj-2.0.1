@@ -2,6 +2,7 @@ import React from "react";
 import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api/";
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import TaskStudentCell from "../Tasks/TaskStudentCell";
+import {Alert} from "@mui/material";
 
 interface ICourseStudentsProps {
     course: CourseViewModel;
@@ -11,11 +12,45 @@ interface ICourseStudentsProps {
     solutions: StatisticsCourseMatesModel[];
 }
 
-class CourseStudents extends React.Component<ICourseStudentsProps, {}> {
+interface ICourseStudentsState {
+    searched: string
+}
+
+class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStudentsState> {
+    constructor(props: ICourseStudentsProps) {
+        super(props);
+        this.state = {
+            searched: ""
+        }
+
+        document.addEventListener('keydown', (event: KeyboardEvent) => {
+            const {searched} = this.state
+
+            event.preventDefault();
+
+            if (searched && event.key === "Escape") {
+                this.setState({searched: ""})
+            } else if (searched && event.key === "Backspace") {
+                this.setState({searched: searched.slice(0, -1)})
+            } else if (event.key.length === 1 && event.key.match(/[a-zA-Zа-яА-Я\s]/i)
+            ) {
+                this.setState({searched: searched + event.key})
+            }
+        })
+    }
+
     public render() {
         const homeworks = this.props.homeworks.filter(h => h.tasks && h.tasks.length > 0)
+        const {searched} = this.state
+        const solutions = searched
+            ? this.props.solutions.filter(cm => (cm.surname + " " + cm.name).toLowerCase().includes(searched.toLowerCase()))
+            : this.props.solutions
+
         return (
             <div>
+                {searched &&
+                    <Alert style={{marginBottom: 5}} severity="info"><b>Студенты:</b> {searched.replaceAll(" ", "·")}
+                    </Alert>}
                 <TableContainer>
                     <Table stickyHeader aria-label="sticky table">
                         <TableHead>
@@ -24,7 +59,7 @@ class CourseStudents extends React.Component<ICourseStudentsProps, {}> {
                                 </TableCell>
                                 {homeworks.map((homework, index) => (
                                     <TableCell
-                                        padding="none"
+                                        padding="checkbox"
                                         component="td"
                                         align="center"
                                         colSpan={homework.tasks!.length}
@@ -37,7 +72,7 @@ class CourseStudents extends React.Component<ICourseStudentsProps, {}> {
                                 <TableCell component="td"></TableCell>
                                 {homeworks.map((homework) =>
                                     homework.tasks!.map((task) => (
-                                        <TableCell padding="none" component="td" align="center">
+                                        <TableCell padding="checkbox" component="td" align="center">
                                             {task.title}
                                         </TableCell>
                                     ))
@@ -45,11 +80,11 @@ class CourseStudents extends React.Component<ICourseStudentsProps, {}> {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {this.props.solutions.map((cm, index) => (
+                            {solutions.map((cm, index) => (
                                 <TableRow key={index} hover style={{height: 35}}>
                                     <TableCell
                                         align="center"
-                                        padding="none"
+                                        padding="checkbox"
                                         component="td"
                                         scope="row"
                                     >

@@ -72,7 +72,7 @@ export default class TaskStudentCell extends React.Component<ITaskStudentCellPro
                     padding="none"
                     scope="row"
                     align="center"
-                    style={{backgroundColor: this.state.color, borderStyle: "none none ridge ridge"}}
+                    style={{backgroundColor: this.state.color, borderStyle: "none none ridge ridge", cursor: "pointer"}}
                 >
                     {result}
                 </TableCell>
