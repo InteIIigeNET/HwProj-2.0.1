@@ -26,14 +26,15 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
         document.addEventListener('keydown', (event: KeyboardEvent) => {
             const {searched} = this.state
 
-            event.preventDefault();
-
             if (searched && event.key === "Escape") {
+                event.preventDefault();
                 this.setState({searched: ""})
             } else if (searched && event.key === "Backspace") {
+                event.preventDefault();
                 this.setState({searched: searched.slice(0, -1)})
             } else if (event.key.length === 1 && event.key.match(/[a-zA-Zа-яА-Я\s]/i)
             ) {
+                event.preventDefault();
                 this.setState({searched: searched + event.key})
             }
         })
