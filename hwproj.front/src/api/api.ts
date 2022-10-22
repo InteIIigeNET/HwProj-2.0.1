@@ -1707,6 +1707,33 @@ export interface Result {
      */
     errors?: Array<string>;
 }
+
+/**
+ * 
+ * @export
+ * @interface ResultTokenCredentials
+ */
+export interface ResultTokenCredentials {
+    /**
+     * 
+     * @type {TokenCredentials}
+     * @memberof ResultTokenCredentials
+     */
+    value?: TokenCredentials;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof ResultTokenCredentials
+     */
+    succeeded?: boolean;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof ResultTokenCredentials
+     */
+    errors?: Array<string>;
+}
+
 /**
  *
  * @export
@@ -8773,7 +8800,7 @@ export const StatisticsApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiStatisticsGetSheetTitlesPost(sheetUrl?: SheetUrl, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<string>> {
+        apiStatisticsGetSheetTitlesPost(sheetUrl?: SheetUrl, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ResultString> {
             const localVarFetchArgs = StatisticsApiFetchParamCreator(configuration).apiStatisticsGetSheetTitlesPost(sheetUrl, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {

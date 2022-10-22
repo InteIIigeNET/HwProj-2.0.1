@@ -13,6 +13,7 @@ using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
+using HwProj.Models.Result;
 using HwProj.SolutionsService.Client;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -136,14 +137,21 @@ namespace HwProj.APIGateway.API.Controllers
         }
 
         [HttpPost("getSheetTitles")]
-        public async Task<string[]> GetSheetTitles([FromBody] SheetUrl sheetUrl)
+        public async Task<Result<string[]>> GetSheetTitles([FromBody] SheetUrl sheetUrl)
         {
             var match = Regex.Match(sheetUrl.Url, "https://docs\\.google\\.com/spreadsheets/d/(?<id>.+)/");
-            if (!match.Success) return Array.Empty<string>();
+            if (!match.Success) return Result<string[]>.Failed("Некорректная ссылка на страницу Google Docs");
 
             var spreadsheetId = match.Groups["id"].Value;
-            var sheet = await _sheetsService.Spreadsheets.Get(spreadsheetId).ExecuteAsync();
-            return sheet.Sheets.Select(t => t.Properties.Title).ToArray();
+            try
+            {
+                var sheet = await _sheetsService.Spreadsheets.Get(spreadsheetId).ExecuteAsync();
+                return Result<string[]>.Success(sheet.Sheets.Select(t => t.Properties.Title).ToArray());
+            }
+            catch (Exception ex)
+            {
+                return Result<string[]>.Failed($"Ошибка при обращении к Google Docs: {ex.Message}");
+            }
         }
         
         private async Task<Dictionary<string, AccountDataDto[]>> GetStudentsToMentorsDictionary(

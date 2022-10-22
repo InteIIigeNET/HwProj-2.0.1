@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from "react";
-import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api/";
+import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel, ResultString} from "../../api/";
 import {useNavigate, useParams} from 'react-router-dom';
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
-import {Alert, Button, Chip, Typography, MenuItem, Select, TextField} from "@mui/material";
+import {Alert, Button, Chip, Typography, Grid, MenuItem, Select, TextField} from "@mui/material";
 import {grey} from "@material-ui/core/colors";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
@@ -22,7 +22,7 @@ interface IStudentStatsProps {
 interface IStudentStatsState {
     searched: string;
     googleDocUrl: string;
-    sheetTitles: string[];
+    sheetTitles: ResultString | undefined;
 }
 
 const greyBorder = grey[300]
@@ -31,7 +31,7 @@ const StudentStats:  React.FC<IStudentStatsProps> = (props) => {
     const [state, setState] = useState<IStudentStatsState>({
         searched: "",
         googleDocUrl: "",
-        sheetTitles: []
+        sheetTitles: undefined
     });
     const {courseId} = useParams();
     const navigate = useNavigate();
@@ -105,7 +105,7 @@ const StudentStats:  React.FC<IStudentStatsProps> = (props) => {
 
     const handleGoogleDocUrlChange = async (value: string) => {
         const titles = await apiSingleton.statisticsApi.apiStatisticsGetSheetTitlesGet(value) //Post/get?
-        setState({...state, googleDocUrl: value, sheetTitles: titles.value ?? []});
+        setState({...state, googleDocUrl: value, sheetTitles: titles});
     }
 
 
@@ -307,18 +307,46 @@ const StudentStats:  React.FC<IStudentStatsProps> = (props) => {
                     </TableBody>
                 </Table>
             </TableContainer>
-            <TextField fullWidth label={"Ссылка на Google Docs"} value={googleDocUrl}
-                       onChange={event => {
-                           event.persist()
-                           handleGoogleDocUrlChange(event.target.value)
-                       }}/>
-            {googleDocUrl && <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                label="Course"
-            >
-                {sheetTitles.map((title, i) => <MenuItem value={i}>{title}</MenuItem>)}</Select>}
-
+            <Grid container spacing={1} style={{marginTop: 15}}>
+                <Grid item>
+                    <Alert severity="info" variant={"standard"}>
+                        Для загрузки таблицы необходимо разрешить доступ на редактирование по ссылке для Google Docs
+                        страницы
+                    </Alert>
+                </Grid>
+                <Grid container item spacing={1} alignItems={"center"}>
+                    <Grid item>
+                        <TextField size={"small"} fullWidth label={"Ссылка на Google Docs"} value={googleDocUrl}
+                                   onChange={event => {
+                                       event.persist()
+                                       handleGoogleDocUrlChange(event.target.value)
+                                   }}/>
+                    </Grid>
+                    {sheetTitles && !sheetTitles.succeeded && <Grid item>
+                        <Alert severity="error">
+                            {sheetTitles!.errors![0]}
+                        </Alert>
+                    </Grid>}
+                    {sheetTitles && sheetTitles.value && sheetTitles.value.length > 0 && <Grid item>
+                        <Select
+                            size={"small"}
+                            id="demo-simple-select"
+                            label="Sheet"
+                            value={0}
+                        >
+                            {sheetTitles.value.map((title, i) => <MenuItem value={i}>{title}</MenuItem>)}
+                        </Select>
+                    </Grid>}
+                    {sheetTitles && sheetTitles.succeeded && <Grid item>
+                        <Button fullWidth
+                                variant="text"
+                                color="primary"
+                                type="button">
+                            Загрузить
+                        </Button>
+                    </Grid>}
+                </Grid>
+            </Grid>
         </div>
     );
 }
