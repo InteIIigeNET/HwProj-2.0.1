@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System;
 using System.Linq;
 using System.Net;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Google.Apis.Sheets.v4;
 using HwProj.APIGateway.API.Models.Statistics;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
@@ -22,9 +25,11 @@ namespace HwProj.APIGateway.API.Controllers
     {
         private readonly ISolutionsServiceClient _solutionClient;
         private readonly ICoursesServiceClient _coursesClient;
+        private readonly SheetsService _sheetsService;
 
         public StatisticsController(ISolutionsServiceClient solutionClient, IAuthServiceClient authServiceClient,
-            ICoursesServiceClient coursesServiceClient) :
+            ICoursesServiceClient coursesServiceClient,
+            SheetsService sheetsService) :
             base(authServiceClient)
         {
             _solutionClient = solutionClient;
@@ -50,6 +55,7 @@ namespace HwProj.APIGateway.API.Controllers
             }).ToArray();
 
             return Ok(result);
+            _sheetsService = sheetsService;
         }
 
         [HttpGet("{courseId}")]
@@ -122,6 +128,22 @@ namespace HwProj.APIGateway.API.Controllers
             };
 
             return Ok(result);
+        }
+
+        public class SheetUrl
+        {
+            public string Url { get; set; }
+        }
+
+        [HttpPost("getSheetTitles")]
+        public async Task<string[]> GetSheetTitles([FromBody] SheetUrl sheetUrl)
+        {
+            var match = Regex.Match(sheetUrl.Url, "https://docs\\.google\\.com/spreadsheets/d/(?<id>.+)/");
+            if (!match.Success) return Array.Empty<string>();
+
+            var spreadsheetId = match.Groups["id"].Value;
+            var sheet = await _sheetsService.Spreadsheets.Get(spreadsheetId).ExecuteAsync();
+            return sheet.Sheets.Select(t => t.Properties.Title).ToArray();
         }
         
         private async Task<Dictionary<string, AccountDataDto[]>> GetStudentsToMentorsDictionary(
