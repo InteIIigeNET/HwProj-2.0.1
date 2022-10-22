@@ -128,7 +128,7 @@ namespace HwProj.AuthService.API.Services
                 return Result<TokenCredentials>.Failed("Пользователь уже зарегистрирован");
             }
             
-            if (!model.IsExternalAuth && model.Password.Length < 6)
+            if(!model.IsExternalAuth && model.Password.Length < 6)
             {
                 return Result<TokenCredentials>.Failed("Пароль должен содержать не менее 6 символов");
             }
@@ -190,12 +190,15 @@ namespace HwProj.AuthService.API.Services
                 return Result.Success();
             }
 
-            return Result.Failed("Пользователь уже является преподавателем");
+            return Result.Failed();
         }
 
-        public async Task<IList<User>> GetUsersInRole(string role)
+        public async Task<AccountDataDto[]> GetAllStudents()
         {
-            return await _userManager.GetUsersInRoleAsync(role);
+            var result = await _userManager.GetUsersInRoleAsync(Roles.StudentRole);
+            return result
+                .Select(u => new AccountDataDto(u.Name, u.Surname, u.Email, Roles.StudentRole, u.IsExternalAuth, u.MiddleName))
+                .ToArray();;
         }
 
         private Task<IdentityResult> ChangeUserNameTask(User user, EditDataDTO model)

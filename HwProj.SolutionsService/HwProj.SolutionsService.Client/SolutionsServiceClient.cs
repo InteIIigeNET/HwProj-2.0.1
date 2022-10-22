@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Google.Apis.Sheets.v4.Data;
 using HwProj.Exceptions;
 using HwProj.HttpUtils;
 using HwProj.Models.SolutionsService;
@@ -139,6 +140,16 @@ namespace HwProj.SolutionsService.Client
 
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<StatisticsCourseMatesModel[]>();
+        }
+        
+        public async Task<GoogleSheetsResponse> ExportCourseStatistics(long courseId, string userId, string spreadsheetId, string sheetName)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _solutionServiceUri + $"api/Solutions/exportCourseStat/{courseId}?spreadSheetId={spreadsheetId}&sheetName={sheetName}&userId={userId}");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<GoogleSheetsResponse>();
         }
     }
 }

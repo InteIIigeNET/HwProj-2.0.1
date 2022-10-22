@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Google.Apis.Auth;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
@@ -16,6 +15,6 @@ namespace HwProj.AuthService.API.Services
         Task<Result<TokenCredentials>> LoginUserAsync(LoginViewModel model);
         Task<Result<TokenCredentials>> LoginUserByGoogleAsync(GoogleJsonWebSignature.Payload payload);
         Task<Result> InviteNewLecturer(string emailOfInvitedUser);
-        Task<IList<User>> GetUsersInRole(string role);
+        Task<AccountDataDto[]> GetAllStudents();
     }
 }

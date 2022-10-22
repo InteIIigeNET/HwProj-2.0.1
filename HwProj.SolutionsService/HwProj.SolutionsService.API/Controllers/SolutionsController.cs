@@ -1,8 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
+using Google.Apis.Sheets.v4;
+using Google.Apis.Sheets.v4.Data;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.Models.AuthService.DTO;
@@ -12,8 +15,9 @@ using HwProj.Models.StatisticsService;
 using HwProj.SolutionsService.API.Domains;
 using HwProj.SolutionsService.API.Models;
 using HwProj.SolutionsService.API.Services;
-using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using GoogleSheetsResponse = HwProj.Models.SolutionsService.GoogleSheetsResponse;
 
 namespace HwProj.SolutionsService.API.Controllers
 {
@@ -25,13 +29,15 @@ namespace HwProj.SolutionsService.API.Controllers
         private readonly ISolutionsService _solutionsService;
         private readonly IMapper _mapper;
         private readonly ICoursesServiceClient _coursesClient;
+        private readonly SheetsService _sheetsService;
         
-        public SolutionsController(ISolutionsService solutionsService, IMapper mapper, ICoursesServiceClient coursesClient, IAuthServiceClient authClient)
+        public SolutionsController(ISolutionsService solutionsService, IMapper mapper, ICoursesServiceClient coursesClient, IAuthServiceClient authClient, [FromServices] SheetsService sheetsService)
         {
             _solutionsService = solutionsService;
             _coursesClient = coursesClient;
             _authClient = authClient;
             _mapper = mapper;
+            _sheetsService = sheetsService;
         }
 
         [HttpGet]
@@ -123,7 +129,89 @@ namespace HwProj.SolutionsService.API.Controllers
         {
             var course = await _coursesClient.GetCourseById(courseId, userId);
             course.CourseMates.RemoveAll(cm => !cm.IsAccepted);
+            var result = await GetCourseStatistics(course);
 
+            if (!course.MentorIds.Contains(userId))
+            {
+                return Ok(new[] { result.First(cm => cm.Id == userId) });
+            }
+
+            return Ok(result);
+        }
+        
+        [HttpPost("exportCourseStat/{courseId}")]
+        public async Task<GoogleSheetsResponse> ExportCourseStat(long courseId, [FromQuery] string userId, [FromQuery] string spreadsheetId, [FromQuery] string sheetName)
+        {
+            var course = await _coursesClient.GetCourseById(courseId, userId);
+            course.CourseMates.RemoveAll(cm => !cm.IsAccepted);
+            var numberOfCourseMates = course.CourseMates.Count;
+            var result = await GetCourseStatistics(course);
+
+            var valueRange = new ValueRange
+            {
+                Values = new List<IList<object>>()
+            };
+            var firstRow = new List<object> { "Students/Tasks" };
+            
+            var numberOfTasks = 0;
+            if (result.Length > 0)
+            {
+                for (var i = 0; i < result[0].Homeworks.Count; ++i)
+                {
+                    numberOfTasks += result[0].Homeworks[i].Tasks.Count;
+                    for (var j = 0; j < result[0].Homeworks[i].Tasks.Count; ++j)
+                        firstRow.Add($"'{i + 1}.{j + 1}\n");
+                }
+            }
+            var range = $"{sheetName}!R1C1:R{numberOfCourseMates + 1}C{numberOfTasks + 1}";
+            valueRange.Values.Add(firstRow);
+
+            foreach (var res in result)
+            {
+                var row = new List<object> { $"{res.Name} {res.Surname}" };
+                foreach (var hw in res.Homeworks)
+                {
+                    foreach (var task in hw.Tasks)
+                    {
+                        if (task.Solution.Count > 0)
+                        {
+                            var lastSolution = task.Solution.LastOrDefault();
+                            if (lastSolution?.Rating != null)
+                                row.Add(lastSolution.Rating);
+                            else
+                                row.Add("not rated");
+                        }
+                        else
+                            row.Add("no solution");
+                    }
+                }
+                valueRange.Values.Add(row);
+            }
+            GoogleSheetsResponse toReturn;
+            try
+            {
+                if (sheetName == "" || sheetName == null)
+                {
+                    var sheet = await _sheetsService.Spreadsheets.Get(spreadsheetId).ExecuteAsync();
+                    sheetName = sheet.Sheets[0].Properties.Title;
+                }
+                var clearRequest = _sheetsService.Spreadsheets.Values.Clear(new ClearValuesRequest(), spreadsheetId, sheetName);
+                await clearRequest.ExecuteAsync();
+                var updateRequest = _sheetsService.Spreadsheets.Values.Update(valueRange, spreadsheetId, range);
+                updateRequest.ValueInputOption =
+                    SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.USERENTERED;
+
+                toReturn = new GoogleSheetsResponse(JsonConvert.SerializeObject(await updateRequest.ExecuteAsync()), "success");
+            }
+            catch (Exception e)
+            {
+                toReturn = new GoogleSheetsResponse(e.Message, "error");
+            }
+            return toReturn;
+        }
+        
+        private async Task<StatisticsCourseMatesModel[]> GetCourseStatistics(CourseViewModel course)
+        {
             var solutions =  (await _solutionsService.GetAllSolutionsAsync())
                 .Where(s => course.Homeworks
                     .Any(hw => hw.Tasks
@@ -132,8 +220,6 @@ namespace HwProj.SolutionsService.API.Controllers
             
             var courseMatesData = new Dictionary<string, AccountDataDto>();
 
-            //course.CourseMates.ForEach(async cm => courseMatesData.Add(cm.StudentId, await _authClient.GetAccountData(cm.StudentId)));
-            
             foreach (var cm in course.CourseMates)
             {
                 courseMatesData.Add(cm.StudentId, await _authClient.GetAccountData(cm.StudentId));
@@ -146,14 +232,7 @@ namespace HwProj.SolutionsService.API.Controllers
                 CourseMatesData = courseMatesData
             };
 
-            var result = SolutionsStatsDomain.GetCourseStatistics(solutionsStatsContext).ToArray();
-
-            if (!course.MentorIds.Contains(userId))
-            {
-                return Ok(new[] { result.First(cm => cm.Id == userId) });
-            }
-
-            return Ok(result);
+            return SolutionsStatsDomain.GetCourseStatistics(solutionsStatsContext).ToArray();
         }
     }
 }

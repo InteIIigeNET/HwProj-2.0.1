@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Net;
+﻿using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +7,6 @@ using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.Result;
 using Google.Apis.Auth;
-using HwProj.Models.Roles;
 
 namespace HwProj.AuthService.API.Controllers
 {
@@ -99,7 +97,7 @@ namespace HwProj.AuthService.API.Controllers
             return Ok(user);
         }
 
-        [HttpGet("getRole")]
+        [HttpPost("getRole")]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetRolesAsync([FromBody] User user)
         {
@@ -111,22 +109,10 @@ namespace HwProj.AuthService.API.Controllers
         [ProducesResponseType(typeof(AccountDataDto[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetAllStudents()
         {
-            var allStudents = await _accountService.GetUsersInRole(Roles.StudentRole);
-            var result = allStudents
-                .Select(u => new AccountDataDto(u.Name, u.Surname, u.Email, Roles.StudentRole, u.IsExternalAuth, u.MiddleName))
-                .ToArray();
-            
-            return Ok(result);
-        }
-        
-        [HttpGet("getAllLecturers")]
-        [ProducesResponseType(typeof(User[]), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetAllLecturers()
-        {
-            var allLecturers = await _accountService.GetUsersInRole(Roles.LecturerRole);
-            var result = allLecturers.ToArray();
-            
-            return Ok(result);
+            var result = await _accountService.GetAllStudents();
+            return result == null
+                ? NotFound()
+                : Ok(result) as IActionResult;
         }
     }
 }

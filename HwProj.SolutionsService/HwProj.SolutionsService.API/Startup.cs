@@ -1,4 +1,9 @@
-using System.Net.Http;
+using System.IO;
+using System.Threading;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Services;
+using Google.Apis.Sheets.v4;
+using Google.Apis.Util.Store;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.EventBus.Client.Interfaces;
@@ -22,6 +27,9 @@ namespace HwProj.SolutionsService.API
         }
 
         public IConfiguration Configuration { get; }
+        static readonly string[] Scopes = { SheetsService.Scope.Spreadsheets };
+        static string ApplicationName = "HwProjSheets";
+
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -29,12 +37,11 @@ namespace HwProj.SolutionsService.API
             services.AddDbContext<SolutionContext>(options => options.UseSqlServer(connectionString));
             services.AddScoped<ISolutionsRepository, SolutionsRepository>();
             services.AddScoped<ISolutionsService, Services.SolutionsService>();
-
+            services.AddScoped(_ => ConfigureGoogleSheets());
             services.AddHttpClient();
             services.AddHttpContextAccessor();
             services.AddAuthServiceClient();
             services.AddCoursesServiceClient();
-
             services.AddEventBus(Configuration);
             services.ConfigureHwProjServices("Solutions API");
         }
@@ -42,6 +49,24 @@ namespace HwProj.SolutionsService.API
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IEventBus eventBus)
         {
             app.ConfigureHwProj(env, "Solutions API");
+        }
+
+        private SheetsService ConfigureGoogleSheets() 
+        {
+            GoogleCredential credential;
+
+            using (var stream =
+                new FileStream("credentials.json", FileMode.Open, FileAccess.ReadWrite))
+            {
+                credential = GoogleCredential.FromStream(stream)
+                    .CreateScoped(Scopes);
+            }
+
+            return new SheetsService(new BaseClientService.Initializer
+            {
+                HttpClientInitializer = credential,
+                ApplicationName = ApplicationName
+            });
         }
     }
 }

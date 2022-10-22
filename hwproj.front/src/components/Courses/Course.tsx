@@ -15,6 +15,7 @@ import List from "@material-ui/core/List";
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import Lecturers from "./Lecturers";
+import ExportStatsToGoogleSheets from "./ExportStatsToGoogleSheets";
 
 interface ICourseMate {
     name: string;
@@ -275,6 +276,9 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                     isMentor={isMentor && ! isReadingMode!}
                                     homework={courseState.courseHomework}
                                 />
+                            </Grid>
+                            <Grid item xs={11} style={{marginTop: "15px"}}>
+                                <ExportStatsToGoogleSheets courseId={courseId}/>
                             </Grid>
                         </Grid>
                     </div>

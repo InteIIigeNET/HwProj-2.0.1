@@ -7,7 +7,7 @@ namespace HwProj.AuthService.Client
 {
     public interface IAuthServiceClient
     {
-        Task<AccountDataDto> GetAccountData(string userId);
+        Task<AccountDataDto> GetAccountData(string accountId);
         Task<Result<TokenCredentials>> Register(RegisterViewModel model);
         Task<Result<TokenCredentials>> Login(LoginViewModel model);
         Task<Result> Edit(EditAccountViewModel model, string userId);
@@ -16,6 +16,5 @@ namespace HwProj.AuthService.Client
         Task<Result> EditExternal(EditExternalViewModel model, string userId);
         Task<string> FindByEmailAsync(string email);
         Task<AccountDataDto[]> GetAllStudents();
-        Task<User[]> GetAllLecturers();
     }
 }

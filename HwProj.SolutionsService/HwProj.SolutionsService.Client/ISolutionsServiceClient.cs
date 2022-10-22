@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Google.Apis.Sheets.v4.Data;
 using HwProj.Models.SolutionsService;
 using HwProj.Models.StatisticsService;
 
@@ -16,5 +17,6 @@ namespace HwProj.SolutionsService.Client
         Task<long> PostGroupSolution(SolutionViewModel model, long taskId, long groupId);
         Task<Solution[]> GetTaskSolutions(long groupId, long taskId);
         Task<StatisticsCourseMatesModel[]> GetCourseStatistics(long courseId, string userId);
+        Task<GoogleSheetsResponse> ExportCourseStatistics(long courseId, string userId, string spreadsheetId, string sheetId);
     }
 }
