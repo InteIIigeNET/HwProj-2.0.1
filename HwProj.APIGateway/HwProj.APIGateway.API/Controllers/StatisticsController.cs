@@ -36,7 +36,6 @@ namespace HwProj.APIGateway.API.Controllers
         [HttpPost("{courseId}")]
         public async Task<IActionResult> PostCourseStatistics(long courseId, [FromQuery] string spreadSheetId, [FromQuery] string sheetName)
         {
-            Console.WriteLine($"HERE! {courseId}, {spreadSheetId}, {sheetName}");
             var userId = Request.GetUserId();
             var result = await _solutionClient.ExportCourseStatistics(courseId, userId, HttpUtility.UrlDecode(spreadSheetId), HttpUtility.UrlDecode(sheetName));
             return result == null
