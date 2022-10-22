@@ -1,4 +1,8 @@
-﻿using HwProj.AuthService.Client;
+﻿using System.IO;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Services;
+using Google.Apis.Sheets.v4;
+using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.NotificationsService.Client;
 using HwProj.SolutionsService.Client;
@@ -26,7 +30,7 @@ namespace HwProj.APIGateway.API
             services.ConfigureHwProjServices("API Gateway");
 
             const string authenticationProviderKey = "GatewayKey";
-            
+
             services.AddAuthentication()
                 .AddJwtBearer(authenticationProviderKey, x =>
                 {
@@ -44,6 +48,7 @@ namespace HwProj.APIGateway.API
 
             services.AddHttpClient();
             services.AddHttpContextAccessor();
+            services.AddScoped(_ => ConfigureGoogleSheets());
 
             services.AddAuthServiceClient();
             services.AddCoursesServiceClient();
@@ -54,6 +59,18 @@ namespace HwProj.APIGateway.API
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             app.ConfigureHwProj(env, "API Gateway");
+        }
+
+        private static SheetsService ConfigureGoogleSheets()
+        {
+            using var stream = new FileStream("googlesheets_credentials.json", FileMode.Open, FileAccess.ReadWrite);
+            var credential = GoogleCredential.FromStream(stream).CreateScoped(SheetsService.Scope.Spreadsheets);
+
+            return new SheetsService(new BaseClientService.Initializer
+            {
+                HttpClientInitializer = credential,
+                ApplicationName = "HwProjSheets"
+            });
         }
     }
 }
