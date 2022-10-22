@@ -1686,6 +1686,20 @@ export interface Result {
 /**
  *
  * @export
+ * @interface SheetUrl
+ */
+export interface SheetUrl {
+    /**
+     *
+     * @type {string}
+     * @memberof SheetUrl
+     */
+    url?: string;
+}
+
+/**
+ *
+ * @export
  * @interface Solution
  */
 export interface Solution {
@@ -8528,6 +8542,41 @@ export const StatisticsApiFetchParamCreator = function (configuration?: Configur
                 options: localVarRequestOptions,
             };
         },
+        /**
+         *
+         * @param {SheetUrl} [sheetUrl]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiStatisticsGetSheetTitlesPost(sheetUrl?: SheetUrl, options: any = {}): FetchArgs {
+            const localVarPath = `/api/Statistics/getSheetTitles`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+                    ? configuration.apiKey("Authorization")
+                    : configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"SheetUrl" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(sheetUrl || {}) : (sheetUrl || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -8591,6 +8640,24 @@ export const StatisticsApiFp = function(configuration?: Configuration) {
                 });
             };
         },
+        /**
+         *
+         * @param {SheetUrl} [sheetUrl]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiStatisticsGetSheetTitlesPost(sheetUrl?: SheetUrl, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<string>> {
+            const localVarFetchArgs = StatisticsApiFetchParamCreator(configuration).apiStatisticsGetSheetTitlesPost(sheetUrl, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
     }
 };
 
@@ -8626,6 +8693,15 @@ export const StatisticsApiFactory = function (configuration?: Configuration, fet
          */
         statisticsGetLecturersStatistics(courseId: number, options?: any) {
             return StatisticsApiFp(configuration).statisticsGetLecturersStatistics(courseId, options)(fetch, basePath);
+        },
+        /**
+         *
+         * @param {SheetUrl} [sheetUrl]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiStatisticsGetSheetTitlesPost(sheetUrl?: SheetUrl, options?: any) {
+            return StatisticsApiFp(configuration).apiStatisticsGetSheetTitlesPost(sheetUrl, options)(fetch, basePath);
         },
     };
 };
@@ -8668,6 +8744,17 @@ export class StatisticsApi extends BaseAPI {
      */
     public statisticsGetLecturersStatistics(courseId: number, options?: any) {
         return StatisticsApiFp(this.configuration).statisticsGetLecturersStatistics(courseId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     *
+     * @param {SheetUrl} [sheetUrl]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StatisticsApi
+     */
+    public apiStatisticsGetSheetTitlesPost(sheetUrl?: SheetUrl, options?: any) {
+        return StatisticsApiFp(this.configuration).apiStatisticsGetSheetTitlesPost(sheetUrl, options)(this.fetch, this.basePath);
     }
 
 }

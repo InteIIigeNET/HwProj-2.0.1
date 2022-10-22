@@ -3,12 +3,13 @@ import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "..
 import {useNavigate, useParams} from 'react-router-dom';
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
-import {Alert, Button, Chip, Typography} from "@mui/material";
+import {Alert, Button, Chip, Typography, MenuItem, Select, TextField} from "@mui/material";
 import {grey} from "@material-ui/core/colors";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
 import {BonusTag, DefaultTags, TestTag} from "../Common/HomeworkTags";
 import Lodash from "lodash"
+import apiSingleton from "../../api/ApiSingleton";
 
 interface IStudentStatsProps {
     course: CourseViewModel;
@@ -19,14 +20,18 @@ interface IStudentStatsProps {
 }
 
 interface IStudentStatsState {
-    searched: string
+    searched: string;
+    googleDocUrl: string;
+    sheetTitles: string[];
 }
 
 const greyBorder = grey[300]
 
-const StudentStats: React.FC<IStudentStatsProps> = (props) => {
-    const [state, setSearched] = useState<IStudentStatsState>({
-        searched: ""
+const StudentStats:  React.FC<IStudentStatsProps> = (props) => {
+    const [state, setState] = useState<IStudentStatsState>({
+        searched: "",
+        googleDocUrl: "",
+        sheetTitles: []
     });
     const {courseId} = useParams();
     const navigate = useNavigate();
@@ -34,18 +39,18 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
         navigate(`/statistics/${courseId}/charts`)
     }
 
-    const {searched} = state
+    const {searched, googleDocUrl, sheetTitles} = state
 
     useEffect(() => {
         const keyDownHandler = (event: KeyboardEvent) => {
             if (event.ctrlKey || event.altKey) return
             if (searched && event.key === "Escape") {
-                setSearched({searched: ""});
+                setState({...state, searched: ""});
             } else if (searched && event.key === "Backspace") {
-                setSearched({searched: searched.slice(0, -1)})
+                setState({...state, searched: searched.slice(0, -1)})
             } else if (event.key.length === 1 && event.key.match(/[a-zA-Zа-яА-Я\s]/i)
             ) {
-                setSearched({searched: searched + event.key})
+                setState({...state, searched: searched + event.key})
             }
         };
 
@@ -97,6 +102,12 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
 
     const hasHomeworks = homeworksMaxSum > 0
     const hasTests = testsMaxSum > 0
+
+    const handleGoogleDocUrlChange = async (value: string) => {
+        const titles = await apiSingleton.statisticsApi.apiStatisticsGetSheetTitlesGet(value) //Post/get?
+        setState({...state, googleDocUrl: value, sheetTitles: titles.value ?? []});
+    }
+
 
     return (
         <div>
@@ -296,6 +307,18 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                     </TableBody>
                 </Table>
             </TableContainer>
+            <TextField fullWidth label={"Ссылка на Google Docs"} value={googleDocUrl}
+                       onChange={event => {
+                           event.persist()
+                           handleGoogleDocUrlChange(event.target.value)
+                       }}/>
+            {googleDocUrl && <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                label="Course"
+            >
+                {sheetTitles.map((title, i) => <MenuItem value={i}>{title}</MenuItem>)}</Select>}
+
         </div>
     );
 }
