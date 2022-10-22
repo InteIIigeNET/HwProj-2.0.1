@@ -2,8 +2,8 @@ import React, {useEffect, useState} from "react";
 import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel, ResultString} from "../../api/";
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
-import {Alert, Button, Grid, MenuItem, Select, TextField} from "@mui/material";
-import apiSingleton from "../../api/ApiSingleton";
+import {Alert, Grid} from "@mui/material";
+import LoadStatsToGoogleDoc from "components/Solutions/LoadStatsToGoogleDoc";
 
 interface IStudentStatsProps {
     course: CourseViewModel;
@@ -15,29 +15,25 @@ interface IStudentStatsProps {
 
 interface IStudentStatsState {
     searched: string
-    googleDocUrl: string
-    sheetTitles: ResultString | undefined
 }
 
 const StudentStats:  React.FC<IStudentStatsProps> = (props) => {
-    const [state, setState] = useState<IStudentStatsState>({
-        searched: "",
-        googleDocUrl: "",
-        sheetTitles: undefined
+    const [state, setSearched] = useState<IStudentStatsState>({
+        searched: ""
     });
 
-    const {searched, googleDocUrl, sheetTitles} = state
+    const {searched} = state
 
     useEffect(() => {
         const keyDownHandler = (event: KeyboardEvent) => {
             if (event.ctrlKey || event.altKey) return
             if (searched && event.key === "Escape") {
-                setState({...state, searched: ""});
+                setSearched({searched: ""});
             } else if (searched && event.key === "Backspace") {
-                setState({...state, searched: searched.slice(0, -1)})
+                setSearched({searched: searched.slice(0, -1)})
             } else if (event.key.length === 1 && event.key.match(/[a-zA-Zа-яА-Я\s]/i)
             ) {
-                setState({...state, searched: searched + event.key})
+                setSearched({searched: searched + event.key})
             }
         };
 
@@ -55,14 +51,6 @@ const StudentStats:  React.FC<IStudentStatsProps> = (props) => {
         background: "white",
         borderRight: "1px solid black"
     }
-
-    const handleGoogleDocUrlChange = async (value: string) => {
-        const titles = value === ""
-            ? undefined
-            : await apiSingleton.statisticsApi.apiStatisticsGetSheetTitlesGet(value)
-        setState({...state, googleDocUrl: value, sheetTitles: titles});
-    }
-
 
     return (
         <div>
@@ -133,46 +121,9 @@ const StudentStats:  React.FC<IStudentStatsProps> = (props) => {
                     </TableBody>
                 </Table>
             </TableContainer>
-            <Grid container spacing={1} style={{marginTop: 15}}>
-                <Grid item>
-                    <Alert severity="info" variant={"standard"}>
-                        Для загрузки таблицы необходимо разрешить доступ на редактирование по ссылке для Google Docs
-                        страницы
-                    </Alert>
-                </Grid>
-                <Grid container item spacing={1} alignItems={"center"}>
-                    <Grid item>
-                        <TextField size={"small"} fullWidth label={"Ссылка на Google Docs"} value={googleDocUrl}
-                                   onChange={event => {
-                                       event.persist()
-                                       handleGoogleDocUrlChange(event.target.value)
-                                   }}/>
-                    </Grid>
-                    {sheetTitles && !sheetTitles.succeeded && <Grid item>
-                        <Alert severity="error">
-                            {sheetTitles!.errors![0]}
-                        </Alert>
-                    </Grid>}
-                    {sheetTitles && sheetTitles.value && sheetTitles.value.length > 0 && <Grid item>
-                        <Select
-                            size={"small"}
-                            id="demo-simple-select"
-                            label="Sheet"
-                            value={0}
-                        >
-                            {sheetTitles.value.map((title, i) => <MenuItem value={i}>{title}</MenuItem>)}
-                        </Select>
-                    </Grid>}
-                    {sheetTitles && sheetTitles.succeeded && <Grid item>
-                        <Button fullWidth
-                                variant="text"
-                                color="primary"
-                                type="button">
-                            Загрузить
-                        </Button>
-                    </Grid>}
-                </Grid>
-            </Grid>
+            <div style={{marginTop: 15}}>
+                <LoadStatsToGoogleDoc/>
+            </div>
         </div>
     );
 }
