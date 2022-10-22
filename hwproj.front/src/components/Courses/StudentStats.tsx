@@ -2,7 +2,8 @@ import React, {useEffect, useState} from "react";
 import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api/";
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
-import {Alert} from "@mui/material";
+import {Alert, MenuItem, Select, TextField} from "@mui/material";
+import apiSingleton from "../../api/ApiSingleton";
 
 interface IStudentStatsProps {
     course: CourseViewModel;
@@ -14,25 +15,29 @@ interface IStudentStatsProps {
 
 interface IStudentStatsState {
     searched: string
+    googleDocUrl: string
+    sheetTitles: string[]
 }
 
-const StudentStats: React.FC<IStudentStatsProps> = (props) => {
-    const [state, setSearched] = useState<IStudentStatsState>({
-        searched: ""
+const StudentStats:  React.FC<IStudentStatsProps> = (props) => {
+    const [state, setState] = useState<IStudentStatsState>({
+        searched: "",
+        googleDocUrl: "",
+        sheetTitles: []
     });
 
-    const {searched} = state
+    const {searched, googleDocUrl, sheetTitles} = state
 
     useEffect(() => {
         const keyDownHandler = (event: KeyboardEvent) => {
             if (event.ctrlKey || event.altKey) return
             if (searched && event.key === "Escape") {
-                setSearched({searched: ""});
+                setState({...state, searched: ""});
             } else if (searched && event.key === "Backspace") {
-                setSearched({searched: searched.slice(0, -1)})
+                setState({...state, searched: searched.slice(0, -1)})
             } else if (event.key.length === 1 && event.key.match(/[a-zA-Zа-яА-Я\s]/i)
             ) {
-                setSearched({searched: searched + event.key})
+                setState({...state, searched: searched + event.key})
             }
         };
 
@@ -50,6 +55,12 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
         background: "white",
         borderRight: "1px solid black"
     }
+
+    const handleGoogleDocUrlChange = async (value: string) => {
+        const titles = await apiSingleton.statisticsApi.apiStatisticsGetSheetTitlesGet(value) //Post/get?
+        setState({...state, googleDocUrl: value, sheetTitles: titles.value ?? []});
+    }
+
 
     return (
         <div>
@@ -120,6 +131,18 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                     </TableBody>
                 </Table>
             </TableContainer>
+            <TextField fullWidth label={"Ссылка на Google Docs"} value={googleDocUrl}
+                       onChange={event => {
+                           event.persist()
+                           handleGoogleDocUrlChange(event.target.value)
+                       }}/>
+            {googleDocUrl && <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                label="Course"
+            >
+                {sheetTitles.map((title, i) => <MenuItem value={i}>{title}</MenuItem>)}</Select>}
+
         </div>
     );
 }
