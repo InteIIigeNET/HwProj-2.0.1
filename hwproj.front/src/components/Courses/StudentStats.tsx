@@ -57,7 +57,9 @@ const StudentStats:  React.FC<IStudentStatsProps> = (props) => {
     }
 
     const handleGoogleDocUrlChange = async (value: string) => {
-        const titles = await apiSingleton.statisticsApi.apiStatisticsGetSheetTitlesGet(value) //Post/get?
+        const titles = value === ""
+            ? undefined
+            : await apiSingleton.statisticsApi.apiStatisticsGetSheetTitlesGet(value)
         setState({...state, googleDocUrl: value, sheetTitles: titles});
     }
 
