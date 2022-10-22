@@ -94,7 +94,7 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
                                     {homeworks.map((homework) =>
                                         homework.tasks!.map((task) => (
                                             <TaskStudentCell
-                                                solutions={this.props.solutions
+                                                solutions={solutions
                                                     .find(s => s.id == cm.id)!.homeworks!
                                                     .find(h => h.id == homework.id)!.tasks!
                                                     .find(t => t.id == task.id)!.solution!}
