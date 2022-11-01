@@ -10,6 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="EPPlus" Version="6.1.3" />
     <PackageReference Include="Microsoft.AspNetCore.All" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Google.Apis.Sheets.v4" Version="1.57.0.2637" />
@@ -23,11 +24,5 @@
     <ProjectReference Include="..\..\HwProj.CoursesService\HwProj.CoursesService.Client\HwProj.CoursesService.Client.csproj" />
     <ProjectReference Include="..\..\HwProj.NotificationsService\HwProj.NotificationsService.Client\HwProj.NotificationsService.Client.csproj" />
     <ProjectReference Include="..\..\HwProj.SolutionsService\HwProj.SolutionsService.Client\HwProj.SolutionsService.Client.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Update="googlesheets_credentials.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 </Project>

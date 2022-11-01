@@ -47,8 +47,24 @@ const styles = makeStyles(() => ({
     },
 }))
 
+const getLastViewedCourseId = () =>
+{
+    const sessionStorageCourseId = sessionStorage.getItem("courseId")
+    return sessionStorageCourseId === null ? "-1" : sessionStorageCourseId
+}
+
+const updatedLastViewedCourseId = (courseId : string) =>
+{
+    sessionStorage.setItem("courseId", courseId)
+}
+
 const Course: React.FC = () => {
-    const {courseId, tab} = useParams()
+    const {initialCourseId, tab} = useParams()
+
+    const isFromYandex = initialCourseId === undefined
+    const courseId = isFromYandex ? getLastViewedCourseId() : initialCourseId
+
+
     const navigate = useNavigate()
     const classes = styles()
 
@@ -107,9 +123,10 @@ const Course: React.FC = () => {
     }
 
     const setCurrentState = async () => {
+        updatedLastViewedCourseId(courseId)
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+courseId!)
 
-        // У пользователя изменилась роль (иначе он не может стать лектором в курсе), 
+        // У пользователя изменилась роль (иначе он не может стать лектором в курсе),
         // однако он все ещё использует токен с прежней ролью
         const shouldRefreshToken =
             !ApiSingleton.authService.isLecturer() &&
@@ -132,8 +149,13 @@ const Course: React.FC = () => {
             mentors: course.mentors!,
             acceptedStudents: course.acceptedStudents!,
             newStudents: course.newStudents!,
-            studentSolutions: solutions
+            studentSolutions: solutions,
+            tabValue: isFromYandex ? "stats" : "homeworks"
         }))
+        if (isFromYandex)
+        {
+            window.history.replaceState(null, "", `/courses/${courseId}`)
+        }
     }
 
     useEffect(() => {
@@ -141,6 +163,8 @@ const Course: React.FC = () => {
     }, [])
 
     useEffect(() => changeTab(tab || "homeworks"), [tab, courseId, isFound])
+
+    const userYandexId = new URLSearchParams(window.location.search).get("code")
 
     const joinCourse = async () => {
         await ApiSingleton.coursesApi
@@ -336,6 +360,7 @@ const Course: React.FC = () => {
                                     isMentor={isCourseMentor}
                                     course={courseState.course}
                                     solutions={studentSolutions}
+                                    yandexCode={userYandexId}
                                 />
                             </Grid>
                         </Grid>}
