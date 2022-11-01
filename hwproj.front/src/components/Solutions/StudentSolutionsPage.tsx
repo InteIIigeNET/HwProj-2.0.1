@@ -79,7 +79,7 @@ const StudentSolutionsPage: FC<RouteComponentProps<IStudentSolutionsPageProps>> 
                 onClick={() => getNextUnratedSolution()}
             >
                 <Typography>
-                    Следующее непровереннное решение задачи
+                    Следующее непроверенное решение задачи
                 </Typography>
             </Link>
             : <Typography>
