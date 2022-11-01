@@ -2,6 +2,8 @@ using System.IO;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
+using HwProj.APIGateway.API.ExportServices;
+using HwProj.APIGateway.API.Models;
 using HwProj.AuthService.Client;
 using HwProj.ContentService.Client;
 using HwProj.CoursesService.Client;
@@ -18,13 +20,20 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using IStudentsInfo;
 using StudentsInfo;
+using HwProj.Utils.Authorization;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
+
 
 namespace HwProj.APIGateway.API
 {
     public class Startup
     {
+        private readonly IConfigurationSection _sheetsConfiguration;
+
         public Startup(IConfiguration configuration)
         {
+            _sheetsConfiguration = configuration.GetSection("GoogleSheets");
             Configuration = configuration;
         }
 
@@ -32,6 +41,7 @@ namespace HwProj.APIGateway.API
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors();
             services.Configure<FormOptions>(options => { options.MultipartBodyLengthLimit = 200 * 1024 * 1024; });
             services.ConfigureHwProjServices("API Gateway");
             services.AddSingleton<IStudentsInformationProvider>(provider =>
@@ -58,7 +68,8 @@ namespace HwProj.APIGateway.API
 
             services.AddHttpClient();
             services.AddHttpContextAccessor();
-            services.AddScoped(_ => ConfigureGoogleSheets());
+            services.AddSingleton(_ => ConfigureGoogleSheets(_sheetsConfiguration));
+            services.AddSingleton<GoogleService>();
 
             services.AddAuthServiceClient();
             services.AddCoursesServiceClient();
@@ -74,10 +85,21 @@ namespace HwProj.APIGateway.API
             app.ConfigureHwProj(env, "API Gateway");
         }
 
-        private static SheetsService ConfigureGoogleSheets()
+        private static JToken Serialize(IConfigurationSection configurationSecton)
         {
-            using var stream = new FileStream("googlesheets_credentials.json", FileMode.Open, FileAccess.ReadWrite);
-            var credential = GoogleCredential.FromStream(stream).CreateScoped(SheetsService.Scope.Spreadsheets);
+            JObject obj = new JObject();
+            foreach (var child in configurationSecton.GetChildren())
+            {
+                obj.Add(child.Key, child.Value);
+            }
+
+            return obj;
+        }
+
+        private static SheetsService ConfigureGoogleSheets(IConfigurationSection _sheetsConfiguration)
+        {
+            var jsonObject = Serialize(_sheetsConfiguration);
+            var credential = GoogleCredential.FromJson(jsonObject.ToString()).CreateScoped(SheetsService.Scope.Spreadsheets);
 
             return new SheetsService(new BaseClientService.Initializer
             {

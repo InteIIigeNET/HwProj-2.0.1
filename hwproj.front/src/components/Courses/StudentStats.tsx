@@ -9,13 +9,14 @@ import StudentStatsUtils from "../../services/StudentStatsUtils";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
 import {BonusTag, DefaultTags, TestTag} from "../Common/HomeworkTags";
 import Lodash from "lodash"
-import LoadStatsToGoogleDoc from "components/Solutions/LoadStatsToGoogleDoc";
+import SaveStats from "components/Solutions/SaveStats";
 
 interface IStudentStatsProps {
     course: CourseViewModel;
     homeworks: HomeworkViewModel[];
     isMentor: boolean;
     userId: string;
+    yandexCode: string | null;
     solutions: StatisticsCourseMatesModel[];
 }
 
@@ -298,7 +299,11 @@ const StudentStats:  React.FC<IStudentStatsProps> = (props) => {
                 </Table>
             </TableContainer>
             <div style={{marginTop: 15}}>
-                <LoadStatsToGoogleDoc/>
+                <SaveStats
+                    courseId={props.course.id}
+                    userId={props.userId}
+                    yandexCode={props.yandexCode}
+                />
             </div>
         </div>
     );

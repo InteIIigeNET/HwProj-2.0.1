@@ -72,9 +72,25 @@ interface IPageState {
     tabValue: TabValue
 }
 
+const getLastViewedCourseId = () =>
+{
+    const sessionStorageCourseId = sessionStorage.getItem("courseId")
+    return sessionStorageCourseId === null ? "-1" : sessionStorageCourseId
+}
+
+const updatedLastViewedCourseId = (courseId : string) =>
+{
+    sessionStorage.setItem("courseId", courseId)
+}
+
 const Course: React.FC = () => {
-    const {courseId, tab} = useParams()
+    const {initialCourseId, tab} = useParams()
     const [searchParams] = useSearchParams()
+
+    const isFromYandex = initialCourseId === undefined
+    const courseId = isFromYandex ? getLastViewedCourseId() : initialCourseId
+
+
     const navigate = useNavigate()
     const {enqueueSnackbar} = useSnackbar()
 
@@ -260,6 +276,7 @@ const Course: React.FC = () => {
     }
 
     const setCurrentState = async () => {
+        updatedLastViewedCourseId(courseId)
         const course = await ApiSingleton.coursesApi.coursesGetCourseData(+courseId!)
 
         // У пользователя изменилась роль (иначе он не может стать лектором в курсе),
@@ -283,7 +300,13 @@ const Course: React.FC = () => {
             mentors: course.mentors!,
             acceptedStudents: course.acceptedStudents!,
             newStudents: course.newStudents!,
+            studentSolutions: solutions,
+            tabValue: isFromYandex ? "stats" : "homeworks"
         }))
+        if (isFromYandex)
+        {
+            window.history.replaceState(null, "", `/courses/${courseId}`)
+        }
     }
 
     const getCourseFilesInfo = async () => {
@@ -316,6 +339,8 @@ const Course: React.FC = () => {
     }, [courseId])
     
     useEffect(() => changeTab(tab || "homeworks"), [tab, courseId, isFound])
+
+    const userYandexId = new URLSearchParams(window.location.search).get("code")
 
     const joinCourse = async () => {
         await ApiSingleton.coursesApi.coursesSignInCourse(+courseId!)
@@ -548,6 +573,7 @@ const Course: React.FC = () => {
                                     isMentor={isCourseMentor}
                                     course={courseState.course}
                                     solutions={studentSolutions}
+                                    yandexCode={userYandexId}
                                 />
                             </Grid>
                         </Grid>}
