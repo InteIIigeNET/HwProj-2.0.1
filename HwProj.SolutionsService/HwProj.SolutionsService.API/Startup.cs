@@ -11,36 +11,35 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace HwProj.SolutionsService.API
+namespace HwProj.SolutionsService.API;
+
+public class Startup
 {
-    public class Startup
+    public Startup(IConfiguration configuration)
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+        Configuration = configuration;
+    }
 
-        public IConfiguration Configuration { get; }
+    public IConfiguration Configuration { get; }
 
-        public void ConfigureServices(IServiceCollection services)
-        {
-            var connectionString = ConnectionString.GetConnectionString(Configuration);
-            services.AddDbContext<SolutionContext>(options => options.UseSqlServer(connectionString));
-            services.AddScoped<ISolutionsRepository, SolutionsRepository>();
-            services.AddScoped<ISolutionsService, Services.SolutionsService>();
+    public void ConfigureServices(IServiceCollection services)
+    {
+        var connectionString = ConnectionString.GetConnectionString(Configuration);
+        services.AddDbContext<SolutionContext>(options => options.UseSqlServer(connectionString));
+        services.AddScoped<ISolutionsRepository, SolutionsRepository>();
+        services.AddScoped<ISolutionsService, Services.SolutionsService>();
 
-            services.AddHttpClient();
-            services.AddHttpContextAccessor();
-            services.AddAuthServiceClient();
-            services.AddCoursesServiceClient();
+        services.AddHttpClient();
+        services.AddHttpContextAccessor();
+        services.AddAuthServiceClient();
+        services.AddCoursesServiceClient();
 
-            services.AddEventBus(Configuration);
-            services.ConfigureHwProjServices("Solutions API");
-        }
+        services.AddEventBus(Configuration);
+        services.ConfigureHwProjServices("Solutions API");
+    }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IEventBus eventBus)
-        {
-            app.ConfigureHwProj(env, "Solutions API");
-        }
+    public void Configure(IApplicationBuilder app, IHostingEnvironment env, IEventBus eventBus)
+    {
+        app.ConfigureHwProj(env, "Solutions API");
     }
 }

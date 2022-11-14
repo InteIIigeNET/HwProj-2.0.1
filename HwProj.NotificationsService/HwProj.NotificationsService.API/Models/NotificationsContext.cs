@@ -1,16 +1,15 @@
 ﻿using HwProj.Models.NotificationsService;
 using Microsoft.EntityFrameworkCore;
 
-namespace HwProj.NotificationsService.API.Models
-{
-    public sealed class NotificationsContext : DbContext
-    {
-        public DbSet<Notification> Notifications { get; set; }
+namespace HwProj.NotificationsService.API.Models;
 
-        public NotificationsContext(DbContextOptions options)
-            : base(options)
-        {
-            Database.EnsureCreated();
-        }
+public sealed class NotificationsContext : DbContext
+{
+    public DbSet<Notification> Notifications { get; set; }
+
+    public NotificationsContext(DbContextOptions options)
+        : base(options)
+    {
+        Database.EnsureCreated();
     }
 }

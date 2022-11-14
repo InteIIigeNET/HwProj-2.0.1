@@ -11,142 +11,141 @@ using HwProj.Models.Roles;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HwProj.APIGateway.API.Controllers
+namespace HwProj.APIGateway.API.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+public class CoursesController : AggregationController
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class CoursesController : AggregationController
+    private readonly ICoursesServiceClient _coursesClient;
+
+    public CoursesController(ICoursesServiceClient coursesClient, IAuthServiceClient authServiceClient) : base(
+        authServiceClient)
     {
-        private readonly ICoursesServiceClient _coursesClient;
+        _coursesClient = coursesClient;
+    }
 
-        public CoursesController(ICoursesServiceClient coursesClient, IAuthServiceClient authServiceClient) : base(
-            authServiceClient)
+    [HttpGet]
+    [Authorize]
+    public async Task<CoursePreviewView[]> GetAllCourses()
+    {
+        var courses = await _coursesClient.GetAllCourses();
+        var result = await GetCoursePreviews(courses);
+        return result;
+    }
+
+    [HttpGet("{courseId}")]
+    [ProducesResponseType(typeof(CourseViewModel), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> GetCourseData(long courseId)
+    {
+        var course = await _coursesClient.GetCourseById(courseId, UserId);
+        if (course == null) return NotFound();
+
+        var studentIds = course.CourseMates.Select(t => t.StudentId).ToArray();
+        var getStudentsTask = AuthServiceClient.GetAccountsData(studentIds);
+        var getMentorsTask = AuthServiceClient.GetAccountsData(course.MentorIds);
+
+        await Task.WhenAll(getStudentsTask, getMentorsTask);
+
+        var students = getStudentsTask.Result;
+
+        var acceptedStudents = new List<AccountDataDto>();
+        var newStudents = new List<AccountDataDto>();
+        for (var i = 0; i < students.Length; i++)
         {
-            _coursesClient = coursesClient;
+            if (!(students[i] is { } student)) continue;
+            if (course.CourseMates[i].IsAccepted) acceptedStudents.Add(student);
+            else newStudents.Add(student);
         }
 
-        [HttpGet]
-        [Authorize]
-        public async Task<CoursePreviewView[]> GetAllCourses()
+        var result = new CourseViewModel
         {
-            var courses = await _coursesClient.GetAllCourses();
-            var result = await GetCoursePreviews(courses);
-            return result;
-        }
+            Id = courseId,
+            Name = course.Name,
+            GroupName = course.GroupName,
+            Mentors = getMentorsTask.Result.Where(t => t != null).ToArray(),
+            AcceptedStudents = acceptedStudents.ToArray(),
+            NewStudents = newStudents.ToArray(),
+            Homeworks = course.Homeworks,
+            IsCompleted = course.IsCompleted,
+            IsOpen = course.IsOpen,
+        };
 
-        [HttpGet("{courseId}")]
-        [ProducesResponseType(typeof(CourseViewModel), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetCourseData(long courseId)
-        {
-            var course = await _coursesClient.GetCourseById(courseId, UserId);
-            if (course == null) return NotFound();
+        return Ok(result);
+    }
 
-            var studentIds = course.CourseMates.Select(t => t.StudentId).ToArray();
-            var getStudentsTask = AuthServiceClient.GetAccountsData(studentIds);
-            var getMentorsTask = AuthServiceClient.GetAccountsData(course.MentorIds);
+    [HttpDelete("{courseId}")]
+    [Authorize(Roles = Roles.LecturerRole)]
+    public async Task<IActionResult> DeleteCourse(long courseId)
+    {
+        await _coursesClient.DeleteCourse(courseId);
+        return Ok();
+    }
 
-            await Task.WhenAll(getStudentsTask, getMentorsTask);
+    [HttpPost("create")]
+    [Authorize(Roles = Roles.LecturerRole)]
+    [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> CreateCourse(CreateCourseViewModel model)
+    {
+        var result = await _coursesClient.CreateCourse(model, UserId);
+        return Ok(result);
+    }
 
-            var students = getStudentsTask.Result;
+    [HttpPost("update/{courseId}")]
+    [Authorize(Roles = Roles.LecturerRole)]
+    public async Task<IActionResult> UpdateCourse(UpdateCourseViewModel model, long courseId)
+    {
+        await _coursesClient.UpdateCourse(model, courseId);
+        return Ok();
+    }
 
-            var acceptedStudents = new List<AccountDataDto>();
-            var newStudents = new List<AccountDataDto>();
-            for (var i = 0; i < students.Length; i++)
-            {
-                if (!(students[i] is { } student)) continue;
-                if (course.CourseMates[i].IsAccepted) acceptedStudents.Add(student);
-                else newStudents.Add(student);
-            }
+    [HttpPost("signInCourse/{courseId}")]
+    [Authorize]
+    public async Task<IActionResult> SignInCourse(long courseId)
+    {
+        await _coursesClient.SignInCourse(courseId, UserId);
+        return Ok();
+    }
 
-            var result = new CourseViewModel
-            {
-                Id = courseId,
-                Name = course.Name,
-                GroupName = course.GroupName,
-                Mentors = getMentorsTask.Result.Where(t => t != null).ToArray(),
-                AcceptedStudents = acceptedStudents.ToArray(),
-                NewStudents = newStudents.ToArray(),
-                Homeworks = course.Homeworks,
-                IsCompleted = course.IsCompleted,
-                IsOpen = course.IsOpen,
-            };
+    [HttpPost("acceptStudent/{courseId}/{studentId}")]
+    [Authorize(Roles = Roles.LecturerRole)]
+    public async Task<IActionResult> AcceptStudent(long courseId, string studentId)
+    {
+        await _coursesClient.AcceptStudent(courseId, studentId);
+        return Ok();
+    }
 
-            return Ok(result);
-        }
+    [HttpPost("rejectStudent/{courseId}/{studentId}")]
+    [Authorize(Roles = Roles.LecturerRole)]
+    public async Task<IActionResult> RejectStudent(long courseId, string studentId)
+    {
+        await _coursesClient.RejectStudent(courseId, studentId);
+        return Ok();
+    }
 
-        [HttpDelete("{courseId}")]
-        [Authorize(Roles = Roles.LecturerRole)]
-        public async Task<IActionResult> DeleteCourse(long courseId)
-        {
-            await _coursesClient.DeleteCourse(courseId);
-            return Ok();
-        }
+    [HttpGet("userCourses")]
+    [Authorize]
+    public async Task<CoursePreviewView[]> GetAllUserCourses()
+    {
+        var userCourses = await _coursesClient.GetAllUserCourses();
+        var result = await GetCoursePreviews(userCourses);
+        return result;
+    }
 
-        [HttpPost("create")]
-        [Authorize(Roles = Roles.LecturerRole)]
-        [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> CreateCourse(CreateCourseViewModel model)
-        {
-            var result = await _coursesClient.CreateCourse(model, UserId);
-            return Ok(result);
-        }
+    [HttpGet("acceptLecturer/{courseId}/{lecturerEmail}")]
+    [Authorize(Roles = Roles.LecturerRole)]
+    public async Task<IActionResult> AcceptLecturer(long courseId, string lecturerEmail)
+    {
+        await _coursesClient.AcceptLecturer(courseId, lecturerEmail);
+        return Ok();
+    }
 
-        [HttpPost("update/{courseId}")]
-        [Authorize(Roles = Roles.LecturerRole)]
-        public async Task<IActionResult> UpdateCourse(UpdateCourseViewModel model, long courseId)
-        {
-            await _coursesClient.UpdateCourse(model, courseId);
-            return Ok();
-        }
-
-        [HttpPost("signInCourse/{courseId}")]
-        [Authorize]
-        public async Task<IActionResult> SignInCourse(long courseId)
-        {
-            await _coursesClient.SignInCourse(courseId, UserId);
-            return Ok();
-        }
-
-        [HttpPost("acceptStudent/{courseId}/{studentId}")]
-        [Authorize(Roles = Roles.LecturerRole)]
-        public async Task<IActionResult> AcceptStudent(long courseId, string studentId)
-        {
-            await _coursesClient.AcceptStudent(courseId, studentId);
-            return Ok();
-        }
-
-        [HttpPost("rejectStudent/{courseId}/{studentId}")]
-        [Authorize(Roles = Roles.LecturerRole)]
-        public async Task<IActionResult> RejectStudent(long courseId, string studentId)
-        {
-            await _coursesClient.RejectStudent(courseId, studentId);
-            return Ok();
-        }
-
-        [HttpGet("userCourses")]
-        [Authorize]
-        public async Task<CoursePreviewView[]> GetAllUserCourses()
-        {
-            var userCourses = await _coursesClient.GetAllUserCourses();
-            var result = await GetCoursePreviews(userCourses);
-            return result;
-        }
-
-        [HttpGet("acceptLecturer/{courseId}/{lecturerEmail}")]
-        [Authorize(Roles = Roles.LecturerRole)]
-        public async Task<IActionResult> AcceptLecturer(long courseId, string lecturerEmail)
-        {
-            await _coursesClient.AcceptLecturer(courseId, lecturerEmail);
-            return Ok();
-        }
-
-        [HttpGet("getLecturersAvailableForCourse/{courseId}")]
-        [Authorize(Roles = Roles.LecturerRole)]
-        [ProducesResponseType(typeof(AccountDataDto[]), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetLecturersAvailableForCourse(long courseId)
-        {
-            var result = await _coursesClient.GetLecturersAvailableForCourse(courseId);
-            return Ok(result.Value);
-        }
+    [HttpGet("getLecturersAvailableForCourse/{courseId}")]
+    [Authorize(Roles = Roles.LecturerRole)]
+    [ProducesResponseType(typeof(AccountDataDto[]), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> GetLecturersAvailableForCourse(long courseId)
+    {
+        var result = await _coursesClient.GetLecturersAvailableForCourse(courseId);
+        return Ok(result.Value);
     }
 }

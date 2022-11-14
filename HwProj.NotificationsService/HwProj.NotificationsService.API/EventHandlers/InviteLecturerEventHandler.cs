@@ -6,34 +6,33 @@ using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
 
-namespace HwProj.NotificationsService.API.EventHandlers
+namespace HwProj.NotificationsService.API.EventHandlers;
+
+public class InviteLecturerEventHandler : EventHandlerBase<InviteLecturerEvent>
 {
-    public class InviteLecturerEventHandler : EventHandlerBase<InviteLecturerEvent>
+    private readonly INotificationsRepository _notificationRepository;
+    private readonly IEmailService _emailService;
+
+    public InviteLecturerEventHandler(INotificationsRepository notificationRepository, IEmailService emailService)
     {
-        private readonly INotificationsRepository _notificationRepository;
-        private readonly IEmailService _emailService;
+        _notificationRepository = notificationRepository;
+        _emailService = emailService;
+    }
 
-        public InviteLecturerEventHandler(INotificationsRepository notificationRepository, IEmailService emailService)
+    public override async Task HandleAsync(InviteLecturerEvent @event)
+    {
+        var notification = new Notification
         {
-            _notificationRepository = notificationRepository;
-            _emailService = emailService;
-        }
+            Sender = "AuthService",
+            Body = "Вас добавили в список лекторов.",
+            Category = CategoryState.Courses,
+            Date = DateTimeUtils.GetMoscowNow(),
+            Owner = @event.UserId
+        };
 
-        public override async Task HandleAsync(InviteLecturerEvent @event)
-        {
-            var notification = new Notification
-            {
-                Sender = "AuthService",
-                Body = "Вас добавили в список лекторов.",
-                Category = CategoryState.Courses,
-                Date = DateTimeUtils.GetMoscowNow(),
-                Owner = @event.UserId
-            };
+        var addNotificationTask = _notificationRepository.AddAsync(notification);
+        var sendEmailTask = _emailService.SendEmailAsync(notification, @event.UserEmail, "HwProj");
 
-            var addNotificationTask = _notificationRepository.AddAsync(notification);
-            var sendEmailTask = _emailService.SendEmailAsync(notification, @event.UserEmail, "HwProj");
-
-            await Task.WhenAll(addNotificationTask, sendEmailTask);
-        }
+        await Task.WhenAll(addNotificationTask, sendEmailTask);
     }
 }

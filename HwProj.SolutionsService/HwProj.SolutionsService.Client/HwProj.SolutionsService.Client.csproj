@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <OutputType>Library</OutputType>
-        <TargetFramework>netcoreapp2.2</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
         <ApplicationIcon />
         <StartupObject />
         <LangVersion>$(CSharpLanguageVersion)</LangVersion>
@@ -11,8 +11,8 @@
 
     <ItemGroup>
       <PackageReference Include="Google.Apis.Core" Version="1.54.0" />
-      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.2.0" />
-      <PackageReference Include="Microsoft.Extensions.Http" Version="2.2.0" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
     </ItemGroup>
 
     <ItemGroup>

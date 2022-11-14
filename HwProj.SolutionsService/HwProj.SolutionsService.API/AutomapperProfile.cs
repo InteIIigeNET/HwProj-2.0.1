@@ -1,13 +1,12 @@
 ﻿using AutoMapper;
 using HwProj.Models.SolutionsService;
 
-namespace HwProj.SolutionsService.API
+namespace HwProj.SolutionsService.API;
+
+public class AutomapperProfile : Profile
 {
-    public class AutomapperProfile : Profile
+    public AutomapperProfile()
     {
-        public AutomapperProfile()
-        {
-            CreateMap<Solution, SolutionViewModel>().ReverseMap();
-        }
+        CreateMap<Solution, SolutionViewModel>().ReverseMap();
     }
 }

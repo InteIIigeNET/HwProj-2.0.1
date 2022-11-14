@@ -1,10 +1,9 @@
 ﻿using HwProj.Models.NotificationsService;
 using System.Threading.Tasks;
 
-namespace HwProj.NotificationsService.API.Services
+namespace HwProj.NotificationsService.API.Services;
+
+public interface IEmailService
 {
-    public interface IEmailService
-    {
-        Task SendEmailAsync(Notification notification, string email, string topic);
-    }
+    Task SendEmailAsync(Notification notification, string email, string topic);
 }

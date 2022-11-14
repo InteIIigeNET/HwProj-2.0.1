@@ -1,13 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace HwProj.SolutionsService.Client
+namespace HwProj.SolutionsService.Client;
+
+public static class ConfigurationExtensions
 {
-    public static class ConfigurationExtensions
+    public static IServiceCollection AddSolutionServiceClient(this IServiceCollection services)
     {
-        public static IServiceCollection AddSolutionServiceClient(this IServiceCollection services)
-        {
-            services.AddScoped<ISolutionsServiceClient, SolutionsServiceClient>();
-            return services;
-        }
+        services.AddScoped<ISolutionsServiceClient, SolutionsServiceClient>();
+        return services;
     }
 }

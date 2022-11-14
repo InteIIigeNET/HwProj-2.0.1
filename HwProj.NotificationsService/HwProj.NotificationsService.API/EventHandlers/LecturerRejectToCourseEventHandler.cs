@@ -8,45 +8,44 @@ using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
 using Microsoft.Extensions.Configuration;
 
-namespace HwProj.NotificationsService.API.EventHandlers
+namespace HwProj.NotificationsService.API.EventHandlers;
+
+public class LecturerRejectToCourseEventHandler : EventHandlerBase<LecturerRejectToCourseEvent>
 {
-    public class LecturerRejectToCourseEventHandler : EventHandlerBase<LecturerRejectToCourseEvent>
+    private readonly INotificationsRepository _notificationRepository;
+    private readonly IAuthServiceClient _authServiceClient;
+    private readonly IConfigurationSection _configuration;
+    private readonly IEmailService _emailService;
+
+    public LecturerRejectToCourseEventHandler(
+        INotificationsRepository notificationRepository,
+        IAuthServiceClient authServiceClient,
+        IConfiguration configuration,
+        IEmailService emailService)
     {
-        private readonly INotificationsRepository _notificationRepository;
-        private readonly IAuthServiceClient _authServiceClient;
-        private readonly IConfigurationSection _configuration;
-        private readonly IEmailService _emailService;
+        _notificationRepository = notificationRepository;
+        _authServiceClient = authServiceClient;
+        _emailService = emailService;
+        _configuration = configuration.GetSection("Notification");
+    }
 
-        public LecturerRejectToCourseEventHandler(
-            INotificationsRepository notificationRepository,
-            IAuthServiceClient authServiceClient,
-            IConfiguration configuration,
-            IEmailService emailService)
+    public override async Task HandleAsync(LecturerRejectToCourseEvent @event)
+    {
+        var notification = new Notification
         {
-            _notificationRepository = notificationRepository;
-            _authServiceClient = authServiceClient;
-            _emailService = emailService;
-            _configuration = configuration.GetSection("Notification");
-        }
+            Sender = "CourseService",
+            Body =
+                $"Вас не приняли на курс <a href='{_configuration["Url"]}/courses/{@event.CourseId}'>{@event.CourseName}</a>.",
+            Category = CategoryState.Courses,
+            Date = DateTimeUtils.GetMoscowNow(),
+            Owner = @event.StudentId
+        };
 
-        public override async Task HandleAsync(LecturerRejectToCourseEvent @event)
-        {
-            var notification = new Notification
-            {
-                Sender = "CourseService",
-                Body =
-                    $"Вас не приняли на курс <a href='{_configuration["Url"]}/courses/{@event.CourseId}'>{@event.CourseName}</a>.",
-                Category = CategoryState.Courses,
-                Date = DateTimeUtils.GetMoscowNow(),
-                Owner = @event.StudentId
-            };
+        var student = await _authServiceClient.GetAccountData(notification.Owner);
 
-            var student = await _authServiceClient.GetAccountData(notification.Owner);
+        var addNotificationTask = _notificationRepository.AddAsync(notification);
+        var sendEmailTask = _emailService.SendEmailAsync(notification, student.Email, "HwProj");
 
-            var addNotificationTask = _notificationRepository.AddAsync(notification);
-            var sendEmailTask = _emailService.SendEmailAsync(notification, student.Email, "HwProj");
-
-            await Task.WhenAll(addNotificationTask, sendEmailTask);
-        }
+        await Task.WhenAll(addNotificationTask, sendEmailTask);
     }
 }

@@ -1,7 +1,6 @@
-﻿namespace HwProj.Models.AuthService.DTO
+﻿namespace HwProj.Models.AuthService.DTO;
+
+public class TokenCredentials
 {
-    public class TokenCredentials
-    {
-        public string AccessToken { get; set; }
-    }
+    public string AccessToken { get; set; }
 }

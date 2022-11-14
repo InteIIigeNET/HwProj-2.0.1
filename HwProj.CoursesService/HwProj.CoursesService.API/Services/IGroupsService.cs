@@ -2,26 +2,25 @@
 using HwProj.CoursesService.API.Models;
 using HwProj.Models.CoursesService.DTO;
 
-namespace HwProj.CoursesService.API.Services
+namespace HwProj.CoursesService.API.Services;
+
+public interface IGroupsService
 {
-    public interface IGroupsService
-    {
-        Task<Group[]> GetAllAsync(long courseId);
+    Task<Group[]> GetAllAsync(long courseId);
         
-        Task<Group> GetGroupAsync(long groupId);
+    Task<Group> GetGroupAsync(long groupId);
         
-        Task<long> AddGroupAsync(Group group);
+    Task<long> AddGroupAsync(Group group);
         
-        Task DeleteGroupAsync(long id);
+    Task DeleteGroupAsync(long id);
         
-        Task UpdateAsync(long groupId, Group updated);
+    Task UpdateAsync(long groupId, Group updated);
         
-        Task AddGroupMateAsync(long groupId, string studentId);
+    Task AddGroupMateAsync(long groupId, string studentId);
         
-        Task<bool> DeleteGroupMateAsync(long groupId, string studentId);
+    Task<bool> DeleteGroupMateAsync(long groupId, string studentId);
         
-        Task<UserGroupDescription[]> GetStudentGroupsAsync(long courseId, string studentId);
+    Task<UserGroupDescription[]> GetStudentGroupsAsync(long courseId, string studentId);
         
-        Task<long[]> GetTasksIds(long groupId);
-    }
+    Task<long[]> GetTasksIds(long groupId);
 }

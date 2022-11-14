@@ -1,26 +1,25 @@
 ﻿using System;
 using Newtonsoft.Json;
 
-namespace HwProj.EventBus.Client
+namespace HwProj.EventBus.Client;
+
+public class Event
 {
-    public class Event
+    [JsonProperty]
+    public Guid Id { get; set; }
+
+    [JsonProperty]
+    public DateTime CreationData { get; set; }
+
+    public Event()
     {
-        [JsonProperty]
-        public Guid Id { get; set; }
+        Id = Guid.NewGuid();
+        CreationData = DateTime.UtcNow;
+    }
 
-        [JsonProperty]
-        public DateTime CreationData { get; set; }
-
-        public Event()
-        {
-            Id = Guid.NewGuid();
-            CreationData = DateTime.UtcNow;
-        }
-
-        public Event(Guid id, DateTime data)
-        {
-            Id = id;
-            CreationData = data;
-        }
+    public Event(Guid id, DateTime data)
+    {
+        Id = id;
+        CreationData = data;
     }
 }

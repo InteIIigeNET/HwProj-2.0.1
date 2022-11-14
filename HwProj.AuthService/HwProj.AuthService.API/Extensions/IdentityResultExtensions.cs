@@ -2,37 +2,36 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 
-namespace HwProj.AuthService.API.Extensions
+namespace HwProj.AuthService.API.Extensions;
+
+public static class IdentityResultExtensions
 {
-    public static class IdentityResultExtensions
+    public static async Task<IdentityResult> Then(this Task<IdentityResult> task,
+        Func<Task<IdentityResult>> continuation)
     {
-        public static async Task<IdentityResult> Then(this Task<IdentityResult> task,
-            Func<Task<IdentityResult>> continuation)
+        var result = await task.ConfigureAwait(false);
+        return result.Succeeded
+            ? await continuation().ConfigureAwait(false)
+            : result;
+    }
+
+    public static string TryGetIdentityError(this SignInResult result)
+    {
+        if (result.IsLockedOut)
         {
-            var result = await task.ConfigureAwait(false);
-            return result.Succeeded
-                ? await continuation().ConfigureAwait(false)
-                : result;
+            return nameof(result.IsLockedOut);
         }
 
-        public static string TryGetIdentityError(this SignInResult result)
+        if (result.IsNotAllowed)
         {
-            if (result.IsLockedOut)
-            {
-                return nameof(result.IsLockedOut);
-            }
+            return nameof(result.IsNotAllowed);
+        }
 
-            if (result.IsNotAllowed)
-            {
-                return nameof(result.IsNotAllowed);
-            }
-
-            if (result.RequiresTwoFactor)
-            {
-                return nameof(result.RequiresTwoFactor);
-            }
+        if (result.RequiresTwoFactor)
+        {
+            return nameof(result.RequiresTwoFactor);
+        }
             
-            return "Неправильный логин или пароль";
-        }
+        return "Неправильный логин или пароль";
     }
 }
