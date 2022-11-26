@@ -4,7 +4,7 @@ import {RouteComponentProps} from 'react-router';
 import {AccountDataDto, CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api";
 import CourseHomework from "../Homeworks/CourseHomework";
 import AddHomework from "../Homeworks/AddHomework";
-import CourseStudents from "./CourseStudents";
+import StudentStats from "./StudentStats";
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
 import {Button, Grid, Tab, Tabs, Typography, IconButton, Switch} from "@material-ui/core";
@@ -294,7 +294,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                     {tabValue === 1 &&
                         <Grid container style={{marginBottom: "15px"}}>
                             <Grid item xs={11}>
-                                <CourseStudents
+                                <StudentStats
                                     homeworks={courseState.courseHomework}
                                     userId={userId as string}
                                     isMentor={isMentor}

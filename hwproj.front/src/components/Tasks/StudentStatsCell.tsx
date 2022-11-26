@@ -14,20 +14,19 @@ interface ITaskStudentCellProps {
 
 interface ITaskStudentCellState {
     isLoaded: boolean;
-    solution?: StatisticsCourseSolutionsModel;
+    lastRatedSolution?: StatisticsCourseSolutionsModel;
     redirectForMentor: boolean;
     redirectForStudent: boolean;
     color: string;
     ratedSolutionsCount: number;
 }
 
-export default class TaskStudentCell extends React.Component<ITaskStudentCellProps,
-    ITaskStudentCellState> {
+export default class StudentStatsCell extends React.Component<ITaskStudentCellProps, ITaskStudentCellState> {
     constructor(props: ITaskStudentCellProps) {
         super(props);
         this.state = {
             isLoaded: false,
-            solution: {},
+            lastRatedSolution: {},
             redirectForMentor: false,
             redirectForStudent: false,
             color: "",
@@ -59,10 +58,10 @@ export default class TaskStudentCell extends React.Component<ITaskStudentCellPro
                 : this.props.userId === this.props.studentId
                     ? () => this.onStudentCellClick()
                     : () => 0;
-            const result = this.state.solution === undefined || this.state.solution.state! === Solution.StateEnum.NUMBER_0
+            const result = this.state.lastRatedSolution === undefined
                 ? ""
                 : <Stack direction="row" spacing={0.3} justifyContent={"center"} alignItems={"center"}>
-                    <div>{this.state.solution.rating!}</div>
+                    <div>{this.state.lastRatedSolution.rating!}</div>
                     <Chip color={"default"} size={"small"} label={this.state.ratedSolutionsCount}/>
                 </Stack>
             return (
@@ -102,22 +101,25 @@ export default class TaskStudentCell extends React.Component<ITaskStudentCellPro
 
     async componentDidMount() {
         const solutions = this.props.solutions
-        const ratedSolutionsCount = solutions!.filter(x => x.state != Solution.StateEnum.NUMBER_0).length
+        const ratedSolutions = solutions!.filter(x => x.state != Solution.StateEnum.NUMBER_0)
+        const ratedSolutionsCount = ratedSolutions.length
         const isFirstUnratedTry = ratedSolutionsCount === 0
         const lastSolution = solutions!.slice(-1)[0]
+        const lastRatedSolution = ratedSolutions.slice(-1)[0]
+
         if (lastSolution === undefined) {
             this.setState({
                 color: "",
                 isLoaded: true,
-                solution: undefined
+                lastRatedSolution: undefined
             })
             return
         }
         this.setState({
             color: this.getCellBackgroundColor(lastSolution.state, isFirstUnratedTry),
             isLoaded: true,
-            solution: lastSolution,
-            ratedSolutionsCount: ratedSolutionsCount
+            lastRatedSolution: lastRatedSolution,
+            ratedSolutionsCount: ratedSolutions.length
         })
     }
 }

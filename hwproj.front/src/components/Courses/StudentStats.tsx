@@ -1,10 +1,10 @@
 import React from "react";
 import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api/";
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
-import TaskStudentCell from "../Tasks/TaskStudentCell";
+import StudentStatsCell from "../Tasks/StudentStatsCell";
 import {Alert} from "@mui/material";
 
-interface ICourseStudentsProps {
+interface IStudentStatsProps {
     course: CourseViewModel;
     homeworks: HomeworkViewModel[];
     isMentor: boolean;
@@ -12,12 +12,12 @@ interface ICourseStudentsProps {
     solutions: StatisticsCourseMatesModel[];
 }
 
-interface ICourseStudentsState {
+interface IStudentStatsState {
     searched: string
 }
 
-class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStudentsState> {
-    constructor(props: ICourseStudentsProps) {
+class StudentStats extends React.Component<IStudentStatsProps, IStudentStatsState> {
+    constructor(props: IStudentStatsProps) {
         super(props);
         this.state = {
             searched: ""
@@ -93,7 +93,7 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
                                     </TableCell>
                                     {homeworks.map((homework) =>
                                         homework.tasks!.map((task) => (
-                                            <TaskStudentCell
+                                            <StudentStatsCell
                                                 solutions={solutions
                                                     .find(s => s.id == cm.id)!.homeworks!
                                                     .find(h => h.id == homework.id)!.tasks!
@@ -115,4 +115,4 @@ class CourseStudents extends React.Component<ICourseStudentsProps, ICourseStuden
     }
 }
 
-export default CourseStudents;
+export default StudentStats;
