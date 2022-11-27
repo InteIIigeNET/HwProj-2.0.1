@@ -102,7 +102,7 @@ class StudentStats extends React.Component<IStudentStatsProps, IStudentStatsStat
                                                 forMentor={this.props.isMentor}
                                                 studentId={String(cm.id)}
                                                 taskId={task.id!}
-                                            />
+                                                taskMaxRating={task.maxRating!}/>
                                         ))
                                     )}
                                 </TableRow>

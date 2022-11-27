@@ -3,12 +3,14 @@ import TableCell from "@material-ui/core/TableCell";
 import {Redirect} from "react-router-dom";
 import {Solution, StatisticsCourseSolutionsModel} from "api";
 import {Chip, Stack} from "@mui/material";
+import {colorBetween} from "../../services/JsUtils";
 
 interface ITaskStudentCellProps {
     studentId: string;
     taskId: number;
     forMentor: boolean;
     userId: string;
+    taskMaxRating: number;
     solutions?: StatisticsCourseSolutionsModel[];
 }
 
@@ -89,18 +91,19 @@ export default class StudentStatsCell extends React.Component<ITaskStudentCellPr
         this.setState({redirectForStudent: true});
     }
 
-    getCellBackgroundColor = (state: Solution.StateEnum | undefined, isFirstTry: boolean): string => {
+
+    getCellBackgroundColor = (state: Solution.StateEnum | undefined,
+                              rating: number | undefined, maxRating: number,
+                              isFirstTry: boolean): string => {
         if (state == Solution.StateEnum.NUMBER_0)
-            return isFirstTry ? "#d0fcc7" : "#ffeb99"
-        if (state == Solution.StateEnum.NUMBER_1)
-            return "#ffc346"
-        if (state == Solution.StateEnum.NUMBER_2)
-            return "#7ad67a"
-        return "#ffffff"
+            return isFirstTry ? "#d0fcc7" : "#afeeee"
+        return rating !== undefined
+            ? colorBetween(0xff0000, 0x2cba00, rating / maxRating * 100)
+            : "#ffffff"
     }
 
     async componentDidMount() {
-        const solutions = this.props.solutions
+        const {solutions, taskMaxRating} = this.props
         const ratedSolutions = solutions!.filter(x => x.state != Solution.StateEnum.NUMBER_0)
         const ratedSolutionsCount = ratedSolutions.length
         const isFirstUnratedTry = ratedSolutionsCount === 0
@@ -116,7 +119,7 @@ export default class StudentStatsCell extends React.Component<ITaskStudentCellPr
             return
         }
         this.setState({
-            color: this.getCellBackgroundColor(lastSolution.state, isFirstUnratedTry),
+            color: this.getCellBackgroundColor(lastSolution.state, lastSolution.rating, taskMaxRating, isFirstUnratedTry),
             isLoaded: true,
             lastRatedSolution: lastRatedSolution,
             ratedSolutionsCount: ratedSolutions.length
