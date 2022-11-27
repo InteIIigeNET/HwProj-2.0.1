@@ -60,7 +60,13 @@ const StudentSolutionsPage: FC<RouteComponentProps<IStudentSolutionsPageProps>> 
 
     const getNextUnratedSolution = async () => {
         const unratedSolutions = await ApiSingleton.solutionsApi.apiSolutionsUnratedSolutionsGet(taskId)
-        const nextUnratedSolution = unratedSolutions.unratedSolutions!.filter(t => t.student!.userId !== studentId)[0]
+        const nextUnratedSolution = unratedSolutions.unratedSolutions!
+            .filter(t => t.student!.userId !== studentId)
+            .sort((s1, s2) => {
+                const cm1 = `${s1.student!.surname} ${s1.student!.name}`
+                const cm2 = `${s2.student!.surname} ${s2.student!.name}`
+                return cm1.localeCompare(cm2)
+            })[0]
 
         if (nextUnratedSolution) {
             window.location.assign(`/task/${nextUnratedSolution.taskId}/${nextUnratedSolution.student!.userId}`)
