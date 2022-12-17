@@ -7,6 +7,7 @@ import {AccountDataDto, HomeworkTaskViewModel, Solution} from '../../api'
 import ApiSingleton from "../../api/ApiSingleton";
 import {Avatar, Rating, Stack, Alert} from "@mui/material";
 import AvatarUtils from "../Utils/AvatarUtils";
+import GitHubIcon from '@mui/icons-material/GitHub';
 
 interface ISolutionProps {
     solution: Solution,
@@ -133,13 +134,16 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                             </Grid>
                         }
                         <Grid item>
-                            <Link
-                                href={solution.githubUrl}
-                                target="_blank"
-                                style={{color: 'darkblue'}}
-                            >
-                                Ссылка на решение
-                            </Link>
+                            <Stack>
+                                <Link
+                                    href={solution.githubUrl}
+                                    target="_blank"
+                                    style={{color: 'darkblue'}}
+                                >
+                                    {solution.githubUrl!.startsWith("https://github.com/") && <GitHubIcon/>} Ссылка на
+                                    решение
+                                </Link>
+                            </Stack>
                             <Typography style={{color: "GrayText"}}>
                                 {postedSolutionTime}
                             </Typography>
