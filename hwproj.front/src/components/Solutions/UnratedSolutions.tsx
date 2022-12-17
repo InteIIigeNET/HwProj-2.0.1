@@ -43,7 +43,7 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
                           onChange: React.Dispatch<React.SetStateAction<string | undefined>>) => {
         const values = [...new Set(unratedSolutions!.map(renderTitle))]
         return <FormControl fullWidth style={{minWidth: 220}}>
-            <InputLabel id="demo-simple-select-label">{name}</InputLabel>
+            <InputLabel>{name}</InputLabel>
             <Select
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"

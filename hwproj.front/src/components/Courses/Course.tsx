@@ -13,8 +13,11 @@ import {useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import VisibilityIcon from '@material-ui/icons/Visibility';
-import {Chip, FormControlLabel, Stack} from "@mui/material";
+import {Chip, Stack} from "@mui/material";
 import CourseExperimental from "./CourseExperimental";
+import classes from "*.module.css";
+
+type TabValue = "" | "stats" | "applications"
 
 interface ICourseState {
     isFound: boolean;
@@ -25,13 +28,14 @@ interface ICourseState {
     acceptedStudents: AccountDataDto[];
     newStudents: AccountDataDto[];
     isReadingMode: boolean;
-    tabValue: number;
+    tabValue: TabValue;
     studentSolutions: StatisticsCourseMatesModel[];
     showExperimentalFeature: boolean
 }
 
 interface ICourseProps {
     id: string;
+    tab: string;
 }
 
 const styles = makeStyles(() => ({
@@ -43,7 +47,6 @@ const styles = makeStyles(() => ({
 
 const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
     const courseId = props.match.params.id
-    const classes = styles()
 
     const [courseState, setCourseState] = useState<ICourseState>({
         showExperimentalFeature: false,
@@ -55,12 +58,36 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
         acceptedStudents: [],
         newStudents: [],
         isReadingMode: true,
-        tabValue: 0,
+        tabValue: "",
         studentSolutions: []
     })
+
+    const toggle = (newTab: TabValue) => {
+        if (newTab !== courseState.tabValue) {
+            props.history.push(`/${newTab}`);
+            setCourseState(prevState => ({
+                ...prevState,
+                tabValue: newTab
+            }));
+        }
+    }
     const setCurrentState = async () => {
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+courseId)
         const solutions = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdGet(+courseId)
+
+        const isLogged = ApiSingleton.authService.isLoggedIn()
+
+        //TODO: move to authservice
+        const userId = isLogged
+            ? ApiSingleton.authService.getUserId()
+            : undefined
+
+        const isMentor = isLogged && mentors.some(t => t.userId === userId)
+
+        const tab = props.match.params.tab
+        const tabValue = tab === "" ? ""
+            : tab === "stats" ? "stats"
+                : tab === "applications" && isMentor ? "applications" : "";
 
         setCourseState(prevState => ({
             ...prevState,
@@ -71,7 +98,8 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
             mentors: course.mentors!,
             acceptedStudents: course.acceptedStudents!,
             newStudents: course.newStudents!,
-            studentSolutions: solutions
+            studentSolutions: solutions,
+            tabValue: tabValue
         }))
     }
 
@@ -125,7 +153,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
             <div className="container">
                 <Grid style={{marginBottom: '50px'}}>
                     <Grid container style={{marginTop: "15px"}}>
-                        <Grid container xs={11} className={classes.info}>
+                        <Grid container xs={11}>
                             <Grid item>
                                 <Typography style={{fontSize: '22px'}}>
                                     {`${course.name} / ${course.groupName}`} &nbsp;
@@ -187,15 +215,10 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                         </Grid>
                     </Grid>
                     <Tabs
-                        value={tabValue}
+                        value={tabValue == "" ? 0 : tabValue === "stats" ? 1 : tabValue === "applications" ? 2 : 0}
                         style={{marginTop: 15}}
                         indicatorColor="primary"
-                        onChange={(event, value) => {
-                            setCourseState(prevState => ({
-                                ...prevState,
-                                tabValue: value
-                            }));
-                        }}
+                        onChange={(event, value) => toggle(value)}
                     >
                         <Tab label="Домашние задания"/>
                         {(isMentor || isAcceptedStudent) && <Tab label={
@@ -213,7 +236,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                             </Stack>}/>}
                     </Tabs>
                     <br/>
-                    {tabValue === 0 && <div>
+                    {tabValue === "" && <div>
                         {
                             showExperimentalFeature ?
                                 <CourseExperimental homeworks={courseState.courseHomework} isMentor={isMentor}
@@ -291,7 +314,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                 </div>
                         }
                     </div>}
-                    {tabValue === 1 &&
+                    {tabValue === "stats" &&
                         <Grid container style={{marginBottom: "15px"}}>
                             <Grid item xs={11}>
                                 <StudentStats
@@ -303,7 +326,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                 />
                             </Grid>
                         </Grid>}
-                    {tabValue === 2 && isMentor &&
+                    {tabValue === "applications" && isMentor &&
                         <Grid item xs={11}>
                             <NewCourseStudents
                                 onUpdate={() => setCurrentState()}

@@ -89,6 +89,7 @@ class App extends Component<AppProps, AppState> {
                     <Route exact path="/profile/:id" component={Workspace}/>
                     <Route exact path="/create_course" component={CreateCourse}/>
                     <Route exact path="/courses/:id" component={Course}/>
+                    <Route exact path="/courses/:id/:tab" component={Course}/>
                     <Route exact path="/courses/:courseId/edit" component={EditCourse}/>
                     <Route exact path="/homework/:homeworkId/edit" component={EditHomework}/>
                     <Route exact path="/task/:taskId/edit" component={EditTask}/>
