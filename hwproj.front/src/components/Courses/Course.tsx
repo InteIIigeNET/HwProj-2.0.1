@@ -49,6 +49,7 @@ const styles = makeStyles(() => ({
 const Course: React.FC = () => {
     const {courseId, tab} = useParams()
     const navigate = useNavigate()
+    const classes = styles()
 
     const [courseState, setCourseState] = useState<ICourseState>({
         showExperimentalFeature: false,
@@ -153,7 +154,7 @@ const Course: React.FC = () => {
             <div className="container">
                 <Grid style={{marginBottom: '50px'}}>
                     <Grid container style={{marginTop: "15px"}}>
-                        <Grid container xs={11}>
+                        <Grid container xs={11} className={classes.info}>
                             <Grid item>
                                 <Typography style={{fontSize: '22px'}}>
                                     {`${course.name} / ${course.groupName}`} &nbsp;
