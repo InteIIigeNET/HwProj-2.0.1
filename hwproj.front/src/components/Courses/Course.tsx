@@ -1,6 +1,5 @@
 import * as React from "react";
 import {Link as RouterLink} from "react-router-dom";
-import {RouteComponentProps} from 'react-router';
 import {AccountDataDto, CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api";
 import CourseHomework from "../Homeworks/CourseHomework";
 import AddHomework from "../Homeworks/AddHomework";
@@ -15,9 +14,9 @@ import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import {Chip, Stack} from "@mui/material";
 import CourseExperimental from "./CourseExperimental";
-import classes from "*.module.css";
+import {useParams, useNavigate} from 'react-router-dom';
 
-type TabValue = "" | "stats" | "applications"
+type TabValue = "homeworks" | "stats" | "applications"
 
 interface ICourseState {
     isFound: boolean;
@@ -28,14 +27,12 @@ interface ICourseState {
     acceptedStudents: AccountDataDto[];
     newStudents: AccountDataDto[];
     isReadingMode: boolean;
-    tabValue: TabValue;
     studentSolutions: StatisticsCourseMatesModel[];
     showExperimentalFeature: boolean
 }
 
-interface ICourseProps {
-    id: string;
-    tab: string;
+interface IPageState {
+    tabValue: TabValue
 }
 
 const styles = makeStyles(() => ({
@@ -45,8 +42,9 @@ const styles = makeStyles(() => ({
     },
 }))
 
-const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
-    const courseId = props.match.params.id
+const Course: React.FC = () => {
+    const {courseId, tab} = useParams()
+    const navigate = useNavigate()
 
     const [courseState, setCourseState] = useState<ICourseState>({
         showExperimentalFeature: false,
@@ -58,22 +56,26 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
         acceptedStudents: [],
         newStudents: [],
         isReadingMode: true,
-        tabValue: "",
         studentSolutions: []
     })
 
-    const toggle = (newTab: TabValue) => {
-        if (newTab !== courseState.tabValue) {
-            props.history.push(`/${newTab}`);
-            setCourseState(prevState => ({
+    const [pageState, setPageState] = useState<IPageState>({
+        tabValue: "homeworks"
+    })
+
+    const toggleTab = (newTab: TabValue) => {
+        if (newTab !== pageState.tabValue) {
+            navigate(`/courses/${courseId}/${newTab}`)
+            setPageState(prevState => ({
                 ...prevState,
                 tabValue: newTab
             }));
         }
     }
+
     const setCurrentState = async () => {
-        const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+courseId)
-        const solutions = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdGet(+courseId)
+        const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+courseId!)
+        const solutions = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdGet(+courseId!)
 
         const isLogged = ApiSingleton.authService.isLoggedIn()
 
@@ -82,12 +84,10 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
             ? ApiSingleton.authService.getUserId()
             : undefined
 
-        const isMentor = isLogged && mentors.some(t => t.userId === userId)
-
-        const tab = props.match.params.tab
-        const tabValue = tab === "" ? ""
+        const isMentor = isLogged && course.mentors!.some(t => t.userId === userId)
+        const tabValue = tab === "homeworks" ? "homeworks"
             : tab === "stats" ? "stats"
-                : tab === "applications" && isMentor ? "applications" : "";
+                : tab === "applications" && isMentor ? "applications" : "homeworks";
 
         setCourseState(prevState => ({
             ...prevState,
@@ -107,16 +107,23 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
         setCurrentState()
     }, [])
 
+    useEffect(() => {
+        setPageState({
+            tabValue: tab === "homeworks" ? "homeworks"
+                : tab === "stats" ? "stats"
+                    : tab === "applications" && true ? "applications" : "homeworks"
+        })
+    }, [tab])
+
     const joinCourse = async () => {
         await ApiSingleton.coursesApi
-            .apiCoursesSignInCourseByCourseIdPost(+courseId)
+            .apiCoursesSignInCourseByCourseIdPost(+courseId!)
             .then(() => setCurrentState());
     }
 
     const {
         isFound,
         course,
-        tabValue,
         createHomework,
         mentors,
         newStudents,
@@ -124,6 +131,8 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
         isReadingMode,
         studentSolutions
     } = courseState;
+
+    const {tabValue} = pageState
 
     const unratedSolutionsCount = studentSolutions
         .flatMap(x => x.homeworks)
@@ -215,10 +224,14 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                         </Grid>
                     </Grid>
                     <Tabs
-                        value={tabValue == "" ? 0 : tabValue === "stats" ? 1 : tabValue === "applications" ? 2 : 0}
+                        value={tabValue == "homeworks" ? 0 : tabValue === "stats" ? 1 : tabValue === "applications" ? 2 : 0}
                         style={{marginTop: 15}}
                         indicatorColor="primary"
-                        onChange={(event, value) => toggle(value)}
+                        onChange={(event, value) => {
+                            if (value === 0) toggleTab("homeworks");
+                            if (value === 1) toggleTab("stats");
+                            if (value === 2) toggleTab("applications");
+                        }}
                     >
                         <Tab label="Домашние задания"/>
                         {(isMentor || isAcceptedStudent) && <Tab label={
@@ -236,7 +249,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                             </Stack>}/>}
                     </Tabs>
                     <br/>
-                    {tabValue === "" && <div>
+                    {tabValue === "homeworks" && <div>
                         {
                             showExperimentalFeature ?
                                 <CourseExperimental homeworks={courseState.courseHomework} isMentor={isMentor}
@@ -249,7 +262,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                             <Grid container>
                                                 <Grid item xs={11}>
                                                     <AddHomework
-                                                        id={+courseId}
+                                                        id={+courseId!}
                                                         onCancel={() => setCurrentState()}
                                                         onSubmit={() => setCurrentState()}
                                                     />
@@ -332,7 +345,7 @@ const Course: React.FC<RouteComponentProps<ICourseProps>> = (props) => {
                                 onUpdate={() => setCurrentState()}
                                 course={courseState.course}
                                 students={courseState.newStudents}
-                                courseId={courseId}
+                                courseId={courseId!}
                             />
                         </Grid>
                     }

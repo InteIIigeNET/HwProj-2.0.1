@@ -1,5 +1,4 @@
 import * as React from "react";
-import {RouteComponentProps} from "react-router-dom";
 import {CourseViewModel, HomeworkTaskViewModel, SolutionPreviewView} from "../../api/";
 import Typography from "@material-ui/core/Typography";
 import Task from "../Tasks/Task";
@@ -7,11 +6,7 @@ import TaskSolutions from "./TaskSolutions";
 import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useEffect, useState} from "react";
 import {Grid, Link} from "@material-ui/core";
-
-interface IStudentSolutionsPageProps {
-    taskId: string;
-    studentId: string;
-}
+import {useParams} from "react-router-dom";
 
 interface IStudentSolutionsPageState {
     task: HomeworkTaskViewModel;
@@ -19,7 +14,8 @@ interface IStudentSolutionsPageState {
     course: CourseViewModel;
 }
 
-const StudentSolutionsPage: FC<RouteComponentProps<IStudentSolutionsPageProps>> = (props) => {
+const StudentSolutionsPage: FC = (props) => {
+    const { taskId, studentId } = useParams()
 
     const [studentSolutions, setStudentSolutions] = useState<IStudentSolutionsPageState>({
         task: {},
@@ -39,15 +35,12 @@ const StudentSolutionsPage: FC<RouteComponentProps<IStudentSolutionsPageProps>> 
         ? ApiSingleton.authService.getUserId()
         : undefined
 
-    const studentId = props.match.params.studentId
-    const taskId = +props.match.params.taskId
-
     useEffect(() => {
         getTaskData()
     }, [])
 
     const getTaskData = async () => {
-        const task = await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(taskId)
+        const task = await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+taskId!)
         const homework = await ApiSingleton.homeworksApi.apiHomeworksGetByHomeworkIdGet(task.homeworkId!)
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(homework.courseId!)
 
@@ -59,7 +52,7 @@ const StudentSolutionsPage: FC<RouteComponentProps<IStudentSolutionsPageProps>> 
     }
 
     const getNextUnratedSolution = async () => {
-        const unratedSolutions = await ApiSingleton.solutionsApi.apiSolutionsUnratedSolutionsGet(taskId)
+        const unratedSolutions = await ApiSingleton.solutionsApi.apiSolutionsUnratedSolutionsGet(+taskId!)
         const nextUnratedSolution = unratedSolutions.unratedSolutions!
             .filter(t => t.student!.userId !== studentId)
             .sort((s1, s2) => {
@@ -138,7 +131,7 @@ const StudentSolutionsPage: FC<RouteComponentProps<IStudentSolutionsPageProps>> 
                         <TaskSolutions
                             forMentor={true}
                             task={studentSolutions.task}
-                            studentId={studentId}
+                            studentId={studentId!}
                         />
                     </Grid>
                 </Grid>

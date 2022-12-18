@@ -1,11 +1,10 @@
 ﻿import * as React from "react";
-import {RouteComponentProps} from 'react-router';
 import {Typography, CircularProgress, Box, Grid, Tabs, Tab} from "@material-ui/core";
 import ApiSingleton from "api/ApiSingleton";
 import {UnratedSolutionPreviews, UserDataDto} from "../api/";
 import "./Styles/Profile.css";
 import {FC, useEffect, useState} from "react";
-import {Link as RouterLink, Redirect} from "react-router-dom";
+import {Link as RouterLink, Navigate, useParams} from "react-router-dom";
 import {makeStyles} from "@material-ui/styles";
 import {CoursesList} from "./Courses/CoursesList";
 import EditIcon from "@material-ui/icons/Edit";
@@ -18,17 +17,15 @@ interface IWorkspaceState {
     tabValue: number;
 }
 
-interface IWorkspaceProps {
-    id: string;
-}
-
 const useStyles = makeStyles(() => ({
     info: {
         justifyContent: "space-between",
     },
 }))
 
-const Workspace: FC<RouteComponentProps<IWorkspaceProps>> = (props) => {
+const Workspace: FC = () => {
+    const { id } = useParams()
+
     const [profileState, setProfileState] = useState<IWorkspaceState>({
         isLoaded: false,
         tabValue: 0
@@ -47,8 +44,8 @@ const Workspace: FC<RouteComponentProps<IWorkspaceProps>> = (props) => {
     }, [])
 
     const getUserInfo = async () => {
-        if (props.match.params.id) {
-            const data = await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(props.match.params.id)
+        if (id) {
+            const data = await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(id)
             setAccountState({userData: data, taskDeadlines: [], courses: [], unratedSolutionPreviews: undefined})
             setProfileState(prevState => ({
                 ...prevState,
@@ -71,7 +68,7 @@ const Workspace: FC<RouteComponentProps<IWorkspaceProps>> = (props) => {
     const {tabValue} = profileState
 
     if (!ApiSingleton.authService.isLoggedIn()) {
-        return <Redirect to={"/login"}/>;
+        return <Navigate to={"/login"}/>;
     }
 
     if (profileState.isLoaded) {

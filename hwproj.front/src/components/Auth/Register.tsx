@@ -1,8 +1,8 @@
-import React, {FC, FormEvent, useState} from "react";
+import React, {FC, useState} from "react";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
-import {Redirect, RouteComponentProps} from "react-router-dom";
+import {Navigate} from "react-router-dom";
 import ApiSingleton from "../../api/ApiSingleton";
 import { RegisterViewModel } from "../../api/";
 import "./Styles/Register.css";
@@ -17,7 +17,7 @@ interface  ICommonState {
     error: string[];
 }
 
-interface LoginProps extends Partial<RouteComponentProps> {
+interface LoginProps {
     onLogin: () => void;
 }
 
@@ -83,7 +83,7 @@ const Register: FC<LoginProps> = (props) => {
     }
 
     if (commonState.loggedIn) {
-      return <Redirect to={"/"} />;
+      return <Navigate to={"/"} />;
     }
 
     return (

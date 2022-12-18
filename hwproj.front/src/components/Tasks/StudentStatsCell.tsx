@@ -1,6 +1,6 @@
 import * as React from "react";
 import TableCell from "@material-ui/core/TableCell";
-import {Redirect} from "react-router-dom";
+import {Navigate} from "react-router-dom";
 import {Solution, StatisticsCourseSolutionsModel} from "api";
 import {Chip, Stack} from "@mui/material";
 import {colorBetween} from "../../services/JsUtils";
@@ -39,7 +39,7 @@ export default class StudentStatsCell extends React.Component<ITaskStudentCellPr
     public render() {
         if (this.state.redirectForMentor) {
             return (
-                <Redirect
+                <Navigate
                     to={
                         "/task/" +
                         this.props.taskId.toString() +
@@ -51,7 +51,7 @@ export default class StudentStatsCell extends React.Component<ITaskStudentCellPr
         }
 
         if (this.state.redirectForStudent) {
-            return <Redirect to={"/task/" + this.props.taskId.toString()}/>;
+            return <Navigate to={"/task/" + this.props.taskId.toString()}/>;
         }
 
         if (this.state.isLoaded) {

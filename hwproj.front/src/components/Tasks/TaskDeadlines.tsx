@@ -1,9 +1,8 @@
-import {TaskDeadlineDto, TaskDeadlineView} from "../../api";
+import {TaskDeadlineView} from "../../api";
 import * as React from "react";
-import {BrowserRouter as Router, Link as RouterLink} from "react-router-dom";
+import {NavLink} from "react-router-dom";
 import {Divider, Grid, ListItem, Typography} from "@material-ui/core";
 import {Badge, LinearProgress} from "@mui/material";
-import Utils from "../../services/Utils";
 
 interface ITaskDeadlinesProps {
     taskDeadlines: TaskDeadlineView[]
@@ -35,42 +34,40 @@ export class TaskDeadlines extends React.Component<ITaskDeadlinesProps, {}> {
 
         return (
             <div className="container">
-                <Router>
-                    {taskDeadlines.map(({deadline: deadline, rating, maxRating, solutionState}, i) => (
-                        <Grid item>
-                            <ListItem
-                                key={deadline!.taskId}
-                                onClick={() => window.location.assign(`/task/${deadline!.taskId}`)}
-                                style={{padding: 0}}
-                            >
-                                <Grid container>
-                                    <Grid item>
-                                        <RouterLink
-                                            to={`/task/${deadline!.taskId}`}
-                                            style={{color: "#212529"}}
-                                        >
-                                            <Typography style={{fontSize: "20px"}}>
-                                                {deadline!.taskTitle}
-                                            </Typography>
-                                        </RouterLink>
-                                    </Grid>
-                                    <Grid item>
-                                        {this.renderBadge(solutionState!, rating!, maxRating!)}
-                                    </Grid>
+                {taskDeadlines.map(({deadline: deadline, rating, maxRating, solutionState}, i) => (
+                    <Grid item>
+                        <ListItem
+                            key={deadline!.taskId}
+                            onClick={() => window.location.assign(`/task/${deadline!.taskId}`)}
+                            style={{padding: 0}}
+                        >
+                            <Grid container>
+                                <Grid item>
+                                    <NavLink
+                                        to={`/task/${deadline!.taskId}`}
+                                        style={{color: "#212529"}}
+                                    >
+                                        <Typography style={{fontSize: "20px"}}>
+                                            {deadline!.taskTitle}
+                                        </Typography>
+                                    </NavLink>
                                 </Grid>
-                            </ListItem>
-                            <Typography style={{fontSize: "18px", color: "GrayText"}}>
-                                {deadline!.courseTitle}
-                            </Typography>
-                            <LinearProgress variant="determinate"
-                                            style={{marginTop: 5}}
-                                            value={this.getPercent(deadline!.publicationDate!, deadline!.deadlineDate!)}/>
-                            {new Date(deadline!.deadlineDate!).toLocaleString("ru-RU")}
-                            {i < taskDeadlines.length - 1 ?
-                                <Divider style={{marginTop: 10, marginBottom: 10}}/> : null}
-                        </Grid>
-                    ))}
-                </Router>
+                                <Grid item>
+                                    {this.renderBadge(solutionState!, rating!, maxRating!)}
+                                </Grid>
+                            </Grid>
+                        </ListItem>
+                        <Typography style={{fontSize: "18px", color: "GrayText"}}>
+                            {deadline!.courseTitle}
+                        </Typography>
+                        <LinearProgress variant="determinate"
+                                        style={{marginTop: 5}}
+                                        value={this.getPercent(deadline!.publicationDate!, deadline!.deadlineDate!)}/>
+                        {new Date(deadline!.deadlineDate!).toLocaleString("ru-RU")}
+                        {i < taskDeadlines.length - 1 ?
+                            <Divider style={{marginTop: 10, marginBottom: 10}}/> : null}
+                    </Grid>
+                ))}
             </div>
         );
     }

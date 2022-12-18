@@ -1,7 +1,7 @@
 import React, {FC, FormEvent} from "react";
 import Avatar from '@material-ui/core/Avatar';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
-import {Redirect, RouteComponentProps} from "react-router-dom";
+import {Navigate} from "react-router-dom";
 import {TextField, Button, Typography} from "@material-ui/core";
 import Grid from '@material-ui/core/Grid';
 import ApiSingleton from "../../api/ApiSingleton";
@@ -10,11 +10,8 @@ import {useState} from "react";
 import {LoginViewModel} from "../../api/"
 import makeStyles from "@material-ui/styles/makeStyles";
 import Container from '@material-ui/core/Container';
-import GoogleLogin from "react-google-login";
-import {GoogleLoginButton} from "react-social-login-buttons";
-import {GithubLoginButton} from "react-social-login-buttons";
 
-interface LoginProps extends Partial<RouteComponentProps> {
+interface LoginProps {
     onLogin: () => void;
 }
 
@@ -119,7 +116,7 @@ const Login: FC<LoginProps> = (props) => {
     const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID!
 
     if (loginState.isLogin) {
-        return <Redirect to={"/"}/>;
+        return <Navigate to={"/"}/>;
     }
 
     if (loginState.error) {

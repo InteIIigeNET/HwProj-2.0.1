@@ -4,8 +4,7 @@ import Checkbox from '@material-ui/core/Checkbox'
 import Button from '@material-ui/core/Button'
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Typography from '@material-ui/core/Typography'
-import {Redirect} from 'react-router-dom';
-import {RouteComponentProps} from "react-router-dom"
+import {Navigate, useParams} from 'react-router-dom';
 import ApiSingleton from "../../api/ApiSingleton";
 import {Grid} from '@material-ui/core';
 import {FC, useEffect, useState} from "react";
@@ -18,7 +17,6 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import Lecturers from "./Lecturers";
 import {AccountDataDto} from "../../api";
 
-
 interface IEditCourseState {
     isLoaded: boolean,
     name: string,
@@ -28,10 +26,6 @@ interface IEditCourseState {
     edited: boolean,
     deleted: boolean,
     lecturerEmail: string;
-}
-
-interface IEditCourseProps {
-    courseId: string
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -60,7 +54,8 @@ const useStyles = makeStyles((theme) => ({
     }
 }))
 
-const EditCourse: FC<RouteComponentProps<IEditCourseProps>> = (props) => {
+const EditCourse: FC = () => {
+    const { courseId } = useParams()
 
     const [courseState, setCourseState] = useState<IEditCourseState>({
         isLoaded: false,
@@ -80,7 +75,7 @@ const EditCourse: FC<RouteComponentProps<IEditCourseProps>> = (props) => {
     }, [])
 
     const getCourse = async () => {
-        const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+props.match.params.courseId)
+        const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+courseId!)
         setCourseState((prevState) => ({
             ...prevState,
             isLoaded: true,
@@ -101,7 +96,7 @@ const EditCourse: FC<RouteComponentProps<IEditCourseProps>> = (props) => {
             isCompleted: courseState.isCompleted
         };
 
-        await ApiSingleton.coursesApi.apiCoursesUpdateByCourseIdPost(+props.match.params.courseId, courseViewModel)
+        await ApiSingleton.coursesApi.apiCoursesUpdateByCourseIdPost(+courseId!, courseViewModel)
         setCourseState((prevState) => ({
             ...prevState,
             edited: true,
@@ -117,7 +112,7 @@ const EditCourse: FC<RouteComponentProps<IEditCourseProps>> = (props) => {
     }
 
     const onDeleteCourse = async () => {
-        await ApiSingleton.coursesApi.apiCoursesByCourseIdDelete(+props.match.params.courseId)
+        await ApiSingleton.coursesApi.apiCoursesByCourseIdDelete(+courseId!)
         setCourseState((prevState) => ({
             ...prevState,
             deleted: true
@@ -128,11 +123,11 @@ const EditCourse: FC<RouteComponentProps<IEditCourseProps>> = (props) => {
 
     if (courseState.isLoaded) {
         if (courseState.edited) {
-            return <Redirect to={'/courses/' + props.match.params.courseId}/>
+            return <Navigate to={'/courses/' + courseId}/>
         }
 
         if (courseState.deleted) {
-            return <Redirect to='/'/>
+            return <Navigate to='/'/>
         }
 
         if (!ApiSingleton.authService.isLoggedIn() ||
@@ -154,7 +149,7 @@ const EditCourse: FC<RouteComponentProps<IEditCourseProps>> = (props) => {
                             <Link
                                 component="button"
                                 style={{color: '#212529'}}
-                                onClick={() => window.location.assign('/courses/' + props.match.params.courseId)}
+                                onClick={() => window.location.assign('/courses/' + courseId)}
                             >
                                 <Typography>
                                     Назад к курсу
@@ -165,7 +160,7 @@ const EditCourse: FC<RouteComponentProps<IEditCourseProps>> = (props) => {
                             <Lecturers
                                 update={getCourse}
                                 mentors={courseState.mentors}
-                                courseId={props.match.params.courseId}
+                                courseId={courseId!}
                                 isEditCourse={true}
                             />
                         </Grid>

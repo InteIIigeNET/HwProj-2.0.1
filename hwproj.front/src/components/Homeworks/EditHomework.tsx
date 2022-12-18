@@ -2,13 +2,11 @@ import * as React from "react";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
-import {Redirect, Link} from "react-router-dom";
-import {RouteComponentProps} from "react-router-dom";
+import {Navigate, Link, useParams} from "react-router-dom";
 import ApiSingleton from "../../api/ApiSingleton";
 import ReactMarkdown from "react-markdown";
 import {Tabs, Tab} from "@material-ui/core";
 import {FC, useEffect, useState} from "react";
-import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
 import {makeStyles} from "@material-ui/styles";
 import EditIcon from '@material-ui/icons/Edit';
@@ -23,10 +21,6 @@ interface IEditHomeworkState {
     isPreview: boolean;
 }
 
-interface IEditHomeworkProps {
-    homeworkId: string;
-}
-
 const useStyles = makeStyles(theme => ({
     logo: {
         display: "flex",
@@ -38,7 +32,9 @@ const useStyles = makeStyles(theme => ({
 }))
 
 
-const EditHomework: FC<RouteComponentProps<IEditHomeworkProps>> = (props) => {
+const EditHomework: FC = () => {
+    const { homeworkId } = useParams()
+
     const [editHomework, setEditHomework] = useState<IEditHomeworkState>({
         isLoaded: false,
         title: "",
@@ -54,7 +50,7 @@ const EditHomework: FC<RouteComponentProps<IEditHomeworkProps>> = (props) => {
     }, [])
 
     const getHomework = async () => {
-        const homework = await ApiSingleton.homeworksApi.apiHomeworksGetByHomeworkIdGet(+props.match.params.homeworkId)
+        const homework = await ApiSingleton.homeworksApi.apiHomeworksGetByHomeworkIdGet(+homeworkId!)
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(homework.courseId!)
         setEditHomework((prevState) => ({
             ...prevState,
@@ -73,7 +69,7 @@ const EditHomework: FC<RouteComponentProps<IEditHomeworkProps>> = (props) => {
             description: editHomework.description,
         };
         await ApiSingleton.homeworksApi
-            .apiHomeworksUpdateByHomeworkIdPut(+props.match.params.homeworkId, homeworkViewModel)
+            .apiHomeworksUpdateByHomeworkIdPut(+homeworkId!, homeworkViewModel)
 
         setEditHomework((prevState) => ({
             ...prevState,
@@ -84,7 +80,7 @@ const EditHomework: FC<RouteComponentProps<IEditHomeworkProps>> = (props) => {
     const classes = useStyles()
 
     if (editHomework.edited) {
-        return <Redirect to={"/courses/" + editHomework.courseId}/>;
+        return <Navigate to={"/courses/" + editHomework.courseId}/>;
     }
 
     if (editHomework.isLoaded) {

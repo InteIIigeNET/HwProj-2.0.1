@@ -2,8 +2,7 @@ import * as React from "react";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
-import {Redirect, Link} from "react-router-dom";
-import {RouteComponentProps} from "react-router-dom";
+import {Navigate, Link, useParams} from "react-router-dom";
 import ApiSingleton from "../../api/ApiSingleton";
 import Checkbox from "@material-ui/core/Checkbox";
 import {FC, useEffect, useState} from "react";
@@ -27,10 +26,6 @@ interface IEditTaskState {
     publicationDate: Date;
 }
 
-interface IEditTaskProps {
-    taskId: string;
-}
-
 const useStyles = makeStyles(theme => ({
     logo: {
         display: "flex",
@@ -48,7 +43,8 @@ const useStyles = makeStyles(theme => ({
     },
 }))
 
-const EditTask: FC<RouteComponentProps<IEditTaskProps>> = (props) => {
+const EditTask: FC = () => {
+    const {taskId} = useParams()
 
     const [taskState, setTaskState] = useState<IEditTaskState>({
         isLoaded: false,
@@ -69,7 +65,7 @@ const EditTask: FC<RouteComponentProps<IEditTaskProps>> = (props) => {
     }, [])
 
     const getTask = async () => {
-        const task = await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+props.match.params.taskId)
+        const task = await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+taskId!)
         const homework = await ApiSingleton.homeworksApi.apiHomeworksGetByHomeworkIdGet(task.homeworkId!)
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(homework.courseId!)
         setTaskState((prevState) => ({
@@ -89,8 +85,7 @@ const EditTask: FC<RouteComponentProps<IEditTaskProps>> = (props) => {
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
-        await ApiSingleton.tasksApi
-            .apiTasksUpdateByTaskIdPut(+props.match.params.taskId, taskState)
+        await ApiSingleton.tasksApi.apiTasksUpdateByTaskIdPut(+taskId!, taskState)
 
         setTaskState((prevState) => ({
             ...prevState,
@@ -101,7 +96,7 @@ const EditTask: FC<RouteComponentProps<IEditTaskProps>> = (props) => {
     const classes = useStyles()
 
     if (taskState.edited) {
-        return <Redirect to={"/courses/" + taskState.courseId}/>;
+        return <Navigate to={"/courses/" + taskState.courseId}/>;
     }
 
     if (taskState.isLoaded) {
