@@ -14,8 +14,7 @@ import ApiSingleton from "api/ApiSingleton";
 import {CategorizedNotifications, NotificationViewModel} from "../api/";
 import "./Styles/Profile.css";
 import parse from 'html-react-parser';
-import {Redirect} from "react-router-dom";
-import Utils from "../services/Utils";
+import {Navigate} from "react-router-dom";
 
 let CategoryEnum = CategorizedNotifications.CategoryEnum;
 const dateTimeOptions = {year: '2-digit', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'};
@@ -192,7 +191,7 @@ const Notifications: FC<IProfileProps> = (props) => {
     }
 
     if (!ApiSingleton.authService.isLoggedIn()) {
-        return <Redirect to={"/login"}/>;
+        return <Navigate to={"/login"}/>;
     }
 
     if (profileState.isLoaded) {

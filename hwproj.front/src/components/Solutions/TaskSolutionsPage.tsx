@@ -1,5 +1,4 @@
 import * as React from "react";
-import {RouteComponentProps} from "react-router-dom";
 import Task from "../Tasks/Task";
 import Typography from "@material-ui/core/Typography";
 import AddSolution from "./AddSolution";
@@ -10,10 +9,7 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useEffect, useState} from "react";
 import {Grid, Link} from "@material-ui/core";
 import {Divider} from "@mui/material";
-
-interface ITaskSolutionsProps {
-    taskId: string;
-}
+import {useParams} from "react-router-dom";
 
 interface ITaskSolutionsState {
     isLoaded: boolean;
@@ -22,7 +18,9 @@ interface ITaskSolutionsState {
     course: CourseViewModel;
 }
 
-const TaskSolutionsPage: FC<RouteComponentProps<ITaskSolutionsProps>> = (props) => {
+const TaskSolutionsPage: FC = () => {
+    const { taskId } = useParams()
+
     const [taskSolution, setTaskSolution] = useState<ITaskSolutionsState>({
         isLoaded: false,
         task: {},
@@ -38,7 +36,7 @@ const TaskSolutionsPage: FC<RouteComponentProps<ITaskSolutionsProps>> = (props) 
 
     const getTask = async () => {
         //TODO: fix
-        const task = await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+props.match.params.taskId)
+        const task = await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+taskId!)
         const homework = await ApiSingleton.homeworksApi.apiHomeworksGetByHomeworkIdGet(task.homeworkId!)
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(homework.courseId!)
         setTaskSolution({
@@ -132,7 +130,7 @@ const TaskSolutionsPage: FC<RouteComponentProps<ITaskSolutionsProps>> = (props) 
                                     <div style={{marginTop: "10px"}}>
                                         <Divider style={{marginBottom: 15}}/>
                                         <AddSolution
-                                            taskId={+props.match.params.taskId}
+                                            taskId={+taskId!}
                                             onAdd={getTask}
                                             onCancel={onCancelAddSolution}
                                         />

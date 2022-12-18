@@ -1,10 +1,5 @@
 import React, {Component} from "react";
-import {
-    Route,
-    Switch,
-    withRouter,
-    RouteComponentProps,
-} from "react-router-dom";
+import {Route, Routes, useNavigate} from "react-router-dom";
 import "./App.css";
 import "./components/Courses/Course";
 import Course from "./components/Courses/Course";
@@ -27,16 +22,27 @@ import WrongPath from "./components/WrongPath";
 
 // TODO: add flux
 
-type AppProps = RouteComponentProps;
-
 interface AppState {
     loggedIn: boolean;
     isLecturer: boolean;
     newNotificationsCount: number;
 }
 
-class App extends Component<AppProps, AppState> {
-    constructor(props: AppProps) {
+const withRouter = (Component: any) => {
+    return (props: any) => {
+        const navigate = useNavigate();
+
+        return (
+            <Component
+                navigate={navigate}
+                {...props}
+            />
+        );
+    };
+};
+
+class App extends Component<{navigate: any}, AppState> {
+    constructor(props: {navigate: any}) {
         super(props);
         this.state = {
             loggedIn: ApiSingleton.authService.isLoggedIn(),
@@ -61,16 +67,15 @@ class App extends Component<AppProps, AppState> {
             loggedIn: true,
             isLecturer: ApiSingleton.authService.isLecturer()
         })
-        this.props.history.push("/");
+        this.props.navigate("/");
     }
 
     logout = () => {
         ApiSingleton.authService.logout();
         this.setState({loggedIn: false});
         this.setState({isLecturer: false});
-        this.props.history.push("/login");
+        this.props.navigate("/login");
     }
-
 
     render() {
         return (
@@ -79,33 +84,25 @@ class App extends Component<AppProps, AppState> {
                         newNotificationsCount={this.state.newNotificationsCount}
                         isLecturer={this.state.isLecturer}
                         onLogout={this.logout}/>
-                <Switch>
-                    <Route exact path="/system" component={SystemInfoComponent}/>
-                    <Route exact path="/user/edit" component={EditProfile}/>
-                    <Route exact path="/" component={Workspace}/>
-                    <Route exact path="/notifications"
-                           render={() => <Notifications onMarkAsSeen={this.updatedNewNotificationsCount}/>}/>
-                    <Route exact path="/courses" component={Courses}/>
-                    <Route exact path="/profile/:id" component={Workspace}/>
-                    <Route exact path="/create_course" component={CreateCourse}/>
-                    <Route exact path="/courses/:id" component={Course}/>
-                    <Route exact path="/courses/:courseId/edit" component={EditCourse}/>
-                    <Route exact path="/homework/:homeworkId/edit" component={EditHomework}/>
-                    <Route exact path="/task/:taskId/edit" component={EditTask}/>
-                    <Route exact path="/task/:taskId/:studentId" component={StudentSolutionsPage}/>
-                    <Route exact path="/task/:taskId/" component={TaskSolutionsPage}/>
-                    <Route
-                        exact
-                        path="/login"
-                        render={(props) => <Login {...props} onLogin={this.login}/>}
-                    />
-                    <Route
-                        exact
-                        path="/register"
-                        render={(props) => <Register {...props} onLogin={this.login}/>}
-                    />
-                    <Route exact path={"*"} component={WrongPath}/>
-                </Switch>
+                <Routes>
+                    <Route path="system" element={<SystemInfoComponent/>}/>
+                    <Route path="user/edit" element={<EditProfile/>}/>
+                    <Route path="/" element={<Workspace/>}/>
+                    <Route path="notifications" element={<Notifications onMarkAsSeen={this.updatedNewNotificationsCount}/>}/>
+                    <Route path="courses" element={<Courses navigate={this.props.navigate}/>}/>
+                    <Route path="profile/:id" element={<Workspace/>}/>
+                    <Route path="create_course" element={<CreateCourse/>}/>
+                    <Route path="courses/:courseId" element={<Course/>}/>
+                    <Route path="courses/:courseId/:tab" element={<Course/>}/>
+                    <Route path="courses/:courseId/edit" element={<EditCourse/>}/>
+                    <Route path="homework/:homeworkId/edit" element={<EditHomework/>}/>
+                    <Route path="task/:taskId/edit" element={<EditTask/>}/>
+                    <Route path="task/:taskId/:studentId" element={<StudentSolutionsPage/>}/>
+                    <Route path="task/:taskId/" element={<TaskSolutionsPage/>}/>
+                    <Route path="login" element={<Login onLogin={this.login}/>}/>
+                    <Route path="register" element={<Register onLogin={this.login}/>}/>
+                    <Route path={"*"} element={<WrongPath/>}/>
+                </Routes>
             </>
         );
     }

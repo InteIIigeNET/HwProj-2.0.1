@@ -11,8 +11,8 @@ interface ICoursesState {
     tabValue: number;
 }
 
-export default class Courses extends React.Component<{}, ICoursesState> {
-    constructor(props: {}) {
+export default class Courses extends React.Component<{navigate: any}, ICoursesState> {
+    constructor(props: {navigate: any}) {
         super(props);
         this.state = {
             isLoaded: false,
@@ -24,6 +24,7 @@ export default class Courses extends React.Component<{}, ICoursesState> {
 
     public render() {
         const {isLoaded, allCourses, myCourses: courses, tabValue} = this.state;
+        const {navigate} = this.props
 
         if (!isLoaded) {
             return (
@@ -53,9 +54,9 @@ export default class Courses extends React.Component<{}, ICoursesState> {
                     {completedCourses.length > 0 && <Tab label="Завершенные курсы"/>}
                 </Tabs>
                 <br/>
-                {tabValue === 0 && <CoursesList courses={allCourses}/>}
-                {tabValue === activeCoursesTab && <CoursesList courses={activeCourses}/>}
-                {tabValue === completedCoursesTab && <CoursesList courses={completedCourses}/>}
+                {tabValue === 0 && <CoursesList navigate={navigate} courses={allCourses}/>}
+                {tabValue === activeCoursesTab && <CoursesList navigate={navigate} courses={activeCourses}/>}
+                {tabValue === completedCoursesTab && <CoursesList navigate={navigate} courses={completedCourses}/>}
             </div>
         );
     }

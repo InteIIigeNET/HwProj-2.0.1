@@ -1,6 +1,6 @@
 import * as React from "react";
 import {FC, FormEvent, useEffect, useState} from "react";
-import { Redirect } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import Avatar from '@material-ui/core/Avatar';
 
 import {Button, TextField, Typography, Container, Grid} from "@material-ui/core";
@@ -121,7 +121,7 @@ const EditProfile: FC = () => {
     const classes = useStyles()
 
     if (profile.edited) {
-        return <Redirect to={"/"}/>;
+        return <Navigate to={"/"}/>;
     }
     if (profile.isLoaded) {
         if (!ApiSingleton.authService.isLoggedIn()) {

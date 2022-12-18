@@ -1,6 +1,6 @@
 import {AccountDataDto, SolutionPreviewView, UnratedSolutionPreviews} from "../../api";
 import * as React from "react";
-import {BrowserRouter as Router, Link as RouterLink} from "react-router-dom";
+import {NavLink} from "react-router-dom";
 import {
     FormControl,
     InputLabel,
@@ -43,7 +43,7 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
                           onChange: React.Dispatch<React.SetStateAction<string | undefined>>) => {
         const values = [...new Set(unratedSolutions!.map(renderTitle))]
         return <FormControl fullWidth style={{minWidth: 220}}>
-            <InputLabel id="demo-simple-select-label">{name}</InputLabel>
+            <InputLabel>{name}</InputLabel>
             <Select
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
@@ -78,7 +78,7 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
         <div className="container">
             {renderFilter()}
             {filteredUnratedSolutions.length == 0 ? <div>По заданному фильтру все решения проверены.</div> :
-                <Router>
+                <div>
                     {filteredUnratedSolutions.map((solution, i) => (
                         <Grid item>
                             <ListItem
@@ -86,14 +86,14 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
                                 onClick={() => window.location.assign(`/task/${solution.taskId}/${solution.student!.userId}`)}
                                 style={{padding: 0}}
                             >
-                                <RouterLink
+                                <NavLink
                                     to={`/task/${solution.taskId}/${solution.student!.userId}`}
                                     style={{color: "#212529"}}
                                 >
                                     <Typography style={{fontSize: "20px"}}>
                                         {solution.student!.surname} {solution.student!.name} {" • "} {solution.taskTitle}
                                     </Typography>
-                                </RouterLink>
+                                </NavLink>
                                 {solution.isFirstTry && solution.sentAfterDeadline &&
                                     <Chip color="error" label="Дедлайн" size={"small"} style={{marginLeft: 10}}/>}
                                 {!solution.isFirstTry &&
@@ -107,7 +107,7 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
                                 <Divider style={{marginTop: 10, marginBottom: 10}}/> : null}
                         </Grid>
                     ))}
-                </Router>
+                </div>
             }
         </div>
     )

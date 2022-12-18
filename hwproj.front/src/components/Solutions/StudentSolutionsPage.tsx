@@ -1,5 +1,4 @@
 import * as React from "react";
-import {RouteComponentProps} from "react-router-dom";
 import {CourseViewModel, HomeworkTaskViewModel, SolutionPreviewView} from "../../api/";
 import Typography from "@material-ui/core/Typography";
 import Task from "../Tasks/Task";
@@ -7,11 +6,7 @@ import TaskSolutions from "./TaskSolutions";
 import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useEffect, useState} from "react";
 import {Grid, Link} from "@material-ui/core";
-
-interface IStudentSolutionsPageProps {
-    taskId: string;
-    studentId: string;
-}
+import {useNavigate, useParams} from "react-router-dom";
 
 interface IStudentSolutionsPageState {
     task: HomeworkTaskViewModel;
@@ -19,7 +14,9 @@ interface IStudentSolutionsPageState {
     course: CourseViewModel;
 }
 
-const StudentSolutionsPage: FC<RouteComponentProps<IStudentSolutionsPageProps>> = (props) => {
+const StudentSolutionsPage: FC = (props) => {
+    const { taskId, studentId } = useParams()
+    const navigate = useNavigate()
 
     const [studentSolutions, setStudentSolutions] = useState<IStudentSolutionsPageState>({
         task: {},
@@ -39,15 +36,12 @@ const StudentSolutionsPage: FC<RouteComponentProps<IStudentSolutionsPageProps>> 
         ? ApiSingleton.authService.getUserId()
         : undefined
 
-    const studentId = props.match.params.studentId
-    const taskId = +props.match.params.taskId
-
     useEffect(() => {
         getTaskData()
     }, [])
 
     const getTaskData = async () => {
-        const task = await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(taskId)
+        const task = await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+taskId!)
         const homework = await ApiSingleton.homeworksApi.apiHomeworksGetByHomeworkIdGet(task.homeworkId!)
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(homework.courseId!)
 
@@ -59,7 +53,7 @@ const StudentSolutionsPage: FC<RouteComponentProps<IStudentSolutionsPageProps>> 
     }
 
     const getNextUnratedSolution = async () => {
-        const unratedSolutions = await ApiSingleton.solutionsApi.apiSolutionsUnratedSolutionsGet(taskId)
+        const unratedSolutions = await ApiSingleton.solutionsApi.apiSolutionsUnratedSolutionsGet(+taskId!)
         const nextUnratedSolution = unratedSolutions.unratedSolutions!
             .filter(t => t.student!.userId !== studentId)
             .sort((s1, s2) => {
@@ -69,7 +63,7 @@ const StudentSolutionsPage: FC<RouteComponentProps<IStudentSolutionsPageProps>> 
             })[0]
 
         if (nextUnratedSolution) {
-            window.location.assign(`/task/${nextUnratedSolution.taskId}/${nextUnratedSolution.student!.userId}`)
+            navigate(`/task/${nextUnratedSolution.taskId}/${nextUnratedSolution.student!.userId}`)
         } else
             setNextUnratedSolution({
                 state: "loaded",
@@ -112,7 +106,7 @@ const StudentSolutionsPage: FC<RouteComponentProps<IStudentSolutionsPageProps>> 
                             <Link
                                 component="button"
                                 style={{color: '#212529'}}
-                                onClick={() => window.location.assign("/courses/" + studentSolutions.course.id!)}
+                                onClick={() => navigate(`/courses/${studentSolutions.course.id!}/stats`)}
                             >
                                 <Typography>
                                     Назад к курсу
@@ -138,7 +132,7 @@ const StudentSolutionsPage: FC<RouteComponentProps<IStudentSolutionsPageProps>> 
                         <TaskSolutions
                             forMentor={true}
                             task={studentSolutions.task}
-                            studentId={studentId}
+                            studentId={studentId!}
                         />
                     </Grid>
                 </Grid>
