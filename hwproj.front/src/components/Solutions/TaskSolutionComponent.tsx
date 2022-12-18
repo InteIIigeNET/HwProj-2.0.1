@@ -54,8 +54,9 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         const date2 = new Date(_date2).getTime()
         const diffTime = date1 - date2
         if (diffTime <= 0) return ""
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        return diffDays === 0 ? diffTime + " часов" : diffDays + " дней"
+        const diffHours = diffTime / (1000 * 60 * 60)
+        const diffDays = Math.trunc(diffHours / 24);
+        return diffDays === 0 ? Math.trunc(diffHours) + " часов" : diffDays + " дней"
     }
 
     const renderRateInput = () => {
