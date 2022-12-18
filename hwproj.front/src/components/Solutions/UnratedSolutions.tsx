@@ -83,7 +83,6 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
                         <Grid item>
                             <ListItem
                                 key={i}
-                                onClick={() => window.location.assign(`/task/${solution.taskId}/${solution.student!.userId}`)}
                                 style={{padding: 0}}
                             >
                                 <NavLink

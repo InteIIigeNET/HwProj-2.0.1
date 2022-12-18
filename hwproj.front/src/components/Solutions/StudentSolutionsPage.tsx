@@ -14,7 +14,7 @@ interface IStudentSolutionsPageState {
     course: CourseViewModel;
 }
 
-const StudentSolutionsPage: FC = (props) => {
+const StudentSolutionsPage: FC = () => {
     const { taskId, studentId } = useParams()
     const navigate = useNavigate()
 
@@ -38,7 +38,7 @@ const StudentSolutionsPage: FC = (props) => {
 
     useEffect(() => {
         getTaskData()
-    }, [])
+    }, [studentId, taskId])
 
     const getTaskData = async () => {
         const task = await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+taskId!)
@@ -63,7 +63,7 @@ const StudentSolutionsPage: FC = (props) => {
             })[0]
 
         if (nextUnratedSolution) {
-            navigate(`/task/${nextUnratedSolution.taskId}/${nextUnratedSolution.student!.userId}`)
+            window.location.assign(`/task/${nextUnratedSolution.taskId}/${nextUnratedSolution.student!.userId}`)
         } else
             setNextUnratedSolution({
                 state: "loaded",
