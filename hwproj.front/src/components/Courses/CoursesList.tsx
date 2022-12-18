@@ -4,6 +4,7 @@ import {Divider, Grid, ListItem, Typography} from "@material-ui/core";
 import {NavLink} from "react-router-dom";
 
 interface ICoursesProps {
+    navigate: any
     courses: CoursePreviewView[];
 }
 
@@ -17,7 +18,7 @@ export class CoursesList extends React.Component<ICoursesProps, {}> {
                     <Grid item>
                         <ListItem
                             key={course.id}
-                            onClick={() => window.location.assign("/courses/" + course.id!.toString())}
+                            onClick={() => this.props.navigate("/courses/" + course.id!.toString())}
                             style={{padding: 0}}
                         >
                             <NavLink

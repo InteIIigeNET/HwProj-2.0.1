@@ -89,7 +89,7 @@ class App extends Component<{navigate: any}, AppState> {
                     <Route path="user/edit" element={<EditProfile/>}/>
                     <Route path="/" element={<Workspace/>}/>
                     <Route path="notifications" element={<Notifications onMarkAsSeen={this.updatedNewNotificationsCount}/>}/>
-                    <Route path="courses" element={<Courses/>}/>
+                    <Route path="courses" element={<Courses navigate={this.props.navigate}/>}/>
                     <Route path="profile/:id" element={<Workspace/>}/>
                     <Route path="create_course" element={<CreateCourse/>}/>
                     <Route path="courses/:courseId" element={<Course/>}/>

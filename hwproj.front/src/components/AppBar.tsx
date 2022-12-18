@@ -8,6 +8,7 @@ import MenuIcon from "@material-ui/icons/Menu";
 import Menu from '@material-ui/core/Menu';
 import InviteLecturerModal from "./InviteLecturerModal";
 import MailIcon from '@mui/icons-material/Mail';
+import {useNavigate} from "react-router-dom";
 
 const styles = makeStyles(theme => ({
     tools: {
@@ -35,7 +36,7 @@ interface AppBarProps {
 }
 
 export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
-
+    const navigate = useNavigate()
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
 
     const [isOpenInviteLecturer, setIsOpenInviteLecturer] = useState<boolean>(false)
@@ -68,7 +69,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                                 <Typography>
                                     <Link
                                         className={classes.logo}
-                                        onClick={() => window.location.assign("/")}
+                                        onClick={() => navigate("/")}
                                         component="button"
                                         variant="h6"
                                         color="inherit"
@@ -80,7 +81,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                             </Grid>
                             {props.loggedIn &&
                                 <Grid item>
-                                    <IconButton onClick={() => window.location.assign(`/notifications`)}>
+                                    <IconButton onClick={() => navigate(`/notifications`)}>
                                         {props.newNotificationsCount > 0
                                             ? <Badge badgeContent={props.newNotificationsCount} color="primary">
                                                 <MailIcon fontSize={"small"} htmlColor={"white"}/>
@@ -94,7 +95,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                                 <Grid item>
                                     <Typography>
                                         <Button
-                                            onClick={() => window.location.assign(`/courses`)}
+                                            onClick={() => navigate(`/courses`)}
                                             color="inherit"
                                             style={{fontFamily: "Helvetica"}}
                                         >
@@ -125,7 +126,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                                         <MenuItem onClick={openInviteLecturer}>
                                             Пригласить преподавателя
                                         </MenuItem>
-                                        <MenuItem onClick={() => window.location.assign("/create_course")}>
+                                        <MenuItem onClick={() => navigate("/create_course")}>
                                             Создать курс
                                         </MenuItem>
                                         <MenuItem onClick={props.onLogout}>
@@ -160,7 +161,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                         {!props.loggedIn && (
                             <div className={classes.tools}>
                                 <Link
-                                    onClick={() => window.location.assign("/login")}
+                                    onClick={() => navigate("/login")}
                                     component="button"
                                     color="inherit"
                                     className={classes.item}
@@ -169,7 +170,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                                     Вход
                                 </Link>
                                 <Link
-                                    onClick={() => window.location.assign("/register")}
+                                    onClick={() => navigate("/register")}
                                     component="button"
                                     color="inherit"
                                     className={classes.item}

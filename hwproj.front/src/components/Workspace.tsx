@@ -4,7 +4,7 @@ import ApiSingleton from "api/ApiSingleton";
 import {UnratedSolutionPreviews, UserDataDto} from "../api/";
 import "./Styles/Profile.css";
 import {FC, useEffect, useState} from "react";
-import {Link as RouterLink, Navigate, useParams} from "react-router-dom";
+import {Link as RouterLink, Navigate, useNavigate, useParams} from "react-router-dom";
 import {makeStyles} from "@material-ui/styles";
 import {CoursesList} from "./Courses/CoursesList";
 import EditIcon from "@material-ui/icons/Edit";
@@ -25,6 +25,7 @@ const useStyles = makeStyles(() => ({
 
 const Workspace: FC = () => {
     const { id } = useParams()
+    const navigate = useNavigate()
 
     const [profileState, setProfileState] = useState<IWorkspaceState>({
         isLoaded: false,
@@ -135,7 +136,7 @@ const Workspace: FC = () => {
                                 </div>
                                 : <div style={{marginTop: 15}}><TaskDeadlines taskDeadlines={taskDeadlines!}/></div>)}
                         {tabValue === 1 && courses &&
-                            <div style={{marginTop: 15}}><CoursesList courses={courses!}/></div>}
+                            <div style={{marginTop: 15}}><CoursesList navigate={navigate} courses={courses!}/></div>}
                     </Grid>}
                 </Grid>
             </div>

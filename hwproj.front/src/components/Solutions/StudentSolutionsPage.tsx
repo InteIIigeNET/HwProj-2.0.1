@@ -6,7 +6,7 @@ import TaskSolutions from "./TaskSolutions";
 import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useEffect, useState} from "react";
 import {Grid, Link} from "@material-ui/core";
-import {useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 
 interface IStudentSolutionsPageState {
     task: HomeworkTaskViewModel;
@@ -16,6 +16,7 @@ interface IStudentSolutionsPageState {
 
 const StudentSolutionsPage: FC = (props) => {
     const { taskId, studentId } = useParams()
+    const navigate = useNavigate()
 
     const [studentSolutions, setStudentSolutions] = useState<IStudentSolutionsPageState>({
         task: {},
@@ -62,7 +63,7 @@ const StudentSolutionsPage: FC = (props) => {
             })[0]
 
         if (nextUnratedSolution) {
-            window.location.assign(`/task/${nextUnratedSolution.taskId}/${nextUnratedSolution.student!.userId}`)
+            navigate(`/task/${nextUnratedSolution.taskId}/${nextUnratedSolution.student!.userId}`)
         } else
             setNextUnratedSolution({
                 state: "loaded",
@@ -105,7 +106,7 @@ const StudentSolutionsPage: FC = (props) => {
                             <Link
                                 component="button"
                                 style={{color: '#212529'}}
-                                onClick={() => window.location.assign("/courses/" + studentSolutions.course.id!)}
+                                onClick={() => navigate(`/courses/${studentSolutions.course.id!}/stats`)}
                             >
                                 <Typography>
                                     Назад к курсу

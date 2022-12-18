@@ -18,6 +18,10 @@ import {useParams, useNavigate} from 'react-router-dom';
 
 type TabValue = "homeworks" | "stats" | "applications"
 
+function isAcceptableTabValue(str: string): str is TabValue {
+    return str === "homeworks" || str === "stats" || str === "applications";
+}
+
 interface ICourseState {
     isFound: boolean;
     course: CourseViewModel;
@@ -63,64 +67,6 @@ const Course: React.FC = () => {
         tabValue: "homeworks"
     })
 
-    const toggleTab = (newTab: TabValue) => {
-        if (newTab !== pageState.tabValue) {
-            navigate(`/courses/${courseId}/${newTab}`)
-            setPageState(prevState => ({
-                ...prevState,
-                tabValue: newTab
-            }));
-        }
-    }
-
-    const setCurrentState = async () => {
-        const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+courseId!)
-        const solutions = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdGet(+courseId!)
-
-        const isLogged = ApiSingleton.authService.isLoggedIn()
-
-        //TODO: move to authservice
-        const userId = isLogged
-            ? ApiSingleton.authService.getUserId()
-            : undefined
-
-        const isMentor = isLogged && course.mentors!.some(t => t.userId === userId)
-        const tabValue = tab === "homeworks" ? "homeworks"
-            : tab === "stats" ? "stats"
-                : tab === "applications" && isMentor ? "applications" : "homeworks";
-
-        setCourseState(prevState => ({
-            ...prevState,
-            isFound: true,
-            course: course,
-            courseHomework: course.homeworks!,
-            createHomework: false,
-            mentors: course.mentors!,
-            acceptedStudents: course.acceptedStudents!,
-            newStudents: course.newStudents!,
-            studentSolutions: solutions,
-            tabValue: tabValue
-        }))
-    }
-
-    useEffect(() => {
-        setCurrentState()
-    }, [])
-
-    useEffect(() => {
-        setPageState({
-            tabValue: tab === "homeworks" ? "homeworks"
-                : tab === "stats" ? "stats"
-                    : tab === "applications" && true ? "applications" : "homeworks"
-        })
-    }, [tab])
-
-    const joinCourse = async () => {
-        await ApiSingleton.coursesApi
-            .apiCoursesSignInCourseByCourseIdPost(+courseId!)
-            .then(() => setCurrentState());
-    }
-
     const {
         isFound,
         course,
@@ -132,6 +78,68 @@ const Course: React.FC = () => {
         studentSolutions
     } = courseState;
 
+    const isLogged = ApiSingleton.authService.isLoggedIn()
+
+    //TODO: move to authservice
+    const userId = isLogged
+        ? ApiSingleton.authService.getUserId()
+        : undefined
+
+    const isMentor = isLogged && mentors.some(t => t.userId === userId)
+
+    const isSignedInCourse =
+        isLogged && newStudents!.some(cm => cm.userId === userId)
+
+    const isAcceptedStudent =
+        isLogged && acceptedStudents!.some(cm => cm.userId === userId)
+
+    const showExperimentalFeature = isMentor ? courseState.showExperimentalFeature : true
+
+    const showStatsTab = isMentor || isAcceptedStudent
+    const showApplicationsTab = isMentor
+
+    const changeTab = (newTab: string, addToHistory?: boolean) => {
+        if (isAcceptableTabValue(newTab) && newTab !== pageState.tabValue) {
+            if (newTab === "stats" && !showStatsTab) return;
+            if (newTab === "applications" && !showApplicationsTab) return;
+
+            if (addToHistory) navigate(`/courses/${courseId}/${newTab}`)
+            setPageState(prevState => ({
+                ...prevState,
+                tabValue: newTab
+            }));
+        }
+    }
+
+    const setCurrentState = async () => {
+        const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+courseId!)
+        const solutions = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdGet(+courseId!)
+
+        setCourseState(prevState => ({
+            ...prevState,
+            isFound: true,
+            course: course,
+            courseHomework: course.homeworks!,
+            createHomework: false,
+            mentors: course.mentors!,
+            acceptedStudents: course.acceptedStudents!,
+            newStudents: course.newStudents!,
+            studentSolutions: solutions
+        }))
+    }
+
+    useEffect(() => {
+        setCurrentState()
+    }, [])
+
+    useEffect(() => changeTab(tab || ""), [tab, isFound])
+
+    const joinCourse = async () => {
+        await ApiSingleton.coursesApi
+            .apiCoursesSignInCourseByCourseIdPost(+courseId!)
+            .then(() => setCurrentState());
+    }
+
     const {tabValue} = pageState
 
     const unratedSolutionsCount = studentSolutions
@@ -141,23 +149,6 @@ const Course: React.FC = () => {
         .length
 
     if (isFound) {
-        const isLogged = ApiSingleton.authService.isLoggedIn()
-
-        //TODO: move to authservice
-        const userId = isLogged
-            ? ApiSingleton.authService.getUserId()
-            : undefined
-
-        const isMentor = isLogged && mentors.some(t => t.userId === userId)
-
-        const isSignedInCourse =
-            isLogged && newStudents!.some(cm => cm.userId === userId)
-
-        const isAcceptedStudent =
-            isLogged && acceptedStudents!.some(cm => cm.userId === userId)
-
-        const showExperimentalFeature = isMentor ? courseState.showExperimentalFeature : true
-
         return (
             <div className="container">
                 <Grid style={{marginBottom: '50px'}}>
@@ -224,24 +215,24 @@ const Course: React.FC = () => {
                         </Grid>
                     </Grid>
                     <Tabs
-                        value={tabValue == "homeworks" ? 0 : tabValue === "stats" ? 1 : tabValue === "applications" ? 2 : 0}
+                        value={tabValue == "homeworks" ? 0 : tabValue === "stats" ? 1 : 2}
                         style={{marginTop: 15}}
                         indicatorColor="primary"
                         onChange={(event, value) => {
-                            if (value === 0) toggleTab("homeworks");
-                            if (value === 1) toggleTab("stats");
-                            if (value === 2) toggleTab("applications");
+                            if (value === 0) changeTab("homeworks", true)
+                            if (value === 1) changeTab("stats", true)
+                            if (value === 2) changeTab("applications", true)
                         }}
                     >
                         <Tab label="Домашние задания"/>
-                        {(isMentor || isAcceptedStudent) && <Tab label={
+                        {showStatsTab && <Tab label={
                             <Stack direction="row" spacing={1}>
                                 <div>Решения</div>
                                 <Chip size={"small"} color={"default"}
                                       label={unratedSolutionsCount}/>
                             </Stack>
                         }/>}
-                        {isMentor && <Tab label={
+                        {showApplicationsTab && <Tab label={
                             <Stack direction="row" spacing={1}>
                                 <div>Заявки</div>
                                 <Chip size={"small"} color={"default"}
@@ -339,7 +330,7 @@ const Course: React.FC = () => {
                                 />
                             </Grid>
                         </Grid>}
-                    {tabValue === "applications" && isMentor &&
+                    {tabValue === "applications" && showApplicationsTab &&
                         <Grid item xs={11}>
                             <NewCourseStudents
                                 onUpdate={() => setCurrentState()}
