@@ -82,11 +82,6 @@ namespace HwProj.AuthService.API.Services
                 return Result<TokenCredentials>.Failed("Пользователь не найден");
             }
 
-            if (!await _userManager.IsEmailConfirmedAsync(user).ConfigureAwait(false))
-            {
-                return Result<TokenCredentials>.Failed("Электронная почта не подтверждена");
-            }
-
             var result = await _signInManager.PasswordSignInAsync(
                 user,
                 model.Password,
