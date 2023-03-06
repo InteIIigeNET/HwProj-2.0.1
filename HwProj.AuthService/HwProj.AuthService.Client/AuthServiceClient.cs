@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using HwProj.HttpUtils;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.AuthService.DTO;
-using Newtonsoft.Json;
 using HwProj.Models.Result;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 
 namespace HwProj.AuthService.Client;
 

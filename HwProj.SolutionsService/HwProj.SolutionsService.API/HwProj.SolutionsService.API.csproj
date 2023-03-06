@@ -4,7 +4,7 @@
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
     <DockerfileContext>..\..</DockerfileContext>
-    <LangVersion>$(CSharpLanguageVersion)</LangVersion>
+    <LangVersion>10</LangVersion>
     <Nullable>$(NullableReferenceTypes)</Nullable>
     <UserSecretsId>467aaa56-ee17-4f11-b2da-7d9a74c68753</UserSecretsId>
   </PropertyGroup>
@@ -20,7 +20,7 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="12.0.0" />
     <PackageReference Include="Docker.DotNet" Version="3.125.5" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.14" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\HwProj.AuthService\HwProj.AuthService.Client\HwProj.AuthService.Client.csproj" />

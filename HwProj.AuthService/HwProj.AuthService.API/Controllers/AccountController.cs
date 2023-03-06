@@ -12,9 +12,9 @@ using HwProj.Models.Roles;
 
 namespace HwProj.AuthService.API.Controllers;
 
-[Route("api/account")]
+[Route("api/[controller]")]
 [ApiController]
-public class AccountController : ControllerBase
+public class AccountController : Controller
 {
     private readonly IAccountService _accountService;
     private readonly IUserManager _userManager;
