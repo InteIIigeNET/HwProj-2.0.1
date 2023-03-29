@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Autofac.Core;
 using HwProj.Models.NotificationsService;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -11,9 +10,9 @@ namespace HwProj.NotificationsService.API.Services;
 public class EmailService : IEmailService
 {
     private readonly IConfiguration _configuration;
-    private readonly ILogger<Service> _logger;
+    private readonly ILogger<EmailService> _logger;
 
-    public EmailService(IConfiguration configuration, ILogger<Service> logger)
+    public EmailService(IConfiguration configuration, ILogger<EmailService> logger)
     {
         _configuration = configuration;
         _logger = logger;

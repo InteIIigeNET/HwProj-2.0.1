@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -160,6 +161,8 @@ public class SolutionsController : Controller
     [HttpPost("allUnrated")]
     public async Task<SolutionPreviewDto[]> GetAllUnratedSolutionsForTasks([FromBody] long[] taskIds)
     {
+        // TODO: Fix 
+        return Array.Empty<SolutionPreviewDto>();
         var solutions = await _solutionsRepository
             .FindAll(t => taskIds.Contains(t.TaskId))
             .GroupBy(t => new { t.TaskId, t.StudentId })

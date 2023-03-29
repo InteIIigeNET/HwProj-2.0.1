@@ -38,7 +38,7 @@ public class Startup
         services.ConfigureHwProjServices("Solutions API");
     }
 
-    public void Configure(IApplicationBuilder app, IHostingEnvironment env, IEventBus eventBus)
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IEventBus eventBus)
     {
         app.ConfigureHwProj(env, "Solutions API");
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text.Json.Serialization;
@@ -21,13 +22,13 @@ using RabbitMQ.Client.Exceptions;
 
 namespace HwProj.Utils.Configuration;
 
-public static class StartupExtensions
+public static class  StartupExtensions
 {
     public static IServiceCollection ConfigureHwProjServices(this IServiceCollection services, string serviceName)
     {
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies())
             .AddCors()
-            .AddMvc()
+            .AddControllers()
             .AddJsonOptions(options =>
                 options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
@@ -37,17 +38,24 @@ public static class StartupExtensions
 
             if (serviceName == "API Gateway")
             {
-                c.AddSecurityDefinition("Bearer",
-                    new OpenApiSecurityScheme
+                var securityScheme = new OpenApiSecurityScheme
+                {
+                    Name = "Bearer",
+                    Description = "Enter JWT Bearer token _only_",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    Reference = new OpenApiReference
                     {
-                        In = ParameterLocation.Header,
-                        Description = "Please enter into field the word 'Bearer' following by space and JWT",
-                        Name = "Authorization",
-                        Type = SecuritySchemeType.ApiKey
-                    });
+                        Id = JwtBearerDefaults.AuthenticationScheme,
+                        Type = ReferenceType.SecurityScheme
+                    }
+                };
+                c.AddSecurityDefinition(securityScheme.Reference.Id, securityScheme);
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
-                    { "Bearer", Enumerable.Empty<string>() },
+                    { securityScheme, Array.Empty<string>() },
                 });
             }
         });
@@ -143,7 +151,9 @@ public static class StartupExtensions
             .AllowAnyHeader()
             .SetIsOriginAllowed(origin => true)
             .AllowCredentials());
-        app.UseMvc();
+        app.UseRouting();
+        app.UseAuthorization();
+        app.UseEndpoints(endpoints => endpoints.MapControllers());
 
         return app;
     }
