@@ -43,8 +43,8 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 var notification = new Notification
                 {
                     Sender = "CourseService",
-                    Body = $"Задача <a href='{_configuration["Url"]}task/{@event.Task.Id}'>{@event.Task.Title}</a>" +
-                           $" из курса <a href='{_configuration["Url"]}courses/{@event.Course.Id}'>{@event.Course.Name}</a> обновлена.",
+                    Body = $"Задача <a href='{_configuration["Url"]}/task/{@event.Task.Id}'>{@event.Task.Title}</a>" +
+                           $" из курса <a href='{_configuration["Url"]}/courses/{@event.Course.Id}'>{@event.Course.Name}</a> обновлена.",
                     Category = CategoryState.Courses,
                     Date = DateTimeUtils.GetMoscowNow(),
                     HasSeen = false,
