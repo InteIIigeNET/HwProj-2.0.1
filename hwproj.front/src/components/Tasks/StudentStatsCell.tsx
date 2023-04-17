@@ -112,7 +112,7 @@ export default class StudentStatsCell extends React.Component<ITaskStudentCellPr
 
         if (lastSolution === undefined) {
             this.setState({
-                color: "",
+                color: "#ffffff",
                 isLoaded: true,
                 lastRatedSolution: undefined
             })
