@@ -46,17 +46,24 @@ class StudentStats extends React.Component<IStudentStatsProps, IStudentStatsStat
         const solutions = searched
             ? this.props.solutions.filter(cm => (cm.surname + " " + cm.name).toLowerCase().includes(searched.toLowerCase()))
             : this.props.solutions
+        const fixedColumnStyles: React.CSSProperties = {
+            position: "sticky",
+            left: 0,
+            background: "white",
+            borderRight: "1px solid black"
+        }
 
         return (
             <div>
                 {searched &&
                     <Alert style={{marginBottom: 5}} severity="info"><b>Студенты:</b> {searched.replaceAll(" ", "·")}
                     </Alert>}
-                <TableContainer>
+                <TableContainer style={{maxHeight: 500}}>
                     <Table stickyHeader aria-label="sticky table">
                         <TableHead>
                             <TableRow>
-                                <TableCell align="center" padding="none" component="td">
+                                <TableCell style={{...fixedColumnStyles, zIndex: 10}} align="center" padding="none"
+                                           component="td">
                                 </TableCell>
                                 {homeworks.map((homework, index) => (
                                     <TableCell
@@ -70,7 +77,7 @@ class StudentStats extends React.Component<IStudentStatsProps, IStudentStatsStat
                                 ))}
                             </TableRow>
                             <TableRow>
-                                <TableCell component="td"></TableCell>
+                                <TableCell style={{...fixedColumnStyles, zIndex: 10}} component="td"></TableCell>
                                 {homeworks.map((homework) =>
                                     homework.tasks!.map((task) => (
                                         <TableCell padding="checkbox" component="td" align="center">
@@ -84,6 +91,7 @@ class StudentStats extends React.Component<IStudentStatsProps, IStudentStatsStat
                             {solutions.map((cm, index) => (
                                 <TableRow key={index} hover style={{height: 35}}>
                                     <TableCell
+                                        style={fixedColumnStyles}
                                         align="center"
                                         padding="checkbox"
                                         component="td"
