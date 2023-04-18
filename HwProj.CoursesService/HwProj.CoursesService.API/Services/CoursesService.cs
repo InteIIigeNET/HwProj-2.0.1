@@ -127,12 +127,6 @@ public class CoursesService : ICoursesService
         );
 
         var course = getCourseTask.Result;
-        var courseMate = new CourseMate
-        {
-            CourseId = courseId,
-            StudentId = studentId,
-            IsAccepted = false
-        };
 
         _eventBus.Publish(new LecturerAcceptToCourseEvent
         {
@@ -198,7 +192,7 @@ public class CoursesService : ICoursesService
     public async Task AcceptLecturerAsync(long courseId, string lecturerEmail)
     {
         var userId = await _authServiceClient.FindByEmailAsync(lecturerEmail);
-        if (!(userId is null))
+        if (userId is not null)
         {
             var course = await _coursesRepository.GetAsync(courseId);
             var user = await _authServiceClient.GetAccountData(userId);
