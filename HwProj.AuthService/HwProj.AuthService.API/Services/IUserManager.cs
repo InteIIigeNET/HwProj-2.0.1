@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using HwProj.Models.AuthService.ViewModels;
 using Microsoft.AspNetCore.Identity;
@@ -10,6 +11,7 @@ public interface IUserManager
     Task<IdentityResult> CreateAsync(User user);
     Task<IdentityResult> CreateAsync(User user, string password);
     Task<User> FindByIdAsync(string id);
+    Task<IList<User>> FindManyByIdAsync(string[] ids);
     Task<User> FindByEmailAsync(string email);
     Task<IdentityResult> UpdateAsync(User user);
     Task<IdentityResult> AddToRoleAsync(User user, string role);

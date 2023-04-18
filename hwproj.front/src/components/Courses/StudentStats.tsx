@@ -102,7 +102,17 @@ class StudentStats extends React.Component<IStudentStatsProps, IStudentStatsStat
                                         {cm.surname} {cm.name}
                                     </TableCell>
                                     {homeworks.map((homework) =>
-                                        homework.tasks!.map((task) => (
+                                        homework.tasks!.map((task) => {
+                                            //console.log(cm)
+                                           // console.log(solutions)
+                                            console.log(solutions)
+                                            // console.log(homeworks)
+                                            // console.log(homework)
+                                            //console.log(task)
+                                            //console.log(solutions
+                                            //     .find(s => s.id == cm.id)!.homeworks!
+                                            //       .find(h => h.id == homework.id))
+                                            return(
                                             <StudentStatsCell
                                                 solutions={solutions
                                                     .find(s => s.id == cm.id)!.homeworks!
@@ -112,8 +122,8 @@ class StudentStats extends React.Component<IStudentStatsProps, IStudentStatsStat
                                                 forMentor={this.props.isMentor}
                                                 studentId={String(cm.id)}
                                                 taskId={task.id!}
-                                                taskMaxRating={task.maxRating!}/>
-                                        ))
+                                                taskMaxRating={task.maxRating!}/>)
+                                        })
                                     )}
                                 </TableRow>
                             ))}

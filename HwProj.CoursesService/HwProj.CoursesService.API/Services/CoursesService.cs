@@ -80,13 +80,11 @@ public class CoursesService : ICoursesService
 
     public async Task<bool> AddStudentAsync(long courseId, string studentId)
     {
-        var getCourseTask = _coursesRepository.GetAsync(courseId);
-        var getCourseMateTask =
-            _courseMatesRepository.FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
-        await Task.WhenAll(getCourseTask, getCourseMateTask);
+        var course = await _coursesRepository.GetAsync(courseId);
+        var cm = await _courseMatesRepository.FindAsync(
+            mate => mate.CourseId == courseId && mate.StudentId == studentId);
 
-        var course = getCourseTask.Result;
-        if (course == null || getCourseMateTask.Result != null)
+        if (course == null || cm != null)
         {
             return false;
         }

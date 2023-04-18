@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using HwProj.Models.AuthService.ViewModels;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.AuthService.API.Services;
 
@@ -27,6 +29,13 @@ public class ProxyUserManager : IUserManager
     public Task<User> FindByIdAsync(string id)
     {
         return _aspUserManager.FindByIdAsync(id);
+    }
+
+    public async Task<IList<User>> FindManyByIdAsync(string[] ids)
+    {
+        var users = await _aspUserManager.Users.Where(user => ids.Contains(user.Id)).ToListAsync();
+        return users;
+
     }
 
     public Task<User> FindByEmailAsync(string email)

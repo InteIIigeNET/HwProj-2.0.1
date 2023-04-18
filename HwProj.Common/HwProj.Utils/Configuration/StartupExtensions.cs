@@ -22,7 +22,7 @@ using RabbitMQ.Client.Exceptions;
 
 namespace HwProj.Utils.Configuration;
 
-public static class  StartupExtensions
+public static class StartupExtensions
 {
     public static IServiceCollection ConfigureHwProjServices(this IServiceCollection services, string serviceName)
     {

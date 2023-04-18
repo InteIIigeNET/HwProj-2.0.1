@@ -41,10 +41,7 @@ public class AccountController : Controller
     [HttpGet("getUsersData")]
     public async Task<AccountDataDto?[]> GetUsersData([FromBody] string[] userIds)
     {
-        var getAccountsDataTasks = userIds.Select(_accountService.GetAccountDataAsync).ToList();
-        await Task.WhenAll(getAccountsDataTasks);
-
-        return getAccountsDataTasks.Select(t => t.Result).ToArray();
+        return await _accountService.GetManyAccountDataAsync(userIds);
     }
 
     [HttpPost("register")]
@@ -77,7 +74,7 @@ public class AccountController : Controller
     [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> InviteNewLecturer(InviteLecturerViewModel model)
     {
-        var result = await _accountService.InviteNewLecturer(model.Email).ConfigureAwait(false);
+        var result = await _accountService.InviteNewLecturerAsync(model.Email).ConfigureAwait(false);
         return Ok(result);
     }
 
@@ -121,7 +118,7 @@ public class AccountController : Controller
     [ProducesResponseType(typeof(AccountDataDto[]), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetAllStudents()
     {
-        var allStudents = await _accountService.GetUsersInRole(Roles.StudentRole);
+        var allStudents = await _accountService.GetUsersInRoleAsync(Roles.StudentRole);
         var result = allStudents
             .Select(u =>
                 new AccountDataDto(u.Id, u.Name, u.Surname, u.Email, Roles.StudentRole, u.IsExternalAuth,
@@ -135,7 +132,7 @@ public class AccountController : Controller
     [ProducesResponseType(typeof(User[]), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetAllLecturers()
     {
-        var allLecturers = await _accountService.GetUsersInRole(Roles.LecturerRole);
+        var allLecturers = await _accountService.GetUsersInRoleAsync(Roles.LecturerRole);
         var result = allLecturers.ToArray();
 
         return Ok(result);

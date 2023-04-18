@@ -35,6 +35,7 @@ public class AccountService : IAccountService
         _mapper = mapper;
     }
 
+    
     public async Task<AccountDataDto> GetAccountDataAsync(string userId)
     {
         var user = await _userManager.FindByIdAsync(userId).ConfigureAwait(false);
@@ -47,6 +48,27 @@ public class AccountService : IAccountService
         var userRole = userRoles.FirstOrDefault() ?? Roles.StudentRole;
         return new AccountDataDto(user.Id, user.Name, user.Surname, user.Email, userRole, user.IsExternalAuth,
             user.MiddleName);
+    }
+
+    public async Task<AccountDataDto[]> GetManyAccountDataAsync(string[] userIds)
+    {
+        var users = await _userManager.FindManyByIdAsync(userIds);
+        if (users == null)
+        {
+            return null;
+        }
+
+        var accountDataDtos = new List<AccountDataDto>();
+
+        foreach (var user in users)
+        {
+            var userRoles = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
+            var userRole = userRoles.FirstOrDefault() ?? Roles.StudentRole;
+            accountDataDtos.Add(new AccountDataDto(user.Id, user.Name, user.Surname, user.Email,
+                userRole, user.IsExternalAuth, user.MiddleName));
+        }
+
+        return accountDataDtos.ToArray();
     }
 
     public async Task<Result> EditAccountAsync(string id, EditDataDTO model)
@@ -167,7 +189,7 @@ public class AccountService : IAccountService
         return Result<TokenCredentials>.Failed(result.Errors.Select(errors => errors.Description).ToArray());
     }
 
-    public async Task<Result> InviteNewLecturer(string emailOfInvitedUser)
+    public async Task<Result> InviteNewLecturerAsync(string emailOfInvitedUser)
     {
         var invitedUser = await _userManager.FindByEmailAsync(emailOfInvitedUser).ConfigureAwait(false);
 
@@ -193,7 +215,7 @@ public class AccountService : IAccountService
         return Result.Failed("Пользователь уже является преподавателем");
     }
 
-    public async Task<IList<User>> GetUsersInRole(string role)
+    public async Task<IList<User>> GetUsersInRoleAsync(string role)
     {
         return await _userManager.GetUsersInRoleAsync(role);
     }

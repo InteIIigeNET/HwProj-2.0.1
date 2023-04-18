@@ -5,7 +5,7 @@
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
     <DockerfileContext>..\..</DockerfileContext>
-    <LangVersion>10</LangVersion>
+    <LangVersion>$(CSharpLanguageVersion)</LangVersion>
     <UserSecretsId>603911e4-ace8-4439-96f8-1705a0dae761</UserSecretsId>
     <Nullable>$(NullableReferenceTypes)</Nullable>
   </PropertyGroup>
