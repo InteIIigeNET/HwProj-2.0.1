@@ -175,7 +175,7 @@ const Course: React.FC = () => {
                                         </IconButton>
                                     }
                                     {isMentor && !isReadingMode! && (
-                                        <RouterLink to={"./edit"}>
+                                        <RouterLink to={`/courses/${courseId}/edit`}>
                                             <EditIcon fontSize="small"/>
                                         </RouterLink>
                                     )}
