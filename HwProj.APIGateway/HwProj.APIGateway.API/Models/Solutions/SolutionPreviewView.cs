@@ -13,7 +13,8 @@ namespace HwProj.APIGateway.API.Models.Solutions
         public long TaskId { get; set; }
         public DateTime PublicationDate { get; set; }
         public bool IsFirstTry { get; set; }
-        public bool SentAfterDeadline { get; set; }
+        public int OverdueDeadlines { get; set; }
+        public bool CanSendSolutions { get; set; }
     }
 
     public class UnratedSolutionPreviews

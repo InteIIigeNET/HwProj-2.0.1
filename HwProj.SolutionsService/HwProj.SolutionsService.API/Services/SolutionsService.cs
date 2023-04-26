@@ -75,22 +75,27 @@ namespace HwProj.SolutionsService.API.Services
             var student = await _authServiceClient.GetAccountData((solutionModel.StudentId));
             var studentModel = _mapper.Map<AccountDataDto>(student);
             _eventBus.Publish(new StudentPassTaskEvent(courses, solutionModel, studentModel, taskModel));
-
+            long solutionId;
+            
             if (currentSolution == null)
             {
                 solution.TaskId = taskId;
-                var id = await _solutionsRepository.AddAsync(solution);
-                return id;
+                solutionId = await _solutionsRepository.AddAsync(solution);
+                _eventBus.Publish(new RequestCalculatedMaxRatingEvent(task.Id, solutionId, student.UserId, task.MaxRating));
             }
-
-            await _solutionsRepository.UpdateAsync(currentSolution.Id, s => new Solution()
-                {
-                    State = SolutionState.Rated,
-                    Comment = solution.Comment,
-                    GithubUrl = solution.GithubUrl,
-                    PublicationDate = solution.PublicationDate,
-                }
-            );
+            else
+            {
+                solutionId = currentSolution.Id;
+                await _solutionsRepository.UpdateAsync(currentSolution.Id, s => new Solution()
+                    {
+                        State = SolutionState.Rated,
+                        Comment = solution.Comment,
+                        GithubUrl = solution.GithubUrl,
+                        PublicationDate = solution.PublicationDate,
+                    }
+                );
+            }
+            _eventBus.Publish(new RequestCalculatedMaxRatingEvent(taskId, solutionId, student.UserId, task.MaxRating));
 
             return solution.Id;
         }

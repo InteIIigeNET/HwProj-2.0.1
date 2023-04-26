@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 
@@ -13,14 +14,10 @@ namespace HwProj.Models.CoursesService.ViewModels
         public string Description { get; set; }
 
         public int MaxRating { get; set; }
+        
+        public List<DeadlineViewModel> Deadlines { get; set; } = new();
 
-        public bool HasDeadline { get; set; }
-
-        public DateTime? DeadlineDate { get; set; }
-
-        public bool IsDeadlineStrict { get; set; }
-
-        [JsonProperty] public bool CanSendSolution => !IsDeadlineStrict || DateTimeUtils.GetMoscowNow() <= DeadlineDate;
+        [JsonProperty] public bool CanSendSolution => Deadlines == null || !Deadlines.Exists(deadline => deadline.IsStrict && DateTimeUtils.GetMoscowNow() <= deadline.DateTime);
 
         public DateTime PublicationDate { get; set; }
 
@@ -37,11 +34,7 @@ namespace HwProj.Models.CoursesService.ViewModels
 
         public string Description { get; set; }
 
-        public bool HasDeadline { get; set; }
-
-        public DateTime? DeadlineDate { get; set; }
-
-        public bool IsDeadlineStrict { get; set; }
+        public List<AddDeadlineViewModel> Deadlines { get; set; } = new();
 
         public DateTime PublicationDate { get; set; }
 
@@ -49,11 +42,9 @@ namespace HwProj.Models.CoursesService.ViewModels
 
         public void InitializeDeadline()
         {
-            if (!HasDeadline || DeadlineDate == null)
+            if (Deadlines == null)
             {
-                IsDeadlineStrict = false;
-                HasDeadline = false;
-                DeadlineDate = null;
+                Deadlines = new List<AddDeadlineViewModel>();
             }
         }
     }

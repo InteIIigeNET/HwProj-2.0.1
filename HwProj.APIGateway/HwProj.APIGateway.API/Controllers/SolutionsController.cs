@@ -6,6 +6,7 @@ using HwProj.APIGateway.API.ExceptionFilters;
 using HwProj.APIGateway.API.Models.Solutions;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
+using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
 using HwProj.Models.SolutionsService;
@@ -69,7 +70,7 @@ namespace HwProj.APIGateway.API.Controllers
         [HttpPost("{taskId}")]
         [Authorize]
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> PostSolution(SolutionViewModel model, long taskId)
+        public async Task<IActionResult> PostSolution(AddSolutionViewModel model, long taskId)
         {
             model.StudentId = UserId;
             var result = await _solutionsClient.PostSolution(model, taskId);
@@ -104,7 +105,7 @@ namespace HwProj.APIGateway.API.Controllers
         [HttpPost("{groupId}/{taskId}")]
         [Authorize]
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> PostGroupSolution(SolutionViewModel model, long taskId, long groupId)
+        public async Task<IActionResult> PostGroupSolution(AddSolutionViewModel model, long taskId, long groupId)
         {
             var result = await _solutionsClient.PostGroupSolution(model, taskId, groupId);
             return Ok(result);
@@ -138,6 +139,10 @@ namespace HwProj.APIGateway.API.Controllers
                 .Join(accountsData, s => s.StudentId, s => s.UserId, (solution, account) =>
                 {
                     var (course, homeworkTitle, task) = tasks[solution.TaskId];
+
+                    var DeadlineIsOverdue = ((AccountDataDto a, DeadlineViewModel d, SolutionPreviewDto s) =>
+                        d.DateTime < s.PublicationDate && d.AffectedStudentsId.Contains(a.UserId));
+
                     return new SolutionPreviewView
                     {
                         Student = account,
@@ -148,8 +153,10 @@ namespace HwProj.APIGateway.API.Controllers
                         TaskId = task.Id,
                         PublicationDate = solution.PublicationDate,
                         IsFirstTry = solution.IsFirstTry,
-                        SentAfterDeadline = solution.IsFirstTry && task.DeadlineDate != null &&
-                                            solution.PublicationDate > task.DeadlineDate
+                        OverdueDeadlines = task.Deadlines?.Count(
+                            d => DeadlineIsOverdue(account, d, solution)) ?? 0,
+                        CanSendSolutions = task.Deadlines?.Any(
+                            d => d.IsStrict && DeadlineIsOverdue(account, d, solution)) ?? false,
                     };
                 })
                 .ToArray();

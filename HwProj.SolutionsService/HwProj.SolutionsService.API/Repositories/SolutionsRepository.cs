@@ -42,16 +42,16 @@ namespace HwProj.SolutionsService.API.Repositories
             await Context.SaveChangesAsync().ConfigureAwait(false);
         }
 
-        public async Task ChangeSolutionMaxRatingAsync(long solutionId, int newMaxRating)
+        public async Task ChangeSolutionCalculatedMaxRatingAsync(long solutionId, int newMaxRating)
         {
             var solution = await GetAsync(solutionId);
-            //solution.MaxRating = newMaxRating;
+            solution.CalculatedMaxRating = newMaxRating;
             
             if (solution.Rating == newMaxRating)
                 solution.State = SolutionState.Final;
-            else if (solution.State == SolutionState.Posted && solution.Rating < newMaxRating) 
+            else if (solution.State != SolutionState.Posted && solution.Rating < newMaxRating) 
                 solution.State = SolutionState.Rated;
-            
+
             await Context.SaveChangesAsync().ConfigureAwait(false);
         }
         

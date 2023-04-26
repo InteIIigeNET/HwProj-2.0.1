@@ -64,15 +64,18 @@ namespace HwProj.SolutionsService.API.Controllers
 
         [HttpPost("{taskId}")]
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> PostSolution(long taskId, [FromBody] SolutionViewModel solutionViewModel)
+        public async Task<IActionResult> PostSolution(long taskId, [FromBody] AddSolutionViewModel solutionViewModel)
         {
             var task = await _coursesClient.GetTask(taskId);
+            var deadlines = await _coursesClient.GetTaskDeadlinesAsync(taskId);
+            var canSendSolution = !(await _coursesClient.GetTaskDeadlinesAsync(taskId))
+                .Any(d => d.DateTime <= task.PublicationDate && d.IsStrict);
             var homework = await _coursesClient.GetHomework(task.HomeworkId);
             var course = await _coursesClient.GetCourseById(homework.CourseId, solutionViewModel.StudentId);
 
             if (course.CourseMates.Any(courseMate =>
                     courseMate.StudentId == solutionViewModel.StudentId && courseMate.IsAccepted) &&
-                task.CanSendSolution)
+                canSendSolution)
             {
                 var solution = _mapper.Map<Solution>(solutionViewModel);
                 solution.TaskId = taskId;
@@ -114,7 +117,7 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpPost("{groupId}/{taskId}")]
-        public async Task<long> PostSolution(long groupId, long taskId, [FromBody] SolutionViewModel solutionViewModel)
+        public async Task<long> PostSolution(long groupId, long taskId, [FromBody] AddSolutionViewModel solutionViewModel)
         {
             var solution = _mapper.Map<Solution>(solutionViewModel);
             solution.GroupId = groupId;

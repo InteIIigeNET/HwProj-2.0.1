@@ -398,6 +398,51 @@ namespace HwProj.CoursesService.Client
                 : Result<AccountDataDto[]>.Failed(response.ReasonPhrase);
         }
 
+        public async Task<long> AddDeadline(AddDeadlineViewModel model, long taskId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _coursesServiceUri + $"api/Deadlines/{taskId}/add")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(model),
+                    Encoding.UTF8,
+                    "application/json")
+            };;
+            
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<long>();
+        }
+        
+        public async Task<DeadlineViewModel[]> GetAllDeadlines()
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get, 
+                _coursesServiceUri + "api/Deadlines");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<DeadlineViewModel[]>();
+        }
+        
+        public async Task<DeadlineViewModel[]> GetTaskDeadlinesAsync(long taskId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get, 
+                _coursesServiceUri + $"api/Deadlines/{taskId}/get");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<DeadlineViewModel[]>();
+        }
+
+        public async Task DeleteDeadline(long deadlineId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Delete,
+                _coursesServiceUri + $"api/Deadlines/delete_deadline/{deadlineId}");
+
+            await _httpClient.SendAsync(httpRequest);
+        }
+
         public async Task<bool> Ping()
         {
             try

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Repositories;
 
 namespace HwProj.CoursesService.API.Models
@@ -12,12 +14,8 @@ namespace HwProj.CoursesService.API.Models
         public string Description { get; set; }
 
         public int MaxRating { get; set; }
-        
-        public bool HasDeadline { get; set; }
-        
-        public DateTime? DeadlineDate { get; set; }
-        
-        public bool IsDeadlineStrict { get; set; }
+
+        public List<Deadline> Deadlines { get; set; } = new();
 
         public DateTime PublicationDate { get; set; }
 

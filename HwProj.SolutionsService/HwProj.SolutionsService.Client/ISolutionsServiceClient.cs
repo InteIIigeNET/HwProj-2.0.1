@@ -9,11 +9,11 @@ namespace HwProj.SolutionsService.Client
         Task<Solution[]> GetAllSolutions();
         Task<Solution> GetSolutionById(long solutionId);
         Task<Solution[]> GetUserSolutions(long taskId, string studentId);
-        Task<long> PostSolution(SolutionViewModel model, long taskId);
+        Task<long> PostSolution(AddSolutionViewModel model, long taskId);
         Task RateSolution(long solutionId, int newRating, string lecturerComment, string lecturerId);
         Task MarkSolution(long solutionId);
         Task DeleteSolution(long solutionId);
-        Task<long> PostGroupSolution(SolutionViewModel model, long taskId, long groupId);
+        Task<long> PostGroupSolution(AddSolutionViewModel model, long taskId, long groupId);
         Task<Solution[]> GetTaskSolutions(long groupId, long taskId);
         Task<StatisticsCourseMatesDto[]> GetCourseStatistics(long courseId, string userId);
         Task<Solution?[]> GetLastTaskSolutions(long[] taskIds, string userId);

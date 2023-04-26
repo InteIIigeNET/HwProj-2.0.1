@@ -52,7 +52,7 @@ namespace HwProj.SolutionsService.Client
             return await response.DeserializeAsync<Solution[]>();
         }
 
-        public async Task<long> PostSolution(SolutionViewModel model, long taskId)
+        public async Task<long> PostSolution(AddSolutionViewModel model, long taskId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
@@ -105,7 +105,7 @@ namespace HwProj.SolutionsService.Client
             await _httpClient.SendAsync(httpRequest);
         }
 
-        public async Task<long> PostGroupSolution(SolutionViewModel model, long taskId, long groupId)
+        public async Task<long> PostGroupSolution(AddSolutionViewModel model, long taskId, long groupId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,

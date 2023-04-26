@@ -37,6 +37,10 @@ namespace HwProj.CoursesService.Client
         Task<long[]> GetGroupTasks(long groupId);
         Task<Result> AcceptLecturer(long courseId, string lecturerEmail);
         Task<Result<AccountDataDto[]>> GetLecturersAvailableForCourse(long courseId);
+        Task<DeadlineViewModel[]> GetAllDeadlines();
+        Task DeleteDeadline(long deadlineId);
+        Task<long> AddDeadline(AddDeadlineViewModel model, long taskId);
+        Task<DeadlineViewModel[]> GetTaskDeadlinesAsync(long taskId);
         Task<bool> Ping();
     }
 }

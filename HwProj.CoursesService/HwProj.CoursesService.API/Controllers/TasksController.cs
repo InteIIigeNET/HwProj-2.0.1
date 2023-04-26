@@ -62,9 +62,6 @@ namespace HwProj.CoursesService.API.Controllers
                 Title = taskViewModel.Title,
                 Description = taskViewModel.Description,
                 MaxRating = taskViewModel.MaxRating,
-                DeadlineDate = taskViewModel.DeadlineDate,
-                HasDeadline = taskViewModel.HasDeadline,
-                IsDeadlineStrict = taskViewModel.IsDeadlineStrict,
                 PublicationDate = taskViewModel.PublicationDate
             });
         }

@@ -17,6 +17,7 @@ using Moq;
 using NUnit.Framework;
 using FluentAssertions;
 using HwProj.Exceptions;
+using HwProj.Models.CoursesService.DTO;
 
 namespace HwProj.SolutionsService.IntegrationTests
 {
@@ -61,16 +62,23 @@ namespace HwProj.SolutionsService.IntegrationTests
         private CreateTaskViewModel GenerateCreateTaskViewModelWithoutDeadLine()
         {
             return new Fixture().Build<CreateTaskViewModel>()
-                .With(t  => t.HasDeadline, false)
+                .With(t => t.Deadlines, new List<AddDeadlineViewModel>())
                 .Create();
         }
-        
+
         private CreateTaskViewModel GenerateCreateTaskViewModelWithStrictDeadLine()
         {
+            var deadline = new List<AddDeadlineViewModel>();
+            deadline.Add(new AddDeadlineViewModel()
+            {
+                ToSubtract = 1,
+                AffectedStudentsId = new AffectedStudentsIdDto(),
+                IsStrict = true,
+                DateTime = DateTime.MinValue,
+            });
+            
             return new Fixture().Build<CreateTaskViewModel>()
-                .With(t => t.HasDeadline, true)
-                .With(t => t.IsDeadlineStrict, true)
-                .With(t => t.DeadlineDate, DateTime.MinValue)
+                .With(t => t.Deadlines, deadline)
                 .Create();
         }
         
@@ -120,10 +128,10 @@ namespace HwProj.SolutionsService.IntegrationTests
             await lectureCourseClient.AcceptStudent(courseId, studentId);
         }
 
-        private SolutionViewModel GenerateSolutionViewModel(string userId)
+        private AddSolutionViewModel GenerateSolutionViewModel(string userId)
         {
             var url = new Fixture().Create<string>();
-            var fixture = new Fixture().Build<SolutionViewModel>()
+            var fixture = new Fixture().Build<AddSolutionViewModel>()
                 .With(h => h.GithubUrl, url)
                 .With(h => h.StudentId, userId);
             var viewModel = fixture.Create();
@@ -340,7 +348,7 @@ namespace HwProj.SolutionsService.IntegrationTests
             var homeworkViewModel =  GenerateCreateHomeworkViewModel();
             var homeworkId = await lectureCourseClient.AddHomeworkToCourse(homeworkViewModel, courseId);
             var taskViewModel = GenerateCreateTaskViewModelWithStrictDeadLine();
-            taskViewModel.IsDeadlineStrict = false;
+            taskViewModel.Deadlines[0].IsStrict = false;
             var taskId = await lectureCourseClient.AddTask(taskViewModel, homeworkId.Value);
             await SignStudentInCourse(studentCourseClient, lectureCourseClient, courseId, studentId);
             var solutionsClient = CreateSolutionsServiceClient();

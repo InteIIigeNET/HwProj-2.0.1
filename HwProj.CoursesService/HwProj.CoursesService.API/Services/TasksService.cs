@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.API.Models;
@@ -43,7 +44,12 @@ namespace HwProj.CoursesService.API.Services
             var taskId = await _tasksRepository.AddAsync(task);
 
             if (task.PublicationDate <= DateTimeUtils.GetMoscowNow())
-                _eventBus.Publish(new NewHomeworkTaskEvent(task.Title, taskId, task.DeadlineDate, courseModel));
+                _eventBus.Publish(new NewHomeworkTaskEvent(
+                    task.Title,
+                    taskId,
+                    (task.Deadlines != null || task.Deadlines.Count == 0) ? task.Deadlines.OrderBy(d => d.DateTime).FirstOrDefault()?.DateTime : null,
+                    courseModel
+                    ));
 
             return taskId;
         }
@@ -67,9 +73,7 @@ namespace HwProj.CoursesService.API.Services
                 Title = update.Title,
                 Description = update.Description,
                 MaxRating = update.MaxRating,
-                DeadlineDate = update.DeadlineDate,
-                HasDeadline = update.HasDeadline,
-                IsDeadlineStrict = update.IsDeadlineStrict,
+                Deadlines = update.Deadlines,
                 PublicationDate = update.PublicationDate
             });
         }

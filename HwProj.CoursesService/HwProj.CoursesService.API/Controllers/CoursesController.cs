@@ -144,7 +144,7 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpGet("taskDeadlines")]
         public async Task<TaskDeadlineDto[]> GetUserDeadlines()
         {
-            var userId = Request.GetUserIdFromHeader();
+            var userId = "1b2c55e5-77a6-4d37-bfdf-aa50f7480f17";//Request.GetUserIdFromHeader();
             var courseIds = await _courseMatesRepository.FindAll(t => t.StudentId == userId).Select(t => t.CourseId)
                 .ToListAsync();
 
@@ -153,12 +153,13 @@ namespace HwProj.CoursesService.API.Controllers
                 .FindAll(t => courseIds.Contains(t.Id))
                 .Include(t => t.Homeworks)
                 .ThenInclude(t => t.Tasks)
+                .ThenInclude(t => t.Deadlines)
                 .ToListAsync();
 
             var result = courses
                 .SelectMany(course => course.Homeworks
                     .SelectMany(x => x.Tasks)
-                    .Where(t => t.HasDeadline && t.PublicationDate <= currentDate && t.DeadlineDate > currentDate)
+                    .Where(t => t.Deadlines is { Count: > 0 } && t.PublicationDate <= currentDate && t.Deadlines.Exists(d => d.DateTime > currentDate))
                     .Select(task => new TaskDeadlineDto
                     {
                         TaskId = task.Id,
@@ -166,9 +167,17 @@ namespace HwProj.CoursesService.API.Controllers
                         CourseTitle = course.Name + " / " + course.GroupName,
                         PublicationDate = task.PublicationDate,
                         MaxRating = task.MaxRating,
-                        DeadlineDate = task.DeadlineDate!.Value
+                        Deadlines = task.Deadlines
+                            .Where(d => d.DateTime > currentDate)
+                            .Select(deadline => new DeadlineDto()
+                        {
+                            ToSubtract = deadline.ToSubtract,
+                            IsStrict = deadline.IsStrict,
+                            DateTime = deadline.DateTime,
+                            AffectedStudentsId = deadline.AffectedStudentsId
+                        }).ToList()
                     }))
-                .OrderBy(t => t.DeadlineDate)
+                .OrderBy(t => t.Deadlines.Min(deadline => deadline.DateTime))
                 .ToArray();
 
             return result;
