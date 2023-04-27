@@ -27,8 +27,6 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
-        services.ConfigureHwProjServices("AuthService API");
-
         //var appSettingsSection = Configuration.GetSection("AppSettings");
         //services.Configure<AppSettings>(appSettingsSection);
 
@@ -81,8 +79,8 @@ public class Startup
         services.AddEventBus(Configuration);
 
         services.AddScoped<IAuthTokenService, AuthTokenService>()
-            .AddScoped<IAccountService, AccountService>()
-            .AddScoped<IUserManager, ProxyUserManager>();
+            .AddScoped<IAccountService, AccountService>();
+        services.ConfigureHwProjServices("AuthService API");
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

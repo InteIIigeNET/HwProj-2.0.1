@@ -46,7 +46,6 @@ public class CoursesController : AggregationController
         var getMentorsTask = AuthServiceClient.GetAccountsData(course.MentorIds);
 
         await Task.WhenAll(getStudentsTask, getMentorsTask);
-
         var students = getStudentsTask.Result;
 
         var acceptedStudents = new List<AccountDataDto>();
@@ -54,8 +53,14 @@ public class CoursesController : AggregationController
         for (var i = 0; i < students.Length; i++)
         {
             if (!(students[i] is { } student)) continue;
-            if (course.CourseMates[i].IsAccepted) acceptedStudents.Add(student);
-            else newStudents.Add(student);
+            if (course.CourseMates[i].IsAccepted)
+            {
+                acceptedStudents.Add(students[i]);
+            }
+            else
+            {
+                newStudents.Add(student);
+            }
         }
 
         var result = new CourseViewModel

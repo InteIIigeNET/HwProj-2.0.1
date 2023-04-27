@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -9,6 +10,7 @@ using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.Result;
 using Google.Apis.Auth;
 using HwProj.Models.Roles;
+using Microsoft.AspNetCore.Identity;
 
 namespace HwProj.AuthService.API.Controllers;
 
@@ -17,10 +19,10 @@ namespace HwProj.AuthService.API.Controllers;
 public class AccountController : Controller
 {
     private readonly IAccountService _accountService;
-    private readonly IUserManager _userManager;
+    private readonly UserManager<User> _userManager;
     private readonly IMapper _mapper;
 
-    public AccountController(IAccountService accountService, IUserManager userManager, IMapper mapper)
+    public AccountController(IAccountService accountService, UserManager<User> userManager, IMapper mapper)
     {
         _accountService = accountService;
         _userManager = userManager;
@@ -41,7 +43,19 @@ public class AccountController : Controller
     [HttpGet("getUsersData")]
     public async Task<AccountDataDto?[]> GetUsersData([FromBody] string[] userIds)
     {
-        return await _accountService.GetManyAccountDataAsync(userIds);
+        // var list = new List<AccountDataDto>();
+        // foreach (var id in userIds)
+        // {
+        //     list.Add(await _accountService.GetAccountDataAsync(id));
+        // }
+        //
+        // return list.ToArray();
+        var many = await  _accountService.GetManyAccountDataAsync(userIds);
+        return many;
+
+        var userDataTasks = userIds.Select(_accountService.GetAccountDataAsync).ToArray();
+        await Task.WhenAll(userDataTasks);
+        return userDataTasks.Select(task => task.Result).ToArray();
     }
 
     [HttpPost("register")]

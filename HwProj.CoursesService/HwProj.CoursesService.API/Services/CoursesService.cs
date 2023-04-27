@@ -80,23 +80,23 @@ public class CoursesService : ICoursesService
 
     public async Task<bool> AddStudentAsync(long courseId, string studentId)
     {
-        var course = await _coursesRepository.GetAsync(courseId);
-        var cm = await _courseMatesRepository.FindAsync(
-            mate => mate.CourseId == courseId && mate.StudentId == studentId);
-
-        if (course == null || cm != null)
+        var course = await  _coursesRepository.GetAsync(courseId);
+        var courseMate =
+           await _courseMatesRepository.FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
+        
+        if (course == null || courseMate != null)
         {
             return false;
         }
 
-        var courseMate = new CourseMate
+        var newCourseMate = new CourseMate
         {
             CourseId = courseId,
             StudentId = studentId,
             IsAccepted = false
         };
 
-        await _courseMatesRepository.AddAsync(courseMate);
+        await _courseMatesRepository.AddAsync(newCourseMate);
         _eventBus.Publish(new NewCourseMateEvent
         {
             CourseId = courseId,
@@ -111,10 +111,11 @@ public class CoursesService : ICoursesService
 
     public async Task<bool> AcceptCourseMateAsync(long courseId, string studentId)
     {
+        // TODO вместе с courseMate получать
         var getCourseTask = _coursesRepository.GetAsync(courseId);
         var getCourseMateTask =
             _courseMatesRepository.FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
-        await Task.WhenAll(getCourseTask, getCourseMateTask);
+        await Task.WhenAll(getCourseTask, getCourseMateTask).ConfigureAwait(false);
 
         if (getCourseTask.Result == null || getCourseMateTask.Result == null)
         {
@@ -123,8 +124,11 @@ public class CoursesService : ICoursesService
 
         await _courseMatesRepository.UpdateAsync(
             getCourseMateTask.Result.Id,
-            cm => new CourseMate { IsAccepted = true }
-        );
+            cm => new CourseMate
+            {
+                IsAccepted = true
+            }
+        ).ConfigureAwait(false);
 
         var course = getCourseTask.Result;
 
@@ -144,14 +148,14 @@ public class CoursesService : ICoursesService
         var getCourseTask = _coursesRepository.GetAsync(courseId);
         var getCourseMateTask =
             _courseMatesRepository.FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
-        await Task.WhenAll(getCourseTask, getCourseMateTask);
+        await Task.WhenAll(getCourseTask, getCourseMateTask).ConfigureAwait(false);
 
         if (getCourseTask.Result == null || getCourseMateTask.Result == null)
         {
             return false;
         }
 
-        await _courseMatesRepository.DeleteAsync(getCourseMateTask.Result.Id);
+        await _courseMatesRepository.DeleteAsync(getCourseMateTask.Result.Id).ConfigureAwait(false);
 
         var course = getCourseTask.Result;
         _eventBus.Publish(new LecturerRejectToCourseEvent

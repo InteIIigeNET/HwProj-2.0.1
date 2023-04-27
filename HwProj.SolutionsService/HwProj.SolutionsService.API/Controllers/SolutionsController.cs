@@ -48,7 +48,7 @@ public class SolutionsController : Controller
         var solution = await _solutionsService.GetSolutionAsync(solutionId);
         return solution == null
             ? NotFound()
-            : Ok(solution) as IActionResult;
+            : Ok(solution);
     }
 
     [HttpGet("taskSolutions/{taskId}/{studentId}")]

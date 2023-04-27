@@ -11,18 +11,19 @@ using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.Result;
+using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.AuthService.API.Services;
 
 public class AccountService : IAccountService
 {
-    private readonly IUserManager _userManager;
+    private readonly UserManager<User> _userManager;
     private readonly SignInManager<User> _signInManager;
     private readonly IAuthTokenService _tokenService;
     private readonly IEventBus _eventBus;
     private readonly IMapper _mapper;
 
-    public AccountService(IUserManager userManager,
+    public AccountService(UserManager<User> userManager,
         SignInManager<User> signInManager,
         IAuthTokenService authTokenService,
         IEventBus eventBus,
@@ -49,26 +50,28 @@ public class AccountService : IAccountService
         return new AccountDataDto(user.Id, user.Name, user.Surname, user.Email, userRole, user.IsExternalAuth,
             user.MiddleName);
     }
-
+    
     public async Task<AccountDataDto[]> GetManyAccountDataAsync(string[] userIds)
     {
-        var users = await _userManager.FindManyByIdAsync(userIds);
-        if (users == null)
+        var users = await _userManager.Users.Where(user => userIds.Contains(user.Id)).ToArrayAsync().ConfigureAwait(false);
+        var orderedByIdUsers = new User[users.Length];
+        for (var i = 0; i < users.Length; i++)
         {
-            return null;
+            orderedByIdUsers[i] = users.First(user => user.Id == userIds[i]);
         }
+     
+        var usersDto = new List<AccountDataDto>();
 
-        var accountDataDtos = new List<AccountDataDto>();
-
-        foreach (var user in users)
+        // TODO сразу роли получить
+        foreach (var user in orderedByIdUsers)
         {
             var userRoles = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
             var userRole = userRoles.FirstOrDefault() ?? Roles.StudentRole;
-            accountDataDtos.Add(new AccountDataDto(user.Id, user.Name, user.Surname, user.Email,
+            usersDto.Add(new AccountDataDto(user.Id, user.Name, user.Surname, user.Email,
                 userRole, user.IsExternalAuth, user.MiddleName));
         }
 
-        return accountDataDtos.ToArray();
+        return usersDto.ToArray();
     }
 
     public async Task<Result> EditAccountAsync(string id, EditDataDTO model)
