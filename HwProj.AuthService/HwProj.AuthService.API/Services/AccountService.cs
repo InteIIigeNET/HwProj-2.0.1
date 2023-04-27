@@ -53,13 +53,12 @@ public class AccountService : IAccountService
     
     public async Task<AccountDataDto[]> GetManyAccountDataAsync(string[] userIds)
     {
-        var users = await _userManager.Users.Where(user => userIds.Contains(user.Id)).ToArrayAsync().ConfigureAwait(false);
+        var users = await _userManager.Users.Where(user => userIds.Contains(user.Id)). ToArrayAsync().ConfigureAwait(false);
         var orderedByIdUsers = new User[users.Length];
         for (var i = 0; i < users.Length; i++)
         {
             orderedByIdUsers[i] = users.First(user => user.Id == userIds[i]);
         }
-     
         var usersDto = new List<AccountDataDto>();
 
         // TODO сразу роли получить
