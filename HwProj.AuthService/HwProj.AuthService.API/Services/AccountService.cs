@@ -53,19 +53,19 @@ public class AccountService : IAccountService
     
     public async Task<AccountDataDto[]> GetManyAccountDataAsync(string[] userIds)
     {
-        var users = await _userManager.Users.Where(user => userIds.Contains(user.Id)). ToArrayAsync().ConfigureAwait(false);
+        var users = await _userManager.Users.Where(user => userIds.Contains(user.Id)).ToArrayAsync().ConfigureAwait(false);
         var orderedByIdUsers = new User[users.Length];
         for (var i = 0; i < users.Length; i++)
         {
             orderedByIdUsers[i] = users.First(user => user.Id == userIds[i]);
         }
+        
         var usersDto = new List<AccountDataDto>();
-
+        var lecturerIds = (await  _userManager.GetUsersInRoleAsync(Roles.LecturerRole)).Select(l => l.Id).ToHashSet();
         // TODO сразу роли получить
         foreach (var user in orderedByIdUsers)
         {
-            var userRoles = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
-            var userRole = userRoles.FirstOrDefault() ?? Roles.StudentRole;
+            var userRole = lecturerIds.Contains(user.Id) ? Roles.LecturerRole : Roles.StudentRole;
             usersDto.Add(new AccountDataDto(user.Id, user.Name, user.Surname, user.Email,
                 userRole, user.IsExternalAuth, user.MiddleName));
         }

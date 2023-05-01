@@ -43,19 +43,7 @@ public class AccountController : Controller
     [HttpGet("getUsersData")]
     public async Task<AccountDataDto?[]> GetUsersData([FromBody] string[] userIds)
     {
-        // var list = new List<AccountDataDto>();
-        // foreach (var id in userIds)
-        // {
-        //     list.Add(await _accountService.GetAccountDataAsync(id));
-        // }
-        //
-        // return list.ToArray();
-        var many = await  _accountService.GetManyAccountDataAsync(userIds);
-        return many;
-
-        var userDataTasks = userIds.Select(_accountService.GetAccountDataAsync).ToArray();
-        await Task.WhenAll(userDataTasks);
-        return userDataTasks.Select(task => task.Result).ToArray();
+        return await  _accountService.GetManyAccountDataAsync(userIds);
     }
 
     [HttpPost("register")]
