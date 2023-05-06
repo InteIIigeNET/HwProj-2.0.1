@@ -5,7 +5,7 @@ import Link from '@material-ui/core/Link'
 import './style.css'
 import {AccountDataDto, HomeworkTaskViewModel, Solution} from '../../api'
 import ApiSingleton from "../../api/ApiSingleton";
-import {Avatar, Rating, Stack, Alert} from "@mui/material";
+import {Alert, Avatar, Rating, Stack} from "@mui/material";
 import AvatarUtils from "../Utils/AvatarUtils";
 import GitHubIcon from '@mui/icons-material/GitHub';
 
@@ -15,7 +15,8 @@ interface ISolutionProps {
     task: HomeworkTaskViewModel,
     forMentor: boolean,
     isExpanded: boolean,
-    lastRating?: number
+    lastRating?: number,
+    onRateSolutionClick?: () => void
 }
 
 interface ISolutionState {
@@ -39,7 +40,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 state.points,
                 state.lecturerComment
             )
-        window.location.reload()
+        if (props.onRateSolutionClick) props.onRateSolutionClick()
     }
 
     const {solution, lastRating, student, task} = props

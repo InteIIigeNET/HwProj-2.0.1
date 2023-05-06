@@ -9,7 +9,8 @@ import {Divider} from "@mui/material";
 interface ITaskSolutionsProps {
     task: HomeworkTaskViewModel,
     studentId: string,
-    forMentor: boolean
+    forMentor: boolean,
+    onSolutionRateClick?: () => void
 }
 
 interface ITaskSolutionsState {
@@ -77,6 +78,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                     student={student!}
                     isExpanded={true}
                     lastRating={lastRating}
+                    onRateSolutionClick={props.onSolutionRateClick}
                 />
                 : "Студент не отправил ни одного решения."}
         </Grid>}
@@ -89,6 +91,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                         solution={x}
                         student={student!}
                         isExpanded={true}
+                        onRateSolutionClick={props.onSolutionRateClick}
                     />
                     {i < arrayOfRatedSolutions.length - 1 ?
                         <Divider style={{marginTop: 10, marginBottom: 4}}/> : null}

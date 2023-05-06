@@ -15,7 +15,7 @@ interface IStudentSolutionsPageState {
 }
 
 const StudentSolutionsPage: FC = () => {
-    const { taskId, studentId } = useParams()
+    const {taskId, studentId} = useParams()
     const navigate = useNavigate()
 
     const [studentSolutions, setStudentSolutions] = useState<IStudentSolutionsPageState>({
@@ -64,12 +64,16 @@ const StudentSolutionsPage: FC = () => {
 
         if (nextUnratedSolution) {
             window.location.assign(`/task/${nextUnratedSolution.taskId}/${nextUnratedSolution.student!.userId}`)
+            return true
         } else
             setNextUnratedSolution({
                 state: "loaded",
                 nexUnratedSolution: nextUnratedSolution
             })
+        return false
     }
+
+    const goBackToCourseStats = () => navigate(`/courses/${studentSolutions.course.id!}/stats`)
 
     const renderNextUnratedSolutionLink = () => {
         return nextUnratedSolution.state === "initial"
@@ -106,7 +110,7 @@ const StudentSolutionsPage: FC = () => {
                             <Link
                                 component="button"
                                 style={{color: '#212529'}}
-                                onClick={() => navigate(`/courses/${studentSolutions.course.id!}/stats`)}
+                                onClick={goBackToCourseStats}
                             >
                                 <Typography>
                                     Назад к курсу
@@ -133,6 +137,12 @@ const StudentSolutionsPage: FC = () => {
                             forMentor={true}
                             task={studentSolutions.task}
                             studentId={studentId!}
+                            onSolutionRateClick={async () => {
+                                if (await getNextUnratedSolution()) return
+                                // TODO: use flux instead
+                                await new Promise(r => setTimeout(r, 1000))
+                                goBackToCourseStats()
+                            }}
                         />
                     </Grid>
                 </Grid>
