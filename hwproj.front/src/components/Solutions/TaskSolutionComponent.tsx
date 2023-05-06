@@ -170,15 +170,21 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                             multiline
                             fullWidth
                             InputProps={{
-                                readOnly: !props.forMentor,
+                                readOnly: !props.forMentor || !state.clickedForRate
                             }}
                             rows="4"
                             rowsMax="15"
-                            disabled={!props.forMentor || !state.clickedForRate}
                             label="Комментарий преподавателя"
                             variant="outlined"
                             margin="normal"
                             value={state.lecturerComment}
+                            onClick={() => {
+                                if (!state.clickedForRate)
+                                    setState((prevState) => ({
+                                        ...prevState,
+                                        clickedForRate: true
+                                    }))
+                            }}
                             onChange={(e) => {
                                 e.persist()
                                 setState((prevState) => ({
