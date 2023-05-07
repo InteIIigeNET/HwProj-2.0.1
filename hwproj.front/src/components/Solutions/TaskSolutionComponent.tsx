@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {FC, useState} from 'react';
+import {FC, useEffect, useState} from 'react';
 import {Button, Grid, TextField, Typography} from "@material-ui/core";
 import Link from '@material-ui/core/Link'
 import './style.css'
@@ -32,6 +32,14 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         lecturerComment: props.solution.lecturerComment || "",
         clickedForRate: false,
     })
+
+    useEffect(() => {
+        setState({
+            points: props.solution.rating || 0,
+            lecturerComment: props.solution.lecturerComment || "",
+            clickedForRate: false,
+        })
+    }, [props.student.userId])
 
     const assignSolution = async () => {
         await ApiSingleton.solutionsApi
