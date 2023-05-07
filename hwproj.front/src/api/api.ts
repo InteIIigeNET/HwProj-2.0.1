@@ -270,8 +270,8 @@ export interface BooleanResult {
  */
 export interface CategorizedNotifications {
     /**
-     *
-     * @type {CategoryState}
+     * 
+     * @type {number}
      * @memberof CategorizedNotifications
      */
     category?: CategoryState;
@@ -907,8 +907,8 @@ export interface GetSolutionModel {
      */
     comment?: string;
     /**
-     *
-     * @type {SolutionState}
+     * 
+     * @type {number}
      * @memberof GetSolutionModel
      */
     state?: SolutionState;
@@ -1489,8 +1489,8 @@ export interface NotificationViewModel {
      */
     owner?: string;
     /**
-     *
-     * @type {CategoryState}
+     * 
+     * @type {number}
      * @memberof NotificationViewModel
      */
     category?: CategoryState;
@@ -1711,23 +1711,49 @@ export interface Result {
 /**
  * 
  * @export
+ * @interface ResultString
+ */
+export interface ResultString {
+    /**
+     *
+     * @type {Array<string>}
+     * @memberof ResultString
+     */
+    value?: Array<string>;
+    /**
+     *
+     * @type {boolean}
+     * @memberof ResultString
+     */
+    succeeded?: boolean;
+    /**
+     *
+     * @type {Array<string>}
+     * @memberof ResultString
+     */
+    errors?: Array<string>;
+}
+
+/**
+ * 
+ * @export
  * @interface ResultTokenCredentials
  */
 export interface ResultTokenCredentials {
     /**
-     * 
+     *
      * @type {TokenCredentials}
      * @memberof ResultTokenCredentials
      */
     value?: TokenCredentials;
     /**
-     * 
+     *
      * @type {boolean}
      * @memberof ResultTokenCredentials
      */
     succeeded?: boolean;
     /**
-     * 
+     *
      * @type {Array<string>}
      * @memberof ResultTokenCredentials
      */
@@ -1798,8 +1824,8 @@ export interface Solution {
      */
     comment?: string;
     /**
-     *
-     * @type {SolutionState}
+     * 
+     * @type {number}
      * @memberof Solution
      */
     state?: SolutionState;
@@ -2350,8 +2376,8 @@ export interface TaskDeadlineView {
      */
     deadline?: TaskDeadlineDto;
     /**
-     *
-     * @type {SolutionState}
+     * 
+     * @type {number}
      * @memberof TaskDeadlineView
      */
     solutionState?: SolutionState;
@@ -2381,8 +2407,8 @@ export interface TaskDeadlineView {
  */
 export interface TaskSolutionStatisticsPageData {
     /**
-     *
-     * @type {Array<TaskSolutions>}
+     * 
+     * @type {Array<UserTaskSolutions>}
      * @memberof TaskSolutionStatisticsPageData
      */
     taskSolutions?: Array<TaskSolutions>;
@@ -2393,8 +2419,8 @@ export interface TaskSolutionStatisticsPageData {
      */
     courseId?: number;
     /**
-     *
-     * @type {Array<HomeworksGroupSolutionStats>}
+     * 
+     * @type {Array<TaskSolutionsStats>}
      * @memberof TaskSolutionStatisticsPageData
      */
     statsForTasks?: Array<HomeworksGroupSolutionStats>;
@@ -2626,8 +2652,8 @@ export interface UserTaskSolutions {
      */
     solutions?: Array<GetSolutionModel>;
     /**
-     *
-     * @type {StudentDataDto}
+     * 
+     * @type {AccountDataDto}
      * @memberof UserTaskSolutions
      */
     student?: StudentDataDto;
@@ -2688,30 +2714,17 @@ export interface UserTaskSolutionsPageData {
      */
     courseMates?: Array<AccountDataDto>;
     /**
-     *
-     * @type {Array<HomeworksGroupUserTaskSolutions>}
+     * 
+     * @type {HomeworkTaskViewModel}
      * @memberof UserTaskSolutionsPageData
      */
-    taskSolutions?: Array<HomeworksGroupUserTaskSolutions>;
-}
-/**
- *
- * @export
- * @interface WorkspaceViewModel
- */
-export interface WorkspaceViewModel {
+    task?: HomeworkTaskViewModel;
     /**
-     *
-     * @type {Array<AccountDataDto>}
-     * @memberof WorkspaceViewModel
+     * 
+     * @type {Array<UserTaskSolutions2>}
+     * @memberof UserTaskSolutionsPageData
      */
-    students?: Array<AccountDataDto>;
-    /**
-     *
-     * @type {Array<HomeworkViewModel>}
-     * @memberof WorkspaceViewModel
-     */
-    homeworks?: Array<HomeworkViewModel>;
+    taskSolutions?: Array<UserTaskSolutions2>;
 }
 /**
  * AccountApi - fetch parameter creator
@@ -2720,8 +2733,8 @@ export interface WorkspaceViewModel {
 export const AccountApiFetchParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         *
-         * @param {string} [code]
+         * 
+         * @param {EditExternalViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -2755,8 +2768,8 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         *
-         * @param {EditAccountViewModel} [body]
+         * 
+         * @param {EditAccountViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -2820,8 +2833,8 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         *
-         * @param {UrlDto} [body]
+         * 
+         * @param {string} userId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -2885,8 +2898,7 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         *
-         * @param {string} userId
+         * 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -2921,8 +2933,8 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         *
-         * @param {InviteLecturerViewModel} [body]
+         * 
+         * @param {InviteLecturerViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -2956,8 +2968,8 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         *
-         * @param {LoginViewModel} [body]
+         * 
+         * @param {LoginViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3021,8 +3033,8 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         *
-         * @param {RegisterViewModel} [body]
+         * 
+         * @param {RegisterViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3056,8 +3068,8 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         *
-         * @param {RequestPasswordRecoveryViewModel} [body]
+         * 
+         * @param {RequestPasswordRecoveryViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3091,8 +3103,8 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         *
-         * @param {ResetPasswordViewModel} [body]
+         * 
+         * @param {ResetPasswordViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3135,8 +3147,8 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
 export const AccountApiFp = function(configuration?: Configuration) {
     return {
         /**
-         *
-         * @param {string} [code]
+         * 
+         * @param {EditExternalViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3153,8 +3165,8 @@ export const AccountApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         *
-         * @param {EditAccountViewModel} [body]
+         * 
+         * @param {EditAccountViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3188,8 +3200,8 @@ export const AccountApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         *
-         * @param {UrlDto} [body]
+         * 
+         * @param {string} userId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3223,8 +3235,8 @@ export const AccountApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         *
-         * @param {string} userId
+         * 
+         * @param {InviteLecturerViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3241,8 +3253,8 @@ export const AccountApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         *
-         * @param {InviteLecturerViewModel} [body]
+         * 
+         * @param {LoginViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3259,8 +3271,7 @@ export const AccountApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         *
-         * @param {LoginViewModel} [body]
+         * 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3277,7 +3288,8 @@ export const AccountApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         *
+         * 
+         * @param {RegisterViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3294,8 +3306,8 @@ export const AccountApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         *
-         * @param {RegisterViewModel} [body]
+         * 
+         * @param {RequestPasswordRecoveryViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3312,8 +3324,8 @@ export const AccountApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         *
-         * @param {RequestPasswordRecoveryViewModel} [body]
+         * 
+         * @param {ResetPasswordViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3357,8 +3369,8 @@ export const AccountApiFp = function(configuration?: Configuration) {
 export const AccountApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
     return {
         /**
-         *
-         * @param {string} [code]
+         * 
+         * @param {EditExternalViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3366,8 +3378,8 @@ export const AccountApiFactory = function (configuration?: Configuration, fetch?
             return AccountApiFp(configuration).accountAuthorizeGithub(code, options)(fetch, basePath);
         },
         /**
-         *
-         * @param {EditAccountViewModel} [body]
+         * 
+         * @param {EditAccountViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3383,8 +3395,8 @@ export const AccountApiFactory = function (configuration?: Configuration, fetch?
             return AccountApiFp(configuration).accountGetAllStudents(options)(fetch, basePath);
         },
         /**
-         *
-         * @param {UrlDto} [body]
+         * 
+         * @param {string} userId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3400,8 +3412,8 @@ export const AccountApiFactory = function (configuration?: Configuration, fetch?
             return AccountApiFp(configuration).accountGetUserData(options)(fetch, basePath);
         },
         /**
-         *
-         * @param {string} userId
+         * 
+         * @param {InviteLecturerViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3409,8 +3421,8 @@ export const AccountApiFactory = function (configuration?: Configuration, fetch?
             return AccountApiFp(configuration).accountGetUserDataById(userId, options)(fetch, basePath);
         },
         /**
-         *
-         * @param {InviteLecturerViewModel} [body]
+         * 
+         * @param {LoginViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3418,8 +3430,7 @@ export const AccountApiFactory = function (configuration?: Configuration, fetch?
             return AccountApiFp(configuration).accountInviteNewLecturer(body, options)(fetch, basePath);
         },
         /**
-         *
-         * @param {LoginViewModel} [body]
+         * 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3427,7 +3438,8 @@ export const AccountApiFactory = function (configuration?: Configuration, fetch?
             return AccountApiFp(configuration).accountLogin(body, options)(fetch, basePath);
         },
         /**
-         *
+         * 
+         * @param {RegisterViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3435,8 +3447,8 @@ export const AccountApiFactory = function (configuration?: Configuration, fetch?
             return AccountApiFp(configuration).accountRefreshToken(options)(fetch, basePath);
         },
         /**
-         *
-         * @param {RegisterViewModel} [body]
+         * 
+         * @param {RequestPasswordRecoveryViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3444,8 +3456,8 @@ export const AccountApiFactory = function (configuration?: Configuration, fetch?
             return AccountApiFp(configuration).accountRegister(body, options)(fetch, basePath);
         },
         /**
-         *
-         * @param {RequestPasswordRecoveryViewModel} [body]
+         * 
+         * @param {ResetPasswordViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3472,8 +3484,8 @@ export const AccountApiFactory = function (configuration?: Configuration, fetch?
  */
 export class AccountApi extends BaseAPI {
     /**
-     *
-     * @param {string} [code]
+     * 
+     * @param {EditExternalViewModel} [model] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AccountApi
@@ -3483,8 +3495,8 @@ export class AccountApi extends BaseAPI {
     }
 
     /**
-     *
-     * @param {EditAccountViewModel} [body]
+     * 
+     * @param {EditAccountViewModel} [model] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AccountApi
@@ -3504,8 +3516,8 @@ export class AccountApi extends BaseAPI {
     }
 
     /**
-     *
-     * @param {UrlDto} [body]
+     * 
+     * @param {string} userId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AccountApi
@@ -3525,8 +3537,8 @@ export class AccountApi extends BaseAPI {
     }
 
     /**
-     *
-     * @param {string} userId
+     * 
+     * @param {InviteLecturerViewModel} [model] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AccountApi
@@ -3536,8 +3548,8 @@ export class AccountApi extends BaseAPI {
     }
 
     /**
-     *
-     * @param {InviteLecturerViewModel} [body]
+     * 
+     * @param {LoginViewModel} [model] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AccountApi
@@ -3547,8 +3559,7 @@ export class AccountApi extends BaseAPI {
     }
 
     /**
-     *
-     * @param {LoginViewModel} [body]
+     * 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AccountApi
@@ -3558,7 +3569,8 @@ export class AccountApi extends BaseAPI {
     }
 
     /**
-     *
+     * 
+     * @param {RegisterViewModel} [model] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AccountApi
@@ -3568,8 +3580,8 @@ export class AccountApi extends BaseAPI {
     }
 
     /**
-     *
-     * @param {RegisterViewModel} [body]
+     * 
+     * @param {RequestPasswordRecoveryViewModel} [model] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AccountApi
@@ -3579,8 +3591,8 @@ export class AccountApi extends BaseAPI {
     }
 
     /**
-     *
-     * @param {RequestPasswordRecoveryViewModel} [body]
+     * 
+     * @param {ResetPasswordViewModel} [model] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AccountApi
@@ -3655,9 +3667,9 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             };
         },
         /**
-         *
-         * @param {number} courseId
-         * @param {CreateGroupViewModel} [body]
+         * 
+         * @param {number} courseId 
+         * @param {CreateGroupViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3810,8 +3822,10 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             };
         },
         /**
-         *
-         * @param {number} groupId
+         * 
+         * @param {number} courseId 
+         * @param {number} groupId 
+         * @param {string} [userId] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3846,8 +3860,10 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             };
         },
         /**
-         *
-         * @param {number} groupId
+         * 
+         * @param {number} courseId 
+         * @param {number} groupId 
+         * @param {UpdateGroupViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3882,10 +3898,8 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             };
         },
         /**
-         *
-         * @param {number} courseId
-         * @param {number} groupId
-         * @param {string} [userId]
+         * 
+         * @param {number} groupId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -3929,10 +3943,8 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             };
         },
         /**
-         *
-         * @param {number} courseId
-         * @param {number} groupId
-         * @param {UpdateGroupViewModel} [body]
+         * 
+         * @param {number} groupId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -4005,9 +4017,9 @@ export const CourseGroupsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         *
-         * @param {number} courseId
-         * @param {CreateGroupViewModel} [body]
+         * 
+         * @param {number} courseId 
+         * @param {CreateGroupViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -4079,8 +4091,10 @@ export const CourseGroupsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         *
-         * @param {number} groupId
+         * 
+         * @param {number} courseId 
+         * @param {number} groupId 
+         * @param {string} [userId] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -4097,8 +4111,10 @@ export const CourseGroupsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         *
-         * @param {number} groupId
+         * 
+         * @param {number} courseId 
+         * @param {number} groupId 
+         * @param {UpdateGroupViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -4115,10 +4131,8 @@ export const CourseGroupsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         *
-         * @param {number} courseId
-         * @param {number} groupId
-         * @param {string} [userId]
+         * 
+         * @param {number} groupId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -4135,10 +4149,8 @@ export const CourseGroupsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         *
-         * @param {number} courseId
-         * @param {number} groupId
-         * @param {UpdateGroupViewModel} [body]
+         * 
+         * @param {number} groupId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -4175,9 +4187,9 @@ export const CourseGroupsApiFactory = function (configuration?: Configuration, f
             return CourseGroupsApiFp(configuration).courseGroupsAddStudentInGroup(courseId, groupId, userId, options)(fetch, basePath);
         },
         /**
-         *
-         * @param {number} courseId
-         * @param {CreateGroupViewModel} [body]
+         * 
+         * @param {number} courseId 
+         * @param {CreateGroupViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -4213,8 +4225,10 @@ export const CourseGroupsApiFactory = function (configuration?: Configuration, f
             return CourseGroupsApiFp(configuration).courseGroupsGetCourseGroupsById(courseId, options)(fetch, basePath);
         },
         /**
-         *
-         * @param {number} groupId
+         * 
+         * @param {number} courseId 
+         * @param {number} groupId 
+         * @param {string} [userId] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -4222,8 +4236,10 @@ export const CourseGroupsApiFactory = function (configuration?: Configuration, f
             return CourseGroupsApiFp(configuration).courseGroupsGetGroup(groupId, options)(fetch, basePath);
         },
         /**
-         *
-         * @param {number} groupId
+         * 
+         * @param {number} courseId 
+         * @param {number} groupId 
+         * @param {UpdateGroupViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -4231,10 +4247,8 @@ export const CourseGroupsApiFactory = function (configuration?: Configuration, f
             return CourseGroupsApiFp(configuration).courseGroupsGetGroupTasks(groupId, options)(fetch, basePath);
         },
         /**
-         *
-         * @param {number} courseId
-         * @param {number} groupId
-         * @param {string} [userId]
+         * 
+         * @param {number} groupId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -4242,10 +4256,8 @@ export const CourseGroupsApiFactory = function (configuration?: Configuration, f
             return CourseGroupsApiFp(configuration).courseGroupsRemoveStudentFromGroup(courseId, groupId, userId, options)(fetch, basePath);
         },
         /**
-         *
-         * @param {number} courseId
-         * @param {number} groupId
-         * @param {UpdateGroupViewModel} [body]
+         * 
+         * @param {number} groupId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -4276,9 +4288,9 @@ export class CourseGroupsApi extends BaseAPI {
     }
 
     /**
-     *
-     * @param {number} courseId
-     * @param {CreateGroupViewModel} [body]
+     * 
+     * @param {number} courseId 
+     * @param {CreateGroupViewModel} [model] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CourseGroupsApi
@@ -4322,8 +4334,10 @@ export class CourseGroupsApi extends BaseAPI {
     }
 
     /**
-     *
-     * @param {number} groupId
+     * 
+     * @param {number} courseId 
+     * @param {number} groupId 
+     * @param {string} [userId] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CourseGroupsApi
@@ -4333,8 +4347,10 @@ export class CourseGroupsApi extends BaseAPI {
     }
 
     /**
-     *
-     * @param {number} groupId
+     * 
+     * @param {number} courseId 
+     * @param {number} groupId 
+     * @param {UpdateGroupViewModel} [model] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CourseGroupsApi
@@ -4344,10 +4360,8 @@ export class CourseGroupsApi extends BaseAPI {
     }
 
     /**
-     *
-     * @param {number} courseId
-     * @param {number} groupId
-     * @param {string} [userId]
+     * 
+     * @param {number} groupId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CourseGroupsApi
@@ -4357,10 +4371,8 @@ export class CourseGroupsApi extends BaseAPI {
     }
 
     /**
-     *
-     * @param {number} courseId
-     * @param {number} groupId
-     * @param {UpdateGroupViewModel} [body]
+     * 
+     * @param {number} groupId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CourseGroupsApi
@@ -4532,10 +4544,8 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         *
-         * @param {number} courseId
-         * @param {string} mentorId
-         * @param {EditMentorWorkspaceDTO} [body]
+         * 
+         * @param {number} courseId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -4615,7 +4625,8 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         *
+         * 
+         * @param {CreateCourseViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -4968,9 +4979,9 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         *
-         * @param {number} courseId
-         * @param {UpdateCourseViewModel} [body]
+         * 
+         * @param {number} courseId 
+         * @param {UpdateCourseViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5009,10 +5020,7 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         *
-         * @param {number} courseId
-         * @param {string} studentId
-         * @param {StudentCharacteristicsDto} [body]
+         * 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5139,10 +5147,8 @@ export const CoursesApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         *
-         * @param {number} courseId
-         * @param {string} mentorId
-         * @param {EditMentorWorkspaceDTO} [body]
+         * 
+         * @param {number} courseId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5177,7 +5183,8 @@ export const CoursesApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         *
+         * 
+         * @param {CreateCourseViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5194,8 +5201,7 @@ export const CoursesApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         *
-         * @param {number} courseId
+         * 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5356,9 +5362,9 @@ export const CoursesApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         *
-         * @param {number} courseId
-         * @param {UpdateCourseViewModel} [body]
+         * 
+         * @param {number} courseId 
+         * @param {UpdateCourseViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5375,10 +5381,7 @@ export const CoursesApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         *
-         * @param {number} courseId
-         * @param {string} studentId
-         * @param {StudentCharacteristicsDto} [body]
+         * 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5442,10 +5445,8 @@ export const CoursesApiFactory = function (configuration?: Configuration, fetch?
             return CoursesApiFp(configuration).coursesDeleteCourse(courseId, options)(fetch, basePath);
         },
         /**
-         *
-         * @param {number} courseId
-         * @param {string} mentorId
-         * @param {EditMentorWorkspaceDTO} [body]
+         * 
+         * @param {number} courseId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5453,8 +5454,8 @@ export const CoursesApiFactory = function (configuration?: Configuration, fetch?
             return CoursesApiFp(configuration).coursesEditMentorWorkspace(courseId, mentorId, body, options)(fetch, basePath);
         },
         /**
-         *
-         * @param {number} courseId
+         * 
+         * @param {CreateCourseViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5551,9 +5552,9 @@ export const CoursesApiFactory = function (configuration?: Configuration, fetch?
             return CoursesApiFp(configuration).coursesSignInCourse(courseId, options)(fetch, basePath);
         },
         /**
-         *
-         * @param {number} courseId
-         * @param {UpdateCourseViewModel} [body]
+         * 
+         * @param {number} courseId 
+         * @param {UpdateCourseViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5561,10 +5562,7 @@ export const CoursesApiFactory = function (configuration?: Configuration, fetch?
             return CoursesApiFp(configuration).coursesUpdateCourse(courseId, body, options)(fetch, basePath);
         },
         /**
-         *
-         * @param {number} courseId
-         * @param {string} studentId
-         * @param {StudentCharacteristicsDto} [body]
+         * 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5628,10 +5626,8 @@ export class CoursesApi extends BaseAPI {
     }
 
     /**
-     *
-     * @param {number} courseId
-     * @param {string} mentorId
-     * @param {EditMentorWorkspaceDTO} [body]
+     * 
+     * @param {number} courseId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CoursesApi
@@ -5641,8 +5637,8 @@ export class CoursesApi extends BaseAPI {
     }
 
     /**
-     *
-     * @param {number} courseId
+     * 
+     * @param {CreateCourseViewModel} [model] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CoursesApi
@@ -5761,9 +5757,9 @@ export class CoursesApi extends BaseAPI {
     }
 
     /**
-     *
-     * @param {number} courseId
-     * @param {UpdateCourseViewModel} [body]
+     * 
+     * @param {number} courseId 
+     * @param {UpdateCourseViewModel} [model] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CoursesApi
@@ -5773,10 +5769,7 @@ export class CoursesApi extends BaseAPI {
     }
 
     /**
-     *
-     * @param {number} courseId
-     * @param {string} studentId
-     * @param {StudentCharacteristicsDto} [body]
+     * 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CoursesApi
@@ -6830,9 +6823,9 @@ export class FilesApi extends BaseAPI {
 export const HomeworksApiFetchParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         *
-         * @param {number} courseId
-         * @param {CreateHomeworkViewModel} [body]
+         * 
+         * @param {number} courseId 
+         * @param {CreateHomeworkViewModel} [homeworkViewModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -6979,9 +6972,9 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
             };
         },
         /**
-         *
-         * @param {number} homeworkId
-         * @param {CreateHomeworkViewModel} [body]
+         * 
+         * @param {number} homeworkId 
+         * @param {CreateHomeworkViewModel} [homeworkViewModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7029,9 +7022,9 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
 export const HomeworksApiFp = function(configuration?: Configuration) {
     return {
         /**
-         *
-         * @param {number} courseId
-         * @param {CreateHomeworkViewModel} [body]
+         * 
+         * @param {number} courseId 
+         * @param {CreateHomeworkViewModel} [homeworkViewModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7102,9 +7095,9 @@ export const HomeworksApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         *
-         * @param {number} homeworkId
-         * @param {CreateHomeworkViewModel} [body]
+         * 
+         * @param {number} homeworkId 
+         * @param {CreateHomeworkViewModel} [homeworkViewModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7130,9 +7123,9 @@ export const HomeworksApiFp = function(configuration?: Configuration) {
 export const HomeworksApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
     return {
         /**
-         *
-         * @param {number} courseId
-         * @param {CreateHomeworkViewModel} [body]
+         * 
+         * @param {number} courseId 
+         * @param {CreateHomeworkViewModel} [homeworkViewModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7167,9 +7160,9 @@ export const HomeworksApiFactory = function (configuration?: Configuration, fetc
             return HomeworksApiFp(configuration).homeworksGetHomework(homeworkId, options)(fetch, basePath);
         },
         /**
-         *
-         * @param {number} homeworkId
-         * @param {CreateHomeworkViewModel} [body]
+         * 
+         * @param {number} homeworkId 
+         * @param {CreateHomeworkViewModel} [homeworkViewModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7187,9 +7180,9 @@ export const HomeworksApiFactory = function (configuration?: Configuration, fetc
  */
 export class HomeworksApi extends BaseAPI {
     /**
-     *
-     * @param {number} courseId
-     * @param {CreateHomeworkViewModel} [body]
+     * 
+     * @param {number} courseId 
+     * @param {CreateHomeworkViewModel} [homeworkViewModel] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof HomeworksApi
@@ -7232,9 +7225,9 @@ export class HomeworksApi extends BaseAPI {
     }
 
     /**
-     *
-     * @param {number} homeworkId
-     * @param {CreateHomeworkViewModel} [body]
+     * 
+     * @param {number} homeworkId 
+     * @param {CreateHomeworkViewModel} [homeworkViewModel] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof HomeworksApi
@@ -7251,8 +7244,7 @@ export class HomeworksApi extends BaseAPI {
 export const NotificationsApiFetchParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         *
-         * @param {NotificationsSettingDto} [body]
+         * 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7316,7 +7308,8 @@ export const NotificationsApiFetchParamCreator = function (configuration?: Confi
             };
         },
         /**
-         *
+         * 
+         * @param {Array<number>} [notificationIds] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7376,8 +7369,8 @@ export const NotificationsApiFetchParamCreator = function (configuration?: Confi
             };
         },
         /**
-         *
-         * @param {Array<number>} [body]
+         * 
+         * @param {NotificationsSettingDto} [newSetting] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7420,8 +7413,7 @@ export const NotificationsApiFetchParamCreator = function (configuration?: Confi
 export const NotificationsApiFp = function(configuration?: Configuration) {
     return {
         /**
-         *
-         * @param {NotificationsSettingDto} [body]
+         * 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7455,7 +7447,8 @@ export const NotificationsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         *
+         * 
+         * @param {Array<number>} [notificationIds] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7489,8 +7482,8 @@ export const NotificationsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         *
-         * @param {Array<number>} [body]
+         * 
+         * @param {NotificationsSettingDto} [newSetting] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7516,8 +7509,7 @@ export const NotificationsApiFp = function(configuration?: Configuration) {
 export const NotificationsApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
     return {
         /**
-         *
-         * @param {NotificationsSettingDto} [body]
+         * 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7533,7 +7525,8 @@ export const NotificationsApiFactory = function (configuration?: Configuration, 
             return NotificationsApiFp(configuration).notificationsGet(options)(fetch, basePath);
         },
         /**
-         *
+         * 
+         * @param {Array<number>} [notificationIds] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7549,8 +7542,8 @@ export const NotificationsApiFactory = function (configuration?: Configuration, 
             return NotificationsApiFp(configuration).notificationsGetSettings(options)(fetch, basePath);
         },
         /**
-         *
-         * @param {Array<number>} [body]
+         * 
+         * @param {NotificationsSettingDto} [newSetting] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7568,8 +7561,7 @@ export const NotificationsApiFactory = function (configuration?: Configuration, 
  */
 export class NotificationsApi extends BaseAPI {
     /**
-     *
-     * @param {NotificationsSettingDto} [body]
+     * 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof NotificationsApi
@@ -7589,7 +7581,8 @@ export class NotificationsApi extends BaseAPI {
     }
 
     /**
-     *
+     * 
+     * @param {Array<number>} [notificationIds] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof NotificationsApi
@@ -7609,8 +7602,8 @@ export class NotificationsApi extends BaseAPI {
     }
 
     /**
-     *
-     * @param {Array<number>} [body]
+     * 
+     * @param {NotificationsSettingDto} [newSetting] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof NotificationsApi
@@ -7703,8 +7696,9 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             };
         },
         /**
-         *
-         * @param {number} solutionId
+         * 
+         * @param {number} taskId 
+         * @param {SolutionViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7775,9 +7769,8 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             };
         },
         /**
-         *
-         * @param {number} taskId
-         * @param {string} studentId
+         * 
+         * @param {number} taskId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7817,8 +7810,8 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             };
         },
         /**
-         *
-         * @param {number} taskId
+         * 
+         * @param {number} solutionId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7888,8 +7881,9 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             };
         },
         /**
-         *
-         * @param {number} taskId
+         * 
+         * @param {number} taskId 
+         * @param {SolutionViewModel} [solution] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7924,8 +7918,9 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             };
         },
         /**
-         *
-         * @param {number} solutionId
+         * 
+         * @param {number} solutionId 
+         * @param {RateSolutionModel} [rateSolutionModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -7960,9 +7955,9 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             };
         },
         /**
-         *
-         * @param {number} taskId
-         * @param {SolutionViewModel} [body]
+         * 
+         * @param {number} taskId 
+         * @param {string} studentId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8001,9 +7996,8 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             };
         },
         /**
-         *
-         * @param {number} taskId
-         * @param {SolutionViewModel} [body]
+         * 
+         * @param {number} taskId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8042,9 +8036,8 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             };
         },
         /**
-         *
-         * @param {number} solutionId
-         * @param {RateSolutionModel} [body]
+         * 
+         * @param {number} [taskId] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8129,8 +8122,9 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         *
-         * @param {number} solutionId
+         * 
+         * @param {number} taskId 
+         * @param {SolutionViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8165,9 +8159,8 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         *
-         * @param {number} taskId
-         * @param {string} studentId
+         * 
+         * @param {number} taskId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8184,8 +8177,8 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         *
-         * @param {number} taskId
+         * 
+         * @param {number} solutionId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8220,8 +8213,9 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         *
-         * @param {number} taskId
+         * 
+         * @param {number} taskId 
+         * @param {SolutionViewModel} [solution] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8238,8 +8232,9 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         *
-         * @param {number} solutionId
+         * 
+         * @param {number} solutionId 
+         * @param {RateSolutionModel} [rateSolutionModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8256,9 +8251,9 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         *
-         * @param {number} taskId
-         * @param {SolutionViewModel} [body]
+         * 
+         * @param {number} taskId 
+         * @param {string} studentId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8275,9 +8270,8 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         *
-         * @param {number} taskId
-         * @param {SolutionViewModel} [body]
+         * 
+         * @param {number} taskId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8294,9 +8288,8 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         *
-         * @param {number} solutionId
-         * @param {RateSolutionModel} [body]
+         * 
+         * @param {number} [taskId] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8331,9 +8324,9 @@ export const SolutionsApiFactory = function (configuration?: Configuration, fetc
             return SolutionsApiFp(configuration).solutionsDeleteSolution(solutionId, options)(fetch, basePath);
         },
         /**
-         *
-         * @param {number} [taskId]
-         * @param {number} [solutionId]
+         * 
+         * @param {number} taskId 
+         * @param {SolutionViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8359,9 +8352,8 @@ export const SolutionsApiFactory = function (configuration?: Configuration, fetc
             return SolutionsApiFp(configuration).solutionsGetSolutionById(solutionId, options)(fetch, basePath);
         },
         /**
-         *
-         * @param {number} taskId
-         * @param {string} studentId
+         * 
+         * @param {number} taskId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8369,8 +8361,8 @@ export const SolutionsApiFactory = function (configuration?: Configuration, fetc
             return SolutionsApiFp(configuration).solutionsGetStudentSolution(taskId, studentId, options)(fetch, basePath);
         },
         /**
-         *
-         * @param {number} taskId
+         * 
+         * @param {number} solutionId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8387,8 +8379,9 @@ export const SolutionsApiFactory = function (configuration?: Configuration, fetc
             return SolutionsApiFp(configuration).solutionsGetUnratedSolutions(taskId, options)(fetch, basePath);
         },
         /**
-         *
-         * @param {number} taskId
+         * 
+         * @param {number} taskId 
+         * @param {SolutionViewModel} [solution] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8396,8 +8389,9 @@ export const SolutionsApiFactory = function (configuration?: Configuration, fetc
             return SolutionsApiFp(configuration).solutionsGiveUp(taskId, options)(fetch, basePath);
         },
         /**
-         *
-         * @param {number} solutionId
+         * 
+         * @param {number} solutionId 
+         * @param {RateSolutionModel} [rateSolutionModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8405,9 +8399,9 @@ export const SolutionsApiFactory = function (configuration?: Configuration, fetc
             return SolutionsApiFp(configuration).solutionsMarkSolution(solutionId, options)(fetch, basePath);
         },
         /**
-         *
-         * @param {number} taskId
-         * @param {SolutionViewModel} [body]
+         * 
+         * @param {number} taskId 
+         * @param {string} studentId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8415,9 +8409,8 @@ export const SolutionsApiFactory = function (configuration?: Configuration, fetc
             return SolutionsApiFp(configuration).solutionsPostEmptySolutionWithRate(taskId, body, options)(fetch, basePath);
         },
         /**
-         *
-         * @param {number} taskId
-         * @param {SolutionViewModel} [body]
+         * 
+         * @param {number} taskId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8425,9 +8418,8 @@ export const SolutionsApiFactory = function (configuration?: Configuration, fetc
             return SolutionsApiFp(configuration).solutionsPostSolution(taskId, body, options)(fetch, basePath);
         },
         /**
-         *
-         * @param {number} solutionId
-         * @param {RateSolutionModel} [body]
+         * 
+         * @param {number} [taskId] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -8456,9 +8448,9 @@ export class SolutionsApi extends BaseAPI {
     }
 
     /**
-     *
-     * @param {number} [taskId]
-     * @param {number} [solutionId]
+     * 
+     * @param {number} taskId 
+     * @param {SolutionViewModel} [model] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof SolutionsApi
@@ -8490,9 +8482,8 @@ export class SolutionsApi extends BaseAPI {
     }
 
     /**
-     *
-     * @param {number} taskId
-     * @param {string} studentId
+     * 
+     * @param {number} taskId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof SolutionsApi
@@ -8502,8 +8493,8 @@ export class SolutionsApi extends BaseAPI {
     }
 
     /**
-     *
-     * @param {number} taskId
+     * 
+     * @param {number} solutionId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof SolutionsApi
@@ -8524,8 +8515,9 @@ export class SolutionsApi extends BaseAPI {
     }
 
     /**
-     *
-     * @param {number} taskId
+     * 
+     * @param {number} taskId 
+     * @param {SolutionViewModel} [solution] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof SolutionsApi
@@ -8535,8 +8527,9 @@ export class SolutionsApi extends BaseAPI {
     }
 
     /**
-     *
-     * @param {number} solutionId
+     * 
+     * @param {number} solutionId 
+     * @param {RateSolutionModel} [rateSolutionModel] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof SolutionsApi
@@ -8546,9 +8539,9 @@ export class SolutionsApi extends BaseAPI {
     }
 
     /**
-     *
-     * @param {number} taskId
-     * @param {SolutionViewModel} [body]
+     * 
+     * @param {number} taskId 
+     * @param {string} studentId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof SolutionsApi
@@ -8558,9 +8551,8 @@ export class SolutionsApi extends BaseAPI {
     }
 
     /**
-     *
-     * @param {number} taskId
-     * @param {SolutionViewModel} [body]
+     * 
+     * @param {number} taskId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof SolutionsApi
@@ -8570,9 +8562,8 @@ export class SolutionsApi extends BaseAPI {
     }
 
     /**
-     *
-     * @param {number} solutionId
-     * @param {RateSolutionModel} [body]
+     * 
+     * @param {number} [taskId] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof SolutionsApi
@@ -9348,9 +9339,9 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
             };
         },
         /**
-         *
-         * @param {number} homeworkId
-         * @param {CreateTaskViewModel} [body]
+         * 
+         * @param {number} homeworkId 
+         * @param {CreateTaskViewModel} [taskViewModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -9497,8 +9488,9 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
             };
         },
         /**
-         *
-         * @param {number} taskId
+         * 
+         * @param {number} taskId 
+         * @param {CreateTaskViewModel} [taskViewModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -9619,9 +9611,9 @@ export const TasksApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         *
-         * @param {number} homeworkId
-         * @param {CreateTaskViewModel} [body]
+         * 
+         * @param {number} homeworkId 
+         * @param {CreateTaskViewModel} [taskViewModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -9692,8 +9684,9 @@ export const TasksApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         *
-         * @param {number} taskId
+         * 
+         * @param {number} taskId 
+         * @param {CreateTaskViewModel} [taskViewModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -9756,9 +9749,9 @@ export const TasksApiFactory = function (configuration?: Configuration, fetch?: 
             return TasksApiFp(configuration).tasksAddQuestionForTask(body, options)(fetch, basePath);
         },
         /**
-         *
-         * @param {number} homeworkId
-         * @param {CreateTaskViewModel} [body]
+         * 
+         * @param {number} homeworkId 
+         * @param {CreateTaskViewModel} [taskViewModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -9793,8 +9786,9 @@ export const TasksApiFactory = function (configuration?: Configuration, fetch?: 
             return TasksApiFp(configuration).tasksGetQuestionsForTask(taskId, options)(fetch, basePath);
         },
         /**
-         *
-         * @param {number} taskId
+         * 
+         * @param {number} taskId 
+         * @param {CreateTaskViewModel} [taskViewModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -9844,9 +9838,9 @@ export class TasksApi extends BaseAPI {
     }
 
     /**
-     *
-     * @param {number} homeworkId
-     * @param {CreateTaskViewModel} [body]
+     * 
+     * @param {number} homeworkId 
+     * @param {CreateTaskViewModel} [taskViewModel] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof TasksApi
@@ -9889,8 +9883,9 @@ export class TasksApi extends BaseAPI {
     }
 
     /**
-     *
-     * @param {number} taskId
+     * 
+     * @param {number} taskId 
+     * @param {CreateTaskViewModel} [taskViewModel] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof TasksApi
