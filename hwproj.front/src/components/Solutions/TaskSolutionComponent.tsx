@@ -40,7 +40,8 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 state.points,
                 state.lecturerComment
             )
-        if (props.onRateSolutionClick) props.onRateSolutionClick()
+        setState(prevState => ({...prevState, clickedForRate: false}))
+        props.onRateSolutionClick?.()
     }
 
     const {solution, lastRating, student, task} = props

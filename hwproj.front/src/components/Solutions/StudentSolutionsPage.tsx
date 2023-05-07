@@ -1,5 +1,9 @@
 import * as React from "react";
-import {CourseViewModel, HomeworkTaskViewModel, SolutionPreviewView} from "../../api/";
+import {
+    CourseViewModel,
+    HomeworkTaskViewModel, Solution,
+    StatisticsCourseSolutionsModel
+} from "../../api/";
 import Typography from "@material-ui/core/Typography";
 import Task from "../Tasks/Task";
 import TaskSolutions from "./TaskSolutions";
@@ -7,94 +11,116 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useEffect, useState} from "react";
 import {Grid, Link} from "@material-ui/core";
 import {useNavigate, useParams} from "react-router-dom";
+import {Chip, List, ListItemButton, ListItemText, Stack, Alert} from "@mui/material";
+import StudentStatsUtils from "../../services/StudentStatsUtils";
 
 interface IStudentSolutionsPageState {
-    task: HomeworkTaskViewModel;
-    isLoaded: boolean;
-    course: CourseViewModel;
+    currentTaskId: string
+    currentStudentId: string
+    task: HomeworkTaskViewModel
+    isLoaded: boolean
+    course: CourseViewModel
+    allSolutionsRated: boolean,
+    studentSolutionsPreview: {
+        userId: string,
+        name: string,
+        surname: string,
+        lastSolution: StatisticsCourseSolutionsModel,
+        lastRatedSolution: StatisticsCourseSolutionsModel,
+        color: string,
+        ratedSolutionsCount: number
+    }[]
 }
 
 const StudentSolutionsPage: FC = () => {
     const {taskId, studentId} = useParams()
     const navigate = useNavigate()
 
-    const [studentSolutions, setStudentSolutions] = useState<IStudentSolutionsPageState>({
+    const [studentSolutionsState, setStudentSolutionsState] = useState<IStudentSolutionsPageState>({
+        currentTaskId: "",
+        currentStudentId: studentId!,
+        allSolutionsRated: false,
         task: {},
         isLoaded: false,
-        course: {},
+        studentSolutionsPreview: [],
+        course: {}
     })
 
-    const [nextUnratedSolution, setNextUnratedSolution] = useState<{
-        nexUnratedSolution?: SolutionPreviewView,
-        state: "initial" | "loaded"
-    }>({
-        state: "initial"
-    })
-
-    const {isLoaded} = studentSolutions
+    const {
+        isLoaded,
+        currentStudentId,
+        currentTaskId,
+        studentSolutionsPreview,
+        allSolutionsRated
+    } = studentSolutionsState
     const userId = ApiSingleton.authService.isLoggedIn()
         ? ApiSingleton.authService.getUserId()
         : undefined
 
-    useEffect(() => {
-        getTaskData()
-    }, [studentId, taskId])
+    const getNextUnratedStudentId = () => studentSolutionsPreview.findIndex(x => x.userId !== currentStudentId && x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0)
 
-    const getTaskData = async () => {
-        const task = await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+taskId!)
-        const homework = await ApiSingleton.homeworksApi.apiHomeworksGetByHomeworkIdGet(task.homeworkId!)
-        const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(homework.courseId!)
+    const getTaskData = async (taskId: string, studentId: string) => {
+        const fullUpdate = currentTaskId !== taskId
+        console.log(fullUpdate)
+        const task = fullUpdate
+            ? await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+taskId!)
+            : studentSolutionsState.task
 
-        setStudentSolutions({
+        let course = studentSolutionsState.course
+        if (fullUpdate) {
+            const homework = await ApiSingleton.homeworksApi.apiHomeworksGetByHomeworkIdGet(task.homeworkId!)
+            course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(homework.courseId!)
+        }
+
+        const solutions = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdGet(course.id!)
+
+        const studentSolutionsPreview = solutions.map(studentSolutions => {
+            //TODO: use filter on the backend side
+            const {name, surname, id, homeworks} = studentSolutions
+            const studentSolutionsForTask = homeworks!
+                .find(h => h.id === task.homeworkId)!.tasks!
+                .find(t => t.id === task.id)!.solution
+            const ratedSolutionInfo = StudentStatsUtils.calculateLastRatedSolutionInfo(studentSolutionsForTask!, task.maxRating!)
+            return {userId: id!, name: name!, surname: surname!, ...ratedSolutionInfo}
+        })
+
+        setStudentSolutionsState({
+            ...studentSolutionsState,
             task: task,
             isLoaded: true,
             course: course,
+            currentStudentId: studentId,
+            currentTaskId: taskId,
+            studentSolutionsPreview: studentSolutionsPreview,
+            allSolutionsRated: getNextUnratedStudentId() === -1
         })
     }
 
-    const getNextUnratedSolution = async () => {
-        const unratedSolutions = await ApiSingleton.solutionsApi.apiSolutionsUnratedSolutionsGet(+taskId!)
-        const nextUnratedSolution = unratedSolutions.unratedSolutions!
-            .filter(t => t.student!.userId !== studentId)
-            .sort((s1, s2) => {
-                const cm1 = `${s1.student!.surname} ${s1.student!.name}`
-                const cm2 = `${s2.student!.surname} ${s2.student!.name}`
-                return cm1.localeCompare(cm2)
-            })[0]
+    useEffect(() => {
+        getTaskData(taskId!, studentId!)
+    }, [])
 
-        if (nextUnratedSolution) {
-            window.location.assign(`/task/${nextUnratedSolution.taskId}/${nextUnratedSolution.student!.userId}`)
-            return true
-        } else
-            setNextUnratedSolution({
-                state: "loaded",
-                nexUnratedSolution: nextUnratedSolution
-            })
-        return false
-    }
+    useEffect(() => {
+        getTaskData(taskId!, studentId!)
+    }, [taskId, studentId])
 
-    const goBackToCourseStats = () => navigate(`/courses/${studentSolutions.course.id!}/stats`)
-
-    const renderNextUnratedSolutionLink = () => {
-        return nextUnratedSolution.state === "initial"
-            ? <Link
-                component="button"
-                style={{color: '#212529'}}
-                onClick={() => getNextUnratedSolution()}
-            >
-                <Typography>
-                    Следующее непроверенное решение задачи
-                </Typography>
-            </Link>
-            : <Typography>
-                ✅ Все решения задачи проверены!
+    const goBackToCourseStats = () => navigate(`/courses/${studentSolutionsState.course.id!}/stats`)
+    const renderGoBackToCoursesStatsLink = () => {
+        return <Link
+            component="button"
+            style={{color: '#212529'}}
+            onClick={goBackToCourseStats}
+        >
+            <Typography>
+                Назад к курсу
             </Typography>
+        </Link>
     }
 
     if (isLoaded) {
         if (
             !ApiSingleton.authService.isLoggedIn() ||
-            !studentSolutions.course.mentors!.map(x => x.userId).includes(userId!)
+            !studentSolutionsState.course.mentors!.map(x => x.userId).includes(userId!)
         ) {
             return (
                 <Typography variant="h6">
@@ -104,26 +130,38 @@ const StudentSolutionsPage: FC = () => {
         }
         return (
             <div className={"container"} style={{marginBottom: '50px', marginTop: '15px'}}>
-                <Grid container justify="center" style={{marginTop: '20px'}}>
-                    <Grid container justifyContent="space-between" xs={11}>
-                        <Grid item>
-                            <Link
-                                component="button"
-                                style={{color: '#212529'}}
-                                onClick={goBackToCourseStats}
-                            >
-                                <Typography>
-                                    Назад к курсу
-                                </Typography>
-                            </Link>
-                        </Grid>
-                        <Grid item>
-                            {renderNextUnratedSolutionLink()}
-                        </Grid>
+                <Grid direction={"column"} justifyContent="center" alignContent={"stretch"} spacing={2}>
+                    {allSolutionsRated
+                        ? <Alert severity="success" action={renderGoBackToCoursesStatsLink()}>
+                            Все решения на данный момент
+                            проверены!
+                        </Alert>
+                        : renderGoBackToCoursesStatsLink}
+                </Grid>
+                <Grid container spacing={3} style={{marginTop: '1px'}}>
+                    <Grid item xs={3}>
+                        <List>
+                            {studentSolutionsPreview!.map(x =>
+                                <ListItemButton disableGutters divider
+                                                disableTouchRipple={currentStudentId === x.userId}
+                                                selected={currentStudentId === x.userId}
+                                                onClick={async () => {
+                                                    if (currentStudentId === x.userId) return
+                                                    navigate(`/task/${currentTaskId}/${x.userId!}`)
+                                                    await getTaskData(currentTaskId, x.userId!)
+                                                }}>
+                                    <Stack direction={"row"} spacing={1} sx={{paddingLeft: 1}}>
+                                        <Chip style={{backgroundColor: x.color}}
+                                              size={"small"}
+                                              label={x.lastRatedSolution == undefined ? "?" : x.lastRatedSolution.rating}/>
+                                        <ListItemText primary={x.name + " " + x.surname}/>
+                                    </Stack>
+                                </ListItemButton>)}
+                        </List>
                     </Grid>
-                    <Grid container xs={11}>
+                    <Grid item xs={9} spacing={2} justifyContent={"flex-start"}>
                         <Task
-                            task={studentSolutions.task}
+                            task={studentSolutionsState.task}
                             forStudent={false}
                             forMentor={true}
                             isReadingMode={true}
@@ -131,17 +169,14 @@ const StudentSolutionsPage: FC = () => {
                             isExpanded={false}
                             showForCourse={false}
                         />
-                    </Grid>
-                    <Grid container xs={11}>
                         <TaskSolutions
                             forMentor={true}
-                            task={studentSolutions.task}
-                            studentId={studentId!}
+                            task={studentSolutionsState.task}
+                            studentId={currentStudentId!}
                             onSolutionRateClick={async () => {
-                                if (await getNextUnratedSolution()) return
-                                // TODO: use flux instead
-                                await new Promise(r => setTimeout(r, 1000))
-                                goBackToCourseStats()
+                                const nextStudentIndex = getNextUnratedStudentId()
+                                const nextStudentId = nextStudentIndex === -1 ? currentStudentId : studentSolutionsPreview[nextStudentIndex].userId
+                                await getTaskData(currentTaskId, nextStudentId)
                             }}
                         />
                     </Grid>

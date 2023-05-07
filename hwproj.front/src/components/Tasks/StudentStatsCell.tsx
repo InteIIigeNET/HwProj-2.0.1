@@ -1,9 +1,9 @@
 import * as React from "react";
 import TableCell from "@material-ui/core/TableCell";
 import {Navigate} from "react-router-dom";
-import {Solution, StatisticsCourseSolutionsModel} from "api";
+import {StatisticsCourseSolutionsModel} from "api";
 import {Chip, Stack} from "@mui/material";
-import {colorBetween} from "../../services/JsUtils";
+import StudentStatsUtils from "../../services/StudentStatsUtils";
 
 interface ITaskStudentCellProps {
     studentId: string;
@@ -91,39 +91,15 @@ export default class StudentStatsCell extends React.Component<ITaskStudentCellPr
         this.setState({redirectForStudent: true});
     }
 
-
-    getCellBackgroundColor = (state: Solution.StateEnum | undefined,
-                              rating: number | undefined, maxRating: number,
-                              isFirstTry: boolean): string => {
-        if (state == Solution.StateEnum.NUMBER_0)
-            return isFirstTry ? "#d0fcc7" : "#afeeee"
-        return rating !== undefined
-            ? colorBetween(0xff0000, 0x2cba00, rating / maxRating * 100)
-            : "#ffffff"
-    }
-
     async componentDidMount() {
         const {solutions, taskMaxRating} = this.props
-        const ratedSolutions = solutions!.filter(x => x.state != Solution.StateEnum.NUMBER_0)
-        const ratedSolutionsCount = ratedSolutions.length
-        const isFirstUnratedTry = ratedSolutionsCount === 0
-        const lastSolution = solutions!.slice(-1)[0]
-        const lastRatedSolution = ratedSolutions.slice(-1)[0]
+        const {color, lastRatedSolution, ratedSolutionsCount} = StudentStatsUtils.calculateLastRatedSolutionInfo(solutions!, taskMaxRating)
 
-        if (lastSolution === undefined) {
-            this.setState({
-                color: "#ffffff",
-                isLoaded: true,
-                lastRatedSolution: undefined
-            })
-            return
-        }
         this.setState({
-            color: this.getCellBackgroundColor(lastSolution.state, lastSolution.rating, taskMaxRating, isFirstUnratedTry),
+            color: color,
             isLoaded: true,
             lastRatedSolution: lastRatedSolution,
-            ratedSolutionsCount: ratedSolutions.length
+            ratedSolutionsCount: ratedSolutionsCount
         })
     }
 }
-

@@ -31,7 +31,12 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
 
     useEffect(() => {
         getSolutions()
-    }, [])
+    }, [props.studentId, props.task.id])
+
+    const onSolutionRateClick = async () => {
+        props.onSolutionRateClick?.()
+        await getSolutions()
+    }
 
     const getSolutions = async () => {
         const userTaskSolutions = await ApiSingleton.solutionsApi.apiSolutionsTaskSolutionByTaskIdByStudentIdGet(
@@ -78,7 +83,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                     student={student!}
                     isExpanded={true}
                     lastRating={lastRating}
-                    onRateSolutionClick={props.onSolutionRateClick}
+                    onRateSolutionClick={onSolutionRateClick}
                 />
                 : "Студент не отправил ни одного решения."}
         </Grid>}
@@ -91,7 +96,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                         solution={x}
                         student={student!}
                         isExpanded={true}
-                        onRateSolutionClick={props.onSolutionRateClick}
+                        onRateSolutionClick={onSolutionRateClick}
                     />
                     {i < arrayOfRatedSolutions.length - 1 ?
                         <Divider style={{marginTop: 10, marginBottom: 4}}/> : null}
