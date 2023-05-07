@@ -1,4 +1,4 @@
-﻿import {Solution, SolutionState} from "../api";
+import {Solution, SolutionState} from "../api";
 import {colorBetween} from "./JsUtils";
 import Utils from "./Utils";
 
