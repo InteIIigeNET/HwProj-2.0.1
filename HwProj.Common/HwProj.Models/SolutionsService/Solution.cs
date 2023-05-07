@@ -15,13 +15,13 @@ namespace HwProj.Models.SolutionsService
 
         [JsonConverter(typeof(StringEnumConverter))]
         public SolutionState State { get; set; }
-        
+
         public int Rating { get; set; }
-                
+
         public string StudentId { get; set; }
 
         public long? GroupId { get; set; }
-        
+
         public long TaskId { get; set; }
 
         public DateTime PublicationDate { get; set; }
