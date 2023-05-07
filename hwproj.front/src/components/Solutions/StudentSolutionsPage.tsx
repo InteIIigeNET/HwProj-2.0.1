@@ -57,8 +57,6 @@ const StudentSolutionsPage: FC = () => {
         ? ApiSingleton.authService.getUserId()
         : undefined
 
-    const getNextUnratedStudentId = () => studentSolutionsPreview.findIndex(x => x.userId !== currentStudentId && x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0)
-
     const getTaskData = async (taskId: string, studentId: string) => {
         const fullUpdate = currentTaskId !== taskId
         console.log(fullUpdate)
@@ -92,7 +90,7 @@ const StudentSolutionsPage: FC = () => {
             currentStudentId: studentId,
             currentTaskId: taskId,
             studentSolutionsPreview: studentSolutionsPreview,
-            allSolutionsRated: getNextUnratedStudentId() === -1
+            allSolutionsRated: studentSolutionsPreview.findIndex(x => x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0) === -1
         })
     }
 
@@ -174,7 +172,7 @@ const StudentSolutionsPage: FC = () => {
                             task={studentSolutionsState.task}
                             studentId={currentStudentId!}
                             onSolutionRateClick={async () => {
-                                const nextStudentIndex = getNextUnratedStudentId()
+                                const nextStudentIndex = studentSolutionsPreview.findIndex(x => x.userId !== currentStudentId && x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0)
                                 const nextStudentId = nextStudentIndex === -1 ? currentStudentId : studentSolutionsPreview[nextStudentIndex].userId
                                 await getTaskData(currentTaskId, nextStudentId)
                             }}
