@@ -151,13 +151,12 @@ namespace HwProj.APIGateway.API.Controllers
         /// Implements file download.
         /// </summary>
         /// <param name="courseId">The course Id the report is based on.</param>
-        /// <param name="userId">Id of the user requesting the report.</param>
         /// <param name="sheetName">Name of the sheet on which the report will be generated.</param>
         /// <returns>File download process.</returns>
         [HttpGet("getFile")]
-        public async Task<IActionResult> GetFile(long courseId, string userId, string sheetName)
+        public async Task<IActionResult> GetFile(long courseId, string sheetName)
         {
-            var course = await _coursesClient.GetCourseById(courseId, userId);
+            var course = await _coursesClient.GetCourseById(courseId);
             var statistics = await GetStatistics(courseId);
             if (statistics == null || course == null) return Forbid();
 
@@ -182,15 +181,14 @@ namespace HwProj.APIGateway.API.Controllers
         /// Implements sending a report to the Google Sheets.
         /// </summary>
         /// <param name="courseId">The course Id the report is based on.</param>
-        /// <param name="userId">Id of the user requesting the report.</param>
         /// <param name="sheetUrl">Sheet Url parameter, required to make requests to the Google Sheets.</param>
         /// <param name="sheetName">Sheet Name parameter, required to make requests to the Google Sheets.</param>
         /// <returns>Operation status.</returns>
         [HttpGet("exportToSheet")]
         public async Task<Result> ExportToGoogleSheets(
-            long courseId, string userId, string sheetUrl, string sheetName)
+            long courseId, string sheetUrl, string sheetName)
         {
-            var course = await _coursesClient.GetCourseById(courseId, userId);
+            var course = await _coursesClient.GetCourseById(courseId);
             var statistics = await GetStatistics(courseId);
             if (course == null || statistics == null) return Result.Failed("Ошибка при получении статистики");
             var result = await _googleService.Export(course, statistics, sheetUrl, sheetName);
