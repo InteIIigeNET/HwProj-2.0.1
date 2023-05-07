@@ -30,7 +30,6 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
     })
 
     useEffect(() => {
-        setState(prevState => ({...prevState, tabValue: 0}))
         getSolutions()
     }, [props.studentId, props.task.id])
 
