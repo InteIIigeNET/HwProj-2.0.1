@@ -132,13 +132,18 @@ namespace HwProj.SolutionsService.API.Controllers
         [ProducesResponseType(typeof(StatisticsCourseMatesDto[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetCourseStat(long courseId, [FromQuery] string userId)
         {
-            var course = await _coursesClient.GetCourseById(courseId, userId);
-            if (course == null) return NotFound();
+            var result = await GetCourseStats(courseId, userId);
+            return result == null ? Forbid() : Ok(result);
+        }
 
-            var taskIds = course.Homeworks
-                .SelectMany(t => t.Tasks)
-                .Select(t => t.Id)
-                .ToArray();
+        [HttpGet("getCourseStat/{courseId}/{taskId}")]
+        [ProducesResponseType(typeof(StatisticsCourseMatesDto[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetCourseTaskStats(long courseId, long taskId, [FromQuery] string userId)
+        {
+            var course = await _coursesClient.GetCourseById(courseId, userId);
+            if (course == null) return null;
+
+            var taskIds = new[] { taskId };
 
             var solutions = await _solutionsRepository.FindAll(t => taskIds.Contains(t.TaskId)).ToListAsync();
             var courseMates = course.MentorIds.Contains(userId)
@@ -152,9 +157,35 @@ namespace HwProj.SolutionsService.API.Controllers
                 Solutions = solutions
             };
 
-            var result = SolutionsStatsDomain.GetCourseStatistics(solutionsStatsContext).ToArray();
+            return SolutionsStatsDomain.GetCourseStatistics(solutionsStatsContext).ToArray();
+        }
 
-            return Ok(result);
+        private async Task<StatisticsCourseMatesDto[]?> GetCourseStats(long courseId, string userId,
+            long? taskId = null)
+        {
+            var course = await _coursesClient.GetCourseById(courseId, userId);
+            if (course == null) return null;
+
+            var taskIds = taskId == null
+                ? course.Homeworks
+                    .SelectMany(t => t.Tasks)
+                    .Select(t => t.Id)
+                    .ToArray()
+                : new[] { taskId.Value };
+
+            var solutions = await _solutionsRepository.FindAll(t => taskIds.Contains(t.TaskId)).ToListAsync();
+            var courseMates = course.MentorIds.Contains(userId)
+                ? course.CourseMates.Where(t => t.IsAccepted)
+                : course.CourseMates.Where(t => t.StudentId == userId);
+
+            var solutionsStatsContext = new StatisticsAggregateModel
+            {
+                CourseMates = courseMates,
+                Homeworks = course.Homeworks.Where(t => t.Tasks.Any()).ToList(),
+                Solutions = solutions
+            };
+
+            return SolutionsStatsDomain.GetCourseStatistics(solutionsStatsContext).ToArray();
         }
 
         [HttpPost("allUnrated")]

@@ -34,5 +34,6 @@ namespace HwProj.SolutionsService.API.Domains
                             }))
                         }))
                 }).ToArray();
+        public static StatisticsCourseTasksModel[] GetCourse
     }
 }
