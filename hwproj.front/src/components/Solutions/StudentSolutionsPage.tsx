@@ -9,7 +9,7 @@ import Task from "../Tasks/Task";
 import TaskSolutions from "./TaskSolutions";
 import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useEffect, useState} from "react";
-import {Grid, Link} from "@material-ui/core";
+import {CircularProgress, Grid, Link} from "@material-ui/core";
 import {useNavigate, useParams} from "react-router-dom";
 import {Chip, List, ListItemButton, ListItemText, Stack, Alert} from "@mui/material";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
@@ -184,8 +184,9 @@ const StudentSolutionsPage: FC = () => {
     }
 
     return (
-        <div>
-
+        <div className={"container"}>
+            <p>Загрузка решений...</p>
+            <CircularProgress/>
         </div>
     )
 }
