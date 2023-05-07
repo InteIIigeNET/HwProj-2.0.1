@@ -259,6 +259,29 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok(result);
         }
 
+        [Authorize]
+        [HttpGet("courses/{courseId}/task/{taskId}")]
+        [ProducesResponseType(typeof(UserTaskSolutionPreviews[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetCourseTaskSolutionsPageData(long courseId, long taskId)
+        {
+            var statistics = await _solutionsClient.GetCourseTaskStatistics(courseId, taskId, UserId);
+
+            var studentIds = statistics.Select(t => t.StudentId).ToArray();
+            var usersData = await AuthServiceClient.GetAccountsData(studentIds);
+
+            var result = statistics
+                .Zip(usersData, (statistic, accountData) => new UserTaskSolutionPreviews
+                {
+                    Solutions = statistic.Solutions.Select(s => new StatisticsCourseSolutionsModel(s)).ToArray(),
+                    User = accountData
+                })
+                .OrderBy(t => t.User.Surname)
+                .ThenBy(t => t.User.Surname)
+                .ToArray();
+
+            return Ok(result);
+        }
+
         [HttpPost("{taskId}")]
         [Authorize(Roles = Roles.StudentRole)]
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
