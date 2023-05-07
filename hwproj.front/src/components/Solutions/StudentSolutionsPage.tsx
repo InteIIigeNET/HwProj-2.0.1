@@ -59,7 +59,6 @@ const StudentSolutionsPage: FC = () => {
 
     const getTaskData = async (taskId: string, studentId: string) => {
         const fullUpdate = currentTaskId !== taskId
-        console.log(fullUpdate)
         const task = fullUpdate
             ? await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+taskId!)
             : studentSolutionsState.task
@@ -134,7 +133,7 @@ const StudentSolutionsPage: FC = () => {
                             Все решения на данный момент
                             проверены!
                         </Alert>
-                        : renderGoBackToCoursesStatsLink}
+                        : renderGoBackToCoursesStatsLink()}
                 </Grid>
                 <Grid container spacing={3} style={{marginTop: '1px'}}>
                     <Grid item xs={3}>
