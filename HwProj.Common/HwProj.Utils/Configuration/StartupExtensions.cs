@@ -35,15 +35,17 @@ public static class StartupExtensions
         services.AddSwaggerGen(c =>
         {
             c.SwaggerDoc("v1", new OpenApiInfo { Title = serviceName, Version = "v1" });
+            c.CustomOperationIds(selector => selector.RelativePath.ToCamelCase(selector.HttpMethod));
+            c.UseInlineDefinitionsForEnums();
 
             if (serviceName == "API Gateway")
             {
                 var securityScheme = new OpenApiSecurityScheme
                 {
-                    Name = "Bearer",
+                    Name = "Authorization",
                     Description = "Enter JWT Bearer token _only_",
                     In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.Http,
+                    Type = SecuritySchemeType.ApiKey,
                     Scheme = "bearer",
                     BearerFormat = "JWT",
                     Reference = new OpenApiReference
@@ -137,7 +139,7 @@ public static class StartupExtensions
         if (env.IsDevelopment())
         {
             app.UseDeveloperExceptionPage()
-                .UseSwagger()
+                .UseSwagger(options => options.SerializeAsV2 = true)
                 .UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", serviceName); });
         }
         else
