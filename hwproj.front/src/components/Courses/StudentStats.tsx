@@ -62,7 +62,8 @@ class StudentStats extends React.Component<IStudentStatsProps, IStudentStatsStat
                     <Table stickyHeader aria-label="sticky table">
                         <TableHead>
                             <TableRow>
-                                <TableCell style={{...fixedColumnStyles, zIndex: -4, color: ""}} align="center" padding="none"
+                                <TableCell style={{...fixedColumnStyles, zIndex: -4, color: ""}} align="center"
+                                           padding="none"
                                            component="td">
                                 </TableCell>
                                 {homeworks.map((homework, index) => (
@@ -112,7 +113,8 @@ class StudentStats extends React.Component<IStudentStatsProps, IStudentStatsStat
                                                 forMentor={this.props.isMentor}
                                                 studentId={String(cm.id)}
                                                 taskId={task.id!}
-                                                taskMaxRating={task.maxRating!}/>
+                                                taskMaxRating={task.maxRating!}
+                                                courseId={this.props.course.id!}/>
                                         ))
                                     )}
                                 </TableRow>

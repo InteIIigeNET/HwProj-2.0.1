@@ -141,14 +141,14 @@ namespace HwProj.SolutionsService.Client
             return await response.DeserializeAsync<StatisticsCourseMatesDto[]>();
         }
 
-        public async Task<StatisticsCourseMatesDto[]> GetCourseStatistics(long courseId, long taskId, string userId)
+        public async Task<StudentSolutions[]> GetCourseTaskStatistics(long courseId, long taskId, string userId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
                 _solutionServiceUri + $"api/Solutions/getCourseStat/{courseId}/{taskId}?userId={userId}");
 
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<StatisticsCourseMatesDto[]>();
+            return await response.DeserializeAsync<StudentSolutions[]>();
         }
 
         public async Task<Solution?[]> GetLastTaskSolutions(long[] taskIds, string userId)

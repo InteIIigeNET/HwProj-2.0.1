@@ -132,8 +132,28 @@ namespace HwProj.SolutionsService.API.Controllers
         [ProducesResponseType(typeof(StatisticsCourseMatesDto[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetCourseStat(long courseId, [FromQuery] string userId)
         {
-            var result = await GetCourseStats(courseId, userId);
-            return result == null ? Forbid() : Ok(result);
+            var course = await _coursesClient.GetCourseById(courseId, userId);
+            if (course == null) return null;
+
+            var taskIds = course.Homeworks
+                .SelectMany(t => t.Tasks)
+                .Select(t => t.Id)
+                .ToArray();
+
+            var solutions = await _solutionsRepository.FindAll(t => taskIds.Contains(t.TaskId)).ToListAsync();
+            var courseMates = course.MentorIds.Contains(userId)
+                ? course.CourseMates.Where(t => t.IsAccepted)
+                : course.CourseMates.Where(t => t.StudentId == userId);
+
+            var solutionsStatsContext = new StatisticsAggregateModel
+            {
+                CourseMates = courseMates,
+                Homeworks = course.Homeworks.Where(t => t.Tasks.Any()).ToList(),
+                Solutions = solutions
+            };
+
+            var result = SolutionsStatsDomain.GetCourseStatistics(solutionsStatsContext);
+            return Ok(result);
         }
 
         [HttpGet("getCourseStat/{courseId}/{taskId}")]
@@ -141,51 +161,12 @@ namespace HwProj.SolutionsService.API.Controllers
         public async Task<IActionResult> GetCourseTaskStats(long courseId, long taskId, [FromQuery] string userId)
         {
             var course = await _coursesClient.GetCourseById(courseId, userId);
-            if (course == null) return null;
+            //TODO: CourseMentorOnlyAttribute
+            if (course == null || !course.MentorIds.Contains(userId)) return Forbid();
 
-            var taskIds = new[] { taskId };
-
-            var solutions = await _solutionsRepository.FindAll(t => taskIds.Contains(t.TaskId)).ToListAsync();
-            var courseMates = course.MentorIds.Contains(userId)
-                ? course.CourseMates.Where(t => t.IsAccepted)
-                : course.CourseMates.Where(t => t.StudentId == userId);
-
-            var solutionsStatsContext = new StatisticsAggregateModel
-            {
-                CourseMates = courseMates,
-                Homeworks = course.Homeworks.Where(t => t.Tasks.Any()).ToList(),
-                Solutions = solutions
-            };
-
-            return SolutionsStatsDomain.GetCourseStatistics(solutionsStatsContext).ToArray();
-        }
-
-        private async Task<StatisticsCourseMatesDto[]?> GetCourseStats(long courseId, string userId,
-            long? taskId = null)
-        {
-            var course = await _coursesClient.GetCourseById(courseId, userId);
-            if (course == null) return null;
-
-            var taskIds = taskId == null
-                ? course.Homeworks
-                    .SelectMany(t => t.Tasks)
-                    .Select(t => t.Id)
-                    .ToArray()
-                : new[] { taskId.Value };
-
-            var solutions = await _solutionsRepository.FindAll(t => taskIds.Contains(t.TaskId)).ToListAsync();
-            var courseMates = course.MentorIds.Contains(userId)
-                ? course.CourseMates.Where(t => t.IsAccepted)
-                : course.CourseMates.Where(t => t.StudentId == userId);
-
-            var solutionsStatsContext = new StatisticsAggregateModel
-            {
-                CourseMates = courseMates,
-                Homeworks = course.Homeworks.Where(t => t.Tasks.Any()).ToList(),
-                Solutions = solutions
-            };
-
-            return SolutionsStatsDomain.GetCourseStatistics(solutionsStatsContext).ToArray();
+            var solutions = await _solutionsRepository.FindAll(t => t.TaskId == taskId).ToListAsync();
+            var result = SolutionsStatsDomain.GetCourseTaskStatistics(solutions);
+            return Ok(result);
         }
 
         [HttpPost("allUnrated")]

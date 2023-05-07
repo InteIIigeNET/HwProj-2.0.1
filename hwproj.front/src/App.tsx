@@ -93,11 +93,11 @@ class App extends Component<{navigate: any}, AppState> {
                     <Route path="profile/:id" element={<Workspace/>}/>
                     <Route path="create_course" element={<CreateCourse/>}/>
                     <Route path="courses/:courseId" element={<Course/>}/>
+                    <Route path="courses/:courseId/task/:taskId/:studentId" element={<StudentSolutionsPage/>}/>
                     <Route path="courses/:courseId/:tab" element={<Course/>}/>
                     <Route path="courses/:courseId/edit" element={<EditCourse/>}/>
                     <Route path="homework/:homeworkId/edit" element={<EditHomework/>}/>
                     <Route path="task/:taskId/edit" element={<EditTask/>}/>
-                    <Route path="task/:taskId/:studentId" element={<StudentSolutionsPage/>}/>
                     <Route path="task/:taskId/" element={<TaskSolutionsPage/>}/>
                     <Route path="login" element={<Login onLogin={this.login}/>}/>
                     <Route path="register" element={<Register onLogin={this.login}/>}/>
