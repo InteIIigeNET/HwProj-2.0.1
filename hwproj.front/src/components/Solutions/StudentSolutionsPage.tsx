@@ -151,7 +151,7 @@ const StudentSolutionsPage: FC = () => {
                                         <Chip style={{backgroundColor: x.color}}
                                               size={"small"}
                                               label={x.lastRatedSolution == undefined ? "?" : x.lastRatedSolution.rating}/>
-                                        <ListItemText primary={x.name + " " + x.surname}/>
+                                        <ListItemText primary={x.surname + " " + x.name}/>
                                     </Stack>
                                 </ListItemButton>)}
                         </List>

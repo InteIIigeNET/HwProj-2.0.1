@@ -5,7 +5,7 @@ import Link from '@material-ui/core/Link'
 import './style.css'
 import {AccountDataDto, HomeworkTaskViewModel, Solution} from '../../api'
 import ApiSingleton from "../../api/ApiSingleton";
-import {Alert, Avatar, Rating, Stack} from "@mui/material";
+import {Alert, Avatar, Rating, Stack, Tooltip} from "@mui/material";
 import AvatarUtils from "../Utils/AvatarUtils";
 import GitHubIcon from '@mui/icons-material/GitHub';
 
@@ -127,7 +127,9 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     return (<div>
             <Grid container direction="column" spacing={2}>
                 <Stack direction={"row"} spacing={1} alignItems={"center"} style={{marginLeft: 7}}>
-                    <Avatar {...AvatarUtils.stringAvatar(student.name!, student.surname!)} />
+                    <Tooltip title={student.surname + " " + student.name}>
+                        <Avatar {...AvatarUtils.stringAvatar(student.name!, student.surname!)} />
+                    </Tooltip>
                     <Grid item spacing={1} container direction="column">
                         {solution.comment &&
                             <Grid item>
