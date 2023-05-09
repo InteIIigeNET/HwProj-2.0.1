@@ -1,6 +1,5 @@
 import * as React from "react";
 import {
-    CourseViewModel,
     HomeworkTaskViewModel, Solution,
     StatisticsCourseSolutionsModel
 } from "../../api/";
@@ -19,7 +18,6 @@ interface IStudentSolutionsPageState {
     currentStudentId: string
     task: HomeworkTaskViewModel
     isLoaded: boolean
-    course: CourseViewModel
     allSolutionsRated: boolean,
     studentSolutionsPreview: {
         userId: string,
@@ -33,7 +31,7 @@ interface IStudentSolutionsPageState {
 }
 
 const StudentSolutionsPage: FC = () => {
-    const {taskId, studentId} = useParams()
+    const {courseId, taskId, studentId} = useParams()
     const navigate = useNavigate()
 
     const [studentSolutionsState, setStudentSolutionsState] = useState<IStudentSolutionsPageState>({
@@ -43,7 +41,6 @@ const StudentSolutionsPage: FC = () => {
         task: {},
         isLoaded: false,
         studentSolutionsPreview: [],
-        course: {}
     })
 
     const {
@@ -63,29 +60,18 @@ const StudentSolutionsPage: FC = () => {
             ? await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+taskId!)
             : studentSolutionsState.task
 
-        let course = studentSolutionsState.course
-        if (fullUpdate) {
-            const homework = await ApiSingleton.homeworksApi.apiHomeworksGetByHomeworkIdGet(task.homeworkId!)
-            course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(homework.courseId!)
-        }
-
-        const solutions = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdGet(course.id!)
+        const solutions = await ApiSingleton.solutionsApi.apiSolutionsCoursesByCourseIdTaskByTaskIdGet(+courseId!, +taskId!, studentId)
 
         const studentSolutionsPreview = solutions.map(studentSolutions => {
-            //TODO: use filter on the backend side
-            const {name, surname, id, homeworks} = studentSolutions
-            const studentSolutionsForTask = homeworks!
-                .find(h => h.id === task.homeworkId)!.tasks!
-                .find(t => t.id === task.id)!.solution
-            const ratedSolutionInfo = StudentStatsUtils.calculateLastRatedSolutionInfo(studentSolutionsForTask!, task.maxRating!)
-            return {userId: id!, name: name!, surname: surname!, ...ratedSolutionInfo}
+            const {userId, name, surname} = studentSolutions.user!
+            const ratedSolutionInfo = StudentStatsUtils.calculateLastRatedSolutionInfo(studentSolutions.solutions!, task.maxRating!)
+            return {userId: userId!, name: name!, surname: surname!, ...ratedSolutionInfo}
         })
 
         setStudentSolutionsState({
             ...studentSolutionsState,
             task: task,
             isLoaded: true,
-            course: course,
             currentStudentId: studentId,
             currentTaskId: taskId,
             studentSolutionsPreview: studentSolutionsPreview,
@@ -99,9 +85,9 @@ const StudentSolutionsPage: FC = () => {
 
     useEffect(() => {
         getTaskData(taskId!, studentId!)
-    }, [taskId, studentId])
+    }, [courseId, taskId, studentId])
 
-    const goBackToCourseStats = () => navigate(`/courses/${studentSolutionsState.course.id!}/stats`)
+    const goBackToCourseStats = () => navigate(`/courses/${courseId}/stats`)
     const renderGoBackToCoursesStatsLink = () => {
         return <Link
             component="button"
@@ -116,8 +102,7 @@ const StudentSolutionsPage: FC = () => {
 
     if (isLoaded) {
         if (
-            !ApiSingleton.authService.isLoggedIn() ||
-            !studentSolutionsState.course.mentors!.map(x => x.userId).includes(userId!)
+            !ApiSingleton.authService.isLoggedIn()
         ) {
             return (
                 <Typography variant="h6">
@@ -144,7 +129,7 @@ const StudentSolutionsPage: FC = () => {
                                                 selected={currentStudentId === x.userId}
                                                 onClick={async () => {
                                                     if (currentStudentId === x.userId) return
-                                                    navigate(`/task/${currentTaskId}/${x.userId!}`)
+                                                    navigate(`/courses/${courseId}/task/${currentTaskId}/${x.userId!}`)
                                                     await getTaskData(currentTaskId, x.userId!)
                                                 }}>
                                     <Stack direction={"row"} spacing={1} sx={{paddingLeft: 1}}>

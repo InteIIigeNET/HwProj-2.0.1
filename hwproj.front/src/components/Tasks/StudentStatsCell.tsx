@@ -8,6 +8,7 @@ import StudentStatsUtils from "../../services/StudentStatsUtils";
 interface ITaskStudentCellProps {
     studentId: string;
     taskId: number;
+    courseId: number;
     forMentor: boolean;
     userId: string;
     taskMaxRating: number;
@@ -41,6 +42,8 @@ export default class StudentStatsCell extends React.Component<ITaskStudentCellPr
             return (
                 <Navigate
                     to={
+                        "/courses/" +
+                        this.props.courseId.toString() +
                         "/task/" +
                         this.props.taskId.toString() +
                         "/" +

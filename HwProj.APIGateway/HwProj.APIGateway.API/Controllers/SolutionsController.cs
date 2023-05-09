@@ -9,6 +9,7 @@ using HwProj.CoursesService.Client;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
 using HwProj.Models.SolutionsService;
+using HwProj.Models.StatisticsService;
 using HwProj.SolutionsService.Client;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -64,6 +65,29 @@ namespace HwProj.APIGateway.API.Controllers
                 Solutions = getSolutionsTask.Result,
             };
             return result;
+        }
+
+        [Authorize]
+        [HttpGet("courses/{courseId}/task/{taskId}")]
+        [ProducesResponseType(typeof(UserTaskSolutionPreviews[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetCourseTaskSolutionsPageData(long courseId, long taskId)
+        {
+            var statistics = await _solutionsClient.GetCourseTaskStatistics(courseId, taskId, UserId);
+
+            var studentIds = statistics.Select(t => t.StudentId).ToArray();
+            var usersData = await AuthServiceClient.GetAccountsData(studentIds);
+
+            var result = statistics
+                .Zip(usersData, (statistic, accountData) => new UserTaskSolutionPreviews
+                {
+                    Solutions = statistic.Solutions.Select(s => new StatisticsCourseSolutionsModel(s)).ToArray(),
+                    User = accountData
+                })
+                .OrderBy(t => t.User.Surname)
+                .ThenBy(t => t.User.Name)
+                .ToArray();
+
+            return Ok(result);
         }
 
         [HttpPost("{taskId}")]
