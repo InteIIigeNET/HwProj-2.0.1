@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using HwProj.Models.SolutionsService;
 using HwProj.Models.StatisticsService;
 using HwProj.SolutionsService.API.Models;
 
@@ -34,15 +33,6 @@ namespace HwProj.SolutionsService.API.Domains
                                 };
                             }))
                         }))
-                }).ToArray();
-
-        public static StudentSolutions[] GetCourseTaskStatistics(IEnumerable<Solution> solutions) =>
-            solutions
-                .GroupBy(t => t.StudentId)
-                .Select(t => new StudentSolutions()
-                {
-                    StudentId = t.Key,
-                    Solutions = t.OrderBy(s => s.PublicationDate).ToArray()
                 }).ToArray();
     }
 }

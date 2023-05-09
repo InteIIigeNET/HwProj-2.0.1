@@ -86,7 +86,7 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
                                 style={{padding: 0}}
                             >
                                 <NavLink
-                                    to={`courses/${solution.courseId}/task/${solution.taskId}/${solution.student!.userId}`}
+                                    to={`/task/${solution.taskId}/${solution.student!.userId}`}
                                     style={{color: "#212529"}}
                                 >
                                     <Typography style={{fontSize: "20px"}}>

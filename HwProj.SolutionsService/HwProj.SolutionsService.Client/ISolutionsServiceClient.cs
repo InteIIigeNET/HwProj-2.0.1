@@ -5,7 +5,7 @@ using HwProj.Models.StatisticsService;
 namespace HwProj.SolutionsService.Client
 {
     public interface ISolutionsServiceClient
-    {
+    { 
         Task<Solution[]> GetAllSolutions();
         Task<Solution> GetSolutionById(long solutionId);
         Task<Solution[]> GetUserSolutions(long taskId, string studentId);
@@ -16,7 +16,6 @@ namespace HwProj.SolutionsService.Client
         Task<long> PostGroupSolution(SolutionViewModel model, long taskId, long groupId);
         Task<Solution[]> GetTaskSolutions(long groupId, long taskId);
         Task<StatisticsCourseMatesDto[]> GetCourseStatistics(long courseId, string userId);
-        Task<StudentSolutions[]> GetCourseTaskStatistics(long courseId, long taskId, string userId);
         Task<Solution?[]> GetLastTaskSolutions(long[] taskIds, string userId);
         Task<SolutionPreviewDto[]> GetAllUnratedSolutionsForTasks(long[] taskIds);
         Task<bool> Ping();

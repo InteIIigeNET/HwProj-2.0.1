@@ -152,20 +152,8 @@ namespace HwProj.SolutionsService.API.Controllers
                 Solutions = solutions
             };
 
-            var result = SolutionsStatsDomain.GetCourseStatistics(solutionsStatsContext);
-            return Ok(result);
-        }
+            var result = SolutionsStatsDomain.GetCourseStatistics(solutionsStatsContext).ToArray();
 
-        [HttpGet("getCourseStat/{courseId}/{taskId}")]
-        [ProducesResponseType(typeof(StatisticsCourseMatesDto[]), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetCourseTaskStats(long courseId, long taskId, [FromQuery] string userId)
-        {
-            var course = await _coursesClient.GetCourseById(courseId, userId);
-            //TODO: CourseMentorOnlyAttribute
-            if (course == null || !course.MentorIds.Contains(userId)) return Forbid();
-
-            var solutions = await _solutionsRepository.FindAll(t => t.TaskId == taskId).ToListAsync();
-            var result = SolutionsStatsDomain.GetCourseTaskStatistics(solutions);
             return Ok(result);
         }
 
