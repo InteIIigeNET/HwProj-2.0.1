@@ -1,9 +1,8 @@
-﻿namespace HwProj.Models.NotificationsService
+﻿namespace HwProj.Models.NotificationsService;
+
+public class CategorizedNotifications
 {
-    public class CategorizedNotifications
-    {
-        public CategoryState Category { get; set; }
-        public NotificationViewModel[] SeenNotifications { get; set; }
-        public NotificationViewModel[] NotSeenNotifications { get; set; }
-    }
+    public CategoryState Category { get; set; }
+    public NotificationViewModel[] SeenNotifications { get; set; }
+    public NotificationViewModel[] NotSeenNotifications { get; set; }
 }

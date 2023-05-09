@@ -18,7 +18,7 @@ RUN dotnet build "HwProj.CoursesService.API.csproj" -c Release -o /app/build
 FROM build AS publish
 RUN dotnet publish "HwProj.CoursesService.API.csproj" -c Release -o /app/publish
 
-FROM base AS final
+FROM base AS final 
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "HwProj.CoursesService.API.dll"]

@@ -1,8 +1,7 @@
-namespace HwProj.APIGateway.API.Models
+namespace HwProj.APIGateway.API.Models;
+
+public class SystemInfo
 {
-    public class SystemInfo
-    {
-        public string Service { get; set; }
-        public bool IsAvailable { get; set; }
-    }
+    public string Service { get; set; }
+    public bool IsAvailable { get; set; }
 }

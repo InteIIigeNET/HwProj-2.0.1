@@ -2,27 +2,26 @@
 using System.Threading.Tasks;
 using HwProj.EventBus.Client.Interfaces;
 
-namespace HwProj.EventBus.Tests
+namespace HwProj.EventBus.Tests;
+
+public class OtherTestHandler : EventHandlerBase<TestEvent>
 {
-    public class OtherTestHandler : EventHandlerBase<TestEvent>
+    public int NewPrice { get; set; }
+    public int OldPrice { get; set; }
+
+    public int ChangedSum => Math.Abs(NewPrice - OldPrice);
+
+    public OtherTestHandler()
     {
-        public int NewPrice { get; set; }
-        public int OldPrice { get; set; }
+        NewPrice = 0;
+        OldPrice = 0;
+    }
 
-        public int ChangedSum => Math.Abs(NewPrice - OldPrice);
+    public override Task HandleAsync(TestEvent @event)
+    {
+        NewPrice = @event.NewPrice;
+        OldPrice = @event.OldPrice;
 
-        public OtherTestHandler()
-        {
-            NewPrice = 0;
-            OldPrice = 0;
-        }
-
-        public override Task HandleAsync(TestEvent @event)
-        {
-            NewPrice = @event.NewPrice;
-            OldPrice = @event.OldPrice;
-
-            return Task.CompletedTask;
-        }
+        return Task.CompletedTask;
     }
 }

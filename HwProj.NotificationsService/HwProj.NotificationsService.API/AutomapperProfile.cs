@@ -1,13 +1,12 @@
 ﻿using AutoMapper;
 using HwProj.Models.NotificationsService;
 
-namespace HwProj.NotificationsService.API
+namespace HwProj.NotificationsService.API;
+
+public class AutomapperProfile : Profile
 {
-    public class AutomapperProfile : Profile
+    public AutomapperProfile()
     {
-        public AutomapperProfile()
-        {
-            CreateMap<Notification, NotificationViewModel>().ReverseMap();
-        }
+        CreateMap<Notification, NotificationViewModel>().ReverseMap();
     }
 }

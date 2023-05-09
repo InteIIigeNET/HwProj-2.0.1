@@ -1,24 +1,23 @@
 using System.Threading;
 using Xunit;
 
-namespace HwProj.EventBus.Tests
+namespace HwProj.EventBus.Tests;
+
+public class TestEventBus
 {
-    public class TestEventBus
+    private const string Hostname = "localhost";
+
+    [Fact]
+    public void ShouldHandleEventPropertyChange()
     {
-        private const string Hostname = "localhost";
+        var handler = new TestHandler();
+        var otherHandler = new OtherTestHandler();
+        var testEvent = new TestEvent(100, 0);
 
-        [Fact]
-        public void ShouldHandleEventPropertyChange()
-        {
-            var handler = new TestHandler();
-            var otherHandler = new OtherTestHandler();
-            var testEvent = new TestEvent(100, 0);
+        Thread.Sleep(1000);
 
-            Thread.Sleep(1000);
-
-            //Assert.True(handler.IsHandled);
-            //Assert.Equal(testEvent.NewPrice - testEvent.OldPrice, otherHandler.ChangedSum);
-            Assert.Equal(1, 1);
-        }
+        //Assert.True(handler.IsHandled);
+        //Assert.Equal(testEvent.NewPrice - testEvent.OldPrice, otherHandler.ChangedSum);
+        Assert.Equal(1, 1);
     }
 }

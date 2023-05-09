@@ -1,14 +1,13 @@
 using NUnit.Framework;
 
-namespace HwProj.CoursesService.Tests
+namespace HwProj.CoursesService.Tests;
+
+[TestFixture]
+public class CoursesServiceTests
 {
-    [TestFixture]
-    public class CoursesServiceTests
+    [Test]
+    public void SimpleTest()
     {
-        [Test]
-        public void SimpleTest()
-        {
-            Assert.AreEqual(1, 1);
-        }
+        Assert.AreEqual(1, 1);
     }
 }

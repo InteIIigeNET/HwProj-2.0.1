@@ -1,14 +1,13 @@
 using NUnit.Framework;
 
-namespace HwProj.NotificationsService.Tests
+namespace HwProj.NotificationsService.Tests;
+
+[TestFixture]
+public class SolutionsServiceTests
 {
-    [TestFixture]
-    public class SolutionsServiceTests
+    [Test]
+    public void SimpleTest()
     {
-        [Test]
-        public void SimpleTest()
-        {
-            Assert.AreEqual(1, 1);
-        }
+        Assert.AreEqual(1, 1);
     }
 }

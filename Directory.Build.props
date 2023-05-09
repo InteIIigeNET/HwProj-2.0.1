@@ -4,6 +4,6 @@
     </PropertyGroup>
     
     <PropertyGroup>
-       <NullableReferenceTypes>enable</NullableReferenceTypes> 
+       <NullableReferenceTypes>disable</NullableReferenceTypes> 
     </PropertyGroup>
 </Project>

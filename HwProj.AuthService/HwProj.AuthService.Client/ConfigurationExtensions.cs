@@ -1,13 +1,12 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace HwProj.AuthService.Client
+namespace HwProj.AuthService.Client;
+
+public static class ConfigurationExtensions
 {
-    public static class ConfigurationExtensions
+    public static IServiceCollection AddAuthServiceClient(this IServiceCollection services)
     {
-        public static IServiceCollection AddAuthServiceClient(this IServiceCollection services)
-        {
-            services.AddScoped<IAuthServiceClient, AuthServiceClient>();
-            return services;
-        }
+        services.AddScoped<IAuthServiceClient, AuthServiceClient>();
+        return services;
     }
 }

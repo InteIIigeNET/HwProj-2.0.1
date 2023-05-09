@@ -1,22 +1,21 @@
 ﻿using HwProj.Models.SolutionsService;
 
-namespace HwProj.Models.StatisticsService
+namespace HwProj.Models.StatisticsService;
+
+public class StatisticsCourseSolutionsModel
 {
-    public class StatisticsCourseSolutionsModel
+    public StatisticsCourseSolutionsModel(Solution? model)
     {
-        public StatisticsCourseSolutionsModel(Solution? model)
+        if (model != null)
         {
-            if (model != null)
-            {
-                Id = model.Id;
-                State = model.State;
-                Rating = model.Rating;
-            }
-            
+            Id = model.Id;
+            State = model.State;
+            Rating = model.Rating;
         }
-        
-        public long? Id { get; set; } 
-        public SolutionState? State { get; set; }
-        public int? Rating { get; set; }
+            
     }
+        
+    public long? Id { get; set; } 
+    public SolutionState? State { get; set; }
+    public int? Rating { get; set; }
 }

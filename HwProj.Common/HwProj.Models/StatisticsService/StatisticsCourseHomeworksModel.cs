@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 
-namespace HwProj.Models.StatisticsService
+namespace HwProj.Models.StatisticsService;
+
+public class StatisticsCourseHomeworksModel
 {
-    public class StatisticsCourseHomeworksModel
-    {
-        public long? Id;
-        public List<StatisticsCourseTasksModel> Tasks { get; set; } = new List<StatisticsCourseTasksModel>();
-    }
+    public long? Id { get; set; }
+    public List<StatisticsCourseTasksModel> Tasks { get; set; } = new();
 }

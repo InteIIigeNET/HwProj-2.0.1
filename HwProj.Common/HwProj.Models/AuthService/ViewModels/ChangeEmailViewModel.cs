@@ -1,11 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace HwProj.Models.AuthService.ViewModels
+namespace HwProj.Models.AuthService.ViewModels;
+
+public class ChangeEmailViewModel
 {
-    public class ChangeEmailViewModel
-    {
-        [Required]
-        [EmailAddress]
-        public string NewEmail { get; set; }
-    }
+    [Required]
+    [EmailAddress]
+    public string NewEmail { get; set; }
 }

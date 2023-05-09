@@ -1,13 +1,12 @@
 ﻿using HwProj.CoursesService.API.Models;
 using HwProj.Repositories;
 
-namespace HwProj.CoursesService.API.Repositories.Groups
+namespace HwProj.CoursesService.API.Repositories.Groups;
+
+public class TaskModelsRepository : CrudRepository<TaskModel, long>, ITaskModelsRepository
 {
-    public class TaskModelsRepository : CrudRepository<TaskModel, long>, ITaskModelsRepository
+    public TaskModelsRepository(CourseContext context)
+        : base(context)
     {
-        public TaskModelsRepository(CourseContext context)
-            : base(context)
-        {
-        }
     }
 }

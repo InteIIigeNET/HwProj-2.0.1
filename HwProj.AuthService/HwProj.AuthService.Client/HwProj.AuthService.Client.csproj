@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <ApplicationIcon />
     <StartupObject />
     <LangVersion>$(CSharpLanguageVersion)</LangVersion>
@@ -10,13 +10,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="2.2.0" />
+    <ProjectReference Include="..\..\HwProj.Common\HwProj.HttpUtils\HwProj.HttpUtils.csproj" />
+    <ProjectReference Include="..\..\HwProj.Common\HwProj.Models\HwProj.Models.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\HwProj.Common\HwProj.HttpUtils\HwProj.HttpUtils.csproj" />
-    <ProjectReference Include="..\..\HwProj.Common\HwProj.Models\HwProj.Models.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
   </ItemGroup>
 
 </Project>

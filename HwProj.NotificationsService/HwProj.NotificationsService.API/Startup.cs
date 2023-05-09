@@ -17,64 +17,63 @@ using HwProj.SolutionsService.API.Events;
 using HwProj.SolutionsService.Client;
 using UpdateTaskMaxRatingEvent = HwProj.CoursesService.API.Events.UpdateTaskMaxRatingEvent;
 
-namespace HwProj.NotificationsService.API
+namespace HwProj.NotificationsService.API;
+
+public class Startup
 {
-    public class Startup
+    public Startup(IConfiguration configuration)
     {
-        public Startup(IConfiguration configuration)
+        Configuration = configuration;
+    }
+
+    public IConfiguration Configuration { get; }
+
+    public void ConfigureServices(IServiceCollection services)
+    {
+        var connectionString = ConnectionString.GetConnectionString(Configuration);
+        services.AddDbContext<NotificationsContext>(options => options.UseSqlServer(connectionString));
+        services.AddScoped<INotificationsRepository, NotificationsRepository>();
+        services.AddEventBus(Configuration);
+        services.AddTransient<IEventHandler<StudentRegisterEvent>, RegisterEventHandler>();
+        services.AddTransient<IEventHandler<RateEvent>, RateEventHandler>();
+        services.AddTransient<IEventHandler<StudentPassTaskEvent>, StudentPassTaskEventHandler>();
+        services.AddTransient<IEventHandler<UpdateHomeworkEvent>, UpdateHomeworkEventHandler>();
+        services.AddTransient<IEventHandler<UpdateTaskMaxRatingEvent>, UpdateTaskMaxRatingEventHandler>();
+        services.AddTransient<IEventHandler<LecturerAcceptToCourseEvent>, LecturerAcceptToCourseEventHandler>();
+        services.AddTransient<IEventHandler<LecturerRejectToCourseEvent>, LecturerRejectToCourseEventHandler>();
+        services.AddTransient<IEventHandler<LecturerInvitedToCourseEvent>, LecturerInvitedToCourseEventHandler>();
+        services.AddTransient<IEventHandler<NewHomeworkEvent>, NewHomeworkEventHandler>();
+        services.AddTransient<IEventHandler<NewHomeworkTaskEvent>, NewHomeworkTaskEventHandler>();
+        services.AddTransient<IEventHandler<InviteLecturerEvent>, InviteLecturerEventHandler>();
+        services.AddTransient<IEventHandler<NewCourseMateEvent>, NewCourseMateHandler>();
+        services.AddSingleton<IEmailService, EmailService>();
+
+        services.AddHttpClient();
+        services.AddAuthServiceClient();
+        services.AddCoursesServiceClient();
+        services.AddSolutionServiceClient();
+
+        services.ConfigureHwProjServices("Notifications API");
+    }
+
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IEventBus eventBus)
+    {
+        using (var eventBustSubscriber = eventBus.CreateSubscriber())
         {
-            Configuration = configuration;
+            eventBustSubscriber.Subscribe<StudentRegisterEvent, RegisterEventHandler>();
+            eventBustSubscriber.Subscribe<RateEvent, RateEventHandler>();
+            eventBustSubscriber.Subscribe<StudentPassTaskEvent, StudentPassTaskEventHandler>();
+            eventBustSubscriber.Subscribe<UpdateHomeworkEvent, UpdateHomeworkEventHandler>();
+            eventBustSubscriber.Subscribe<UpdateTaskMaxRatingEvent, UpdateTaskMaxRatingEventHandler>();
+            eventBustSubscriber.Subscribe<LecturerAcceptToCourseEvent, LecturerAcceptToCourseEventHandler>();
+            eventBustSubscriber.Subscribe<LecturerRejectToCourseEvent, LecturerRejectToCourseEventHandler>();
+            eventBustSubscriber.Subscribe<LecturerInvitedToCourseEvent, LecturerInvitedToCourseEventHandler>();
+            eventBustSubscriber.Subscribe<NewHomeworkEvent, NewHomeworkEventHandler>();
+            eventBustSubscriber.Subscribe<NewHomeworkTaskEvent, NewHomeworkTaskEventHandler>();
+            eventBustSubscriber.Subscribe<InviteLecturerEvent, InviteLecturerEventHandler>();
+            eventBustSubscriber.Subscribe<NewCourseMateEvent, NewCourseMateHandler>();
         }
 
-        public IConfiguration Configuration { get; }
-
-        public void ConfigureServices(IServiceCollection services)
-        {
-            var connectionString = ConnectionString.GetConnectionString(Configuration);
-            services.AddDbContext<NotificationsContext>(options => options.UseSqlServer(connectionString));
-            services.AddScoped<INotificationsRepository, NotificationsRepository>();
-            services.AddEventBus(Configuration);
-            services.AddTransient<IEventHandler<StudentRegisterEvent>, RegisterEventHandler>();
-            services.AddTransient<IEventHandler<RateEvent>, RateEventHandler>();
-            services.AddTransient<IEventHandler<StudentPassTaskEvent>, StudentPassTaskEventHandler>();
-            services.AddTransient<IEventHandler<UpdateHomeworkEvent>, UpdateHomeworkEventHandler>();
-            services.AddTransient<IEventHandler<UpdateTaskMaxRatingEvent>, UpdateTaskMaxRatingEventHandler>();
-            services.AddTransient<IEventHandler<LecturerAcceptToCourseEvent>, LecturerAcceptToCourseEventHandler>();
-            services.AddTransient<IEventHandler<LecturerRejectToCourseEvent>, LecturerRejectToCourseEventHandler>();
-            services.AddTransient<IEventHandler<LecturerInvitedToCourseEvent>, LecturerInvitedToCourseEventHandler>();
-            services.AddTransient<IEventHandler<NewHomeworkEvent>, NewHomeworkEventHandler>();
-            services.AddTransient<IEventHandler<NewHomeworkTaskEvent>, NewHomeworkTaskEventHandler>();
-            services.AddTransient<IEventHandler<InviteLecturerEvent>, InviteLecturerEventHandler>();
-            services.AddTransient<IEventHandler<NewCourseMateEvent>, NewCourseMateHandler>();
-            services.AddSingleton<IEmailService, EmailService>();
-
-            services.AddHttpClient();
-            services.AddAuthServiceClient();
-            services.AddCoursesServiceClient();
-            services.AddSolutionServiceClient();
-
-            services.ConfigureHwProjServices("Notifications API");
-        }
-
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IEventBus eventBus)
-        {
-            using (var eventBustSubscriber = eventBus.CreateSubscriber())
-            {
-                eventBustSubscriber.Subscribe<StudentRegisterEvent, RegisterEventHandler>();
-                eventBustSubscriber.Subscribe<RateEvent, RateEventHandler>();
-                eventBustSubscriber.Subscribe<StudentPassTaskEvent, StudentPassTaskEventHandler>();
-                eventBustSubscriber.Subscribe<UpdateHomeworkEvent, UpdateHomeworkEventHandler>();
-                eventBustSubscriber.Subscribe<UpdateTaskMaxRatingEvent, UpdateTaskMaxRatingEventHandler>();
-                eventBustSubscriber.Subscribe<LecturerAcceptToCourseEvent, LecturerAcceptToCourseEventHandler>();
-                eventBustSubscriber.Subscribe<LecturerRejectToCourseEvent, LecturerRejectToCourseEventHandler>();
-                eventBustSubscriber.Subscribe<LecturerInvitedToCourseEvent, LecturerInvitedToCourseEventHandler>();
-                eventBustSubscriber.Subscribe<NewHomeworkEvent, NewHomeworkEventHandler>();
-                eventBustSubscriber.Subscribe<NewHomeworkTaskEvent, NewHomeworkTaskEventHandler>();
-                eventBustSubscriber.Subscribe<InviteLecturerEvent, InviteLecturerEventHandler>();
-                eventBustSubscriber.Subscribe<NewCourseMateEvent, NewCourseMateHandler>();
-            }
-
-            app.ConfigureHwProj(env, "Notifications API");
-        }
+        app.ConfigureHwProj(env, "Notifications API");
     }
 }

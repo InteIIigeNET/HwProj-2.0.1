@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -9,136 +10,133 @@ using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.Result;
 using Google.Apis.Auth;
 using HwProj.Models.Roles;
+using Microsoft.AspNetCore.Identity;
 
-namespace HwProj.AuthService.API.Controllers
+namespace HwProj.AuthService.API.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+public class AccountController : Controller
 {
-    [Route("api/account")]
-    [ApiController]
-    public class AccountController : ControllerBase
+    private readonly IAccountService _accountService;
+    private readonly UserManager<User> _userManager;
+    private readonly IMapper _mapper;
+
+    public AccountController(IAccountService accountService, UserManager<User> userManager, IMapper mapper)
     {
-        private readonly IAccountService _accountService;
-        private readonly IUserManager _userManager;
-        private readonly IMapper _mapper;
+        _accountService = accountService;
+        _userManager = userManager;
+        _mapper = mapper;
+    }
 
-        public AccountController(IAccountService accountService, IUserManager userManager, IMapper mapper)
-        {
-            _accountService = accountService;
-            _userManager = userManager;
-            _mapper = mapper;
-        }
+    [HttpGet("getUserData/{userId}")]
+    [ProducesResponseType(typeof(AccountDataDto), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> GetUserDataById(string userId)
+    {
+        var accountData = await _accountService.GetAccountDataAsync(userId).ConfigureAwait(false);
 
-        [HttpGet("getUserData/{userId}")]
-        [ProducesResponseType(typeof(AccountDataDto), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetUserDataById(string userId)
-        {
-            var accountData = await _accountService.GetAccountDataAsync(userId).ConfigureAwait(false);
+        return accountData != null
+            ? Ok(accountData)
+            : NotFound();
+    }
 
-            return accountData != null
-                ? Ok(accountData) as IActionResult
-                : NotFound();
-        }
+    [HttpGet("getUsersData")]
+    public async Task<AccountDataDto?[]> GetUsersData([FromBody] string[] userIds)
+    {
+        return await  _accountService.GetManyAccountDataAsync(userIds);
+    }
 
-        [HttpGet("getUsersData")]
-        public async Task<AccountDataDto?[]> GetUsersData([FromBody] string[] userIds)
-        {
-            var getAccountsDataTasks = userIds.Select(_accountService.GetAccountDataAsync).ToList();
-            await Task.WhenAll(getAccountsDataTasks);
+    [HttpPost("register")]
+    [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> Register([FromBody] RegisterViewModel model)
+    {
+        var newModel = _mapper.Map<RegisterDataDTO>(model);
+        var result = await _accountService.RegisterUserAsync(newModel).ConfigureAwait(false);
+        return Ok(result);
+    }
 
-            return getAccountsDataTasks.Select(t => t.Result).ToArray();
-        }
+    [HttpPost("login")]
+    [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> Login([FromBody] LoginViewModel model)
+    {
+        var tokenMeta = await _accountService.LoginUserAsync(model).ConfigureAwait(false);
+        return Ok(tokenMeta);
+    }
 
-        [HttpPost("register")]
-        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Register([FromBody] RegisterViewModel model)
-        {
-            var newModel = _mapper.Map<RegisterDataDTO>(model);
-            var result = await _accountService.RegisterUserAsync(newModel).ConfigureAwait(false);
-            return Ok(result);
-        }
+    [HttpPut("edit/{userId}")]
+    [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> Edit([FromBody] EditAccountViewModel model, string userId)
+    {
+        var newModel = _mapper.Map<EditDataDTO>(model);
+        var result = await _accountService.EditAccountAsync(userId, newModel).ConfigureAwait(false);
+        return Ok(result);
+    }
 
-        [HttpPost("login")]
-        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Login([FromBody] LoginViewModel model)
-        {
-            var tokenMeta = await _accountService.LoginUserAsync(model).ConfigureAwait(false);
-            return Ok(tokenMeta);
-        }
+    [HttpPost("inviteNewLecturer")]
+    [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> InviteNewLecturer(InviteLecturerViewModel model)
+    {
+        var result = await _accountService.InviteNewLecturerAsync(model.Email).ConfigureAwait(false);
+        return Ok(result);
+    }
 
-        [HttpPut("edit/{userId}")]
-        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Edit([FromBody] EditAccountViewModel model, string userId)
-        {
-            var newModel = _mapper.Map<EditDataDTO>(model);
-            var result = await _accountService.EditAccountAsync(userId, newModel).ConfigureAwait(false);
-            return Ok(result);
-        }
+    [HttpPost("google/{tokenId}")]
+    [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> GoogleRegister(string tokenId)
+    {
+        var payload =
+            await GoogleJsonWebSignature.ValidateAsync(tokenId, new GoogleJsonWebSignature.ValidationSettings());
+        var result = await _accountService.LoginUserByGoogleAsync(payload).ConfigureAwait(false);
+        return Ok(result);
+    }
 
-        [HttpPost("inviteNewLecturer")]
-        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> InviteNewLecturer(InviteLecturerViewModel model)
-        {
-            var result = await _accountService.InviteNewLecturer(model.Email).ConfigureAwait(false);
-            return Ok(result);
-        }
-
-        [HttpPost("google/{tokenId}")]
-        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GoogleRegister(string tokenId)
-        {
-            var payload =
-                await GoogleJsonWebSignature.ValidateAsync(tokenId, new GoogleJsonWebSignature.ValidationSettings());
-            var result = await _accountService.LoginUserByGoogleAsync(payload).ConfigureAwait(false);
-            return Ok(result);
-        }
-
-        [HttpPut("editExternal/{userId}")]
-        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> EditExternal([FromBody] EditExternalViewModel model, string userId)
-        {
-            var newModel = _mapper.Map<EditDataDTO>(model);
-            var result = await _accountService.EditAccountAsync(userId, newModel).ConfigureAwait(false);
-            return Ok(result);
-        }
+    [HttpPut("editExternal/{userId}")]
+    [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> EditExternal([FromBody] EditExternalViewModel model, string userId)
+    {
+        var newModel = _mapper.Map<EditDataDTO>(model);
+        var result = await _accountService.EditAccountAsync(userId, newModel).ConfigureAwait(false);
+        return Ok(result);
+    }
 
 
-        [HttpGet("findByEmail/{email}")]
-        [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> FindByEmail(string email)
-        {
-            var user = await _userManager.FindByEmailAsync(email);
-            return Ok(user);
-        }
+    [HttpGet("findByEmail/{email}")]
+    [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> FindByEmail(string email)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+        return Ok(user);
+    }
 
-        [HttpGet("getRole")]
-        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetRolesAsync([FromBody] User user)
-        {
-            var roles = await _userManager.GetRolesAsync(user);
-            return Ok(roles[0]);
-        }
+    [HttpGet("getRole")]
+    [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> GetRolesAsync([FromBody] User user)
+    {
+        var roles = await _userManager.GetRolesAsync(user);
+        return Ok(roles[0]);
+    }
 
-        [HttpGet("getAllStudents")]
-        [ProducesResponseType(typeof(AccountDataDto[]), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetAllStudents()
-        {
-            var allStudents = await _accountService.GetUsersInRole(Roles.StudentRole);
-            var result = allStudents
-                .Select(u =>
-                    new AccountDataDto(u.Id, u.Name, u.Surname, u.Email, Roles.StudentRole, u.IsExternalAuth,
-                        u.MiddleName))
-                .ToArray();
+    [HttpGet("getAllStudents")]
+    [ProducesResponseType(typeof(AccountDataDto[]), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> GetAllStudents()
+    {
+        var allStudents = await _accountService.GetUsersInRoleAsync(Roles.StudentRole);
+        var result = allStudents
+            .Select(u =>
+                new AccountDataDto(u.Id, u.Name, u.Surname, u.Email, Roles.StudentRole, u.IsExternalAuth,
+                    u.MiddleName))
+            .ToArray();
 
-            return Ok(result);
-        }
+        return Ok(result);
+    }
 
-        [HttpGet("getAllLecturers")]
-        [ProducesResponseType(typeof(User[]), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetAllLecturers()
-        {
-            var allLecturers = await _accountService.GetUsersInRole(Roles.LecturerRole);
-            var result = allLecturers.ToArray();
+    [HttpGet("getAllLecturers")]
+    [ProducesResponseType(typeof(User[]), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> GetAllLecturers()
+    {
+        var allLecturers = await _accountService.GetUsersInRoleAsync(Roles.LecturerRole);
+        var result = allLecturers.ToArray();
 
-            return Ok(result);
-        }
+        return Ok(result);
     }
 }
