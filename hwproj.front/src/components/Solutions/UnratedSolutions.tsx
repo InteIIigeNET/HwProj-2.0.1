@@ -201,7 +201,7 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
                     <Grid container alignItems={"center"} spacing={1}>
                         <Grid item style={{marginRight: 2}}>
                             <NavLink
-                                to={`courses/${solution.courseId}/task/${solution.taskId}/${solution.student!.userId}`}
+                                to={`/task/${solution.taskId}/${solution.student!.userId}`}
                                 style={{color: "#212529"}}
                             >
                                 <Typography style={{fontSize: "20px"}}>
