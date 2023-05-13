@@ -10,7 +10,7 @@ import AvatarUtils from "../Utils/AvatarUtils";
 import GitHubIcon from '@mui/icons-material/GitHub';
 
 interface ISolutionProps {
-    solution: Solution,
+    solution: Solution | undefined,
     student: AccountDataDto,
     task: HomeworkTaskViewModel,
     forMentor: boolean,
@@ -28,25 +28,38 @@ interface ISolutionState {
 const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
 
     const [state, setState] = useState<ISolutionState>({
-        points: props.solution.rating || 0,
-        lecturerComment: props.solution.lecturerComment || "",
+        points: props.solution?.rating || 0,
+        lecturerComment: props.solution?.lecturerComment || "",
         clickedForRate: false,
     })
 
     useEffect(() => {
         setState({
-            points: props.solution.rating || 0,
-            lecturerComment: props.solution.lecturerComment || "",
+            points: props.solution?.rating || 0,
+            lecturerComment: props.solution?.lecturerComment || "",
             clickedForRate: false,
         })
-    }, [props.student.userId])
+    }, [props.student.userId, props.solution?.id])
 
-    const assignSolution = async () => {
-        await ApiSingleton.solutionsApi
-            .apiSolutionsRateSolutionBySolutionIdByNewRatingPost(
-                props.solution.id!,
-                state.points,
-                state.lecturerComment
+    const rateSolution = async () => {
+        if (props.solution) {
+            await ApiSingleton.solutionsApi
+                .apiSolutionsRateSolutionBySolutionIdByNewRatingPost(
+                    props.solution.id!,
+                    state.points,
+                    state.lecturerComment
+                )
+        } else await ApiSingleton.solutionsApi
+            .apiSolutionsRateEmptySolutionByTaskIdPost(
+                props.task.id!,
+                {
+                    comment: "",
+                    githubUrl: "",
+                    lecturerComment: state.lecturerComment,
+                    publicationDate: undefined,
+                    rating: state.points,
+                    studentId: props.student.userId
+                }
             )
         setState(prevState => ({...prevState, clickedForRate: false}))
         props.onRateSolutionClick?.()
@@ -55,9 +68,9 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     const {solution, lastRating, student, task} = props
     const maxRating = task.maxRating!
     //TODO: enum instead of string
-    const isRated = solution.state !== Solution.StateEnum.NUMBER_0 // != Posted
+    const isRated = solution && solution.state !== Solution.StateEnum.NUMBER_0 // != Posted
     const {points, lecturerComment} = state
-    const postedSolutionTime = new Date(solution.publicationDate!).toLocaleString("ru-RU")
+    const postedSolutionTime = solution && new Date(solution.publicationDate!).toLocaleString("ru-RU")
 
     const getDatesDiff = (_date1: Date, _date2: Date) => {
         const date1 = new Date(_date1).getTime()
@@ -130,11 +143,11 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         </Grid>)
     }
 
-    const sentAfterDeadline = task.hasDeadline && getDatesDiff(solution.publicationDate!, task.deadlineDate!)
+    const sentAfterDeadline = solution && task.hasDeadline && getDatesDiff(solution.publicationDate!, task.deadlineDate!)
 
     return (<div>
             <Grid container direction="column" spacing={2}>
-                <Stack direction={"row"} spacing={1} alignItems={"center"} style={{marginLeft: 7}}>
+                {solution && <Stack direction={"row"} spacing={1} alignItems={"center"} style={{marginLeft: 7}}>
                     <Tooltip title={student.surname + " " + student.name}>
                         <Avatar {...AvatarUtils.stringAvatar(student.name!, student.surname!)} />
                     </Tooltip>
@@ -162,13 +175,13 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                             </Typography>
                         </Grid>
                     </Grid>
-                </Stack>
+                </Stack>}
                 {sentAfterDeadline && <Grid item>
                     <Alert variant="standard" severity="warning">
                         Решение было отправлено на {sentAfterDeadline} позже дедлайна.
                     </Alert>
                 </Grid>}
-                {(props.forMentor || isRated) &&
+                {props.forMentor &&
                     <Grid item container direction={"column"}>
                         {renderRateInput()}
                         {!!lastRating && <Typography style={{color: "GrayText", fontSize: "medium", marginBottom: 5}}>
@@ -213,7 +226,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                 size="small"
                                 variant="contained"
                                 color="primary"
-                                onClick={assignSolution}
+                                onClick={rateSolution}
                                 disabled={points > maxRating}
                             >
                                 {isRated ? "Изменить оценку" : "Оценить решение"}

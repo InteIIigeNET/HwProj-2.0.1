@@ -37,6 +37,7 @@ const TaskSolutions: FC<ITaskSolutionsStudentProps | ITaskSolutionsMentorProps> 
 
     const studentId = 'studentId' in props ? props.studentId : props.student?.userId
     const forMentor = 'student' in props
+    const hasSolutions = 'solutions' in props && props.solutions.length > 0
 
     const onSolutionRateClick = async () => {
         props.onSolutionRateClick?.()
@@ -74,7 +75,7 @@ const TaskSolutions: FC<ITaskSolutionsStudentProps | ITaskSolutionsMentorProps> 
     useEffect(() => {
         setState(prevState => ({...prevState, tabValue: 0}))
         getSolutions()
-    }, [studentId, props.task.id])
+    }, [studentId, props.task.id, hasSolutions])
 
     if (!isLoaded) return <div></div>
     return <Grid container alignItems="stretch" direction="column">
@@ -93,7 +94,7 @@ const TaskSolutions: FC<ITaskSolutionsStudentProps | ITaskSolutionsMentorProps> 
             {arrayOfRatedSolutions.length > 0 && <Tab label="Предыдущие попытки"/>}
         </Tabs>
         {tabValue === 0 && <Grid item style={{marginTop: '16px'}}>
-            {lastSolution
+            {lastSolution || forMentor
                 ? <TaskSolutionComponent
                     task={props.task}
                     forMentor={forMentor}

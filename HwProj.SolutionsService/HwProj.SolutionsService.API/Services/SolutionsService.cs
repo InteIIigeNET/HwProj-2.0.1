@@ -100,7 +100,9 @@ namespace HwProj.SolutionsService.API.Services
             var hasSolution = await _solutionsRepository
                 .FindAll(s => s.TaskId == taskId && s.StudentId == solution.StudentId)
                 .AnyAsync();
+
             if (hasSolution) throw new InvalidOperationException("У студента имеются решения");
+
             solution.PublicationDate = DateTimeUtils.GetMoscowNow();
             solution.TaskId = taskId;
             solution.Comment = "[Решение было сдано вне сервиса]";
