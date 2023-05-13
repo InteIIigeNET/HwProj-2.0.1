@@ -31,7 +31,7 @@ export default class SolutionComponent extends React.Component<ISolutionProps, I
         const postedSolutionTime = new Date(solution.publicationDate!.toString()).toLocaleString("ru-RU");
         return (
             <div>
-                <Link href={solution.githubUrl} target="_blank">Ссылка на решение</Link>
+                {solution.githubUrl && <Link href={solution.githubUrl} target="_blank">Ссылка на решение</Link>}
                 <br />
                 {solution.comment!.length > 0 &&
                     <Typography>
