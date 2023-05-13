@@ -94,11 +94,11 @@ namespace HwProj.APIGateway.API.Controllers
             var result = new TaskSolutionStatisticsPageData()
             {
                 CourseId = course.Id,
-                StudentsSolutions = studentIds.Zip(usersData, (studentId, accountData) => new UserTaskSolutionPreviews
+                StudentsSolutions = studentIds.Zip(usersData, (studentId, accountData) => new UserTaskSolutions
                     {
                         Solutions = statisticsDict.TryGetValue(studentId, out var studentSolutions)
-                            ? studentSolutions.Solutions.Select(s => new StatisticsCourseSolutionsModel(s)).ToArray()
-                            : Array.Empty<StatisticsCourseSolutionsModel>(),
+                            ? studentSolutions.Solutions
+                            : Array.Empty<Solution>(),
                         User = accountData
                     })
                     .OrderBy(t => t.User.Surname)

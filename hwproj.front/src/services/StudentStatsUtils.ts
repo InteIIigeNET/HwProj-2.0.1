@@ -1,4 +1,4 @@
-﻿import {Solution, StatisticsCourseSolutionsModel} from "../api";
+﻿import {Solution} from "../api";
 import {colorBetween} from "./JsUtils";
 
 export default class StudentStatsUtils {
@@ -13,7 +13,7 @@ export default class StudentStatsUtils {
             : "#ffffff"
     }
 
-    static calculateLastRatedSolutionInfo(solutions: StatisticsCourseSolutionsModel[], taskMaxRating: number) {
+    static calculateLastRatedSolutionInfo(solutions: Solution[], taskMaxRating: number) {
         const ratedSolutions = solutions!.filter(x => x.state != Solution.StateEnum.NUMBER_0)
         const ratedSolutionsCount = ratedSolutions.length
         const isFirstUnratedTry = ratedSolutionsCount === 0

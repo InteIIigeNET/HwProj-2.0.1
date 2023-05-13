@@ -93,7 +93,6 @@ const TaskSolutionsPage: FC = () => {
                             {!taskSolution.addSolution && (
                                 <Grid item xs={6}>
                                     <TaskSolutions
-                                        forMentor={false}
                                         task={taskSolution.task}
                                         studentId={userId as string}
                                     />
@@ -122,7 +121,6 @@ const TaskSolutionsPage: FC = () => {
                                 <Grid item xs={6}>
                                     <div>
                                         <TaskSolutions
-                                            forMentor={false}
                                             task={taskSolution.task}
                                             studentId={userId as string}
                                         />

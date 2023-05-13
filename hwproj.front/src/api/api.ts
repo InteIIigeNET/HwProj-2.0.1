@@ -1254,10 +1254,10 @@ export namespace TaskDeadlineView {
 export interface TaskSolutionStatisticsPageData {
     /**
      *
-     * @type {Array<UserTaskSolutionPreviews>}
+     * @type {Array<UserTaskSolutions>}
      * @memberof TaskSolutionStatisticsPageData
      */
-    studentsSolutions?: Array<UserTaskSolutionPreviews>;
+    studentsSolutions?: Array<UserTaskSolutions>;
     /**
      *
      * @type {number}
@@ -1376,26 +1376,6 @@ export interface UserDataDto {
      * @memberof UserDataDto
      */
     taskDeadlines?: Array<TaskDeadlineView>;
-}
-
-/**
- *
- * @export
- * @interface UserTaskSolutionPreviews
- */
-export interface UserTaskSolutionPreviews {
-    /**
-     *
-     * @type {Array<StatisticsCourseSolutionsModel>}
-     * @memberof UserTaskSolutionPreviews
-     */
-    solutions?: Array<StatisticsCourseSolutionsModel>;
-    /**
-     *
-     * @type {AccountDataDto}
-     * @memberof UserTaskSolutionPreviews
-     */
-    user?: AccountDataDto;
 }
 
 /**

@@ -55,7 +55,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     const {solution, lastRating, student, task} = props
     const maxRating = task.maxRating!
     //TODO: enum instead of string
-    const isRated = solution.state!.toString() != "Posted"
+    const isRated = solution.state !== Solution.StateEnum.NUMBER_0 // != Posted
     const {points, lecturerComment} = state
     const postedSolutionTime = new Date(solution.publicationDate!).toLocaleString("ru-RU")
 
@@ -153,7 +153,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                     target="_blank"
                                     style={{color: 'darkblue'}}
                                 >
-                                    {solution.githubUrl!.startsWith("https://github.com/") && <GitHubIcon/>} Ссылка на
+                                    {solution.githubUrl?.startsWith("https://github.com/") && <GitHubIcon/>} Ссылка на
                                     решение
                                 </Link>
                             </Stack>

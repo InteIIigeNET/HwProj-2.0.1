@@ -1,5 +1,6 @@
 import * as React from "react";
 import {
+    AccountDataDto,
     HomeworkTaskViewModel, Solution,
     StatisticsCourseSolutionsModel
 } from "../../api/";
@@ -21,9 +22,8 @@ interface IStudentSolutionsPageState {
     allSolutionsRated: boolean,
     courseId: number,
     studentSolutionsPreview: {
-        userId: string,
-        name: string,
-        surname: string,
+        student: AccountDataDto,
+        solutions: Solution[]
         lastSolution: StatisticsCourseSolutionsModel,
         lastRatedSolution: StatisticsCourseSolutionsModel,
         color: string,
@@ -63,12 +63,14 @@ const StudentSolutionsPage: FC = () => {
             ? await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+taskId!)
             : studentSolutionsState.task
 
-        const {studentsSolutions, courseId} = await ApiSingleton.solutionsApi.apiSolutionsTasksByTaskIdGet(+taskId!, studentId)
+        const {
+            studentsSolutions,
+            courseId
+        } = await ApiSingleton.solutionsApi.apiSolutionsTasksByTaskIdGet(+taskId!, studentId)
 
         const studentSolutionsPreview = studentsSolutions!.map(studentSolutions => {
-            const {userId, name, surname} = studentSolutions.user!
             const ratedSolutionInfo = StudentStatsUtils.calculateLastRatedSolutionInfo(studentSolutions.solutions!, task.maxRating!)
-            return {userId: userId!, name: name!, surname: surname!, ...ratedSolutionInfo}
+            return {student: studentSolutions.user!, ...ratedSolutionInfo, solutions: studentSolutions.solutions!}
         })
 
         setStudentSolutionsState({
@@ -86,6 +88,8 @@ const StudentSolutionsPage: FC = () => {
     useEffect(() => {
         getTaskData(taskId!, studentId!)
     }, [taskId, studentId])
+
+    const currentStudent = studentSolutionsPreview.find(x => x.student.userId === currentStudentId)
 
     const goBackToCourseStats = () => navigate(`/courses/${courseId}/stats`)
     const renderGoBackToCoursesStatsLink = () => {
@@ -123,19 +127,25 @@ const StudentSolutionsPage: FC = () => {
                 <Grid container spacing={3} style={{marginTop: '1px'}}>
                     <Grid item xs={3}>
                         <List>
-                            {studentSolutionsPreview!.map(x =>
+                            {studentSolutionsPreview!.map(({
+                                                               color, lastRatedSolution, student: {
+                                    name,
+                                    surname,
+                                    userId
+                                }
+                                                           }) =>
                                 <ListItemButton disableGutters divider
-                                                disableTouchRipple={currentStudentId === x.userId}
-                                                selected={currentStudentId === x.userId}
+                                                disableTouchRipple={currentStudentId === userId}
+                                                selected={currentStudentId === userId}
                                                 onClick={async () => {
-                                                    if (currentStudentId === x.userId) return
-                                                    navigate(`/task/${currentTaskId}/${x.userId!}`)
+                                                    if (currentStudentId === userId) return
+                                                    navigate(`/task/${currentTaskId}/${(userId)!}`)
                                                 }}>
                                     <Stack direction={"row"} spacing={1} sx={{paddingLeft: 1}}>
-                                        <Chip style={{backgroundColor: x.color}}
+                                        <Chip style={{backgroundColor: color}}
                                               size={"small"}
-                                              label={x.lastRatedSolution == undefined ? "?" : x.lastRatedSolution.rating}/>
-                                        <ListItemText primary={x.surname + " " + x.name}/>
+                                              label={lastRatedSolution == undefined ? "?" : lastRatedSolution.rating}/>
+                                        <ListItemText primary={surname + " " + name}/>
                                     </Stack>
                                 </ListItemButton>)}
                         </List>
@@ -150,16 +160,16 @@ const StudentSolutionsPage: FC = () => {
                             isExpanded={false}
                             showForCourse={false}
                         />
-                        <TaskSolutions
-                            forMentor={true}
+                        {currentStudent && <TaskSolutions
                             task={studentSolutionsState.task}
-                            studentId={currentStudentId!}
+                            solutions={currentStudent!.solutions}
+                            student={currentStudent!.student}
                             onSolutionRateClick={async () => {
-                                const nextStudentIndex = studentSolutionsPreview.findIndex(x => x.userId !== currentStudentId && x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0)
-                                const nextStudentId = nextStudentIndex === -1 ? currentStudentId : studentSolutionsPreview[nextStudentIndex].userId
-                                navigate(`/task/${currentTaskId}/${nextStudentId}`)
+                                const nextStudentIndex = studentSolutionsPreview.findIndex(x => x.student.userId !== currentStudentId && x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0)
+                                if (nextStudentIndex === -1) await getTaskData(currentTaskId, currentStudentId)
+                                else navigate(`/task/${currentTaskId}/${studentSolutionsPreview[nextStudentIndex].student.userId}`)
                             }}
-                        />
+                        />}
                     </Grid>
                 </Grid>
             </div>

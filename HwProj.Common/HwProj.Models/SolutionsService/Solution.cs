@@ -13,7 +13,6 @@ namespace HwProj.Models.SolutionsService
         
         public string Comment { get; set; }
 
-        [JsonConverter(typeof(StringEnumConverter))]
         public SolutionState State { get; set; }
 
         public int Rating { get; set; }
