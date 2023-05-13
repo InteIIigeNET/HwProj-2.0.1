@@ -104,6 +104,14 @@ namespace HwProj.SolutionsService.API.Controllers
 
             return Forbid();
         }
+        
+        [HttpPost("rateEmptySolution/{taskId}")]
+        public async Task<IActionResult> RateEmptySolution(long taskId, [FromBody] SolutionViewModel solutionViewModel)
+        {
+            var solution = _mapper.Map<Solution>(solutionViewModel);
+            await _solutionsService.PostOrUpdateAsync(taskId, solution);
+            return Ok();
+        }
 
         [HttpPost("markSolutionFinal/{solutionId}")]
         public async Task MarkSolutionFinal(long solutionId)
