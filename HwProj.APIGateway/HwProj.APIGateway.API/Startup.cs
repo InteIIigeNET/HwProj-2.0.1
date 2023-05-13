@@ -3,7 +3,6 @@ using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
 using HwProj.APIGateway.API.ExportServices;
-using HwProj.APIGateway.API.Models;
 using HwProj.AuthService.Client;
 using HwProj.ContentService.Client;
 using HwProj.CoursesService.Client;
@@ -20,8 +19,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using IStudentsInfo;
 using StudentsInfo;
-using HwProj.Utils.Authorization;
-using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 
 
