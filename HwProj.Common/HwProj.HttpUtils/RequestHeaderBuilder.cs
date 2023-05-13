@@ -5,9 +5,10 @@ namespace HwProj.HttpUtils
 {
     public static class RequestHeaderBuilder
     {
-        public static void AddUserId(this HttpRequestMessage request, IHttpContextAccessor httpContextAccessor)
+        public static void TryAddUserId(this HttpRequestMessage request, IHttpContextAccessor httpContextAccessor)
         {
-            request.Headers.Add("UserId", httpContextAccessor.HttpContext.User.FindFirst("_id").Value);
+            var userId = httpContextAccessor.HttpContext.User.FindFirst("_id");
+            if (userId != null) request.Headers.Add("UserId", userId.Value);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -9,7 +10,9 @@ using HwProj.CoursesService.Client;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
 using HwProj.Models.SolutionsService;
+using HwProj.Models.StatisticsService;
 using HwProj.SolutionsService.Client;
+using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -64,6 +67,47 @@ namespace HwProj.APIGateway.API.Controllers
                 Solutions = getSolutionsTask.Result,
             };
             return result;
+        }
+
+        [Authorize]
+        [HttpGet("tasks/{taskId}")]
+        [ProducesResponseType(typeof(TaskSolutionStatisticsPageData), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetTaskSolutionsPageData(long taskId)
+        {
+            var course = await _coursesServiceClient.GetCourseByTask(taskId);
+            //TODO: CourseMentorOnlyAttribute
+            if (course == null || !course.MentorIds.Contains(UserId)) return Forbid();
+
+            var studentIds = course.CourseMates
+                .Where(t => t.IsAccepted)
+                .Select(t => t.StudentId)
+                .ToArray();
+
+            var getStudentsDataTask = AuthServiceClient.GetAccountsData(studentIds);
+            var getStatisticsTask = _solutionsClient.GetTaskSolutionStatistics(taskId);
+
+            await Task.WhenAll(getStudentsDataTask, getStatisticsTask);
+
+            var usersData = getStudentsDataTask.Result;
+            var statistics = getStatisticsTask.Result;
+            var statisticsDict = statistics.ToDictionary(t => t.StudentId);
+
+            var result = new TaskSolutionStatisticsPageData()
+            {
+                CourseId = course.Id,
+                StudentsSolutions = studentIds.Zip(usersData, (studentId, accountData) => new UserTaskSolutionPreviews
+                    {
+                        Solutions = statisticsDict.TryGetValue(studentId, out var studentSolutions)
+                            ? studentSolutions.Solutions.Select(s => new StatisticsCourseSolutionsModel(s)).ToArray()
+                            : Array.Empty<StatisticsCourseSolutionsModel>(),
+                        User = accountData
+                    })
+                    .OrderBy(t => t.User.Surname)
+                    .ThenBy(t => t.User.Name)
+                    .ToArray()
+            };
+
+            return Ok(result);
         }
 
         [HttpPost("{taskId}")]

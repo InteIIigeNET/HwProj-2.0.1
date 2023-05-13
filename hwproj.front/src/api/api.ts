@@ -1249,6 +1249,26 @@ export namespace TaskDeadlineView {
 /**
  *
  * @export
+ * @interface TaskSolutionStatisticsPageData
+ */
+export interface TaskSolutionStatisticsPageData {
+    /**
+     *
+     * @type {Array<UserTaskSolutionPreviews>}
+     * @memberof TaskSolutionStatisticsPageData
+     */
+    studentsSolutions?: Array<UserTaskSolutionPreviews>;
+    /**
+     *
+     * @type {number}
+     * @memberof TaskSolutionStatisticsPageData
+     */
+    courseId?: number;
+}
+
+/**
+ *
+ * @export
  * @interface TokenCredentials
  */
 export interface TokenCredentials {
@@ -1356,6 +1376,26 @@ export interface UserDataDto {
      * @memberof UserDataDto
      */
     taskDeadlines?: Array<TaskDeadlineView>;
+}
+
+/**
+ *
+ * @export
+ * @interface UserTaskSolutionPreviews
+ */
+export interface UserTaskSolutionPreviews {
+    /**
+     *
+     * @type {Array<StatisticsCourseSolutionsModel>}
+     * @memberof UserTaskSolutionPreviews
+     */
+    solutions?: Array<StatisticsCourseSolutionsModel>;
+    /**
+     *
+     * @type {AccountDataDto}
+     * @memberof UserTaskSolutionPreviews
+     */
+    user?: AccountDataDto;
 }
 
 /**
@@ -4645,6 +4685,42 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
         },
         /**
          *
+         * @param {number} taskId
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsTasksByTaskIdGet(taskId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'taskId' is not null or undefined
+            if (taskId === null || taskId === undefined) {
+                throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling apiSolutionsTasksByTaskIdGet.');
+            }
+            const localVarPath = `/api/Solutions/tasks/{taskId}`
+                .replace(`{${"taskId"}}`, encodeURIComponent(String(taskId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+                    ? configuration.apiKey("Authorization")
+                    : configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         *
          * @param {number} [taskId]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -4857,6 +4933,24 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
         },
         /**
          *
+         * @param {number} taskId
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsTasksByTaskIdGet(taskId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<TaskSolutionStatisticsPageData> {
+            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsTasksByTaskIdGet(taskId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         *
          * @param {number} [taskId]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -4968,6 +5062,15 @@ export const SolutionsApiFactory = function (configuration?: Configuration, fetc
          */
         apiSolutionsTaskSolutionByTaskIdByStudentIdGet(taskId: number, studentId: string, options?: any) {
             return SolutionsApiFp(configuration).apiSolutionsTaskSolutionByTaskIdByStudentIdGet(taskId, studentId, options)(fetch, basePath);
+        },
+        /**
+         *
+         * @param {number} taskId
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsTasksByTaskIdGet(taskId: number, options?: any) {
+            return SolutionsApiFp(configuration).apiSolutionsTasksByTaskIdGet(taskId, options)(fetch, basePath);
         },
         /**
          *
@@ -5091,6 +5194,17 @@ export class SolutionsApi extends BaseAPI {
      */
     public apiSolutionsTaskSolutionByTaskIdByStudentIdGet(taskId: number, studentId: string, options?: any) {
         return SolutionsApiFp(this.configuration).apiSolutionsTaskSolutionByTaskIdByStudentIdGet(taskId, studentId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     *
+     * @param {number} taskId
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SolutionsApi
+     */
+    public apiSolutionsTasksByTaskIdGet(taskId: number, options?: any) {
+        return SolutionsApiFp(this.configuration).apiSolutionsTasksByTaskIdGet(taskId, options)(this.fetch, this.basePath);
     }
 
     /**

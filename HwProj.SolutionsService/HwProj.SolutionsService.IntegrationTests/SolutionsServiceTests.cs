@@ -136,7 +136,7 @@ namespace HwProj.SolutionsService.IntegrationTests
             mockIConfiguration.Setup(x => x.GetSection("Services")["Solutions"]).Returns("http://localhost:5007");
             var mockClientFactory = new Mock<IHttpClientFactory>();
             mockClientFactory.Setup(x => x.CreateClient(Options.DefaultName)).Returns(new HttpClient());
-            return new SolutionsServiceClient(mockClientFactory.Object, mockIConfiguration.Object);
+            return new SolutionsServiceClient(mockClientFactory.Object, null, mockIConfiguration.Object);
         }
 
         private async Task<(string, string)> CreateUserAndLecture()

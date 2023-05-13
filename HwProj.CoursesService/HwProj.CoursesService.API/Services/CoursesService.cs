@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HwProj.AuthService.Client;
@@ -7,7 +6,6 @@ using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.EventBus.Client.Interfaces;
-using HwProj.Models;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.Roles;
 using Microsoft.EntityFrameworkCore;
@@ -20,17 +18,23 @@ namespace HwProj.CoursesService.API.Services
         private readonly ICourseMatesRepository _courseMatesRepository;
         private readonly IEventBus _eventBus;
         private readonly IAuthServiceClient _authServiceClient;
+        private readonly IHomeworksRepository _homeworksRepository;
+        private readonly ITasksRepository _tasksRepository;
 
         public CoursesService(ICoursesRepository coursesRepository,
             ICourseMatesRepository courseMatesRepository,
             IEventBus eventBus,
-            IAuthServiceClient authServiceClient
+            IAuthServiceClient authServiceClient,
+            ITasksRepository tasksRepository,
+            IHomeworksRepository homeworksRepository
         )
         {
             _coursesRepository = coursesRepository;
             _courseMatesRepository = courseMatesRepository;
             _eventBus = eventBus;
             _authServiceClient = authServiceClient;
+            _homeworksRepository = homeworksRepository;
+            _tasksRepository = tasksRepository;
         }
 
         public async Task<Course[]> GetAllAsync()
@@ -38,21 +42,20 @@ namespace HwProj.CoursesService.API.Services
             return await _coursesRepository.GetAllWithCourseMatesAndHomeworks().ToArrayAsync();
         }
 
-        public async Task<Course?> GetAsync(long id, string userId)
+        public async Task<Course?> GetByTaskAsync(long taskId)
         {
-            var course = await _coursesRepository.GetWithCourseMatesAsync(id);
-            if (course == null) return null;
+            var task = await _tasksRepository.GetAsync(taskId);
+            if (task == null) return null;
 
-            if (!course.MentorIds.Contains(userId))
-            {
-                var currentDate = DateTimeUtils.GetMoscowNow();
-                course.Homeworks.ForEach(hw =>
-                    hw.Tasks = new List<HomeworkTask>(hw.Tasks.Where(t => currentDate >= t.PublicationDate)));
+            var homework = await _homeworksRepository.GetAsync(task.HomeworkId);
+            if (homework == null) return null;
 
-                course.CourseMates = course.CourseMates.Where(t => t.IsAccepted || t.StudentId == userId).ToList();
-            }
+            return await GetAsync(homework.CourseId);
+        }
 
-            return course;
+        public async Task<Course?> GetAsync(long id)
+        {
+            return await _coursesRepository.GetWithCourseMatesAsync(id);
         }
 
         public async Task<long> AddAsync(Course course, string mentorId)

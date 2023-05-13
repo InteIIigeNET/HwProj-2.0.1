@@ -51,7 +51,7 @@ namespace HwProj.NotificationsService.API
             services.AddHttpClient();
             services.AddAuthServiceClient();
             services.AddCoursesServiceClient();
-            services.AddSolutionServiceClient();
+            services.AddSolutionServiceClient(); //TODO: remove
 
             services.ConfigureHwProjServices("Notifications API");
         }

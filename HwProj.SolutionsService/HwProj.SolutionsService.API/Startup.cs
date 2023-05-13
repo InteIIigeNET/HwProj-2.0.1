@@ -29,6 +29,7 @@ namespace HwProj.SolutionsService.API
             services.AddScoped<ISolutionsRepository, SolutionsRepository>();
             services.AddScoped<ISolutionsService, Services.SolutionsService>();
 
+            services.AddUserIdAuthentication();
             services.AddHttpClient();
             services.AddHttpContextAccessor();
             services.AddAuthServiceClient();

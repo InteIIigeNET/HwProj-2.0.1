@@ -16,12 +16,14 @@ namespace HwProj.CoursesService.API.Services
         private readonly IMapper _mapper;
         private readonly ICoursesRepository _coursesRepository;
         private readonly IHomeworksRepository _homeworksRepository;
+        private readonly ICoursesService _coursesService;
 
         public TasksService(ITasksRepository tasksRepository, IEventBus eventBus, IMapper mapper,
-            ICoursesRepository coursesRepository, IHomeworksRepository homeworksRepository)
+            ICoursesRepository coursesRepository, IHomeworksRepository homeworksRepository, ICoursesService coursesService)
         {
             _tasksRepository = tasksRepository;
             _homeworksRepository = homeworksRepository;
+            _coursesService = coursesService;
             _eventBus = eventBus;
             _mapper = mapper;
             _coursesRepository = coursesRepository;

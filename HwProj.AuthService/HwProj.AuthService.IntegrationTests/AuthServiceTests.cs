@@ -18,7 +18,7 @@ using FluentAssertions;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.Result;
 using HwProj.Models.Roles;
-using HwProj.Utils.Authorization;
+using HwProj.Utils.Auth;
 
 namespace HwProj.AuthService.IntegrationTests
 {

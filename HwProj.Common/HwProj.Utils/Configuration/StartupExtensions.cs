@@ -6,7 +6,7 @@ using AutoMapper;
 using HwProj.EventBus.Client;
 using HwProj.EventBus.Client.Implementations;
 using HwProj.EventBus.Client.Interfaces;
-using HwProj.Utils.Authorization;
+using HwProj.Utils.Auth;
 using HwProj.Utils.Configuration.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -48,7 +48,8 @@ namespace HwProj.Utils.Configuration
                             Name = "Authorization",
                             Type = "apiKey"
                         });
-                    c.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>> {
+                    c.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>
+                    {
                         { "Bearer", Enumerable.Empty<string>() },
                     });
                 }
@@ -148,6 +149,16 @@ namespace HwProj.Utils.Configuration
             app.UseMvc();
 
             return app;
+        }
+
+        public static IServiceCollection AddUserIdAuthentication(this IServiceCollection services)
+        {
+            services
+                .AddAuthentication(AuthSchemeConstants.UserIdAuthentication)
+                .AddScheme<UserIdAuthenticationOptions, UserIdAuthenticationHandler>(
+                    AuthSchemeConstants.UserIdAuthentication, null);
+
+            return services;
         }
     }
 }

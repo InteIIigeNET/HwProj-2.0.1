@@ -10,8 +10,8 @@ using HwProj.EventBus.Client.Interfaces;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using HwProj.Utils.Configuration;
-using HwProj.Utils.Authorization;
 using HwProj.Models.AuthService.ViewModels;
+using HwProj.Utils.Auth;
 
 namespace HwProj.AuthService.API
 {

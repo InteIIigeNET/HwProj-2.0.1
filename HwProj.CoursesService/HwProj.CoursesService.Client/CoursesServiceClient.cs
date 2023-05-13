@@ -37,17 +37,24 @@ namespace HwProj.CoursesService.Client
             return await response.DeserializeAsync<CoursePreview[]>();
         }
 
-        public async Task<CourseDTO?> GetCourseById(long courseId, string userId)
+        public async Task<CourseDTO?> GetCourseByTask(long taskId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
-                _coursesServiceUri + $"api/Courses/{courseId}")
-            {
-                Content = new StringContent(
-                    JsonConvert.SerializeObject(userId),
-                    Encoding.UTF8,
-                    "application/json")
-            };
+                _coursesServiceUri + $"api/Courses/getByTask/{taskId}");
+
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            var response = await _httpClient.SendAsync(httpRequest);
+            return response.IsSuccessStatusCode ? await response.DeserializeAsync<CourseDTO>() : null;
+        }
+
+        public async Task<CourseDTO?> GetCourseById(long courseId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + $"api/Courses/{courseId}");
+
+            httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
             return response.IsSuccessStatusCode ? await response.DeserializeAsync<CourseDTO>() : null;
         }
@@ -58,7 +65,7 @@ namespace HwProj.CoursesService.Client
                 HttpMethod.Delete,
                 _coursesServiceUri + $"api/Courses/{courseId}");
 
-            httpRequest.AddUserId(_httpContextAccessor);
+            httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
             return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
         }
@@ -91,7 +98,7 @@ namespace HwProj.CoursesService.Client
                     "application/json")
             };
 
-            httpRequest.AddUserId(_httpContextAccessor);
+            httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
             return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
         }
@@ -111,7 +118,7 @@ namespace HwProj.CoursesService.Client
                 HttpMethod.Post,
                 _coursesServiceUri + $"api/Courses/acceptStudent/{courseId}?studentId={studentId}");
 
-            httpRequest.AddUserId(_httpContextAccessor);
+            httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
             return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
         }
@@ -122,7 +129,7 @@ namespace HwProj.CoursesService.Client
                 HttpMethod.Post,
                 _coursesServiceUri + $"api/Courses/rejectStudent/{courseId}?studentId={studentId}");
 
-            httpRequest.AddUserId(_httpContextAccessor);
+            httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
             return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
         }
@@ -133,7 +140,7 @@ namespace HwProj.CoursesService.Client
                 HttpMethod.Get,
                 _coursesServiceUri + "api/Courses/userCourses");
 
-            httpRequest.AddUserId(_httpContextAccessor);
+            httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<CourseDTO[]>();
         }
@@ -144,7 +151,7 @@ namespace HwProj.CoursesService.Client
                 HttpMethod.Get,
                 _coursesServiceUri + "api/Courses/taskDeadlines");
 
-            httpRequest.AddUserId(_httpContextAccessor);
+            httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<TaskDeadlineDto[]>();
         }
@@ -161,7 +168,7 @@ namespace HwProj.CoursesService.Client
                     "application/json")
             };
 
-            httpRequest.AddUserId(_httpContextAccessor);
+            httpRequest.TryAddUserId(_httpContextAccessor);
 
             var response = await _httpClient.SendAsync(httpRequest);
             return response.IsSuccessStatusCode
@@ -191,7 +198,7 @@ namespace HwProj.CoursesService.Client
                     "application/json")
             };
 
-            httpRequest.AddUserId(_httpContextAccessor);
+            httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
             return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
         }
@@ -202,7 +209,7 @@ namespace HwProj.CoursesService.Client
                 HttpMethod.Delete,
                 _coursesServiceUri + $"api/Homeworks/delete/{homeworkId}");
 
-            httpRequest.AddUserId(_httpContextAccessor);
+            httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
             return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
         }
@@ -229,7 +236,7 @@ namespace HwProj.CoursesService.Client
                     "application/json")
             };
 
-            httpRequest.AddUserId(_httpContextAccessor);
+            httpRequest.TryAddUserId(_httpContextAccessor);
 
             var response = await _httpClient.SendAsync(httpRequest);
             return response.IsSuccessStatusCode
@@ -243,7 +250,7 @@ namespace HwProj.CoursesService.Client
                 HttpMethod.Delete,
                 _coursesServiceUri + $"api/Tasks/delete/{taskId}");
 
-            httpRequest.AddUserId(_httpContextAccessor);
+            httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
             return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
         }
@@ -260,7 +267,7 @@ namespace HwProj.CoursesService.Client
                     "application/json")
             };
 
-            httpRequest.AddUserId(_httpContextAccessor);
+            httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
             return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
         }
@@ -287,7 +294,7 @@ namespace HwProj.CoursesService.Client
                     "application/json")
             };
 
-            httpRequest.AddUserId(_httpContextAccessor);
+            httpRequest.TryAddUserId(_httpContextAccessor);
 
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<long>();
@@ -299,7 +306,7 @@ namespace HwProj.CoursesService.Client
                 HttpMethod.Delete,
                 _coursesServiceUri + $"api/CourseGroups/{courseId}/delete/{groupId}");
 
-            httpRequest.AddUserId(_httpContextAccessor);
+            httpRequest.TryAddUserId(_httpContextAccessor);
 
             await _httpClient.SendAsync(httpRequest);
         }
@@ -316,7 +323,7 @@ namespace HwProj.CoursesService.Client
                     "application/json")
             };
 
-            httpRequest.AddUserId(_httpContextAccessor);
+            httpRequest.TryAddUserId(_httpContextAccessor);
 
             await _httpClient.SendAsync(httpRequest);
         }
@@ -337,7 +344,7 @@ namespace HwProj.CoursesService.Client
                 HttpMethod.Post,
                 _coursesServiceUri + $"api/CourseGroups/{courseId}/addStudentInGroup/{groupId}?userId={userId}");
 
-            httpRequest.AddUserId(_httpContextAccessor);
+            httpRequest.TryAddUserId(_httpContextAccessor);
 
             await _httpClient.SendAsync(httpRequest);
         }
@@ -348,7 +355,7 @@ namespace HwProj.CoursesService.Client
                 HttpMethod.Post,
                 _coursesServiceUri + $"api/CourseGroups/{courseId}/removeStudentFromGroup/{groupId}?userId={userId}");
 
-            httpRequest.AddUserId(_httpContextAccessor);
+            httpRequest.TryAddUserId(_httpContextAccessor);
 
             await _httpClient.SendAsync(httpRequest);
         }
@@ -379,7 +386,7 @@ namespace HwProj.CoursesService.Client
                 HttpMethod.Get,
                 _coursesServiceUri + $"api/Courses/acceptLecturer/{courseId}?lecturerEmail={lecturerEmail}");
 
-            httpRequest.AddUserId(_httpContextAccessor);
+            httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
             return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
         }
@@ -390,7 +397,7 @@ namespace HwProj.CoursesService.Client
                 HttpMethod.Get,
                 _coursesServiceUri + $"api/Courses/getLecturersAvailableForCourse/{courseId}");
 
-            httpRequest.AddUserId(_httpContextAccessor);
+            httpRequest.TryAddUserId(_httpContextAccessor);
 
             var response = await _httpClient.SendAsync(httpRequest);
             return response.IsSuccessStatusCode

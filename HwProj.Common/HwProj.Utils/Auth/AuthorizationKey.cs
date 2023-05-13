@@ -1,7 +1,7 @@
-﻿using Microsoft.IdentityModel.Tokens;
-using System.Text;
+﻿using System.Text;
+using Microsoft.IdentityModel.Tokens;
 
-namespace HwProj.Utils.Authorization
+namespace HwProj.Utils.Auth
 {
     public static class AuthorizationKey
     {

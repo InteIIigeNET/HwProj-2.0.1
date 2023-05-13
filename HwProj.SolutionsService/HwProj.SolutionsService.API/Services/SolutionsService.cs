@@ -12,7 +12,6 @@ using HwProj.SolutionsService.API.Events;
 using HwProj.SolutionsService.API.Repositories;
 using Microsoft.EntityFrameworkCore;
 
-
 namespace HwProj.SolutionsService.API.Services
 {
     public class SolutionsService : ISolutionsService
@@ -71,8 +70,8 @@ namespace HwProj.SolutionsService.API.Services
             var task = await _coursesServiceClient.GetTask(solution.TaskId);
             var taskModel = _mapper.Map<HomeworkTaskViewModel>(task);
             var homework = await _coursesServiceClient.GetHomework(task.HomeworkId);
-            var courses = await _coursesServiceClient.GetCourseById(homework.CourseId, solution.StudentId);
-            var student = await _authServiceClient.GetAccountData((solutionModel.StudentId));
+            var courses = await _coursesServiceClient.GetCourseById(homework.CourseId);
+            var student = await _authServiceClient.GetAccountData(solutionModel.StudentId);
             var studentModel = _mapper.Map<AccountDataDto>(student);
             _eventBus.Publish(new StudentPassTaskEvent(courses, solutionModel, studentModel, taskModel));
 

@@ -38,7 +38,7 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(CourseViewModel), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetCourseData(long courseId)
         {
-            var course = await _coursesClient.GetCourseById(courseId, UserId);
+            var course = await _coursesClient.GetCourseById(courseId);
             if (course == null) return NotFound();
 
             var studentIds = course.CourseMates.Select(t => t.StudentId).ToArray();

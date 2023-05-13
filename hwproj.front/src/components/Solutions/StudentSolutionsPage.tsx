@@ -1,6 +1,5 @@
 import * as React from "react";
 import {
-    CourseViewModel,
     HomeworkTaskViewModel, Solution,
     StatisticsCourseSolutionsModel
 } from "../../api/";
@@ -19,8 +18,8 @@ interface IStudentSolutionsPageState {
     currentStudentId: string
     task: HomeworkTaskViewModel
     isLoaded: boolean
-    course: CourseViewModel
     allSolutionsRated: boolean,
+    courseId: number,
     studentSolutionsPreview: {
         userId: string,
         name: string,
@@ -42,8 +41,8 @@ const StudentSolutionsPage: FC = () => {
         allSolutionsRated: false,
         task: {},
         isLoaded: false,
+        courseId: -1,
         studentSolutionsPreview: [],
-        course: {}
     })
 
     const {
@@ -51,7 +50,8 @@ const StudentSolutionsPage: FC = () => {
         currentStudentId,
         currentTaskId,
         studentSolutionsPreview,
-        allSolutionsRated
+        allSolutionsRated,
+        courseId
     } = studentSolutionsState
     const userId = ApiSingleton.authService.isLoggedIn()
         ? ApiSingleton.authService.getUserId()
@@ -63,45 +63,31 @@ const StudentSolutionsPage: FC = () => {
             ? await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+taskId!)
             : studentSolutionsState.task
 
-        let course = studentSolutionsState.course
-        if (fullUpdate) {
-            const homework = await ApiSingleton.homeworksApi.apiHomeworksGetByHomeworkIdGet(task.homeworkId!)
-            course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(homework.courseId!)
-        }
+        const {studentsSolutions, courseId} = await ApiSingleton.solutionsApi.apiSolutionsTasksByTaskIdGet(+taskId!, studentId)
 
-        const solutions = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdGet(course.id!)
-
-        const studentSolutionsPreview = solutions.map(studentSolutions => {
-            //TODO: use filter on the backend side
-            const {name, surname, id, homeworks} = studentSolutions
-            const studentSolutionsForTask = homeworks!
-                .find(h => h.id === task.homeworkId)!.tasks!
-                .find(t => t.id === task.id)!.solution
-            const ratedSolutionInfo = StudentStatsUtils.calculateLastRatedSolutionInfo(studentSolutionsForTask!, task.maxRating!)
-            return {userId: id!, name: name!, surname: surname!, ...ratedSolutionInfo}
+        const studentSolutionsPreview = studentsSolutions!.map(studentSolutions => {
+            const {userId, name, surname} = studentSolutions.user!
+            const ratedSolutionInfo = StudentStatsUtils.calculateLastRatedSolutionInfo(studentSolutions.solutions!, task.maxRating!)
+            return {userId: userId!, name: name!, surname: surname!, ...ratedSolutionInfo}
         })
 
         setStudentSolutionsState({
             ...studentSolutionsState,
             task: task,
             isLoaded: true,
-            course: course,
             currentStudentId: studentId,
             currentTaskId: taskId,
             studentSolutionsPreview: studentSolutionsPreview,
+            courseId: courseId!,
             allSolutionsRated: studentSolutionsPreview.findIndex(x => x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0) === -1
         })
     }
 
     useEffect(() => {
         getTaskData(taskId!, studentId!)
-    }, [])
-
-    useEffect(() => {
-        getTaskData(taskId!, studentId!)
     }, [taskId, studentId])
 
-    const goBackToCourseStats = () => navigate(`/courses/${studentSolutionsState.course.id!}/stats`)
+    const goBackToCourseStats = () => navigate(`/courses/${courseId}/stats`)
     const renderGoBackToCoursesStatsLink = () => {
         return <Link
             component="button"
@@ -116,8 +102,7 @@ const StudentSolutionsPage: FC = () => {
 
     if (isLoaded) {
         if (
-            !ApiSingleton.authService.isLoggedIn() ||
-            !studentSolutionsState.course.mentors!.map(x => x.userId).includes(userId!)
+            !ApiSingleton.authService.isLoggedIn()
         ) {
             return (
                 <Typography variant="h6">

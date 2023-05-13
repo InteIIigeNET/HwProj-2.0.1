@@ -6,6 +6,7 @@ using HwProj.Exceptions;
 using HwProj.HttpUtils;
 using HwProj.Models.SolutionsService;
 using HwProj.Models.StatisticsService;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
@@ -13,11 +14,14 @@ namespace HwProj.SolutionsService.Client
 {
     public class SolutionsServiceClient : ISolutionsServiceClient
     {
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly HttpClient _httpClient;
         private readonly Uri _solutionServiceUri;
 
-        public SolutionsServiceClient(IHttpClientFactory clientFactory, IConfiguration configuration)
+        public SolutionsServiceClient(IHttpClientFactory clientFactory, IHttpContextAccessor httpContextAccessor,
+            IConfiguration configuration)
         {
+            _httpContextAccessor = httpContextAccessor;
             _httpClient = clientFactory.CreateClient();
             _solutionServiceUri = new Uri(configuration.GetSection("Services")["Solutions"]);
         }
@@ -28,6 +32,7 @@ namespace HwProj.SolutionsService.Client
                 HttpMethod.Get,
                 _solutionServiceUri + "api/Solutions");
 
+            httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Solution[]>();
         }
@@ -38,6 +43,7 @@ namespace HwProj.SolutionsService.Client
                 HttpMethod.Get,
                 _solutionServiceUri + $"api/Solutions/{solutionId}");
 
+            httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Solution>();
         }
@@ -48,6 +54,7 @@ namespace HwProj.SolutionsService.Client
                 HttpMethod.Get,
                 _solutionServiceUri + $"api/Solutions/taskSolutions/{taskId}/{studentId}");
 
+            httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Solution[]>();
         }
@@ -64,6 +71,7 @@ namespace HwProj.SolutionsService.Client
                     "application/json")
             };
 
+            httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
             if (response.IsSuccessStatusCode)
             {
@@ -80,6 +88,7 @@ namespace HwProj.SolutionsService.Client
                 _solutionServiceUri +
                 $"api/Solutions/rateSolution/{solutionId}?newRating={newRating}&lecturerComment={lecturerComment}&lecturerId={lecturerId}");
 
+            httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
             if (!response.IsSuccessStatusCode)
             {
@@ -93,6 +102,7 @@ namespace HwProj.SolutionsService.Client
                 HttpMethod.Post,
                 _solutionServiceUri + $"api/Solutions/markSolutionFinal/{solutionId}");
 
+            httpRequest.TryAddUserId(_httpContextAccessor);
             await _httpClient.SendAsync(httpRequest);
         }
 
@@ -102,6 +112,7 @@ namespace HwProj.SolutionsService.Client
                 HttpMethod.Delete,
                 _solutionServiceUri + $"api/Solutions/delete/{solutionId}");
 
+            httpRequest.TryAddUserId(_httpContextAccessor);
             await _httpClient.SendAsync(httpRequest);
         }
 
@@ -117,6 +128,7 @@ namespace HwProj.SolutionsService.Client
                     "application/json")
             };
 
+            httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<long>();
         }
@@ -127,6 +139,7 @@ namespace HwProj.SolutionsService.Client
                 HttpMethod.Get,
                 _solutionServiceUri + $"api/Solutions/{groupId}/taskSolutions/{taskId}");
 
+            httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Solution[]>();
         }
@@ -137,8 +150,20 @@ namespace HwProj.SolutionsService.Client
                 HttpMethod.Get,
                 _solutionServiceUri + $"api/Solutions/getCourseStat/{courseId}?userId={userId}");
 
+            httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<StatisticsCourseMatesDto[]>();
+        }
+
+        public async Task<StudentSolutions[]> GetTaskSolutionStatistics(long taskId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _solutionServiceUri + $"api/Solutions/getTaskStats/{taskId}");
+
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<StudentSolutions[]>();
         }
 
         public async Task<Solution?[]> GetLastTaskSolutions(long[] taskIds, string userId)
@@ -153,6 +178,7 @@ namespace HwProj.SolutionsService.Client
                     "application/json")
             };
 
+            httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Solution?[]>();
         }
@@ -169,6 +195,7 @@ namespace HwProj.SolutionsService.Client
                     "application/json")
             };
 
+            httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<SolutionPreviewDto[]>();
         }

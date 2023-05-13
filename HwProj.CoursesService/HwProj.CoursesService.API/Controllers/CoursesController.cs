@@ -43,10 +43,22 @@ namespace HwProj.CoursesService.API.Controllers
             return courses;
         }
 
+        [CourseDataFilter]
         [HttpGet("{courseId}")]
-        public async Task<IActionResult> Get(long courseId, [FromBody] string userId)
+        public async Task<IActionResult> Get(long courseId)
         {
-            var courseFromDb = await _coursesService.GetAsync(courseId, userId);
+            var courseFromDb = await _coursesService.GetAsync(courseId);
+            if (courseFromDb == null) return NotFound();
+
+            var course = _mapper.Map<CourseDTO>(courseFromDb);
+            return Ok(course);
+        }
+
+        [CourseDataFilter]
+        [HttpGet("getByTask/{taskId}")]
+        public async Task<IActionResult> GetByTask(long taskId)
+        {
+            var courseFromDb = await _coursesService.GetByTaskAsync(taskId);
             if (courseFromDb == null) return NotFound();
 
             var course = _mapper.Map<CourseDTO>(courseFromDb);
