@@ -9,7 +9,7 @@ namespace HwProj.Models.SolutionsService
         public string Comment { get; set; }
 
         public string StudentId { get; set; }
-        
+
         public string[]? GroupMateIds { get; set; }
         public DateTime PublicationDate { get; set; }
 
