@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.AuthService.Client;
@@ -92,6 +93,21 @@ namespace HwProj.SolutionsService.API.Services
             );
 
             return solution.Id;
+        }
+
+        public async Task PostEmptySolutionWithRateAsync(long taskId, Solution solution)
+        {
+            var hasSolution = await _solutionsRepository
+                .FindAll(s => s.TaskId == taskId && s.StudentId == solution.StudentId)
+                .AnyAsync();
+
+            if (hasSolution) throw new InvalidOperationException("У студента имеются решения");
+
+            solution.PublicationDate = DateTimeUtils.GetMoscowNow();
+            solution.TaskId = taskId;
+            solution.Comment = "[Решение было сдано вне сервиса]";
+            var id = await _solutionsRepository.AddAsync(solution);
+            await RateSolutionAsync(id, solution.Rating, solution.LecturerComment);
         }
 
         public async Task RateSolutionAsync(long solutionId, int newRating, string lecturerComment)

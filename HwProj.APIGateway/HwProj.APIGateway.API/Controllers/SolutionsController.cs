@@ -119,6 +119,19 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok(result);
         }
 
+        [HttpPost("rateEmptySolution/{taskId}")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        public async Task<IActionResult> PostEmptySolutionWithRate(long taskId, SolutionViewModel model)
+        {
+            var course = await _coursesServiceClient.GetCourseByTask(taskId);
+            if (course == null || !course.MentorIds.Contains(UserId)) return Forbid();
+            if (course.CourseMates.All(t => t.StudentId != model.StudentId))
+                return BadRequest($"Студента с id {model.StudentId} не существует");
+
+            await _solutionsClient.PostEmptySolutionWithRate(taskId, model);
+            return Ok();
+        }
+
         [HttpPost("rateSolution/{solutionId}/{newRating}")]
         [Authorize(Roles = Roles.LecturerRole)]
         public async Task<IActionResult> RateSolution(long solutionId, int newRating,

@@ -81,6 +81,24 @@ namespace HwProj.SolutionsService.Client
             throw new ForbiddenException();
         }
 
+        public async Task PostEmptySolutionWithRate(long taskId, SolutionViewModel model)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _solutionServiceUri + $"api/Solutions/rateEmptySolution/{taskId}")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(model),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            var response = await _httpClient.SendAsync(httpRequest);
+            if (!response.IsSuccessStatusCode)
+                throw new InvalidOperationException(response.ReasonPhrase);
+        }
+
         public async Task RateSolution(long solutionId, int newRating, string lecturerComment, string lecturerId)
         {
             using var httpRequest = new HttpRequestMessage(
