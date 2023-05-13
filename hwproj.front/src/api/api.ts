@@ -7919,6 +7919,8 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"SolutionViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(solution || {}) : (solution || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -8240,6 +8242,25 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
+         *
+         * @param {number} taskId
+         * @param {SolutionViewModel} [model]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsRateEmptySolutionByTaskIdPost(taskId: number, model?: SolutionViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsRateEmptySolutionByTaskIdPost(taskId, model, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
          * 
          * @param {number} solutionId 
          * @param {RateSolutionModel} [rateSolutionModel] 
@@ -8397,6 +8418,16 @@ export const SolutionsApiFactory = function (configuration?: Configuration, fetc
             return SolutionsApiFp(configuration).solutionsGiveUp(taskId, options)(fetch, basePath);
         },
         /**
+         *
+         * @param {number} taskId
+         * @param {SolutionViewModel} [model]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsRateEmptySolutionByTaskIdPost(taskId: number, model?: SolutionViewModel, options?: any) {
+            return SolutionsApiFp(configuration).apiSolutionsRateEmptySolutionByTaskIdPost(taskId, model, options)(fetch, basePath);
+        },
+        /**
          * 
          * @param {number} solutionId 
          * @param {RateSolutionModel} [rateSolutionModel] 
@@ -8532,6 +8563,18 @@ export class SolutionsApi extends BaseAPI {
      */
     public solutionsGiveUp(taskId: number, options?: any) {
         return SolutionsApiFp(this.configuration).solutionsGiveUp(taskId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     *
+     * @param {number} taskId
+     * @param {SolutionViewModel} [model]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SolutionsApi
+     */
+    public apiSolutionsRateEmptySolutionByTaskIdPost(taskId: number, model?: SolutionViewModel, options?: any) {
+        return SolutionsApiFp(this.configuration).apiSolutionsRateEmptySolutionByTaskIdPost(taskId, model, options)(this.fetch, this.basePath);
     }
 
     /**
