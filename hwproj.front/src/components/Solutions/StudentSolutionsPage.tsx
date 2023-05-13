@@ -130,7 +130,6 @@ const StudentSolutionsPage: FC = () => {
                                                 onClick={async () => {
                                                     if (currentStudentId === x.userId) return
                                                     navigate(`/task/${currentTaskId}/${x.userId!}`)
-                                                    await getTaskData(currentTaskId, x.userId!)
                                                 }}>
                                     <Stack direction={"row"} spacing={1} sx={{paddingLeft: 1}}>
                                         <Chip style={{backgroundColor: x.color}}
@@ -158,7 +157,7 @@ const StudentSolutionsPage: FC = () => {
                             onSolutionRateClick={async () => {
                                 const nextStudentIndex = studentSolutionsPreview.findIndex(x => x.userId !== currentStudentId && x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0)
                                 const nextStudentId = nextStudentIndex === -1 ? currentStudentId : studentSolutionsPreview[nextStudentIndex].userId
-                                await getTaskData(currentTaskId, nextStudentId)
+                                navigate(`/task/${currentTaskId}/${nextStudentId}`)
                             }}
                         />
                     </Grid>
