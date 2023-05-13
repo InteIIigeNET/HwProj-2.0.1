@@ -161,14 +161,14 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                         }
                         <Grid item>
                             <Stack>
-                                <Link
+                                {solution.githubUrl && <Link
                                     href={solution.githubUrl}
                                     target="_blank"
                                     style={{color: 'darkblue'}}
                                 >
                                     {solution.githubUrl?.startsWith("https://github.com/") && <GitHubIcon/>} Ссылка на
                                     решение
-                                </Link>
+                                </Link>}
                             </Stack>
                             <Typography style={{color: "GrayText"}}>
                                 {postedSolutionTime}
