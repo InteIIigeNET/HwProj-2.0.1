@@ -178,7 +178,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 </Stack>}
                 {sentAfterDeadline && <Grid item>
                     <Alert variant="standard" severity="warning">
-                        Решение было отправлено на {sentAfterDeadline} позже дедлайна.
+                        Решение было сдано на {sentAfterDeadline} позже дедлайна.
                     </Alert>
                 </Grid>}
                 {props.forMentor &&
