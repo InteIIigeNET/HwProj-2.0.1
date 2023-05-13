@@ -12,9 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using HwProj.CoursesService.API.Events;
-using HwProj.CoursesService.Client;
 using HwProj.SolutionsService.API.Events;
-using HwProj.SolutionsService.Client;
 using UpdateTaskMaxRatingEvent = HwProj.CoursesService.API.Events.UpdateTaskMaxRatingEvent;
 
 namespace HwProj.NotificationsService.API
@@ -50,8 +48,6 @@ namespace HwProj.NotificationsService.API
 
             services.AddHttpClient();
             services.AddAuthServiceClient();
-            services.AddCoursesServiceClient();
-            services.AddSolutionServiceClient(); //TODO: remove
 
             services.ConfigureHwProjServices("Notifications API");
         }
