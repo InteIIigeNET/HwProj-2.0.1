@@ -1,83 +1,39 @@
 import * as React from 'react';
-import {FC, useEffect, useState} from 'react';
+import {FC, useState} from 'react';
 import TaskSolutionComponent from "./TaskSolutionComponent";
-import ApiSingleton from "../../api/ApiSingleton";
 import {AccountDataDto, HomeworkTaskViewModel, Solution} from '../../api';
 import {Grid, Tab, Tabs} from "@material-ui/core";
 import {Divider} from "@mui/material";
 
-interface ITaskSolutionsStudentProps {
-    task: HomeworkTaskViewModel,
-    studentId: string,
-    onSolutionRateClick?: () => void
-}
-
-interface ITaskSolutionsMentorProps {
-    task: HomeworkTaskViewModel,
-    student: AccountDataDto,
-    solutions: Solution[],
+interface ITaskSolutionsProps {
+    task: HomeworkTaskViewModel
+    solutions: Solution[]
+    student: AccountDataDto
+    forMentor: boolean
     onSolutionRateClick?: () => void
 }
 
 interface ITaskSolutionsState {
-    isLoaded: boolean,
     tabValue: number
-    solutions: Solution[],
-    student: AccountDataDto,
 }
 
-const TaskSolutions: FC<ITaskSolutionsStudentProps | ITaskSolutionsMentorProps> = (props) => {
-
+const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
     const [state, setState] = useState<ITaskSolutionsState>({
-        isLoaded: false,
-        tabValue: 0,
-        solutions: [],
-        student: {}
+        tabValue: 0
     })
-
-    const studentId = 'studentId' in props ? props.studentId : props.student?.userId
-    const forMentor = 'student' in props
-    const hasSolutions = 'solutions' in props && props.solutions.length > 0
 
     const onSolutionRateClick = async () => {
         props.onSolutionRateClick?.()
     }
 
-    const getSolutions = async () => {
-        if ('solutions' in props) {
-            setState(prevState => ({
-                isLoaded: true,
-                solutions: props.solutions!,
-                student: props.student!,
-                tabValue: prevState.tabValue
-            }))
-        } else {
-            const userTaskSolutions = await ApiSingleton.solutionsApi.apiSolutionsTaskSolutionByTaskIdByStudentIdGet(
-                props.task.id!,
-                props.studentId);
-
-            setState(prevState => ({
-                isLoaded: true,
-                solutions: userTaskSolutions.solutions!,
-                student: userTaskSolutions.user!,
-                tabValue: prevState.tabValue
-            }))
-        }
-    }
-    
-    const {isLoaded, solutions, tabValue, student} = state
+    const {tabValue} = state
+    const {solutions, student, forMentor} = props
     const lastSolution = solutions[solutions.length - 1]
     const arrayOfRatedSolutions = solutions.slice(0, solutions.length - 1)
     const lastRating = arrayOfRatedSolutions
         ? arrayOfRatedSolutions[arrayOfRatedSolutions.length - 1]?.rating
         : undefined
 
-    useEffect(() => {
-        setState(prevState => ({...prevState, tabValue: 0}))
-        getSolutions()
-    }, [studentId, props.task.id, hasSolutions])
-
-    if (!isLoaded) return <div></div>
     return <Grid container alignItems="stretch" direction="column">
         <Tabs
             value={tabValue}

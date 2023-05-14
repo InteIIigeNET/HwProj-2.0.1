@@ -161,6 +161,7 @@ const StudentSolutionsPage: FC = () => {
                             showForCourse={false}
                         />
                         {currentStudent && <TaskSolutions
+                            forMentor={true}
                             task={studentSolutionsState.task}
                             solutions={currentStudent!.solutions}
                             student={currentStudent!.student}

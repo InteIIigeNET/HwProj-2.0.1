@@ -6,8 +6,10 @@ import {SolutionViewModel} from "../../api";
 import {FC, useState} from "react";
 import Grid from "@material-ui/core/Grid";
 import makeStyles from "@material-ui/styles/makeStyles";
+import {Alert} from "@mui/material";
 
 interface IAddSolutionProps {
+    lastSolutionUrl: string | undefined,
     taskId: number,
     onAdd: () => void,
     onCancel: () => void,
@@ -27,7 +29,7 @@ const useStyles = makeStyles(theme => ({
 const AddSolution: FC<IAddSolutionProps> = (props) => {
 
     const [solution, setSolution] = useState<SolutionViewModel>({
-        githubUrl: "",
+        githubUrl: props.lastSolutionUrl || "",
         comment: "",
     })
 
@@ -38,6 +40,7 @@ const AddSolution: FC<IAddSolutionProps> = (props) => {
     }
 
     const classes = useStyles()
+    const {githubUrl} = solution
 
     return (
         <div>
@@ -58,8 +61,10 @@ const AddSolution: FC<IAddSolutionProps> = (props) => {
                                 }))
                             }}
                         />
+                        {githubUrl === props.lastSolutionUrl &&
+                            <Alert sx={{paddingTop: 0, paddingBottom: 0}} severity="info">Ссылка взята из предыдущего решения</Alert>}
                     </Grid>
-                    <Grid item xs={12} style={{ marginTop: '16px' }}>
+                    <Grid item xs={12} style={{marginTop: '16px'}}>
                         <TextField
                             multiline
                             fullWidth
@@ -76,9 +81,9 @@ const AddSolution: FC<IAddSolutionProps> = (props) => {
                             }}
                         />
                     </Grid>
-                    <Grid item xs={12} style={{ marginTop: '16px' }}>
+                    <Grid item xs={12} style={{marginTop: '16px'}}>
                         <div className={classes.buttons}>
-                            <div style={{ marginRight: '16px' }}>
+                            <div style={{marginRight: '16px'}}>
                                 <Button
                                     size="small"
                                     variant="contained"
