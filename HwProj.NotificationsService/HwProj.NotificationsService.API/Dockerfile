@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:6.0@sha256:dd19f6aa2774de9fde18c78970bc4fdebc695bd824c73371b6faec306a18b230  AS build
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 COPY ["HwProj.NotificationsService/HwProj.NotificationsService.API/HwProj.NotificationsService.API.csproj", "HwProj.NotificationsService/HwProj.NotificationsService.API/"]
 COPY ["HwProj.Common/HwProj.Utils/HwProj.Utils.csproj", "HwProj.Common/HwProj.Utils/"]
 COPY ["HwProj.EventBus/HwProj.EventBus.Client/HwProj.EventBus.Client.csproj", "HwProj.EventBus/HwProj.EventBus.Client/"]
