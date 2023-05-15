@@ -11,11 +11,12 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.Client;
-using HwProj.SolutionsService.API.Events;
+using HwProj.Models.AuthService.Events;
+using HwProj.Models.CoursesService.Events;
+using HwProj.Models.SolutionsService.Events;
 using HwProj.SolutionsService.Client;
-using UpdateTaskMaxRatingEvent = HwProj.CoursesService.API.Events.UpdateTaskMaxRatingEvent;
+using UpdateTaskMaxRatingEvent = HwProj.Models.CoursesService.Events.UpdateTaskMaxRatingEvent;
 
 namespace HwProj.NotificationsService.API;
 

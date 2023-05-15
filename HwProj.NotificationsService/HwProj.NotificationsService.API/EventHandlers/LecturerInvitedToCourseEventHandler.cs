@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
-using HwProj.CoursesService.API.Events;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models;
+using HwProj.Models.CoursesService.Events;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;

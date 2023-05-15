@@ -2,7 +2,7 @@ using System;
 using HwProj.EventBus.Client;
 using HwProj.Models.CoursesService.ViewModels;
 
-namespace HwProj.CoursesService.API.Events;
+namespace HwProj.Models.CoursesService.Events;
 
 public class NewHomeworkTaskEvent : Event
 {

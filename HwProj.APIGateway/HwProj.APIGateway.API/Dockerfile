@@ -17,5 +17,5 @@ RUN dotnet publish "HwProj.APIGateway.API.csproj" -c Release -o /app/publish
 
 FROM build AS final
 WORKDIR /app
-COPY --from=publish /app/publish .
+COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "HwProj.APIGateway.API.dll"]

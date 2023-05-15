@@ -1,8 +1,7 @@
 using HwProj.EventBus.Client;
 using HwProj.Models.CoursesService.ViewModels;
-using HwProj.Models.SolutionsService;
 
-namespace HwProj.SolutionsService.API.Events;
+namespace HwProj.Models.SolutionsService.Events;
 
 public class RateEvent : Event
 {

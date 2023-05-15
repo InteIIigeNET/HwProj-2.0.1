@@ -3,8 +3,8 @@ using AutoMapper;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.EventBus.Client.Interfaces;
-using HwProj.CoursesService.API.Events;
 using HwProj.Models;
+using HwProj.Models.CoursesService.Events;
 using HwProj.Models.CoursesService.ViewModels;
 
 namespace HwProj.CoursesService.API.Services;

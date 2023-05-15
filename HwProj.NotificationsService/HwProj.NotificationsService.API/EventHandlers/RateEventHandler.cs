@@ -3,9 +3,9 @@ using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models;
 using HwProj.Models.NotificationsService;
+using HwProj.Models.SolutionsService.Events;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
-using HwProj.SolutionsService.API.Events;
 using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.API.EventHandlers;

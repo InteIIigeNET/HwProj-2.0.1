@@ -1,6 +1,6 @@
 ﻿using HwProj.EventBus.Client;
 
-namespace HwProj.AuthService.API.Events;
+namespace HwProj.Models.AuthService.Events;
 
 public abstract class RegisterEvent : Event
 {

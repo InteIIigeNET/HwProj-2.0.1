@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HwProj.AuthService.Client;
-using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models;
 using HwProj.Models.AuthService.DTO;
+using HwProj.Models.CoursesService.Events;
 using HwProj.Models.Roles;
 using Microsoft.EntityFrameworkCore;
 

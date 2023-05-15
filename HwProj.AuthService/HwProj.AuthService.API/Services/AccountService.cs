@@ -9,6 +9,7 @@ using HwProj.Models.Roles;
 using HwProj.AuthService.API.Events;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.AuthService.DTO;
+using HwProj.Models.AuthService.Events;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.Result;
 using Microsoft.EntityFrameworkCore;
