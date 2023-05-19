@@ -161,18 +161,19 @@ public class SolutionsController : Controller
     [HttpPost("allUnrated")]
     public async Task<SolutionPreviewDto[]> GetAllUnratedSolutionsForTasks([FromBody] long[] taskIds)
     {
-        // TODO: Fix 
-        return Array.Empty<SolutionPreviewDto>();
-        var solutions = await _solutionsRepository
-            .FindAll(t => taskIds.Contains(t.TaskId))
-            .GroupBy(t => new { t.TaskId, t.StudentId })
-            .Select(t => t.OrderByDescending(x => x.PublicationDate))
-            .Select(t => new
+        // TODO: Fix
+        var groupedSolutions = await _solutionsRepository
+            .FindAll(s => taskIds.Contains(s.TaskId))
+            .GroupBy(s => new { s.TaskId, s.StudentId })
+            .Select(st => st.OrderByDescending(x => x.PublicationDate).ToArray())
+            .ToListAsync();
+        var unratedSolutions = groupedSolutions    
+            .Select(s => new
             {
-                LastSolution = t.FirstOrDefault(),
-                IsFirstTry = t.Skip(1).All(s => s.State == SolutionState.Posted)
+                LastSolution = s.FirstOrDefault(),
+                IsFirstTry = s.Skip(1).All(solution => solution.State == SolutionState.Posted)
             })
-            .Where(t => t.LastSolution != null && t.LastSolution.State == SolutionState.Posted)
+            .Where(t => t.LastSolution is { State: SolutionState.Posted })
             .OrderBy(t => t.LastSolution!.PublicationDate)
             .Select(t => new SolutionPreviewDto
             {
@@ -181,8 +182,8 @@ public class SolutionsController : Controller
                 PublicationDate = t.LastSolution.PublicationDate,
                 IsFirstTry = t.IsFirstTry
             })
-            .ToArrayAsync();
+            .ToArray();
 
-        return solutions;
+        return unratedSolutions;
     }
 }
