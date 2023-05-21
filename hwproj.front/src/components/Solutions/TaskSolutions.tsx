@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {FC, useState} from 'react';
+import {FC, useEffect, useState} from 'react';
 import TaskSolutionComponent from "./TaskSolutionComponent";
 import {AccountDataDto, HomeworkTaskViewModel, Solution} from '../../api';
 import {Grid, Tab, Tabs} from "@material-ui/core";
@@ -25,6 +25,8 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
     const onSolutionRateClick = async () => {
         props.onSolutionRateClick?.()
     }
+
+    useEffect(() => setState({tabValue: 0}), [props.student.userId])
 
     const {tabValue} = state
     const {solutions, student, forMentor} = props
