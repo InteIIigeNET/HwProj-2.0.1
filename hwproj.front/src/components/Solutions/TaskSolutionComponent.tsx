@@ -181,12 +181,13 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                         Решение было сдано на {sentAfterDeadline} позже дедлайна.
                     </Alert>
                 </Grid>}
-                {props.forMentor &&
+                {(props.forMentor || isRated) &&
                     <Grid item container direction={"column"}>
                         {renderRateInput()}
-                        {!!lastRating && <Typography style={{color: "GrayText", fontSize: "medium", marginBottom: 5}}>
-                            Оценка за предыдущее решение: {lastRating} ⭐
-                        </Typography>}
+                        {lastRating !== undefined &&
+                            <Typography style={{color: "GrayText", fontSize: "medium", marginBottom: 5}}>
+                                Оценка за предыдущее решение: {lastRating} ⭐
+                            </Typography>}
                     </Grid>}
                 {((isRated && lecturerComment) || state.clickedForRate) &&
                     <Grid item style={{marginTop: -15, marginBottom: -15}}>

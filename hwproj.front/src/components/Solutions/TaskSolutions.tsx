@@ -30,8 +30,9 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
     const {solutions, student, forMentor} = props
     const lastSolution = solutions[solutions.length - 1]
     const arrayOfRatedSolutions = solutions.slice(0, solutions.length - 1)
-    const lastRating = arrayOfRatedSolutions
-        ? arrayOfRatedSolutions[arrayOfRatedSolutions.length - 1]?.rating
+    const previousSolution = arrayOfRatedSolutions && arrayOfRatedSolutions[arrayOfRatedSolutions.length - 1]
+    const lastRating = previousSolution && previousSolution.state !== Solution.StateEnum.NUMBER_0 // != Posted
+        ? previousSolution.rating
         : undefined
 
     return <Grid container alignItems="stretch" direction="column">
