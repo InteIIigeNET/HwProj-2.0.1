@@ -120,10 +120,10 @@ namespace HwProj.SolutionsService.IntegrationTests
             await lectureCourseClient.AcceptStudent(courseId, studentId);
         }
 
-        private SolutionViewModel GenerateSolutionViewModel(string userId)
+        private PostSolutionModel GenerateSolutionViewModel(string userId)
         {
             var url = new Fixture().Create<string>();
-            var fixture = new Fixture().Build<SolutionViewModel>()
+            var fixture = new Fixture().Build<PostSolutionModel>()
                 .With(h => h.GithubUrl, url)
                 .With(h => h.StudentId, userId);
             var viewModel = fixture.Create();
@@ -165,7 +165,7 @@ namespace HwProj.SolutionsService.IntegrationTests
             var solutionClient = CreateSolutionsServiceClient();
             var solutionViewModel = GenerateSolutionViewModel(studentId);
 
-            Assert.ThrowsAsync<ForbiddenException>(async () => await solutionClient.PostSolution(solutionViewModel, taskId));
+            Assert.ThrowsAsync<ForbiddenException>(async () => await solutionClient.PostSolution(taskId, solutionViewModel));
         }
 
         [Test]
@@ -179,7 +179,7 @@ namespace HwProj.SolutionsService.IntegrationTests
             var solutionClient = CreateSolutionsServiceClient();
             var solutionViewModel = GenerateSolutionViewModel(studentId);
             
-            var solutionId = await solutionClient.PostSolution(solutionViewModel, taskId);
+            var solutionId = await solutionClient.PostSolution(taskId, solutionViewModel);
             var solutionIdGet = await solutionClient.GetSolutionById(solutionId);
 
             solutionIdGet.Id.Should().Be(solutionId);
@@ -200,8 +200,8 @@ namespace HwProj.SolutionsService.IntegrationTests
             var solutionViewModel1 = GenerateSolutionViewModel(studentId);
             var solutionViewModel2 = GenerateSolutionViewModel(studentId);
             
-            var solutionId1 = await solutionClient.PostSolution(solutionViewModel1, taskId);
-            var solutionId2 = await solutionClient.PostSolution(solutionViewModel2, taskId);
+            var solutionId1 = await solutionClient.PostSolution(taskId, solutionViewModel1);
+            var solutionId2 = await solutionClient.PostSolution(taskId, solutionViewModel2);
             var solutionIdGet = await solutionClient.GetUserSolutions(taskId, studentId);
 
             solutionIdGet.Should().HaveCount(2);
@@ -224,8 +224,8 @@ namespace HwProj.SolutionsService.IntegrationTests
             var solutionViewModelFromStudent1 = GenerateSolutionViewModel(studentId1);
             var solutionViewModelFromStudent2 = GenerateSolutionViewModel(studentId2);
             
-            var solutionIdFromStudent1 = await solutionClient.PostSolution(solutionViewModelFromStudent1, taskId);
-            var solutionIdFromStudent2 = await solutionClient.PostSolution(solutionViewModelFromStudent2, taskId);
+            var solutionIdFromStudent1 = await solutionClient.PostSolution(taskId, solutionViewModelFromStudent1);
+            var solutionIdFromStudent2 = await solutionClient.PostSolution(taskId, solutionViewModelFromStudent2);
             var solutionsGet = await solutionClient.GetAllSolutions();
             
             solutionsGet.Should().ContainSingle(s => s.Id == solutionIdFromStudent1);
@@ -243,7 +243,7 @@ namespace HwProj.SolutionsService.IntegrationTests
             var solutionClient = CreateSolutionsServiceClient();
             var solutionViewModelFromStudent = GenerateSolutionViewModel(studentId);
 
-            var solutionId = await solutionClient.PostSolution(solutionViewModelFromStudent, taskId);
+            var solutionId = await solutionClient.PostSolution(taskId, solutionViewModelFromStudent);
             await solutionClient.RateSolution(solutionId, 2, "Not Bad", lectureId);
             var solutionsGet = await solutionClient.GetSolutionById(solutionId);
 
@@ -262,7 +262,7 @@ namespace HwProj.SolutionsService.IntegrationTests
             var solutionClient = CreateSolutionsServiceClient();
             var solutionViewModelFromStudent = GenerateSolutionViewModel(studentId);
 
-            var solutionId = await solutionClient.PostSolution(solutionViewModelFromStudent, taskId);
+            var solutionId = await solutionClient.PostSolution(taskId, solutionViewModelFromStudent);
             
             Assert.ThrowsAsync<ForbiddenException>(async () => await solutionClient.RateSolution(solutionId, 2, "Not Bad", studentId));
         }
@@ -279,7 +279,7 @@ namespace HwProj.SolutionsService.IntegrationTests
             var solutionClient = CreateSolutionsServiceClient();
             var solutionViewModelFromStudent = GenerateSolutionViewModel(studentId);
 
-            var solutionId = await solutionClient.PostSolution(solutionViewModelFromStudent, taskId);
+            var solutionId = await solutionClient.PostSolution(taskId, solutionViewModelFromStudent);
             await solutionClient.MarkSolution(solutionId);
             var solutionsGet = await solutionClient.GetSolutionById(solutionId);
 
@@ -297,7 +297,7 @@ namespace HwProj.SolutionsService.IntegrationTests
             var solutionClient = CreateSolutionsServiceClient();
             var solutionViewModel = GenerateSolutionViewModel(studentId);
             
-            var solutionId = await solutionClient.PostSolution(solutionViewModel, taskId);
+            var solutionId = await solutionClient.PostSolution(taskId, solutionViewModel);
             var solutionIdBefore = await solutionClient.GetSolutionById(solutionId);
             await solutionClient.DeleteSolution(solutionId);
             var solutionIdAfter = await solutionClient.GetUserSolutions(taskId, studentId);
@@ -317,7 +317,7 @@ namespace HwProj.SolutionsService.IntegrationTests
             var solutionClient = CreateSolutionsServiceClient();
             var solutionViewModel = GenerateSolutionViewModel(studentId);
             
-            var solutionId = await solutionClient.PostSolution(solutionViewModel, taskId);
+            var solutionId = await solutionClient.PostSolution(taskId, solutionViewModel);
             await solutionClient.RateSolution(solutionId, 2, "Not Bad", lectureId);
             var statisticsFromStudent = await solutionClient.GetCourseStatistics(courseId, studentId);
             var statisticsFromLecture = await solutionClient.GetCourseStatistics(courseId, lectureId);
@@ -348,7 +348,7 @@ namespace HwProj.SolutionsService.IntegrationTests
             var solutionViewModel = GenerateSolutionViewModel(studentId);
             solutionViewModel.PublicationDate = DateTime.MaxValue;
 
-            var solutionId = await solutionsClient.PostSolution(solutionViewModel, taskId.Value);
+            var solutionId = await solutionsClient.PostSolution(taskId.Value, solutionViewModel);
             var solutionIdGet = await solutionsClient.GetUserSolutions(taskId.Value, studentId);
 
             solutionIdGet.Should().HaveCount(1);
@@ -372,7 +372,7 @@ namespace HwProj.SolutionsService.IntegrationTests
             var solutionViewModel = GenerateSolutionViewModel(studentId);
             solutionViewModel.PublicationDate = DateTime.MaxValue;
 
-            Assert.ThrowsAsync<ForbiddenException>(async () => await solutionsClient.PostSolution(solutionViewModel, taskId.Value));
+            Assert.ThrowsAsync<ForbiddenException>(async () => await solutionsClient.PostSolution(taskId.Value, solutionViewModel));
         }
     }
 }
