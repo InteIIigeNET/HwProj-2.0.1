@@ -110,13 +110,53 @@ namespace HwProj.APIGateway.API.Controllers
         }
 
         [HttpPost("{taskId}")]
-        [Authorize]
+        [Authorize(Roles = Roles.StudentRole)]
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> PostSolution(SolutionViewModel model, long taskId)
         {
+            var res = new PostSolutionModel(model);
+            var course = await _coursesServiceClient.GetCourseByTask(taskId);
+            if (course is null) return BadRequest();
+            
+            if (course.CourseMates.All(t => t.StudentId != model.StudentId))
+                return BadRequest($"Студента с id {model.StudentId} не существует");
+            
             model.StudentId = UserId;
-            var result = await _solutionsClient.PostSolution(model, taskId);
-            return Ok(result);
+            if (model.GroupMateIds == null || model.GroupMateIds.Length == 0)
+            {
+                var result = await _solutionsClient.PostSolution(taskId, res);
+                return Ok(result);
+            }
+
+            var fullStudentsGroup = model.GroupMateIds.ToList();
+            fullStudentsGroup.Add(model.StudentId);
+            var arrFullStudentsGroup = fullStudentsGroup.ToArray();
+            
+            if (arrFullStudentsGroup.Intersect(course.CourseMates.Select(x =>
+                    x.StudentId)).Count() != arrFullStudentsGroup.Length) return BadRequest();
+            
+            var singleOrDefault = course.Groups.SingleOrDefault(x =>
+                x.StudentsIds.Intersect(fullStudentsGroup).Count() == fullStudentsGroup.Count);
+            long? groupId = null;
+            
+            if (singleOrDefault is null)
+            {
+                var newModel = new CreateGroupViewModel()
+                {
+                    Name = "",
+                    CourseId = course.Id,
+                    GroupMatesIds = arrFullStudentsGroup
+                };
+                groupId = await _coursesServiceClient.CreateCourseGroup(newModel, taskId);
+            }
+            else
+            {
+                groupId = singleOrDefault.Id;
+            }
+
+            res.GroupId = groupId;
+            await _solutionsClient.PostSolution(taskId, res);
+            return Ok(res);
         }
 
         [HttpPost("rateEmptySolution/{taskId}")]
@@ -131,6 +171,7 @@ namespace HwProj.APIGateway.API.Controllers
             await _solutionsClient.PostEmptySolutionWithRate(taskId, model);
             return Ok();
         }
+        
 
         [HttpPost("rateSolution/{solutionId}/{newRating}")]
         [Authorize(Roles = Roles.LecturerRole)]

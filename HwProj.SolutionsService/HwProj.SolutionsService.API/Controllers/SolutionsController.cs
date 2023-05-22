@@ -68,22 +68,17 @@ namespace HwProj.SolutionsService.API.Controllers
 
         [HttpPost("{taskId}")]
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> PostSolution(long taskId, [FromBody] SolutionViewModel solutionViewModel)
+        public async Task<IActionResult> PostSolution(long taskId, [FromBody] PostSolutionModel solutionModel)
         {
             var task = await _coursesClient.GetTask(taskId);
-            var homework = await _coursesClient.GetHomework(task.HomeworkId);
-            var course = await _coursesClient.GetCourseById(homework.CourseId);
 
-            if (course.CourseMates.Any(courseMate =>
-                    courseMate.StudentId == solutionViewModel.StudentId && courseMate.IsAccepted) &&
-                task.CanSendSolution)
+            if (task.CanSendSolution)
             {
-                var solution = _mapper.Map<Solution>(solutionViewModel);
+                var solution = _mapper.Map<Solution>(solutionModel);
                 solution.TaskId = taskId;
                 var solutionId = await _solutionsService.PostOrUpdateAsync(taskId, solution);
                 return Ok(solutionId);
             }
-
             return Forbid();
         }
 
