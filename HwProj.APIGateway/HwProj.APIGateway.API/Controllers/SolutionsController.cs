@@ -13,7 +13,7 @@ using HwProj.Models.SolutionsService;
 using HwProj.SolutionsService.Client;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Internal;
+
 
 namespace HwProj.APIGateway.API.Controllers
 {
@@ -54,11 +54,11 @@ namespace HwProj.APIGateway.API.Controllers
 
             var solutions = getSolutionsTask.Result;
             //if (solutions.All(t => t.GroupId == null))
-                return new UserTaskSolutions
-                {
-                    User = getUserTask.Result,
-                    Solutions = solutions.Select(t => new GetSolutionModel(t, null)).ToArray(),
-                };
+            return new UserTaskSolutions
+            {
+                User = getUserTask.Result,
+                Solutions = solutions.Select(t => new GetSolutionModel(t, null)).ToArray(),
+            };
 
 
             // var course = await _coursesServiceClient.GetCourseByTask(taskId);
