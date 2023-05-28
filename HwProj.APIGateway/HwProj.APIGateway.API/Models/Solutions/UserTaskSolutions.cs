@@ -5,7 +5,7 @@ namespace HwProj.APIGateway.API.Models.Solutions
 {
     public class UserTaskSolutions
     {
-        public Solution[] Solutions { get; set; }
+        public GetSolutionModel[] Solutions { get; set; }
         public AccountDataDto User { get; set; }
     }
 
