@@ -13,6 +13,7 @@ using HwProj.Models.SolutionsService;
 using HwProj.SolutionsService.Client;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace HwProj.APIGateway.API.Controllers
 {
@@ -143,7 +144,7 @@ namespace HwProj.APIGateway.API.Controllers
 
             var fullStudentsGroup = model.GroupMateIds.ToList();
             fullStudentsGroup.Add(solutionModel.StudentId);
-            var arrFullStudentsGroup = fullStudentsGroup.ToArray();
+            var arrFullStudentsGroup = fullStudentsGroup.Distinct().ToArray();
 
             if (arrFullStudentsGroup.Intersect(course.CourseMates.Select(x =>
                     x.StudentId)).Count() != arrFullStudentsGroup.Length) return BadRequest();
