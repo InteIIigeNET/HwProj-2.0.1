@@ -32,7 +32,7 @@ namespace HwProj.AuthService.Client
             return await response.DeserializeAsync<AccountDataDto>().ConfigureAwait(false);
         }
 
-        public async Task<AccountDataDto?[]> GetAccountsData(string[] userIds)
+        public async Task<AccountDataDto[]> GetAccountsData(string[] userIds)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
@@ -45,7 +45,7 @@ namespace HwProj.AuthService.Client
             };
 
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<AccountDataDto?[]>();
+            return await response.DeserializeAsync<AccountDataDto[]>();
         }
 
         public async Task<Result<TokenCredentials>> Register(RegisterViewModel model)

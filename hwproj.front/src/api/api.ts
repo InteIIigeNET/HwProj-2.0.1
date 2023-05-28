@@ -308,7 +308,7 @@ export interface CreateGroupViewModel {
      * @type {string}
      * @memberof CreateGroupViewModel
      */
-    name: string;
+    name?: string;
     /**
      *
      * @type {Array<string>}
@@ -461,6 +461,90 @@ export interface EditExternalViewModel {
      * @memberof EditExternalViewModel
      */
     middleName?: string;
+}
+
+/**
+ *
+ * @export
+ * @interface GetSolutionModel
+ */
+export interface GetSolutionModel {
+    /**
+     *
+     * @type {number}
+     * @memberof GetSolutionModel
+     */
+    id?: number;
+    /**
+     *
+     * @type {string}
+     * @memberof GetSolutionModel
+     */
+    githubUrl?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof GetSolutionModel
+     */
+    comment?: string;
+    /**
+     *
+     * @type {number}
+     * @memberof GetSolutionModel
+     */
+    state?: GetSolutionModel.StateEnum;
+    /**
+     *
+     * @type {number}
+     * @memberof GetSolutionModel
+     */
+    rating?: number;
+    /**
+     *
+     * @type {string}
+     * @memberof GetSolutionModel
+     */
+    studentId?: string;
+    /**
+     *
+     * @type {number}
+     * @memberof GetSolutionModel
+     */
+    taskId?: number;
+    /**
+     *
+     * @type {Date}
+     * @memberof GetSolutionModel
+     */
+    publicationDate?: Date;
+    /**
+     *
+     * @type {string}
+     * @memberof GetSolutionModel
+     */
+    lecturerComment?: string;
+    /**
+     *
+     * @type {Array<AccountDataDto>}
+     * @memberof GetSolutionModel
+     */
+    groupMates?: Array<AccountDataDto>;
+}
+
+/**
+ * @export
+ * @namespace GetSolutionModel
+ */
+export namespace GetSolutionModel {
+    /**
+     * @export
+     * @enum {string}
+     */
+    export enum StateEnum {
+        NUMBER_0 = <any> 0,
+        NUMBER_1 = <any> 1,
+        NUMBER_2 = <any> 2
+    }
 }
 
 /**
@@ -1374,10 +1458,10 @@ export interface UserDataDto {
 export interface UserTaskSolutions {
     /**
      *
-     * @type {Array<Solution>}
+     * @type {Array<GetSolutionModel>}
      * @memberof UserTaskSolutions
      */
-    solutions?: Array<Solution>;
+    solutions?: Array<GetSolutionModel>;
     /**
      *
      * @type {AccountDataDto}

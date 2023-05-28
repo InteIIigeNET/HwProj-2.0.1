@@ -59,12 +59,18 @@ namespace HwProj.APIGateway.API.Controllers
 
             await Task.WhenAll(getSolutionsTask, getUserTask);
 
-            var result = new UserTaskSolutions
-            {
-                User = getUserTask.Result,
-                Solutions = getSolutionsTask.Result,
-            };
-            return result;
+            var solutions = getSolutionsTask.Result;
+            //if (solutions.All(t => t.GroupId == null))
+                return new UserTaskSolutions
+                {
+                    User = getUserTask.Result,
+                    Solutions = solutions.Select(t => new GetSolutionModel(t, null)).ToArray(),
+                };
+
+
+            // var course = await _coursesServiceClient.GetCourseByTask(taskId);
+            // var group = course.Groups.Where(t => t.Id)
+            // return result;
         }
 
         [Authorize]
@@ -86,19 +92,24 @@ namespace HwProj.APIGateway.API.Controllers
 
             await Task.WhenAll(getStudentsDataTask, getStatisticsTask);
 
-            var usersData = getStudentsDataTask.Result;
+            var usersData = getStudentsDataTask.Result.ToDictionary(t => t.UserId);
             var statistics = getStatisticsTask.Result;
             var statisticsDict = statistics.ToDictionary(t => t.StudentId);
+            var groups = course.Groups.ToDictionary(
+                t => t.Id,
+                t => t.StudentsIds.Select(s => usersData[s]).ToArray());
 
             var result = new TaskSolutionStatisticsPageData()
             {
                 CourseId = course.Id,
-                StudentsSolutions = studentIds.Zip(usersData, (studentId, accountData) => new UserTaskSolutions
+                StudentsSolutions = studentIds.Select(studentId => new UserTaskSolutions
                     {
                         Solutions = statisticsDict.TryGetValue(studentId, out var studentSolutions)
                             ? studentSolutions.Solutions
-                            : Array.Empty<Solution>(),
-                        User = accountData
+                                .Select(t => new GetSolutionModel(t, t.GroupId is { } groupId ? groups[groupId] : null))
+                                .ToArray()
+                            : Array.Empty<GetSolutionModel>(),
+                        User = usersData[studentId]
                     })
                     .OrderBy(t => t.User.Surname)
                     .ThenBy(t => t.User.Name)
