@@ -11,8 +11,6 @@ namespace HwProj.Models.CoursesService.ViewModels
 
     public class CreateGroupViewModel
     {
-        
-        [Required]
         public string Name { get; set; }
 
         [Required]

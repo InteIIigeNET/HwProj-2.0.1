@@ -52,7 +52,7 @@ const TaskSolutionsPage: FC = () => {
         })
     }
 
-    const {userSolutions} = taskSolutionPage
+    const {userSolutions, course} = taskSolutionPage
     const solutions = userSolutions && userSolutions.solutions!
     const lastSolution = solutions && solutions[solutions.length - 1]
 
@@ -138,7 +138,8 @@ const TaskSolutionsPage: FC = () => {
                                             taskId={+taskId!}
                                             onAdd={getTask}
                                             onCancel={onCancelAddSolution}
-                                            lastSolutionUrl={lastSolution?.githubUrl}/>
+                                            lastSolutionUrl={lastSolution?.githubUrl}
+                                            students={course.acceptedStudents}/>
                                     </div>
                                 </Grid>
                             )}

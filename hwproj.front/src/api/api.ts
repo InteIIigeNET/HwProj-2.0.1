@@ -311,22 +311,16 @@ export interface CreateGroupViewModel {
     name: string;
     /**
      *
-     * @type {Array<GroupMateViewModel>}
+     * @type {Array<string>}
      * @memberof CreateGroupViewModel
      */
-    groupMates: Array<GroupMateViewModel>;
+    groupMatesIds: Array<string>;
     /**
      *
      * @type {number}
      * @memberof CreateGroupViewModel
      */
     courseId: number;
-    /**
-     *
-     * @type {Array<number>}
-     * @memberof CreateGroupViewModel
-     */
-    tasks: Array<number>;
 }
 
 /**
@@ -497,28 +491,10 @@ export interface GroupViewModel {
     id?: number;
     /**
      *
-     * @type {number}
+     * @type {Array<string>}
      * @memberof GroupViewModel
      */
-    courseId?: number;
-    /**
-     *
-     * @type {string}
-     * @memberof GroupViewModel
-     */
-    name?: string;
-    /**
-     *
-     * @type {Array<number>}
-     * @memberof GroupViewModel
-     */
-    tasks?: Array<number>;
-    /**
-     *
-     * @type {Array<GroupMateViewModel>}
-     * @memberof GroupViewModel
-     */
-    groupMates?: Array<GroupMateViewModel>;
+    studentsIds?: Array<string>;
 }
 
 /**
@@ -993,7 +969,7 @@ export interface SolutionViewModel {
      * @type {string}
      * @memberof SolutionViewModel
      */
-    githubUrl: string;
+    githubUrl?: string;
     /**
      *
      * @type {string}
@@ -1006,6 +982,12 @@ export interface SolutionViewModel {
      * @memberof SolutionViewModel
      */
     studentId?: string;
+    /**
+     *
+     * @type {Array<string>}
+     * @memberof SolutionViewModel
+     */
+    groupMateIds?: Array<string>;
     /**
      *
      * @type {Date}
