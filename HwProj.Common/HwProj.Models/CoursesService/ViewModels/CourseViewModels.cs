@@ -34,7 +34,7 @@ namespace HwProj.Models.CoursesService.ViewModels
         public string InviteCode { get; set; }
         public CourseMateViewModel[] CourseMates { get; set; }
         public HomeworkViewModel[] Homeworks { get; set; }
-        public GroupViewModel[]? Groups { get; set; } = Array.Empty<GroupViewModel>();
+        public GroupViewModel[] Groups { get; set; } = Array.Empty<GroupViewModel>();
     }
 
     public class CourseViewModel
