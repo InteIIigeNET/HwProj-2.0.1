@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using HwProj.Models.AuthService.DTO;
 
 namespace HwProj.Models.SolutionsService
@@ -11,7 +12,11 @@ namespace HwProj.Models.SolutionsService
             GithubUrl = model.GithubUrl;
             Comment = model.Comment;
             StudentId = model.StudentId;
-            GroupMates = groupMates ?? Array.Empty<AccountDataDto>();
+            GroupMates = groupMates?
+                             .OrderBy(t => t.Surname)
+                             .ThenBy(t => t.Name)
+                             .ToArray()
+                         ?? Array.Empty<AccountDataDto>();
             LecturerComment = model.LecturerComment;
             PublicationDate = model.PublicationDate;
             Rating = model.Rating;
