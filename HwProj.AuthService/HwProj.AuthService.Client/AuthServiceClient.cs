@@ -187,5 +187,22 @@ namespace HwProj.AuthService.Client
                 return false;
             }
         }
+
+        public async Task<string> ResetPassword(string email)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _authServiceUri + $"api/account/resetPassword")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(email),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            if (!response.IsSuccessStatusCode) throw new Exception(response.ReasonPhrase);
+            return await response.Content.ReadAsStringAsync();
+        }
     }
 }

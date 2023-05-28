@@ -144,5 +144,19 @@ namespace HwProj.APIGateway.API.Controllers
             var result = await AuthServiceClient.GetAllStudents();
             return Ok(result);
         }
+
+        [HttpPost("resetPassword")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        public async Task<string> ResetPassword([FromBody] string email)
+        {
+            try
+            {
+                return await AuthServiceClient.ResetPassword(email);
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+        }
     }
 }

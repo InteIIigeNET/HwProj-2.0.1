@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -9,6 +10,7 @@ using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.Result;
 using Google.Apis.Auth;
 using HwProj.Models.Roles;
+using Microsoft.AspNetCore.Identity;
 
 namespace HwProj.AuthService.API.Controllers
 {
@@ -18,12 +20,17 @@ namespace HwProj.AuthService.API.Controllers
     {
         private readonly IAccountService _accountService;
         private readonly IUserManager _userManager;
+        private readonly UserManager<User> _aspUserManager;
         private readonly IMapper _mapper;
 
-        public AccountController(IAccountService accountService, IUserManager userManager, IMapper mapper)
+        public AccountController(
+            IAccountService accountService,
+            IUserManager userManager,
+            UserManager<User> aspUserManager, IMapper mapper)
         {
             _accountService = accountService;
             _userManager = userManager;
+            _aspUserManager = aspUserManager;
             _mapper = mapper;
         }
 
@@ -36,6 +43,17 @@ namespace HwProj.AuthService.API.Controllers
             return accountData != null
                 ? Ok(accountData) as IActionResult
                 : NotFound();
+        }
+
+        [HttpPost("resetPassword")]
+        public async Task<IActionResult> ResetPassword([FromBody] string email)
+        {
+            var user = await _aspUserManager.FindByEmailAsync(email);
+            if (user == null) return NotFound();
+            var token = await _aspUserManager.GeneratePasswordResetTokenAsync(user);
+            var newPassword = Guid.NewGuid().ToString();
+            await _aspUserManager.ResetPasswordAsync(user, token, newPassword);
+            return Ok($"Временный пароль: {newPassword}");
         }
 
         [HttpGet("getUsersData")]
