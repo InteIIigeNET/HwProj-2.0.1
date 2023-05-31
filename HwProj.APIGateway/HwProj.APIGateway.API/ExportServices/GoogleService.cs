@@ -77,7 +77,7 @@ namespace HwProj.APIGateway.API.ExportServices
             }
             catch (Exception ex)
             {
-                return Result<string[]>.Failed($"Ошибка при обращении к Google Docs: {ex.Message}");
+                return Result<string[]>.Failed($"Ошибка при обращении к Google Sheets: {ex.Message}");
             }
         }
 

@@ -89,7 +89,7 @@ const Course: React.FC = () => {
     const [courseFilesInfo, setCourseFilesInfo] = useState<FileInfoDTO[]>([])
 
     const [pageState, setPageState] = useState<IPageState>({
-        tabValue: "homeworks"
+        tabValue: isFromYandex ? "stats" : "homeworks"
     })
 
     const {
