@@ -236,7 +236,7 @@ const Course: React.FC = () => {
     }, []);
 
     const [pageState, setPageState] = useState<IPageState>({
-        tabValue: "homeworks"
+        tabValue: isFromYandex ? "stats" : "homeworks"
     })
 
     const {
