@@ -17,11 +17,11 @@ namespace HwProj.APIGateway.API.ExportServices
 {
     public class GoogleService
     {
-        private readonly SheetsService _sheetsService;
+        private readonly SheetsService _internalGoogleSheetsService;
 
-        public GoogleService(SheetsService sheetsService)
+        public GoogleService(SheetsService internalGoogleSheetsService)
         {
-            _sheetsService = sheetsService;
+            _internalGoogleSheetsService = internalGoogleSheetsService;
         }
 
         private static int SeparationColumnPixelWidth { get; set; } = 20;
@@ -47,11 +47,11 @@ namespace HwProj.APIGateway.API.ExportServices
                 var (valueRange, range, updateStyleRequestBody) = Generate(
                     statistics.ToList(), course, sheetName, (int)sheetId);
 
-                var clearRequest = _sheetsService.Spreadsheets.Values.Clear(new ClearValuesRequest(), spreadsheetId, range);
+                var clearRequest = _internalGoogleSheetsService.Spreadsheets.Values.Clear(new ClearValuesRequest(), spreadsheetId, range);
                 await clearRequest.ExecuteAsync();
-                var updateStyleRequest = _sheetsService.Spreadsheets.BatchUpdate(updateStyleRequestBody, spreadsheetId);
+                var updateStyleRequest = _internalGoogleSheetsService.Spreadsheets.BatchUpdate(updateStyleRequestBody, spreadsheetId);
                 await updateStyleRequest.ExecuteAsync();
-                var updateRequest = _sheetsService.Spreadsheets.Values.Update(valueRange, spreadsheetId, range);
+                var updateRequest = _internalGoogleSheetsService.Spreadsheets.Values.Update(valueRange, spreadsheetId, range);
                 updateRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.USERENTERED;
                 await updateRequest.ExecuteAsync();
                 result = Result.Success();
@@ -72,7 +72,7 @@ namespace HwProj.APIGateway.API.ExportServices
             var spreadsheetId = processingResult.Value;
             try
             {
-                var spreadsheet = await _sheetsService.Spreadsheets.Get(spreadsheetId).ExecuteAsync();
+                var spreadsheet = await _internalGoogleSheetsService.Spreadsheets.Get(spreadsheetId).ExecuteAsync();
                 return Result<string[]>.Success(spreadsheet.Sheets.Select(t => t.Properties.Title).ToArray());
             }
             catch (Exception ex)
@@ -362,7 +362,7 @@ namespace HwProj.APIGateway.API.ExportServices
 
         private async Task<int?> GetSheetId(string spreadsheetId, string sheetName)
         {
-            var spreadsheetGetRequest = _sheetsService.Spreadsheets.Get(spreadsheetId);
+            var spreadsheetGetRequest = _internalGoogleSheetsService.Spreadsheets.Get(spreadsheetId);
             spreadsheetGetRequest.IncludeGridData = true;
             try
             {
