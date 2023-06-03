@@ -52,18 +52,34 @@ namespace HwProj.APIGateway.API.Controllers
 
             await Task.WhenAll(getSolutionsTask, getUserTask);
 
-            var solutions = getSolutionsTask.Result;
-            //if (solutions.All(t => t.GroupId == null))
+            var solutions = await getSolutionsTask;
+            var solutionGroupIds = solutions.Select(t => t.GroupId).Where(t => t != null).ToArray();
+            if (!solutionGroupIds.Any())
+                return new UserTaskSolutions
+                {
+                    User = await getUserTask,
+                    Solutions = solutions.Select(t => new GetSolutionModel(t, null)).ToArray(),
+                };
+
+            var course = await _coursesServiceClient.GetCourseByTask(taskId);
+            var solutionsGroups = course.Groups.Where(t => solutionGroupIds.Contains(t.Id)).ToArray();
+            var groupStudentIds = solutionsGroups.SelectMany(t => t.StudentsIds).Distinct().ToArray();
+            var groupStudents = await AuthServiceClient.GetAccountsData(groupStudentIds);
+            var groupStudentDict = groupStudents.ToDictionary(t => t.UserId);
+            var solutions = solutions.Select(s =>
+            {
+                if (s.GroupId == null) return new GetSolutionModel(s, null);
+                var group = solutionsGroups.FirstOrDefault(t => t.Id == s.GroupId);
+                if (group == null) return new GetSolutionModel(s, null);
+                var groupMates = group.StudentsIds.Select(t => groupStudentDict[t]).ToArray();
+                return new GetSolutionModel(s, groupMates);
+            }).ToArray();
+
             return new UserTaskSolutions
             {
-                User = getUserTask.Result,
-                Solutions = solutions.Select(t => new GetSolutionModel(t, null)).ToArray(),
+                User = await getUserTask,
+                Solutions = solutions,
             };
-
-
-            // var course = await _coursesServiceClient.GetCourseByTask(taskId);
-            // var group = course.Groups.Where(t => t.Id)
-            // return result;
         }
 
         [Authorize]
