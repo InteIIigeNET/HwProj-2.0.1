@@ -74,7 +74,7 @@ namespace HwProj.APIGateway.API.Controllers
             var groupStudentIds = solutionsGroups.SelectMany(t => t.StudentsIds).Distinct().ToArray();
             var groupStudents = await AuthServiceClient.GetAccountsData(groupStudentIds);
             var groupStudentDict = groupStudents.ToDictionary(t => t.UserId);
-            var solutions = solutions.Select(s =>
+            var resultSolutions = solutions.Select(s =>
             {
                 if (s.GroupId == null) return new GetSolutionModel(s, null);
                 var group = solutionsGroups.FirstOrDefault(t => t.Id == s.GroupId);
@@ -86,7 +86,7 @@ namespace HwProj.APIGateway.API.Controllers
             return new UserTaskSolutions
             {
                 User = await getUserTask,
-                Solutions = solutions,
+                Solutions = resultSolutions,
             };
         }
 
