@@ -13,8 +13,9 @@
 
 ## Запуск
 ### Бекенд 
-В Rider -- запустить конфигурация Start All
-В Visual Studio -- запустить сервисы ApiGateway.API, AuthService.API, CoursesService.API, SolutionsService.API, NotificationsService.API
+В Rider - запустить конфигурация Start All
+
+В Visual Studio - запустить сервисы ApiGateway.API, AuthService.API, CoursesService.API, SolutionsService.API, NotificationsService.API
 
 ### Фронтенд
 0. _Добавить .env файл с секретами_
