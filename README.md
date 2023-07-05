@@ -8,8 +8,8 @@
 - Node JS, [последняя актуальная версия](https://nodejs.org/en)
 - Rabbit MQ, [последняя актуальная версия](https://www.rabbitmq.com/download.html)
 
-0. Открыть HwProj-2.0.1/HwProj.sln в Rider / Visual Studio -> Собрать решение
-1. Вызвать npm install в HwProj-2.0.1/hwproj.front 
+0. Открыть `HwProj-2.0.1/HwProj.sln` в Rider / Visual Studio -> Собрать решение
+1. Вызвать `npm install` в `HwProj-2.0.1/hwproj.front` 
 
 ## Запуск
 ### Бекенд 
@@ -18,4 +18,4 @@
 
 ### Фронтенд
 0. _Добавить .env файл с секретами_
-1. Вызвать npm start в HwProj-2.0.1/hwproj.front (или в IDE)
+1. Вызвать `npm start` в `HwProj-2.0.1/hwproj.front` (или в IDE)
