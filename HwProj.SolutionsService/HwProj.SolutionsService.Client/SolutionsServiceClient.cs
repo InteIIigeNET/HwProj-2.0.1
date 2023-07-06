@@ -58,8 +58,8 @@ namespace HwProj.SolutionsService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Solution[]>();
         }
-
-        public async Task<long> PostSolution(SolutionViewModel model, long taskId)
+        
+        public async Task<long> PostSolution(long taskId, PostSolutionModel model)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,

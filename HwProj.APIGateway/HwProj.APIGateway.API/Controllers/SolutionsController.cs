@@ -10,10 +10,10 @@ using HwProj.CoursesService.Client;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
 using HwProj.Models.SolutionsService;
-using HwProj.Models.StatisticsService;
 using HwProj.SolutionsService.Client;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 
 namespace HwProj.APIGateway.API.Controllers
 {
@@ -60,12 +60,34 @@ namespace HwProj.APIGateway.API.Controllers
 
             await Task.WhenAll(getSolutionsTask, getUserTask);
 
-            var result = new UserTaskSolutions
+            var solutions = await getSolutionsTask;
+            var solutionGroupIds = solutions.Select(t => t.GroupId).Where(t => t != null).ToArray();
+            if (!solutionGroupIds.Any())
+                return new UserTaskSolutions
+                {
+                    User = await getUserTask,
+                    Solutions = solutions.Select(t => new GetSolutionModel(t, null)).ToArray(),
+                };
+
+            var course = await _coursesServiceClient.GetCourseByTask(taskId);
+            var solutionsGroups = course.Groups.Where(t => solutionGroupIds.Contains(t.Id)).ToArray();
+            var groupStudentIds = solutionsGroups.SelectMany(t => t.StudentsIds).Distinct().ToArray();
+            var groupStudents = await AuthServiceClient.GetAccountsData(groupStudentIds);
+            var groupStudentDict = groupStudents.ToDictionary(t => t.UserId);
+            var resultSolutions = solutions.Select(s =>
             {
-                User = getUserTask.Result,
-                Solutions = getSolutionsTask.Result,
+                if (s.GroupId == null) return new GetSolutionModel(s, null);
+                var group = solutionsGroups.FirstOrDefault(t => t.Id == s.GroupId);
+                if (group == null) return new GetSolutionModel(s, null);
+                var groupMates = group.StudentsIds.Select(t => groupStudentDict[t]).ToArray();
+                return new GetSolutionModel(s, groupMates);
+            }).ToArray();
+
+            return new UserTaskSolutions
+            {
+                User = await getUserTask,
+                Solutions = resultSolutions,
             };
-            return result;
         }
 
         [Authorize]
@@ -87,19 +109,24 @@ namespace HwProj.APIGateway.API.Controllers
 
             await Task.WhenAll(getStudentsDataTask, getStatisticsTask);
 
-            var usersData = getStudentsDataTask.Result;
+            var usersData = getStudentsDataTask.Result.ToDictionary(t => t.UserId);
             var statistics = getStatisticsTask.Result;
             var statisticsDict = statistics.ToDictionary(t => t.StudentId);
+            var groups = course.Groups.ToDictionary(
+                t => t.Id,
+                t => t.StudentsIds.Select(s => usersData[s]).ToArray());
 
             var result = new TaskSolutionStatisticsPageData()
             {
                 CourseId = course.Id,
-                StudentsSolutions = studentIds.Zip(usersData, (studentId, accountData) => new UserTaskSolutions
+                StudentsSolutions = studentIds.Select(studentId => new UserTaskSolutions
                     {
                         Solutions = statisticsDict.TryGetValue(studentId, out var studentSolutions)
                             ? studentSolutions.Solutions
-                            : Array.Empty<Solution>(),
-                        User = accountData
+                                .Select(t => new GetSolutionModel(t, t.GroupId is { } groupId ? groups[groupId] : null))
+                                .ToArray()
+                            : Array.Empty<GetSolutionModel>(),
+                        User = usersData[studentId]
                     })
                     .OrderBy(t => t.User.Surname)
                     .ThenBy(t => t.User.Name)
@@ -110,13 +137,56 @@ namespace HwProj.APIGateway.API.Controllers
         }
 
         [HttpPost("{taskId}")]
-        [Authorize]
+        [Authorize(Roles = Roles.StudentRole)]
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> PostSolution(SolutionViewModel model, long taskId)
         {
-            model.StudentId = UserId;
-            var result = await _solutionsClient.PostSolution(model, taskId);
-            return Ok(result);
+            var solutionModel = new PostSolutionModel(model)
+            {
+                StudentId = UserId
+            };
+
+            var course = await _coursesServiceClient.GetCourseByTask(taskId);
+            if (course is null) return BadRequest();
+
+            if (course.CourseMates.All(t => t.StudentId != solutionModel.StudentId))
+                return BadRequest($"Студента с id {solutionModel.StudentId} не существует");
+
+            if (model.GroupMateIds == null || model.GroupMateIds.Length == 0)
+            {
+                var result = await _solutionsClient.PostSolution(taskId, solutionModel);
+                return Ok(result);
+            }
+
+            var fullStudentsGroup = model.GroupMateIds.ToList();
+            fullStudentsGroup.Add(solutionModel.StudentId);
+            var arrFullStudentsGroup = fullStudentsGroup.Distinct().ToArray();
+
+            if (arrFullStudentsGroup.Intersect(course.CourseMates.Select(x =>
+                    x.StudentId)).Count() != arrFullStudentsGroup.Length) return BadRequest();
+
+            var singleOrDefault = course.Groups.SingleOrDefault(x =>
+                x.StudentsIds.Intersect(fullStudentsGroup).Count() == fullStudentsGroup.Count);
+            long? groupId = null;
+
+            if (singleOrDefault is null)
+            {
+                var newModel = new CreateGroupViewModel()
+                {
+                    Name = "",
+                    CourseId = course.Id,
+                    GroupMatesIds = arrFullStudentsGroup
+                };
+                groupId = await _coursesServiceClient.CreateCourseGroup(newModel, taskId);
+            }
+            else
+            {
+                groupId = singleOrDefault.Id;
+            }
+
+            solutionModel.GroupId = groupId;
+            await _solutionsClient.PostSolution(taskId, solutionModel);
+            return Ok(solutionModel);
         }
 
         [HttpPost("rateEmptySolution/{taskId}")]
@@ -131,6 +201,7 @@ namespace HwProj.APIGateway.API.Controllers
             await _solutionsClient.PostEmptySolutionWithRate(taskId, model);
             return Ok();
         }
+
 
         [HttpPost("rateSolution/{solutionId}/{newRating}")]
         [Authorize(Roles = Roles.LecturerRole)]

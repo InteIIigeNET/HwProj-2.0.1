@@ -2,15 +2,16 @@ import * as React from 'react';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button'
 import ApiSingleton from "../../api/ApiSingleton";
-import {SolutionViewModel} from "../../api";
+import {AccountDataDto, SolutionViewModel} from "../../api";
 import {FC, useState} from "react";
 import Grid from "@material-ui/core/Grid";
 import makeStyles from "@material-ui/styles/makeStyles";
-import {Alert} from "@mui/material";
+import {Alert, Autocomplete} from "@mui/material";
 
 interface IAddSolutionProps {
     lastSolutionUrl: string | undefined,
     taskId: number,
+    students: AccountDataDto[]
     onAdd: () => void,
     onCancel: () => void,
 }
@@ -31,6 +32,7 @@ const AddSolution: FC<IAddSolutionProps> = (props) => {
     const [solution, setSolution] = useState<SolutionViewModel>({
         githubUrl: props.lastSolutionUrl || "",
         comment: "",
+        groupMateIds: []
     })
 
     const handleSubmit = async (e: any) => {
@@ -62,7 +64,31 @@ const AddSolution: FC<IAddSolutionProps> = (props) => {
                             }}
                         />
                         {githubUrl === props.lastSolutionUrl &&
-                            <Alert sx={{paddingTop: 0, paddingBottom: 0}} severity="info">Ссылка взята из предыдущего решения</Alert>}
+                            <Alert sx={{paddingTop: 0, paddingBottom: 0}} severity="info">Ссылка взята из предыдущего
+                                решения</Alert>}
+                    </Grid>
+                    <Grid item xs={12} style={{marginTop: '16px'}}>
+                        <Autocomplete
+                            multiple
+                            id="tags-outlined"
+                            options={props.students}
+                            getOptionLabel={(option) => option.surname! + ' ' + option.name! + " / " + option.email!}
+                            filterSelectedOptions
+                            onChange={(e, values) => {
+                                e.persist()
+                                setSolution((prevState) => ({
+                                    ...prevState,
+                                    groupMateIds: values.map(x => x.userId!)
+                                }))
+                            }}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    label="Команда"
+                                    placeholder="Совместно с"
+                                />
+                            )}
+                        />
                     </Grid>
                     <Grid item xs={12} style={{marginTop: '16px'}}>
                         <TextField

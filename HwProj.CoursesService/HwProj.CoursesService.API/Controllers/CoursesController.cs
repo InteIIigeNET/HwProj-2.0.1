@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Net;
 using HwProj.CoursesService.API.Repositories;
+using HwProj.CoursesService.API.Repositories.Groups;
 using HwProj.Models;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
@@ -23,15 +24,19 @@ namespace HwProj.CoursesService.API.Controllers
         private readonly ICoursesService _coursesService;
         private readonly ICoursesRepository _coursesRepository;
         private readonly ICourseMatesRepository _courseMatesRepository;
+        private readonly IGroupsRepository _groupsRepository;
         private readonly IMapper _mapper;
 
         public CoursesController(ICoursesService coursesService,
             ICoursesRepository coursesRepository,
-            ICourseMatesRepository courseMatesRepository, IMapper mapper)
+            ICourseMatesRepository courseMatesRepository,
+            IGroupsRepository groupsRepository,
+            IMapper mapper)
         {
             _coursesService = coursesService;
             _coursesRepository = coursesRepository;
             _courseMatesRepository = courseMatesRepository;
+            _groupsRepository = groupsRepository;
             _mapper = mapper;
         }
 
@@ -62,6 +67,12 @@ namespace HwProj.CoursesService.API.Controllers
             if (courseFromDb == null) return NotFound();
 
             var course = _mapper.Map<CourseDTO>(courseFromDb);
+            course.Groups = await _groupsRepository.GetGroupsWithGroupMatesByCourse(course.Id).Select(g =>
+                new GroupViewModel
+                {
+                    Id = g.Id,
+                    StudentsIds = g.GroupMates.Select(t => t.StudentId).ToArray()
+                }).ToArrayAsync();
             return Ok(course);
         }
 
