@@ -56,6 +56,13 @@ namespace HwProj.CoursesService.API.Controllers
             if (courseFromDb == null) return NotFound();
 
             var course = _mapper.Map<CourseDTO>(courseFromDb);
+            course.Groups = await _groupsRepository.GetGroupsWithGroupMatesByCourse(course.Id).Select(g =>
+                new GroupViewModel
+                {
+                    Id = g.Id,
+                    StudentsIds = g.GroupMates.Select(t => t.StudentId).ToArray()
+                }).ToArrayAsync();
+            
             return Ok(course);
         }
 
