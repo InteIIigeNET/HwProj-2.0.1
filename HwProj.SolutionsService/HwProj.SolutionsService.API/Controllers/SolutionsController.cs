@@ -153,12 +153,14 @@ namespace HwProj.SolutionsService.API.Controllers
             var courseMates = course.MentorIds.Contains(userId)
                 ? course.CourseMates.Where(t => t.IsAccepted)
                 : course.CourseMates.Where(t => t.StudentId == userId);
+            var courseGroups = course.Groups;
 
             var solutionsStatsContext = new StatisticsAggregateModel
             {
                 CourseMates = courseMates,
                 Homeworks = course.Homeworks.Where(t => t.Tasks.Any()).ToList(),
-                Solutions = solutions
+                Solutions = solutions,
+                Groups = courseGroups.ToList()
             };
 
             var result = SolutionsStatsDomain.GetCourseStatistics(solutionsStatsContext);

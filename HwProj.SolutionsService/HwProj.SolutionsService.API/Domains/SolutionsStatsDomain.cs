@@ -8,32 +8,48 @@ namespace HwProj.SolutionsService.API.Domains
 {
     public static class SolutionsStatsDomain
     {
+        // public static StatisticsCourseMatesDto[] GetCourseStatistics(StatisticsAggregateModel model)
+        // {
+        //     var accepted = model.CourseMates
+        // }
+
         //TODO: rewrite
         public static StatisticsCourseMatesDto[] GetCourseStatistics(StatisticsAggregateModel model) =>
             model.CourseMates
                 .Where(t => t.IsAccepted)
-                .Select(m => new StatisticsCourseMatesDto
+                .Select(m =>
                 {
-                    StudentId = m.StudentId,
-                    Homeworks = new List<StatisticsCourseHomeworksModel>(model.Homeworks.Select(h =>
-                        new StatisticsCourseHomeworksModel
-                        {
-                            Id = h.Id,
-                            Tasks = new List<StatisticsCourseTasksModel>(h.Tasks.Select(t =>
+                    var studentGroupIds = model.Groups
+                        .Where(g => g.StudentsIds.Contains(m.StudentId))
+                        .Select(g => g.Id).ToList();
+                    
+                    return new StatisticsCourseMatesDto
+                    {
+                        StudentId = m.StudentId,
+                        Homeworks = new List<StatisticsCourseHomeworksModel>(model.Homeworks.Select(h =>
+                            new StatisticsCourseHomeworksModel
                             {
-                                var solutions =
-                                    model.Solutions.Where(s => s.TaskId == t.Id && s.StudentId == m.StudentId)
-                                        .OrderBy(s => s.PublicationDate);
-                                var solutionsInRightModel =
-                                    new List<StatisticsCourseSolutionsModel>(solutions.Select(s =>
-                                        new StatisticsCourseSolutionsModel(s)));
-                                return new StatisticsCourseTasksModel
+                                Id = h.Id,
+                                Tasks = new List<StatisticsCourseTasksModel>(h.Tasks.Select(t =>
                                 {
-                                    Id = t.Id,
-                                    Solution = solutionsInRightModel
-                                };
+
+                                    var solutions =
+                                        model.Solutions.Where(s => s.TaskId == t.Id
+                                                                   && (s.StudentId == m.StudentId 
+                                                                       || studentGroupIds.Contains(s.GroupId.GetValueOrDefault())
+                                                                       ))
+                                            .OrderBy(s => s.PublicationDate);
+                                    var solutionsInRightModel =
+                                        new List<StatisticsCourseSolutionsModel>(solutions.Select(s =>
+                                            new StatisticsCourseSolutionsModel(s)));
+                                    return new StatisticsCourseTasksModel
+                                    {
+                                        Id = t.Id,
+                                        Solution = solutionsInRightModel
+                                    };
+                                }))
                             }))
-                        }))
+                    };
                 }).ToArray();
 
         public static StudentSolutions[] GetCourseTaskStatistics(IEnumerable<Solution> solutions)
