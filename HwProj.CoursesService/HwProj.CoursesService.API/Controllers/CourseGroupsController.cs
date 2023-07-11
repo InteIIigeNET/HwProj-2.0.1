@@ -26,7 +26,18 @@ namespace HwProj.CoursesService.API.Controllers
         public async Task<GroupViewModel[]> GetAll(long courseId)
         {
             var groups = await _groupsService.GetAllAsync(courseId);
-            return _mapper.Map<GroupViewModel[]>(groups);
+            
+            var result = new GroupViewModel[groups.Length];
+            for (int i = 0; i < groups.Length; i++)
+            {
+                result[i] = new GroupViewModel
+                {
+                    Id = groups[i].Id,
+                    StudentsIds = groups[i].GroupMates.Select(s => s.StudentId).ToArray()
+                };
+            }
+
+            return result;
         }
 
         [HttpPost("{courseId}/create")]
