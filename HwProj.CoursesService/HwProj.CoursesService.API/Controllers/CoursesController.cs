@@ -188,5 +188,13 @@ namespace HwProj.CoursesService.API.Controllers
 
             return result;
         }
+
+        [HttpPut("assignStudent/{studentId}")]
+        public async Task<IActionResult> SetMentorToStudents([FromQuery] long courseId, [FromQuery] string mentorId, string studentId)
+        {
+            return await _coursesService.SetMentorToStudent(courseId, mentorId, studentId)
+                ? Ok()
+                : NotFound();
+        }
     }
 }

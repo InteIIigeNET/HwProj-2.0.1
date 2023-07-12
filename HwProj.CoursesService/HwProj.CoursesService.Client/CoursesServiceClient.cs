@@ -405,6 +405,16 @@ namespace HwProj.CoursesService.Client
                 : Result<AccountDataDto[]>.Failed(response.ReasonPhrase);
         }
 
+        public async Task SetMentorToStudent(long courseId, string mentorId, string studentId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Put,
+                _coursesServiceUri + $"api/Courses/{courseId}/assignStudent/{studentId}?mentorId={mentorId}"
+            );
+
+            await _httpClient.SendAsync(httpRequest);
+        }
+
         public async Task<bool> Ping()
         {
             try

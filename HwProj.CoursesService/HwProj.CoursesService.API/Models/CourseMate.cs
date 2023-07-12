@@ -7,11 +7,13 @@ namespace HwProj.CoursesService.API.Models
     {
         [Key]
         public long Id { get; set; }
-        
+
         public long CourseId { get; set; }
-        
+
         public string StudentId { get; set; }
-        
+
+        public string MentorId { get; set; }
+
         public bool IsAccepted { get; set; }
     }
 }
