@@ -249,5 +249,21 @@ namespace HwProj.CoursesService.API.Services
                     u.MiddleName))
                 .ToArray();
         }
+
+        public async Task<bool> SetMentorToStudent(long courseId, string mentorId, string studentId)
+        {
+            var courseMate = _courseMatesRepository.FindAsync(cm => cm.StudentId == studentId && cm.CourseId == courseId);
+            if (courseMate == null)
+            {
+                return false;
+            }
+
+            await _courseMatesRepository.UpdateAsync(
+                courseMate.Result.Id,
+                cm => new CourseMate { MentorId = mentorId }
+            );
+
+            return true;
+        }
     }
 }
