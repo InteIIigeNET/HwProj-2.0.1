@@ -7,6 +7,7 @@ namespace HwProj.SolutionsService.Client
     public interface ISolutionsServiceClient
     {
         Task<Solution[]> GetAllSolutions();
+        Task<Solution[]> GetAllTaskSolutions(long taskId);
         Task<Solution> GetSolutionById(long solutionId);
         Task<Solution[]> GetUserSolutions(long taskId, string studentId);
         Task<long> PostSolution(long taskId, PostSolutionModel model);

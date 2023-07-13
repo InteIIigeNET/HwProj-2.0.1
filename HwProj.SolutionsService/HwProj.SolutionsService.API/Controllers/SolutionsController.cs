@@ -44,6 +44,15 @@ namespace HwProj.SolutionsService.API.Controllers
         {
             return await _solutionsService.GetAllSolutionsAsync();
         }
+        
+        [HttpGet("{taskId}")]
+        public async Task<IActionResult> GetAllTaskSolutions(long taskId)
+        {
+            var solution = await _solutionsService.GetAllTaskSolutionsAsync(taskId);
+            return solution == null
+                ? NotFound()
+                : Ok(solution) as IActionResult;
+        }
 
         [HttpGet("{solutionId}")]
         public async Task<IActionResult> GetSolution(long solutionId)

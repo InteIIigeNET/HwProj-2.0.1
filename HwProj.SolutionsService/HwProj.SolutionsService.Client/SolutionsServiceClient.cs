@@ -36,6 +36,17 @@ namespace HwProj.SolutionsService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Solution[]>();
         }
+        
+        public async Task<Solution[]> GetAllTaskSolutions(long taskId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _solutionServiceUri + $"api/Solutions/{taskId}");
+
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<Solution[]>();
+        }
 
         public async Task<Solution> GetSolutionById(long solutionId)
         {

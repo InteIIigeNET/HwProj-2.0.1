@@ -40,6 +40,14 @@ namespace HwProj.APIGateway.API.Controllers
             var result = await _solutionsClient.GetAllSolutions();
             return Ok(result);
         }
+        
+        [HttpGet("{taskId}")]
+        [ProducesResponseType(typeof(Solution[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetAllTaskSolutions(long taskId)
+        {
+            var result = await _solutionsClient.GetAllTaskSolutions(taskId);
+            return Ok(result);
+        }
 
         [HttpGet("{solutionId}")]
         [ProducesResponseType(typeof(Solution), (int)HttpStatusCode.OK)]
