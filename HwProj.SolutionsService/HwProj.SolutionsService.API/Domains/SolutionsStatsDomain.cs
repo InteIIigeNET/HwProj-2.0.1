@@ -8,11 +8,6 @@ namespace HwProj.SolutionsService.API.Domains
 {
     public static class SolutionsStatsDomain
     {
-        // public static StatisticsCourseMatesDto[] GetCourseStatistics(StatisticsAggregateModel model)
-        // {
-        //     var accepted = model.CourseMates
-        // }
-
         //TODO: rewrite
         public static StatisticsCourseMatesDto[] GetCourseStatistics(StatisticsAggregateModel model) =>
             model.CourseMates
