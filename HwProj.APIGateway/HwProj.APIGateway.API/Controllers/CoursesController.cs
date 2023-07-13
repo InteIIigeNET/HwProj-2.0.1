@@ -63,7 +63,7 @@ namespace HwProj.APIGateway.API.Controllers
             var assignedStudents = new string[courseMentors.Length][];
             for (var i = 0; i < assignedStudents.Length; ++i)
             {
-                await _coursesClient.GetStudentsByMentor(courseId, courseMentors[i].UserId);
+                assignedStudents[i] = (await _coursesClient.GetStudentsByMentor(courseId, courseMentors[i].UserId)).Value;
             }
 
             var result = new CourseViewModel
