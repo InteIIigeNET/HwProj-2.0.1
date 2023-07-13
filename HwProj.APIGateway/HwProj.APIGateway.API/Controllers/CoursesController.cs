@@ -58,12 +58,21 @@ namespace HwProj.APIGateway.API.Controllers
                 else newStudents.Add(student);
             }
 
+            var courseMentors = getMentorsTask.Result.Where(t => t != null).ToArray();
+
+            var assignedStudents = new string[courseMentors.Length][];
+            for (var i = 0; i < assignedStudents.Length; ++i)
+            {
+                await _coursesClient.GetStudentsByMentor(courseId, courseMentors[i].UserId);
+            }
+
             var result = new CourseViewModel
             {
                 Id = courseId,
                 Name = course.Name,
                 GroupName = course.GroupName,
-                Mentors = getMentorsTask.Result.Where(t => t != null).ToArray(),
+                MentorsAssignedStudents = assignedStudents,
+                Mentors = courseMentors,
                 AcceptedStudents = acceptedStudents.ToArray(),
                 NewStudents = newStudents.ToArray(),
                 Homeworks = course.Homeworks,
