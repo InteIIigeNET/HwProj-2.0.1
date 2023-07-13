@@ -196,7 +196,7 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpGet("getMentorByStudent/{studentId}")]
-        public async Task<IActionResult> GetMentorByStudent([FromQuery] long courseId, [FromQuery] string studentId)
+        public async Task<IActionResult> GetMentorByStudent([FromQuery] long courseId, string studentId)
         {
             var mentorId = await _coursesService.GetMentorByStudent(courseId, studentId);
             return mentorId == null
@@ -205,7 +205,7 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpGet("getStudentsByMentor/{mentorId}")]
-        public async Task<IActionResult> GetStudentsByMentor([FromQuery] long courseId, [FromQuery] string mentorId)
+        public async Task<IActionResult> GetStudentsByMentor([FromQuery] long courseId,  string mentorId)
         {
             var studentsIds = await _coursesService.GetStudentsByMentor(courseId, mentorId);
             return mentorId == null
