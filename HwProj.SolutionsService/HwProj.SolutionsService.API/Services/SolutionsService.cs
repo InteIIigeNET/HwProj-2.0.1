@@ -74,7 +74,9 @@ namespace HwProj.SolutionsService.API.Services
             var courses = await _coursesServiceClient.GetCourseById(homework.CourseId);
             var student = await _authServiceClient.GetAccountData(solutionModel.StudentId);
             var studentModel = _mapper.Map<AccountDataDto>(student);
-            _eventBus.Publish(new StudentPassTaskEvent(courses, solutionModel, studentModel, taskModel));
+            var mentorId = courses.CourseMates.Where(cm => cm.StudentId == studentModel.UserId)?.First()
+                .MentorId;
+            _eventBus.Publish(new StudentPassTaskEvent(courses, solutionModel, studentModel, taskModel, mentorId));
 
             if (currentSolution == null)
             {
