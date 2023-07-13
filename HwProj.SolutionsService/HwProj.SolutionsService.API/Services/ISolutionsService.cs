@@ -7,6 +7,8 @@ namespace HwProj.SolutionsService.API.Services
     {
         Task<Solution[]> GetAllSolutionsAsync();
 
+        Task<Solution[]> GetAllTaskSolutionsAsync(long taskId);
+
         Task<Solution> GetSolutionAsync(long solutionId);
 
         Task<Solution[]> GetTaskSolutionsFromStudentAsync(long taskId, string studentId);
