@@ -59,43 +59,48 @@ namespace HwProj.APIGateway.API.Controllers
                 : Ok(result);
         }
         
-        // TODO: Fix for group solutions
         [HttpGet("taskSolution/{taskId}/{studentId}")]
         [Authorize]
         public async Task<UserTaskSolutions> GetStudentSolution(long taskId, string studentId)
         {
-            var getSolutionsTask = _solutionsClient.GetUserSolutions(taskId, studentId);
-            var getUserTask = AuthServiceClient.GetAccountData(studentId);
-
-            await Task.WhenAll(getSolutionsTask, getUserTask);
-
-            var solutions = await getSolutionsTask;
-            var solutionGroupIds = solutions.Select(t => t.GroupId).Where(t => t != null).ToArray();
-            if (!solutionGroupIds.Any())
-                return new UserTaskSolutions
-                {
-                    User = await getUserTask,
-                    Solutions = solutions.Select(t => new GetSolutionModel(t, null)).ToArray(),
-                };
-
             var course = await _coursesServiceClient.GetCourseByTask(taskId);
-            var solutionsGroups = course.Groups.Where(t => solutionGroupIds.Contains(t.Id)).ToArray();
-            var groupStudentIds = solutionsGroups.SelectMany(t => t.StudentsIds).Distinct().ToArray();
-            var groupStudents = await AuthServiceClient.GetAccountsData(groupStudentIds);
-            var groupStudentDict = groupStudents.ToDictionary(t => t.UserId);
-            var resultSolutions = solutions.Select(s =>
-            {
-                if (s.GroupId == null) return new GetSolutionModel(s, null);
-                var group = solutionsGroups.FirstOrDefault(t => t.Id == s.GroupId);
-                if (group == null) return new GetSolutionModel(s, null);
-                var groupMates = group.StudentsIds.Select(t => groupStudentDict[t]).ToArray();
-                return new GetSolutionModel(s, groupMates);
-            }).ToArray();
 
-            return new UserTaskSolutions
+            if (course == null) return new UserTaskSolutions();
+            
+            var getSolutionsTask = _solutionsClient.GetAllTaskSolutions(taskId);
+            var getUsersTask = AuthServiceClient.GetAccountsData(
+                course.CourseMates.Select(t => t.StudentId).ToArray()
+                );
+
+            await Task.WhenAll(getSolutionsTask, getUsersTask);
+
+            var solutions = getSolutionsTask.Result;
+            var solutionGroupIds = solutions.Select(t => t.GroupId).Where(t => t != null).ToArray();
+
+            var courseMates = getUsersTask.Result;
+            var student = courseMates.First(t => t.UserId == studentId);
+            var solutionGroups = course.Groups.Where(t => solutionGroupIds.Contains(t.Id));
+            var studentGroupsIds = solutionGroups
+                .Where(t => t.StudentsIds.Contains(student.UserId))
+                .Select(t => t.Id);
+            
+            var studentSolutions = solutions
+                .Where(s => s.StudentId == student.UserId || studentGroupsIds.Contains(s.GroupId.GetValueOrDefault()))
+                .Select(s => 
+                    new GetSolutionModel(s, s.GroupId != null 
+                        ? courseMates.Where(t => solutionGroups.First(g => g.Id == s.GroupId)
+                                .StudentsIds.Contains(t.UserId))
+                                .ToArray()
+                        : null
+                    )
+                )
+                .OrderBy(s => s.PublicationDate)
+                .ToArray();
+
+            return new UserTaskSolutions()
             {
-                User = await getUserTask,
-                Solutions = resultSolutions,
+                User = student,
+                Solutions = studentSolutions
             };
         }
 
