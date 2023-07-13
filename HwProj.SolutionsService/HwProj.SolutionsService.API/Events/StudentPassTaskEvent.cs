@@ -11,13 +11,15 @@ namespace HwProj.SolutionsService.API.Events
         public SolutionViewModel Solution { get; set; }
         public AccountDataDto Student { get; set; }
         public HomeworkTaskViewModel Task { get; set; }
+        public string MentorId { get; set; }
 
-        public StudentPassTaskEvent(CourseDTO course, SolutionViewModel solution, AccountDataDto student, HomeworkTaskViewModel task)
+        public StudentPassTaskEvent(CourseDTO course, SolutionViewModel solution, AccountDataDto student, HomeworkTaskViewModel task, string mentorId)
         {
             Course = course;
             Solution = solution;
             Student= student;
             Task = task;
+            MentorId = mentorId;
         }
     }
 }

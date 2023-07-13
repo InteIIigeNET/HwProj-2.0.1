@@ -424,9 +424,11 @@ namespace HwProj.CoursesService.Client
             );
 
             var result = await _httpClient.SendAsync(httpRequest);
+
             return result.IsSuccessStatusCode
                 ? await result.DeserializeAsync<string>()
                 : result.ReasonPhrase;
+
         }
 
         public async Task<Result<string[]>> GetStudentsByMentor(long courseId, string mentorId)
