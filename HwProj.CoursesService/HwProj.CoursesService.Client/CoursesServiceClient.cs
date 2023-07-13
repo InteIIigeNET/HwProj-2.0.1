@@ -415,6 +415,34 @@ namespace HwProj.CoursesService.Client
             await _httpClient.SendAsync(httpRequest);
         }
 
+
+        public async Task<string> GetMentorByStudent(long courseId, string studentId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + $"api/Courses/{courseId}/getMentorByStudent/{studentId}"
+            );
+
+            var result = await _httpClient.SendAsync(httpRequest);
+            return result.IsSuccessStatusCode
+                ? await result.DeserializeAsync<string>()
+                : result.ReasonPhrase;
+        }
+
+        public async Task<Result<string[]>> GetStudentsByMentor(long courseId, string mentorId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + $"api/Courses/{courseId}/getStudentsByMentor/{mentorId}"
+            );
+
+            var result = await _httpClient.SendAsync(httpRequest);
+            return result.IsSuccessStatusCode
+                ? Result<string[]>.Success(await result.DeserializeAsync<string[]>())
+                : Result<string[]>.Failed(result.ReasonPhrase);
+
+        }
+
         public async Task<bool> Ping()
         {
             try

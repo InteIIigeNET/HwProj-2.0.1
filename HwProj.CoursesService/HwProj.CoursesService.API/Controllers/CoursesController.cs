@@ -198,8 +198,8 @@ namespace HwProj.CoursesService.API.Controllers
                 : NotFound();
         }
 
-        // TODO : Add client [HttpGet]
-        public async Task<IActionResult> GetMentorByStudent(long courseId, [FromQuery] string studentId)
+        [HttpGet("getMentorByStudent/{studentId}")]
+        public async Task<IActionResult> GetMentorByStudent([FromQuery] long courseId, [FromQuery] string studentId)
         {
             var mentorId = await _coursesService.GetMentorByStudent(courseId, studentId);
             return mentorId == null
@@ -207,12 +207,10 @@ namespace HwProj.CoursesService.API.Controllers
                 : Ok(mentorId);
         }
 
-
-        // TODO : Add client [HttpGet]
-        public async Task<IActionResult> GetStudentsByMentor(long courseId, [FromQuery] string mentorId)
+        [HttpGet("getStudentsByMentor/{mentorId}")]
+        public async Task<IActionResult> GetStudentsByMentor([FromQuery] long courseId, [FromQuery] string mentorId)
         {
             var studentsIds = await _coursesService.GetStudentsByMentor(courseId, mentorId);
-            Console.WriteLine(studentsIds);
             return mentorId == null
                 ? NotFound()
                 : Ok(studentsIds);
