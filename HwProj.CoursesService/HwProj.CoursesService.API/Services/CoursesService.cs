@@ -252,6 +252,12 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<bool> SetMentorToStudent(long courseId, string mentorId, string studentId)
         {
+            var mentorIds = GetCourseLecturers(courseId);
+            if (!mentorIds.Result.All(id => id.Equals(mentorId)))
+            {
+                return false;
+            }
+
             var courseMate = _courseMatesRepository.FindAsync(cm => cm.StudentId == studentId && cm.CourseId == courseId);
             if (courseMate == null)
             {
