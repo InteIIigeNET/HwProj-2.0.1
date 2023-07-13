@@ -416,7 +416,7 @@ namespace HwProj.CoursesService.Client
         }
 
 
-        public async Task<string> GetMentorByStudent(long courseId, string studentId)
+        public async Task<Result<CourseMateViewModel>> GetMentorByStudent(long courseId, string studentId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
@@ -425,11 +425,11 @@ namespace HwProj.CoursesService.Client
 
             var result = await _httpClient.SendAsync(httpRequest);
             return result.IsSuccessStatusCode
-                ? await result.DeserializeAsync<string>()
-                : result.ReasonPhrase;
+                ? Result<CourseMateViewModel>.Success(await result.DeserializeAsync<CourseMateViewModel>())
+                : Result<CourseMateViewModel>.Failed(result.ReasonPhrase);
         }
 
-        public async Task<Result<string[]>> GetStudentsByMentor(long courseId, string mentorId)
+        public async Task<Result<CourseMateViewModel[]>> GetStudentsByMentor(long courseId, string mentorId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
@@ -438,8 +438,8 @@ namespace HwProj.CoursesService.Client
 
             var result = await _httpClient.SendAsync(httpRequest);
             return result.IsSuccessStatusCode
-                ? Result<string[]>.Success(await result.DeserializeAsync<string[]>())
-                : Result<string[]>.Failed(result.ReasonPhrase);
+                ? Result<CourseMateViewModel[]>.Success(await result.DeserializeAsync<CourseMateViewModel[]>())
+                : Result<CourseMateViewModel[]>.Failed(result.ReasonPhrase);
 
         }
 
