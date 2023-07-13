@@ -14,6 +14,7 @@ using HwProj.Models;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace HwProj.CoursesService.API.Controllers
 {
@@ -195,6 +196,26 @@ namespace HwProj.CoursesService.API.Controllers
             return await _coursesService.SetMentorToStudent(courseId, mentorId, studentId)
                 ? Ok()
                 : NotFound();
+        }
+
+        // TODO : Add client [HttpGet]
+        public async Task<IActionResult> GetMentorByStudent(long courseId, [FromQuery] string studentId)
+        {
+            var mentorId = await _coursesService.GetMentorByStudent(courseId, studentId);
+            return mentorId == null
+                ? NotFound()
+                : Ok(mentorId);
+        }
+
+
+        // TODO : Add client [HttpGet]
+        public async Task<IActionResult> GetStudentsByMentor(long courseId, [FromQuery] string mentorId)
+        {
+            var studentsIds = await _coursesService.GetStudentsByMentor(courseId, mentorId);
+            Console.WriteLine(studentsIds);
+            return mentorId == null
+                ? NotFound()
+                : Ok(studentsIds);
         }
     }
 }
