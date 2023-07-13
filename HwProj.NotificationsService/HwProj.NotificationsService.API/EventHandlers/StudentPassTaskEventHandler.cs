@@ -27,11 +27,16 @@ namespace HwProj.NotificationsService.API.EventHandlers
             _authServiceClient = authServiceClient;
             _emailService = emailService;
             _configuration = configuration.GetSection("Notification");
+
         }
 
         public override async Task HandleAsync(StudentPassTaskEvent @event)
         {
-            foreach (var m in @event.Course.MentorIds)
+            var mentorsIds = @event.MentorId == null
+                ? @event.Course.MentorIds
+                : new [] { @event.MentorId };
+
+            foreach (var mentor in @event.Course.MentorIds)//mentorsIds)
             {
                 var notification = new Notification
                 {
@@ -43,13 +48,13 @@ namespace HwProj.NotificationsService.API.EventHandlers
                     Category = CategoryState.Homeworks,
                     Date = DateTimeUtils.GetMoscowNow(),
                     HasSeen = false,
-                    Owner = m
+                    Owner = mentor,
                 };
 
-                var mentor = await _authServiceClient.GetAccountData(notification.Owner);
+                var mentorAccountData = await _authServiceClient.GetAccountData(notification.Owner);
 
                 var addNotificationTask = _notificationRepository.AddAsync(notification);
-                var sendEmailTask = _emailService.SendEmailAsync(notification, mentor.Email, "HwProj");
+                var sendEmailTask = _emailService.SendEmailAsync(notification, mentorAccountData.Email, "HwProj");
 
                 await Task.WhenAll(addNotificationTask, sendEmailTask);
             }

@@ -3,6 +3,9 @@
     public class CourseMateViewModel
     {
         public string StudentId { get; set; }
+
+        public string MentorId { get; set; }
+
         public bool IsAccepted { get; set; }
 
         public string MentorId { get; set; }

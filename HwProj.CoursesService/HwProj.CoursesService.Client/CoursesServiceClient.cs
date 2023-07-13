@@ -424,6 +424,7 @@ namespace HwProj.CoursesService.Client
             );
 
             var result = await _httpClient.SendAsync(httpRequest);
+
             return result.IsSuccessStatusCode
                 ? Result<CourseMateViewModel>.Success(await result.DeserializeAsync<CourseMateViewModel>())
                 : Result<CourseMateViewModel>.Failed(result.ReasonPhrase);
