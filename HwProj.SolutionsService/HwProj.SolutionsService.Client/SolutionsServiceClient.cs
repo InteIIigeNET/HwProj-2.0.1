@@ -41,7 +41,7 @@ namespace HwProj.SolutionsService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
-                _solutionServiceUri + $"api/Solutions/{taskId}");
+                _solutionServiceUri + $"api/Solutions/taskSolutions/{taskId}");
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
