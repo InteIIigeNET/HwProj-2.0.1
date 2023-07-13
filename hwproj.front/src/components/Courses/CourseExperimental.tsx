@@ -45,7 +45,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         selectedItem: {
             isHomework: true,
             id: homeworks && homeworks[0].id,
-            data: homeworks && homeworks[0]
+            data: homeworks  && homeworks[0]
         }
     })
 

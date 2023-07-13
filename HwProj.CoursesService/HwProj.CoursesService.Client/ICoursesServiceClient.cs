@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Net.Http;
+using System.Threading.Tasks;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
@@ -39,8 +40,8 @@ namespace HwProj.CoursesService.Client
         Task<Result> AcceptLecturer(long courseId, string lecturerEmail);
         Task<Result<AccountDataDto[]>> GetLecturersAvailableForCourse(long courseId);
         Task SetMentorToStudent(long courseId, string mentorId, string studentId);
-        Task<string> GetMentorByStudent(long courseId, string studentId);
-        Task<Result<string[]>> GetStudentsByMentor(long courseId, string mentorId);
+        Task<Result<CourseMateViewModel>> GetMentorByStudent(long courseId, string studentId);
+        Task<Result<CourseMateViewModel[]>> GetStudentsByMentor(long courseId, string mentorId);
         Task<bool> Ping();
     }
 }

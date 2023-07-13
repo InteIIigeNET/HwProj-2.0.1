@@ -60,18 +60,12 @@ namespace HwProj.APIGateway.API.Controllers
 
             var courseMentors = getMentorsTask.Result.Where(t => t != null).ToArray();
 
-            var assignedStudents = new string[courseMentors.Length][];
-            for (var i = 0; i < assignedStudents.Length; ++i)
-            {
-                assignedStudents[i] = (await _coursesClient.GetStudentsByMentor(courseId, courseMentors[i].UserId)).Value;
-            }
-
             var result = new CourseViewModel
             {
                 Id = courseId,
                 Name = course.Name,
                 GroupName = course.GroupName,
-                MentorsAssignedStudents = assignedStudents,
+                CourseMates = course.CourseMates,
                 Mentors = courseMentors,
                 AcceptedStudents = acceptedStudents.ToArray(),
                 NewStudents = newStudents.ToArray(),

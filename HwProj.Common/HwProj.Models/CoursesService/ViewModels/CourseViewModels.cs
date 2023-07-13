@@ -44,7 +44,8 @@ namespace HwProj.Models.CoursesService.ViewModels
         public string GroupName { get; set; }
         public bool IsOpen { get; set; }
         public bool IsCompleted { get; set; }
-        public string[][] MentorsAssignedStudents { get; set; }
+
+        public CourseMateViewModel[] CourseMates { get; set; }
 
         public AccountDataDto[] Mentors { get; set; }
         public AccountDataDto[] AcceptedStudents { get; set; }

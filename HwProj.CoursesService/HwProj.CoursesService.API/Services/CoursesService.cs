@@ -288,18 +288,17 @@ namespace HwProj.CoursesService.API.Services
             return true;
         }
 
-        public async Task<string> GetMentorByStudent(long courseId, string studentId)
+        public async Task<CourseMate> GetMentorByStudent(long courseId, string studentId)
         {
-            return (await _courseMatesRepository
+            return await _courseMatesRepository
                 .FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId)
-                .ConfigureAwait(false)).MentorId;
+                .ConfigureAwait(false);
         }
 
-        public async Task<string[]> GetStudentsByMentor(long courseId, string mentorId)
+        public async Task<CourseMate[]> GetStudentsByMentor(long courseId, string mentorId)
         {
             return await _courseMatesRepository
                 .FindAll(cm => cm.CourseId == courseId && cm.MentorId == mentorId)
-                .Select(cm => cm.StudentId)
                 .ToArrayAsync()
                 .ConfigureAwait(false);
         }

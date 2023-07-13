@@ -201,19 +201,19 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpGet("{courseId}/getMentorByStudent/{studentId}")]
         public async Task<IActionResult> GetMentorByStudent(long courseId, string studentId)
         {
-            var mentorId = await _coursesService.GetMentorByStudent(courseId, studentId);
-            return mentorId == null
+            var mentor = _mapper.Map<CourseMateViewModel>(await _coursesService.GetMentorByStudent(courseId, studentId));
+            return mentor == null
                 ? NotFound()
-                : Ok(mentorId);
+                : Ok(mentor);
         }
 
         [HttpGet("{courseId}/getStudentsByMentor/{mentorId}")]
         public async Task<IActionResult> GetStudentsByMentor(long courseId,  string mentorId)
         {
-            var studentsIds = await _coursesService.GetStudentsByMentor(courseId, mentorId);
-            return mentorId == null
+            var students = _mapper.Map<CourseMateViewModel[]>(await _coursesService.GetStudentsByMentor(courseId, mentorId));
+            return students.Length == 0
                 ? NotFound()
-                : Ok(studentsIds);
+                : Ok(students);
         }
     }
 }
