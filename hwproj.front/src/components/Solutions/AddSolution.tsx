@@ -10,6 +10,7 @@ import {Alert, Autocomplete} from "@mui/material";
 
 interface IAddSolutionProps {
     lastSolutionUrl: string | undefined,
+    lastGroup: string[],
     taskId: number,
     students: AccountDataDto[]
     onAdd: () => void,
@@ -32,7 +33,7 @@ const AddSolution: FC<IAddSolutionProps> = (props) => {
     const [solution, setSolution] = useState<SolutionViewModel>({
         githubUrl: props.lastSolutionUrl || "",
         comment: "",
-        groupMateIds: []
+        groupMateIds: props.lastGroup || []
     })
 
     const handleSubmit = async (e: any) => {
@@ -64,7 +65,7 @@ const AddSolution: FC<IAddSolutionProps> = (props) => {
                             }}
                         />
                         {githubUrl === props.lastSolutionUrl &&
-                            <Alert sx={{paddingTop: 0, paddingBottom: 0}} severity="info">Ссылка взята из предыдущего
+                            <Alert sx={{paddingTop: 0, paddingBottom: 0, marginTop: 0.2}} severity="info">Ссылка взята из предыдущего
                                 решения</Alert>}
                     </Grid>
                     <Grid item xs={12} style={{marginTop: '16px'}}>
@@ -72,6 +73,7 @@ const AddSolution: FC<IAddSolutionProps> = (props) => {
                             multiple
                             id="tags-outlined"
                             options={props.students}
+                            value={props.students.filter(s => solution.groupMateIds?.includes(s.userId!))}
                             getOptionLabel={(option) => option.surname! + ' ' + option.name! + " / " + option.email!}
                             filterSelectedOptions
                             onChange={(e, values) => {
@@ -89,6 +91,9 @@ const AddSolution: FC<IAddSolutionProps> = (props) => {
                                 />
                             )}
                         />
+                        {solution.groupMateIds === props.lastGroup &&
+                            <Alert sx={{paddingTop: 0, paddingBottom: 0, marginTop: 0.2}} severity="info">Команда взята из предыдущего
+                                решения</Alert>}
                     </Grid>
                     <Grid item xs={12} style={{marginTop: '16px'}}>
                         <TextField
