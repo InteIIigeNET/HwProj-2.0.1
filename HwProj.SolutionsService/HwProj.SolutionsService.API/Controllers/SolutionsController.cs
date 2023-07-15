@@ -166,7 +166,7 @@ namespace HwProj.SolutionsService.API.Controllers
                 CourseMates = courseMates,
                 Homeworks = course.Homeworks.Where(t => t.Tasks.Any()).ToList(),
                 Solutions = solutions,
-                Groups = courseGroups.ToList()
+                Groups = courseGroups
             };
 
             var result = SolutionsStatsDomain.GetCourseStatistics(solutionsStatsContext);
