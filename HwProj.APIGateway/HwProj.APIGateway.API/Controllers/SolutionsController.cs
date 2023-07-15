@@ -10,10 +10,10 @@ using HwProj.CoursesService.Client;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
 using HwProj.Models.SolutionsService;
-using HwProj.Models.StatisticsService;
 using HwProj.SolutionsService.Client;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 
 namespace HwProj.APIGateway.API.Controllers
 {
@@ -31,14 +31,6 @@ namespace HwProj.APIGateway.API.Controllers
         {
             _solutionsClient = solutionsClient;
             _coursesServiceClient = coursesServiceClient;
-        }
-
-        [HttpGet]
-        [ProducesResponseType(typeof(Solution[]), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetAllSolutions()
-        {
-            var result = await _solutionsClient.GetAllSolutions();
-            return Ok(result);
         }
 
         [HttpGet("{solutionId}")]
