@@ -56,7 +56,8 @@ namespace HwProj.CoursesService.API.Controllers
             if (courseFromDb == null) return NotFound();
 
             var course = _mapper.Map<CourseDTO>(courseFromDb);
-            // TODO: Move group assignment to course repository or course service?
+            // TODO: Move group assignment to course service
+            // TODO: Make groups invisible for students
             course.Groups = await _groupsRepository.GetGroupsWithGroupMatesByCourse(course.Id).Select(g =>
                 new GroupViewModel
                 {
@@ -75,7 +76,7 @@ namespace HwProj.CoursesService.API.Controllers
             if (courseFromDb == null) return NotFound();
 
             var course = _mapper.Map<CourseDTO>(courseFromDb);
-            // TODO: Move group assignment to course repository or course service?
+            // TODO: Move group assignment to course service
             course.Groups = await _groupsRepository.GetGroupsWithGroupMatesByCourse(course.Id).Select(g =>
                 new GroupViewModel
                 {
