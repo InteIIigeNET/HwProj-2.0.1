@@ -14,7 +14,6 @@ using HwProj.SolutionsService.Client;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-
 namespace HwProj.APIGateway.API.Controllers
 {
     [Route("api/[controller]")]
