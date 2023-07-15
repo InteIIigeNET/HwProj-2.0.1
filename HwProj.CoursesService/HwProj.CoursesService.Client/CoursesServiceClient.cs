@@ -405,7 +405,7 @@ namespace HwProj.CoursesService.Client
                 : Result<AccountDataDto[]>.Failed(response.ReasonPhrase);
         }
 
-        public async Task SetMentorToStudent(long courseId, string mentorId, string studentId)
+        public async Task AssignStudentToMentor(long courseId, string mentorId, string studentId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Put,

@@ -151,5 +151,13 @@ namespace HwProj.APIGateway.API.Controllers
             var result = await _coursesClient.GetLecturersAvailableForCourse(courseId);
             return Ok(result.Value);
         }
+        
+        [HttpPut("{courseId}/assignStudent/{studentId}/{mentorId}")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        public async Task<IActionResult> AssignStudentToMentor(long courseId, string mentorId, string studentId)
+        {
+            await _coursesClient.AssignStudentToMentor(courseId, mentorId, studentId);
+            return Ok();
+        }
     }
 }
