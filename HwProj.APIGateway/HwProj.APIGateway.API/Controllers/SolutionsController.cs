@@ -33,22 +33,6 @@ namespace HwProj.APIGateway.API.Controllers
             _coursesServiceClient = coursesServiceClient;
         }
 
-        [HttpGet]
-        [ProducesResponseType(typeof(Solution[]), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetAllSolutions()
-        {
-            var result = await _solutionsClient.GetAllSolutions();
-            return Ok(result);
-        }
-        
-        [HttpGet("{taskId}")]
-        [ProducesResponseType(typeof(Solution[]), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetAllTaskSolutions(long taskId)
-        {
-            var result = await _solutionsClient.GetAllTaskSolutions(taskId);
-            return Ok(result);
-        }
-
         [HttpGet("{solutionId}")]
         [ProducesResponseType(typeof(Solution), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetSolutionById(long solutionId)
