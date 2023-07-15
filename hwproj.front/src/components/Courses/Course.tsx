@@ -15,6 +15,7 @@ import VisibilityIcon from '@material-ui/icons/Visibility';
 import {Chip, Stack} from "@mui/material";
 import CourseExperimental from "./CourseExperimental";
 import {useParams, useNavigate} from 'react-router-dom';
+import Checkbox from '@mui/material/Checkbox';
 
 type TabValue = "homeworks" | "stats" | "applications"
 
@@ -67,6 +68,8 @@ const Course: React.FC = () => {
     const [pageState, setPageState] = useState<IPageState>({
         tabValue: "homeworks"
     })
+
+    const [homeworkMentorFilter, setHomeworkMentorFilter] = useState<boolean>(false);
 
     const {
         isFound,
@@ -320,15 +323,24 @@ const Course: React.FC = () => {
                         }
                     </div>}
                     {tabValue === "stats" &&
-                        <Grid container style={{marginBottom: "15px"}}>
-                            <Grid item xs={12}>
-                                <StudentStats
-                                    homeworks={courseState.courseHomework}
-                                    userId={userId as string}
-                                    isMentor={isMentor}
-                                    course={courseState.course}
-                                    solutions={studentSolutions}
-                                />
+                        <Grid>
+                            {isMentor &&
+                             <Checkbox id="checkBox" onClick={() => 
+                                setHomeworkMentorFilter(current => !current)}/> }
+                            <Grid container style={{marginBottom: "15px"}}>
+                                <Grid item xs={12}>
+                                    <StudentStats
+                                        homeworks={courseState.courseHomework}
+                                        userId={userId as string}
+                                        isMentor={isMentor}
+                                        course={courseState.course}
+                                        solutions= {homeworkMentorFilter 
+                                            ? studentSolutions.filter(s => 
+                                                course.courseMates?.find(cm => cm.studentId === s.id)?.mentorId == userId)
+                                            : studentSolutions
+                                        }
+                                    />
+                                </Grid>
                             </Grid>
                         </Grid>}
                     {tabValue === "applications" && showApplicationsTab &&
