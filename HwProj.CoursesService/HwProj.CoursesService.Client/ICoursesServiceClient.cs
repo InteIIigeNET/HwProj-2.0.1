@@ -39,7 +39,7 @@ namespace HwProj.CoursesService.Client
         Task<long[]> GetGroupTasks(long groupId);
         Task<Result> AcceptLecturer(long courseId, string lecturerEmail);
         Task<Result<AccountDataDto[]>> GetLecturersAvailableForCourse(long courseId);
-        Task SetMentorToStudent(long courseId, string mentorId, string studentId);
+        Task AssignStudentToMentor(long courseId, string mentorId, string studentId);
         Task<Result<CourseMateViewModel>> GetMentorByStudent(long courseId, string studentId);
         Task<Result<CourseMateViewModel[]>> GetStudentsByMentor(long courseId, string mentorId);
         Task<bool> Ping();

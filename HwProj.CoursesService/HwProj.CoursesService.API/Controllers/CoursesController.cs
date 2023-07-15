@@ -190,7 +190,7 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpPut("{courseId}/assignStudent/{studentId}")]
         public async Task<IActionResult> SetMentorToStudents(long courseId, [FromQuery] string mentorId, string studentId)
         {
-            return await _coursesService.SetMentorToStudent(courseId, mentorId, studentId)
+            return await _coursesService.AssignStudentToMentor(courseId, mentorId, studentId)
                 ? Ok()
                 : NotFound();
         }
