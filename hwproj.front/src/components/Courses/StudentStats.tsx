@@ -1,5 +1,5 @@
 import React from "react";
-import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api/";
+import {CourseViewModel, HomeworkViewModel, Solution, StatisticsCourseMatesModel} from "../../api/";
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
 import {Alert} from "@mui/material";
@@ -44,8 +44,9 @@ class StudentStats extends React.Component<IStudentStatsProps, IStudentStatsStat
         const homeworks = this.props.homeworks.filter(h => h.tasks && h.tasks.length > 0)
         const {searched} = this.state
         const solutions = searched
-            ? this.props.solutions.filter(cm => (cm.surname + " " + cm.name).toLowerCase().includes(searched.toLowerCase()))
+            ? this.props.solutions.filter(cm => (cm.surname + " " + cm.name).toLowerCase().includes(searched.toLowerCase() + '1'))
             : this.props.solutions
+
         const fixedColumnStyles: React.CSSProperties = {
             position: "sticky",
             left: 0,
