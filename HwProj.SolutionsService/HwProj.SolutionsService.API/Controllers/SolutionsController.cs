@@ -173,9 +173,9 @@ namespace HwProj.SolutionsService.API.Controllers
             return Ok(result);
         }
 
-        [HttpGet("getTaskStats/{taskId}")]
+        [HttpGet("getTaskStats/{courseId}/{taskId}")]
         [ProducesResponseType(typeof(StudentSolutions[]), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetTaskStats(long taskId)
+        public async Task<IActionResult> GetTaskStats(string courseId, long taskId)
         {
             var solutions = await _solutionsRepository.FindAll(t => t.TaskId == taskId).ToListAsync();
             var result = SolutionsStatsDomain.GetCourseTaskStatistics(solutions);
