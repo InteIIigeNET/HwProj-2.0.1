@@ -44,7 +44,7 @@ class StudentStats extends React.Component<IStudentStatsProps, IStudentStatsStat
         const homeworks = this.props.homeworks.filter(h => h.tasks && h.tasks.length > 0)
         const {searched} = this.state
         const solutions = searched
-            ? this.props.solutions.filter(cm => (cm.surname + " " + cm.name).toLowerCase().includes(searched.toLowerCase() + '1'))
+            ? this.props.solutions.filter(cm => (cm.surname + " " + cm.name).toLowerCase().includes(searched.toLowerCase()))
             : this.props.solutions
 
         const fixedColumnStyles: React.CSSProperties = {

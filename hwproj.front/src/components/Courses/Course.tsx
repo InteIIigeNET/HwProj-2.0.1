@@ -5,6 +5,7 @@ import CourseHomework from "../Homeworks/CourseHomework";
 import AddHomework from "../Homeworks/AddHomework";
 import StudentStats from "./StudentStats";
 import NewCourseStudents from "./NewCourseStudents";
+import StudentAssignment from "./StudentsAssignment";
 import ApiSingleton from "../../api/ApiSingleton";
 import {Button, Grid, Tab, Tabs, Typography, IconButton, Switch} from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
@@ -17,10 +18,10 @@ import CourseExperimental from "./CourseExperimental";
 import {useParams, useNavigate} from 'react-router-dom';
 import Checkbox from '@mui/material/Checkbox';
 
-type TabValue = "homeworks" | "stats" | "applications"
+type TabValue = "homeworks" | "stats" | "applications" | "assignment"
 
 function isAcceptableTabValue(str: string): str is TabValue {
-    return str === "homeworks" || str === "stats" || str === "applications";
+    return str === "homeworks" || str === "stats" || str === "applications" || str === "assignment";
 }
 
 interface ICourseState {
@@ -101,11 +102,13 @@ const Course: React.FC = () => {
 
     const showStatsTab = isMentor || isAcceptedStudent
     const showApplicationsTab = isMentor
+    const showAssignmentTab = isMentor
 
     const changeTab = (newTab: string, addToHistory?: boolean) => {
         if (isAcceptableTabValue(newTab) && newTab !== pageState.tabValue) {
             if (newTab === "stats" && !showStatsTab) return;
             if (newTab === "applications" && !showApplicationsTab) return;
+            if (newTab === "assignment" && !showAssignmentTab) return;
 
             if (addToHistory) navigate(`/courses/${courseId}/${newTab}`)
             setPageState(prevState => ({
@@ -219,13 +222,14 @@ const Course: React.FC = () => {
                         </Grid>
                     </Grid>
                     <Tabs
-                        value={tabValue == "homeworks" ? 0 : tabValue === "stats" ? 1 : 2}
+                        value={tabValue === "homeworks" ? 0 : tabValue === "stats" ? 1 : tabValue === "applications" ? 2 : 3}
                         style={{marginTop: 15}}
                         indicatorColor="primary"
                         onChange={(event, value) => {
                             if (value === 0) changeTab("homeworks", true)
                             if (value === 1) changeTab("stats", true)
                             if (value === 2) changeTab("applications", true)
+                            if (value === 3) changeTab("assignment", true)
                         }}
                     >
                         <Tab label="Домашние задания"/>
@@ -242,6 +246,13 @@ const Course: React.FC = () => {
                                 <Chip size={"small"} color={"default"}
                                       label={newStudents.length}/>
                             </Stack>}/>}
+                        {showAssignmentTab && <Tab label={
+                            <Stack direction="row" spacing={1}>
+                                <div>Привязка</div>
+                                <Chip size={"small"} color={"default"}
+                                      label={newStudents.length}/>
+                            </Stack>}/>}
+
                     </Tabs>
                     <br/>
                     {tabValue === "homeworks" && <div>
@@ -330,7 +341,7 @@ const Course: React.FC = () => {
                                 }
                             
                             Закрепленные студенты
-                            
+
                             <Grid container style={{marginBottom: "15px"}}>
                                 <Grid item xs={12}>
                                     <StudentStats
@@ -355,6 +366,16 @@ const Course: React.FC = () => {
                                 students={courseState.newStudents}
                                 courseId={courseId!}
                             />
+                        </Grid>
+                    }
+
+                    {tabValue === "assignment" && showAssignmentTab  &&
+                        <Grid>
+                            <StudentAssignment
+                                courseId = {course.id!}
+                                mentors = {courseState.mentors}
+                                acceptedStudents = {courseState.acceptedStudents}
+                            />                               
                         </Grid>
                     }
                 </Grid>
