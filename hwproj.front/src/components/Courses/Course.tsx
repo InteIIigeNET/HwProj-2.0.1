@@ -325,8 +325,12 @@ const Course: React.FC = () => {
                     {tabValue === "stats" &&
                         <Grid>
                             {isMentor &&
-                             <Checkbox id="checkBox" onClick={() => 
-                                setHomeworkMentorFilter(current => !current)}/> }
+                             <Checkbox onClick={() => 
+                                setHomeworkMentorFilter(current => !current)}/> 
+                                }
+                            
+                            Закрепленные студенты
+                            
                             <Grid container style={{marginBottom: "15px"}}>
                                 <Grid item xs={12}>
                                     <StudentStats
