@@ -42,50 +42,55 @@ namespace HwProj.APIGateway.API.Controllers
                 ? NotFound() as IActionResult
                 : Ok(result);
         }
-        
+
         [HttpGet("taskSolution/{taskId}/{studentId}")]
         [Authorize]
-        public async Task<UserTaskSolutions> GetStudentSolution(long taskId, string studentId)
+        [ProducesResponseType(typeof(UserTaskSolutions), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetStudentSolution(long taskId, string studentId)
         {
             var course = await _coursesServiceClient.GetCourseByTask(taskId);
 
-            if (course == null) return new UserTaskSolutions();
-            
-            var getSolutionsTask = _solutionsClient.GetAllTaskSolutions(taskId);
-            var getUsersTask = AuthServiceClient.GetAccountsData(
-                course.CourseMates.Select(t => t.StudentId).ToArray()
-                );
+            if (course == null) return NotFound();
 
-            await Task.WhenAll(getSolutionsTask, getUsersTask);
+            if (course.CourseMates.FirstOrDefault(t => t.StudentId == studentId) is not { IsAccepted: true })
+                return BadRequest();
+
+            var getSolutionsTask = _solutionsClient.GetAllTaskSolutions(taskId);
+            var getUserTask = AuthServiceClient.GetAccountData(studentId);
+
+            await Task.WhenAll(getSolutionsTask, getUserTask);
 
             var solutions = getSolutionsTask.Result;
-            var solutionGroupIds = solutions.Select(t => t.GroupId).Where(t => t != null).ToArray();
+            var solutionsGroupIds = solutions.Select(t => t.GroupId).Where(t => t != null).ToArray();
 
-            var courseMates = getUsersTask.Result;
-            var student = courseMates.First(t => t.UserId == studentId);
-            var solutionGroups = course.Groups.Where(t => solutionGroupIds.Contains(t.Id));
-            var studentGroupsIds = solutionGroups
+            var student = getUserTask.Result;
+            var solutionsGroups = course.Groups.Where(t => solutionsGroupIds.Contains(t.Id)).ToList();
+            var studentGroupsIds = solutionsGroups
                 .Where(t => t.StudentsIds.Contains(student.UserId))
                 .Select(t => t.Id);
             
+            // TODO: Move to solution service
+            var courseMatesIds = solutionsGroups.SelectMany(t => t.StudentsIds).Distinct().ToArray();
+            var courseMates = await AuthServiceClient.GetAccountsData(courseMatesIds);
+
             var studentSolutions = solutions
                 .Where(s => s.StudentId == student.UserId || studentGroupsIds.Contains(s.GroupId.GetValueOrDefault()))
-                .Select(s => 
-                    new GetSolutionModel(s, s.GroupId != null 
-                        ? courseMates.Where(t => solutionGroups.First(g => g.Id == s.GroupId)
+                .Select(s =>
+                    new GetSolutionModel(s, s.GroupId != null
+                        ? courseMates.Where(t => solutionsGroups.First(g => g.Id == s.GroupId)
                                 .StudentsIds.Contains(t.UserId))
-                                .ToArray()
+                            .ToArray()
                         : null
                     )
                 )
                 .OrderBy(s => s.PublicationDate)
                 .ToArray();
 
-            return new UserTaskSolutions()
+            return Ok(new UserTaskSolutions()
             {
                 User = student,
                 Solutions = studentSolutions
-            };
+            });
         }
 
         [Authorize]
@@ -119,7 +124,7 @@ namespace HwProj.APIGateway.API.Controllers
             foreach (var solution in studentSolutions)
             {
                 var groupId = solution.GroupId.GetValueOrDefault();
-                
+
                 if (groupId == 0)
                 {
                     solutions[solution.StudentId] = new GetSolutionModel(solution, null);
@@ -140,7 +145,7 @@ namespace HwProj.APIGateway.API.Controllers
                 StudentsSolutions = studentIds.Select(studentId => new UserTaskSolutions
                     {
                         Solutions = solutions.TryGetValue(studentId, out var solution)
-                            ? new[] {solution}
+                            ? new[] { solution }
                             : Array.Empty<GetSolutionModel>(),
                         User = usersData[studentId]
                     })
