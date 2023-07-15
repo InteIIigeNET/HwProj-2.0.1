@@ -250,10 +250,10 @@ namespace HwProj.CoursesService.API.Services
                 .ToArray();
         }
 
-        public async Task<bool> SetMentorToStudent(long courseId, string mentorId, string studentId)
+        public async Task<bool> AssignStudentToMentor(long courseId, string mentorId, string studentId)
         {
             var mentorIds = GetCourseLecturers(courseId);
-            if (!mentorIds.Result.All(id => id.Equals(mentorId)))
+            if (!mentorIds.Result.Any(id => id.Equals(mentorId)))
             {
                 return false;
             }
