@@ -6,6 +6,7 @@ import React from 'react';
 import {FC} from "react";
 import Grid from '@mui/material/Unstable_Grid2';
 import Box from '@mui/material/Box';
+import {useState} from "react";
 
 interface IStudentAssignmentProps {
     course : CourseViewModel,
@@ -17,6 +18,8 @@ interface IStudentAssignmentProps {
 const StudentsAssignment : FC<IStudentAssignmentProps> = (props) => {
 
    const courseMates : CourseMateViewModel[] | undefined = props.course.courseMates;
+
+   const [courseState, setCourseState] = useState<CourseViewModel>(props.course);
 
    const assignStudent = async (mentorId: string, studentId: string) => {
         await ApiSingleton.coursesApi.apiCoursesByCourseIdAssignStudentByStudentIdByMentorIdPut(props.course.id!, mentorId, studentId);
@@ -51,8 +54,15 @@ const StudentsAssignment : FC<IStudentAssignmentProps> = (props) => {
                         id= " combo-box-demo"
                         options = {filterAssignedStudents(props.acceptedStudents, current.userId!)}
                         getOptionLabel= {(option) => createFullName(option)!}
-                        onChange = {(event, value : AccountDataDto) => {
-                            assignStudent(current.userId!, value.userId!)}}
+                        onChange = {(event, value : AccountDataDto | null) => {
+                            assignStudent(current.userId!, value?.userId!)
+                            const newCourseMates = courseMates
+                            newCourseMates!.find(cm => cm.studentId === value?.userId)!.mentorId! = current.userId!
+                            setCourseState(prevState => ({
+                                ...prevState,
+                                courseMates : newCourseMates,
+                            }))
+                        }}
                         sx ={{ width: 300 }}
                         renderInput={(params) => <TextField {...params} 
                         label = {createFullName(current)} />}                   
