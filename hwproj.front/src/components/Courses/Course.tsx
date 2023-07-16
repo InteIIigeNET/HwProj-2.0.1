@@ -335,13 +335,6 @@ const Course: React.FC = () => {
                     </div>}
                     {tabValue === "stats" &&
                         <Grid>
-                            {isMentor &&
-                                <Checkbox onClick={() =>
-                                    setHomeworkMentorFilter(current => !current)} />
-                            }
-
-                            Закрепленные студенты
-
                             <Grid container style={{ marginBottom: "15px" }}>
                                 <Grid item xs={12}>
                                     <StudentStats
@@ -349,11 +342,7 @@ const Course: React.FC = () => {
                                         userId={userId as string}
                                         isMentor={isMentor}
                                         course={courseState.course}
-                                        solutions={homeworkMentorFilter
-                                            ? studentSolutions.filter(s =>
-                                                course.courseMates?.find(cm => cm.studentId === s.id)?.mentorId == userId)
-                                            : studentSolutions
-                                        }
+                                        solutions={studentSolutions}
                                     />
                                 </Grid>
                             </Grid>
