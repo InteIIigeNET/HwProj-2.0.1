@@ -248,9 +248,7 @@ const Course: React.FC = () => {
                             </Stack>} />}
                         {showAssignmentTab && <Tab label={
                             <Stack direction="row" spacing={1}>
-                                <div>Привязка</div>
-                                <Chip size={"small"} color={"default"}
-                                    label={newStudents.length} />
+                                <div>Закрепление</div>
                             </Stack>} />}
 
                     </Tabs>
