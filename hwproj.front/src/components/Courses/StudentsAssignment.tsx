@@ -8,31 +8,40 @@ import {FC} from "react";
 
 
 interface IStudentAssignmentProps {
-    courseId : number,
+    course : CourseViewModel,
     mentors : AccountDataDto[],
     acceptedStudents: AccountDataDto[]
 }
 
+// TODO: after assignment change current course state  + fix filters to make it faster  
 const StudentsAssignment : FC<IStudentAssignmentProps> = (props) => {
 
-   const assignStudent = async (courseId : number, mentorId: string, studentId: string) => {
-        await ApiSingleton.coursesApi.apiCoursesByCourseIdAssignStudentByStudentIdByMentorIdPut(courseId, mentorId, studentId);
+   const courseMates : CourseMateViewModel[] | undefined = props.course.courseMates;
+
+   const assignStudent = async (mentorId: string, studentId: string) => {
+        await ApiSingleton.coursesApi.apiCoursesByCourseIdAssignStudentByStudentIdByMentorIdPut(props.course.id!, mentorId, studentId);
    }
 
-   const studentNames : string[] = props.acceptedStudents.map(student => student.surname + " " + student.name);
-   const mentorsNames : string[] = props.mentors.map(mentor => mentor.surname + " " + mentor.name);
+   const createFullName = (user : AccountDataDto) => user.surname + " " + user.name;
+
+   const filterAssignedStudents = (students : AccountDataDto[], mentorId : string) =>
+        students.filter(student => courseMates?.find(cm => cm.studentId === student.userId)?.mentorId !== mentorId)
    
    return (
          <div>
             <Stack>
-                {mentorsNames.map(fullName => 
+                {props.mentors.map(current => 
                     <Autocomplete
                         disablePortal
                         id= " combo-box-demo"
-                        options={studentNames}
+                        options = {filterAssignedStudents(props.acceptedStudents, current.userId!)}
+                        getOptionLabel= {(option) => createFullName(option)!}
+                        onChange = {(event, value : AccountDataDto) => {
+                            alert(value.userId);
+                            assignStudent(current.userId!, value.userId!)}}
                         sx ={{ width: 300 }}
                         renderInput={(params) => <TextField {...params} 
-                        label = {fullName} />}                         
+                        label = {createFullName(current)} />}                   
                     />) //TODO : onchange event
                 }
                     
