@@ -14,6 +14,7 @@ import {useNavigate, useParams} from "react-router-dom";
 import {Chip, List, ListItemButton, ListItemText, Stack, Alert} from "@mui/material";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import { Link } from 'react-router-dom';
+import Checkbox from '@mui/material/Checkbox';
 
 interface IStudentSolutionsPageState {
     currentTaskId: string
@@ -22,6 +23,7 @@ interface IStudentSolutionsPageState {
     isLoaded: boolean
     allSolutionsRated: boolean,
     courseId: number,
+    assignedStudents: string[];
     studentSolutionsPreview: {
         student: AccountDataDto,
         solutions: GetSolutionModel[]
@@ -43,6 +45,7 @@ const StudentSolutionsPage: FC = () => {
         task: {},
         isLoaded: false,
         courseId: -1,
+        assignedStudents: [],
         studentSolutionsPreview: [],
     })
 
@@ -52,7 +55,8 @@ const StudentSolutionsPage: FC = () => {
         currentTaskId,
         studentSolutionsPreview,
         allSolutionsRated,
-        courseId
+        assignedStudents,
+        courseId,
     } = studentSolutionsState
     const userId = ApiSingleton.authService.isLoggedIn()
         ? ApiSingleton.authService.getUserId()
@@ -69,6 +73,8 @@ const StudentSolutionsPage: FC = () => {
             courseId
         } = await ApiSingleton.solutionsApi.apiSolutionsTasksByTaskIdGet(+taskId!, studentId)
 
+        const assignedStudent = (await (ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+courseId!))).courseMates?.filter(cm => cm.mentorId === userId).map(cm => cm.studentId!)!;
+
         const studentSolutionsPreview = studentsSolutions!.map(studentSolutions => {
             const ratedSolutionInfo = StudentStatsUtils.calculateLastRatedSolutionInfo(studentSolutions.solutions!, task.maxRating!)
             return {student: studentSolutions.user!, ...ratedSolutionInfo, solutions: studentSolutions.solutions!}
@@ -82,6 +88,7 @@ const StudentSolutionsPage: FC = () => {
             currentTaskId: taskId,
             studentSolutionsPreview: studentSolutionsPreview,
             courseId: courseId!,
+            assignedStudents: assignedStudent,
             allSolutionsRated: studentSolutionsPreview.findIndex(x => x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0) === -1
         })
     }
@@ -90,7 +97,13 @@ const StudentSolutionsPage: FC = () => {
         getTaskData(taskId!, studentId!)
     }, [taskId, studentId])
 
+
+
     const currentStudent = studentSolutionsPreview.find(x => x.student.userId === currentStudentId)
+
+    const [homeworkMentorFilter, setHomeworkMentorFilter] = useState<boolean>(false);
+
+    const goBackToCourseStats = () => navigate(`/courses/${courseId}/stats`)
     const renderGoBackToCoursesStatsLink = () => {
         return <Link
             to={`/courses/${courseId}/stats`}
@@ -112,6 +125,7 @@ const StudentSolutionsPage: FC = () => {
                 </Typography>
             )
         }
+        
         return (
             <div className={"container"} style={{marginBottom: '50px', marginTop: '15px'}}>
                 <Grid direction={"column"} justifyContent="center" alignContent={"stretch"} spacing={2}>
@@ -122,10 +136,14 @@ const StudentSolutionsPage: FC = () => {
                         </Alert>
                         : renderGoBackToCoursesStatsLink()}
                 </Grid>
+                <Grid>
+                    <Checkbox onClick = {() => setHomeworkMentorFilter(state => !state)} />
+                    Закрепленные студенты
+                </Grid>
                 <Grid container spacing={3} style={{marginTop: '1px'}}>
                     <Grid item xs={3}>
                         <List>
-                            {studentSolutionsPreview!.map(({
+                            {studentSolutionsPreview!.filter(solution => homeworkMentorFilter ? assignedStudents?.includes(solution.student.userId!) : true).map(({
                                                                color, lastRatedSolution, student: {
                                     name,
                                     surname,
@@ -146,6 +164,7 @@ const StudentSolutionsPage: FC = () => {
                                 </Link>)}
                         </List>
                     </Grid>
+                    {(!homeworkMentorFilter || assignedStudents.includes(currentStudentId)) &&
                     <Grid item xs={9} spacing={2} justifyContent={"flex-start"}>
                         <Task
                             task={studentSolutionsState.task}
@@ -168,6 +187,7 @@ const StudentSolutionsPage: FC = () => {
                             }}
                         />}
                     </Grid>
+                    }
                 </Grid>
             </div>
         )
