@@ -1,21 +1,21 @@
 import * as React from "react";
-import {Link as RouterLink} from "react-router-dom";
-import {AccountDataDto, CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api";
+import { Link as RouterLink } from "react-router-dom";
+import { AccountDataDto, CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel } from "../../api";
 import CourseHomework from "../Homeworks/CourseHomework";
 import AddHomework from "../Homeworks/AddHomework";
 import StudentStats from "./StudentStats";
 import NewCourseStudents from "./NewCourseStudents";
 import StudentAssignment from "./StudentsAssignment";
 import ApiSingleton from "../../api/ApiSingleton";
-import {Button, Grid, Tab, Tabs, Typography, IconButton, Switch} from "@material-ui/core";
+import { Button, Grid, Tab, Tabs, Typography, IconButton, Switch } from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
-import {useEffect, useState} from "react";
-import {makeStyles} from "@material-ui/styles";
+import { useEffect, useState } from "react";
+import { makeStyles } from "@material-ui/styles";
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import VisibilityIcon from '@material-ui/icons/Visibility';
-import {Chip, Stack} from "@mui/material";
+import { Chip, Stack } from "@mui/material";
 import CourseExperimental from "./CourseExperimental";
-import {useParams, useNavigate} from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import Checkbox from '@mui/material/Checkbox';
 
 type TabValue = "homeworks" | "stats" | "applications" | "assignment"
@@ -49,7 +49,7 @@ const styles = makeStyles(() => ({
 }))
 
 const Course: React.FC = () => {
-    const {courseId, tab} = useParams()
+    const { courseId, tab } = useParams()
     const navigate = useNavigate()
     const classes = styles()
 
@@ -147,7 +147,7 @@ const Course: React.FC = () => {
             .then(() => setCurrentState());
     }
 
-    const {tabValue} = pageState
+    const { tabValue } = pageState
 
     const unratedSolutionsCount = studentSolutions
         .flatMap(x => x.homeworks)
@@ -158,14 +158,14 @@ const Course: React.FC = () => {
     if (isFound) {
         return (
             <div className="container">
-                <Grid style={{marginBottom: '50px'}}>
-                    <Grid container style={{marginTop: "15px"}}>
+                <Grid style={{ marginBottom: '50px' }}>
+                    <Grid container style={{ marginTop: "15px" }}>
                         <Grid container xs={11} className={classes.info}>
                             <Grid item>
-                                <Typography style={{fontSize: '22px'}}>
+                                <Typography style={{ fontSize: '22px' }}>
                                     {`${course.name} / ${course.groupName}`} &nbsp;
                                     {isMentor &&
-                                        <IconButton style={{marginLeft: -5}} onClick={() =>
+                                        <IconButton style={{ marginLeft: -5 }} onClick={() =>
                                             setCourseState(prevState => ({
                                                 ...prevState,
                                                 isReadingMode: !isReadingMode
@@ -173,7 +173,7 @@ const Course: React.FC = () => {
                                             {isReadingMode
                                                 ? <VisibilityIcon
                                                     titleAccess="Режим чтения включен"
-                                                    fontSize={"small"}/>
+                                                    fontSize={"small"} />
                                                 : <VisibilityOffIcon
                                                     titleAccess="Режим чтения выключен"
                                                     fontSize={"small"}
@@ -182,24 +182,24 @@ const Course: React.FC = () => {
                                     }
                                     {isMentor && !isReadingMode! && (
                                         <RouterLink to={`/courses/${courseId}/edit`}>
-                                            <EditIcon fontSize="small"/>
+                                            <EditIcon fontSize="small" />
                                         </RouterLink>
                                     )}
                                 </Typography>
-                                <Typography style={{fontSize: "18px", color: "GrayText"}}>
+                                <Typography style={{ fontSize: "18px", color: "GrayText" }}>
                                     {mentors.map(t => `${t.name} ${t.surname}`).join(", ")}
                                 </Typography>
                                 {isMentor && <div><Switch value={showExperimentalFeature}
-                                                          onChange={(e, checked) => setCourseState(prevState => ({
-                                                              ...prevState,
-                                                              showExperimentalFeature: checked
-                                                          }))}/> Включить экспериментальный режим отображения
+                                    onChange={(e, checked) => setCourseState(prevState => ({
+                                        ...prevState,
+                                        showExperimentalFeature: checked
+                                    }))} /> Включить экспериментальный режим отображения
                                 </div>}
                             </Grid>
-                            <Grid item style={{width: '187px'}}>
+                            <Grid item style={{ width: '187px' }}>
                                 <Grid container alignItems="flex-end" direction="column" xs={12}>
                                     {isLogged && !isSignedInCourse && !isMentor && !isAcceptedStudent && (
-                                        <Grid item style={{width: '100%', marginTop: '16px'}}>
+                                        <Grid item style={{ width: '100%', marginTop: '16px' }}>
                                             <Button
                                                 fullWidth
                                                 variant="contained"
@@ -211,8 +211,8 @@ const Course: React.FC = () => {
                                         </Grid>
                                     )}
                                     {isLogged && isSignedInCourse && !isAcceptedStudent &&
-                                        <Grid item style={{width: '100%', marginTop: '16px'}}>
-                                            <Typography style={{fontSize: '15px'}}>
+                                        <Grid item style={{ width: '100%', marginTop: '16px' }}>
+                                            <Typography style={{ fontSize: '15px' }}>
                                                 Ваша заявка рассматривается
                                             </Typography>
                                         </Grid>
@@ -223,7 +223,7 @@ const Course: React.FC = () => {
                     </Grid>
                     <Tabs
                         value={tabValue === "homeworks" ? 0 : tabValue === "stats" ? 1 : tabValue === "applications" ? 2 : 3}
-                        style={{marginTop: 15}}
+                        style={{ marginTop: 15 }}
                         indicatorColor="primary"
                         onChange={(event, value) => {
                             if (value === 0) changeTab("homeworks", true)
@@ -232,36 +232,36 @@ const Course: React.FC = () => {
                             if (value === 3) changeTab("assignment", true)
                         }}
                     >
-                        <Tab label="Домашние задания"/>
+                        <Tab label="Домашние задания" />
                         {showStatsTab && <Tab label={
                             <Stack direction="row" spacing={1}>
                                 <div>Решения</div>
                                 <Chip size={"small"} color={"default"}
-                                      label={unratedSolutionsCount}/>
+                                    label={unratedSolutionsCount} />
                             </Stack>
-                        }/>}
+                        } />}
                         {showApplicationsTab && <Tab label={
                             <Stack direction="row" spacing={1}>
                                 <div>Заявки</div>
                                 <Chip size={"small"} color={"default"}
-                                      label={newStudents.length}/>
-                            </Stack>}/>}
+                                    label={newStudents.length} />
+                            </Stack>} />}
                         {showAssignmentTab && <Tab label={
                             <Stack direction="row" spacing={1}>
                                 <div>Привязка</div>
                                 <Chip size={"small"} color={"default"}
-                                      label={newStudents.length}/>
-                            </Stack>}/>}
+                                    label={newStudents.length} />
+                            </Stack>} />}
 
                     </Tabs>
-                    <br/>
+                    <br />
                     {tabValue === "homeworks" && <div>
                         {
                             showExperimentalFeature ?
                                 <CourseExperimental homeworks={courseState.courseHomework} isMentor={isMentor}
-                                                    studentSolutions={studentSolutions}
-                                                    isStudentAccepted={isAcceptedStudent}
-                                                    userId={userId!}/> :
+                                    studentSolutions={studentSolutions}
+                                    isStudentAccepted={isAcceptedStudent}
+                                    userId={userId!} /> :
                                 <div>
                                     {createHomework && (
                                         <div>
@@ -289,7 +289,7 @@ const Course: React.FC = () => {
                                         <div>
                                             <Grid container>
                                                 {!isReadingMode! &&
-                                                    <Grid item xs={11} style={{marginBottom: 15}}>
+                                                    <Grid item xs={11} style={{ marginBottom: 15 }}>
                                                         <Button
                                                             size="small"
                                                             variant="contained"
@@ -336,21 +336,21 @@ const Course: React.FC = () => {
                     {tabValue === "stats" &&
                         <Grid>
                             {isMentor &&
-                             <Checkbox onClick={() => 
-                                setHomeworkMentorFilter(current => !current)}/> 
-                                }
-                            
+                                <Checkbox onClick={() =>
+                                    setHomeworkMentorFilter(current => !current)} />
+                            }
+
                             Закрепленные студенты
 
-                            <Grid container style={{marginBottom: "15px"}}>
+                            <Grid container style={{ marginBottom: "15px" }}>
                                 <Grid item xs={12}>
                                     <StudentStats
                                         homeworks={courseState.courseHomework}
                                         userId={userId as string}
                                         isMentor={isMentor}
                                         course={courseState.course}
-                                        solutions= {homeworkMentorFilter 
-                                            ? studentSolutions.filter(s => 
+                                        solutions={homeworkMentorFilter
+                                            ? studentSolutions.filter(s =>
                                                 course.courseMates?.find(cm => cm.studentId === s.id)?.mentorId == userId)
                                             : studentSolutions
                                         }
@@ -369,13 +369,13 @@ const Course: React.FC = () => {
                         </Grid>
                     }
 
-                    {tabValue === "assignment" && showAssignmentTab  &&
+                    {tabValue === "assignment" && showAssignmentTab &&
                         <Grid>
                             <StudentAssignment
-                                course = {course}
-                                mentors = {courseState.mentors}
-                                acceptedStudents = {courseState.acceptedStudents}
-                            />                               
+                                course={course}
+                                mentors={courseState.mentors}
+                                acceptedStudents={courseState.acceptedStudents}
+                            />
                         </Grid>
                     }
                 </Grid>
