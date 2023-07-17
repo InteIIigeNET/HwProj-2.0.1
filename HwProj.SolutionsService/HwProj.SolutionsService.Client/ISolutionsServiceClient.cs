@@ -18,7 +18,7 @@ namespace HwProj.SolutionsService.Client
         Task<long> PostGroupSolution(SolutionViewModel model, long taskId, long groupId);
         Task<Solution[]> GetTaskSolutions(long groupId, long taskId);
         Task<StatisticsCourseMatesDto[]> GetCourseStatistics(long courseId, string userId);
-        Task<StudentSolutions[]> GetTaskSolutionStatistics(long taskId);
+        Task<StudentSolutions[]> GetTaskSolutionStatistics(long courseId, long taskId);
         Task<Solution?[]> GetLastTaskSolutions(long[] taskIds, string userId);
         Task<SolutionPreviewDto[]> GetAllUnratedSolutionsForTasks(long[] taskIds);
         Task<bool> Ping();
