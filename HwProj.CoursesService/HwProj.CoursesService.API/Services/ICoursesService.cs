@@ -20,8 +20,5 @@ namespace HwProj.CoursesService.API.Services
         Task AcceptLecturerAsync(long courseId, string lecturerEmail);
         Task<AccountDataDto[]> GetLecturersAvailableForCourse(long courseId, string mentorId);
         Task<string[]> GetCourseLecturers(long courseId);
-        Task<bool> AssignStudentToMentor(long courseId, string mentorId, string studentId);
-        Task<CourseMate> GetMentorByStudent(long courseId, string studentId);
-        Task<CourseMate[]> GetStudentsByMentor(long courseId, string mentorId);
     }
 }

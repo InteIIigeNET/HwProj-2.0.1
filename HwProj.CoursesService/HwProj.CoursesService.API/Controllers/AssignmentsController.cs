@@ -28,10 +28,4 @@ public class AssignmentsController : Controller
     {
         await _assignmentsService.DeassignStudentAsync(studentId, courseId);
     }
-
-    [HttpGet("{courseId}/getAssignments/")]
-    public async Task<IActionResult> GetAllAssignmentsByCourse(long courseId)
-    {
-        return Ok(await _assignmentsService.GetAllAssignmentsByCourseAsync(courseId));
-    }
 }

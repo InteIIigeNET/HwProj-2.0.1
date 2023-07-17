@@ -272,41 +272,5 @@ namespace HwProj.CoursesService.API.Services
                 .ToArray();
         }
 
-        public async Task<bool> AssignStudentToMentor(long courseId, string mentorId, string studentId)
-        {
-            var mentorIds = GetCourseLecturers(courseId);
-            if (!mentorIds.Result.Any(id => id.Equals(mentorId)))
-            {
-                return false;
-            }
-
-            var courseMate = _courseMatesRepository.FindAsync(cm => cm.StudentId == studentId && cm.CourseId == courseId);
-            if (courseMate == null)
-            {
-                return false;
-            }
-
-            await _courseMatesRepository.UpdateAsync(
-                courseMate.Result.Id,
-                cm => new CourseMate { MentorId = mentorId }
-            );
-
-            return true;
-        }
-
-        public async Task<CourseMate> GetMentorByStudent(long courseId, string studentId)
-        {
-            return await _courseMatesRepository
-                .FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId)
-                .ConfigureAwait(false);
-        }
-
-        public async Task<CourseMate[]> GetStudentsByMentor(long courseId, string mentorId)
-        {
-            return await _courseMatesRepository
-                .FindAll(cm => cm.CourseId == courseId && cm.MentorId == mentorId)
-                .ToArrayAsync()
-                .ConfigureAwait(false);
-        }
     }
 }
