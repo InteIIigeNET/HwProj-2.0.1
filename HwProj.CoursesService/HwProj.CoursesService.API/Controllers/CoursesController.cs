@@ -189,31 +189,5 @@ namespace HwProj.CoursesService.API.Controllers
 
             return result;
         }
-
-        [HttpPut("{courseId}/assignStudent/{studentId}")]
-        public async Task<IActionResult> SetMentorToStudents(long courseId, [FromQuery] string mentorId, string studentId)
-        {
-            return await _coursesService.AssignStudentToMentor(courseId, mentorId, studentId)
-                ? Ok()
-                : NotFound();
-        }
-
-        [HttpGet("{courseId}/getMentorByStudent/{studentId}")]
-        public async Task<IActionResult> GetMentorByStudent(long courseId, string studentId)
-        {
-            var mentor = _mapper.Map<CourseMateViewModel>(await _coursesService.GetMentorByStudent(courseId, studentId));
-            return mentor == null
-                ? NotFound()
-                : Ok(mentor);
-        }
-
-        [HttpGet("{courseId}/getStudentsByMentor/{mentorId}")]
-        public async Task<IActionResult> GetStudentsByMentor(long courseId,  string mentorId)
-        {
-            var students = _mapper.Map<CourseMateViewModel[]>(await _coursesService.GetStudentsByMentor(courseId, mentorId));
-            return students.Length == 0
-                ? NotFound()
-                : Ok(students);
-        }
     }
 }
