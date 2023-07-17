@@ -1,14 +1,15 @@
 ﻿using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
 using HwProj.Models.AuthService.DTO;
+using HwProj.Models.CoursesService.ViewModels;
 
 namespace HwProj.CoursesService.API.Services
 {
     public interface ICoursesService
     {
         Task<Course[]> GetAllAsync();
-        Task<Course?> GetAsync(long id);
-        Task<Course?> GetByTaskAsync(long taskId);
+        Task<CourseDTO?> GetAsync(long id);
+        Task<CourseDTO?> GetByTaskAsync(long taskId);
         Task<long> AddAsync(Course course, string mentorId);
         Task DeleteAsync(long id);
         Task UpdateAsync(long courseId, Course updated);
