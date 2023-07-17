@@ -4,13 +4,13 @@ using System.Threading.Tasks;
 
 namespace HwProj.CoursesService.API.Services
 {
-    public class AssignmentService : IAssignmentService
+    public class AssignmentsesService : IAssignmentsService
     {
-        private readonly IAssignmentsRepository _assignmentRepository;
+        private readonly IAssignmentsRepository _assignmentsRepository;
 
-        public AssignmentService(IAssignmentsRepository assignmentRepository)
+        public AssignmentsesService(IAssignmentsRepository assignmentRepository)
         {
-            _assignmentRepository = assignmentRepository;
+            _assignmentsRepository = assignmentRepository;
         }
 
         public async Task AssignStudentAsync(string studentId, string mentorId, long courseId)

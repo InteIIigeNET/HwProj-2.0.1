@@ -3,7 +3,7 @@ using HwProj.CoursesService.API.Models;
 
 namespace HwProj.CoursesService.API.Services;
 
-public interface IAssignmentService
+public interface IAssignmentsService
 {
     public Task AssignStudentAsync(string studentId, string mentorId, long courseId);
 
