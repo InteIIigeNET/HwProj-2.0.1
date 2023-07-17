@@ -27,15 +27,11 @@ namespace HwProj.CoursesService.API.Controllers
         {
             var groups = await _groupsService.GetAllAsync(courseId);
             
-            var result = new GroupViewModel[groups.Length];
-            for (int i = 0; i < groups.Length; i++)
+            var result = groups.Select(t => new GroupViewModel
             {
-                result[i] = new GroupViewModel
-                {
-                    Id = groups[i].Id,
-                    StudentsIds = groups[i].GroupMates.Select(s => s.StudentId).ToArray()
-                };
-            }
+                Id = t.Id,
+                StudentsIds = t.GroupMates.Select(s => s.StudentId).ToArray()
+            }).ToArray();
 
             return result;
         }
