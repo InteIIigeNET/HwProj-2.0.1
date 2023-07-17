@@ -108,44 +108,24 @@ namespace HwProj.APIGateway.API.Controllers
                 .ToArray();
 
             var getStudentsDataTask = AuthServiceClient.GetAccountsData(studentIds);
-            var getStatisticsTask = _solutionsClient.GetTaskSolutionStatistics(taskId);
+            var getStatisticsTask = _solutionsClient.GetTaskSolutionStatistics(course.Id, taskId);
 
             await Task.WhenAll(getStudentsDataTask, getStatisticsTask);
 
             var usersData = getStudentsDataTask.Result.ToDictionary(t => t.UserId);
-            var statistics = getStatisticsTask.Result;
+            var statistics = getStatisticsTask.Result.ToDictionary(t => t.StudentId);
             var groups = course.Groups.ToDictionary(
                 t => t.Id,
                 t => t.StudentsIds.Select(s => usersData[s]).ToArray());
-
-            var solutions = new Dictionary<string, GetSolutionModel>();
-            var studentSolutions = statistics.SelectMany(s => s.Solutions)
-                .OrderBy(t => t.PublicationDate);
-            foreach (var solution in studentSolutions)
-            {
-                var groupId = solution.GroupId.GetValueOrDefault();
-
-                if (groupId == 0)
-                {
-                    solutions[solution.StudentId] = new GetSolutionModel(solution, null);
-                }
-                else
-                {
-                    var authors = groups[groupId];
-                    foreach (var author in authors)
-                    {
-                        solutions[author.UserId] = new GetSolutionModel(solution, authors);
-                    }
-                }
-            }
 
             var result = new TaskSolutionStatisticsPageData()
             {
                 CourseId = course.Id,
                 StudentsSolutions = studentIds.Select(studentId => new UserTaskSolutions
                     {
-                        Solutions = solutions.TryGetValue(studentId, out var solution)
-                            ? new[] { solution }
+                        Solutions = statistics.TryGetValue(studentId, out var studentSolutions)
+                            ? studentSolutions.Solutions.Select(t => new GetSolutionModel(t,
+                                t.GroupId is { } groupId ? groups[groupId] : null)).ToArray()
                             : Array.Empty<GetSolutionModel>(),
                         User = usersData[studentId]
                     })

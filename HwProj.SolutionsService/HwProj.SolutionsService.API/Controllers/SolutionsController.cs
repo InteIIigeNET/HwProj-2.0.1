@@ -175,10 +175,15 @@ namespace HwProj.SolutionsService.API.Controllers
 
         [HttpGet("getTaskStats/{courseId}/{taskId}")]
         [ProducesResponseType(typeof(StudentSolutions[]), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetTaskStats(string courseId, long taskId)
+        public async Task<IActionResult> GetTaskStats(long courseId, long taskId)
         {
+            var groups = await _coursesClient.GetAllCourseGroups(courseId);
+            
             var solutions = await _solutionsRepository.FindAll(t => t.TaskId == taskId).ToListAsync();
-            var result = SolutionsStatsDomain.GetCourseTaskStatistics(solutions);
+            var solutionsGroups = solutions.Select(s => s.GroupId).Distinct();
+            var taskGroups = groups.Where(g => solutionsGroups.Contains(g.Id));
+            
+            var result = SolutionsStatsDomain.GetCourseTaskStatistics(solutions, taskGroups);
             return Ok(result);
         }
 
