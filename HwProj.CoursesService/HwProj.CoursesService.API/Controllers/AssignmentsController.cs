@@ -23,14 +23,14 @@ public class AssignmentsController : Controller
         await _assignmentsService.AssignStudentAsync(studentId, mentorId, courseId);
     }
 
-    [HttpGet("{courseId}/deassignStudent/{studentId}")]
+    [HttpDelete("{courseId}/deassignStudent/{studentId}")]
     public async Task DeassignStudentFromMentor(long courseId, string studentId)
     {
         await _assignmentsService.DeassignStudentAsync(studentId, courseId);
     }
 
     [HttpGet("{courseId}/getAssignments/")]
-    public async Task<IActionResult> GetStudentsByMentor(long courseId)
+    public async Task<IActionResult> GetAllAssignmentsByCourse(long courseId)
     {
         return Ok(await _assignmentsService.GetAllAssignmentsByCourseAsync(courseId));
     }
