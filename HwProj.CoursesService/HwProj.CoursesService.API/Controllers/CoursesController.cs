@@ -52,19 +52,11 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpGet("{courseId}")]
         public async Task<IActionResult> Get(long courseId)
         {
-            var courseFromDb = await _coursesService.GetAsync(courseId);
-            if (courseFromDb == null) return NotFound();
-
-            var course = _mapper.Map<CourseDTO>(courseFromDb);
-            // TODO: Move group assignment to course service
-            // TODO: Make groups invisible for students
-            course.Groups = await _groupsRepository.GetGroupsWithGroupMatesByCourse(course.Id).Select(g =>
-                new GroupViewModel
-                {
-                    Id = g.Id,
-                    StudentsIds = g.GroupMates.Select(t => t.StudentId).ToArray()
-                }).ToArrayAsync();
+            var course = await _coursesService.GetAsync(courseId);
+            if (course == null) return NotFound();
             
+            // TODO: Make groups invisible for students
+
             return Ok(course);
         }
 
@@ -72,18 +64,9 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpGet("getByTask/{taskId}")]
         public async Task<IActionResult> GetByTask(long taskId)
         {
-            var courseFromDb = await _coursesService.GetByTaskAsync(taskId);
-            if (courseFromDb == null) return NotFound();
+            var course = await _coursesService.GetByTaskAsync(taskId);
+            if (course == null) return NotFound();
 
-            var course = _mapper.Map<CourseDTO>(courseFromDb);
-            // TODO: Move group assignment to course service
-            course.Groups = await _groupsRepository.GetGroupsWithGroupMatesByCourse(course.Id).Select(g =>
-                new GroupViewModel
-                {
-                    Id = g.Id,
-                    StudentsIds = g.GroupMates.Select(t => t.StudentId).ToArray()
-                }).ToArrayAsync();
-            
             return Ok(course);
         }
 
