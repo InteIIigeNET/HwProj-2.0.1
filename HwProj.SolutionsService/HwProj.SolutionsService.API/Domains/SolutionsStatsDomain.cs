@@ -16,7 +16,7 @@ namespace HwProj.SolutionsService.API.Domains
                 {
                     var studentGroupIds = model.Groups
                         .Where(g => g.StudentsIds.Contains(m.StudentId))
-                        .Select(g => g.Id).ToList();
+                        .Select(g => g.Id);
                     
                     return new StatisticsCourseMatesDto
                     {
