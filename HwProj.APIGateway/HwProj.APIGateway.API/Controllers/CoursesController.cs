@@ -65,7 +65,7 @@ namespace HwProj.APIGateway.API.Controllers
                 Id = courseId,
                 Name = course.Name,
                 GroupName = course.GroupName,
-                CourseMates = course.CourseMates,
+                Assignments = course.Assignments,
                 Mentors = courseMentors,
                 AcceptedStudents = acceptedStudents.ToArray(),
                 NewStudents = newStudents.ToArray(),

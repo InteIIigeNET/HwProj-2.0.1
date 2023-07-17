@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.CoursesService.API.Controllers;
 
-[ApiController]
 [Route("api/[controller]")]
+[ApiController]
 [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
 public class AssignmentsController : Controller
 {
