@@ -12,8 +12,6 @@ namespace HwProj.CoursesService.API.Models
 
         public string StudentId { get; set; }
 
-        public string MentorId { get; set; }
-
         public bool IsAccepted { get; set; }
     }
 }
