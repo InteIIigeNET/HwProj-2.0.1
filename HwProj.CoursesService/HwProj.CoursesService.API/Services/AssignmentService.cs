@@ -1,18 +1,36 @@
 ﻿using HwProj.CoursesService.API.Models;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-
-namespace HwProj.CoursesService.API.Services;
-using System.Threading.Tasks;
-using HwProj.AuthService.Client;
 using HwProj.CoursesService.API.Repositories;
+using System.Threading.Tasks;
 
-public class AssignmentService : IAssignmentService
+namespace HwProj.CoursesService.API.Services
 {
-    private readonly IAssignmentsRepository _assignmentsRepository;
-
-    public AssignmentService(IAssignmentsRepository assignmentsRepository)
+    public class AssignmentService : IAssignmentService
     {
-        _assignmentsRepository = assignmentsRepository;
+        private readonly IAssignmentsRepository _assignmentRepository;
+
+        public AssignmentService(IAssignmentsRepository assignmentRepository)
+        {
+            _assignmentRepository = assignmentRepository;
+        }
+
+        public async Task AssignStudentAsync(string studentId, string mentorId, long courseId)
+        {
+        }
+
+        public async Task DeassignStudentAsync(string studentId, long courseId)
+        {
+            var student = _assignmentRepository.FindAsync(s => s.StudentId == studentId && s.CourseId == courseId).Result;
+
+            if (student != null)
+            {
+                await _assignmentRepository.DeleteAsync(student.Id);
+            }
+        }
+
+        public async Task<Assignment[]> GetAllAssignmentsByCourseAsync(long courseId)
+        {
+            return await _assignmentRepository.GetAllByCourseAsync(courseId);
+        }
     }
 
     public async Task AssignStudentAsync(string studentId, string mentorId, long courseId)
