@@ -83,9 +83,10 @@ namespace HwProj.SolutionsService.API.Services
             var courses = await _coursesServiceClient.GetCourseById(homework.CourseId);
             var student = await _authServiceClient.GetAccountData(solutionModel.StudentId);
             var studentModel = _mapper.Map<AccountDataDto>(student);
-            var mentorId = courses.CourseMates.Where(cm => cm.StudentId == studentModel.UserId)?.First()
-                .MentorId;
-            _eventBus.Publish(new StudentPassTaskEvent(courses, solutionModel, studentModel, taskModel, mentorId));
+            var assignmentFind = courses.Assignments?.Where(a => a.StudentId == studentModel.UserId).FirstOrDefault()?.MentorId;
+            var mentorIds = assignmentFind == null ? courses.MentorIds : new [] { assignmentFind };
+            
+            _eventBus.Publish(new StudentPassTaskEvent(courses.Id, courses.Name, solutionModel, studentModel, taskModel, mentorIds));
 
             if (currentSolution == null)
             {

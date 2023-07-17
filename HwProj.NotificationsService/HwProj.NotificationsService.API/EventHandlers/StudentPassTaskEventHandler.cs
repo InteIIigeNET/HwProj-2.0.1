@@ -32,11 +32,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
         public override async Task HandleAsync(StudentPassTaskEvent @event)
         {
-            var mentorsIds = @event.MentorId == null
-                ? @event.Course.MentorIds
-                : new [] { @event.MentorId };
-
-            foreach (var mentor in @event.Course.MentorIds)//mentorsIds)
+            foreach (var mentor in @event.MentorIds)
             {
                 var notification = new Notification
                 {
@@ -44,7 +40,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                     Body = $"{@event.Student.Name} {@event.Student.Surname} добавил новое " +
                            $"<a href='{@event.Solution.GithubUrl}' target='_blank'>решение</a>" +
                            $" задачи <a href='{_configuration["Url"]}/task/{@event.Task.Id}/{@event.Student.UserId}'>{@event.Task.Title}</a>" +
-                           $" из курса <a href='{_configuration["Url"]}/courses/{@event.Course.Id}'>{@event.Course.Name}</a>.",
+                           $" из курса <a href='{_configuration["Url"]}/courses/{@event.CourseId}'>{@event.CourseName}</a>.",
                     Category = CategoryState.Homeworks,
                     Date = DateTimeUtils.GetMoscowNow(),
                     HasSeen = false,
