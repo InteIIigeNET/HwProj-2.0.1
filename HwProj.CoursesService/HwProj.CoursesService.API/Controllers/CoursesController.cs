@@ -54,8 +54,6 @@ namespace HwProj.CoursesService.API.Controllers
         {
             var course = await _coursesService.GetAsync(courseId);
             if (course == null) return NotFound();
-            
-            // TODO: Make groups invisible for students
 
             return Ok(course);
         }
