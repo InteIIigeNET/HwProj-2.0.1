@@ -373,6 +373,7 @@ const Course: React.FC = () => {
                                 mentors={courseState.mentors}
                                 acceptedStudents={courseState.acceptedStudents}
                                 assignments={courseState.assignments}
+                                onUpdate={() => setCurrentState()}
                             />
                         </Grid>
                     }

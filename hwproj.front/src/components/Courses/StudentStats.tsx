@@ -17,6 +17,7 @@ interface IStudentStatsState {
     searched: string
     filterWorking: boolean
     ableSolutions: StatisticsCourseMatesModel[]
+    isMentorWithStudents : boolean
 }
 
 class StudentStats extends React.Component<IStudentStatsProps, IStudentStatsState> {
@@ -25,7 +26,8 @@ class StudentStats extends React.Component<IStudentStatsProps, IStudentStatsStat
         this.state = {
             searched: "",
             filterWorking: false,
-            ableSolutions: props.solutions
+            ableSolutions: props.solutions,
+            isMentorWithStudents: props.isMentor && props.course.assignments!.length > 0
         }
 
         // document.addEventListener('keydown', (event: KeyboardEvent) => {
@@ -49,7 +51,6 @@ class StudentStats extends React.Component<IStudentStatsProps, IStudentStatsStat
         const homeworks = this.props.homeworks.filter(h => h.tasks && h.tasks.length > 0)
         const course = this.props.course;
         const userId = this.props.userId;
-        const isMentorWithStudents = this.props.isMentor && this.props.course.assignments!.length > 0;
         const fixedColumnStyles: React.CSSProperties = {
             position: "sticky",
             left: 0,
@@ -79,7 +80,7 @@ class StudentStats extends React.Component<IStudentStatsProps, IStudentStatsStat
             ableSolutions: filterSolutions(this.props.solutions, prevState.searched, !prevState.filterWorking)
         })
 
-        const { searched, filterWorking, ableSolutions } = this.state;
+        const { searched, filterWorking, ableSolutions, isMentorWithStudents } = this.state;
 
         return (
             <div>
@@ -89,7 +90,7 @@ class StudentStats extends React.Component<IStudentStatsProps, IStudentStatsStat
                 {isMentorWithStudents &&
                     <Checkbox onClick={() => this.setState(prevState => setCurrentState(prevState))} />
                 }
-                <p> Закреплённые студенты </p>
+                Закреплённые студенты
                 <TableContainer style={{ maxHeight: 600 }}>
                     <Table stickyHeader aria-label="sticky table">
                         <TableHead>

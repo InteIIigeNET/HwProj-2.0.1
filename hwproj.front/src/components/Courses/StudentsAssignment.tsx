@@ -4,17 +4,15 @@ import ApiSingleton from 'api/ApiSingleton';
 import React from 'react';
 import { FC } from "react";
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField } from "@material-ui/core";
-import { useState } from "react";
-import { Assignment, Padding } from '@mui/icons-material';
 
 interface IStudentAssignmentProps {
     course: CourseViewModel,
     mentors: AccountDataDto[],
     acceptedStudents: AccountDataDto[],
-    assignments: AssignmentViewModel[]
+    assignments: AssignmentViewModel[],
+    onUpdate: () => void,
 }
 
-// TODO: after assignment change current course state  + fix filters to make it faster  
 const StudentsAssignment: FC<IStudentAssignmentProps> = (props) => {
 
     const freeStudents = props.acceptedStudents
@@ -29,17 +27,14 @@ const StudentsAssignment: FC<IStudentAssignmentProps> = (props) => {
         borderBottom: "1px solid black"
     }
 
-    const [courseState, setCourseState] = useState<CourseViewModel>(props.course);
-
-    const assignStudent = async (mentorId: string, studentId: string) =>
-        await ApiSingleton.coursesApi.apiCoursesByCourseIdAssignStudentByStudentIdByMentorIdPut(courseState.id!, mentorId, studentId);
+    const assignStudent = async (mentorId: string, studentId: string) => {
+        await ApiSingleton.coursesApi.apiCoursesByCourseIdAssignStudentByStudentIdByMentorIdPut(props.course.id!, mentorId, studentId)
+        props.onUpdate()
+    }
 
     const createFullName = (user: AccountDataDto) => user.surname + " " + user.name;
 
     const createFullNameWithEmail = (user: AccountDataDto) => user.surname + " " + user.name + " " + user.email;
-
-    const filterAssignedStudents = (students: AccountDataDto[], mentorId: string) =>
-        students.filter(student => courseState.courseMates?.find(cm => cm.studentId === student.userId)?.mentorId !== mentorId)
 
     return (
         <div>
@@ -77,14 +72,23 @@ const StudentsAssignment: FC<IStudentAssignmentProps> = (props) => {
                         {freeStudents.map((student, index) => (
                             <TableRow key={index} hover style={{ height: 35 }}>
                                 <TableCell
-                                    style={{ ...fixedColumnStyles,paddingLeft : 30, paddingBottom:20, borderLeft: "1px solid black" }}
+                                    style={{
+                                        ...fixedColumnStyles,
+                                        padding: 15,
+                                        borderLeft: "1px solid black" }}
                                     align="center"
                                     padding="checkbox"
                                     component="td"
                                     scope="row">
                                     <Autocomplete
                                         freeSolo
-                                        options={[]}
+                                        options={props.mentors}
+                                        getOptionLabel={(option: AccountDataDto) => createFullName(option)}
+                                        onChange={(event, value: AccountDataDto | null) => {
+                                            if (value) {
+                                                assignStudent(value.userId!, student.userId!)
+                                            }
+                                        }}
                                         sx={{ width: "100%", height: 40, overflow: 'hidden' }}
                                         renderInput={(params) => <TextField {...params}  label=" Выберите преподавателя "/>}
                                     />
@@ -97,6 +101,45 @@ const StudentsAssignment: FC<IStudentAssignmentProps> = (props) => {
                                     scope="row"
                                 >
                                     {createFullNameWithEmail(student)}
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                        {props.assignments.map((assignment, index) => (
+                            <TableRow key={index} hover style={{ height: 35 }}>
+                                <TableCell
+                                    style={{
+                                        ...fixedColumnStyles,
+                                        padding: 15,
+                                        borderLeft: "1px solid black" }}
+                                    align="center"
+                                    padding="checkbox"
+                                    component="td"
+                                    scope="row">
+                                    <Autocomplete
+                                        freeSolo
+                                        options={props.mentors}
+                                        getOptionLabel={(option: AccountDataDto) => createFullName(option)}
+                                        onChange={(event, value: AccountDataDto | null) => {
+                                            if (value) {
+                                                assignStudent(value.userId!, assignment.studentId!)
+                                            }
+                                        }}
+                                        sx={{ width: "100%", height: 40, overflow: 'hidden' }}
+                                        renderInput={(params) =>
+                                                 <TextField 
+                                                    {...params}  
+                                                    label = {createFullName(props.mentors.find(m => m.userId === assignment.mentorId)!)}/>
+                                        }
+                                    />
+                                </TableCell>
+                                <TableCell
+                                    style={{ ...fixedColumnStyles}}
+                                    align="center"
+                                    padding="checkbox"
+                                    component="td"
+                                    scope="row"
+                                >
+                                    {createFullNameWithEmail(props.acceptedStudents.find(s => s.userId === assignment.studentId)!)}
                                 </TableCell>
                             </TableRow>
                         ))}

@@ -24,8 +24,8 @@ namespace HwProj.CoursesService.API.Services
                 return;
             }
 
-            if (_coursesRepository.FindAsync(c => courseId == c.Id).Result.CourseMates
-                    .Where(cm => cm.StudentId == studentId)?.FirstOrDefault() == null)
+            if (_coursesRepository.GetWithCourseMatesAsync(courseId).Result?.CourseMates
+                    .Where(cm => cm.StudentId.Equals(studentId))?.FirstOrDefault() == null)
             {
                 return;
             }
