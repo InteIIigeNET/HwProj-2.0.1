@@ -65,18 +65,17 @@ namespace HwProj.CoursesService.API.Services
         public async Task<CourseDTO?> GetAsync(long id)
         {
             var course = await _coursesRepository.GetWithCourseMatesAsync(id);
-            
             if (course == null) return null;
 
-            var groups = await _groupsRepository.GetGroupsWithGroupMatesByCourse(course.Id).Select(g =>
+            var groups = _groupsRepository.GetGroupsWithGroupMatesByCourse(course.Id).ToArray();
+            
+            var result = _mapper.Map<CourseDTO>(course);
+            result.Groups = groups.Select(g =>
                 new GroupViewModel
                 {
                     Id = g.Id,
                     StudentsIds = g.GroupMates.Select(t => t.StudentId).ToArray()
-                }).ToArrayAsync();
-            
-            var result = _mapper.Map<CourseDTO>(course);
-            result.Groups = groups;
+                }).ToArray();
             
             return result;
         }
