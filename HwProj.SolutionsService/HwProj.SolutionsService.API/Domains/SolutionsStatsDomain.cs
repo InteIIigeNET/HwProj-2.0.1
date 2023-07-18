@@ -50,24 +50,32 @@ namespace HwProj.SolutionsService.API.Domains
 
         public static StudentSolutions[] GetCourseTaskStatistics(IEnumerable<Solution> solutions, IEnumerable<GroupViewModel> groups)
         {
-            var sortedSolutions = solutions.OrderBy(s => s.PublicationDate);
-            return groups.SelectMany(g => g.StudentsIds, (g, studentId) => new { g.Id, studentId })
+            return groups
+                .SelectMany(g => g.StudentsIds, (g, studentId) => new { g.Id, studentId })
                 .Select(p => new StudentSolutions
                 {
                     StudentId = p.studentId,
-                    Solutions = sortedSolutions.Where(s => s.StudentId == p.studentId || s.GroupId == p.Id)
+                    Solutions = solutions.Where(s => s.StudentId == p.studentId || s.GroupId == p.Id)
                         .ToArray()
                 })
                 .Concat(
-                    sortedSolutions.Where(s => s.GroupId == null)
+                    solutions.Where(s => s.GroupId == null)
                         .GroupBy(s => s.StudentId)
                         .Select(g => new StudentSolutions
                         {
                             StudentId = g.Key,
                             Solutions = g.ToArray()
                         })
-                ).GroupBy(t => t.StudentId)
-                .Select(g => g.First())
+                )
+                .GroupBy(t => t.StudentId)
+                .Select(g => new StudentSolutions
+                {
+                    StudentId = g.Key,
+                    Solutions = g.SelectMany(s => s.Solutions)
+                        .Distinct()
+                        .OrderBy(s => s.PublicationDate)
+                        .ToArray()
+                })
                 .ToArray();
         }
     }
