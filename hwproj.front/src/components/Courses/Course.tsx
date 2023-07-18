@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Link as RouterLink } from "react-router-dom";
-import { AccountDataDto, CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel } from "../../api";
+import { AccountDataDto, AssignmentViewModel, CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel } from "../../api";
 import CourseHomework from "../Homeworks/CourseHomework";
 import AddHomework from "../Homeworks/AddHomework";
 import StudentStats from "./StudentStats";
@@ -13,10 +13,9 @@ import { useEffect, useState } from "react";
 import { makeStyles } from "@material-ui/styles";
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import VisibilityIcon from '@material-ui/icons/Visibility';
-import { Chip, Stack } from "@mui/material";
+import { Chip, Stack, tabClasses } from "@mui/material";
 import CourseExperimental from "./CourseExperimental";
 import { useParams, useNavigate } from 'react-router-dom';
-import Checkbox from '@mui/material/Checkbox';
 
 type TabValue = "homeworks" | "stats" | "applications" | "assignment"
 
@@ -31,6 +30,7 @@ interface ICourseState {
     createHomework: boolean;
     mentors: AccountDataDto[];
     acceptedStudents: AccountDataDto[];
+    assignments: AssignmentViewModel[];
     newStudents: AccountDataDto[];
     isReadingMode: boolean;
     studentSolutions: StatisticsCourseMatesModel[];
@@ -61,6 +61,7 @@ const Course: React.FC = () => {
         createHomework: false,
         mentors: [],
         acceptedStudents: [],
+        assignments: [],
         newStudents: [],
         isReadingMode: true,
         studentSolutions: []
@@ -70,8 +71,6 @@ const Course: React.FC = () => {
         tabValue: "homeworks"
     })
 
-    const [homeworkMentorFilter, setHomeworkMentorFilter] = useState<boolean>(false);
-
     const {
         isFound,
         course,
@@ -79,6 +78,7 @@ const Course: React.FC = () => {
         mentors,
         newStudents,
         acceptedStudents,
+        assignments,
         isReadingMode,
         studentSolutions
     } = courseState;
@@ -102,7 +102,7 @@ const Course: React.FC = () => {
 
     const showStatsTab = isMentor || isAcceptedStudent
     const showApplicationsTab = isMentor
-    const showAssignmentTab = isMentor
+    const showAssignmentTab = isMentor && !isReadingMode
 
     const changeTab = (newTab: string, addToHistory?: boolean) => {
         if (isAcceptableTabValue(newTab) && newTab !== pageState.tabValue) {
@@ -130,6 +130,7 @@ const Course: React.FC = () => {
             createHomework: false,
             mentors: course.mentors!,
             acceptedStudents: course.acceptedStudents!,
+            assignments: course.assignments!,
             newStudents: course.newStudents!,
             studentSolutions: solutions
         }))
@@ -222,8 +223,17 @@ const Course: React.FC = () => {
                         </Grid>
                     </Grid>
                     <Tabs
-                        value={tabValue === "homeworks" ? 0 : tabValue === "stats" ? 1 : tabValue === "applications" ? 2 : 3}
-                        style={{ marginTop: 15 }}
+                        value={() => {switch(tabValue)
+                                {
+                                    case "homeworks" : return 0;
+                                    case "stats" : return 1;
+                                    case "applications" : return 2;
+                                    case "assignment" : return 3;
+                                }
+                            }
+                        }
+ 
+                        style={{marginTop: 15 }}
                         indicatorColor="primary"
                         onChange={(event, value) => {
                             if (value === 0) changeTab("homeworks", true)

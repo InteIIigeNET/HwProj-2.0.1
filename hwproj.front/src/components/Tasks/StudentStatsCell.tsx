@@ -73,7 +73,13 @@ export default class StudentStatsCell extends React.Component<ITaskStudentCellPr
                     padding="none"
                     scope="row"
                     align="center"
-                    style={{backgroundColor: this.state.color, borderStyle: "none none ridge ridge", cursor: "pointer"}}
+                    style={{backgroundColor: this.state.color,
+                            borderStyle: "sticky",
+                            cursor: "pointer",
+                            left: 0,
+                            borderRight: "1px solid black",
+                            borderBottom: "1px solid black"
+                        }}
                 >
                     {result}
                 </TableCell>
