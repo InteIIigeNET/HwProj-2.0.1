@@ -4,11 +4,11 @@ using System.Threading.Tasks;
 
 namespace HwProj.CoursesService.API.Services
 {
-    public class AssignmentsService : IAssignmentsService
+    public class AssignmentsesService : IAssignmentsService
     {
         private readonly IAssignmentsRepository _assignmentsRepository;
 
-        public AssignmentsService(IAssignmentsRepository assignmentRepository)
+        public AssignmentsesService(IAssignmentsRepository assignmentRepository)
         {
             _assignmentsRepository = assignmentRepository;
         }
