@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HwProj.Models;
@@ -35,6 +36,8 @@ namespace HwProj.CoursesService.API.Filters
                     courseDto.CourseMates = courseDto.CourseMates
                         .Where(t => t.IsAccepted || t.StudentId == userId)
                         .ToArray();
+
+                    courseDto.Groups = courseDto.Groups.Where(g => g.StudentsIds.Contains(userId)).ToArray();
                 }
             }
 
