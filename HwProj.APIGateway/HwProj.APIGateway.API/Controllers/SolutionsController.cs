@@ -49,47 +49,32 @@ namespace HwProj.APIGateway.API.Controllers
         public async Task<IActionResult> GetStudentSolution(long taskId, string studentId)
         {
             var course = await _coursesServiceClient.GetCourseByTask(taskId);
-
             if (course == null) return NotFound();
 
             if (course.CourseMates.FirstOrDefault(t => t.StudentId == studentId) is not { IsAccepted: true })
                 return BadRequest();
 
-            var getSolutionsTask = _solutionsClient.GetAllTaskSolutions(taskId);
-            var getUserTask = AuthServiceClient.GetAccountData(studentId);
+            var student = await AuthServiceClient.GetAccountData(studentId);
+            var studentSolutions = await _solutionsClient.GetUserSolutions(taskId, studentId);
 
-            await Task.WhenAll(getSolutionsTask, getUserTask);
+            var solutionsGroupsIds = studentSolutions.Select(s => s.GroupId).Distinct();
+            var solutionsGroups = course.Groups.Where(g => solutionsGroupsIds.Contains(g.Id))
+                .ToDictionary(t => t.Id);
 
-            var solutions = getSolutionsTask.Result;
-            var solutionsGroupIds = solutions.Select(t => t.GroupId).Where(t => t != null).ToArray();
-
-            var student = getUserTask.Result;
-            var solutionsGroups = course.Groups.Where(t => solutionsGroupIds.Contains(t.Id)).ToList();
-            var studentGroupsIds = solutionsGroups
-                .Where(t => t.StudentsIds.Contains(student.UserId))
-                .Select(t => t.Id);
-            
-            // TODO: Move to solution service
-            var courseMatesIds = solutionsGroups.SelectMany(t => t.StudentsIds).Distinct().ToArray();
-            var courseMates = await AuthServiceClient.GetAccountsData(courseMatesIds);
-
-            var studentSolutions = solutions
-                .Where(s => s.StudentId == student.UserId || studentGroupsIds.Contains(s.GroupId.GetValueOrDefault()))
-                .Select(s =>
-                    new GetSolutionModel(s, s.GroupId != null
-                        ? courseMates.Where(t => solutionsGroups.First(g => g.Id == s.GroupId)
-                                .StudentsIds.Contains(t.UserId))
-                            .ToArray()
-                        : null
-                    )
-                )
-                .OrderBy(s => s.PublicationDate)
-                .ToArray();
+            var groupMatesIds = course.Groups.Where(g => solutionsGroupsIds.Contains(g.Id))
+                .SelectMany(g => g.StudentsIds).Distinct().ToArray();
+            var groupMates = await AuthServiceClient.GetAccountsData(groupMatesIds);
 
             return Ok(new UserTaskSolutions()
             {
                 User = student,
-                Solutions = studentSolutions
+                Solutions = studentSolutions.Select(s =>
+                    new GetSolutionModel(s,
+                        s.GroupId is { } groupId
+                            ? groupMates.Where(t => solutionsGroups[groupId].StudentsIds.Contains(t.UserId))
+                                .ToArray()
+                            : null)
+                ).ToArray()
             });
         }
 
