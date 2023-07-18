@@ -1,4 +1,5 @@
-﻿using HwProj.CoursesService.API.Models;
+﻿using System.Linq;
+using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using System.Threading.Tasks;
 
@@ -7,33 +8,48 @@ namespace HwProj.CoursesService.API.Services
     public class AssignmentsService : IAssignmentsService
     {
         private readonly IAssignmentsRepository _assignmentsRepository;
+        private readonly ICoursesRepository _coursesRepository;
 
-        public AssignmentsService(IAssignmentsRepository assignmentRepository)
+        public AssignmentsService(IAssignmentsRepository assignmentRepository,
+            ICoursesRepository coursesRepository)
         {
             _assignmentsRepository = assignmentRepository;
+            _coursesRepository = coursesRepository;
         }
 
         public async Task AssignStudentAsync(string studentId, string mentorId, long courseId)
-    {
-        var student = _assignmentsRepository.FindAsync(a => a.CourseId == courseId && a.StudentId == studentId);
+        {
+            if (_coursesRepository.FindAsync(c => c.MentorIds.Contains(mentorId)).Result == null)
+            {
+                return;
+            }
 
-        if (student.Result != null)
-        {
-            await _assignmentsRepository.UpdateAsync(student.Result.Id, a => new Assignment()
+            if (_coursesRepository.FindAsync(c => courseId == c.Id).Result.CourseMates
+                    .Where(cm => cm.StudentId == studentId)?.FirstOrDefault() == null)
             {
-                MentorId = mentorId,
-            });
-        }
-        else
-        {
-            await _assignmentsRepository.AddAsync(new Assignment
+                return;
+            }
+
+
+            var student = _assignmentsRepository.FindAsync(a => a.CourseId == courseId && a.StudentId == studentId);
+
+            if (student.Result != null)
             {
-                CourseId = courseId,
-                StudentId = studentId,
-                MentorId = mentorId
-            });
+                await _assignmentsRepository.UpdateAsync(student.Result.Id, a => new Assignment()
+                {
+                    MentorId = mentorId,
+                });
+            }
+            else
+            {
+                await _assignmentsRepository.AddAsync(new Assignment
+                {
+                    CourseId = courseId,
+                    StudentId = studentId,
+                    MentorId = mentorId
+                });
+            }
         }
-    }
 
         public async Task DeassignStudentAsync(string studentId, long courseId)
         {
