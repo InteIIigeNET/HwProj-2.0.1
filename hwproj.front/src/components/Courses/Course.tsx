@@ -369,9 +369,10 @@ const Course: React.FC = () => {
                     {tabValue === "assignment" && showAssignmentTab &&
                         <Grid>
                             <StudentAssignment
-                                course={course}
+                                course={courseState.course}
                                 mentors={courseState.mentors}
                                 acceptedStudents={courseState.acceptedStudents}
+                                assignments={courseState.assignments}
                             />
                         </Grid>
                     }
