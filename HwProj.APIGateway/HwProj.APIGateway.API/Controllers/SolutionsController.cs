@@ -152,7 +152,7 @@ namespace HwProj.APIGateway.API.Controllers
                     x.StudentId)).Count() != arrFullStudentsGroup.Length) return BadRequest();
 
             var singleOrDefault = course.Groups.SingleOrDefault(x =>
-                x.StudentsIds.Intersect(fullStudentsGroup).Count() == fullStudentsGroup.Count);
+                x.StudentsIds.Intersect(arrFullStudentsGroup).Count() == arrFullStudentsGroup.Count());
             long? groupId = null;
 
             if (singleOrDefault is null)
