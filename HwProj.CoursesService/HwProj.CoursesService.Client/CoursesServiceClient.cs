@@ -426,8 +426,8 @@ namespace HwProj.CoursesService.Client
             );
 
             var response = await _httpClient.SendAsync(httpRequest);
-            return response.IsSuccessStatusCode 
-                ? Result.Success() 
+            return response.IsSuccessStatusCode
+                ? Result.Success()
                 : Result.Failed(response.ReasonPhrase);
         }
 
@@ -444,5 +444,14 @@ namespace HwProj.CoursesService.Client
                 : Result.Failed(response.ReasonPhrase);
         }
 
+        public async Task<AssignmentViewModel[]> GetAllAssignmentsByCourse(long courseId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + $"api/Assignments/{courseId}/getAssignments");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<AssignmentViewModel[]>();
+        }
     }
 }

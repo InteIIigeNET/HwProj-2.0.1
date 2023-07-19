@@ -1,6 +1,7 @@
 import * as React from "react";
 import {
     AccountDataDto, GetSolutionModel,
+    AssignmentViewModel,
     HomeworkTaskViewModel, Solution,
     StatisticsCourseSolutionsModel
 } from "../../api/";
@@ -15,6 +16,7 @@ import {Chip, List, ListItemButton, ListItemText, Stack, Alert} from "@mui/mater
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import { Link } from 'react-router-dom';
 import Checkbox from '@mui/material/Checkbox';
+import { check } from "prettier";
 
 interface IStudentSolutionsPageState {
     currentTaskId: string
@@ -23,7 +25,8 @@ interface IStudentSolutionsPageState {
     isLoaded: boolean
     allSolutionsRated: boolean,
     courseId: number,
-    assignedStudents: string[];
+    assignedStudents: string[],
+    doesMentorHasStudent: boolean,
     studentSolutionsPreview: {
         student: AccountDataDto,
         solutions: GetSolutionModel[]
@@ -47,6 +50,7 @@ const StudentSolutionsPage: FC = () => {
         courseId: -1,
         assignedStudents: [],
         studentSolutionsPreview: [],
+        doesMentorHasStudent: false,
     })
 
     const {
@@ -57,23 +61,29 @@ const StudentSolutionsPage: FC = () => {
         allSolutionsRated,
         assignedStudents,
         courseId,
+        doesMentorHasStudent,
     } = studentSolutionsState
     const userId = ApiSingleton.authService.isLoggedIn()
         ? ApiSingleton.authService.getUserId()
         : undefined
 
-    const getTaskData = async (taskId: string, studentId: string) => {
+    const getTaskData = async (taskId: string, studentId: string, assigned: string[]) => {
         const fullUpdate = currentTaskId !== taskId
         const task = fullUpdate
             ? await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+taskId!)
             : studentSolutionsState.task
-
+        
         const {
             studentsSolutions,
+            assignments,
             courseId
         } = await ApiSingleton.solutionsApi.apiSolutionsTasksByTaskIdGet(+taskId!, studentId)
 
-        const assignedStudent = (await (ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+courseId!))).courseMates?.filter(cm => cm.mentorId === userId).map(cm => cm.studentId!)!;
+        const assignedStudents = assigned.length == 0 
+            ? assignments?.filter(a => a.mentorId === userId).map(a => a.studentId!)
+            : assigned!;
+
+        const studentful = assignedStudents!.length > 0;
 
         const studentSolutionsPreview = studentsSolutions!.map(studentSolutions => {
             const ratedSolutionInfo = StudentStatsUtils.calculateLastRatedSolutionInfo(studentSolutions.solutions!, task.maxRating!)
@@ -88,20 +98,21 @@ const StudentSolutionsPage: FC = () => {
             currentTaskId: taskId,
             studentSolutionsPreview: studentSolutionsPreview,
             courseId: courseId!,
-            assignedStudents: assignedStudent,
+            assignedStudents: assignedStudents!,
+            doesMentorHasStudent: studentful,
             allSolutionsRated: studentSolutionsPreview.findIndex(x => x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0) === -1
         })
     }
 
     useEffect(() => {
-        getTaskData(taskId!, studentId!)
+        getTaskData(taskId!, studentId!, assignedStudents)
     }, [taskId, studentId])
 
 
 
     const currentStudent = studentSolutionsPreview.find(x => x.student.userId === currentStudentId)
 
-    const [homeworkMentorFilter, setHomeworkMentorFilter] = useState<boolean>(false);
+    const [homeworkMentorFilter, setHomeworkMentorFilter] = useState<boolean>(true);
 
     const goBackToCourseStats = () => navigate(`/courses/${courseId}/stats`)
     const renderGoBackToCoursesStatsLink = () => {
@@ -136,10 +147,10 @@ const StudentSolutionsPage: FC = () => {
                         </Alert>
                         : renderGoBackToCoursesStatsLink()}
                 </Grid>
-                <Grid>
-                    <Checkbox onClick = {() => setHomeworkMentorFilter(state => !state)} />
-                    Закрепленные студенты
-                </Grid>
+                {doesMentorHasStudent && <Grid>
+                    <Checkbox defaultChecked onChange = {() => setHomeworkMentorFilter(state => !state)} />
+                    Закрепленные студенты 
+                </Grid>}
                 <Grid container spacing={3} style={{marginTop: '1px'}}>
                     <Grid item xs={3}>
                         <List>
@@ -182,7 +193,7 @@ const StudentSolutionsPage: FC = () => {
                             student={currentStudent!.student}
                             onSolutionRateClick={async () => {
                                 const nextStudentIndex = studentSolutionsPreview.findIndex(x => x.student.userId !== currentStudentId && x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0)
-                                if (nextStudentIndex === -1) await getTaskData(currentTaskId, currentStudentId)
+                                if (nextStudentIndex === -1) await getTaskData(currentTaskId, currentStudentId, assignedStudents)
                                 else navigate(`/task/${currentTaskId}/${studentSolutionsPreview[nextStudentIndex].student.userId}`)
                             }}
                         />}

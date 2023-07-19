@@ -1358,6 +1358,12 @@ export interface TaskSolutionStatisticsPageData {
     studentsSolutions?: Array<UserTaskSolutions>;
     /**
      * 
+     * @type {Array<AssignmentViewModel>}
+     * @memberof TaskSolutionStatisticsPageData
+     */
+    assignments?: Array<AssignmentViewModel>;
+    /**
+     * 
      * @type {number}
      * @memberof TaskSolutionStatisticsPageData
      */

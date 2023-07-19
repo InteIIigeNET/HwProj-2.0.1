@@ -120,6 +120,8 @@ namespace HwProj.APIGateway.API.Controllers
             {
                 CourseId = course.Id,
                 StudentsSolutions = studentIds.Select(studentId => new UserTaskSolutions
+                Assignments = _coursesServiceClient.GetAllAssignmentsByCourse(course.Id).Result,
+                StudentsSolutions = studentIds.Zip(usersData, (studentId, accountData) => new UserTaskSolutions
                     {
                         Solutions = statistics.TryGetValue(studentId, out var studentSolutions)
                             ? studentSolutions.Solutions.Select(t => new GetSolutionModel(t,
@@ -130,6 +132,7 @@ namespace HwProj.APIGateway.API.Controllers
                     .OrderBy(t => t.User.Surname)
                     .ThenBy(t => t.User.Name)
                     .ToArray()
+
             };
 
             return Ok(result);
