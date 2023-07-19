@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -95,6 +96,11 @@ namespace HwProj.SolutionsService.IntegrationTests
             return (userId, userData.Email);
         }
 
+        private async Task<(string, string)[]> CreateAndRegisterUsers(int amount)
+        {
+            return Enumerable.Repeat(0, amount).Select(_ => CreateAndRegisterUser().Result).ToArray();
+        }
+
         private async Task<(string, string)> CreateAndRegisterLecture()
         {
             var (userId, mail) = await CreateAndRegisterUser();
@@ -126,6 +132,17 @@ namespace HwProj.SolutionsService.IntegrationTests
             var fixture = new Fixture().Build<PostSolutionModel>()
                 .With(h => h.GithubUrl, url)
                 .With(h => h.StudentId, userId);
+            var viewModel = fixture.Create();
+            return viewModel;
+        }
+        
+        private PostSolutionModel GenerateGroupSolutionViewModel(string userId, long groupId)
+        {
+            var url = new Fixture().Create<string>();
+            var fixture = new Fixture().Build<PostSolutionModel>()
+                .With(h => h.GithubUrl, url)
+                .With(h => h.StudentId, userId)
+                .With(h => h.GroupId, groupId);
             var viewModel = fixture.Create();
             return viewModel;
         }
@@ -373,6 +390,57 @@ namespace HwProj.SolutionsService.IntegrationTests
             solutionViewModel.PublicationDate = DateTime.MaxValue;
 
             Assert.ThrowsAsync<ForbiddenException>(async () => await solutionsClient.PostSolution(taskId.Value, solutionViewModel));
+        }
+
+        [Test]
+        public async Task GetTaskSolutionStatisticsTest()
+        {
+            var lecturer = await CreateAndRegisterLecture();
+            var lectureCourseClient = CreateCourseServiceClient(lecturer.Item1);
+            var students = await CreateAndRegisterUsers(3);
+            var studentsIds = students.Select(s => s.Item1).ToArray();
+            var studentsCourseClients = studentsIds.Select(CreateCourseServiceClient).ToArray();
+
+            var (courseId, homeworkId, taskId) =
+                await CreateCourseHomeworkTaskWithOutDeadLine(lectureCourseClient, lecturer.Item1);
+            await SignStudentInCourse(studentsCourseClients[0], lectureCourseClient, courseId, studentsIds[0]);
+            await SignStudentInCourse(studentsCourseClients[1], lectureCourseClient, courseId, studentsIds[1]);
+            await SignStudentInCourse(studentsCourseClients[2], lectureCourseClient, courseId, studentsIds[2]);
+
+            var solutionClient = CreateSolutionsServiceClient();
+
+            var group1ViewModel = new CreateGroupViewModel(studentsIds, courseId);
+            var group1Id = await lectureCourseClient.CreateCourseGroup(group1ViewModel, courseId);
+            var group2ViewModel = new CreateGroupViewModel(new[] { studentsIds[0], studentsIds[1] }, courseId);
+            var group2Id = await lectureCourseClient.CreateCourseGroup(group2ViewModel, courseId);
+
+            var solution1ViewModel = GenerateGroupSolutionViewModel(studentsIds[0], group1Id);
+            var solution1Id = await solutionClient.PostSolution(taskId, solution1ViewModel);
+            await solutionClient.RateSolution(solution1Id, 1, "Group", lecturer.Item1);
+
+            var solution2ViewModel = GenerateGroupSolutionViewModel(studentsIds[1], group2Id);
+            var solution2Id = await solutionClient.PostSolution(taskId, solution2ViewModel);
+            await solutionClient.RateSolution(solution2Id, 2, "Pair", lecturer.Item1);
+
+            var solution3ViewModel = GenerateSolutionViewModel(studentsIds[1]);
+            var solution3Id = await solutionClient.PostSolution(taskId, solution3ViewModel);
+            await solutionClient.RateSolution(solution3Id, 3, "Individual", lecturer.Item1);
+
+            var response = await solutionClient.GetTaskSolutionStatistics(courseId, taskId);
+            var firstStudentSolutions = response.First(s => s.StudentId == studentsIds[0]).Solutions;
+            var secondStudentSolutions = response.First(s => s.StudentId == studentsIds[1]).Solutions;
+            var thirdStudentSolutions = response.First(s => s.StudentId == studentsIds[2]).Solutions;
+
+            response.Should().HaveCount(3);
+            firstStudentSolutions.Should().HaveCount(2);
+            secondStudentSolutions.Should().HaveCount(3);
+            thirdStudentSolutions.Should().HaveCount(1);
+            firstStudentSolutions.Select(s => s.LecturerComment).ToArray()
+                .Should().BeEquivalentTo("Group", "Pair");
+            secondStudentSolutions.Select(s => s.LecturerComment).ToArray()
+                .Should().BeEquivalentTo("Group", "Pair", "Individual");
+            thirdStudentSolutions.Select(s => s.LecturerComment).ToArray()
+                .Should().BeEquivalentTo("Group");
         }
     }
 }
