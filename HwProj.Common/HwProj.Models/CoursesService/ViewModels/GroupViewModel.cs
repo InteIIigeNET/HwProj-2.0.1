@@ -18,7 +18,14 @@ namespace HwProj.Models.CoursesService.ViewModels
 
         [Required]
         public long CourseId { get; set; }
-        
+
+        public CreateGroupViewModel(string[] groupMatesIds, long courseId)
+        {
+            Name = "";
+            GroupMatesIds = groupMatesIds;
+            CourseId = courseId;
+        }
+
     }
 
     public class UpdateGroupViewModel

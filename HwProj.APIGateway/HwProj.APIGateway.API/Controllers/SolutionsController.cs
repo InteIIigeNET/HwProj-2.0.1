@@ -157,12 +157,7 @@ namespace HwProj.APIGateway.API.Controllers
 
             if (singleOrDefault is null)
             {
-                var newModel = new CreateGroupViewModel()
-                {
-                    Name = "",
-                    CourseId = course.Id,
-                    GroupMatesIds = arrFullStudentsGroup
-                };
+                var newModel = new CreateGroupViewModel(arrFullStudentsGroup, course.Id);
                 groupId = await _coursesServiceClient.CreateCourseGroup(newModel, taskId);
             }
             else
