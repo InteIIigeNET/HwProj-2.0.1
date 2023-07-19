@@ -77,15 +77,16 @@ namespace HwProj.SolutionsService.API.Controllers
         public async Task<IActionResult> PostSolution(long taskId, [FromBody] PostSolutionModel solutionModel)
         {
             var task = await _coursesClient.GetTask(taskId);
+            var course = await _coursesClient.GetCourseByTask(taskId);
 
-            if (task.CanSendSolution)
-            {
-                var solution = _mapper.Map<Solution>(solutionModel);
-                solution.TaskId = taskId;
-                var solutionId = await _solutionsService.PostOrUpdateAsync(taskId, solution);
-                return Ok(solutionId);
-            }
-            return Forbid();
+            if (!task.CanSendSolution
+                || course.CourseMates.FirstOrDefault(t => t.StudentId == solutionModel.StudentId) is
+                    not { IsAccepted: true }) return Forbid();
+            
+            var solution = _mapper.Map<Solution>(solutionModel);
+            solution.TaskId = taskId;
+            var solutionId = await _solutionsService.PostOrUpdateAsync(taskId, solution);
+            return Ok(solutionId);
         }
 
         [HttpPost("rateSolution/{solutionId}")]
