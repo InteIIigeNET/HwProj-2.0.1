@@ -13,8 +13,6 @@ namespace HwProj.CoursesService.API.Repositories
         public async Task<Assignment[]> GetAllByCourseAsync(long courseId)
         {
             return await Context.Set<Assignment>()
-                .Include(a => a.StudentId)
-                .Include(a => a.MentorId)
                 .Where(a => a.CourseId == courseId)
                 .ToArrayAsync();
         }
