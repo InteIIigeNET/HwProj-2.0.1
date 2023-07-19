@@ -94,6 +94,7 @@ namespace HwProj.APIGateway.API.Controllers
             var result = new TaskSolutionStatisticsPageData()
             {
                 CourseId = course.Id,
+                Assignments = _coursesServiceClient.GetAllAssignmentsByCourse(course.Id).Result,
                 StudentsSolutions = studentIds.Zip(usersData, (studentId, accountData) => new UserTaskSolutions
                     {
                         Solutions = statisticsDict.TryGetValue(studentId, out var studentSolutions)
@@ -104,6 +105,7 @@ namespace HwProj.APIGateway.API.Controllers
                     .OrderBy(t => t.User.Surname)
                     .ThenBy(t => t.User.Name)
                     .ToArray()
+
             };
 
             return Ok(result);
