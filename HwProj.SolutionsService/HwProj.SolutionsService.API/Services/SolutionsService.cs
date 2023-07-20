@@ -38,11 +38,6 @@ namespace HwProj.SolutionsService.API.Services
             return await _solutionsRepository.GetAll().ToArrayAsync();
         }
 
-        public async Task<Solution[]> GetAllTaskSolutionsAsync(long taskId)
-        {
-            return await _solutionsRepository.GetAll().Where(s => s.TaskId == taskId).ToArrayAsync();
-        }
-
         public Task<Solution> GetSolutionAsync(long solutionId)
         {
             return _solutionsRepository.GetAsync(solutionId);
