@@ -15,23 +15,24 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task AssignStudentAsync(string studentId, string mentorId, long courseId)
         {
-            if (_coursesRepository.FindAsync(c => c.MentorIds.Contains(mentorId)).Result == null)
+            var course = await _coursesRepository.GetWithCourseMatesAsync(courseId);
+
+            if (course?.MentorIds.Contains(mentorId) is null)
             {
                 return;
             }
 
-            if (_coursesRepository.GetWithCourseMatesAsync(courseId).Result?.CourseMates
-                    .Where(cm => cm.StudentId.Equals(studentId))?.FirstOrDefault() == null)
+            var courseMate = course.CourseMates.Where(cm => cm.StudentId.Equals(studentId))?.FirstOrDefault();
+            if (courseMate is null || !courseMate.IsAccepted)
             {
                 return;
             }
 
+            var student = await _assignmentsRepository.FindAsync(a => a.CourseId == courseId && a.StudentId == studentId);
 
-            var student = _assignmentsRepository.FindAsync(a => a.CourseId == courseId && a.StudentId == studentId);
-
-            if (student.Result != null)
+            if (!(student is null))
             {
-                await _assignmentsRepository.UpdateAsync(student.Result.Id, a => new Assignment()
+                await _assignmentsRepository.UpdateAsync(student.Id, a => new Assignment()
                 {
                     MentorId = mentorId,
                 });
@@ -49,9 +50,9 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task DeassignStudentAsync(string studentId, long courseId)
         {
-            var student = _assignmentRepository.FindAsync(s => s.StudentId == studentId && s.CourseId == courseId).Result;
+            var student = await _assignmentsRepository.FindAsync(s => s.StudentId == studentId && s.CourseId == courseId);
 
-            if (student != null)
+            if (!(student is null))
             {
                 await _assignmentRepository.DeleteAsync(student.Id);
             }

@@ -120,7 +120,7 @@ namespace HwProj.APIGateway.API.Controllers
             {
                 CourseId = course.Id,
                 StudentsSolutions = studentIds.Select(studentId => new UserTaskSolutions
-                Assignments = _coursesServiceClient.GetAllAssignmentsByCourse(course.Id).Result,
+                Assignments = course.Assignments,
                 StudentsSolutions = studentIds.Zip(usersData, (studentId, accountData) => new UserTaskSolutions
                     {
                         Solutions = statistics.TryGetValue(studentId, out var studentSolutions)

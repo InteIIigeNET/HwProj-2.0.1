@@ -154,7 +154,7 @@ const StudentSolutionsPage: FC = () => {
                 <Grid container spacing={3} style={{marginTop: '1px'}}>
                     <Grid item xs={3}>
                         <List>
-                            {studentSolutionsPreview!.filter(solution => homeworkMentorFilter ? assignedStudents?.includes(solution.student.userId!) : true).map(({
+                            {studentSolutionsPreview!.filter(solution => (homeworkMentorFilter && doesMentorHasStudent) ? assignedStudents?.includes(solution.student.userId!) : true).map(({
                                                                color, lastRatedSolution, student: {
                                     name,
                                     surname,
@@ -175,7 +175,7 @@ const StudentSolutionsPage: FC = () => {
                                 </Link>)}
                         </List>
                     </Grid>
-                    {(!homeworkMentorFilter || assignedStudents.includes(currentStudentId)) &&
+                    {(!doesMentorHasStudent || !homeworkMentorFilter || assignedStudents.includes(currentStudentId)) &&
                     <Grid item xs={9} spacing={2} justifyContent={"flex-start"}>
                         <Task
                             task={studentSolutionsState.task}
