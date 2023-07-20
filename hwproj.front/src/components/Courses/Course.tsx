@@ -7,6 +7,8 @@ import StudentStats from "./StudentStats";
 import NewCourseStudents from "./NewCourseStudents";
 import StudentAssignment from "./StudentsAssignment";
 import ApiSingleton from "../../api/ApiSingleton";
+import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
 import { Button, Grid, Tab, Tabs, Typography, IconButton, Switch } from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
 import { useEffect, useState } from "react";
@@ -187,15 +189,14 @@ const Course: React.FC = () => {
                                         </RouterLink>
                                     )}
                                 </Typography>
-                                <Typography style={{ fontSize: "18px", color: "GrayText" }}>
-                                    {mentors.map(t => `${t.name} ${t.surname}`).join(", ")}
-                                </Typography>
-                                {isMentor && <div><Switch value={showExperimentalFeature}
-                                    onChange={(e, checked) => setCourseState(prevState => ({
-                                        ...prevState,
-                                        showExperimentalFeature: checked
-                                    }))} /> Включить экспериментальный режим отображения
-                                </div>}
+                                {isMentor &&
+                                    <div style={{ marginTop: 10, marginLeft: -10 }}><Switch value={showExperimentalFeature}
+                                        onChange={(e, checked) => setCourseState(prevState => ({
+                                            ...prevState,
+                                            showExperimentalFeature: checked
+                                        }))} /> Включить экспериментальный режим отображения
+                                    </div>
+                                }
                             </Grid>
                             <Grid item style={{ width: '187px' }}>
                                 <Grid container alignItems="flex-end" direction="column" xs={12}>
@@ -222,46 +223,54 @@ const Course: React.FC = () => {
                             </Grid>
                         </Grid>
                     </Grid>
-                    <Tabs
-                        value={() => {switch(tabValue)
-                                {
-                                    case "homeworks" : return 0;
-                                    case "stats" : return 1;
-                                    case "applications" : return 2;
-                                    case "assignment" : return 3;
+                    <Stack direction="row" spacing={9}>
+                        <Tabs
+                            value={() => {switch(tabValue)
+                                    {
+                                        case "homeworks" : return 0;
+                                        case "stats" : return 1;
+                                        case "applications" : return 2;
+                                        case "assignment" : return 3;
+                                    }
                                 }
                             }
+    
+                            style={{marginTop: 5, marginLeft: -10}}
+                            indicatorColor="primary"
+                            onChange={(event, value) => {
+                                if (value === 0) changeTab("homeworks", true)
+                                if (value === 1) changeTab("stats", true)
+                                if (value === 2) changeTab("applications", true)
+                                if (value === 3) changeTab("assignment", true)
+                            }}
+                        >
+                            <Tab label="Домашние задания" />
+                            {showStatsTab && <Tab label={
+                                <Stack direction="row" spacing={1}>
+                                    <div>Решения</div>
+                                    <Chip size={"small"} color={"default"}
+                                        label={unratedSolutionsCount} />
+                                </Stack>
+                            } />}
+                            {showApplicationsTab && <Tab label={
+                                <Stack direction="row" spacing={1}>
+                                    <div>Заявки</div>
+                                    <Chip size={"small"} color={"default"}
+                                        label={newStudents.length} />
+                                </Stack>} />}
+                            {showAssignmentTab && <Tab label={
+                                <Stack direction="row" spacing={1}>
+                                    <div>Закрепление</div>
+                                </Stack>} />}
+                            
+                        </Tabs>
+                        {
+                            isMentor && acceptedStudents.length - assignments.length != 0 &&
+                            <Alert variant="standard" severity="info">
+                                {`Кол-во незакреплённых студентов: ${acceptedStudents.length - assignments.length}`}
+                            </Alert>
                         }
- 
-                        style={{marginTop: 15 }}
-                        indicatorColor="primary"
-                        onChange={(event, value) => {
-                            if (value === 0) changeTab("homeworks", true)
-                            if (value === 1) changeTab("stats", true)
-                            if (value === 2) changeTab("applications", true)
-                            if (value === 3) changeTab("assignment", true)
-                        }}
-                    >
-                        <Tab label="Домашние задания" />
-                        {showStatsTab && <Tab label={
-                            <Stack direction="row" spacing={1}>
-                                <div>Решения</div>
-                                <Chip size={"small"} color={"default"}
-                                    label={unratedSolutionsCount} />
-                            </Stack>
-                        } />}
-                        {showApplicationsTab && <Tab label={
-                            <Stack direction="row" spacing={1}>
-                                <div>Заявки</div>
-                                <Chip size={"small"} color={"default"}
-                                    label={newStudents.length} />
-                            </Stack>} />}
-                        {showAssignmentTab && <Tab label={
-                            <Stack direction="row" spacing={1}>
-                                <div>Закрепление</div>
-                            </Stack>} />}
-
-                    </Tabs>
+                    </Stack>
                     <br />
                     {tabValue === "homeworks" && <div>
                         {

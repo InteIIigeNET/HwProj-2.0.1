@@ -1,6 +1,6 @@
 import React from "react";
 import { CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel } from "../../api/";
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField } from "@material-ui/core";
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid } from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
 import { Alert } from "@mui/material";
 import Checkbox from '@mui/material/Checkbox';
@@ -27,7 +27,7 @@ class StudentStats extends React.Component<IStudentStatsProps, IStudentStatsStat
             searched: "",
             filterWorking: false,
             ableSolutions: props.solutions,
-            isMentorWithStudents: props.isMentor && props.course.assignments!.length > 0
+            isMentorWithStudents: props.isMentor && props.course.assignments!.some(a => a.mentorId === props.userId)
         }
 
         // document.addEventListener('keydown', (event: KeyboardEvent) => {
@@ -80,7 +80,7 @@ class StudentStats extends React.Component<IStudentStatsProps, IStudentStatsStat
             ableSolutions: filterSolutions(this.props.solutions, prevState.searched, !prevState.filterWorking)
         })
 
-        const { searched, filterWorking, ableSolutions, isMentorWithStudents } = this.state;
+        const { searched, ableSolutions, isMentorWithStudents } = this.state;
 
         return (
             <div>
@@ -88,7 +88,10 @@ class StudentStats extends React.Component<IStudentStatsProps, IStudentStatsStat
                     <Alert style={{ marginBottom: 5 }} severity="info"><b>Студенты:</b> {searched.replaceAll(" ", "·")}
                     </Alert>}
                 {isMentorWithStudents &&
-                    <Checkbox onClick={() => this.setState(prevState => setCurrentState(prevState))} />
+                    <Grid>
+                        <Checkbox onClick={() => this.setState(prevState => setCurrentState(prevState))} />
+                        Закреплённые студенты
+                    </Grid>
                 }
                 Закреплённые студенты
                 <TableContainer style={{ maxHeight: 600 }}>
