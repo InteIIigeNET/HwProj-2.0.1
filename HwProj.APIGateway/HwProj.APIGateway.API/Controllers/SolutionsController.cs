@@ -94,7 +94,7 @@ namespace HwProj.APIGateway.API.Controllers
             var result = new TaskSolutionStatisticsPageData()
             {
                 CourseId = course.Id,
-                Assignments = _coursesServiceClient.GetAllAssignmentsByCourse(course.Id).Result,
+                Assignments = course.Assignments,
                 StudentsSolutions = studentIds.Zip(usersData, (studentId, accountData) => new UserTaskSolutions
                     {
                         Solutions = statisticsDict.TryGetValue(studentId, out var studentSolutions)
