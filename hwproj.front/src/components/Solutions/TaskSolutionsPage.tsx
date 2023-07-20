@@ -135,6 +135,7 @@ const TaskSolutionsPage: FC = () => {
                                     <div style={{marginTop: "10px"}}>
                                         <Divider style={{marginBottom: 15}}/>
                                         <AddSolution
+                                            userId={userId}
                                             taskId={+taskId!}
                                             onAdd={getTask}
                                             onCancel={onCancelAddSolution}

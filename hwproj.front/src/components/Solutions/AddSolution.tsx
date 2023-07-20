@@ -9,6 +9,7 @@ import makeStyles from "@material-ui/styles/makeStyles";
 import {Alert, Autocomplete} from "@mui/material";
 
 interface IAddSolutionProps {
+    userId: string
     lastSolutionUrl: string | undefined,
     lastGroup: string[],
     taskId: number,
@@ -44,6 +45,7 @@ const AddSolution: FC<IAddSolutionProps> = (props) => {
 
     const classes = useStyles()
     const {githubUrl} = solution
+    const courseMates = props.students.filter(s => props.userId !== s.userId)
 
     return (
         <div>
@@ -72,8 +74,8 @@ const AddSolution: FC<IAddSolutionProps> = (props) => {
                         <Autocomplete
                             multiple
                             id="tags-outlined"
-                            options={props.students}
-                            value={props.students.filter(s => solution.groupMateIds?.includes(s.userId!))}
+                            options={courseMates}
+                            value={courseMates.filter(s => solution.groupMateIds?.includes(s.userId!))}
                             getOptionLabel={(option) => option.surname! + ' ' + option.name! + " / " + option.email!}
                             filterSelectedOptions
                             onChange={(e, values) => {
