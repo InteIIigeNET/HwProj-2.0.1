@@ -6,6 +6,8 @@ import StudentStats from "./StudentStats";
 import NewCourseStudents from "./NewCourseStudents";
 import StudentAssignment from "./StudentsAssignment";
 import ApiSingleton from "../../api/ApiSingleton";
+import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
 import { Button, Grid, Tab, Tabs, Typography, IconButton, Switch } from "@material-ui/core";
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
@@ -258,6 +260,7 @@ const Course: React.FC = () => {
                                 <Stack direction="row" spacing={1}>
                                     <div>Закрепление</div>
                                 </Stack>} />}
+                            
                         </Tabs>
                         {
                             isMentor && acceptedStudents.length - assignments.length != 0 &&
