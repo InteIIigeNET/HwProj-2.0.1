@@ -23,6 +23,7 @@
       <ProjectReference Include="..\..\HwProj.AuthService\HwProj.AuthService.Client\HwProj.AuthService.Client.csproj" />
       <ProjectReference Include="..\..\HwProj.Common\HwProj.Exceptions\HwProj.Exceptions.csproj" />
       <ProjectReference Include="..\..\HwProj.CoursesService\HwProj.CoursesService.Client\HwProj.CoursesService.Client.csproj" />
+      <ProjectReference Include="..\HwProj.SolutionsService.API\HwProj.SolutionsService.API.csproj" />
       <ProjectReference Include="..\HwProj.SolutionsService.Client\HwProj.SolutionsService.Client.csproj" />
     </ItemGroup>
 
