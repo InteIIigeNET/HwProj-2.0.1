@@ -1,8 +1,9 @@
-﻿namespace HwProj.Models.CoursesService.ViewModels;
-
-public class AssignmentViewModel
+﻿namespace HwProj.Models.CoursesService.ViewModels
 {
-    public string MentorId { get; set; }
+    public class AssignmentViewModel
+    {
+        public string MentorId { get; set; }
 
-    public string StudentId {get; set; }
+        public string StudentId { get; set; }
+    }
 }

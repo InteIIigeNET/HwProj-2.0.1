@@ -2,16 +2,16 @@
 using System.ComponentModel.DataAnnotations;
 using HwProj.Repositories;
 
-namespace HwProj.CoursesService.API.Models;
-
-public class Assignment : IEntity<long>
+namespace HwProj.CoursesService.API.Models
 {
-    [Key] 
-    public long Id { get; set; }
+    public class Assignment : IEntity<long>
+    {
+        [Key] public long Id { get; set; }
 
-    public long CourseId { get; set; }
+        public long CourseId { get; set; }
 
-    public string MentorId { get; set; }
+        public string MentorId { get; set; }
 
-    public string StudentId { get; set; }
+        public string StudentId { get; set; }
+    }
 }
