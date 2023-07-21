@@ -9,10 +9,11 @@ import Task from "../Tasks/Task";
 import TaskSolutions from "./TaskSolutions";
 import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useEffect, useState} from "react";
-import {CircularProgress, Grid, Link} from "@material-ui/core";
+import {CircularProgress, Grid} from "@material-ui/core";
 import {useNavigate, useParams} from "react-router-dom";
 import {Chip, List, ListItemButton, ListItemText, Stack, Alert} from "@mui/material";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
+import { Link } from 'react-router-dom';
 
 interface IStudentSolutionsPageState {
     currentTaskId: string
@@ -90,13 +91,10 @@ const StudentSolutionsPage: FC = () => {
     }, [taskId, studentId])
 
     const currentStudent = studentSolutionsPreview.find(x => x.student.userId === currentStudentId)
-
-    const goBackToCourseStats = () => navigate(`/courses/${courseId}/stats`)
     const renderGoBackToCoursesStatsLink = () => {
         return <Link
-            component="button"
+            to={`/courses/${courseId}/stats`}
             style={{color: '#212529'}}
-            onClick={goBackToCourseStats}
         >
             <Typography>
                 Назад к курсу
@@ -134,20 +132,18 @@ const StudentSolutionsPage: FC = () => {
                                     userId
                                 }
                                                            }) =>
-                                <ListItemButton disableGutters divider
-                                                disableTouchRipple={currentStudentId === userId}
-                                                selected={currentStudentId === userId}
-                                                onClick={async () => {
-                                                    if (currentStudentId === userId) return
-                                                    navigate(`/task/${currentTaskId}/${(userId)!}`)
-                                                }}>
-                                    <Stack direction={"row"} spacing={1} sx={{paddingLeft: 1}}>
-                                        <Chip style={{backgroundColor: color}}
-                                              size={"small"}
-                                              label={lastRatedSolution == undefined ? "?" : lastRatedSolution.rating}/>
-                                        <ListItemText primary={surname + " " + name}/>
-                                    </Stack>
-                                </ListItemButton>)}
+                                <Link to={`/task/${currentTaskId}/${(userId)!}`} style={{color: "black", textDecoration: "none"}}>
+                                    <ListItemButton disableGutters divider
+                                                    disableTouchRipple={currentStudentId === userId}
+                                                    selected={currentStudentId === userId}>
+                                        <Stack direction={"row"} spacing={1} sx={{paddingLeft: 1}}>
+                                            <Chip style={{backgroundColor: color}}
+                                                  size={"small"}
+                                                  label={lastRatedSolution == undefined ? "?" : lastRatedSolution.rating}/>
+                                            <ListItemText primary={surname + " " + name}/>
+                                        </Stack>
+                                    </ListItemButton>
+                                </Link>)}
                         </List>
                     </Grid>
                     <Grid item xs={9} spacing={2} justifyContent={"flex-start"}>
