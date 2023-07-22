@@ -14,7 +14,6 @@ using HwProj.SolutionsService.Client;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-
 namespace HwProj.APIGateway.API.Controllers
 {
     [Route("api/[controller]")]
@@ -151,21 +150,14 @@ namespace HwProj.APIGateway.API.Controllers
             if (arrFullStudentsGroup.Intersect(course.CourseMates.Select(x =>
                     x.StudentId)).Count() != arrFullStudentsGroup.Length) return BadRequest();
 
-            var singleOrDefault = course.Groups.SingleOrDefault(x =>
+            var existedGroup = course.Groups.SingleOrDefault(x =>
                 x.StudentsIds.Intersect(arrFullStudentsGroup).Count() == arrFullStudentsGroup.Length);
-            long? groupId = null;
 
-            if (singleOrDefault is null)
-            {
-                var newModel = new CreateGroupViewModel(arrFullStudentsGroup, course.Id);
-                groupId = await _coursesServiceClient.CreateCourseGroup(newModel, taskId);
-            }
-            else
-            {
-                groupId = singleOrDefault.Id;
-            }
+            solutionModel.GroupId =
+                existedGroup?.Id ??
+                await _coursesServiceClient.CreateCourseGroup(new CreateGroupViewModel(arrFullStudentsGroup, course.Id),
+                    taskId);
 
-            solutionModel.GroupId = groupId;
             await _solutionsClient.PostSolution(taskId, solutionModel);
             return Ok(solutionModel);
         }
@@ -182,7 +174,6 @@ namespace HwProj.APIGateway.API.Controllers
             await _solutionsClient.PostEmptySolutionWithRate(taskId, model);
             return Ok();
         }
-
 
         [HttpPost("rateSolution/{solutionId}/{newRating}")]
         [Authorize(Roles = Roles.LecturerRole)]
@@ -207,26 +198,6 @@ namespace HwProj.APIGateway.API.Controllers
         {
             await _solutionsClient.DeleteSolution(solutionId);
             return Ok();
-        }
-
-        [HttpPost("{groupId}/{taskId}")]
-        [Authorize]
-        [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> PostGroupSolution(SolutionViewModel model, long taskId, long groupId)
-        {
-            var result = await _solutionsClient.PostGroupSolution(model, taskId, groupId);
-            return Ok(result);
-        }
-
-        [HttpGet("{groupId}/taskSolutions/{taskId}")]
-        [Authorize]
-        [ProducesResponseType(typeof(Solution[]), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetGroupSolutions(long groupId, long taskId)
-        {
-            var result = await _solutionsClient.GetTaskSolutions(groupId, taskId);
-            return result == null
-                ? NotFound() as IActionResult
-                : Ok(result);
         }
 
         [HttpGet("unratedSolutions")]
