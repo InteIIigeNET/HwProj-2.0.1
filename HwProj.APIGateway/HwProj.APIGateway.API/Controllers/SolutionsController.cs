@@ -73,17 +73,20 @@ namespace HwProj.APIGateway.API.Controllers
                 ? await AuthServiceClient.GetAccountsData(groupMatesIds)
                 : Array.Empty<AccountDataDto>();
 
-            return Ok(new UserTaskSolutions()
-            {
-                User = student,
-                Solutions = studentSolutions.Select(s =>
+            var solutions = studentSolutions
+                .Select(s =>
                     new GetSolutionModel(s,
                         s.GroupId is { } groupId
                             ? groupMates
                                 .Where(t => solutionsGroups[groupId].StudentsIds.Contains(t.UserId))
                                 .ToArray()
-                            : null)
-                ).ToArray()
+                            : null))
+                .ToArray();
+
+            return Ok(new UserTaskSolutions()
+            {
+                User = student,
+                Solutions = solutions
             });
         }
 

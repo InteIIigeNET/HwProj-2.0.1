@@ -36,7 +36,7 @@ namespace HwProj.SolutionsService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Solution[]>();
         }
-        
+
         public async Task<Solution[]> GetAllTaskSolutions(long taskId)
         {
             using var httpRequest = new HttpRequestMessage(
@@ -69,7 +69,7 @@ namespace HwProj.SolutionsService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Solution[]>();
         }
-        
+
         public async Task<long> PostSolution(long taskId, PostSolutionModel model)
         {
             using var httpRequest = new HttpRequestMessage(
