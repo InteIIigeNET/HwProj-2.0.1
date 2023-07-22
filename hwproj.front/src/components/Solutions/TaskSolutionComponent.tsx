@@ -3,14 +3,14 @@ import {FC, useEffect, useState} from 'react';
 import {Button, Grid, TextField, Typography} from "@material-ui/core";
 import Link from '@material-ui/core/Link'
 import './style.css'
-import {AccountDataDto, HomeworkTaskViewModel, Solution} from '../../api'
+import {AccountDataDto, GetSolutionModel, HomeworkTaskViewModel, Solution} from '../../api'
 import ApiSingleton from "../../api/ApiSingleton";
 import {Alert, Avatar, Rating, Stack, Tooltip} from "@mui/material";
 import AvatarUtils from "../Utils/AvatarUtils";
 import GitHubIcon from '@mui/icons-material/GitHub';
 
 interface ISolutionProps {
-    solution: Solution | undefined,
+    solution: GetSolutionModel | undefined,
     student: AccountDataDto,
     task: HomeworkTaskViewModel,
     forMentor: boolean,
@@ -71,6 +71,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     const isRated = solution && solution.state !== Solution.StateEnum.NUMBER_0 // != Posted
     const {points, lecturerComment} = state
     const postedSolutionTime = solution && new Date(solution.publicationDate!).toLocaleString("ru-RU")
+    const students = (solution?.groupMates?.length || 0) > 0 ? solution!.groupMates! : [student]
 
     const getDatesDiff = (_date1: Date, _date2: Date) => {
         const date1 = new Date(_date1).getTime()
@@ -147,10 +148,12 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
 
     return (<div>
             <Grid container direction="column" spacing={2}>
-                {solution && <Stack direction={"row"} spacing={1} alignItems={"center"} style={{marginLeft: 7}}>
-                    <Tooltip title={student.surname + " " + student.name}>
-                        <Avatar {...AvatarUtils.stringAvatar(student.name!, student.surname!)} />
-                    </Tooltip>
+                {solution && <Stack direction={students.length > 1 ? "column" : "row"} spacing={1} style={{marginLeft: 7}}>
+                    <Stack direction={"row"} spacing={1}>
+                        {students && students.map(t => <Tooltip title={t.surname + " " + t.name}>
+                            <Avatar {...AvatarUtils.stringAvatar(t.name!, t.surname!)} />
+                        </Tooltip>)}
+                    </Stack>
                     <Grid item spacing={1} container direction="column">
                         {solution.comment &&
                             <Grid item>

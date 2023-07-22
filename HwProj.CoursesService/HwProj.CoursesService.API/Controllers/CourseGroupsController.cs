@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
@@ -25,14 +26,25 @@ namespace HwProj.CoursesService.API.Controllers
         public async Task<GroupViewModel[]> GetAll(long courseId)
         {
             var groups = await _groupsService.GetAllAsync(courseId);
-            return _mapper.Map<GroupViewModel[]>(groups);
+            
+            var result = groups.Select(t => new GroupViewModel
+            {
+                Id = t.Id,
+                StudentsIds = t.GroupMates.Select(s => s.StudentId).ToArray()
+            }).ToArray();
+
+            return result;
         }
 
         [HttpPost("{courseId}/create")]
-        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> CreateGroup([FromBody] CreateGroupViewModel groupViewModel)
         {
-            var group = _mapper.Map<Group>(groupViewModel);
+            var group = new Group
+            {
+                CourseId = groupViewModel.CourseId,
+                Name = groupViewModel.Name,
+                GroupMates = groupViewModel.GroupMatesIds.Select(t => new GroupMate() { StudentId = t }).ToList()
+            };
             var id = await _groupsService.AddGroupAsync(group);
             return Ok(id);
         }
@@ -76,7 +88,7 @@ namespace HwProj.CoursesService.API.Controllers
                 ? Ok()
                 : NotFound() as IActionResult;
         }
-        
+
         [HttpGet("get/{groupId}")]
         public async Task<IActionResult> Get(long groupId)
         {

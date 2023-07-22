@@ -52,7 +52,7 @@ const TaskSolutionsPage: FC = () => {
         })
     }
 
-    const {userSolutions} = taskSolutionPage
+    const {userSolutions, course} = taskSolutionPage
     const solutions = userSolutions && userSolutions.solutions!
     const lastSolution = solutions && solutions[solutions.length - 1]
 
@@ -135,10 +135,13 @@ const TaskSolutionsPage: FC = () => {
                                     <div style={{marginTop: "10px"}}>
                                         <Divider style={{marginBottom: 15}}/>
                                         <AddSolution
+                                            userId={userId}
                                             taskId={+taskId!}
                                             onAdd={getTask}
                                             onCancel={onCancelAddSolution}
-                                            lastSolutionUrl={lastSolution?.githubUrl}/>
+                                            lastSolutionUrl={lastSolution?.githubUrl}
+                                            students={course.acceptedStudents}
+                                            lastGroup={lastSolution?.groupMates?.map(s => s.userId)}/>
                                     </div>
                                 </Grid>
                             )}

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.SolutionsService;
 using HwProj.Models.StatisticsService;
 using HwProj.SolutionsService.API.Models;
@@ -12,38 +13,70 @@ namespace HwProj.SolutionsService.API.Domains
         public static StatisticsCourseMatesDto[] GetCourseStatistics(StatisticsAggregateModel model) =>
             model.CourseMates
                 .Where(t => t.IsAccepted)
-                .Select(m => new StatisticsCourseMatesDto
+                .Select(m =>
                 {
-                    StudentId = m.StudentId,
-                    Homeworks = new List<StatisticsCourseHomeworksModel>(model.Homeworks.Select(h =>
-                        new StatisticsCourseHomeworksModel
-                        {
-                            Id = h.Id,
-                            Tasks = new List<StatisticsCourseTasksModel>(h.Tasks.Select(t =>
+                    var studentGroupIds = model.Groups
+                        .Where(g => g.StudentsIds.Contains(m.StudentId))
+                        .Select(g => g.Id)
+                        .ToArray();
+
+                    return new StatisticsCourseMatesDto
+                    {
+                        StudentId = m.StudentId,
+                        Homeworks = new List<StatisticsCourseHomeworksModel>(model.Homeworks.Select(h =>
+                            new StatisticsCourseHomeworksModel
                             {
-                                var solutions =
-                                    model.Solutions.Where(s => s.TaskId == t.Id && s.StudentId == m.StudentId)
-                                        .OrderBy(s => s.PublicationDate);
-                                var solutionsInRightModel =
-                                    new List<StatisticsCourseSolutionsModel>(solutions.Select(s =>
-                                        new StatisticsCourseSolutionsModel(s)));
-                                return new StatisticsCourseTasksModel
+                                Id = h.Id,
+                                Tasks = new List<StatisticsCourseTasksModel>(h.Tasks.Select(t =>
                                 {
-                                    Id = t.Id,
-                                    Solution = solutionsInRightModel
-                                };
+                                    var solutions =
+                                        model.Solutions
+                                            .Where(s =>
+                                                s.TaskId == t.Id &&
+                                                (s.StudentId == m.StudentId ||
+                                                 studentGroupIds.Contains(s.GroupId.GetValueOrDefault())
+                                                ))
+                                            .OrderBy(s => s.PublicationDate);
+                                    var solutionsInRightModel =
+                                        new List<StatisticsCourseSolutionsModel>(solutions.Select(s =>
+                                            new StatisticsCourseSolutionsModel(s)));
+                                    return new StatisticsCourseTasksModel
+                                    {
+                                        Id = t.Id,
+                                        Solution = solutionsInRightModel
+                                    };
+                                }))
                             }))
-                        }))
+                    };
                 }).ToArray();
 
-        public static StudentSolutions[] GetCourseTaskStatistics(IEnumerable<Solution> solutions)
+        public static StudentSolutions[] GetCourseTaskStatistics(List<Solution> solutions,
+            IEnumerable<GroupViewModel> groups)
         {
             return solutions
-                .GroupBy(t => t.StudentId)
-                .Select(t => new StudentSolutions()
+                .GroupBy(t => t.GroupId)
+                .SelectMany(t => t.Key == null
+                    ? t.GroupBy(s => s.StudentId)
+                        .Select(studentSolutionsWithoutGroup => new StudentSolutions()
+                        {
+                            StudentId = studentSolutionsWithoutGroup.Key,
+                            Solutions = studentSolutionsWithoutGroup.ToArray()
+                        })
+                    : groups.FirstOrDefault(x => x.Id == t.Key) is { } group && t.ToArray() is { } groupSolutions
+                        ? group.StudentsIds
+                            .Select(studentId => new StudentSolutions()
+                            {
+                                StudentId = studentId,
+                                Solutions = groupSolutions
+                            })
+                        : Enumerable.Empty<StudentSolutions>())
+                .GroupBy(s => s.StudentId)
+                .Select(g => new StudentSolutions
                 {
-                    StudentId = t.Key,
-                    Solutions = t.OrderBy(s => s.PublicationDate).ToArray()
+                    StudentId = g.Key,
+                    Solutions = g.SelectMany(s => s.Solutions)
+                        .OrderBy(s => s.PublicationDate)
+                        .ToArray()
                 })
                 .ToArray();
         }

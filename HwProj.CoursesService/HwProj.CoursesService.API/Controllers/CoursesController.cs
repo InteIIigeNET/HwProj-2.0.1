@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Net;
 using HwProj.CoursesService.API.Repositories;
+using HwProj.CoursesService.API.Repositories.Groups;
 using HwProj.Models;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
@@ -23,15 +24,19 @@ namespace HwProj.CoursesService.API.Controllers
         private readonly ICoursesService _coursesService;
         private readonly ICoursesRepository _coursesRepository;
         private readonly ICourseMatesRepository _courseMatesRepository;
+        private readonly IGroupsRepository _groupsRepository;
         private readonly IMapper _mapper;
 
         public CoursesController(ICoursesService coursesService,
             ICoursesRepository coursesRepository,
-            ICourseMatesRepository courseMatesRepository, IMapper mapper)
+            ICourseMatesRepository courseMatesRepository,
+            IGroupsRepository groupsRepository,
+            IMapper mapper)
         {
             _coursesService = coursesService;
             _coursesRepository = coursesRepository;
             _courseMatesRepository = courseMatesRepository;
+            _groupsRepository = groupsRepository;
             _mapper = mapper;
         }
 
@@ -47,10 +52,9 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpGet("{courseId}")]
         public async Task<IActionResult> Get(long courseId)
         {
-            var courseFromDb = await _coursesService.GetAsync(courseId);
-            if (courseFromDb == null) return NotFound();
+            var course = await _coursesService.GetAsync(courseId);
+            if (course == null) return NotFound();
 
-            var course = _mapper.Map<CourseDTO>(courseFromDb);
             return Ok(course);
         }
 
@@ -58,10 +62,9 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpGet("getByTask/{taskId}")]
         public async Task<IActionResult> GetByTask(long taskId)
         {
-            var courseFromDb = await _coursesService.GetByTaskAsync(taskId);
-            if (courseFromDb == null) return NotFound();
+            var course = await _coursesService.GetByTaskAsync(taskId);
+            if (course == null) return NotFound();
 
-            var course = _mapper.Map<CourseDTO>(courseFromDb);
             return Ok(course);
         }
 

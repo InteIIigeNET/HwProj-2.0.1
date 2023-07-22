@@ -1,13 +1,13 @@
 import * as React from 'react';
 import {FC, useEffect, useState} from 'react';
 import TaskSolutionComponent from "./TaskSolutionComponent";
-import {AccountDataDto, HomeworkTaskViewModel, Solution} from '../../api';
+import {AccountDataDto, GetSolutionModel, HomeworkTaskViewModel, Solution} from '../../api';
 import {Grid, Tab, Tabs} from "@material-ui/core";
 import {Divider} from "@mui/material";
 
 interface ITaskSolutionsProps {
     task: HomeworkTaskViewModel
-    solutions: Solution[]
+    solutions: GetSolutionModel[]
     student: AccountDataDto
     forMentor: boolean
     onSolutionRateClick?: () => void

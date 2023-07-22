@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
+using HwProj.CoursesService.API.Repositories.Groups;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.AuthService.DTO;
+using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,13 +23,17 @@ namespace HwProj.CoursesService.API.Services
         private readonly IAuthServiceClient _authServiceClient;
         private readonly IHomeworksRepository _homeworksRepository;
         private readonly ITasksRepository _tasksRepository;
+        private readonly IGroupsRepository _groupsRepository;
+        private readonly IMapper _mapper;
 
         public CoursesService(ICoursesRepository coursesRepository,
             ICourseMatesRepository courseMatesRepository,
             IEventBus eventBus,
             IAuthServiceClient authServiceClient,
             ITasksRepository tasksRepository,
-            IHomeworksRepository homeworksRepository
+            IHomeworksRepository homeworksRepository,
+            IGroupsRepository groupsRepository,
+            IMapper mapper
         )
         {
             _coursesRepository = coursesRepository;
@@ -35,6 +42,8 @@ namespace HwProj.CoursesService.API.Services
             _authServiceClient = authServiceClient;
             _homeworksRepository = homeworksRepository;
             _tasksRepository = tasksRepository;
+            _groupsRepository = groupsRepository;
+            _mapper = mapper;
         }
 
         public async Task<Course[]> GetAllAsync()
@@ -42,7 +51,7 @@ namespace HwProj.CoursesService.API.Services
             return await _coursesRepository.GetAllWithCourseMatesAndHomeworks().ToArrayAsync();
         }
 
-        public async Task<Course?> GetByTaskAsync(long taskId)
+        public async Task<CourseDTO?> GetByTaskAsync(long taskId)
         {
             var task = await _tasksRepository.GetAsync(taskId);
             if (task == null) return null;
@@ -53,9 +62,22 @@ namespace HwProj.CoursesService.API.Services
             return await GetAsync(homework.CourseId);
         }
 
-        public async Task<Course?> GetAsync(long id)
+        public async Task<CourseDTO?> GetAsync(long id)
         {
-            return await _coursesRepository.GetWithCourseMatesAsync(id);
+            var course = await _coursesRepository.GetWithCourseMatesAsync(id);
+            if (course == null) return null;
+
+            var groups = _groupsRepository.GetGroupsWithGroupMatesByCourse(course.Id).ToArray();
+            
+            var result = _mapper.Map<CourseDTO>(course);
+            result.Groups = groups.Select(g =>
+                new GroupViewModel
+                {
+                    Id = g.Id,
+                    StudentsIds = g.GroupMates.Select(t => t.StudentId).ToArray()
+                }).ToArray();
+            
+            return result;
         }
 
         public async Task<long> AddAsync(Course course, string mentorId)

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using HwProj.Models.AuthService.DTO;
 
 namespace HwProj.Models.CoursesService.ViewModels
@@ -33,6 +34,7 @@ namespace HwProj.Models.CoursesService.ViewModels
         public string InviteCode { get; set; }
         public CourseMateViewModel[] CourseMates { get; set; }
         public HomeworkViewModel[] Homeworks { get; set; }
+        public GroupViewModel[] Groups { get; set; } = Array.Empty<GroupViewModel>();
     }
 
     public class CourseViewModel

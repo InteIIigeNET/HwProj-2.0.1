@@ -1,6 +1,6 @@
 import * as React from "react";
 import {
-    AccountDataDto,
+    AccountDataDto, GetSolutionModel,
     HomeworkTaskViewModel, Solution,
     StatisticsCourseSolutionsModel
 } from "../../api/";
@@ -24,7 +24,7 @@ interface IStudentSolutionsPageState {
     courseId: number,
     studentSolutionsPreview: {
         student: AccountDataDto,
-        solutions: Solution[]
+        solutions: GetSolutionModel[]
         lastSolution: StatisticsCourseSolutionsModel,
         lastRatedSolution: StatisticsCourseSolutionsModel,
         color: string,

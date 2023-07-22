@@ -45,8 +45,17 @@ namespace HwProj.SolutionsService.API.Services
 
         public async Task<Solution[]> GetTaskSolutionsFromStudentAsync(long taskId, string studentId)
         {
+            var course = await _coursesServiceClient.GetCourseByTask(taskId);
+            if (course == null) return Array.Empty<Solution>();
+
+            var studentGroupsIds = course.Groups
+                .Where(g => g.StudentsIds.Contains(studentId))
+                .Select(g => g.Id);
+
             return await _solutionsRepository
-                .FindAll(solution => solution.TaskId == taskId && solution.StudentId == studentId)
+                .FindAll(solution => solution.TaskId == taskId &&
+                                     (solution.StudentId == studentId ||
+                                      studentGroupsIds.Contains(solution.GroupId ?? 0)))
                 .OrderBy(t => t.PublicationDate)
                 .ToArrayAsync();
         }

@@ -37,6 +37,17 @@ namespace HwProj.SolutionsService.Client
             return await response.DeserializeAsync<Solution[]>();
         }
 
+        public async Task<Solution[]> GetAllTaskSolutions(long taskId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _solutionServiceUri + $"api/Solutions/taskSolutions/{taskId}");
+
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<Solution[]>();
+        }
+
         public async Task<Solution> GetSolutionById(long solutionId)
         {
             using var httpRequest = new HttpRequestMessage(
@@ -59,7 +70,7 @@ namespace HwProj.SolutionsService.Client
             return await response.DeserializeAsync<Solution[]>();
         }
 
-        public async Task<long> PostSolution(SolutionViewModel model, long taskId)
+        public async Task<long> PostSolution(long taskId, PostSolutionModel model)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
@@ -173,11 +184,11 @@ namespace HwProj.SolutionsService.Client
             return await response.DeserializeAsync<StatisticsCourseMatesDto[]>();
         }
 
-        public async Task<StudentSolutions[]> GetTaskSolutionStatistics(long taskId)
+        public async Task<StudentSolutions[]> GetTaskSolutionStatistics(long courseId, long taskId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
-                _solutionServiceUri + $"api/Solutions/getTaskStats/{taskId}");
+                _solutionServiceUri + $"api/Solutions/getTaskStats/{courseId}/{taskId}");
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);

@@ -68,23 +68,19 @@ namespace HwProj.SolutionsService.API.Controllers
 
         [HttpPost("{taskId}")]
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> PostSolution(long taskId, [FromBody] SolutionViewModel solutionViewModel)
+        public async Task<IActionResult> PostSolution(long taskId, [FromBody] PostSolutionModel solutionModel)
         {
             var task = await _coursesClient.GetTask(taskId);
-            var homework = await _coursesClient.GetHomework(task.HomeworkId);
-            var course = await _coursesClient.GetCourseById(homework.CourseId);
+            var course = await _coursesClient.GetCourseByTask(taskId);
 
-            if (course.CourseMates.Any(courseMate =>
-                    courseMate.StudentId == solutionViewModel.StudentId && courseMate.IsAccepted) &&
-                task.CanSendSolution)
-            {
-                var solution = _mapper.Map<Solution>(solutionViewModel);
-                solution.TaskId = taskId;
-                var solutionId = await _solutionsService.PostOrUpdateAsync(taskId, solution);
-                return Ok(solutionId);
-            }
-
-            return Forbid();
+            if (!task.CanSendSolution
+                || course.CourseMates.FirstOrDefault(t => t.StudentId == solutionModel.StudentId) is
+                    not { IsAccepted: true }) return Forbid();
+            
+            var solution = _mapper.Map<Solution>(solutionModel);
+            solution.TaskId = taskId;
+            var solutionId = await _solutionsService.PostOrUpdateAsync(taskId, solution);
+            return Ok(solutionId);
         }
 
         [HttpPost("rateSolution/{solutionId}")]
@@ -158,24 +154,31 @@ namespace HwProj.SolutionsService.API.Controllers
             var courseMates = course.MentorIds.Contains(userId)
                 ? course.CourseMates.Where(t => t.IsAccepted)
                 : course.CourseMates.Where(t => t.StudentId == userId);
+            var courseGroups = course.Groups;
 
             var solutionsStatsContext = new StatisticsAggregateModel
             {
                 CourseMates = courseMates,
                 Homeworks = course.Homeworks.Where(t => t.Tasks.Any()).ToList(),
-                Solutions = solutions
+                Solutions = solutions,
+                Groups = courseGroups
             };
 
             var result = SolutionsStatsDomain.GetCourseStatistics(solutionsStatsContext);
             return Ok(result);
         }
 
-        [HttpGet("getTaskStats/{taskId}")]
+        [HttpGet("getTaskStats/{courseId}/{taskId}")]
         [ProducesResponseType(typeof(StudentSolutions[]), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetTaskStats(long taskId)
+        public async Task<IActionResult> GetTaskStats(long courseId, long taskId)
         {
+            var groups = await _coursesClient.GetAllCourseGroups(courseId);
+            
             var solutions = await _solutionsRepository.FindAll(t => t.TaskId == taskId).ToListAsync();
-            var result = SolutionsStatsDomain.GetCourseTaskStatistics(solutions);
+            var solutionsGroups = solutions.Select(s => s.GroupId).Distinct();
+            var taskGroups = groups.Where(g => solutionsGroups.Contains(g.Id));
+            
+            var result = SolutionsStatsDomain.GetCourseTaskStatistics(solutions, taskGroups);
             return Ok(result);
         }
 
