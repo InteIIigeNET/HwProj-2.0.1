@@ -7,6 +7,7 @@ using HwProj.APIGateway.API.ExceptionFilters;
 using HwProj.APIGateway.API.Models.Solutions;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
+using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
 using HwProj.Models.SolutionsService;
@@ -56,13 +57,21 @@ namespace HwProj.APIGateway.API.Controllers
             var student = await AuthServiceClient.GetAccountData(studentId);
             var studentSolutions = await _solutionsClient.GetUserSolutions(taskId, studentId);
 
-            var solutionsGroupsIds = studentSolutions.Select(s => s.GroupId).Distinct();
-            var solutionsGroups = course.Groups.Where(g => solutionsGroupsIds.Contains(g.Id))
+            var solutionsGroupsIds = studentSolutions
+                .Select(s => s.GroupId)
+                .Distinct();
+            var solutionsGroups = course.Groups
+                .Where(g => solutionsGroupsIds.Contains(g.Id))
                 .ToDictionary(t => t.Id);
 
-            var groupMatesIds = course.Groups.Where(g => solutionsGroupsIds.Contains(g.Id))
-                .SelectMany(g => g.StudentsIds).Distinct().ToArray();
-            var groupMates = await AuthServiceClient.GetAccountsData(groupMatesIds);
+            var groupMatesIds = course.Groups
+                .Where(g => solutionsGroupsIds.Contains(g.Id))
+                .SelectMany(g => g.StudentsIds)
+                .Distinct()
+                .ToArray();
+            var groupMates = groupMatesIds.Any()
+                ? await AuthServiceClient.GetAccountsData(groupMatesIds)
+                : Array.Empty<AccountDataDto>();
 
             return Ok(new UserTaskSolutions()
             {
@@ -70,7 +79,8 @@ namespace HwProj.APIGateway.API.Controllers
                 Solutions = studentSolutions.Select(s =>
                     new GetSolutionModel(s,
                         s.GroupId is { } groupId
-                            ? groupMates.Where(t => solutionsGroups[groupId].StudentsIds.Contains(t.UserId))
+                            ? groupMates
+                                .Where(t => solutionsGroups[groupId].StudentsIds.Contains(t.UserId))
                                 .ToArray()
                             : null)
                 ).ToArray()
