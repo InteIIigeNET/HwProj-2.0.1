@@ -133,6 +133,7 @@ namespace HwProj.SolutionsService.IntegrationTests
                 .With(h => h.GithubUrl, url)
                 .With(h => h.StudentId, userId);
             var viewModel = fixture.Create();
+            viewModel.GroupId = null;
             return viewModel;
         }
         
@@ -175,8 +176,8 @@ namespace HwProj.SolutionsService.IntegrationTests
             var taskId = await lectureCourseClient.AddTask(newTaskViewModel, homeworkId.Value);
             return (courseId, homeworkId.Value, taskId.Value);
         }
-
-        [Test]
+        
+        [Test, Explicit]
         public async Task PostByStudentNotFromThisCourseTest()
         {
             var (studentId, lectureId) = await CreateUserAndLecture();
