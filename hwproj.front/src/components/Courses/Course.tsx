@@ -164,7 +164,7 @@ const Course: React.FC = () => {
 
     useEffect(() => changeTab(tab || "homeworks"), [tab, courseId, isFound])
 
-    const userYandexId = new URLSearchParams(window.location.search).get("code")
+    const yandexCode = new URLSearchParams(window.location.search).get("code")
 
     const joinCourse = async () => {
         await ApiSingleton.coursesApi
@@ -360,7 +360,7 @@ const Course: React.FC = () => {
                                     isMentor={isCourseMentor}
                                     course={courseState.course}
                                     solutions={studentSolutions}
-                                    yandexCode={userYandexId}
+                                    yandexCode={yandexCode}
                                 />
                             </Grid>
                         </Grid>}
