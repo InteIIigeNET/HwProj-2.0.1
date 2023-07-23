@@ -73,9 +73,8 @@ namespace HwProj.SolutionsService.API.Controllers
             var task = await _coursesClient.GetTask(taskId);
             var course = await _coursesClient.GetCourseByTask(taskId);
 
-            if (!task.CanSendSolution
-                || course.CourseMates.FirstOrDefault(t => t.StudentId == solutionModel.StudentId) is
-                    not { IsAccepted: true }) return Forbid();
+            var courseMate = course?.CourseMates.FirstOrDefault(t => t.StudentId == solutionModel.StudentId);
+            if (!task.CanSendSolution || courseMate == null || !courseMate.IsAccepted) return Forbid();
             
             var solution = _mapper.Map<Solution>(solutionModel);
             solution.TaskId = taskId;
