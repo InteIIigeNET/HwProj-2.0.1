@@ -51,8 +51,9 @@ namespace HwProj.APIGateway.API.Controllers
             var course = await _coursesServiceClient.GetCourseByTask(taskId);
             if (course == null) return NotFound();
 
-            if (course.CourseMates.FirstOrDefault(t => t.StudentId == studentId) is not { IsAccepted: true })
-                return BadRequest();
+            var courseMate = course.CourseMates.FirstOrDefault(t => t.StudentId == studentId);
+            if (courseMate == null || !courseMate.IsAccepted)
+                return NotFound();
 
             var student = await AuthServiceClient.GetAccountData(studentId);
             var studentSolutions = await _solutionsClient.GetUserSolutions(taskId, studentId);
@@ -147,7 +148,8 @@ namespace HwProj.APIGateway.API.Controllers
             var course = await _coursesServiceClient.GetCourseByTask(taskId);
             if (course is null) return BadRequest();
 
-            if (course.CourseMates.All(t => t.StudentId != solutionModel.StudentId))
+            var courseMate = course.CourseMates.FirstOrDefault(t => t.StudentId == solutionModel.StudentId);
+            if (courseMate == null || !courseMate.IsAccepted)
                 return BadRequest($"Студента с id {solutionModel.StudentId} не существует");
 
             if (model.GroupMateIds == null || model.GroupMateIds.Length == 0)
