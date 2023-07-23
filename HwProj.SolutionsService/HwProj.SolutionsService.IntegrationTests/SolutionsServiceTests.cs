@@ -176,6 +176,18 @@ namespace HwProj.SolutionsService.IntegrationTests
             var taskId = await lectureCourseClient.AddTask(newTaskViewModel, homeworkId.Value);
             return (courseId, homeworkId.Value, taskId.Value);
         }
+        
+        [Test, Explicit]
+        public async Task PostByStudentNotFromThisCourseTest()
+        {
+            var (studentId, lectureId) = await CreateUserAndLecture();
+            var lectureCourseClient = CreateCourseServiceClient(lectureId);
+            var (courseId, homeworkId, taskId) = await CreateCourseHomeworkTaskWithOutDeadLine(lectureCourseClient, lectureId);
+            var solutionClient = CreateSolutionsServiceClient(studentId);
+            var solutionViewModel = GenerateSolutionViewModel(studentId);
+
+            Assert.ThrowsAsync<ForbiddenException>(async () => await solutionClient.PostSolution(taskId, solutionViewModel));
+        }
 
         [Test]
         public async Task PostAndGetSolutionByIdTest()
