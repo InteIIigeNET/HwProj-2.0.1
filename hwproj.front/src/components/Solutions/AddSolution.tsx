@@ -93,7 +93,7 @@ const AddSolution: FC<IAddSolutionProps> = (props) => {
                                 />
                             )}
                         />
-                        {solution.groupMateIds === props.lastGroup &&
+                        {props.lastGroup?.length > 0 && solution.groupMateIds === props.lastGroup &&
                             <Alert sx={{paddingTop: 0, paddingBottom: 0, marginTop: 0.2}} severity="info">Команда взята из предыдущего
                                 решения</Alert>}
                     </Grid>
