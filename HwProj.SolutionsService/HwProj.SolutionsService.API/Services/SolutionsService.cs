@@ -5,7 +5,6 @@ using AutoMapper;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.EventBus.Client.Interfaces;
-using HwProj.Exceptions;
 using HwProj.Models;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
@@ -83,9 +82,6 @@ namespace HwProj.SolutionsService.API.Services
             var homework = await _coursesServiceClient.GetHomework(task.HomeworkId);
             var courses = await _coursesServiceClient.GetCourseById(homework.CourseId);
             var student = await _authServiceClient.GetAccountData(solutionModel.StudentId);
-            if (courses.CourseMates.First(s => s.StudentId == student.UserId) is not { IsAccepted: true })
-                throw new ForbiddenException();
-            
             var studentModel = _mapper.Map<AccountDataDto>(student);
             _eventBus.Publish(new StudentPassTaskEvent(courses, solutionModel, studentModel, taskModel));
 
