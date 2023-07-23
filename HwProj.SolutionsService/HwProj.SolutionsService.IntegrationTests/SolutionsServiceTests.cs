@@ -133,6 +133,7 @@ namespace HwProj.SolutionsService.IntegrationTests
                 .With(h => h.GithubUrl, url)
                 .With(h => h.StudentId, userId);
             var viewModel = fixture.Create();
+            viewModel.GroupId = null;
             return viewModel;
         }
         
