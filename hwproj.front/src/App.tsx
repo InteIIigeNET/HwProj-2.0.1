@@ -19,6 +19,7 @@ import EditProfile from "./components/EditProfile";
 import ApiSingleton from "./api/ApiSingleton";
 import SystemInfoComponent from "./components/System/SystemInfoComponent";
 import WrongPath from "./components/WrongPath";
+import PasswordRecover from "components/Auth/PasswordRecover";
 
 // TODO: add flux
 
@@ -101,6 +102,7 @@ class App extends Component<{navigate: any}, AppState> {
                     <Route path="task/:taskId/" element={<TaskSolutionsPage/>}/>
                     <Route path="login" element={<Login onLogin={this.login}/>}/>
                     <Route path="register" element={<Register onLogin={this.login}/>}/>
+                    <Route path="recover" element={<PasswordRecover/>}/>
                     <Route path={"*"} element={<WrongPath/>}/>
                 </Routes>
             </>

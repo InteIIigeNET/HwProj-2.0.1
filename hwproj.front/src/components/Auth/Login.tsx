@@ -163,6 +163,15 @@ const Login: FC<LoginProps> = (props) => {
                             value={loginState.password}
                             onChange={handleChangePassword}
                         />
+                        <Button
+                            fullWidth
+                            variant="text"
+                            color="primary"
+                            onClick={() => window.location.assign("/recover")}
+                            size="small"
+                        >
+                            Восстановить пароль
+                        </Button>
                     </Grid>
                     <Grid className={classes.button}>
                         <Button
