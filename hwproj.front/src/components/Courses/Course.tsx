@@ -222,6 +222,12 @@ const Course: React.FC = () => {
                         </Grid>
                     </Grid>
                     <Stack direction="row" spacing={26}>
+                    <div>
+                       { isMentor && acceptedStudents.length - assignments.length != 0 &&
+                        <Alert variant="standard" severity="info">
+                            {`Кол-во незакреплённых студентов: ${acceptedStudents.length - assignments.length}`}
+                        </Alert> }
+                    </div>
                         <Tabs
                             value={() => {
                                 switch (tabValue) {
@@ -262,13 +268,6 @@ const Course: React.FC = () => {
                                 </Stack>} />}
                             
                         </Tabs>
-                        {
-                            isMentor && acceptedStudents.length - assignments.length != 0 &&
-                            <Alert variant="standard" severity="info">
-                                {`Кол-во незакреплённых студентов: ${acceptedStudents.length - assignments.length}`}
-                            </Alert>
-                        }
-                    </Stack>
                     <br />
                     {tabValue === "homeworks" && <div>
                         {
