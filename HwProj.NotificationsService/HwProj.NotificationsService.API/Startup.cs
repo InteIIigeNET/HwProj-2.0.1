@@ -44,6 +44,7 @@ namespace HwProj.NotificationsService.API
             services.AddTransient<IEventHandler<NewHomeworkTaskEvent>, NewHomeworkTaskEventHandler>();
             services.AddTransient<IEventHandler<InviteLecturerEvent>, InviteLecturerEventHandler>();
             services.AddTransient<IEventHandler<NewCourseMateEvent>, NewCourseMateHandler>();
+            services.AddTransient<IEventHandler<PasswordRecoveryEvent>, PasswordRecoveryEventHandler>();
             services.AddSingleton<IEmailService, EmailService>();
 
             services.AddHttpClient();
@@ -68,6 +69,7 @@ namespace HwProj.NotificationsService.API
                 eventBustSubscriber.Subscribe<NewHomeworkTaskEvent, NewHomeworkTaskEventHandler>();
                 eventBustSubscriber.Subscribe<InviteLecturerEvent, InviteLecturerEventHandler>();
                 eventBustSubscriber.Subscribe<NewCourseMateEvent, NewCourseMateHandler>();
+                eventBustSubscriber.Subscribe<PasswordRecoveryEvent, PasswordRecoveryEventHandler>();
             }
 
             app.ConfigureHwProj(env, "Notifications API");

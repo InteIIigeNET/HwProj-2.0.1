@@ -16,5 +16,6 @@ namespace HwProj.AuthService.API.Services
         Task<Result<TokenCredentials>> LoginUserByGoogleAsync(GoogleJsonWebSignature.Payload payload);
         Task<Result> InviteNewLecturer(string emailOfInvitedUser);
         Task<IList<User>> GetUsersInRole(string role);
+        Task<Result> ResetPassword(User user);
     }
 }

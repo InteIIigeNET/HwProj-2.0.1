@@ -50,10 +50,9 @@ namespace HwProj.AuthService.API.Controllers
         {
             var user = await _aspUserManager.FindByEmailAsync(email);
             if (user == null) return NotFound();
-            var token = await _aspUserManager.GeneratePasswordResetTokenAsync(user);
-            var newPassword = Guid.NewGuid().ToString();
-            await _aspUserManager.ResetPasswordAsync(user, token, newPassword);
-            return Ok($"Временный пароль: {newPassword}");
+
+            var result = await _accountService.ResetPassword(user);
+            return Ok(result);
         }
 
         [HttpGet("getUsersData")]

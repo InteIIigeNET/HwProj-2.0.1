@@ -146,7 +146,6 @@ namespace HwProj.APIGateway.API.Controllers
         }
 
         [HttpPost("resetPassword")]
-        [Authorize(Roles = Roles.LecturerRole)]
         public async Task<string> ResetPassword([FromBody] string email)
         {
             try

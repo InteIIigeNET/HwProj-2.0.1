@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
 using System.Linq;
@@ -11,12 +12,14 @@ using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.Result;
+using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.AuthService.API.Services
 {
     public class AccountService : IAccountService
     {
         private readonly IUserManager _userManager;
+        private readonly UserManager<User> _aspUserManager;
         private readonly SignInManager<User> _signInManager;
         private readonly IAuthTokenService _tokenService;
         private readonly IEventBus _eventBus;
@@ -26,13 +29,15 @@ namespace HwProj.AuthService.API.Services
             SignInManager<User> signInManager,
             IAuthTokenService authTokenService,
             IEventBus eventBus,
-            IMapper mapper)
+            IMapper mapper,
+            UserManager<User> aspUserManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _tokenService = authTokenService;
             _eventBus = eventBus;
             _mapper = mapper;
+            _aspUserManager = aspUserManager;
         }
 
         public async Task<AccountDataDto> GetAccountDataAsync(string userId)
@@ -196,6 +201,18 @@ namespace HwProj.AuthService.API.Services
         public async Task<IList<User>> GetUsersInRole(string role)
         {
             return await _userManager.GetUsersInRoleAsync(role);
+        }
+
+        public async Task<Result> ResetPassword(User user)
+        {
+            var token = await _aspUserManager.GeneratePasswordResetTokenAsync(user);
+            if (token == null) return Result.Failed();
+            
+            var passwordRecoveryEvent =
+                new PasswordRecoveryEvent(user.Id, user.Email, token, user.Name, user.Surname, user.MiddleName);
+            _eventBus.Publish(passwordRecoveryEvent);
+
+            return Result.Success();
         }
 
         private Task<IdentityResult> ChangeUserNameTask(User user, EditDataDTO model)
