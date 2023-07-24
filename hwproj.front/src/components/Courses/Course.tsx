@@ -223,7 +223,7 @@ const Course: React.FC = () => {
                     </Grid>
                     <Stack direction="row" spacing={26}>
                     <div>
-                       { isMentor && acceptedStudents.length - assignments.length != 0 &&
+                       { tabValue !== "assignment" && isMentor && acceptedStudents.length - assignments.length != 0 &&
                         <Alert variant="standard" severity="info">
                             {`Кол-во незакреплённых студентов: ${acceptedStudents.length - assignments.length}`}
                         </Alert> }
@@ -379,7 +379,6 @@ const Course: React.FC = () => {
                                 mentors={courseState.mentors}
                                 acceptedStudents={courseState.acceptedStudents}
                                 assignments={courseState.assignments}
-                                onUpdate={() => setCurrentState()}
                             />
                         </Grid>
                     }
