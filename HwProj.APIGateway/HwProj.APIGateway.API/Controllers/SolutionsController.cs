@@ -259,47 +259,6 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok(result);
         }
 
-        [Authorize]
-        [HttpGet("tasks/{taskId}")]
-        [ProducesResponseType(typeof(TaskSolutionStatisticsPageData), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetTaskSolutionsPageData(long taskId)
-        {
-            var course = await _coursesServiceClient.GetCourseByTask(taskId);
-            //TODO: CourseMentorOnlyAttribute
-            if (course == null || !course.MentorIds.Contains(UserId)) return Forbid();
-
-            var studentIds = course.CourseMates
-                .Where(t => t.IsAccepted)
-                .Select(t => t.StudentId)
-                .ToArray();
-
-            var getStudentsDataTask = AuthServiceClient.GetAccountsData(studentIds);
-            var getStatisticsTask = _solutionsClient.GetTaskSolutionStatistics(taskId);
-
-            await Task.WhenAll(getStudentsDataTask, getStatisticsTask);
-
-            var usersData = getStudentsDataTask.Result;
-            var statistics = getStatisticsTask.Result;
-            var statisticsDict = statistics.ToDictionary(t => t.StudentId);
-
-            var result = new TaskSolutionStatisticsPageData()
-            {
-                CourseId = course.Id,
-                StudentsSolutions = studentIds.Zip(usersData, (studentId, accountData) => new UserTaskSolutions
-                    {
-                        Solutions = statisticsDict.TryGetValue(studentId, out var studentSolutions)
-                            ? studentSolutions.Solutions
-                            : Array.Empty<Solution>(),
-                        User = accountData
-                    })
-                    .OrderBy(t => t.User.Surname)
-                    .ThenBy(t => t.User.Name)
-                    .ToArray()
-            };
-
-            return Ok(result);
-        }
-
         [HttpPost("{taskId}")]
         [Authorize(Roles = Roles.StudentRole)]
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
