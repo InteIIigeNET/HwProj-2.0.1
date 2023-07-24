@@ -7,16 +7,29 @@ import Alert from '@mui/material/Alert';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField } from "@material-ui/core";
 import { assign } from 'remarkable/lib/common/utils';
 import { useEffect, useState } from "react";
+import { Assignment } from '@mui/icons-material';
 
 interface IStudentAssignmentProps {
     course: CourseViewModel,
     mentors: AccountDataDto[],
     acceptedStudents: AccountDataDto[],
     assignments: AssignmentViewModel[],
-    onUpdate: () => void,
+}
+
+interface IAssignmentsState {
+    assignments: AssignmentViewModel[]
 }
 
 const StudentsAssignment: FC<IStudentAssignmentProps> = (props) => {
+    const [assignmentsState, setAssignmentsState] = useState<IAssignmentsState>({
+        assignments: props.assignments
+    })
+    
+    const setCurrentAssignmentsState = async (newAssignments: AssignmentViewModel[]) => {
+        setAssignmentsState(() => ({
+            assignments: newAssignments
+        }))
+    }
 
     const freeStudents = props.acceptedStudents
         .filter(student => props.assignments
@@ -32,12 +45,16 @@ const StudentsAssignment: FC<IStudentAssignmentProps> = (props) => {
     
     const assignStudent = async (mentorId: string, studentId: string) => {
         await ApiSingleton.coursesApi.apiCoursesByCourseIdAssignStudentByStudentIdByMentorIdPut(props.course.id!, mentorId, studentId)
-        props.onUpdate()
+        const newAssignment: AssignmentViewModel = {mentorId, studentId}
+        props.assignments.push(newAssignment)
+        setCurrentAssignmentsState(props.assignments)
     }
 
     const deassignStudent = async (studentId: string) => {
         await ApiSingleton.coursesApi.apiCoursesByCourseIdDeassignStudentByStudentIdDelete(props.course.id!, studentId);
-        props.onUpdate();
+        const index = props.assignments.findIndex(a => a.studentId == studentId)
+        props.assignments.splice(index, 1)
+        setCurrentAssignmentsState(props.assignments)
     }
 
     const createFullName = (user: AccountDataDto) => user.surname + " " + user.name;
@@ -47,7 +64,7 @@ const StudentsAssignment: FC<IStudentAssignmentProps> = (props) => {
     const createAutocompleteInputInfo = (studentId: string) => {
         const assignment = props.assignments.find(assignment => assignment.studentId === studentId);
         return assignment === undefined
-            ? "Выберите преподавателя"
+            ? "Выберите студента"
             : createFullName(props.mentors.find(mentor => mentor.userId === assignment.mentorId)!)
     }
 
@@ -86,13 +103,13 @@ const StudentsAssignment: FC<IStudentAssignmentProps> = (props) => {
                                 align="center"
                                 padding="none"
                                 component="td">
-                                Участники курса
+                                Список закрепленных студентов
                             </TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {props.mentors.map((mentor, index) => (
-                            <TableRow key={index} hover style={{ height: 35 }}>
+                            <TableRow key={index} hover style={{ height: 65 }}>
                                 <TableCell
                                     style={{
                                         ...fixedColumnStyles,
@@ -114,6 +131,7 @@ const StudentsAssignment: FC<IStudentAssignmentProps> = (props) => {
                                 >
                                     <Autocomplete
                                         multiple
+                                        disableClearable
                                         freeSolo
                                         options={freeStudents}
                                         getOptionLabel={(option: AccountDataDto | string) => createFullName(option as AccountDataDto)}
@@ -127,7 +145,7 @@ const StudentsAssignment: FC<IStudentAssignmentProps> = (props) => {
                                             }
                                         }}
                                         defaultValue={createAutocompleteDefaultValue(mentor.userId!)}
-                                        sx={{ width: "100%", height: 40, overflow: 'hidden' }}
+                                        sx={{ width: "100%", height: "100%", overflow: 'hidden' }}
                                         renderInput={(params) => <TextField {...params} label={createAutocompleteInputInfo(mentor.userId!)} />}
                                     />
                                 </TableCell>
