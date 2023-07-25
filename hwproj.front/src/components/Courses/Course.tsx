@@ -123,9 +123,22 @@ const Course: React.FC = () => {
         }
     }
 
+    const putUserInMentorsFirst = (course: CourseViewModel) => {
+        const userIndex = course.mentors!.findIndex(mentor => mentor.userId === userId)
+        if (userIndex === -1) {
+            return
+        }
+
+        const temp = course.mentors![userIndex]
+        course.mentors![userIndex] = course.mentors![0]
+        course.mentors![0] = temp
+    }
+
     const setCurrentState = async () => {
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+courseId!)
         const solutions = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdGet(+courseId!)
+
+        putUserInMentorsFirst(course)
 
         setCourseState(prevState => ({
             ...prevState,
@@ -271,7 +284,6 @@ const Course: React.FC = () => {
                                 </Stack>} />}
                             
                         </Tabs>
-                    <br />
                     {tabValue === "homeworks" && <div>
                         {
                             showExperimentalFeature ?
@@ -382,6 +394,7 @@ const Course: React.FC = () => {
                                 mentors={courseState.mentors}
                                 acceptedStudents={courseState.acceptedStudents}
                                 assignments={courseState.assignments}
+                                userId={userId!}
                             />
                         </Grid>
                     }
