@@ -1,17 +1,13 @@
 import React, {FC, FormEvent} from "react";
 import Avatar from '@material-ui/core/Avatar';
 import QuestionMarkOutlinedIcon from '@mui/icons-material/QuestionMarkOutlined';
-import {Navigate} from "react-router-dom";
 import {TextField, Button, Typography, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions} from "@material-ui/core";
 import Grid from '@material-ui/core/Grid';
 import ApiSingleton from "../../api/ApiSingleton";
 import "./Styles/Register.css";
 import {useState} from "react";
-import {LoginViewModel} from "../../api/"
 import makeStyles from "@material-ui/styles/makeStyles";
 import Container from '@material-ui/core/Container';
-import { ContactPageSharp } from "@mui/icons-material";
-import { func } from "prop-types";
 
 interface IRecoverProps {}
 
