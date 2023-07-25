@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using HwProj.AuthService.API.Events;
-using HwProj.EventBus.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models;
 using HwProj.Models.NotificationsService;
@@ -27,12 +26,12 @@ namespace HwProj.NotificationsService.API.EventHandlers
         public override async Task HandleAsync(PasswordRecoveryEvent @event)
         {
             var frontendUrl = _configuration.GetSection("Notification")["Url"];
-            var recoveryLink = $"{frontendUrl}/password_reset?token={@event.Token}";
+            var recoveryLink = $"{frontendUrl}/set_password?token={@event.Token}&id={@event.UserId}";
             var email = new Notification
             {
                 Sender = "AuthService",
                 Body = $"{@event.Name} {@event.Surname}, был запрошен сброс вашего пароля.<br/><br/>" +
-                       $"Для того чтобы установить новый пароль пройдите по ссылке:<br/>{recoveryLink}<br/><br/>" + 
+                       $"Ваша ссылка для изменения пароля:<br/><a href={recoveryLink}>Сменить пароль</a><br/><br/>" + 
                        $"Если вы не запрашивали сброс пароля, то не переходите по этой ссылке.",
                 Category = CategoryState.Profile,
                 Date = DateTimeUtils.GetMoscowNow(),
