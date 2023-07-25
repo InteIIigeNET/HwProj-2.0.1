@@ -14,6 +14,7 @@ interface IStudentAssignmentProps {
     mentors: AccountDataDto[],
     acceptedStudents: AccountDataDto[],
     assignments: AssignmentViewModel[],
+    userId: string,
 }
 
 interface IAssignmentsState {
@@ -52,25 +53,29 @@ const StudentsAssignment: FC<IStudentAssignmentProps> = (props) => {
 
     const deassignStudent = async (studentId: string) => {
         await ApiSingleton.coursesApi.apiCoursesByCourseIdDeassignStudentByStudentIdDelete(props.course.id!, studentId)
-        props.assignments.splice(props.assignments.findIndex(a => a.studentId == studentId), 1)
+        props.assignments.splice(props.assignments.findIndex(a => a.studentId === studentId), 1)
         setCurrentAssignmentsState()
     }
 
-    const createFullName = (user: AccountDataDto) => user.surname + " " + user.name;
-
-    const createFullNameWithEmail = (user: AccountDataDto) => user.surname + " " + user.name + " " + user.email;
-
-    const createAutocompleteInputInfo = (studentId: string) => {
-        const assignment = props.assignments.find(assignment => assignment.studentId === studentId);
-        return assignment === undefined
-            ? "Выберите студента"
-            : createFullName(props.mentors.find(mentor => mentor.userId === assignment.mentorId)!)
-    }
+    const createFullNameWithEmail = (user: AccountDataDto) => user.surname + " " + user.name + " / " + user.email;
 
     const createAutocompleteDefaultValue = (mentorId: string) => {
         const assignmentStudentIds = props.assignments.filter(a => a.mentorId === mentorId).map(a => a.studentId!)
 
         return props.acceptedStudents.filter(student => assignmentStudentIds.includes(student.userId!))
+    }
+
+    const UserCellStyle: React.CSSProperties = {
+        ...fixedColumnStyles,
+        padding: 10,
+        borderLeft: "1px solid black",
+        backgroundColor: "lightblue"
+    }
+
+    const OtherCellStyle: React.CSSProperties = {
+        ...fixedColumnStyles,
+        padding: 10,
+        borderLeft: "1px solid black",
     }
 
     return (
@@ -106,20 +111,18 @@ const StudentsAssignment: FC<IStudentAssignmentProps> = (props) => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {props.mentors.map((mentor, index) => (
+                        {
+                        props.mentors.map((mentor, index) => (
                             <TableRow key={index} hover style={{ height: 65 }}>
                                 <TableCell
-                                    style={{
-                                        ...fixedColumnStyles,
-                                        padding: 10,
-                                        borderLeft: "1px solid black"
-                                    }}
+                                    style={index === 0 ? UserCellStyle : OtherCellStyle}
                                     align="center"
                                     padding="checkbox"
                                     component="td"
                                     scope="row">
                                     {createFullNameWithEmail(mentor)}
                                 </TableCell>
+
                                 <TableCell
                                     style={{ ...fixedColumnStyles }}
                                     align="center"
@@ -143,8 +146,8 @@ const StudentsAssignment: FC<IStudentAssignmentProps> = (props) => {
                                             }
                                         }}
                                         defaultValue={createAutocompleteDefaultValue(mentor.userId!)}
-                                        sx={{ width: "100%", height: "100%", overflow: 'hidden' }}
-                                        renderInput={(params) => <TextField {...params} label={createAutocompleteInputInfo(mentor.userId!)} />}
+                                        sx={{ width: "100%", height: "100%", overflow: 'hidden', paddingLeft: "10px" }}
+                                        renderInput={(params) => <TextField {...params}/>}
                                     />
                                 </TableCell>
                             </TableRow>
