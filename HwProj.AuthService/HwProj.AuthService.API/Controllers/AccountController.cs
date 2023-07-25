@@ -46,6 +46,7 @@ namespace HwProj.AuthService.API.Controllers
         }
 
         [HttpPost("resetPassword")]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> ResetPassword([FromBody] string email)
         {
             var user = await _aspUserManager.FindByEmailAsync(email);

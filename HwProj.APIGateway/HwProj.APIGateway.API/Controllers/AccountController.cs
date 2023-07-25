@@ -146,7 +146,7 @@ namespace HwProj.APIGateway.API.Controllers
         }
 
         [HttpPost("resetPassword")]
-        public async Task<string> ResetPassword([FromBody] string email)
+        public async Task<Result> ResetPassword([FromBody] string email)
         {
             try
             {
@@ -154,7 +154,7 @@ namespace HwProj.APIGateway.API.Controllers
             }
             catch (Exception ex)
             {
-                return ex.Message;
+                return Result.Failed(ex.Message);
             }
         }
     }

@@ -2,7 +2,7 @@ import React, {FC, FormEvent} from "react";
 import Avatar from '@material-ui/core/Avatar';
 import QuestionMarkOutlinedIcon from '@mui/icons-material/QuestionMarkOutlined';
 import {Navigate} from "react-router-dom";
-import {TextField, Button, Typography} from "@material-ui/core";
+import {TextField, Button, Typography, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions} from "@material-ui/core";
 import Grid from '@material-ui/core/Grid';
 import ApiSingleton from "../../api/ApiSingleton";
 import "./Styles/Register.css";
@@ -10,14 +10,15 @@ import {useState} from "react";
 import {LoginViewModel} from "../../api/"
 import makeStyles from "@material-ui/styles/makeStyles";
 import Container from '@material-ui/core/Container';
+import { ContactPageSharp } from "@mui/icons-material";
+import { func } from "prop-types";
 
-interface RecoverProps {
-
-}
+interface IRecoverProps {}
 
 interface IRecoverState {
     email: string;
-    error: string[] | null;
+    error: string[] | undefined;
+    isSuccess: boolean;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -46,34 +47,34 @@ const useStyles = makeStyles((theme) => ({
     },
 }))
 
-const Recover: FC<RecoverProps> = (props) => {
+const Recover: FC<IRecoverProps> = (props) => {
 
     const classes = useStyles()
     const [recoverState, setRecoverState] = useState<IRecoverState>({
         email: '',
-        error: []
+        error: [],
+        isSuccess: false,
     })
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        const userData: LoginViewModel = {
-            email: recoverState.email,
-            password: "$",
-            rememberMe: false
-        }
-
         try {
-            const result = await ApiSingleton.authService.login(userData)
+            const result = await ApiSingleton.accountApi.apiAccountPasswordResetTokenRequest(recoverState.email)
+            if (result.errors?.includes('Not Found')) {
+                result.errors = ['Пользователь не найден']
+            }
+
             setRecoverState(prevState => ({
                 ...prevState,
-                error: result.error
+                error: result.errors,
+                isSuccess: result.succeeded as boolean
             }))
-            console.log(result)
         } catch (e) {
             setRecoverState(prevState => ({
                 ...prevState,
-                error: ['Сервис недоступен']
+                error: ['Сервис недоступен'],
+                isSuccess: false
             }))
         }
     }
@@ -131,7 +132,34 @@ const Recover: FC<RecoverProps> = (props) => {
                             </Button>
                         </Grid>
                 </Grid>
-            </form>       
+            </form>
+            <Dialog
+                fullWidth={true}
+                maxWidth={'sm'}
+                open={recoverState.isSuccess}
+                aria-labelledby="form-dialog-title"
+            >
+                <DialogTitle>
+                Восстановление пароля
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        <Typography>
+                            Ссылка для смены пароля отправлена по адресу {recoverState.email}
+                        </Typography>
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button
+                        onClick={() => window.location.assign("/login")}
+                        color="primary"
+                        variant="contained"
+                        size="large"
+                    >
+                        Назад
+                    </Button>
+                </DialogActions>
+            </Dialog>       
         </Container>
     )
 }

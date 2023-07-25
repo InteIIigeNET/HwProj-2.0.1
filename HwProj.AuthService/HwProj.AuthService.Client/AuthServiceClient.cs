@@ -188,7 +188,7 @@ namespace HwProj.AuthService.Client
             }
         }
 
-        public async Task<string> ResetPassword(string email)
+        public async Task<Result> ResetPassword(string email)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
@@ -202,7 +202,7 @@ namespace HwProj.AuthService.Client
 
             var response = await _httpClient.SendAsync(httpRequest);
             if (!response.IsSuccessStatusCode) throw new Exception(response.ReasonPhrase);
-            return await response.Content.ReadAsStringAsync();
+            return await response.DeserializeAsync<Result>();
         }
     }
 }
