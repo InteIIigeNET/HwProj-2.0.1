@@ -100,6 +100,9 @@ const Course: React.FC = () => {
     const isAcceptedStudent =
         isLogged && acceptedStudents!.some(cm => cm.userId === userId)
 
+    const isMentorWithStudents =
+        isLogged && isMentor && assignments.filter(a => a.mentorId === userId).length !== 0
+
     const showExperimentalFeature = isMentor ? courseState.showExperimentalFeature : true
 
     const showStatsTab = isMentor || isAcceptedStudent
@@ -224,7 +227,7 @@ const Course: React.FC = () => {
                         </Grid>
                     </Grid>
                     <div>
-                       { tabValue !== "assignment" && isMentor && acceptedStudents.length - assignments.length != 0 &&
+                       { isMentorWithStudents && tabValue !== "assignment" && acceptedStudents.length - assignments.length != 0 &&
                         <Alert variant="standard" severity="info">
                             {`Кол-во незакреплённых студентов: ${acceptedStudents.length - assignments.length}`}
                         </Alert> }

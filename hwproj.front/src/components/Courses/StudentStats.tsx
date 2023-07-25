@@ -23,11 +23,14 @@ interface IStudentStatsState {
 class StudentStats extends React.Component<IStudentStatsProps, IStudentStatsState> {
     constructor(props: IStudentStatsProps) {
         super(props);
+        const isStudentful = props.isMentor && props.course.assignments!.some(a => a.mentorId === props.userId)
         this.state = {
             searched: "",
-            filterWorking: false,
-            ableSolutions: props.solutions,
-            isMentorWithStudents: props.isMentor && props.course.assignments!.some(a => a.mentorId === props.userId)
+            filterWorking: true,
+            ableSolutions: isStudentful
+                ? props.solutions.filter(s => props.course.assignments?.find(a => a.studentId === s.id)?.mentorId == props.userId)
+                : props.solutions,
+            isMentorWithStudents: isStudentful
         }
 
         // document.addEventListener('keydown', (event: KeyboardEvent) => {
@@ -89,11 +92,10 @@ class StudentStats extends React.Component<IStudentStatsProps, IStudentStatsStat
                     </Alert>}
                 {isMentorWithStudents &&
                     <Grid>
-                        <Checkbox onClick={() => this.setState(prevState => setCurrentState(prevState))} />
+                        <Checkbox defaultChecked onClick={() => this.setState(prevState => setCurrentState(prevState))} />
                         Закреплённые студенты
                     </Grid>
                 }
-                Закреплённые студенты
                 <TableContainer style={{ maxHeight: 600 }}>
                     <Table stickyHeader aria-label="sticky table">
                         <TableHead>
