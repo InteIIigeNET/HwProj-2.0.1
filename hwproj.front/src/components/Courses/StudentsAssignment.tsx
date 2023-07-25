@@ -25,9 +25,9 @@ const StudentsAssignment: FC<IStudentAssignmentProps> = (props) => {
         assignments: props.assignments
     })
     
-    const setCurrentAssignmentsState = async (newAssignments: AssignmentViewModel[]) => {
-        setAssignmentsState(() => ({
-            assignments: newAssignments
+    const setCurrentAssignmentsState = async () => {
+        setAssignmentsState((prevState) => ({
+            ...prevState
         }))
     }
 
@@ -47,14 +47,13 @@ const StudentsAssignment: FC<IStudentAssignmentProps> = (props) => {
         await ApiSingleton.coursesApi.apiCoursesByCourseIdAssignStudentByStudentIdByMentorIdPut(props.course.id!, mentorId, studentId)
         const newAssignment: AssignmentViewModel = {mentorId, studentId}
         props.assignments.push(newAssignment)
-        setCurrentAssignmentsState(props.assignments)
+        setCurrentAssignmentsState()
     }
 
     const deassignStudent = async (studentId: string) => {
-        await ApiSingleton.coursesApi.apiCoursesByCourseIdDeassignStudentByStudentIdDelete(props.course.id!, studentId);
-        const index = props.assignments.findIndex(a => a.studentId == studentId)
-        props.assignments.splice(index, 1)
-        setCurrentAssignmentsState(props.assignments)
+        await ApiSingleton.coursesApi.apiCoursesByCourseIdDeassignStudentByStudentIdDelete(props.course.id!, studentId)
+        props.assignments.splice(props.assignments.findIndex(a => a.studentId == studentId), 1)
+        setCurrentAssignmentsState()
     }
 
     const createFullName = (user: AccountDataDto) => user.surname + " " + user.name;
@@ -71,8 +70,7 @@ const StudentsAssignment: FC<IStudentAssignmentProps> = (props) => {
     const createAutocompleteDefaultValue = (mentorId: string) => {
         const assignmentStudentIds = props.assignments.filter(a => a.mentorId === mentorId).map(a => a.studentId!)
 
-        const students = props.acceptedStudents.filter(student => assignmentStudentIds.includes(student.userId!))
-        return students
+        return props.acceptedStudents.filter(student => assignmentStudentIds.includes(student.userId!))
     }
 
     return (
@@ -134,7 +132,7 @@ const StudentsAssignment: FC<IStudentAssignmentProps> = (props) => {
                                         disableClearable
                                         freeSolo
                                         options={freeStudents}
-                                        getOptionLabel={(option: AccountDataDto | string) => createFullName(option as AccountDataDto)}
+                                        getOptionLabel={(option: AccountDataDto | string) => createFullNameWithEmail(option as AccountDataDto)}
                                         onChange={(event, value, reason, detail) => {
                                             if (reason === "selectOption")
                                             {
