@@ -31,8 +31,8 @@ namespace HwProj.NotificationsService.API.EventHandlers
             var email = new Notification
             {
                 Sender = "AuthService",
-                Body = $"{@event.Name} {@event.Surname}, был запрошен сброс вашего пароля.\n\n" +
-                       $"Для того чтобы установить новый пароль пройдите по ссылке: {recoveryLink}\n\n" + 
+                Body = $"{@event.Name} {@event.Surname}, был запрошен сброс вашего пароля.<br/><br/>" +
+                       $"Для того чтобы установить новый пароль пройдите по ссылке:<br/>{recoveryLink}<br/><br/>" + 
                        $"Если вы не запрашивали сброс пароля, то не переходите по этой ссылке.",
                 Category = CategoryState.Profile,
                 Date = DateTimeUtils.GetMoscowNow(),
