@@ -108,8 +108,6 @@ const StudentSolutionsPage: FC = () => {
         getTaskData(taskId!, studentId!, assignedStudents)
     }, [taskId, studentId])
 
-
-
     const currentStudent = studentSolutionsPreview.find(x => x.student.userId === currentStudentId)
 
     const [homeworkMentorFilter, setHomeworkMentorFilter] = useState<boolean>(true);
