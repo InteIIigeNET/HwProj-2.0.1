@@ -405,45 +405,6 @@ namespace HwProj.CoursesService.Client
                 : Result<AccountDataDto[]>.Failed(response.ReasonPhrase);
         }
 
-        public async Task AssignStudentToMentor(long courseId, string mentorId, string studentId)
-        {
-            using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Put,
-                _coursesServiceUri + $"api/Courses/{courseId}/assignStudent/{studentId}?mentorId={mentorId}"
-            );
-
-            await _httpClient.SendAsync(httpRequest);
-        }
-
-
-        public async Task<Result<CourseMateViewModel>> GetMentorByStudent(long courseId, string studentId)
-        {
-            using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Get,
-                _coursesServiceUri + $"api/Courses/{courseId}/getMentorByStudent/{studentId}"
-            );
-
-            var result = await _httpClient.SendAsync(httpRequest);
-
-            return result.IsSuccessStatusCode
-                ? Result<CourseMateViewModel>.Success(await result.DeserializeAsync<CourseMateViewModel>())
-                : Result<CourseMateViewModel>.Failed(result.ReasonPhrase);
-        }
-
-        public async Task<Result<CourseMateViewModel[]>> GetStudentsByMentor(long courseId, string mentorId)
-        {
-            using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Get,
-                _coursesServiceUri + $"api/Courses/{courseId}/getStudentsByMentor/{mentorId}"
-            );
-
-            var result = await _httpClient.SendAsync(httpRequest);
-            return result.IsSuccessStatusCode
-                ? Result<CourseMateViewModel[]>.Success(await result.DeserializeAsync<CourseMateViewModel[]>())
-                : Result<CourseMateViewModel[]>.Failed(result.ReasonPhrase);
-
-        }
-
         public async Task<bool> Ping()
         {
             try
@@ -455,6 +416,42 @@ namespace HwProj.CoursesService.Client
             {
                 return false;
             }
+        }
+
+        public async Task<Result> AssignStudentToMentor(long courseId, string mentorId, string studentId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Put,
+                _coursesServiceUri + $"api/Assignments/{courseId}/assignStudent/{studentId}?mentorId={mentorId}"
+            );
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return response.IsSuccessStatusCode
+                ? Result.Success()
+                : Result.Failed(response.ReasonPhrase);
+        }
+
+        public async Task<Result> DeassignStudentFromMentor(long courseId, string studentId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Delete,
+                _coursesServiceUri + $"api/Assignments/{courseId}/deassignStudent/{studentId}"
+            );
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return response.IsSuccessStatusCode
+                ? Result.Success()
+                : Result.Failed(response.ReasonPhrase);
+        }
+
+        public async Task<AssignmentViewModel[]> GetAllAssignmentsByCourse(long courseId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + $"api/Assignments/{courseId}/getAssignments");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<AssignmentViewModel[]>();
         }
     }
 }

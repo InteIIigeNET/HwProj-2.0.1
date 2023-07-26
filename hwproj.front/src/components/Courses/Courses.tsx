@@ -53,7 +53,6 @@ export default class Courses extends React.Component<{navigate: any}, ICoursesSt
                     {activeCourses.length > 0 && <Tab label="Ваши курсы"/>}
                     {completedCourses.length > 0 && <Tab label="Завершенные курсы"/>}
                 </Tabs>
-                <br/>
                 {tabValue === 0 && <CoursesList navigate={navigate} courses={allCourses}/>}
                 {tabValue === activeCoursesTab && <CoursesList navigate={navigate} courses={activeCourses}/>}
                 {tabValue === completedCoursesTab && <CoursesList navigate={navigate} courses={completedCourses}/>}

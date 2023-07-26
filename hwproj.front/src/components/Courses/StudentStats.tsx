@@ -1,6 +1,6 @@
 import React from "react";
-import { CourseViewModel, HomeworkViewModel, Solution, StatisticsCourseMatesModel } from "../../api/";
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@material-ui/core";
+import { CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel } from "../../api/";
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid } from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
 import { Alert } from "@mui/material";
 import Checkbox from '@mui/material/Checkbox';
@@ -17,15 +17,20 @@ interface IStudentStatsState {
     searched: string
     filterWorking: boolean
     ableSolutions: StatisticsCourseMatesModel[]
+    isMentorWithStudents : boolean
 }
 
 class StudentStats extends React.Component<IStudentStatsProps, IStudentStatsState> {
     constructor(props: IStudentStatsProps) {
         super(props);
+        const isStudentful = props.isMentor && props.course.assignments!.some(a => a.mentorId === props.userId)
         this.state = {
             searched: "",
-            filterWorking: false,
-            ableSolutions: props.solutions
+            filterWorking: true,
+            ableSolutions: isStudentful
+                ? props.solutions.filter(s => props.course.assignments?.find(a => a.studentId === s.id)?.mentorId == props.userId)
+                : props.solutions,
+            isMentorWithStudents: isStudentful
         }
 
         // document.addEventListener('keydown', (event: KeyboardEvent) => {
@@ -49,46 +54,60 @@ class StudentStats extends React.Component<IStudentStatsProps, IStudentStatsStat
         const homeworks = this.props.homeworks.filter(h => h.tasks && h.tasks.length > 0)
         const course = this.props.course;
         const userId = this.props.userId;
-        const isMentor = this.props.isMentor;
         const fixedColumnStyles: React.CSSProperties = {
             position: "sticky",
             left: 0,
             background: "white",
-            borderRight: "1px solid black"
+            borderRight: "1px solid black",
+            borderBottom: "1px solid black"
         }
 
-        const setCurrentState = (prevState: IStudentStatsState) => {
-            prevState.filterWorking = !prevState.filterWorking;
-            prevState.ableSolutions = prevState.searched
-                ? this.props.solutions
+        const filterSolutions = (solutions: StatisticsCourseMatesModel[], keyword: string, isFilter: boolean) => {
+            if (keyword) {
+                solutions = solutions
                     .filter(cm => (cm.surname + " " + cm.name)
-                    .toLowerCase()
-                    .includes(prevState.searched.toLowerCase()))
-                : this.props.solutions
-            prevState.ableSolutions = prevState.filterWorking
-                ? prevState.ableSolutions
-                    .filter(s => course.courseMates
-                        ?.find(cm => cm.studentId === s.id)?.mentorId == userId)
-                : prevState.ableSolutions
-            return prevState;
+                        .toLowerCase()
+                        .includes(keyword.toLowerCase()))
+            }
+            if (isFilter) {
+                solutions = solutions
+                    .filter(s => course.assignments
+                        ?.find(a => a.studentId === s.id)?.mentorId == userId)
+            }
+            return solutions;
         }
+
+        const setCurrentState = (prevState: IStudentStatsState) => ({
+            ...prevState,
+            filterWorking: !prevState.filterWorking,
+            ableSolutions: filterSolutions(this.props.solutions, prevState.searched, !prevState.filterWorking)
+        })
+
+        const { searched, ableSolutions, isMentorWithStudents } = this.state;
 
         return (
             <div>
-                {this.state.searched &&
-                    <Alert style={{ marginBottom: 5 }} severity="info"><b>Студенты:</b> {this.state.searched.replaceAll(" ", "·")}
+                {searched &&
+                    <Alert style={{ marginBottom: 5 }} severity="info"><b>Студенты:</b> {searched.replaceAll(" ", "·")}
                     </Alert>}
-                {isMentor &&
-                    <Checkbox onClick={() => this.setState(prevState => setCurrentState(prevState))} />
+                {isMentorWithStudents &&
+                    <Grid>
+                        <Checkbox defaultChecked onClick={() => this.setState(prevState => setCurrentState(prevState))} />
+                        Закреплённые студенты
+                    </Grid>
                 }
-
-                Закрепленные студенты
-
                 <TableContainer style={{ maxHeight: 600 }}>
                     <Table stickyHeader aria-label="sticky table">
                         <TableHead>
                             <TableRow>
-                                <TableCell style={{ ...fixedColumnStyles, zIndex: -4, color: "" }} align="center" padding="none"
+                                <TableCell style={{ 
+                                    ...fixedColumnStyles,
+                                    zIndex: -4,
+                                    color: "",
+                                    borderLeft: "1px solid black",
+                                    borderTop: "1px solid black" }}
+                                    align="center"
+                                    padding="none"
                                     component="td">
                                 </TableCell>
                                 {homeworks.map((homework, index) => (
@@ -96,30 +115,40 @@ class StudentStats extends React.Component<IStudentStatsProps, IStudentStatsStat
                                         padding="checkbox"
                                         component="td"
                                         align="center"
-                                        style={{ zIndex: -5 }}
+                                        style={{
+                                            ...fixedColumnStyles,
+                                            zIndex: -5,
+                                            borderTop: "1px solid black"}}
                                         colSpan={homework.tasks!.length}
                                     >
                                         {homework.title}
+
                                     </TableCell>
                                 ))}
                             </TableRow>
                             <TableRow>
-                                <TableCell style={{ ...fixedColumnStyles, zIndex: 10 }}
+                                <TableCell style={{ ...fixedColumnStyles, zIndex: 10,  borderLeft: "1px solid black" }}
                                     component="td"></TableCell>
                                 {homeworks.map((homework) =>
                                     homework.tasks!.map((task) => (
-                                        <TableCell padding="checkbox" component="td" align="center">
+                                        <TableCell 
+                                            padding="checkbox" 
+                                            component="td"
+                                            align="center"
+                                            style = {{...fixedColumnStyles}}>
+
                                             {task.title}
+
                                         </TableCell>
                                     ))
                                 )}
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {this.state.ableSolutions.map((cm, index) => (
-                                <TableRow key={index} hover style={{ height: 35 }}>
+                            {ableSolutions.map((cm, index) => (
+                                <TableRow key={index} hover style={{height: 35}}>
                                     <TableCell
-                                        style={fixedColumnStyles}
+                                        style={{...fixedColumnStyles, borderLeft: "1px solid black" }}
                                         align="center"
                                         padding="checkbox"
                                         component="td"
@@ -130,7 +159,7 @@ class StudentStats extends React.Component<IStudentStatsProps, IStudentStatsStat
                                     {homeworks.map((homework) =>
                                         homework.tasks!.map((task) => (
                                             <StudentStatsCell
-                                                solutions={this.state.ableSolutions
+                                                solutions={ableSolutions
                                                     .find(s => s.id == cm.id)!.homeworks!
                                                     .find(h => h.id == homework.id)!.tasks!
                                                     .find(t => t.id == task.id)!.solution!}

@@ -65,7 +65,7 @@ namespace HwProj.APIGateway.API.Controllers
                 Id = courseId,
                 Name = course.Name,
                 GroupName = course.GroupName,
-                CourseMates = course.CourseMates,
+                Assignments = course.Assignments,
                 Mentors = courseMentors,
                 AcceptedStudents = acceptedStudents.ToArray(),
                 NewStudents = newStudents.ToArray(),
@@ -157,6 +157,12 @@ namespace HwProj.APIGateway.API.Controllers
         {
             await _coursesClient.AssignStudentToMentor(courseId, mentorId, studentId);
             return Ok();
+        }
+
+        [HttpDelete("{courseId}/deassignStudent/{studentId}")]
+        public async Task DeassignStudentFromMentor(long courseId, string studentId)
+        {
+            await _coursesClient.DeassignStudentFromMentor(courseId, studentId);
         }
     }
 }

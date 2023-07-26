@@ -50,6 +50,7 @@ namespace HwProj.CoursesService.API
 
             CreateMap<CreateHomeworkViewModel, Homework>();
             CreateMap<Homework, HomeworkViewModel>();
+            CreateMap<Assignment, AssignmentViewModel>();
             CreateMap<HomeworkTask, HomeworkTaskViewModel>().ReverseMap();
             CreateMap<HomeworkTask, HomeworkTaskViewModel>()
                 .ForMember("IsDeferred", cm => cm.MapFrom(g => DateTimeUtils.GetMoscowNow() < g.PublicationDate));

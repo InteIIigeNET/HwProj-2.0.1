@@ -4,6 +4,7 @@ using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Result;
+using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.CoursesService.Client
 {
@@ -39,9 +40,9 @@ namespace HwProj.CoursesService.Client
         Task<long[]> GetGroupTasks(long groupId);
         Task<Result> AcceptLecturer(long courseId, string lecturerEmail);
         Task<Result<AccountDataDto[]>> GetLecturersAvailableForCourse(long courseId);
-        Task AssignStudentToMentor(long courseId, string mentorId, string studentId);
-        Task<Result<CourseMateViewModel>> GetMentorByStudent(long courseId, string studentId);
-        Task<Result<CourseMateViewModel[]>> GetStudentsByMentor(long courseId, string mentorId);
+        Task<Result> AssignStudentToMentor(long courseId, string mentorId, string studentId);
+        Task<Result> DeassignStudentFromMentor(long courseId, string studentId);
         Task<bool> Ping();
+        Task<AssignmentViewModel[]> GetAllAssignmentsByCourse(long courseId);
     }
 }

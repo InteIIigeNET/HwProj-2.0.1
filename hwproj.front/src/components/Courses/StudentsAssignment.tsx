@@ -1,72 +1,162 @@
-import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
-import { AccountDataDto, CourseMateViewModel, CourseViewModel } from 'api';
+import { AccountDataDto, AssignmentViewModel, CourseViewModel } from 'api';
 import ApiSingleton from 'api/ApiSingleton';
 import React from 'react';
 import { FC } from "react";
-import Grid from '@mui/material/Unstable_Grid2';
-import Box from '@mui/material/Box';
-import { useState } from "react";
+import Alert from '@mui/material/Alert';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField } from "@material-ui/core";
+import { assign } from 'remarkable/lib/common/utils';
+import { useEffect, useState } from "react";
+import { Assignment } from '@mui/icons-material';
 
 interface IStudentAssignmentProps {
     course: CourseViewModel,
     mentors: AccountDataDto[],
-    acceptedStudents: AccountDataDto[]
+    acceptedStudents: AccountDataDto[],
+    assignments: AssignmentViewModel[],
+    userId: string,
 }
 
-// TODO: after assignment change current course state  + fix filters to make it faster  
+interface IAssignmentsState {
+    assignments: AssignmentViewModel[]
+}
+
 const StudentsAssignment: FC<IStudentAssignmentProps> = (props) => {
+    const [assignmentsState, setAssignmentsState] = useState<IAssignmentsState>({
+        assignments: props.assignments
+    })
+    
+    const setCurrentAssignmentsState = async () => {
+        setAssignmentsState((prevState) => ({
+            ...prevState
+        }))
+    }
 
-    const [courseState, setCourseState] = useState<CourseViewModel>(props.course);
+    const freeStudents = props.acceptedStudents
+        .filter(student => props.assignments
+            .find(assignment => assignment.studentId === student.userId) === undefined);
 
-    const assignStudent = async (mentorId: string, studentId: string) =>
-        await ApiSingleton.coursesApi.apiCoursesByCourseIdAssignStudentByStudentIdByMentorIdPut(courseState.id!, mentorId, studentId);
+    const fixedColumnStyles: React.CSSProperties = {
+        position: "sticky",
+        left: 0,
+        background: "white",
+        borderRight: "1px solid black",
+        borderBottom: "1px solid black"
+    }
+    
+    const assignStudent = async (mentorId: string, studentId: string) => {
+        await ApiSingleton.coursesApi.apiCoursesByCourseIdAssignStudentByStudentIdByMentorIdPut(props.course.id!, mentorId, studentId)
+        const newAssignment: AssignmentViewModel = {mentorId, studentId}
+        props.assignments.push(newAssignment)
+        setCurrentAssignmentsState()
+    }
 
-    const createFullName = (user: AccountDataDto) => user.surname + " " + user.name;
+    const deassignStudent = async (studentId: string) => {
+        await ApiSingleton.coursesApi.apiCoursesByCourseIdDeassignStudentByStudentIdDelete(props.course.id!, studentId)
+        props.assignments.splice(props.assignments.findIndex(a => a.studentId === studentId), 1)
+        setCurrentAssignmentsState()
+    }
 
-    const filterAssignedStudents = (students: AccountDataDto[], mentorId: string) =>
-        students.filter(student => courseState.courseMates?.find(cm => cm.studentId === student.userId)?.mentorId !== mentorId)
+    const createFullNameWithEmail = (user: AccountDataDto) => user.surname + " " + user.name + " / " + user.email;
+
+    const createAutocompleteDefaultValue = (mentorId: string) => {
+        const assignmentStudentIds = props.assignments.filter(a => a.mentorId === mentorId).map(a => a.studentId!)
+
+        return props.acceptedStudents.filter(student => assignmentStudentIds.includes(student.userId!))
+    }
+
+    const UserCellStyle: React.CSSProperties = {
+        ...fixedColumnStyles,
+        padding: 10,
+        borderLeft: "1px solid black",
+        backgroundColor: "lightblue"
+    }
+
+    const OtherCellStyle: React.CSSProperties = {
+        ...fixedColumnStyles,
+        padding: 10,
+        borderLeft: "1px solid black",
+    }
 
     return (
         <div>
-            <Box sx={{ flexGrow: 1, p: 2 }}>
-                <Grid
-                    container
-                    spacing={2}
-                    sx={{
-                        '--Grid-borderWidth': '1px',
-                        borderTop: 'var(--Grid-borderWidth) solid',
-                        borderLeft: 'var(--Grid-borderWidth) solid',
-                        borderColor: 'divider',
-                        '& > div': {
-                            borderRight: 'var(--Grid-borderWidth) solid',
-                            borderBottom: 'var(--Grid-borderWidth) solid',
-                            borderColor: 'divider',
-                        },
-                    }}>
-                    {props.mentors.map(current =>
-                        <Grid {...{ xs: 12, sm: 6, md: 4, lg: 5 }} minHeight={200} minWidth={300}>
-                            <Autocomplete
-                                disablePortal
-                                options={filterAssignedStudents(props.acceptedStudents, current.userId!)}
-                                getOptionLabel={(option) => createFullName(option)}
-                                onChange={(event, value: AccountDataDto | null) => {
-                                    if (value) {
-                                        assignStudent(current.userId!, value!.userId!)
+            <TableContainer style={{ maxHeight: 600 }}>
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell style={{
+                                ...fixedColumnStyles,
+                                zIndex: -4,
+                                color: "",
+                                borderLeft: "1px solid black",
+                                borderTop: "1px solid black"
+                            }}
+                                align="center"
+                                padding="none"
+                                component="td">
+                                Преподаватели
+                            </TableCell>
+                            <TableCell style={{
+                                ...fixedColumnStyles,
+                                zIndex: -4,
+                                color: "",
+                                borderLeft: "1px solid black",
+                                borderTop: "1px solid black"
+                            }}
+                                align="center"
+                                padding="none"
+                                component="td">
+                                Список закрепленных студентов
+                            </TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {
+                        props.mentors.map((mentor, index) => (
+                            <TableRow key={index} hover style={{ height: 65 }}>
+                                <TableCell
+                                    style={index === 0 ? UserCellStyle : OtherCellStyle}
+                                    align="center"
+                                    padding="checkbox"
+                                    component="td"
+                                    scope="row">
+                                    {createFullNameWithEmail(mentor)}
+                                </TableCell>
 
-                                        courseState.courseMates!.find(cm => cm.studentId === value!.userId)!.mentorId! = current.userId!
-                                        setCourseState(prevState => ({...prevState}))
-                                        }
-                                    }
-                                }
-                                sx={{ width: 300 }}
-                                renderInput={(params) => <TextField {...params}
-                                    label={createFullName(current)} />}
-                            /> </Grid>)                   }
-                </Grid>
-            </Box>
+                                <TableCell
+                                    style={{ ...fixedColumnStyles }}
+                                    align="center"
+                                    padding="checkbox"
+                                    component="td"
+                                    scope="row"
+                                >
+                                    <Autocomplete
+                                        multiple
+                                        disableClearable
+                                        freeSolo
+                                        options={freeStudents}
+                                        getOptionLabel={(option: AccountDataDto | string) => createFullNameWithEmail(option as AccountDataDto)}
+                                        onChange={(event, value, reason, detail) => {
+                                            if (reason === "selectOption")
+                                            {
+                                                assignStudent(mentor.userId!, (value[value.length - 1] as AccountDataDto).userId!)
+                                            }
+                                            else if (reason === "removeOption") {
+                                                deassignStudent((detail!.option as AccountDataDto).userId!);
+                                            }
+                                        }}
+                                        defaultValue={createAutocompleteDefaultValue(mentor.userId!)}
+                                        sx={{ width: "100%", height: "100%", overflow: 'hidden', paddingLeft: "10px" }}
+                                        renderInput={(params) => <TextField {...params}/>}
+                                    />
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+
+                </Table>
+            </TableContainer>
         </div>
     )
-
 }
 export default StudentsAssignment

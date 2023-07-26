@@ -33,6 +33,7 @@ namespace HwProj.Models.CoursesService.ViewModels
         public string InviteCode { get; set; }
         public CourseMateViewModel[] CourseMates { get; set; }
         public HomeworkViewModel[] Homeworks { get; set; }
+        public AssignmentViewModel[] Assignments { get; set; }
     }
 
     public class CourseViewModel
@@ -43,8 +44,7 @@ namespace HwProj.Models.CoursesService.ViewModels
         public bool IsOpen { get; set; }
         public bool IsCompleted { get; set; }
 
-        public CourseMateViewModel[] CourseMates { get; set; }
-
+        public AssignmentViewModel[] Assignments { get; set; }
         public AccountDataDto[] Mentors { get; set; }
         public AccountDataDto[] AcceptedStudents { get; set; }
         public AccountDataDto[] NewStudents { get; set; }
