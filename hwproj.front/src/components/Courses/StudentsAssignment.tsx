@@ -61,6 +61,10 @@ const StudentsAssignment: FC<IStudentAssignmentProps> = (props) => {
         return props.acceptedStudents.filter(student => assignmentStudentIds.includes(student.userId!))
     }
 
+    const freeStudents = props.acceptedStudents
+    .filter(student => props.assignments
+        .find(assignment => assignment.studentId === student.userId) === undefined);
+
     const UserCellStyle: React.CSSProperties = {
         ...fixedColumnStyles,
         padding: 10,
@@ -116,21 +120,7 @@ const StudentsAssignment: FC<IStudentAssignmentProps> = (props) => {
                                     padding="checkbox"
                                     component="td"
                                     scope="row">
-                                    <Autocomplete
-                                        freeSolo
-                                        options={props.mentors}
-                                        sx={{ width: "100%", height: 40, overflow: 'hidden' }}
-                                        getOptionLabel={(option: AccountDataDto | string) => createFullName(option as AccountDataDto)}
-                                        onChange={(event, value: AccountDataDto | null | string, reason) => {
-                                            if (reason === "selectOption") {
-                                                assignStudent((value as AccountDataDto).userId!, student.userId!)
-                                            }
-                                            else if (reason === "clear") {
-                                                deassignStudent(student.userId!);
-                                            }
-                                        }}
-                                        renderInput={(params) => <TextField {...params} label={createAutocompleteInputInfo(student.userId!)} />}
-                                    />
+                                    {createFullNameWithEmail(mentor)}
                                 </TableCell>
 
                                 <TableCell
@@ -162,7 +152,6 @@ const StudentsAssignment: FC<IStudentAssignmentProps> = (props) => {
                                 </TableCell>
                             </TableRow>
                         ))}
-
                     </TableBody>
 
                 </Table>

@@ -1,17 +1,22 @@
 ﻿using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace HwProj.CoursesService.API.Services
 {
-    public class AssignmentsesService : IAssignmentsService
+    public class AssignmentsService : IAssignmentsService
     {
         private readonly IAssignmentsRepository _assignmentsRepository;
+        private readonly ICoursesRepository _coursesRepository;
 
-        public AssignmentsesService(IAssignmentsRepository assignmentRepository)
+        public AssignmentsService(IAssignmentsRepository assignmentRepository,
+            ICoursesRepository coursesRepository)
         {
             _assignmentsRepository = assignmentRepository;
+            _coursesRepository = coursesRepository;
         }
+
 
         public async Task AssignStudentAsync(string studentId, string mentorId, long courseId)
         {
@@ -54,13 +59,13 @@ namespace HwProj.CoursesService.API.Services
 
             if (!(student is null))
             {
-                await _assignmentRepository.DeleteAsync(student.Id);
+                await _assignmentsRepository.DeleteAsync(student.Id);
             }
         }
 
         public async Task<Assignment[]> GetAllAssignmentsByCourseAsync(long courseId)
         {
-            return await _assignmentRepository.GetAllByCourseAsync(courseId);
+            return await _assignmentsRepository.GetAllByCourseAsync(courseId);
         }
     }
 }

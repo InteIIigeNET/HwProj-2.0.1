@@ -119,7 +119,6 @@ namespace HwProj.APIGateway.API.Controllers
             var result = new TaskSolutionStatisticsPageData()
             {
                 CourseId = course.Id,
-                StudentsSolutions = studentIds.Select(studentId => new UserTaskSolutions
                 Assignments = course.Assignments,
                 StudentsSolutions = studentIds.Zip(usersData, (studentId, accountData) => new UserTaskSolutions
                     {
