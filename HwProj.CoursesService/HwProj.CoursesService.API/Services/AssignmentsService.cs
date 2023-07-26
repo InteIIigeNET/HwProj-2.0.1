@@ -1,6 +1,6 @@
-﻿using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using System.Linq;
+using HwProj.CoursesService.API.Models;
 using System.Threading.Tasks;
 
 namespace HwProj.CoursesService.API.Services

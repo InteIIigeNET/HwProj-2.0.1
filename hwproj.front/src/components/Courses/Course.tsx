@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Link as RouterLink } from "react-router-dom";
 import { AccountDataDto, AssignmentViewModel, CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel } from "../../api";
 import CourseHomework from "../Homeworks/CourseHomework";
 import AddHomework from "../Homeworks/AddHomework";
@@ -6,9 +7,10 @@ import StudentStats from "./StudentStats";
 import NewCourseStudents from "./NewCourseStudents";
 import StudentAssignment from "./StudentsAssignment";
 import ApiSingleton from "../../api/ApiSingleton";
-import { Button, Grid, Tab, Tabs, Typography, IconButton, Switch } from "@material-ui/core";
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
+import { Button, Grid, Tab, Tabs, Typography, IconButton, Switch } from "@material-ui/core";
+import EditIcon from "@material-ui/icons/Edit";
 import { useEffect, useState } from "react";
 import { makeStyles } from "@material-ui/styles";
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
@@ -197,9 +199,14 @@ const Course: React.FC = () => {
                                                 />}
                                         </IconButton>
                                     }
-                                </Typography>
-                                <Typography style={{ fontSize: "18px", color: "GrayText" }}>
-                                    {mentors.map(t => `${t.name} ${t.surname}`).join(", ")}
+                                    <Typography style={{ fontSize: "18px", color: "GrayText" }}>
+                                        {mentors.map(t => `${t.name} ${t.surname}`).join(", ")}
+                                    </Typography>
+                                    {isMentor && !isReadingMode! && (
+                                        <RouterLink to={`/courses/${courseId}/edit`}>
+                                            <EditIcon fontSize="small" />
+                                        </RouterLink>
+                                    )}
                                 </Typography>
                                 {isMentor &&
                                     <div style={{ marginTop: 10, marginLeft: -10 }}><Switch value={showExperimentalFeature}

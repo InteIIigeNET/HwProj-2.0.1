@@ -347,6 +347,12 @@ export interface CreateGroupViewModel {
      * @memberof CreateGroupViewModel
      */
     courseId: number;
+    /**
+     * 
+     * @type {Array<number>}
+     * @memberof CreateGroupViewModel
+     */
+    tasks: Array<number>;
 }
 
 /**
