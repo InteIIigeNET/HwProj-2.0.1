@@ -69,7 +69,7 @@ const StudentsAssignment: FC<IStudentAssignmentProps> = (props) => {
         ...fixedColumnStyles,
         padding: 10,
         borderLeft: "1px solid black",
-        backgroundColor: "lightblue"
+        backgroundColor: "#eceef8"
     }
 
     const OtherCellStyle: React.CSSProperties = {
