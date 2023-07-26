@@ -17,5 +17,6 @@ namespace HwProj.AuthService.API.Services
         Task<Result> InviteNewLecturer(string emailOfInvitedUser);
         Task<IList<User>> GetUsersInRole(string role);
         Task<Result> ResetPassword(User user);
+        Task<Result> SetNewPassword(User user, SetPasswordViewModel model);
     }
 }

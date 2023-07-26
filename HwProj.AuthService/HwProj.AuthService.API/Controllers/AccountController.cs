@@ -158,5 +158,17 @@ namespace HwProj.AuthService.API.Controllers
 
             return Ok(result);
         }
+        
+        [HttpPost("setNewPassword")]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> SetNewPassword(SetPasswordViewModel model)
+        {
+            var user = await _userManager.FindByIdAsync(model.UserId);
+            if (user == null) return NotFound();
+
+            var result = await _accountService.SetNewPassword(user, model);
+            
+            return Ok(result);
+        }
     }
 }

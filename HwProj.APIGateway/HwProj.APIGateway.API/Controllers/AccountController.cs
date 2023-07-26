@@ -157,5 +157,18 @@ namespace HwProj.APIGateway.API.Controllers
                 return Result.Failed(ex.Message);
             }
         }
+
+        [HttpPost("setNewPassword")]
+        public async Task<Result> SetNewPassword(SetPasswordViewModel model)
+        {
+            try
+            {
+                return await AuthServiceClient.SetNewPassword(model);
+            }
+            catch (Exception ex)
+            {
+                return Result.Failed(ex.Message);
+            }
+        }
     }
 }

@@ -12,7 +12,6 @@ using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.Result;
-using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.AuthService.API.Services
 {
@@ -213,6 +212,25 @@ namespace HwProj.AuthService.API.Services
             _eventBus.Publish(passwordRecoveryEvent);
 
             return Result.Success();
+        }
+
+        public async Task<Result> SetNewPassword(User user, SetPasswordViewModel model)
+        {
+            var isTokenValid = await _aspUserManager.VerifyUserTokenAsync(user,
+                _aspUserManager.Options.Tokens.PasswordResetTokenProvider, "ResetPassword", model.Token);
+            if (!isTokenValid) return Result.Failed("Неверная ссылка");
+
+            if (model.Password.Length < 6)
+            {
+                return Result.Failed("Пароль должен содержать не менее 6 символов");
+            }
+            if (!model.Password.Equals(model.PasswordConfirm))
+            {
+                return Result.Failed("Пароли не совпадают");
+            }
+
+            var result = await _aspUserManager.ResetPasswordAsync(user, model.Token, model.Password);
+            return !result.Succeeded ? Result.Failed("Внутренняя ошибка сервиса") : Result.Success();
         }
 
         private Task<IdentityResult> ChangeUserNameTask(User user, EditDataDTO model)

@@ -204,5 +204,22 @@ namespace HwProj.AuthService.Client
             if (!response.IsSuccessStatusCode) throw new Exception(response.ReasonPhrase);
             return await response.DeserializeAsync<Result>();
         }
+        
+        public async Task<Result> SetNewPassword(SetPasswordViewModel model)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _authServiceUri + $"api/account/setNewPassword")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(model),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            if (!response.IsSuccessStatusCode) throw new Exception(response.ReasonPhrase);
+            return await response.DeserializeAsync<Result>();
+        }
     }
 }
