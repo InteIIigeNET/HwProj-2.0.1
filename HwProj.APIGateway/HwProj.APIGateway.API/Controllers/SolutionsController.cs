@@ -225,7 +225,12 @@ namespace HwProj.APIGateway.API.Controllers
             var tasks = FilterTasks(mentorCourses, taskId).ToDictionary(t => t.taskId, t => t.data);
 
             var taskIds = tasks.Select(t => t.Key).ToArray();
-            var solutions = await _solutionsClient.GetAllUnratedSolutionsForTasks(taskIds);
+
+            var isMentorStudentfulInCoursesDictionary = mentorCourses.ToDictionary(course => course.Id, course => course.Assignments.Select(a => a.MentorId).Contains(UserId));
+
+            var solutions = (await _solutionsClient.GetAllUnratedSolutionsForTasks(taskIds))
+                    .Where(solution => !isMentorStudentfulInCoursesDictionary[tasks[solution.TaskId].course.Id] 
+                                       || tasks[solution.TaskId].course.Assignments.Where(a => a.MentorId == UserId && a.StudentId == solution.StudentId)!.Any());
 
             var studentIds = solutions.Select(t => t.StudentId).Distinct().ToArray();
             var accountsData = await AuthServiceClient.GetAccountsData(studentIds);
