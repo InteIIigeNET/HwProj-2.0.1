@@ -72,7 +72,6 @@ const SetPassword: FC<IPasswordSetProps> = (props) => {
             if (result.errors?.includes('Not Found')) {
                 result.errors = ['Пользователь не найден']
             }
-            console.log(result)
 
             setState(prevState => ({
                 ...prevState,

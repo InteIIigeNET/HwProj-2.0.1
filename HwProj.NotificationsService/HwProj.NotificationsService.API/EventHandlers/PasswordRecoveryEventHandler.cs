@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using System.Web;
 using HwProj.AuthService.API.Events;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models;
@@ -26,7 +27,8 @@ namespace HwProj.NotificationsService.API.EventHandlers
         public override async Task HandleAsync(PasswordRecoveryEvent @event)
         {
             var frontendUrl = _configuration.GetSection("Notification")["Url"];
-            var recoveryLink = $"{frontendUrl}/set_password?token={@event.Token}&id={@event.UserId}";
+            var recoveryLink =
+                $"{frontendUrl}/set_password?token={HttpUtility.UrlEncode(@event.Token)}&id={HttpUtility.UrlEncode(@event.UserId)}";
             var email = new Notification
             {
                 Sender = "AuthService",
