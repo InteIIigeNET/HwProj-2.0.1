@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -165,9 +164,8 @@ namespace HwProj.AuthService.API.Controllers
         {
             var user = await _userManager.FindByIdAsync(model.UserId);
             if (user == null) return NotFound();
-
-            var result = await _accountService.SetNewPassword(user, model);
             
+            var result = await _accountService.SetNewPassword(user, model);
             return Ok(result);
         }
     }

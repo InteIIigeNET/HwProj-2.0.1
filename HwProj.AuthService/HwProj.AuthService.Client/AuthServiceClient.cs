@@ -219,7 +219,10 @@ namespace HwProj.AuthService.Client
 
             var response = await _httpClient.SendAsync(httpRequest);
             if (!response.IsSuccessStatusCode) throw new Exception(response.ReasonPhrase);
-            return await response.DeserializeAsync<Result>();
+            
+            var result = await response.DeserializeAsync<Result>();
+            if (!result.Succeeded) throw new Exception(result.Errors[0]);
+            return result;
         }
     }
 }
