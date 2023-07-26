@@ -120,14 +120,14 @@ namespace HwProj.APIGateway.API.Controllers
             {
                 CourseId = course.Id,
                 Assignments = course.Assignments,
-                StudentsSolutions = studentIds.Zip(usersData, (studentId, accountData) => new UserTaskSolutions
-                    {
-                        Solutions = statistics.TryGetValue(studentId, out var studentSolutions)
-                            ? studentSolutions.Solutions.Select(t => new GetSolutionModel(t,
-                                t.GroupId is { } groupId ? groups[groupId] : null)).ToArray()
-                            : Array.Empty<GetSolutionModel>(),
-                        User = usersData[studentId]
-                    })
+                StudentsSolutions = studentIds.Select(studentId => new UserTaskSolutions
+                {
+                    Solutions = statistics.TryGetValue(studentId, out var studentSolutions)
+                           ? studentSolutions.Solutions.Select(t => new GetSolutionModel(t,
+                               t.GroupId is { } groupId ? groups[groupId] : null)).ToArray()
+                           : Array.Empty<GetSolutionModel>(),
+                    User = usersData[studentId]
+                })
                     .OrderBy(t => t.User.Surname)
                     .ThenBy(t => t.User.Name)
                     .ToArray()

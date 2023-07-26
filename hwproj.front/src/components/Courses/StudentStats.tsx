@@ -23,37 +23,36 @@ interface IStudentStatsState {
 class StudentStats extends React.Component<IStudentStatsProps, IStudentStatsState> {
     constructor(props: IStudentStatsProps) {
         super(props);
-        const isStudentful = props.isMentor && props.course.assignments!.some(a => a.mentorId === props.userId)
         this.state = {
             searched: "",
             filterWorking: true,
-            ableSolutions: isStudentful
-                ? props.solutions.filter(s => props.course.assignments?.find(a => a.studentId === s.id)?.mentorId == props.userId)
-                : props.solutions,
-            isMentorWithStudents: isStudentful
+            ableSolutions: StudentStats.filterSolutions(props.course, props.solutions, props.userId, "", true),
+            isMentorWithStudents: props.isMentor && props.course.assignments!.some(a => a.mentorId === props.userId)
         }
-
-        // document.addEventListener('keydown', (event: KeyboardEvent) => {
-        //     const {searched} = this.state
-        //
-        //     if (searched && event.key === "Escape") {
-        //         event.preventDefault();
-        //         this.setState({searched: ""})
-        //     } else if (searched && event.key === "Backspace") {
-        //         event.preventDefault();
-        //         this.setState({searched: searched.slice(0, -1)})
-        //     } else if (event.key.length === 1 && event.key.match(/[a-zA-Zа-яА-Я\s]/i)
-        //     ) {
-        //         event.preventDefault();
-        //         this.setState({searched: searched + event.key})
-        //     }
-        // })
     }
+
+    static filterSolutions (course : CourseViewModel, solutions: StatisticsCourseMatesModel[], userId: string,
+        keyword: string, isFilter: boolean)  {
+        if (keyword) {
+            solutions = solutions
+            .filter(cm => (cm.surname + " " + cm.name)
+                .toLowerCase()
+                .includes(keyword.toLowerCase()))
+        }
+        if (isFilter) {
+            solutions = solutions
+                .filter(s => course.assignments
+                    ?.find(a => a.studentId === s.id)?.mentorId == userId)
+        }
+        return solutions;
+    }
+
 
     public render() {
         const homeworks = this.props.homeworks.filter(h => h.tasks && h.tasks.length > 0)
         const course = this.props.course;
         const userId = this.props.userId;
+        const solutions = this.props.solutions;
         const fixedColumnStyles: React.CSSProperties = {
             position: "sticky",
             left: 0,
@@ -62,25 +61,11 @@ class StudentStats extends React.Component<IStudentStatsProps, IStudentStatsStat
             borderBottom: "1px solid black"
         }
 
-        const filterSolutions = (solutions: StatisticsCourseMatesModel[], keyword: string, isFilter: boolean) => {
-            if (keyword) {
-                solutions = solutions
-                    .filter(cm => (cm.surname + " " + cm.name)
-                        .toLowerCase()
-                        .includes(keyword.toLowerCase()))
-            }
-            if (isFilter) {
-                solutions = solutions
-                    .filter(s => course.assignments
-                        ?.find(a => a.studentId === s.id)?.mentorId == userId)
-            }
-            return solutions;
-        }
-
         const setCurrentState = (prevState: IStudentStatsState) => ({
             ...prevState,
             filterWorking: !prevState.filterWorking,
-            ableSolutions: filterSolutions(this.props.solutions, prevState.searched, !prevState.filterWorking) 
+            ableSolutions: StudentStats.filterSolutions(course, solutions, userId,
+                                                        prevState.searched, !prevState.filterWorking) 
         })
 
         const { searched, ableSolutions, isMentorWithStudents } = this.state;
