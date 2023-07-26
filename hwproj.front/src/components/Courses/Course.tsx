@@ -199,14 +199,14 @@ const Course: React.FC = () => {
                                                 />}
                                         </IconButton>
                                     }
-                                    <Typography style={{ fontSize: "18px", color: "GrayText" }}>
-                                        {mentors.map(t => `${t.name} ${t.surname}`).join(", ")}
-                                    </Typography>
                                     {isMentor && !isReadingMode! && (
                                         <RouterLink to={`/courses/${courseId}/edit`}>
                                             <EditIcon fontSize="small" />
                                         </RouterLink>
                                     )}
+                                </Typography>
+                                <Typography style={{ fontSize: "18px", color: "GrayText" }}>
+                                        {mentors.map(t => `${t.name} ${t.surname}`).join(", ")}
                                 </Typography>
                                 {isMentor &&
                                     <div style={{ marginTop: 10, marginLeft: -10 }}><Switch value={showExperimentalFeature}
