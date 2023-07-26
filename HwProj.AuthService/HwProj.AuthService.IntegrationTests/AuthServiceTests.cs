@@ -496,5 +496,49 @@ namespace HwProj.AuthService.IntegrationTests
 
             resultData.Should().BeNull();
         }
+        
+        [Test]
+        public async Task TestGetPasswordResetTokenForUserThatDoesNotExist()
+        {
+            var exception = Assert.ThrowsAsync<Exception>(async () =>
+                await _authServiceClient.ResetPassword(new Fixture().Create<string>()));
+            Assert.AreEqual(exception.Message, "Not Found");
+        }
+        
+        [Test]
+        public async Task TestSetNewPasswordForUserThatDoesNotExist()
+        {
+            var password = new Fixture().Create<string>();
+            var model = new SetPasswordViewModel
+            {
+                UserId = new Fixture().Create<string>(),
+                Password = password,
+                PasswordConfirm = password,
+                Token = new Fixture().Create<string>()
+            };
+            var exception = Assert.ThrowsAsync<Exception>(async () =>
+                await _authServiceClient.SetNewPassword(model));
+            Assert.AreEqual("Not Found", exception.Message);
+        }
+        
+        [Test]
+        public async Task TestSetNewPasswordWrongToken()
+        {
+            var userRegisterModel = GenerateRegisterViewModel();
+            var result = await _authServiceClient.Register(userRegisterModel);
+            result.Succeeded.Should().BeTrue();
+            var userId = await _authServiceClient.FindByEmailAsync(userRegisterModel.Email);
+            var password = new Fixture().Create<string>();
+            var model = new SetPasswordViewModel
+            {
+                UserId = userId,
+                Password = password,
+                PasswordConfirm = password,
+                Token = new Fixture().Create<string>()
+            };
+            var exception = Assert.ThrowsAsync<Exception>(async () =>
+                await _authServiceClient.SetNewPassword(model));
+            Assert.AreEqual("Неверная ссылка", exception.Message);
+        }
     }
 }
