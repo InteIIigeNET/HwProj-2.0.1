@@ -20,6 +20,7 @@ import ApiSingleton from "./api/ApiSingleton";
 import SystemInfoComponent from "./components/System/SystemInfoComponent";
 import WrongPath from "./components/WrongPath";
 import PasswordRecover from "components/Auth/PasswordRecover";
+import SetPassword from "components/Auth/PasswordSet";
 
 // TODO: add flux
 
@@ -103,6 +104,7 @@ class App extends Component<{navigate: any}, AppState> {
                     <Route path="login" element={<Login onLogin={this.login}/>}/>
                     <Route path="register" element={<Register onLogin={this.login}/>}/>
                     <Route path="recover" element={<PasswordRecover/>}/>
+                    <Route path="set_password" element={<SetPassword/>}/>
                     <Route path={"*"} element={<WrongPath/>}/>
                 </Routes>
             </>
