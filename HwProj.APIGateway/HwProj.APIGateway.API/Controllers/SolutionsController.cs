@@ -166,7 +166,7 @@ namespace HwProj.APIGateway.API.Controllers
                     x.StudentId)).Count() != arrFullStudentsGroup.Length) return BadRequest();
 
             var existedGroup = course.Groups.SingleOrDefault(x =>
-                x.StudentsIds.Intersect(arrFullStudentsGroup).Count() == arrFullStudentsGroup.Length);
+                x.StudentsIds.Union(arrFullStudentsGroup).Count() == arrFullStudentsGroup.Length);
 
             solutionModel.GroupId =
                 existedGroup?.Id ??
