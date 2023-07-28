@@ -2,7 +2,7 @@ import React, {FC, FormEvent} from "react";
 import Avatar from '@material-ui/core/Avatar';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
 import {Navigate} from "react-router-dom";
-import {TextField, Button, Typography} from "@material-ui/core";
+import {TextField, Button, Typography, Link} from "@material-ui/core";
 import Grid from '@material-ui/core/Grid';
 import ApiSingleton from "../../api/ApiSingleton";
 import "./Styles/Login.css";
@@ -46,6 +46,11 @@ const useStyles = makeStyles((theme) => ({
     button: {
         marginTop: theme.spacing(2)
     },
+    clickable_text: {
+        marginTop: theme.spacing(1),
+        textAlign: "center",
+        color: "#949494"
+    }
 }))
 
 const Login: FC<LoginProps> = (props) => {
@@ -163,15 +168,6 @@ const Login: FC<LoginProps> = (props) => {
                             value={loginState.password}
                             onChange={handleChangePassword}
                         />
-                        <Button
-                            fullWidth
-                            variant="text"
-                            color="primary"
-                            onClick={() => window.location.assign("/recover")}
-                            size="small"
-                        >
-                            Восстановить пароль
-                        </Button>
                     </Grid>
                     <Grid className={classes.button}>
                         <Button
@@ -194,6 +190,20 @@ const Login: FC<LoginProps> = (props) => {
                 >
                     Зарегистрироваться
                 </Button>
+            </Grid>
+            {/* <Button
+                            fullWidth
+                            variant="text"
+                            color="primary"
+                            
+                            size="small"
+                        >
+                            Восстановить пароль
+                        </Button> */}
+            <Grid className={classes.clickable_text}>
+                <Link href="/recover" underline="always" color="inherit">
+                    Восстановить пароль
+                </Link>
             </Grid>
         </Container>
     )

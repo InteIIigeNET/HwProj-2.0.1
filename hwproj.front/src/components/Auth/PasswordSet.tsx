@@ -9,6 +9,7 @@ import {useState} from "react";
 import makeStyles from "@material-ui/styles/makeStyles";
 import Container from '@material-ui/core/Container';
 import { SetPasswordViewModel } from "api";
+import { Alert, AlertTitle } from "@mui/material";
 
 interface IPasswordSetProps {}
 
@@ -143,45 +144,30 @@ const SetPassword: FC<IPasswordSetProps> = (props) => {
                         />
                     </Grid>
                     <Grid item>
-                        <Button
-                        style={{ marginTop: '15px'}}
+                        {!passwordSetState.isSuccess && (<Button
                         fullWidth
                         variant="contained"
                         color="primary"
                         type="submit"
                         >
                             Сменить пароль
-                        </Button>
+                        </Button>)}
+                        {passwordSetState.isSuccess && (<Alert 
+                        severity="success"
+                        sx={{mt: 1}}
+                        action={
+                            <Button color="inherit" size="small" onClick={() => window.location.assign("/login")}>
+                                ВОЙТИ
+                            </Button>
+                        }
+                        >    
+                            <AlertTitle>Изменение пароля</AlertTitle>
+                            Ваш пароль успешно изменён
+
+                        </Alert>)}
                     </Grid>
                 </Grid>
             </form>
-            <Dialog
-                fullWidth={true}
-                maxWidth={'sm'}
-                open={passwordSetState.isSuccess}
-                aria-labelledby="form-dialog-title"
-            >
-                <DialogTitle>
-                Изменение пароля
-                </DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
-                        <Typography>
-                            Пароль успешно изменён
-                        </Typography>
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button
-                        onClick={() => window.location.assign("/login")}
-                        color="primary"
-                        variant="contained"
-                        size="large"
-                    >
-                        Назад
-                    </Button>
-                </DialogActions>
-            </Dialog> 
         </Container>
     )
 }

@@ -1,13 +1,14 @@
 import React, {FC, FormEvent} from "react";
 import Avatar from '@material-ui/core/Avatar';
 import QuestionMarkOutlinedIcon from '@mui/icons-material/QuestionMarkOutlined';
-import {TextField, Button, Typography, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions} from "@material-ui/core";
+import {TextField, Button, Typography} from "@material-ui/core";
 import Grid from '@material-ui/core/Grid';
 import ApiSingleton from "../../api/ApiSingleton";
 import "./Styles/Register.css";
 import {useState} from "react";
 import makeStyles from "@material-ui/styles/makeStyles";
 import Container from '@material-ui/core/Container';
+import { Alert, AlertTitle } from "@mui/material";
 
 interface IRecoverProps {}
 
@@ -102,6 +103,12 @@ const Recover: FC<IRecoverProps> = (props) => {
                         {recoverState.error}
                     </p>
                 )}
+                <Grid>
+                    {recoverState.isSuccess && (<Alert severity="success"  sx={{mt: 1}}>
+                        <AlertTitle>Восстановление пароля</AlertTitle>
+                        Ссылка для смены пароля отправлена по адресу {recoverState.email}
+                    </Alert>)}
+                </Grid>
             </Grid>
             <form onSubmit={(e) => handleSubmit(e)} className={classes.form}>
                 <Grid container direction="column" justifyContent="center">
@@ -129,33 +136,6 @@ const Recover: FC<IRecoverProps> = (props) => {
                         </Grid>
                 </Grid>
             </form>
-            <Dialog
-                fullWidth={true}
-                maxWidth={'sm'}
-                open={recoverState.isSuccess}
-                aria-labelledby="form-dialog-title"
-            >
-                <DialogTitle>
-                Восстановление пароля
-                </DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
-                        <Typography>
-                            Ссылка для смены пароля отправлена по адресу {recoverState.email}
-                        </Typography>
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button
-                        onClick={() => window.location.assign("/login")}
-                        color="primary"
-                        variant="contained"
-                        size="large"
-                    >
-                        Назад
-                    </Button>
-                </DialogActions>
-            </Dialog>       
         </Container>
     )
 }
