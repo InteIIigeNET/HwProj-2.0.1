@@ -69,10 +69,7 @@ const SetPassword: FC<IPasswordSetProps> = (props) => {
         }
 
         try {
-            const result = await ApiSingleton.accountApi.apiAccountSetPassword(userData)
-            if (result.errors?.includes('Not Found')) {
-                result.errors = ['Пользователь не найден']
-            }
+            const result = await ApiSingleton.accountApi.apiAccountResetPasswordPost(userData)
 
             setState(prevState => ({
                 ...prevState,
