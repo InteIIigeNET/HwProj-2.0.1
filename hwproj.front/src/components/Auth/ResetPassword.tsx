@@ -15,7 +15,7 @@ import {Alert, AlertTitle} from "@mui/material";
 interface IResetPasswordState {
     password: string;
     passwordConfirm: string;
-    error: string[] | undefined;
+    errors: string[] | undefined;
     isSuccess: boolean;
 }
 
@@ -48,12 +48,15 @@ const useStyles = makeStyles((theme) => ({
 const ResetPassword: FC = () => {
 
     const urlParams = new URLSearchParams(window.location.search)
+    const userId = urlParams.get("id")
+    const token = urlParams.get("token")
+    const isUrlValid = userId !== null && token !== null
 
     const classes = useStyles()
     const [resetPasswordState, setState] = useState<IResetPasswordState>({
         password: "",
         passwordConfirm: "",
-        error: [],
+        errors: isUrlValid ? [] : ['Неверная ссылка для сброса пароля'],
         isSuccess: false,
     })
 
@@ -61,8 +64,8 @@ const ResetPassword: FC = () => {
         e.preventDefault();
 
         const userData = {
-            userId: urlParams.get("id")!,
-            token: urlParams.get("token")!,
+            userId: userId!,
+            token: token!,
             password: resetPasswordState.password,
             passwordConfirm: resetPasswordState.passwordConfirm
         }
@@ -72,20 +75,20 @@ const ResetPassword: FC = () => {
 
             setState(prevState => ({
                 ...prevState,
-                error: result.errors,
+                errors: result.errors,
                 isSuccess: result.succeeded as boolean
             }))
         } catch (e) {
             setState(prevState => ({
                 ...prevState,
-                error: ['Сервис недоступен'],
+                errors: ['Сервис недоступен'],
                 isSuccess: false
             }))
         }
     }
 
     const headerStyles: React.CSSProperties = {marginRight: "9.5rem"};
-    if (resetPasswordState.error) {
+    if (resetPasswordState.errors) {
         headerStyles.marginBottom = "-1.5rem";
     }
 
@@ -98,13 +101,14 @@ const ResetPassword: FC = () => {
                 <Typography component="h1" variant="h5">
                     Изменение пароля
                 </Typography>
-                {resetPasswordState.error && (
+                {resetPasswordState.errors && (
                     <p style={{color: "red", marginBottom: "0"}}>
-                        {resetPasswordState.error}
+                        {resetPasswordState.errors}
                     </p>
                 )}
             </Grid>
-            {resetPasswordState.isSuccess ? <Alert
+            {resetPasswordState.isSuccess
+                ? <Alert
                     severity="success"
                     sx={{mt: 1}}
                     action={
@@ -114,58 +118,58 @@ const ResetPassword: FC = () => {
                     }
                 >
                     <AlertTitle>Пароль успешно изменён</AlertTitle>
-                </Alert> :
-                <form onSubmit={(e) => handleSubmit(e)} className={classes.form}>
-                    <Grid container direction="column" spacing={2} justifyContent="center">
-                        <Grid item>
-                            <TextField
-                                required
-                                fullWidth
-                                type="password"
-                                label="Новый пароль"
-                                variant="outlined"
-                                value={resetPasswordState.password}
-                                onChange={(e) => {
-                                    e.persist()
-                                    setState((prevState) => ({
-                                        ...prevState,
-                                        password: e.target.value
-                                    }))
-                                }}
-                            />
-                        </Grid>
-                        <Grid item>
-                            <TextField
-                                required
-                                fullWidth
-                                error={isInvalid}
-                                helperText={isInvalid ? "Пароль и его подтверждение должны совпадать" : ""}
-                                type="password"
-                                label="Подтвердите пароль"
-                                variant="outlined"
-                                value={resetPasswordState.passwordConfirm}
-                                onChange={(e) => {
-                                    e.persist()
-                                    setState((prevState) => ({
-                                        ...prevState,
-                                        passwordConfirm: e.target.value
-                                    }))
-                                }}
-                            />
-                        </Grid>
-                        <Grid item>
-                            <Button
-                                disabled={isInvalid}
-                                fullWidth
-                                variant="contained"
-                                color="primary"
-                                type="submit"
-                            >
-                                Сменить пароль
-                            </Button>
-                        </Grid>
+                </Alert>
+                : isUrlValid && <form onSubmit={(e) => handleSubmit(e)} className={classes.form}>
+                <Grid container direction="column" spacing={2} justifyContent="center">
+                    <Grid item>
+                        <TextField
+                            required
+                            fullWidth
+                            type="password"
+                            label="Новый пароль"
+                            variant="outlined"
+                            value={resetPasswordState.password}
+                            onChange={(e) => {
+                                e.persist()
+                                setState((prevState) => ({
+                                    ...prevState,
+                                    password: e.target.value
+                                }))
+                            }}
+                        />
                     </Grid>
-                </form>
+                    <Grid item>
+                        <TextField
+                            required
+                            fullWidth
+                            error={isInvalid}
+                            helperText={isInvalid ? "Пароль и его подтверждение должны совпадать" : ""}
+                            type="password"
+                            label="Подтвердите пароль"
+                            variant="outlined"
+                            value={resetPasswordState.passwordConfirm}
+                            onChange={(e) => {
+                                e.persist()
+                                setState((prevState) => ({
+                                    ...prevState,
+                                    passwordConfirm: e.target.value
+                                }))
+                            }}
+                        />
+                    </Grid>
+                    <Grid item>
+                        <Button
+                            disabled={isInvalid}
+                            fullWidth
+                            variant="contained"
+                            color="primary"
+                            type="submit"
+                        >
+                            Сменить пароль
+                        </Button>
+                    </Grid>
+                </Grid>
+            </form>
             }
         </Container>
     )
