@@ -28,13 +28,13 @@ namespace HwProj.NotificationsService.API.EventHandlers
         {
             var frontendUrl = _configuration.GetSection("Notification")["Url"];
             var recoveryLink =
-                $"{frontendUrl}/set_password?token={HttpUtility.UrlEncode(@event.Token)}&id={HttpUtility.UrlEncode(@event.UserId)}";
+                $"{frontendUrl}/resetPassword?token={HttpUtility.UrlEncode(@event.Token)}&id={HttpUtility.UrlEncode(@event.UserId)}";
             var email = new Notification
             {
                 Sender = "AuthService",
                 Body = $"{@event.Name} {@event.Surname}, был запрошен сброс вашего пароля.<br/><br/>" +
-                       $"Ваша ссылка для изменения пароля:<br/><a href={recoveryLink}>Сменить пароль</a><br/><br/>" + 
-                       $"Если вы не запрашивали сброс пароля, то не переходите по этой ссылке.",
+                       $"Для изменения пароля перейдите по ссылке<br/><a href={recoveryLink}>Сменить пароль</a><br/><br/>" +
+                       $"Если вы не запрашивали сброс пароля, проигнорируйте это письмо.",
                 Category = CategoryState.Profile,
                 Date = DateTimeUtils.GetMoscowNow(),
                 HasSeen = false,

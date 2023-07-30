@@ -214,7 +214,6 @@ namespace HwProj.AuthService.API.Services
                 UserId = user.Id,
                 Name = user.Name,
                 Surname = user.Surname,
-                MiddleName = user.MiddleName,
                 Email = user.Email,
                 Token = token
             };
@@ -239,9 +238,16 @@ namespace HwProj.AuthService.API.Services
             }
 
             var result = await _aspUserManager.ResetPasswordAsync(user, model.Token, model.Password);
-            return result.Succeeded
+            if (!result.Succeeded)
+                return Result.Failed(string.Join(", ", result.Errors.Select(t => t.Description)));
+
+            var removeTokenResult = await _aspUserManager.RemoveAuthenticationTokenAsync(user,
+                _aspUserManager.Options.Tokens.PasswordResetTokenProvider,
+                UserManager<User>.ResetPasswordTokenPurpose);
+
+            return removeTokenResult.Succeeded
                 ? Result.Success()
-                : Result.Failed(string.Join(", ", result.Errors.Select(t => t.Description)));
+                : Result.Failed(string.Join(", ", removeTokenResult.Errors.Select(t => t.Description)));
         }
 
         private Task<IdentityResult> ChangeUserNameTask(User user, EditDataDTO model)

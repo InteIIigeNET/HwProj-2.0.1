@@ -10,9 +10,6 @@ import makeStyles from "@material-ui/styles/makeStyles";
 import Container from '@material-ui/core/Container';
 import {Alert, AlertTitle} from "@mui/material";
 
-interface IPasswordRecoveryProps {
-}
-
 interface IRecoverState {
     email: string;
     error: string[] | undefined;
@@ -45,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }))
 
-const PasswordRecovery: FC<IPasswordRecoveryProps> = (props) => {
+const PasswordRecovery: FC = () => {
 
     const classes = useStyles()
     const [recoverState, setRecoverState] = useState<IRecoverState>({
