@@ -496,15 +496,17 @@ namespace HwProj.AuthService.IntegrationTests
 
             resultData.Should().BeNull();
         }
-        
+
         [Test]
         public async Task TestGetPasswordResetTokenForUserThatDoesNotExist()
         {
-            var exception = Assert.ThrowsAsync<Exception>(async () =>
-                await _authServiceClient.RequestPasswordRecovery(new Fixture().Create<string>()));
-            Assert.AreEqual(exception.Message, "Not Found");
+            var result =
+                await _authServiceClient.RequestPasswordRecovery(
+                    new Fixture().Create<RequestPasswordRecoveryViewModel>());
+            Assert.False(result.Succeeded);
+            Assert.AreEqual("Пользователь не найден", result.Errors.First());
         }
-        
+
         [Test]
         public async Task TestSetNewPasswordForUserThatDoesNotExist()
         {
@@ -516,11 +518,11 @@ namespace HwProj.AuthService.IntegrationTests
                 PasswordConfirm = password,
                 Token = new Fixture().Create<string>()
             };
-            var exception = Assert.ThrowsAsync<Exception>(async () =>
-                await _authServiceClient.ResetPassword(model));
-            Assert.AreEqual("Not Found", exception.Message);
+            var result = await _authServiceClient.ResetPassword(model);
+            Assert.False(result.Succeeded);
+            Assert.AreEqual("Пользователь не найден", result.Errors.First());
         }
-        
+
         [Test]
         public async Task TestSetNewPasswordWrongToken()
         {
@@ -536,9 +538,9 @@ namespace HwProj.AuthService.IntegrationTests
                 PasswordConfirm = password,
                 Token = new Fixture().Create<string>()
             };
-            var exception = Assert.ThrowsAsync<Exception>(async () =>
-                await _authServiceClient.ResetPassword(model));
-            Assert.AreEqual("Неверная ссылка", exception.Message);
+            var resetResult = await _authServiceClient.ResetPassword(model);
+            Assert.False(resetResult.Succeeded);
+            Assert.AreEqual("Invalid token.", resetResult.Errors.First());
         }
     }
 }
