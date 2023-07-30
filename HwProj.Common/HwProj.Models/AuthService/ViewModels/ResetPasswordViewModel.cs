@@ -2,7 +2,13 @@
 
 namespace HwProj.Models.AuthService.ViewModels
 {
-    public class SetPasswordViewModel
+    public class RequestPasswordRecoveryViewModel
+    {
+        [Required]
+        public string Email { get; set; }
+    }
+
+    public class ResetPasswordViewModel
     {
         [Required]
         public string UserId { get; set; }

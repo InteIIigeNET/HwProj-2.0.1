@@ -145,30 +145,16 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok(result);
         }
 
-        [HttpPost("resetPassword")]
-        public async Task<Result> ResetPassword([FromBody] string email)
+        [HttpPost("requestPasswordRecovery")]
+        public async Task<Result> RequestPasswordRecovery(RequestPasswordRecoveryViewModel model)
         {
-            try
-            {
-                return await AuthServiceClient.ResetPassword(email);
-            }
-            catch (Exception ex)
-            {
-                return Result.Failed(ex.Message);
-            }
+            return await AuthServiceClient.RequestPasswordRecovery(model);
         }
 
-        [HttpPost("setNewPassword")]
-        public async Task<Result> SetNewPassword(SetPasswordViewModel model)
+        [HttpPost("resetPassword")]
+        public async Task<Result> ResetPassword(ResetPasswordViewModel model)
         {
-            try
-            {
-                return await AuthServiceClient.SetNewPassword(model);
-            }
-            catch (Exception ex)
-            {
-                return Result.Failed(ex.Message);
-            }
+            return await AuthServiceClient.ResetPassword(model);
         }
     }
 }

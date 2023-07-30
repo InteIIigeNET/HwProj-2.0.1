@@ -1,8 +1,8 @@
 import React, {FC, FormEvent} from "react";
 import Avatar from '@material-ui/core/Avatar';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
-import {Navigate} from "react-router-dom";
-import {TextField, Button, Typography, Link} from "@material-ui/core";
+import {Navigate, Link} from "react-router-dom";
+import {TextField, Button, Typography} from "@material-ui/core";
 import Grid from '@material-ui/core/Grid';
 import ApiSingleton from "../../api/ApiSingleton";
 import "./Styles/Login.css";
@@ -191,18 +191,9 @@ const Login: FC<LoginProps> = (props) => {
                     Зарегистрироваться
                 </Button>
             </Grid>
-            {/* <Button
-                            fullWidth
-                            variant="text"
-                            color="primary"
-                            
-                            size="small"
-                        >
-                            Восстановить пароль
-                        </Button> */}
             <Grid className={classes.clickable_text}>
-                <Link href="/recover" underline="always" color="inherit">
-                    Восстановить пароль
+                <Link to="/recover" style={{textDecoration: "underline"}} >
+                    Забыли пароль?
                 </Link>
             </Grid>
         </Container>

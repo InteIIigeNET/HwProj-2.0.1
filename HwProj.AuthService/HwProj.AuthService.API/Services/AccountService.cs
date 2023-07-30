@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
 using System.Linq;
@@ -202,35 +201,47 @@ namespace HwProj.AuthService.API.Services
             return await _userManager.GetUsersInRoleAsync(role);
         }
 
-        public async Task<Result> ResetPassword(User user)
+        public async Task<Result> RequestPasswordRecovery(RequestPasswordRecoveryViewModel model)
         {
+            var user = await _aspUserManager.FindByEmailAsync(model.Email);
+            if (user == null) return Result.Failed("Пользователь не найден");
+
             var token = await _aspUserManager.GeneratePasswordResetTokenAsync(user);
-            if (token == null) return Result.Failed();
-            
-            var passwordRecoveryEvent =
-                new PasswordRecoveryEvent(user.Id, user.Email, token, user.Name, user.Surname, user.MiddleName);
+            if (token == null) return Result.Failed("Произошла внутренняя ошибка");
+
+            var passwordRecoveryEvent = new PasswordRecoveryEvent
+            {
+                UserId = user.Id,
+                Name = user.Name,
+                Surname = user.Surname,
+                MiddleName = user.MiddleName,
+                Email = user.Email,
+                Token = token
+            };
             _eventBus.Publish(passwordRecoveryEvent);
 
             return Result.Success();
         }
 
-        public async Task<Result> SetNewPassword(User user, SetPasswordViewModel model)
+        public async Task<Result> ResetPassword(ResetPasswordViewModel model)
         {
-            var isTokenValid = await _aspUserManager.VerifyUserTokenAsync(user,
-                _aspUserManager.Options.Tokens.PasswordResetTokenProvider, "ResetPassword", model.Token);
-            if (!isTokenValid) return Result.Failed("Неверная ссылка");
+            var user = await _aspUserManager.FindByIdAsync(model.UserId);
+            if (user == null) return Result.Failed("Пользователь не найден");
 
             if (model.Password.Length < 6)
             {
                 return Result.Failed("Пароль должен содержать не менее 6 символов");
             }
-            if (!model.Password.Equals(model.PasswordConfirm))
+
+            if (model.Password != model.PasswordConfirm)
             {
-                return Result.Failed("Пароли не совпадают");
+                return Result.Failed("Пароль и его подтверждение не совпадают");
             }
 
             var result = await _aspUserManager.ResetPasswordAsync(user, model.Token, model.Password);
-            return !result.Succeeded ? Result.Failed("Внутренняя ошибка сервиса") : Result.Success();
+            return result.Succeeded
+                ? Result.Success()
+                : Result.Failed(string.Join(", ", result.Errors.Select(t => t.Description)));
         }
 
         private Task<IdentityResult> ChangeUserNameTask(User user, EditDataDTO model)

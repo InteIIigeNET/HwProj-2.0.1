@@ -501,7 +501,7 @@ namespace HwProj.AuthService.IntegrationTests
         public async Task TestGetPasswordResetTokenForUserThatDoesNotExist()
         {
             var exception = Assert.ThrowsAsync<Exception>(async () =>
-                await _authServiceClient.ResetPassword(new Fixture().Create<string>()));
+                await _authServiceClient.RequestPasswordRecovery(new Fixture().Create<string>()));
             Assert.AreEqual(exception.Message, "Not Found");
         }
         
@@ -509,7 +509,7 @@ namespace HwProj.AuthService.IntegrationTests
         public async Task TestSetNewPasswordForUserThatDoesNotExist()
         {
             var password = new Fixture().Create<string>();
-            var model = new SetPasswordViewModel
+            var model = new ResetPasswordViewModel
             {
                 UserId = new Fixture().Create<string>(),
                 Password = password,
@@ -517,7 +517,7 @@ namespace HwProj.AuthService.IntegrationTests
                 Token = new Fixture().Create<string>()
             };
             var exception = Assert.ThrowsAsync<Exception>(async () =>
-                await _authServiceClient.SetNewPassword(model));
+                await _authServiceClient.ResetPassword(model));
             Assert.AreEqual("Not Found", exception.Message);
         }
         
@@ -529,7 +529,7 @@ namespace HwProj.AuthService.IntegrationTests
             result.Succeeded.Should().BeTrue();
             var userId = await _authServiceClient.FindByEmailAsync(userRegisterModel.Email);
             var password = new Fixture().Create<string>();
-            var model = new SetPasswordViewModel
+            var model = new ResetPasswordViewModel
             {
                 UserId = userId,
                 Password = password,
@@ -537,7 +537,7 @@ namespace HwProj.AuthService.IntegrationTests
                 Token = new Fixture().Create<string>()
             };
             var exception = Assert.ThrowsAsync<Exception>(async () =>
-                await _authServiceClient.SetNewPassword(model));
+                await _authServiceClient.ResetPassword(model));
             Assert.AreEqual("Неверная ссылка", exception.Message);
         }
     }

@@ -8,9 +8,10 @@ import "./Styles/Register.css";
 import {useState} from "react";
 import makeStyles from "@material-ui/styles/makeStyles";
 import Container from '@material-ui/core/Container';
-import { Alert, AlertTitle } from "@mui/material";
+import {Alert, AlertTitle} from "@mui/material";
 
-interface IRecoverProps {}
+interface IPasswordRecoveryProps {
+}
 
 interface IRecoverState {
     email: string;
@@ -44,7 +45,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }))
 
-const Recover: FC<IRecoverProps> = (props) => {
+const PasswordRecovery: FC<IPasswordRecoveryProps> = (props) => {
 
     const classes = useStyles()
     const [recoverState, setRecoverState] = useState<IRecoverState>({
@@ -57,11 +58,7 @@ const Recover: FC<IRecoverProps> = (props) => {
         e.preventDefault();
 
         try {
-            const result = await ApiSingleton.accountApi.apiAccountPasswordResetTokenRequest(recoverState.email)
-            if (result.errors?.includes('Not Found')) {
-                result.errors = ['Пользователь не найден']
-            }
-
+            const result = await ApiSingleton.accountApi.apiAccountRequestPasswordRecoveryPost({email: recoverState.email})
             setRecoverState(prevState => ({
                 ...prevState,
                 error: result.errors,
@@ -103,28 +100,27 @@ const Recover: FC<IRecoverProps> = (props) => {
                         {recoverState.error}
                     </p>
                 )}
-                <Grid>
-                    {recoverState.isSuccess && (<Alert severity="success"  sx={{mt: 1}}>
-                        <AlertTitle>Восстановление пароля</AlertTitle>
-                        Ссылка для смены пароля отправлена по адресу {recoverState.email}
-                    </Alert>)}
-                </Grid>
             </Grid>
-            <form onSubmit={(e) => handleSubmit(e)} className={classes.form}>
-                <Grid container direction="column" justifyContent="center">
-                        <Grid>
-                            <TextField
-                                required
-                                type="email"
-                                fullWidth
-                                label="Электронная почта"
-                                variant="outlined"
-                                margin="normal"
-                                name={recoverState.email}
-                                onChange={handleChangeEmail}
-                            />
-                        </Grid>
-                        <Grid className={classes.button}>
+            {recoverState.isSuccess
+                ? (<Alert severity="success" sx={{mt: 1}}>
+                    <AlertTitle>Запрос отправлен</AlertTitle>
+                    Ссылка для смены пароля отправлена на
+                    <br/>
+                    <b>{recoverState.email}</b>
+                </Alert>)
+                : <form onSubmit={(e) => handleSubmit(e)} className={classes.form}>
+                    <Grid container direction="column" justifyContent="center">
+                        <TextField
+                            required
+                            type="email"
+                            fullWidth
+                            label="Электронная почта"
+                            variant="outlined"
+                            margin="normal"
+                            name={recoverState.email}
+                            onChange={handleChangeEmail}
+                        />
+                        <div className={classes.button}>
                             <Button
                                 fullWidth
                                 variant="contained"
@@ -133,11 +129,11 @@ const Recover: FC<IRecoverProps> = (props) => {
                             >
                                 Восстановить пароль
                             </Button>
-                        </Grid>
-                </Grid>
-            </form>
+                        </div>
+                    </Grid>
+                </form>}
         </Container>
     )
 }
 
-export default Recover
+export default PasswordRecovery

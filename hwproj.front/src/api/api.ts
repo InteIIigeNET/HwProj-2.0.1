@@ -853,31 +853,45 @@ export interface RegisterViewModel {
 /**
  *
  * @export
- * @interface SetPasswordViewModel
+ * @interface RequestPasswordRecoveryViewModel
  */
-export interface SetPasswordViewModel {
+export interface RequestPasswordRecoveryViewModel {
     /**
      *
      * @type {string}
-     * @memberof SetPasswordViewModel
+     * @memberof RequestPasswordRecoveryViewModel
      */
-    userId?: string;
+    email: string;
+}
+
+/**
+ *
+ * @export
+ * @interface ResetPasswordViewModel
+ */
+export interface ResetPasswordViewModel {
     /**
      *
      * @type {string}
-     * @memberof SetPasswordViewModel
+     * @memberof ResetPasswordViewModel
      */
-    token?: string;
+    userId: string;
     /**
      *
      * @type {string}
-     * @memberof SetPasswordViewModel
+     * @memberof ResetPasswordViewModel
+     */
+    token: string;
+    /**
+     *
+     * @type {string}
+     * @memberof ResetPasswordViewModel
      */
     password: string;
     /**
      *
      * @type {string}
-     * @memberof SetPasswordViewModel
+     * @memberof ResetPasswordViewModel
      */
     passwordConfirm: string;
 }
@@ -1817,16 +1831,24 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
         },
         /**
          *
-         * @param {string} [email]
+         * @param {RequestPasswordRecoveryViewModel} [model]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAccountPasswordResetTokenRequest(email?: string, options: any = {}): FetchArgs {
-            const localVarPath = `/api/Account/resetPassword`;
+        apiAccountRequestPasswordRecoveryPost(model?: RequestPasswordRecoveryViewModel, options: any = {}): FetchArgs {
+            const localVarPath = `/api/Account/requestPasswordRecovery`;
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+                    ? configuration.apiKey("Authorization")
+                    : configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
 
@@ -1834,8 +1856,8 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-            const needsSerialization = (<any>"LoginViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(email || {}) : (email || "");
+            const needsSerialization = (<any>"RequestPasswordRecoveryViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -1844,16 +1866,24 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
         },
         /**
          *
-         * @param {SetPasswordViewModel} [model]
+         * @param {ResetPasswordViewModel} [model]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAccountSetPassword(model?: SetPasswordViewModel, options: any = {}): FetchArgs {
-            const localVarPath = `/api/Account/setNewPassword`;
+        apiAccountResetPasswordPost(model?: ResetPasswordViewModel, options: any = {}): FetchArgs {
+            const localVarPath = `/api/Account/resetPassword`;
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+                    ? configuration.apiKey("Authorization")
+                    : configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
 
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
 
@@ -1861,7 +1891,7 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-            const needsSerialization = (<any>"RegisterViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            const needsSerialization = (<any>"ResetPasswordViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
 
             return {
@@ -2040,12 +2070,12 @@ export const AccountApiFp = function(configuration?: Configuration) {
         },
         /**
          *
-         * @param {string} [email]
+         * @param {RequestPasswordRecoveryViewModel} [model]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAccountPasswordResetTokenRequest(email?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Result> {
-            const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountPasswordResetTokenRequest(email, options);
+        apiAccountRequestPasswordRecoveryPost(model?: RequestPasswordRecoveryViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Result> {
+            const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountRequestPasswordRecoveryPost(model, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -2058,12 +2088,12 @@ export const AccountApiFp = function(configuration?: Configuration) {
         },
         /**
          *
-         * @param {SetPasswordViewModel} [model]
+         * @param {ResetPasswordViewModel} [model]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAccountSetPassword(model?: SetPasswordViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ResultTokenCredentials> {
-            const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountSetPassword(model, options);
+        apiAccountResetPasswordPost(model?: ResetPasswordViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Result> {
+            const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountResetPasswordPost(model, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -2161,6 +2191,24 @@ export const AccountApiFactory = function (configuration?: Configuration, fetch?
          */
         apiAccountRegisterPost(model?: RegisterViewModel, options?: any) {
             return AccountApiFp(configuration).apiAccountRegisterPost(model, options)(fetch, basePath);
+        },
+        /**
+         *
+         * @param {RequestPasswordRecoveryViewModel} [model]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountRequestPasswordRecoveryPost(model?: RequestPasswordRecoveryViewModel, options?: any) {
+            return AccountApiFp(configuration).apiAccountRequestPasswordRecoveryPost(model, options)(fetch, basePath);
+        },
+        /**
+         *
+         * @param {ResetPasswordViewModel} [model]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountResetPasswordPost(model?: ResetPasswordViewModel, options?: any) {
+            return AccountApiFp(configuration).apiAccountResetPasswordPost(model, options)(fetch, basePath);
         },
     };
 };
@@ -2271,24 +2319,24 @@ export class AccountApi extends BaseAPI {
 
     /**
      *
-     * @param {string} [email]
+     * @param {RequestPasswordRecoveryViewModel} [model]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AccountApi
      */
-    public apiAccountPasswordResetTokenRequest(email?: string, options?: any) {
-        return AccountApiFp(this.configuration).apiAccountPasswordResetTokenRequest(email, options)(this.fetch, this.basePath);
+    public apiAccountRequestPasswordRecoveryPost(model?: RequestPasswordRecoveryViewModel, options?: any) {
+        return AccountApiFp(this.configuration).apiAccountRequestPasswordRecoveryPost(model, options)(this.fetch, this.basePath);
     }
 
     /**
      *
-     * @param {SetPasswordViewModel} [model]
+     * @param {ResetPasswordViewModel} [model]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AccountApi
      */
-    public apiAccountSetPassword(model?: SetPasswordViewModel, options?: any) {
-        return AccountApiFp(this.configuration).apiAccountSetPassword(model, options)(this.fetch, this.basePath);
+    public apiAccountResetPasswordPost(model?: ResetPasswordViewModel, options?: any) {
+        return AccountApiFp(this.configuration).apiAccountResetPasswordPost(model, options)(this.fetch, this.basePath);
     }
 
 }
@@ -4524,95 +4572,6 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
     return {
         /**
          *
-         * @param {number} taskId
-         * @param {number} groupId
-         * @param {SolutionViewModel} [model]
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiSolutionsByGroupIdByTaskIdPost(taskId: number, groupId: number, model?: SolutionViewModel, options: any = {}): FetchArgs {
-            // verify required parameter 'taskId' is not null or undefined
-            if (taskId === null || taskId === undefined) {
-                throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling apiSolutionsByGroupIdByTaskIdPost.');
-            }
-            // verify required parameter 'groupId' is not null or undefined
-            if (groupId === null || groupId === undefined) {
-                throw new RequiredError('groupId','Required parameter groupId was null or undefined when calling apiSolutionsByGroupIdByTaskIdPost.');
-            }
-            const localVarPath = `/api/Solutions/{groupId}/{taskId}`
-                .replace(`{${"taskId"}}`, encodeURIComponent(String(taskId)))
-                .replace(`{${"groupId"}}`, encodeURIComponent(String(groupId)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication Bearer required
-            if (configuration && configuration.apiKey) {
-                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
-                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
-            }
-
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-            const needsSerialization = (<any>"SolutionViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         *
-         * @param {number} groupId
-         * @param {number} taskId
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiSolutionsByGroupIdTaskSolutionsByTaskIdGet(groupId: number, taskId: number, options: any = {}): FetchArgs {
-            // verify required parameter 'groupId' is not null or undefined
-            if (groupId === null || groupId === undefined) {
-                throw new RequiredError('groupId','Required parameter groupId was null or undefined when calling apiSolutionsByGroupIdTaskSolutionsByTaskIdGet.');
-            }
-            // verify required parameter 'taskId' is not null or undefined
-            if (taskId === null || taskId === undefined) {
-                throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling apiSolutionsByGroupIdTaskSolutionsByTaskIdGet.');
-            }
-            const localVarPath = `/api/Solutions/{groupId}/taskSolutions/{taskId}`
-                .replace(`{${"groupId"}}`, encodeURIComponent(String(groupId)))
-                .replace(`{${"taskId"}}`, encodeURIComponent(String(taskId)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication Bearer required
-            if (configuration && configuration.apiKey) {
-                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
-                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
-            }
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         *
          * @param {number} solutionId
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -4703,36 +4662,6 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
                 .replace(`{${"solutionId"}}`, encodeURIComponent(String(solutionId)));
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication Bearer required
-            if (configuration && configuration.apiKey) {
-                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
-                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
-            }
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         *
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiSolutionsGet(options: any = {}): FetchArgs {
-            const localVarPath = `/api/Solutions`;
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
@@ -5002,45 +4931,6 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
     return {
         /**
          *
-         * @param {number} taskId
-         * @param {number} groupId
-         * @param {SolutionViewModel} [model]
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiSolutionsByGroupIdByTaskIdPost(taskId: number, groupId: number, model?: SolutionViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
-            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsByGroupIdByTaskIdPost(taskId, groupId, model, options);
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         *
-         * @param {number} groupId
-         * @param {number} taskId
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiSolutionsByGroupIdTaskSolutionsByTaskIdGet(groupId: number, taskId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<Solution>> {
-            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsByGroupIdTaskSolutionsByTaskIdGet(groupId, taskId, options);
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         *
          * @param {number} solutionId
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5088,23 +4978,6 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
                         return response;
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         *
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiSolutionsGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<Solution>> {
-            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsGet(options);
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
                     } else {
                         throw response;
                     }
@@ -5234,27 +5107,6 @@ export const SolutionsApiFactory = function (configuration?: Configuration, fetc
     return {
         /**
          *
-         * @param {number} taskId
-         * @param {number} groupId
-         * @param {SolutionViewModel} [model]
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiSolutionsByGroupIdByTaskIdPost(taskId: number, groupId: number, model?: SolutionViewModel, options?: any) {
-            return SolutionsApiFp(configuration).apiSolutionsByGroupIdByTaskIdPost(taskId, groupId, model, options)(fetch, basePath);
-        },
-        /**
-         *
-         * @param {number} groupId
-         * @param {number} taskId
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiSolutionsByGroupIdTaskSolutionsByTaskIdGet(groupId: number, taskId: number, options?: any) {
-            return SolutionsApiFp(configuration).apiSolutionsByGroupIdTaskSolutionsByTaskIdGet(groupId, taskId, options)(fetch, basePath);
-        },
-        /**
-         *
          * @param {number} solutionId
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5280,14 +5132,6 @@ export const SolutionsApiFactory = function (configuration?: Configuration, fetc
          */
         apiSolutionsDeleteBySolutionIdDelete(solutionId: number, options?: any) {
             return SolutionsApiFp(configuration).apiSolutionsDeleteBySolutionIdDelete(solutionId, options)(fetch, basePath);
-        },
-        /**
-         *
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiSolutionsGet(options?: any) {
-            return SolutionsApiFp(configuration).apiSolutionsGet(options)(fetch, basePath);
         },
         /**
          *
@@ -5359,31 +5203,6 @@ export const SolutionsApiFactory = function (configuration?: Configuration, fetc
 export class SolutionsApi extends BaseAPI {
     /**
      *
-     * @param {number} taskId
-     * @param {number} groupId
-     * @param {SolutionViewModel} [model]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof SolutionsApi
-     */
-    public apiSolutionsByGroupIdByTaskIdPost(taskId: number, groupId: number, model?: SolutionViewModel, options?: any) {
-        return SolutionsApiFp(this.configuration).apiSolutionsByGroupIdByTaskIdPost(taskId, groupId, model, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     *
-     * @param {number} groupId
-     * @param {number} taskId
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof SolutionsApi
-     */
-    public apiSolutionsByGroupIdTaskSolutionsByTaskIdGet(groupId: number, taskId: number, options?: any) {
-        return SolutionsApiFp(this.configuration).apiSolutionsByGroupIdTaskSolutionsByTaskIdGet(groupId, taskId, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     *
      * @param {number} solutionId
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -5414,16 +5233,6 @@ export class SolutionsApi extends BaseAPI {
      */
     public apiSolutionsDeleteBySolutionIdDelete(solutionId: number, options?: any) {
         return SolutionsApiFp(this.configuration).apiSolutionsDeleteBySolutionIdDelete(solutionId, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     *
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof SolutionsApi
-     */
-    public apiSolutionsGet(options?: any) {
-        return SolutionsApiFp(this.configuration).apiSolutionsGet(options)(this.fetch, this.basePath);
     }
 
     /**

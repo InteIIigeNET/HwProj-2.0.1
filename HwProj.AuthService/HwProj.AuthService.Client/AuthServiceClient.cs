@@ -188,28 +188,11 @@ namespace HwProj.AuthService.Client
             }
         }
 
-        public async Task<Result> ResetPassword(string email)
+        public async Task<Result> RequestPasswordRecovery(RequestPasswordRecoveryViewModel model)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _authServiceUri + $"api/account/resetPassword")
-            {
-                Content = new StringContent(
-                    JsonConvert.SerializeObject(email),
-                    Encoding.UTF8,
-                    "application/json")
-            };
-
-            var response = await _httpClient.SendAsync(httpRequest);
-            if (!response.IsSuccessStatusCode) throw new Exception(response.ReasonPhrase);
-            return await response.DeserializeAsync<Result>();
-        }
-        
-        public async Task<Result> SetNewPassword(SetPasswordViewModel model)
-        {
-            using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Post,
-                _authServiceUri + $"api/account/setNewPassword")
+                _authServiceUri + "api/account/requestPasswordRecovery")
             {
                 Content = new StringContent(
                     JsonConvert.SerializeObject(model),
@@ -218,11 +201,27 @@ namespace HwProj.AuthService.Client
             };
 
             var response = await _httpClient.SendAsync(httpRequest);
-            if (!response.IsSuccessStatusCode) throw new Exception(response.ReasonPhrase);
-            
-            var result = await response.DeserializeAsync<Result>();
-            if (!result.Succeeded) throw new Exception(result.Errors[0]);
-            return result;
+            return response.IsSuccessStatusCode
+                ? await response.DeserializeAsync<Result>()
+                : Result.Failed(response.ReasonPhrase);
+        }
+
+        public async Task<Result> ResetPassword(ResetPasswordViewModel model)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _authServiceUri + "api/account/resetPassword")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(model),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return response.IsSuccessStatusCode
+                ? await response.DeserializeAsync<Result>()
+                : Result.Failed(response.ReasonPhrase);
         }
     }
 }

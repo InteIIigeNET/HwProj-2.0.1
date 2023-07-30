@@ -19,7 +19,7 @@ namespace HwProj.AuthService.Client
         Task<AccountDataDto[]> GetAllStudents();
         Task<User[]> GetAllLecturers();
         Task<bool> Ping();
-        Task<Result> ResetPassword(string email);
-        Task<Result> SetNewPassword(SetPasswordViewModel model);
+        Task<Result> RequestPasswordRecovery(RequestPasswordRecoveryViewModel model);
+        Task<Result> ResetPassword(ResetPasswordViewModel model);
     }
 }

@@ -10,16 +10,5 @@ namespace HwProj.AuthService.API.Events
         public string MiddleName { get; set; }
         public string Email { get; set; }
         public string Token { get; set; }
-
-        public PasswordRecoveryEvent(string userId, string email, string token, string name, string surname = "",
-            string middleName = "")
-        {
-            UserId = userId;
-            Name = name;
-            Surname = surname;
-            MiddleName = middleName;
-            Email = email;
-            Token = token;
-        }
     }
 }

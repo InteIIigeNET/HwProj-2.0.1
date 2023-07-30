@@ -44,17 +44,6 @@ namespace HwProj.AuthService.API.Controllers
                 : NotFound();
         }
 
-        [HttpPost("resetPassword")]
-        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> ResetPassword([FromBody] string email)
-        {
-            var user = await _aspUserManager.FindByEmailAsync(email);
-            if (user == null) return NotFound();
-
-            var result = await _accountService.ResetPassword(user);
-            return Ok(result);
-        }
-
         [HttpGet("getUsersData")]
         public async Task<AccountDataDto?[]> GetUsersData([FromBody] string[] userIds)
         {
@@ -157,16 +146,17 @@ namespace HwProj.AuthService.API.Controllers
 
             return Ok(result);
         }
-        
-        [HttpPost("setNewPassword")]
-        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> SetNewPassword(SetPasswordViewModel model)
+
+        [HttpPost("requestPasswordRecovery")]
+        public async Task<Result> RequestPasswordRecovery(RequestPasswordRecoveryViewModel model)
         {
-            var user = await _userManager.FindByIdAsync(model.UserId);
-            if (user == null) return NotFound();
-            
-            var result = await _accountService.SetNewPassword(user, model);
-            return Ok(result);
+            return await _accountService.RequestPasswordRecovery(model);
+        }
+
+        [HttpPost("resetPassword")]
+        public async Task<Result> ResetPassword(ResetPasswordViewModel model)
+        {
+            return await _accountService.ResetPassword(model);
         }
     }
 }
