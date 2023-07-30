@@ -145,18 +145,16 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok(result);
         }
 
-        [HttpPost("resetPassword")]
-        [Authorize(Roles = Roles.LecturerRole)]
-        public async Task<string> ResetPassword([FromBody] string email)
+        [HttpPost("requestPasswordRecovery")]
+        public async Task<Result> RequestPasswordRecovery(RequestPasswordRecoveryViewModel model)
         {
-            try
-            {
-                return await AuthServiceClient.ResetPassword(email);
-            }
-            catch (Exception ex)
-            {
-                return ex.Message;
-            }
+            return await AuthServiceClient.RequestPasswordRecovery(model);
+        }
+
+        [HttpPost("resetPassword")]
+        public async Task<Result> ResetPassword(ResetPasswordViewModel model)
+        {
+            return await AuthServiceClient.ResetPassword(model);
         }
     }
 }

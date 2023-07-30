@@ -188,21 +188,40 @@ namespace HwProj.AuthService.Client
             }
         }
 
-        public async Task<string> ResetPassword(string email)
+        public async Task<Result> RequestPasswordRecovery(RequestPasswordRecoveryViewModel model)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _authServiceUri + $"api/account/resetPassword")
+                _authServiceUri + "api/account/requestPasswordRecovery")
             {
                 Content = new StringContent(
-                    JsonConvert.SerializeObject(email),
+                    JsonConvert.SerializeObject(model),
                     Encoding.UTF8,
                     "application/json")
             };
 
             var response = await _httpClient.SendAsync(httpRequest);
-            if (!response.IsSuccessStatusCode) throw new Exception(response.ReasonPhrase);
-            return await response.Content.ReadAsStringAsync();
+            return response.IsSuccessStatusCode
+                ? await response.DeserializeAsync<Result>()
+                : Result.Failed(response.ReasonPhrase);
+        }
+
+        public async Task<Result> ResetPassword(ResetPasswordViewModel model)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _authServiceUri + "api/account/resetPassword")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(model),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return response.IsSuccessStatusCode
+                ? await response.DeserializeAsync<Result>()
+                : Result.Failed(response.ReasonPhrase);
         }
     }
 }

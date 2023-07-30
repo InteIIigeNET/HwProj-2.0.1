@@ -496,5 +496,51 @@ namespace HwProj.AuthService.IntegrationTests
 
             resultData.Should().BeNull();
         }
+
+        [Test]
+        public async Task TestGetPasswordResetTokenForUserThatDoesNotExist()
+        {
+            var result =
+                await _authServiceClient.RequestPasswordRecovery(
+                    new Fixture().Create<RequestPasswordRecoveryViewModel>());
+            Assert.False(result.Succeeded);
+            Assert.AreEqual("Пользователь не найден", result.Errors.First());
+        }
+
+        [Test]
+        public async Task TestSetNewPasswordForUserThatDoesNotExist()
+        {
+            var password = new Fixture().Create<string>();
+            var model = new ResetPasswordViewModel
+            {
+                UserId = new Fixture().Create<string>(),
+                Password = password,
+                PasswordConfirm = password,
+                Token = new Fixture().Create<string>()
+            };
+            var result = await _authServiceClient.ResetPassword(model);
+            Assert.False(result.Succeeded);
+            Assert.AreEqual("Пользователь не найден", result.Errors.First());
+        }
+
+        [Test]
+        public async Task TestSetNewPasswordWrongToken()
+        {
+            var userRegisterModel = GenerateRegisterViewModel();
+            var result = await _authServiceClient.Register(userRegisterModel);
+            result.Succeeded.Should().BeTrue();
+            var userId = await _authServiceClient.FindByEmailAsync(userRegisterModel.Email);
+            var password = new Fixture().Create<string>();
+            var model = new ResetPasswordViewModel
+            {
+                UserId = userId,
+                Password = password,
+                PasswordConfirm = password,
+                Token = new Fixture().Create<string>()
+            };
+            var resetResult = await _authServiceClient.ResetPassword(model);
+            Assert.False(resetResult.Succeeded);
+            Assert.AreEqual("Invalid token.", resetResult.Errors.First());
+        }
     }
 }

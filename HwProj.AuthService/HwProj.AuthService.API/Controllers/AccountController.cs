@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -43,17 +42,6 @@ namespace HwProj.AuthService.API.Controllers
             return accountData != null
                 ? Ok(accountData) as IActionResult
                 : NotFound();
-        }
-
-        [HttpPost("resetPassword")]
-        public async Task<IActionResult> ResetPassword([FromBody] string email)
-        {
-            var user = await _aspUserManager.FindByEmailAsync(email);
-            if (user == null) return NotFound();
-            var token = await _aspUserManager.GeneratePasswordResetTokenAsync(user);
-            var newPassword = Guid.NewGuid().ToString();
-            await _aspUserManager.ResetPasswordAsync(user, token, newPassword);
-            return Ok($"Временный пароль: {newPassword}");
         }
 
         [HttpGet("getUsersData")]
@@ -157,6 +145,18 @@ namespace HwProj.AuthService.API.Controllers
             var result = allLecturers.ToArray();
 
             return Ok(result);
+        }
+
+        [HttpPost("requestPasswordRecovery")]
+        public async Task<Result> RequestPasswordRecovery(RequestPasswordRecoveryViewModel model)
+        {
+            return await _accountService.RequestPasswordRecovery(model);
+        }
+
+        [HttpPost("resetPassword")]
+        public async Task<Result> ResetPassword(ResetPasswordViewModel model)
+        {
+            return await _accountService.ResetPassword(model);
         }
     }
 }

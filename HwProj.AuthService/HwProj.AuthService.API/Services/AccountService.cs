@@ -17,6 +17,7 @@ namespace HwProj.AuthService.API.Services
     public class AccountService : IAccountService
     {
         private readonly IUserManager _userManager;
+        private readonly UserManager<User> _aspUserManager;
         private readonly SignInManager<User> _signInManager;
         private readonly IAuthTokenService _tokenService;
         private readonly IEventBus _eventBus;
@@ -26,13 +27,15 @@ namespace HwProj.AuthService.API.Services
             SignInManager<User> signInManager,
             IAuthTokenService authTokenService,
             IEventBus eventBus,
-            IMapper mapper)
+            IMapper mapper,
+            UserManager<User> aspUserManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _tokenService = authTokenService;
             _eventBus = eventBus;
             _mapper = mapper;
+            _aspUserManager = aspUserManager;
         }
 
         public async Task<AccountDataDto> GetAccountDataAsync(string userId)
@@ -196,6 +199,55 @@ namespace HwProj.AuthService.API.Services
         public async Task<IList<User>> GetUsersInRole(string role)
         {
             return await _userManager.GetUsersInRoleAsync(role);
+        }
+
+        public async Task<Result> RequestPasswordRecovery(RequestPasswordRecoveryViewModel model)
+        {
+            var user = await _aspUserManager.FindByEmailAsync(model.Email);
+            if (user == null) return Result.Failed("Пользователь не найден");
+
+            var token = await _aspUserManager.GeneratePasswordResetTokenAsync(user);
+            if (token == null) return Result.Failed("Произошла внутренняя ошибка");
+
+            var passwordRecoveryEvent = new PasswordRecoveryEvent
+            {
+                UserId = user.Id,
+                Name = user.Name,
+                Surname = user.Surname,
+                Email = user.Email,
+                Token = token
+            };
+            _eventBus.Publish(passwordRecoveryEvent);
+
+            return Result.Success();
+        }
+
+        public async Task<Result> ResetPassword(ResetPasswordViewModel model)
+        {
+            var user = await _aspUserManager.FindByIdAsync(model.UserId);
+            if (user == null) return Result.Failed("Пользователь не найден");
+
+            if (model.Password.Length < 6)
+            {
+                return Result.Failed("Пароль должен содержать не менее 6 символов");
+            }
+
+            if (model.Password != model.PasswordConfirm)
+            {
+                return Result.Failed("Пароль и его подтверждение не совпадают");
+            }
+
+            var result = await _aspUserManager.ResetPasswordAsync(user, model.Token, model.Password);
+            if (!result.Succeeded)
+                return Result.Failed(string.Join(", ", result.Errors.Select(t => t.Description)));
+
+            var removeTokenResult = await _aspUserManager.RemoveAuthenticationTokenAsync(user,
+                _aspUserManager.Options.Tokens.PasswordResetTokenProvider,
+                UserManager<User>.ResetPasswordTokenPurpose);
+
+            return removeTokenResult.Succeeded
+                ? Result.Success()
+                : Result.Failed(string.Join(", ", removeTokenResult.Errors.Select(t => t.Description)));
         }
 
         private Task<IdentityResult> ChangeUserNameTask(User user, EditDataDTO model)

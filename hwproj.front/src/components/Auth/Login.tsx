@@ -1,7 +1,7 @@
 import React, {FC, FormEvent} from "react";
 import Avatar from '@material-ui/core/Avatar';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
-import {Navigate} from "react-router-dom";
+import {Navigate, Link} from "react-router-dom";
 import {TextField, Button, Typography} from "@material-ui/core";
 import Grid from '@material-ui/core/Grid';
 import ApiSingleton from "../../api/ApiSingleton";
@@ -46,6 +46,11 @@ const useStyles = makeStyles((theme) => ({
     button: {
         marginTop: theme.spacing(2)
     },
+    clickable_text: {
+        marginTop: theme.spacing(1),
+        textAlign: "center",
+        color: "#949494"
+    }
 }))
 
 const Login: FC<LoginProps> = (props) => {
@@ -185,6 +190,11 @@ const Login: FC<LoginProps> = (props) => {
                 >
                     Зарегистрироваться
                 </Button>
+            </Grid>
+            <Grid className={classes.clickable_text}>
+                <Link to="/recovery" style={{textDecoration: "underline"}} >
+                    Забыли пароль?
+                </Link>
             </Grid>
         </Container>
     )
