@@ -25,6 +25,8 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
     const [taskTitleFilter, setTaskTitleFilter] = useState<string | undefined>(undefined)
     const [studentNameFilter, setStudentNameFilter] = useState<string | undefined>(undefined)
 
+    console.log(homeworkTitleFilter)
+
     const renderStudent = (s: AccountDataDto) => `${s.surname} ${s.name}`
 
     //TODO: make filter smarter
@@ -35,13 +37,28 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
         .filter(t => taskTitleFilter ? t.taskTitle === taskTitleFilter : true)
         .filter(t => studentNameFilter ? renderStudent(t.student!) === studentNameFilter : true)
 
-    console.log(taskTitleFilter)
-
     const renderSelect = (name: string,
                           value: string | undefined,
                           renderTitle: (t: SolutionPreviewView) => string,
                           onChange: React.Dispatch<React.SetStateAction<string | undefined>>) => {
-        const values = [...new Set(unratedSolutions!.map(renderTitle))]
+        var values = [...unratedSolutions!]
+        switch(name){
+            case "Домашняя работа": {
+                values = courseTitleFilter !== undefined ? values.filter(t => t.courseTitle === courseTitleFilter) : values
+            }
+            case "Задание": {
+                values = homeworkTitleFilter !== undefined ? values.filter(t => t.homeworkTitle === homeworkTitleFilter) : values
+            }
+            case "Студент": {
+                values = taskTitleFilter !== undefined ? values.filter(t => t.taskTitle === taskTitleFilter) : values
+                break
+            }
+            default: {
+                break
+            }
+        }
+        console.log(values)
+        const itemValues = [...new Set(values.map(renderTitle))]
         return <FormControl fullWidth style={{minWidth: 220}}>
             <InputLabel>{name}</InputLabel>
             <Select
@@ -52,7 +69,7 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
                 label="Course"
             >
                 <MenuItem value={0}>Любое</MenuItem>
-                {values.map(t => <MenuItem value={t}>{t}</MenuItem>)}
+                {itemValues.map(t => <MenuItem value={t}>{t}</MenuItem>)}
             </Select>
         </FormControl>
     }
