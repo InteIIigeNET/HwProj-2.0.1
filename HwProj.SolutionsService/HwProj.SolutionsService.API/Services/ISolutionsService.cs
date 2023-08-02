@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.SolutionsService;
 
 namespace HwProj.SolutionsService.API.Services
@@ -22,5 +23,7 @@ namespace HwProj.SolutionsService.API.Services
         Task DeleteSolutionAsync(long solutionId);
         
         Task MarkSolutionFinal(long solutionId);
+
+        Task<SolutionPreviewDto[]> GetAllUnratedSolutionForTask(CourseDTO course, long taskId);
     }
 }

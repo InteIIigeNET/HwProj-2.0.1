@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using HwProj.Exceptions;
 using HwProj.HttpUtils;
+using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.SolutionsService;
 using HwProj.Models.StatisticsService;
 using Microsoft.AspNetCore.Http;
@@ -212,14 +213,14 @@ namespace HwProj.SolutionsService.Client
             return await response.DeserializeAsync<Solution?[]>();
         }
 
-        public async Task<SolutionPreviewDto[]> GetAllUnratedSolutionsForTasks(long[] taskIds)
+        public async Task<SolutionPreviewDto[]> GetAllUnratedSolutions(CourseDTO[] courses)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
                 _solutionServiceUri + "api/Solutions/allUnrated")
             {
                 Content = new StringContent(
-                    JsonConvert.SerializeObject(taskIds),
+                    JsonConvert.SerializeObject(courses),
                     Encoding.UTF8,
                     "application/json")
             };

@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.SolutionsService;
 using HwProj.Models.StatisticsService;
 
@@ -19,7 +20,7 @@ namespace HwProj.SolutionsService.Client
         Task<StatisticsCourseMatesDto[]> GetCourseStatistics(long courseId, string userId);
         Task<StudentSolutions[]> GetTaskSolutionStatistics(long courseId, long taskId);
         Task<Solution?[]> GetLastTaskSolutions(long[] taskIds, string userId);
-        Task<SolutionPreviewDto[]> GetAllUnratedSolutionsForTasks(long[] taskIds);
+        Task<SolutionPreviewDto[]> GetAllUnratedSolutions(CourseDTO[] courses);
         Task<bool> Ping();
     }
 }

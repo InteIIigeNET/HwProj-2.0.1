@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.Client;
+using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.SolutionsService;
 using HwProj.Models.StatisticsService;
 using HwProj.SolutionsService.API.Domains;
@@ -181,29 +182,22 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpPost("allUnrated")]
-        public async Task<SolutionPreviewDto[]> GetAllUnratedSolutionsForTasks([FromBody] long[] taskIds)
+        public async Task<SolutionPreviewDto[]> GetAllUnratedSolutions([FromBody] CourseDTO[] courses)
         {
-            var solutions = await _solutionsRepository
-                .FindAll(t => taskIds.Contains(t.TaskId))
-                .GroupBy(t => new { t.TaskId, t.StudentId })
-                .Select(t => t.OrderByDescending(x => x.PublicationDate))
-                .Select(t => new
-                {
-                    LastSolution = t.FirstOrDefault(),
-                    IsFirstTry = t.Skip(1).All(s => s.State == SolutionState.Posted)
-                })
-                .Where(t => t.LastSolution != null && t.LastSolution.State == SolutionState.Posted)
-                .OrderBy(t => t.LastSolution!.PublicationDate)
-                .Select(t => new SolutionPreviewDto
-                {
-                    StudentId = t.LastSolution!.StudentId,
-                    TaskId = t.LastSolution.TaskId,
-                    PublicationDate = t.LastSolution.PublicationDate,
-                    IsFirstTry = t.IsFirstTry
-                })
-                .ToArrayAsync();
+            var coursesDict = courses.ToDictionary(t => t.Id);
+            var tasks = courses.SelectMany(c => c.Homeworks)
+                .SelectMany(h => h.Tasks, (h, task) => new { h.CourseId, task });
+            var getUnratedSolutionsTasks = tasks.Select(async t =>
+                await _solutionsService.GetAllUnratedSolutionForTask(coursesDict[t.CourseId], t.task.Id)).ToArray();
+            
+            await Task.WhenAll(getUnratedSolutionsTasks);
 
-            return solutions;
+            var unratedSolutions = getUnratedSolutionsTasks
+                .SelectMany(t => t.Result).Where(t => t.StudentId != "")
+                .GroupBy(s => new {s.StudentId, s.TaskId, s.PublicationDate})
+                .Select(g => g.FirstOrDefault())
+                .ToArray();
+            return unratedSolutions;
         }
     }
 }
