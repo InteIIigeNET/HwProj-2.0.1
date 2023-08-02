@@ -17,7 +17,7 @@ namespace HwProj.CoursesService.Client
         Task SignInCourse(long courseId, string studentId);
         Task<Result> AcceptStudent(long courseId, string studentId);
         Task<Result> RejectStudent(long courseId, string studentId);
-        Task<CourseDTO[]> GetAllUserCourses();
+        Task<CourseDTO[]> GetAllUserCourses(bool withCompleted);
         Task<TaskDeadlineDto[]> GetTaskDeadlines();
         Task<Result<long>> AddHomeworkToCourse(CreateHomeworkViewModel model, long courseId);
         Task<HomeworkViewModel> GetHomework(long homeworkId);

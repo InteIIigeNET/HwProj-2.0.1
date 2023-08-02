@@ -49,7 +49,7 @@ namespace HwProj.APIGateway.API.Controllers
         public async Task<IActionResult> GetUserData()
         {
             var getAccountDataTask = AuthServiceClient.GetAccountData(UserId);
-            var getCoursesTask = _coursesClient.GetAllUserCourses();
+            var getCoursesTask = _coursesClient.GetAllUserCourses(true);
 
             await Task.WhenAll(getAccountDataTask, getCoursesTask);
 

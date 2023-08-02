@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
@@ -127,13 +128,13 @@ namespace HwProj.CoursesService.API.Controllers
                 : NotFound();
         }
 
-        [HttpGet("userCourses")]
-        public async Task<CourseDTO[]> GetUserCourses()
+        [HttpGet("userCourses/{withCompleted}")]
+        public async Task<CourseDTO[]> GetUserCourses(bool withCompleted)
         {
             var userId = Request.GetUserIdFromHeader();
             var coursesFromDb = await _coursesService.GetUserCoursesAsync(userId);
-            var courses = _mapper.Map<CourseDTO[]>(coursesFromDb).ToArray();
-            return courses;
+            var courses = _mapper.Map<IEnumerable<CourseDTO>>(coursesFromDb);
+            return withCompleted ? courses.ToArray() : courses.Where(c => !c.IsCompleted).ToArray();
         }
 
         [HttpGet("acceptLecturer/{courseId}")]

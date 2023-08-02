@@ -134,11 +134,11 @@ namespace HwProj.CoursesService.Client
             return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
         }
 
-        public async Task<CourseDTO[]> GetAllUserCourses()
+        public async Task<CourseDTO[]> GetAllUserCourses(bool withCompleted)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
-                _coursesServiceUri + "api/Courses/userCourses");
+                _coursesServiceUri + $"api/Courses/userCourses/{withCompleted}");
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);

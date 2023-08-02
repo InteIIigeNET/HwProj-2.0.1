@@ -220,8 +220,7 @@ namespace HwProj.APIGateway.API.Controllers
         [Authorize(Roles = Roles.LecturerRole)]
         public async Task<UnratedSolutionPreviews> GetUnratedSolutions(long? taskId)
         {
-            var mentorCourses = await _coursesServiceClient.GetAllUserCourses();
-            mentorCourses = mentorCourses.Where(c => c is {IsCompleted: false}).ToArray();
+            var mentorCourses = await _coursesServiceClient.GetAllUserCourses(false);
             var tasks = FilterTasks(mentorCourses, taskId).ToDictionary(t => t.taskId, t => t.data);
 
             var taskIds = tasks.Select(t => t.Key).ToArray();
@@ -258,7 +257,7 @@ namespace HwProj.APIGateway.API.Controllers
 
         private static IEnumerable<(long taskId,
                 (CourseDTO course, string homeworkTitle, HomeworkTaskViewModel task) data)>
-            FilterTasks(CourseDTO[] courses, long? taskId)
+            FilterTasks(IEnumerable<CourseDTO> courses, long? taskId)
         {
             foreach (var course in courses)
             foreach (var homework in course.Homeworks)

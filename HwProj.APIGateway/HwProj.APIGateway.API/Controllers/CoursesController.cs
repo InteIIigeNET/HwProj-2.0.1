@@ -127,7 +127,7 @@ namespace HwProj.APIGateway.API.Controllers
         [Authorize]
         public async Task<CoursePreviewView[]> GetAllUserCourses()
         {
-            var userCourses = await _coursesClient.GetAllUserCourses();
+            var userCourses = await _coursesClient.GetAllUserCourses(true);
             var result = await GetCoursePreviews(userCourses);
             return result;
         }
