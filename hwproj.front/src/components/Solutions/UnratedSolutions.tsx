@@ -35,20 +35,20 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
         .filter(t => studentNameFilter ? renderStudent(t.student!) === studentNameFilter : true)
 
     const renderCourses = () => {
-        return [...new Set(unratedSolutions!.map(s => s.courseTitle!))].map(t => <MenuItem value={t}>{t}</MenuItem>)
+        return [...new Set(unratedSolutions!.map(s => s.courseTitle!))].sort().map(t => <MenuItem value={t}>{t}</MenuItem>)
     }
 
     const renderHomeworks = () => {
         var values = [...unratedSolutions!]
         values = (courseTitleFilter !== undefined && courseTitleFilter !== "") ? values.filter(t => t.courseTitle === courseTitleFilter) : values
-        return [... new Set(values.map(t => t.homeworkTitle!))].map(t => <MenuItem value={t}>{t}</MenuItem>)
+        return [... new Set(values.map(t => t.homeworkTitle!))].sort().map(t => <MenuItem value={t}>{t}</MenuItem>)
     }
 
     const renderTasks = () => {
         var values = [...unratedSolutions!]
         values = (courseTitleFilter !== undefined && courseTitleFilter !== "") ? values.filter(t => t.courseTitle === courseTitleFilter) : values
         values = (homeworkTitleFilter !== undefined && homeworkTitleFilter !== "") ? values.filter(t => t.homeworkTitle === homeworkTitleFilter) : values
-        return [... new Set(values.map(t => t.taskTitle!))].map(t => <MenuItem value={t}>{t}</MenuItem>)
+        return [... new Set(values.map(t => t.taskTitle!))].sort().map(t => <MenuItem value={t}>{t}</MenuItem>)
     }
 
     const renderStudents = () => {
@@ -56,7 +56,7 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
         values = (courseTitleFilter !== undefined && courseTitleFilter !== "") ? values.filter(t => t.courseTitle === courseTitleFilter) : values
         values = (homeworkTitleFilter !== undefined && homeworkTitleFilter !== "") ? values.filter(t => t.homeworkTitle === homeworkTitleFilter) : values
         values = (taskTitleFilter !== undefined && taskTitleFilter !== "") ? values.filter(t => t.taskTitle === taskTitleFilter) : values
-        return [... new Set(values.map(t => renderStudent(t.student!)))].map(t => <MenuItem value={t}>{t}</MenuItem>)
+        return [... new Set(values.map(t => renderStudent(t.student!)))].sort().map(t => <MenuItem value={t}>{t}</MenuItem>)
     }
 
     return (
