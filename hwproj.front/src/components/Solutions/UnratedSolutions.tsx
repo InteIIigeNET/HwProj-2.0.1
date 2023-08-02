@@ -25,11 +25,8 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
     const [taskTitleFilter, setTaskTitleFilter] = useState<string | undefined>(undefined)
     const [studentNameFilter, setStudentNameFilter] = useState<string | undefined>(undefined)
 
-    console.log(homeworkTitleFilter)
-
     const renderStudent = (s: AccountDataDto) => `${s.surname} ${s.name}`
 
-    //TODO: make filter smarter
     const {unratedSolutions} = props.unratedSolutionsPreviews
     const filteredUnratedSolutions = unratedSolutions!
         .filter(t => courseTitleFilter ? t.courseTitle === courseTitleFilter : true)
@@ -37,63 +34,107 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
         .filter(t => taskTitleFilter ? t.taskTitle === taskTitleFilter : true)
         .filter(t => studentNameFilter ? renderStudent(t.student!) === studentNameFilter : true)
 
-    const renderSelect = (name: string,
-                          value: string | undefined,
-                          renderTitle: (t: SolutionPreviewView) => string,
-                          onChange: React.Dispatch<React.SetStateAction<string | undefined>>) => {
-        var values = [...unratedSolutions!]
-        switch(name){
-            case "Домашняя работа": {
-                values = courseTitleFilter !== undefined ? values.filter(t => t.courseTitle === courseTitleFilter) : values
-            }
-            case "Задание": {
-                values = homeworkTitleFilter !== undefined ? values.filter(t => t.homeworkTitle === homeworkTitleFilter) : values
-            }
-            case "Студент": {
-                values = taskTitleFilter !== undefined ? values.filter(t => t.taskTitle === taskTitleFilter) : values
-                break
-            }
-            default: {
-                break
-            }
-        }
-        console.log(values)
-        const itemValues = [...new Set(values.map(renderTitle))]
-        return <FormControl fullWidth style={{minWidth: 220}}>
-            <InputLabel>{name}</InputLabel>
-            <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={value || ""}
-                onChange={event => onChange(event.target.value as string)}
-                label="Course"
-            >
-                <MenuItem value={0}>Любое</MenuItem>
-                {itemValues.map(t => <MenuItem value={t}>{t}</MenuItem>)}
-            </Select>
-        </FormControl>
+    const renderCourses = () => {
+        return [...new Set(unratedSolutions!.map(s => s.courseTitle!))].map(t => <MenuItem value={t}>{t}</MenuItem>)
     }
 
-    const renderFilter = () => {
-        return <Grid container xs={"auto"} style={{marginBottom: 15}} spacing={1} direction={"row"}>
-            <Grid item>
-                {renderSelect("Курс", courseTitleFilter, s => s.courseTitle!, setCourseTitleFilter)}
-            </Grid>
-            <Grid item>
-                {renderSelect("Домашняя работа", homeworkTitleFilter, s => s.homeworkTitle!, setHomeworkTitleFilter)}
-            </Grid>
-            <Grid item>
-                {renderSelect("Задание", taskTitleFilter, s => s.taskTitle!, setTaskTitleFilter)}
-            </Grid>
-            <Grid item>
-                {renderSelect("Студент", studentNameFilter, s => renderStudent(s.student!), setStudentNameFilter)}
-            </Grid>
-        </Grid>
+    const renderHomeworks = () => {
+        var values = [...unratedSolutions!]
+        values = (courseTitleFilter !== undefined && courseTitleFilter !== "") ? values.filter(t => t.courseTitle === courseTitleFilter) : values
+        return [... new Set(values.map(t => t.homeworkTitle!))].map(t => <MenuItem value={t}>{t}</MenuItem>)
+    }
+
+    const renderTasks = () => {
+        var values = [...unratedSolutions!]
+        values = (courseTitleFilter !== undefined && courseTitleFilter !== "") ? values.filter(t => t.courseTitle === courseTitleFilter) : values
+        values = (homeworkTitleFilter !== undefined && homeworkTitleFilter !== "") ? values.filter(t => t.homeworkTitle === homeworkTitleFilter) : values
+        return [... new Set(values.map(t => t.taskTitle!))].map(t => <MenuItem value={t}>{t}</MenuItem>)
+    }
+
+    const renderStudents = () => {
+        var values = [...unratedSolutions!]
+        values = (courseTitleFilter !== undefined && courseTitleFilter !== "") ? values.filter(t => t.courseTitle === courseTitleFilter) : values
+        values = (homeworkTitleFilter !== undefined && homeworkTitleFilter !== "") ? values.filter(t => t.homeworkTitle === homeworkTitleFilter) : values
+        values = (taskTitleFilter !== undefined && taskTitleFilter !== "") ? values.filter(t => t.taskTitle === taskTitleFilter) : values
+        return [... new Set(values.map(t => renderStudent(t.student!)))].map(t => <MenuItem value={t}>{t}</MenuItem>)
     }
 
     return (
         <div className="container">
-            {renderFilter()}
+            <Grid container xs={"auto"} style={{marginBottom: 15}} spacing={1} direction={"row"}>
+                <Grid item>
+                    <FormControl fullWidth style={{minWidth: 220}}>
+                        <InputLabel>{"Курс"}</InputLabel>
+                        <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            value={courseTitleFilter || ""}
+                            onChange={(event, value) => {
+                                setCourseTitleFilter(event.target.value as string)
+                                setHomeworkTitleFilter(undefined)
+                                setTaskTitleFilter(undefined)
+                                setStudentNameFilter(undefined)
+                            }}
+                            label="Course"
+                        >
+                            <MenuItem value={""}>Любое</MenuItem>
+                            {renderCourses()}
+                        </Select>
+                    </FormControl>
+                </Grid>
+                <Grid item>
+                    <FormControl fullWidth style={{minWidth: 220}}>
+                        <InputLabel>{"Домашняя работа"}</InputLabel>
+                        <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            value={homeworkTitleFilter || ""}
+                            onChange={(event, value) => {
+                                setHomeworkTitleFilter(event.target.value as string)
+                                setTaskTitleFilter(undefined)
+                                setStudentNameFilter(undefined)
+                            }}
+                            label="Course"
+                        >
+                            <MenuItem value={""}>Любое</MenuItem>
+                            {renderHomeworks()}
+                        </Select>
+                    </FormControl>
+                </Grid>
+                <Grid item>
+                    <FormControl fullWidth style={{minWidth: 220}}>
+                        <InputLabel>{"Задание"}</InputLabel>
+                        <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            value={taskTitleFilter || ""}
+                            onChange={(event, value) => {
+                                setTaskTitleFilter(event.target.value as string)
+                                setStudentNameFilter(undefined)
+                            }}
+                            label="Course"
+                        >
+                            <MenuItem value={""}>Любое</MenuItem>
+                            {renderTasks()}
+                        </Select>
+                    </FormControl>
+                </Grid>
+                <Grid item>
+                    <FormControl fullWidth style={{minWidth: 220}}>
+                        <InputLabel>{"Студент"}</InputLabel>
+                        <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            value={studentNameFilter || ""}
+                            onChange={(event, value) => setStudentNameFilter(event.target.value as string)}
+                            label="Course"
+                        >
+                            <MenuItem value={""}>Любое</MenuItem>
+                            {renderStudents()}
+                        </Select>
+                    </FormControl>
+                </Grid>
+            </Grid>
             {filteredUnratedSolutions.length == 0 ? <div>По заданному фильтру все решения проверены.</div> :
                 <div>
                     {filteredUnratedSolutions.map((solution, i) => (
