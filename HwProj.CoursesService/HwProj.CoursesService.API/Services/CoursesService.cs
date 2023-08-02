@@ -198,7 +198,7 @@ namespace HwProj.CoursesService.API.Services
             return true;
         }
 
-        public async Task<Course[]> GetUserCoursesAsync(string userId)
+        public async Task<CourseDTO[]> GetUserCoursesAsync(string userId)
         {
             var studentCoursesIds = await _courseMatesRepository
                 .FindAll(cm => cm.StudentId == userId && cm.IsAccepted == true)
@@ -207,7 +207,7 @@ namespace HwProj.CoursesService.API.Services
                 .ConfigureAwait(false);
 
             var getStudentCoursesTasks = studentCoursesIds
-                .Select(id => _coursesRepository.GetAsync(id)) // TODO: optimize 
+                .Select(id => _coursesRepository.GetWithCourseMatesAsync(id)) // TODO: optimize 
                 .ToArray();
 
             var studentCourses = await Task.WhenAll(getStudentCoursesTasks).ConfigureAwait(false);
@@ -215,11 +215,31 @@ namespace HwProj.CoursesService.API.Services
             var getMentorCoursesTask = _coursesRepository
                 .FindAll(c => c.MentorIds.Contains(userId))
                 .Include(c => c.Homeworks).ThenInclude(t => t.Tasks)
+                .Include(c => c.CourseMates)
                 .ToArrayAsync();
 
             var mentorCourses = await getMentorCoursesTask.ConfigureAwait(false);
 
-            return studentCourses.Union(mentorCourses).ToArray();
+            var courses = _mapper.Map<CourseDTO[]>(studentCourses.Union(mentorCourses)).ToArray();
+            var courseIds = courses.Select(c => c.Id);
+
+            var groups = courseIds
+                .SelectMany(courseId => _groupsRepository.GetGroupsWithGroupMatesByCourse(courseId)).ToArray();
+
+            foreach (var course in courses)
+            {
+                var courseGroups = groups.Where(t => t.CourseId == course.Id).ToArray();
+                if (courseGroups.Any())
+                {
+                    course.Groups = courseGroups.Select(g => new GroupViewModel
+                    {
+                        Id = g.Id,
+                        StudentsIds = g.GroupMates.Select(s => s.StudentId).ToArray()
+                    }).ToArray();
+                }
+            }
+
+            return courses;
         }
 
         public async Task AcceptLecturerAsync(long courseId, string lecturerEmail)
