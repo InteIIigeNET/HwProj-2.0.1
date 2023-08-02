@@ -221,6 +221,7 @@ namespace HwProj.APIGateway.API.Controllers
         public async Task<UnratedSolutionPreviews> GetUnratedSolutions(long? taskId)
         {
             var mentorCourses = await _coursesServiceClient.GetAllUserCourses();
+            mentorCourses = mentorCourses.Where(c => c.IsCompleted == false).ToArray();
             var tasks = FilterTasks(mentorCourses, taskId).ToDictionary(t => t.taskId, t => t.data);
 
             var taskIds = tasks.Select(t => t.Key).ToArray();
