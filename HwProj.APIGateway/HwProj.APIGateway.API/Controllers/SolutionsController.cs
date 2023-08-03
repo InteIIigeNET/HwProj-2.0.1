@@ -105,6 +105,13 @@ namespace HwProj.APIGateway.API.Controllers
                 .Select(t => t.StudentId)
                 .ToArray();
 
+            var homeworks = course.Homeworks.Select(t => t.Tasks).ToArray();
+            var taskIds = new List<long>();
+            foreach (var homework in homeworks)
+            foreach (var task in homework) 
+                taskIds.Add(task.Id);
+            var statsForTasks = await _solutionsClient.GetStatsAllUnratedSolutionsForTasks(taskIds.ToArray());
+            
             var getStudentsDataTask = AuthServiceClient.GetAccountsData(studentIds);
             var getStatisticsTask = _solutionsClient.GetTaskSolutionStatistics(course.Id, taskId);
 
@@ -129,7 +136,8 @@ namespace HwProj.APIGateway.API.Controllers
                     })
                     .OrderBy(t => t.User.Surname)
                     .ThenBy(t => t.User.Name)
-                    .ToArray()
+                    .ToArray(),
+                StatsForTasks = statsForTasks
             };
 
             return Ok(result);

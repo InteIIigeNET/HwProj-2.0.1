@@ -1,5 +1,6 @@
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.SolutionsService;
+using HwProj.Models.StatisticsService;
 
 namespace HwProj.APIGateway.API.Models.Solutions
 {
@@ -13,5 +14,6 @@ namespace HwProj.APIGateway.API.Models.Solutions
     {
         public UserTaskSolutions[] StudentsSolutions { get; set; }
         public long CourseId { get; set; }
+        public TaskSolutionsStats[] StatsForTasks { get; set; }
     }
 }
