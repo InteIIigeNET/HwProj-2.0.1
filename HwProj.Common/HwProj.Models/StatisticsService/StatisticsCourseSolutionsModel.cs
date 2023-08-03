@@ -2,6 +2,11 @@
 
 namespace HwProj.Models.StatisticsService
 {
+    public class TaskSolutionsStats
+    {
+        public long TaskId {get; set; }
+        public int CountUnratedSolutions { get; set; }
+    }
     public class StatisticsCourseSolutionsModel
     {
         public StatisticsCourseSolutionsModel(Solution? model)
