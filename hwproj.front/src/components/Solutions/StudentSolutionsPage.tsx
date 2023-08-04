@@ -41,7 +41,11 @@ const StudentSolutionsPage: FC = () => {
     const {taskId, studentId} = useParams()
     const navigate = useNavigate()
     const [activeStep, setActiveStep] = React.useState(0)
-
+    const stepperNavigate = (index: number, taskId: number, currentStudentId: string) => {
+        setActiveStep(index)
+        navigate(`/task/${taskId}/${currentStudentId}`)
+    }
+    
     const [studentSolutionsState, setStudentSolutionsState] = useState<IStudentSolutionsPageState>({
         currentTaskId: "",
         currentStudentId: studentId!,
@@ -133,9 +137,9 @@ const StudentSolutionsPage: FC = () => {
                         : renderGoBackToCoursesStatsLink()}
                 </Grid>
                 <Stepper nonLinear activeStep={activeStep}>
-                    {taskSolutionsStats!.map(t => (
+                    {taskSolutionsStats!.map((t, index) => (
                         <Step key={t.taskId} >
-                            <StepButton color="inherit" onClick={async () => navigate(`/task/${t.taskId}/${currentStudentId}`)}>
+                            <StepButton color="inherit" onClick={async () => stepperNavigate(index, t.taskId!, currentStudentId)}>
                                 {t.taskId + " / " + t.countUnratedSolutions}
                             </StepButton>
                         </Step>
