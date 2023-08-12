@@ -5,7 +5,7 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import Typography from "@material-ui/core/Typography";
 import TextField from "@material-ui/core/TextField";
 import Dialog from "@material-ui/core/Dialog";
-import {DialogActions} from "@material-ui/core";
+import {DialogActions, Divider} from "@material-ui/core";
 import Button from "@material-ui/core/Button";
 
 interface DeletionConfirmationProps {
@@ -49,8 +49,9 @@ const DeletionConfirmation: FC<DeletionConfirmationProps> = (props) => {
                 <DialogTitle id="form-dialog-title">
                     {props.dialogTitle}
                 </DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
+                <Divider/>
+                <DialogContent style={{ minHeight: 60 }}>
+                    <DialogContentText style={{ marginTop: 8 }}>
                         <Typography>
                             {props.dialogContentText}
                         </Typography>
@@ -78,12 +79,13 @@ const DeletionConfirmation: FC<DeletionConfirmationProps> = (props) => {
                         }
                     </DialogContentText>
                 </DialogContent>
-                <DialogActions>
+                <Divider/>
+                <DialogActions style={{ minHeight: 60 }}>
                     <Button
                         onClick={onDelete}
                         color="secondary"
                         variant="contained"
-                        size="small"
+                        size="large"
                     >
                         Удалить
                     </Button>

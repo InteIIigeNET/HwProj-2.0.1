@@ -52,7 +52,7 @@ const Course: React.FC = () => {
     const classes = styles()
 
     const [courseState, setCourseState] = useState<ICourseState>({
-        showExperimentalFeature: false,
+        showExperimentalFeature: true,
         isFound: false,
         course: {},
         courseHomework: [],
@@ -244,10 +244,17 @@ const Course: React.FC = () => {
                     {tabValue === "homeworks" && <div>
                         {
                             showExperimentalFeature ?
-                                <CourseExperimental homeworks={courseState.courseHomework} isMentor={isMentor}
+                                <CourseExperimental homeworks={courseState.courseHomework} 
+                                                    isMentor={isMentor}
                                                     studentSolutions={studentSolutions}
                                                     isStudentAccepted={isAcceptedStudent}
-                                                    userId={userId!}/> :
+                                                    isReadingMode={isReadingMode}
+                                                    creationState={courseState.createHomework}
+                                                    onDelete={() => setCurrentState()}
+                                                    onCancel={() => setCurrentState()}
+                                                    userId={userId!}
+                                                    id={+courseId!}
+                                                    onSubmit={() => setCurrentState()}/> :
                                 <div>
                                     {createHomework && (
                                         <div>
