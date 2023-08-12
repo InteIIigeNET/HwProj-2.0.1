@@ -79,7 +79,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         const date2 = new Date(_date2).getTime()
         const diffTime = date1 - date2
         if (diffTime <= 0) return ""
-        return Utils.pluralize(diffTime);
+        return Utils.pluralizeDateTime(diffTime);
     }
 
     const renderRateInput = () => {
