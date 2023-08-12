@@ -118,12 +118,6 @@ const Notifications: FC<IProfileProps> = (props) => {
         await getUserInfo();
     }
 
-    const markAsSeenNotification = async (e: ChangeEvent<HTMLInputElement>) => {
-        e.persist()
-        const id = parseInt(e.target.id)
-        await markAsSeenNotifications([id])
-    }
-
     const markAllNotificationsAsSeen = async () => {
         const ids = allNotSeen.map(x => x.id!)
         await markAsSeenNotifications(ids)
