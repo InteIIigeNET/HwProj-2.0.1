@@ -18,7 +18,8 @@ export default class Utils {
             ':' + pad(date.getMinutes()) +
             ':' + pad(date.getSeconds())
     }
-     static pluralize(diffTime : number) {
+
+     static pluralizeDateTime(milliseconds: number) {
          const diffHours = diffTime / (1000 * 60 * 60);
          const diffDays = Math.trunc(diffHours / 24);
          return diffDays === 0 ? Math.trunc(diffHours) + this.pluralizeHelper([" часов ", " часа ", " час "],diffHours) : diffDays + this.pluralizeHelper([" дней ", " дня ", " день "],diffDays)
