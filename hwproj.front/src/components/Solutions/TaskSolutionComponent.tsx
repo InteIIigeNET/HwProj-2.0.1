@@ -80,9 +80,6 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         const diffTime = date1 - date2
         if (diffTime <= 0) return ""
         return Utils.pluralize(diffTime);
-        // const diffHours = diffTime / (1000 * 60 * 60);
-        // const diffDays = Math.trunc(diffHours / 24);
-        // return diffDays === 0 ? Math.trunc(diffHours) + " часов" : diffDays + " дней"
     }
 
     const renderRateInput = () => {
