@@ -15,6 +15,7 @@ import {CategorizedNotifications, NotificationViewModel} from "../api/";
 import "./Styles/Profile.css";
 import parse from 'html-react-parser';
 import {Navigate} from "react-router-dom";
+import {Button} from "@mui/material";
 
 let CategoryEnum = CategorizedNotifications.CategoryEnum;
 const dateTimeOptions = {year: '2-digit', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'};
@@ -24,6 +25,16 @@ function getAll(data: CategorizedNotifications[]) {
     data.forEach(function (item) {
             if (item && item.seenNotifications)
                 list = list.concat(item.seenNotifications);
+            if (item && item.notSeenNotifications)
+                list = list.concat(item.notSeenNotifications);
+        }
+    );
+    return list!;
+}
+
+function getAllNotSeen(data: CategorizedNotifications[]) {
+    let list: NotificationViewModel[] = [];
+    data.forEach(function (item) {
             if (item && item.notSeenNotifications)
                 list = list.concat(item.notSeenNotifications);
         }
@@ -52,6 +63,8 @@ const Notifications: FC<IProfileProps> = (props) => {
         isLoaded: false,
         notifications: []
     })
+    
+    const allNotSeen = getAllNotSeen(profileState.notifications)
 
     const [filterState, setFilterState] = useState<IFilterState>({
         categoryFlag: new Map([
@@ -99,30 +112,15 @@ const Notifications: FC<IProfileProps> = (props) => {
         return result;
     }
 
-    const markAsSeenNotification = async (e: ChangeEvent<HTMLInputElement>) => {
-        const id = parseInt(e.target.id)
-        await ApiSingleton.notificationsApi.apiNotificationsMarkAsSeenPut([id]);
-        await props.onMarkAsSeen()
-        const notifications = profileState.notifications;
-        notifications.forEach((item) => {
-                const temp = item.notSeenNotifications!.find(notification => notification.id === id);
-                if (temp != null) {
-                    temp.hasSeen = true;
-                    item.seenNotifications?.push(temp)
-                    item.notSeenNotifications?.splice(item.notSeenNotifications?.indexOf(temp), 1)
-                }
-            }
-        );
+    const markAsSeenNotifications = async (ids: number[]) => {
+        await ApiSingleton.notificationsApi.apiNotificationsMarkAsSeenPut(ids);
+        await props.onMarkAsSeen();
+        await getUserInfo();
+    }
 
-        e.persist()
-        setProfileState((prevState) => ({
-            ...prevState,
-            notifications: notifications
-        }))
-        setFilterState((prevState) => ({
-            ...prevState,
-            filteredNotifications: getNotifications()
-        }));
+    const markAllNotificationsAsSeen = async () => {
+        const ids = allNotSeen.map(x => x.id!)
+        await markAsSeenNotifications(ids)
     }
 
     const changeShowOnlyUnread = (event: ChangeEvent<HTMLInputElement>) => {
@@ -174,15 +172,6 @@ const Notifications: FC<IProfileProps> = (props) => {
                                     {parse(new Date(n.date!).toLocaleString("ru-RU", dateTimeOptions))}
                                 </Typography>
                             </CardContent>
-                            {!n.hasSeen && <Box display="flex" flexDirection="row-reverse">
-                                <Checkbox
-                                    title="Прочитано"
-                                    color="primary"
-                                    id={n.id?.toString()}
-                                    checked={n.hasSeen}
-                                    onChange={markAsSeenNotification}
-                                />
-                            </Box>}
                         </Card>
                     </Box>
                 )}
@@ -208,7 +197,7 @@ const Notifications: FC<IProfileProps> = (props) => {
                                 />
                             } label="Только непрочитанные"/>
                             <Divider/>
-                            <div style={{maxWidth: '300px'}}>
+                            <div>
                                 <FormGroup>
                                     <FormControlLabel control={
                                         <Checkbox
@@ -246,6 +235,7 @@ const Notifications: FC<IProfileProps> = (props) => {
                                         />
                                     } label="Домашние задания"
                                     />
+                                    {allNotSeen.length != 0 && <Button fullWidth variant="contained" onClick={markAllNotificationsAsSeen}>Прочитать все</Button>}
                                 </FormGroup>
                             </div>
                         </CardContent>
