@@ -22,7 +22,9 @@ export default class Utils {
      static pluralizeDateTime(milliseconds: number) {
          const diffHours = milliseconds/ (1000 * 60 * 60);
          const diffDays = Math.trunc(diffHours / 24);
-         return diffDays === 0 ? Math.trunc(diffHours) + " " + this.pluralizeHelper(["часов", "часа", "час"], diffHours) : diffDays + " " + this.pluralizeHelper(["дней", "дня", "день"], diffDays)
+         return diffDays === 0
+             ? Math.trunc(diffHours) + " " + this.pluralizeHelper(["час", "часа", "часов"], diffHours)
+             : diffDays + " " + this.pluralizeHelper(["день", "дня", "дней"], diffDays)
      }
 
     static pluralizeHelper(forms: Array<string>, n: number) {
