@@ -24,7 +24,8 @@ export default class Utils {
          const diffDays = Math.trunc(diffHours / 24);
          return diffDays === 0 ? Math.trunc(diffHours) + " " + this.pluralizeHelper(["часов", "часа", "час"],diffHours) : diffDays + " " + this.pluralizeHelper(["дней", "дня", "день"],diffDays)
      }
-    static pluralizeHelper(forms: Array<string>, n : number) {
+
+    static pluralizeHelper(forms: Array<string>, n: number) {
         let idx;
         if (n % 10 === 1 && n % 100 !== 11) {
             idx = 0; // one
