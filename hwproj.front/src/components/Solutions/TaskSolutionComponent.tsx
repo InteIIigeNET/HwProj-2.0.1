@@ -8,6 +8,7 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {Alert, Avatar, Rating, Stack, Tooltip} from "@mui/material";
 import AvatarUtils from "../Utils/AvatarUtils";
 import GitHubIcon from '@mui/icons-material/GitHub';
+import Utils from "../../services/Utils";
 
 interface ISolutionProps {
     solution: GetSolutionModel | undefined,
@@ -78,9 +79,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         const date2 = new Date(_date2).getTime()
         const diffTime = date1 - date2
         if (diffTime <= 0) return ""
-        const diffHours = diffTime / (1000 * 60 * 60)
-        const diffDays = Math.trunc(diffHours / 24);
-        return diffDays === 0 ? Math.trunc(diffHours) + " часов" : diffDays + " дней"
+        return Utils.pluralizeDateTime(diffTime);
     }
 
     const renderRateInput = () => {
@@ -181,7 +180,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 </Stack>}
                 {sentAfterDeadline && <Grid item>
                     <Alert variant="standard" severity="warning">
-                        Решение было сдано на {sentAfterDeadline} позже дедлайна.
+                        Решение сдано на {sentAfterDeadline} позже дедлайна.
                     </Alert>
                 </Grid>}
                 {(props.forMentor || isRated) &&
