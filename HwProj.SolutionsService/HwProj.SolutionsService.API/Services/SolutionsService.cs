@@ -148,39 +148,28 @@ namespace HwProj.SolutionsService.API.Services
             return _solutionsRepository.FindAll(cm => cm.GroupId == groupId).ToArrayAsync();
         }
 
-        public async Task<SolutionPreviewDto[]> GetAllUnratedSolutionForTask(CourseDTO course, long taskId)
+        public async Task<SolutionPreviewDto[]> GetAllUnratedSolutions(CourseDTO course)
         {
-            var studentIds = course.CourseMates.Where(t => t.IsAccepted)
-                .Select(t => t.StudentId);
-            var solutions = _solutionsRepository.FindAll(t => t.TaskId == taskId).ToArray();
-            var result =  studentIds.Select(id =>
-            {
-                var studentGroupsIds = course.Groups
-                    .Where(g => g.StudentsIds.Contains(id))
-                    .Select(g => g.Id);
-                var studentSolutions = solutions
-                    .Where(s => studentGroupsIds.Contains(s.GroupId ?? 0))
-                    .Concat(solutions.Where(s => s.StudentId == id))
-                    .OrderByDescending(s => s.PublicationDate)
-                    .ToArray();
-
-                var lastSolution = studentSolutions.FirstOrDefault();
-                var isFirstTry = studentSolutions.Skip(1).All(s => s.State == SolutionState.Posted);
-
-                if (lastSolution is { State: SolutionState.Posted })
-                    return new SolutionPreviewDto
-                    {
-                        StudentId = lastSolution.StudentId,
-                        TaskId = lastSolution.TaskId,
-                        PublicationDate = lastSolution.PublicationDate,
-                        IsFirstTry = isFirstTry
-                    };
-                return new SolutionPreviewDto
+            var taskIds = course.Homeworks.SelectMany(t => t.Tasks).Select(t => t.Id);
+            var result = await _solutionsRepository
+                .FindAll(t => taskIds.Contains(t.TaskId))
+                .GroupBy(t => new { t.TaskId, t.StudentId })
+                .Select(t => t.OrderByDescending(x => x.PublicationDate))
+                .Select(t => new
                 {
-                    StudentId = ""
-                };
-            }).ToArray();
-            
+                    LastSolution = t.FirstOrDefault(),
+                    IsFirstTry = t.Skip(1).All(s => s.State == SolutionState.Posted)
+                })
+                .Where(t => t.LastSolution != null && t.LastSolution.State == SolutionState.Posted)
+                .Select(t => new SolutionPreviewDto
+                {
+                    StudentId = t.LastSolution!.StudentId,
+                    TaskId = t.LastSolution.TaskId,
+                    PublicationDate = t.LastSolution.PublicationDate,
+                    IsFirstTry = t.IsFirstTry
+                })
+                .ToArrayAsync();
+
             return result;
         }
     }

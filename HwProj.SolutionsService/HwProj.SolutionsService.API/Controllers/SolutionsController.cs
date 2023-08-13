@@ -182,21 +182,17 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpPost("allUnrated")]
-        public async Task<SolutionPreviewDto[]> GetAllUnratedSolutions([FromBody] CourseDTO[] courses)
+        public async Task<SolutionPreviewDto[]> GetAllUnratedSolutions([FromBody] long[] courseIds)
         {
-            var coursesDict = courses.ToDictionary(t => t.Id);
-            var tasks = courses.SelectMany(c => c.Homeworks)
-                .SelectMany(h => h.Tasks, (h, task) => new { h.CourseId, task });
-            var getUnratedSolutionsTasks = tasks.Select(async t =>
-                await _solutionsService.GetAllUnratedSolutionForTask(coursesDict[t.CourseId], t.task.Id)).ToArray();
-            
+            var getCoursesTasks = courseIds.Select(async t => await _coursesClient.GetCourseById(t)).ToArray();
+            await Task.WhenAll(getCoursesTasks);
+
+            var getUnratedSolutionsTasks = getCoursesTasks.Select(t => t.Result)
+                .Select(async c => await _solutionsService.GetAllUnratedSolutions(c)).ToArray();
             await Task.WhenAll(getUnratedSolutionsTasks);
 
-            var unratedSolutions = getUnratedSolutionsTasks
-                .SelectMany(t => t.Result).Where(t => t.StudentId != "")
-                .GroupBy(s => new {s.StudentId, s.TaskId, s.PublicationDate})
-                .Select(g => g.FirstOrDefault())
-                .ToArray();
+            var unratedSolutions = getUnratedSolutionsTasks.SelectMany(t => t.Result).ToArray();
+            
             return unratedSolutions;
         }
     }

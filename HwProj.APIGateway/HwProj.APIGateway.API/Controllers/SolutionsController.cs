@@ -221,10 +221,10 @@ namespace HwProj.APIGateway.API.Controllers
         public async Task<UnratedSolutionPreviews> GetUnratedSolutions(long? taskId)
         {
             var mentorCourses = await _coursesServiceClient.GetAllUserCourses();
-            mentorCourses = mentorCourses.Where(c => c.IsCompleted == false).ToArray();
+            var coursesIds = mentorCourses.Select(t => t.Id).ToArray();
             var tasks = FilterTasks(mentorCourses, taskId).ToDictionary(t => t.taskId, t => t.data);
             
-            var solutions = await _solutionsClient.GetAllUnratedSolutions(mentorCourses);
+            var solutions = await _solutionsClient.GetAllUnratedSolutions(coursesIds);
 
             var studentIds = solutions.Select(t => t.StudentId).Distinct().ToArray();
             var accountsData = await AuthServiceClient.GetAccountsData(studentIds);
@@ -258,7 +258,7 @@ namespace HwProj.APIGateway.API.Controllers
 
         private static IEnumerable<(long taskId,
                 (CourseDTO course, string homeworkTitle, HomeworkTaskViewModel task) data)>
-            FilterTasks(CourseDTO[] courses, long? taskId)
+            FilterTasks(IEnumerable<CourseDTO> courses, long? taskId)
         {
             foreach (var course in courses)
             foreach (var homework in course.Homeworks)

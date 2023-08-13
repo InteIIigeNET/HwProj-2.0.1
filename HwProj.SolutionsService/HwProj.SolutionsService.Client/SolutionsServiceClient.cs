@@ -213,14 +213,14 @@ namespace HwProj.SolutionsService.Client
             return await response.DeserializeAsync<Solution?[]>();
         }
 
-        public async Task<SolutionPreviewDto[]> GetAllUnratedSolutions(CourseDTO[] courses)
+        public async Task<SolutionPreviewDto[]> GetAllUnratedSolutions(long[] coursesIds)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
                 _solutionServiceUri + "api/Solutions/allUnrated")
             {
                 Content = new StringContent(
-                    JsonConvert.SerializeObject(courses),
+                    JsonConvert.SerializeObject(coursesIds),
                     Encoding.UTF8,
                     "application/json")
             };
