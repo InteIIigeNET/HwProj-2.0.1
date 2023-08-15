@@ -18,123 +18,123 @@ interface IUnratedSolutionsProps {
     unratedSolutionsPreviews: UnratedSolutionPreviews
 }
 
+interface ICommonState {
+
+    courseTitleFilter: string,
+    homeworkTitleFilter: string,
+    taskTitleFilter: string,
+    studentNameFilter: string
+    courses: JSX.Element[],
+    homeworks: JSX.Element[],
+    tasks: JSX.Element[],
+    students: JSX.Element[]
+}
+
 const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
 
-    const [courseTitleFilter, setCourseTitleFilter] = useState<string | undefined>(undefined)
-    const [homeworkTitleFilter, setHomeworkTitleFilter] = useState<string | undefined>(undefined)
-    const [taskTitleFilter, setTaskTitleFilter] = useState<string | undefined>(undefined)
-    const [studentNameFilter, setStudentNameFilter] = useState<string | undefined>(undefined)
+    const {unratedSolutions} = props.unratedSolutionsPreviews
+    const unratedSolutionsArray = [...unratedSolutions!]
 
     const renderStudent = (s: AccountDataDto) => `${s.surname} ${s.name}`
 
-    const {unratedSolutions} = props.unratedSolutionsPreviews
+    const [commonState, setCommonState] = useState<ICommonState> ({
+
+        courseTitleFilter: "",
+        homeworkTitleFilter: "",
+        taskTitleFilter: "",
+        studentNameFilter: "",
+        courses: [...new Set(unratedSolutionsArray.map(s => s.courseTitle!))].sort().map(t => <MenuItem value={t}>{t}</MenuItem>),
+        homeworks: [...new Set(unratedSolutionsArray.map(s => s.homeworkTitle!))].sort().map(t => <MenuItem value={t}>{t}</MenuItem>),
+        tasks: [...new Set(unratedSolutionsArray.map(s => s.taskTitle!))].sort().map(t => <MenuItem value={t}>{t}</MenuItem>),
+        students: [... new Set(unratedSolutionsArray.map(t => renderStudent(t.student!)))].sort().map(t => <MenuItem value={t}>{t}</MenuItem>)
+    })
+
     const filteredUnratedSolutions = unratedSolutions!
-        .filter(t => courseTitleFilter ? t.courseTitle === courseTitleFilter : true)
-        .filter(t => homeworkTitleFilter ? t.homeworkTitle === homeworkTitleFilter : true)
-        .filter(t => taskTitleFilter ? t.taskTitle === taskTitleFilter : true)
-        .filter(t => studentNameFilter ? renderStudent(t.student!) === studentNameFilter : true)
+        .filter(t => commonState.courseTitleFilter ? t.courseTitle === commonState.courseTitleFilter : true)
+        .filter(t => commonState.homeworkTitleFilter ? t.homeworkTitle === commonState.homeworkTitleFilter : true)
+        .filter(t => commonState.taskTitleFilter ? t.taskTitle === commonState.taskTitleFilter : true)
+        .filter(t => commonState.studentNameFilter ? renderStudent(t.student!) === commonState.studentNameFilter : true)
 
-    const renderCourses = () => {
-        return [...new Set(unratedSolutions!.map(s => s.courseTitle!))].sort().map(t => <MenuItem value={t}>{t}</MenuItem>)
+    const handleFilterChange = (filterName: string, value: string) => {
+        
+        var courseFilter = commonState.courseTitleFilter
+        var homeworkFilter = commonState.homeworkTitleFilter
+        var taskFilter = commonState.taskTitleFilter
+        var studentFilter = commonState.studentNameFilter
+        
+        switch (filterName){
+            case "courseTitleFilter":
+                courseFilter = value
+                homeworkFilter = ""
+                taskFilter = ""
+                studentFilter = ""
+                break;
+            case "homeworkTitleFilter":
+                homeworkFilter = value
+                taskFilter = ""
+                studentFilter = ""
+                break;
+            case "taskTitleFilter":
+                taskFilter = value
+                studentFilter = ""
+                break;
+            case "studentNameFilter":
+                studentFilter = value
+                break;
+        }
+
+        const filteredHomeworks = courseFilter != "" ? unratedSolutionsArray.filter(t => t.courseTitle === courseFilter) : unratedSolutionsArray
+        const filteredTasks = homeworkFilter != "" ? filteredHomeworks.filter(t => t.homeworkTitle === homeworkFilter) : filteredHomeworks
+        const filteredStudents = taskFilter != "" ? filteredTasks.filter(t => t.taskTitle === taskFilter) : filteredTasks
+
+        setCommonState(prevState => ({
+            ...prevState,
+            courseTitleFilter: courseFilter,
+            homeworkTitleFilter: homeworkFilter,
+            taskTitleFilter: taskFilter,
+            studentNameFilter: studentFilter,
+            homeworks: [... new Set(filteredHomeworks.map(t => t.homeworkTitle!))].sort().map(t => <MenuItem value={t}>{t}</MenuItem>),
+            tasks: [... new Set(filteredTasks.map(t => t.taskTitle!))].sort().map(t => <MenuItem value={t}>{t}</MenuItem>),
+            students: [... new Set(filteredStudents.map(t => renderStudent(t.student!)))].sort().map(t => <MenuItem value={t}>{t}</MenuItem>)
+        }))
     }
 
-    const renderHomeworks = () => {
-        var values = [...unratedSolutions!]
-        values = (courseTitleFilter !== undefined && courseTitleFilter !== "") ? values.filter(t => t.courseTitle === courseTitleFilter) : values
-        return [... new Set(values.map(t => t.homeworkTitle!))].sort().map(t => <MenuItem value={t}>{t}</MenuItem>)
+    const renderSelect = (name: string, filterName: string, value: string, options: JSX.Element[]) => {
+        return (<FormControl fullWidth style={{minWidth: 220}}>
+            <InputLabel>{name}</InputLabel>
+            <Select
+                value={value}
+                onChange={(event, value) => {
+                    handleFilterChange(filterName, event.target.value as string)
+                }}
+                label="demo-label"
+            >
+                <MenuItem value={""}>Любое</MenuItem>
+                {options}
+            </Select>
+        </FormControl>)
     }
 
-    const renderTasks = () => {
-        var values = [...unratedSolutions!]
-        values = (courseTitleFilter !== undefined && courseTitleFilter !== "") ? values.filter(t => t.courseTitle === courseTitleFilter) : values
-        values = (homeworkTitleFilter !== undefined && homeworkTitleFilter !== "") ? values.filter(t => t.homeworkTitle === homeworkTitleFilter) : values
-        return [... new Set(values.map(t => t.taskTitle!))].sort().map(t => <MenuItem value={t}>{t}</MenuItem>)
-    }
-
-    const renderStudents = () => {
-        var values = [...unratedSolutions!]
-        values = (courseTitleFilter !== undefined && courseTitleFilter !== "") ? values.filter(t => t.courseTitle === courseTitleFilter) : values
-        values = (homeworkTitleFilter !== undefined && homeworkTitleFilter !== "") ? values.filter(t => t.homeworkTitle === homeworkTitleFilter) : values
-        values = (taskTitleFilter !== undefined && taskTitleFilter !== "") ? values.filter(t => t.taskTitle === taskTitleFilter) : values
-        return [... new Set(values.map(t => renderStudent(t.student!)))].sort().map(t => <MenuItem value={t}>{t}</MenuItem>)
+    const renderFilter = () => {
+        return <Grid container xs={"auto"} style={{marginBottom: 15}} spacing={1} direction={"row"}>
+            <Grid item>
+                {renderSelect("Курс", "courseTitleFilter", commonState.courseTitleFilter, commonState.courses)}
+            </Grid>
+            <Grid item>
+                {renderSelect("Домашняя работа", "homeworkTitleFilter", commonState.homeworkTitleFilter, commonState.homeworks)}
+            </Grid>
+            <Grid item>
+                {renderSelect("Задание", "taskTitleFilter", commonState.taskTitleFilter, commonState.tasks)}
+            </Grid>
+            <Grid item>
+                {renderSelect("Студент", "studentNameFilter", commonState.studentNameFilter, commonState.students)}
+            </Grid>
+        </Grid>
     }
 
     return (
         <div className="container">
-            <Grid container xs={"auto"} style={{marginBottom: 15}} spacing={1} direction={"row"}>
-                <Grid item>
-                    <FormControl fullWidth style={{minWidth: 220}}>
-                        <InputLabel>{"Курс"}</InputLabel>
-                        <Select
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
-                            value={courseTitleFilter || ""}
-                            onChange={(event, value) => {
-                                setCourseTitleFilter(event.target.value as string)
-                                setHomeworkTitleFilter(undefined)
-                                setTaskTitleFilter(undefined)
-                                setStudentNameFilter(undefined)
-                            }}
-                            label="Course"
-                        >
-                            <MenuItem value={""}>Любое</MenuItem>
-                            {renderCourses()}
-                        </Select>
-                    </FormControl>
-                </Grid>
-                <Grid item>
-                    <FormControl fullWidth style={{minWidth: 220}}>
-                        <InputLabel>{"Домашняя работа"}</InputLabel>
-                        <Select
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
-                            value={homeworkTitleFilter || ""}
-                            onChange={(event, value) => {
-                                setHomeworkTitleFilter(event.target.value as string)
-                                setTaskTitleFilter(undefined)
-                                setStudentNameFilter(undefined)
-                            }}
-                            label="Course"
-                        >
-                            <MenuItem value={""}>Любое</MenuItem>
-                            {renderHomeworks()}
-                        </Select>
-                    </FormControl>
-                </Grid>
-                <Grid item>
-                    <FormControl fullWidth style={{minWidth: 220}}>
-                        <InputLabel>{"Задание"}</InputLabel>
-                        <Select
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
-                            value={taskTitleFilter || ""}
-                            onChange={(event, value) => {
-                                setTaskTitleFilter(event.target.value as string)
-                                setStudentNameFilter(undefined)
-                            }}
-                            label="Course"
-                        >
-                            <MenuItem value={""}>Любое</MenuItem>
-                            {renderTasks()}
-                        </Select>
-                    </FormControl>
-                </Grid>
-                <Grid item>
-                    <FormControl fullWidth style={{minWidth: 220}}>
-                        <InputLabel>{"Студент"}</InputLabel>
-                        <Select
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
-                            value={studentNameFilter || ""}
-                            onChange={(event, value) => setStudentNameFilter(event.target.value as string)}
-                            label="Course"
-                        >
-                            <MenuItem value={""}>Любое</MenuItem>
-                            {renderStudents()}
-                        </Select>
-                    </FormControl>
-                </Grid>
-            </Grid>
+            {renderFilter()}
             {filteredUnratedSolutions.length == 0 ? <div>По заданному фильтру все решения проверены.</div> :
                 <div>
                     {filteredUnratedSolutions.map((solution, i) => (
