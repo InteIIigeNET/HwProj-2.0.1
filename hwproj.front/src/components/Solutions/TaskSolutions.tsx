@@ -40,7 +40,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
     return <Grid container alignItems="stretch" direction="column">
         <Tabs
             value={tabValue}
-            style={{marginTop: 15}}
+            style={{marginTop: 3}}
             indicatorColor="primary"
             onChange={(event, value) => {
                 setState(prevState => ({

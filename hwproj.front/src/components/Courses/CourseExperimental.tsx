@@ -20,6 +20,7 @@ import {Box, Card, CardActions, CardContent, Chip, Divider} from "@mui/material"
 import ReactMarkdown from "react-markdown";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import {CheckCircleOutline} from "@mui/icons-material";
+import {Link} from "react-router-dom";
 
 interface ICourseExperimentalProps {
     homeworks: HomeworkViewModel[]
@@ -143,15 +144,18 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         return <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
             {renderTask(task)}
             {!props.isMentor && props.isStudentAccepted && < CardActions>
-                < Button
-                    style={{width: '150px'}}
-                    size="small"
-                    variant="contained"
-                    color="primary"
-                    onClick={() => window.location.assign("/task/" + task.id!.toString())}
-                >
-                    Решения
-                </Button>
+                <Link
+                    style={{color: '#212529'}}
+                    to={"/task/" + task.id!.toString()}>
+                    <Button
+                        style={{width: '150px'}}
+                        size="small"
+                        variant="contained"
+                        color="primary"
+                    >
+                        Решения
+                    </Button>
+                </Link>
             </CardActions>}
         </Card>
     }

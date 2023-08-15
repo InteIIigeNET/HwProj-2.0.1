@@ -7,9 +7,9 @@ import TaskSolutions from "./TaskSolutions";
 import {CourseViewModel, HomeworkTaskViewModel, UserTaskSolutions} from "../../api/";
 import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useEffect, useState} from "react";
-import {Grid, Link} from "@material-ui/core";
+import {Grid} from "@material-ui/core";
 import {Divider} from "@mui/material";
-import {useParams} from "react-router-dom";
+import {useParams, Link} from "react-router-dom";
 
 interface ITaskSolutionsState {
     isLoaded: boolean
@@ -73,9 +73,8 @@ const TaskSolutionsPage: FC = () => {
                         <Grid container justifyContent="space-between" xs={11}>
                             <Grid item>
                                 <Link
-                                    component="button"
                                     style={{color: '#212529'}}
-                                    onClick={() => window.location.assign('/courses/' + taskSolutionPage.course.id)}
+                                    to={`/courses/${taskSolutionPage.course.id}`}
                                 >
                                     <Typography>
                                         Назад к курсу
@@ -140,8 +139,8 @@ const TaskSolutionsPage: FC = () => {
                                             onAdd={getTask}
                                             onCancel={onCancelAddSolution}
                                             lastSolutionUrl={lastSolution?.githubUrl}
-                                            students={course.acceptedStudents}
-                                            lastGroup={lastSolution?.groupMates?.map(s => s.userId)}/>
+                                            students={course.acceptedStudents!!}
+                                            lastGroup={lastSolution?.groupMates?.map(s => s.userId!!) || []}/>
                                     </div>
                                 </Grid>
                             )}
