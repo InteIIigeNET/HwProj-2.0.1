@@ -130,7 +130,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 ? <TimelineDot variant={"outlined"}/>
                 : <Chip style={{backgroundColor: color, marginTop: '11.5px'}}
                         size={"small"}
-                        label={lastRatedSolution?.rating || "⌛"}/>
+                        label={lastRatedSolution == undefined ? "⌛" : lastRatedSolution.rating}/>
         }
         return <TimelineDot variant={"outlined"}/>
     }
