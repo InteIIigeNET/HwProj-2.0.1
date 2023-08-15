@@ -127,6 +127,7 @@ namespace HwProj.CoursesService.API.Controllers
                 : NotFound();
         }
 
+        [CourseDataFilter]
         [HttpGet("userCourses")]
         public async Task<CourseDTO[]> GetUserCourses()
         {
