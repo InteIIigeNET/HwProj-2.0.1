@@ -1,7 +1,7 @@
 import * as React from "react";
 import {
     HomeworkTaskViewModel,
-    HomeworkViewModel, Solution, StatisticsCourseMatesModel, StatisticsCourseSolutionsModel
+    HomeworkViewModel, StatisticsCourseMatesModel, StatisticsCourseSolutionsModel
 } from "../../api";
 import {
     Button,
@@ -18,9 +18,8 @@ import TimelineDot from '@mui/lab/TimelineDot';
 import TimelineOppositeContent from '@mui/lab/TimelineOppositeContent';
 import {Box, Card, CardActions, CardContent, Chip, Divider} from "@mui/material";
 import ReactMarkdown from "react-markdown";
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import {CheckCircleOutline} from "@mui/icons-material";
 import {Link} from "react-router-dom";
+import StudentStatsUtils from "../../services/StudentStatsUtils";
 
 interface ICourseExperimentalProps {
     homeworks: HomeworkViewModel[]
@@ -119,16 +118,19 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             .forEach(x => taskSolutionsMap.set(x.id!, x.solution!))
     }
 
-    const renderTaskStatus = (taskId: number) => {
+    const renderTaskStatus = (taskId: number, taskMaxRating: number) => {
         if (taskSolutionsMap.has(taskId)) {
             const solutions = taskSolutionsMap.get(taskId)
-            /// final
-            if (solutions!.some(x => x.state === Solution.StateEnum.NUMBER_2))
-                return <CheckCircleIcon color={"disabled"} fontSize={"small"}/>
-            /// rated
-            if (solutions!.some(x => x.state === Solution.StateEnum.NUMBER_1))
-                return <CheckCircleOutline color={"disabled"} fontSize={"small"}/>
-            return <TimelineDot variant={"outlined"}/>
+            const {
+                lastSolution,
+                lastRatedSolution,
+                color
+            } = StudentStatsUtils.calculateLastRatedSolutionInfo(solutions!, taskMaxRating)
+            return lastSolution == undefined
+                ? <TimelineDot variant={"outlined"}/>
+                : <Chip style={{backgroundColor: color, marginTop: '11.5px'}}
+                        size={"small"}
+                        label={lastRatedSolution?.rating || "⌛"}/>
         }
         return <TimelineDot variant={"outlined"}/>
     }
@@ -206,7 +208,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                             {t.deadlineDate ? renderTime(t.deadlineDate) : ""}
                         </TimelineOppositeContent>
                         <TimelineSeparator>
-                            {renderTaskStatus(t.id!)}
+                            {renderTaskStatus(t.id!, t.maxRating!)}
                             <TimelineConnector/>
                         </TimelineSeparator>
                         <TimelineContent alignItems={"center"}>

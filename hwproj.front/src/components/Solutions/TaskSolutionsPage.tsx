@@ -139,8 +139,8 @@ const TaskSolutionsPage: FC = () => {
                                             onAdd={getTask}
                                             onCancel={onCancelAddSolution}
                                             lastSolutionUrl={lastSolution?.githubUrl}
-                                            students={course.acceptedStudents!!}
-                                            lastGroup={lastSolution?.groupMates?.map(s => s.userId!!) || []}/>
+                                            students={course.acceptedStudents!}
+                                            lastGroup={lastSolution?.groupMates?.map(s => s.userId!) || []}/>
                                     </div>
                                 </Grid>
                             )}
