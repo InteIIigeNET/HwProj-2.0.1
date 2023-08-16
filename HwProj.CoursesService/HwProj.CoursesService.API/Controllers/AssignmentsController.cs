@@ -32,19 +32,5 @@ namespace HwProj.CoursesService.API.Controllers
         {
             await _assignmentsService.DeassignStudentAsync(studentId, courseId);
         }
-
-        [HttpGet("{courseId}/getAssignments")]
-        public async Task<IActionResult> GetAllAssignmentsByCourse(long courseId)
-        {
-            var assignmentsFromDb = await _assignmentsService.GetAllAssignmentsByCourseAsync(courseId);
-
-            if (assignmentsFromDb == null)
-            {
-                return NotFound();
-            }
-
-            var result = _mapper.Map<AssignmentViewModel[]>(assignmentsFromDb);
-            return Ok(result);
-        }
     }
 }
