@@ -21,14 +21,14 @@ namespace HwProj.CoursesService.API.Controllers
             _mapper = mapper;
         }
 
-        [HttpPut("{courseId}/assignStudent/{studentId}")]
-        public async Task AssignStudentToMentor(long courseId, [FromQuery] string mentorId, string studentId)
+        [HttpPut("{courseId}/assignStudent")]
+        public async Task AssignStudentToMentor(long courseId, [FromQuery] string mentorId, [FromQuery] string studentId)
         {
             await _assignmentsService.AssignStudentAsync(studentId, mentorId, courseId);
         }
 
-        [HttpDelete("{courseId}/deassignStudent/{studentId}")]
-        public async Task DeassignStudentFromMentor(long courseId, string studentId)
+        [HttpDelete("{courseId}/deassignStudent")]
+        public async Task DeassignStudentFromMentor(long courseId, [FromQuery] string studentId)
         {
             await _assignmentsService.DeassignStudentAsync(studentId, courseId);
         }

@@ -152,15 +152,15 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok(result.Value);
         }
         
-        [HttpPut("{courseId}/assignStudent/{studentId}/{mentorId}")]
-        public async Task<IActionResult> AssignStudentToMentor(long courseId, string mentorId, string studentId)
+        [HttpPut("{courseId}/assignStudent")]
+        public async Task<IActionResult> AssignStudentToMentor(long courseId,  string mentorId,  string studentId)
         {
             await _coursesClient.AssignStudentToMentor(courseId, mentorId, studentId);
             return Ok();
         }
 
-        [HttpDelete("{courseId}/deassignStudent/{studentId}")]
-        public async Task DeassignStudentFromMentor(long courseId, string studentId)
+        [HttpDelete("{courseId}/deassignStudent")]
+        public async Task DeassignStudentFromMentor(long courseId, [FromQuery] string studentId)
         {
             await _coursesClient.DeassignStudentFromMentor(courseId, studentId);
         }
