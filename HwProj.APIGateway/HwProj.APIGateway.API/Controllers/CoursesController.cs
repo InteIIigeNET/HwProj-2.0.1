@@ -153,7 +153,7 @@ namespace HwProj.APIGateway.API.Controllers
         }
         
         [HttpPut("{courseId}/assignStudent")]
-        public async Task<IActionResult> AssignStudentToMentor(long courseId,  string mentorId,  string studentId)
+        public async Task<IActionResult> AssignStudentToMentor(long courseId, [FromQuery] string mentorId, [FromQuery] string studentId)
         {
             await _coursesClient.AssignStudentToMentor(courseId, mentorId, studentId);
             return Ok();
