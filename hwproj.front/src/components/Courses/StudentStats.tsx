@@ -1,8 +1,9 @@
-import React, {useState} from "react";
-import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api/";
-import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
+import React from "react";
+import { CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel } from "../../api/";
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid } from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
-import {Alert} from "@mui/material";
+import { Alert, avatarClasses } from "@mui/material";
+import Checkbox from '@mui/material/Checkbox';
 
 interface IStudentStatsProps {
     course: CourseViewModel;
@@ -14,6 +15,9 @@ interface IStudentStatsProps {
 
 interface IStudentStatsState {
     searched: string
+    filterWorking: boolean
+    ableSolutions: StatisticsCourseMatesModel[]
+    isMentorWithStudents : boolean
 }
 
 const StudentStats: React.FC<IStudentStatsProps> = (props) => {
