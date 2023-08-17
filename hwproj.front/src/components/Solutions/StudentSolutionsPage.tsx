@@ -1,8 +1,9 @@
 import * as React from "react";
 import {
     AccountDataDto, GetSolutionModel,
-    HomeworkTaskViewModel,
-    Solution, TaskSolutionsStats
+    HomeworkTaskViewModel,TaskSolutionsStats,
+    AssignmentViewModel,Solution,
+    StatisticsCourseSolutionsModel
 } from "../../api/";
 import Typography from "@material-ui/core/Typography";
 import Task from "../Tasks/Task";
@@ -22,10 +23,10 @@ import {
     Tooltip
 } from "@mui/material";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
-import {Link} from 'react-router-dom';
-
 import Step from '@mui/material/Step';
 import StepButton from '@mui/material/StepButton';
+import Checkbox from '@mui/material/Checkbox';
+import { Link } from 'react-router-dom';
 
 interface IStudentSolutionsPageState {
     currentTaskId: string
@@ -35,6 +36,7 @@ interface IStudentSolutionsPageState {
     allSolutionsRated: boolean,
     courseId: number,
     taskSolutionsStats: TaskSolutionsStats[],
+    assignedStudents: string[],
     studentSolutionsPreview: {
         student: AccountDataDto,
         solutions: GetSolutionModel[]
@@ -58,6 +60,7 @@ const StudentSolutionsPage: FC = () => {
         isLoaded: false,
         courseId: -1,
         taskSolutionsStats: [],
+        assignedStudents: [],
         studentSolutionsPreview: [],
     })
 
@@ -68,10 +71,11 @@ const StudentSolutionsPage: FC = () => {
         studentSolutionsPreview,
         allSolutionsRated,
         courseId,
-        taskSolutionsStats
+        taskSolutionsStats,
+        assignedStudents
     } = studentSolutionsState
 
-    const getTaskData = async (taskId: string, studentId: string) => {
+    const getTaskData = async (taskId: string, studentId: string, assigned: string[]) => {
         const fullUpdate = currentTaskId !== taskId
         const task = fullUpdate
             ? await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+taskId!)
@@ -79,9 +83,14 @@ const StudentSolutionsPage: FC = () => {
 
         const {
             studentsSolutions,
-            courseId,
-            statsForTasks
+            statsForTasks,
+            assignments,
+            courseId
         } = await ApiSingleton.solutionsApi.apiSolutionsTasksByTaskIdGet(+taskId!, studentId)
+
+        const assignedStudents = assigned.length == 0 
+            ? assignments?.filter(a => a.mentorId === userId).map(a => a.studentId!)
+            : assigned!
 
         const studentSolutionsPreview = studentsSolutions!.map(studentSolutions => {
             const ratedSolutionInfo = StudentStatsUtils.calculateLastRatedSolutionInfo(studentSolutions.solutions!, task.maxRating!)
@@ -97,15 +106,21 @@ const StudentSolutionsPage: FC = () => {
             taskSolutionsStats: statsForTasks!,
             studentSolutionsPreview: studentSolutionsPreview,
             courseId: courseId!,
+            assignedStudents: assignedStudents!,
             allSolutionsRated: studentSolutionsPreview.findIndex(x => x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0) === -1
         })
     }
 
+    const doesMentorHasStudent = assignedStudents!.length > 0
+
     useEffect(() => {
-        getTaskData(taskId!, studentId!)
+        getTaskData(taskId!, studentId!, assignedStudents)
     }, [taskId, studentId])
 
     const currentStudent = studentSolutionsPreview.find(x => x.student.userId === currentStudentId)
+
+    const [homeworkMentorFilter, setHomeworkMentorFilter] = useState<boolean>(true);
+
     const renderGoBackToCoursesStatsLink = () => {
         return <Link
             to={`/courses/${courseId}/stats`}
@@ -161,13 +176,15 @@ const StudentSolutionsPage: FC = () => {
                         проверены!
                     </Alert>}
                 </Grid>
+                {doesMentorHasStudent && <Grid>
+                    <Checkbox defaultChecked onChange = {() => setHomeworkMentorFilter(state => !state)} />
+                    Закрепленные студенты 
+                </Grid>}
                 <Grid container spacing={3} style={{marginTop: '1px'}}>
                     <Grid item xs={3}>
                         <List>
-                            {studentSolutionsPreview!.map(({
-                                                               color,
-                                                               solutionsDescription,
-                                                               lastRatedSolution, student: {
+                            {studentSolutionsPreview!.filter(solution => (homeworkMentorFilter && doesMentorHasStudent) ? assignedStudents?.includes(solution.student.userId!) : true).map(({
+                                                               color, lastRatedSolution, student: {
                                     name,
                                     surname,
                                     userId
@@ -192,6 +209,7 @@ const StudentSolutionsPage: FC = () => {
                         </List>
                         {renderGoBackToCoursesStatsLink()}
                     </Grid>
+                    {(!doesMentorHasStudent || !homeworkMentorFilter || assignedStudents.includes(currentStudentId)) &&
                     <Grid item xs={9} spacing={2} justifyContent={"flex-start"}>
                         <Task
                             task={studentSolutionsState.task}
@@ -209,11 +227,12 @@ const StudentSolutionsPage: FC = () => {
                             student={currentStudent!.student}
                             onSolutionRateClick={async () => {
                                 const nextStudentIndex = studentSolutionsPreview.findIndex(x => x.student.userId !== currentStudentId && x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0)
-                                if (nextStudentIndex === -1) await getTaskData(currentTaskId, currentStudentId)
+                                if (nextStudentIndex === -1) await getTaskData(currentTaskId, currentStudentId, assignedStudents)
                                 else navigate(`/task/${currentTaskId}/${studentSolutionsPreview[nextStudentIndex].student.userId}`)
                             }}
                         />}
                     </Grid>
+                    }
                 </Grid>
             </div>
         )
