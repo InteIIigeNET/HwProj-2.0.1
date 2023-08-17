@@ -147,6 +147,7 @@ namespace HwProj.APIGateway.API.Controllers
             var result = new TaskSolutionStatisticsPageData()
             {
                 CourseId = course.Id,
+                Assignments = course.Assignments,
                 StudentsSolutions = studentIds.Select(studentId => new UserTaskSolutions
                     {
                         Solutions = statistics.TryGetValue(studentId, out var studentSolutions)
@@ -253,7 +254,13 @@ namespace HwProj.APIGateway.API.Controllers
             var tasks = FilterTasks(mentorCourses, taskId).ToDictionary(t => t.taskId, t => t.data);
 
             var taskIds = tasks.Select(t => t.Key).ToArray();
-            var solutions = await _solutionsClient.GetAllUnratedSolutionsForTasks(taskIds);
+
+            var mentorsStudentfulCourses = mentorCourses.Where(c => c.Assignments.Select(a => a.MentorId).Contains(UserId)).Select(c => c.Id).ToHashSet();
+
+            var allSolutions = await _solutionsClient.GetAllUnratedSolutionsForTasks(taskIds);
+            var solutions = allSolutions
+                .Where(solution => (!mentorsStudentfulCourses.Contains(tasks[solution.TaskId].course.Id) && !tasks[solution.TaskId].course.Assignments.Select(a => a.StudentId).Contains(solution.StudentId))
+                                   || tasks[solution.TaskId].course.Assignments.Where(a => a.MentorId == UserId && a.StudentId == solution.StudentId)!.Any());
 
             var studentIds = solutions.Select(t => t.StudentId).Distinct().ToArray();
             var accountsData = await AuthServiceClient.GetAccountsData(studentIds);

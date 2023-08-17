@@ -31,7 +31,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
         public override async Task HandleAsync(StudentPassTaskEvent @event)
         {
-            foreach (var m in @event.Course.MentorIds)
+            foreach (var mentor in @event.MentorIds)
             {
                 var notification = new Notification
                 {
@@ -39,17 +39,17 @@ namespace HwProj.NotificationsService.API.EventHandlers
                     Body = $"{@event.Student.Name} {@event.Student.Surname} добавил новое " +
                            $"<a href='{@event.Solution.GithubUrl}' target='_blank'>решение</a>" +
                            $" задачи <a href='{_configuration["Url"]}/task/{@event.Task.Id}/{@event.Student.UserId}'>{@event.Task.Title}</a>" +
-                           $" из курса <a href='{_configuration["Url"]}/courses/{@event.Course.Id}'>{@event.Course.Name}</a>.",
+                           $" из курса <a href='{_configuration["Url"]}/courses/{@event.CourseId}'>{@event.CourseName}</a>.",
                     Category = CategoryState.Homeworks,
                     Date = DateTimeUtils.GetMoscowNow(),
                     HasSeen = false,
-                    Owner = m
+                    Owner = mentor,
                 };
 
-                var mentor = await _authServiceClient.GetAccountData(notification.Owner);
+                var mentorAccountData = await _authServiceClient.GetAccountData(notification.Owner);
 
                 var addNotificationTask = _notificationRepository.AddAsync(notification);
-                var sendEmailTask = _emailService.SendEmailAsync(notification, mentor.Email, "HwProj");
+                var sendEmailTask = _emailService.SendEmailAsync(notification, mentorAccountData.Email, "HwProj");
 
                 await Task.WhenAll(addNotificationTask, sendEmailTask);
             }
