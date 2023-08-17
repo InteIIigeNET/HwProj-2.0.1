@@ -214,7 +214,7 @@ namespace HwProj.APIGateway.API.TableGenerators
                         var cnt = solutions.Count();
                         worksheet.Cells[position.Row, position.Column].Value = min;
                         worksheet.Cells[position.Row, position.Column + 2].Value = cnt;
-                        if (cnt != allSolutions.Count())
+                        if (cnt != allSolutions.Count)
                         {
                             worksheet.Cells[position.Row, position.Column + 2].Style.Fill.PatternType =
                                 ExcelFillStyle.Solid;

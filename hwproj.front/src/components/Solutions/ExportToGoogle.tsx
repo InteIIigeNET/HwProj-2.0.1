@@ -101,7 +101,6 @@ const ExportToGoogle: FC<ExportToGoogleProps> = (props: ExportToGoogleProps) => 
                                 setState((prevState) => ({...prevState, loadingStatus: LoadingStatus.Loading}))
                                 const result = await apiSingleton.statisticsApi.apiStatisticsExportToSheetGet(
                                     props.courseId,
-                                    props.userId,
                                     url,
                                     getGoogleSheetName())
                                 setState((prevState) =>
