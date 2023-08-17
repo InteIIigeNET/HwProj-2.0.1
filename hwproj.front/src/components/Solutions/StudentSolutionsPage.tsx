@@ -2,7 +2,7 @@ import * as React from "react";
 import {
     AccountDataDto, GetSolutionModel,
     HomeworkTaskViewModel,TaskSolutionsStats,
-    AssignmentViewModel,Solution,
+    AssignmentViewModel, Solution,
     StatisticsCourseSolutionsModel
 } from "../../api/";
 import Typography from "@material-ui/core/Typography";

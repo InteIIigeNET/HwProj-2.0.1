@@ -1,25 +1,28 @@
 import * as React from "react";
 import {Link as RouterLink} from "react-router-dom";
-import {AccountDataDto, CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api";
+import {AccountDataDto, CourseViewModel, AssignmentViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api";
 import CourseHomework from "../Homeworks/CourseHomework";
 import AddHomework from "../Homeworks/AddHomework";
 import StudentStats from "./StudentStats";
 import NewCourseStudents from "./NewCourseStudents";
+import StudentAssignment from "./StudentsAssignment";
 import ApiSingleton from "../../api/ApiSingleton";
-import {Button, Grid, Tab, Tabs, Typography, IconButton, Switch} from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
-import {useEffect, useState} from "react";
-import {makeStyles} from "@material-ui/styles";
+import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
+import { Button, Grid, Tab, Tabs, Typography, IconButton, Switch } from "@material-ui/core";
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
+import { useEffect, useState } from "react";
+import { makeStyles } from "@material-ui/styles";
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import {Chip, Stack} from "@mui/material";
 import CourseExperimental from "./CourseExperimental";
 import {useParams, useNavigate} from 'react-router-dom';
 
-type TabValue = "homeworks" | "stats" | "applications"
+type TabValue = "homeworks" | "stats" | "applications" | "assignment"
 
 function isAcceptableTabValue(str: string): str is TabValue {
-    return str === "homeworks" || str === "stats" || str === "applications";
+    return str === "homeworks" || str === "stats" || str === "applications" || str === "assignment";
 }
 
 interface ICourseState {
@@ -27,6 +30,7 @@ interface ICourseState {
     course: CourseViewModel;
     courseHomework: HomeworkViewModel[];
     createHomework: boolean;
+    assignments: AssignmentViewModel[];
     mentors: AccountDataDto[];
     acceptedStudents: AccountDataDto[];
     newStudents: AccountDataDto[];
@@ -55,6 +59,7 @@ const Course: React.FC = () => {
         showExperimentalFeature: false,
         isFound: false,
         course: {},
+        assignments: [],
         courseHomework: [],
         createHomework: false,
         mentors: [],
@@ -76,6 +81,7 @@ const Course: React.FC = () => {
         newStudents,
         acceptedStudents,
         isReadingMode,
+        assignments,
         studentSolutions
     } = courseState;
 
@@ -94,15 +100,20 @@ const Course: React.FC = () => {
     const isAcceptedStudent =
         isLogged && acceptedStudents!.some(cm => cm.userId === userId)
 
+    const isMentorWithStudents =
+        isLogged && isMentor && assignments.filter(a => a.mentorId === userId).length !== 0
+
     const showExperimentalFeature = isMentor ? courseState.showExperimentalFeature : true
 
     const showStatsTab = isMentor || isAcceptedStudent
     const showApplicationsTab = isMentor
+    const showAssignmentTab = isMentor && !isReadingMode
 
     const changeTab = (newTab: string) => {
         if (isAcceptableTabValue(newTab) && newTab !== pageState.tabValue) {
             if (newTab === "stats" && !showStatsTab) return;
             if (newTab === "applications" && !showApplicationsTab) return;
+            if (newTab === "assignment" && !showAssignmentTab) return;
 
             setPageState(prevState => ({
                 ...prevState,
@@ -111,9 +122,22 @@ const Course: React.FC = () => {
         }
     }
 
+    const putUserInMentorsFirst = (course: CourseViewModel) => {
+        const userIndex = course.mentors!.findIndex(mentor => mentor.userId === userId)
+        if (userIndex === -1) {
+            return
+        }
+
+        const temp = course.mentors![userIndex]
+        course.mentors![userIndex] = course.mentors![0]
+        course.mentors![0] = temp
+    }
+
     const setCurrentState = async () => {
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+courseId!)
         const solutions = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdGet(+courseId!)
+
+        putUserInMentorsFirst(course)
 
         setCourseState(prevState => ({
             ...prevState,
@@ -214,32 +238,52 @@ const Course: React.FC = () => {
                             </Grid>
                         </Grid>
                     </Grid>
+                    <div>
+                       { isMentorWithStudents && tabValue !== "assignment" && acceptedStudents.length - assignments.length != 0 &&
+                        <Alert variant="standard" severity="info">
+                            {`Кол-во незакреплённых студентов: ${acceptedStudents.length - assignments.length}`}
+                        </Alert> }
+                    </div>
                     <Tabs
-                        value={tabValue == "homeworks" ? 0 : tabValue === "stats" ? 1 : 2}
-                        style={{marginTop: 15}}
-                        indicatorColor="primary"
-                        onChange={(event, value) => {
-                            if (value === 0) navigate(`/courses/${courseId}/homeworks`)
-                            if (value === 1) navigate(`/courses/${courseId}/stats`)
-                            if (value === 2) navigate(`/courses/${courseId}/applications`)
-                        }}
-                    >
-                        <Tab label="Домашние задания"/>
-                        {showStatsTab && <Tab label={
-                            <Stack direction="row" spacing={1}>
-                                <div>Решения</div>
-                                <Chip size={"small"} color={"default"}
-                                      label={unratedSolutionsCount}/>
-                            </Stack>
-                        }/>}
-                        {showApplicationsTab && <Tab label={
-                            <Stack direction="row" spacing={1}>
-                                <div>Заявки</div>
-                                <Chip size={"small"} color={"default"}
-                                      label={newStudents.length}/>
-                            </Stack>}/>}
-                    </Tabs>
-                    <br/>
+                            value={() => {
+                                switch (tabValue) {
+                                    case "homeworks": return 0;
+                                    case "stats": return 1;
+                                    case "applications": return 2;
+                                    case "assignment": return 3;
+                                }
+                            }
+                            }
+
+                            style={{ marginTop: 5, marginLeft: -10 }}
+                            indicatorColor="primary"
+                            onChange={(event, value) => {
+                                if (value === 0) changeTab("homeworks", true)
+                                if (value === 1) changeTab("stats", true)
+                                if (value === 2) changeTab("applications", true)
+                                if (value === 3) changeTab("assignment", true)
+                            }}
+                        >
+                            <Tab label="Домашние задания" />
+                            {showStatsTab && <Tab label={
+                                <Stack direction="row" spacing={1}>
+                                    <div>Решения</div>
+                                    <Chip size={"small"} color={"default"}
+                                        label={unratedSolutionsCount} />
+                                </Stack>
+                            } />}
+                            {showApplicationsTab && <Tab label={
+                                <Stack direction="row" spacing={1}>
+                                    <div>Заявки</div>
+                                    <Chip size={"small"} color={"default"}
+                                        label={newStudents.length} />
+                                </Stack>} />}
+                            {showAssignmentTab && <Tab label={
+                                <Stack direction="row" spacing={1}>
+                                    <div>Закрепление</div>
+                                </Stack>} />}
+
+                        </Tabs>
                     {tabValue === "homeworks" && <div>
                         {
                             showExperimentalFeature ?
@@ -337,6 +381,18 @@ const Course: React.FC = () => {
                                 course={courseState.course}
                                 students={courseState.newStudents}
                                 courseId={courseId!}
+                            />
+                        </Grid>
+                    }
+
+                    {tabValue === "assignment" && showAssignmentTab &&
+                        <Grid>
+                            <StudentAssignment
+                                course={courseState.course}
+                                mentors={courseState.mentors}
+                                acceptedStudents={courseState.acceptedStudents}
+                                assignments={courseState.assignments}
+                                userId={userId!}
                             />
                         </Grid>
                     }
