@@ -151,5 +151,18 @@ namespace HwProj.APIGateway.API.Controllers
             var result = await _coursesClient.GetLecturersAvailableForCourse(courseId);
             return Ok(result.Value);
         }
+
+        [HttpPut("{courseId}/assignStudent")]
+        public async Task<IActionResult> AssignStudentToMentor(long courseId, [FromQuery] string mentorId, [FromQuery] string studentId)
+        {
+            await _coursesClient.AssignStudentToMentor(courseId, mentorId, studentId);
+            return Ok();
+        }
+
+        [HttpDelete("{courseId}/deassignStudent")]
+        public async Task DeassignStudentFromMentor(long courseId, [FromQuery] string studentId)
+        {
+            await _coursesClient.DeassignStudentFromMentor(courseId, studentId);
+        }
     }
 }
