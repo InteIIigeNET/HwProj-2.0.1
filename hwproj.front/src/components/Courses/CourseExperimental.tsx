@@ -44,8 +44,8 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const [state, setState] = useState<ICourseExperimentalState>({
         selectedItem: {
             isHomework: true,
-            id: homeworks && homeworks[0].id,
-            data: homeworks && homeworks[0]
+            id: homeworks && homeworks.length > 0 ? homeworks[0].id : undefined,
+            data: homeworks && homeworks.length > 0 ? homeworks[0] : undefined
         }
     })
 
