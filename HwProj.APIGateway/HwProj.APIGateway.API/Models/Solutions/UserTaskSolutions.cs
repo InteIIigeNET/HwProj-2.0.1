@@ -21,6 +21,7 @@ namespace HwProj.APIGateway.API.Models.Solutions
     public class TaskSolutionStatisticsPageData
     {
         public UserTaskSolutions[] StudentsSolutions { get; set; }
+        public AssignmentViewModel[] Assignments { get; set; }
         public long CourseId { get; set; }
         public TaskSolutionsStats[] StatsForTasks { get; set; }
     }

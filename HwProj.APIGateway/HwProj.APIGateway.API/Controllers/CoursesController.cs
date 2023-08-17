@@ -58,12 +58,15 @@ namespace HwProj.APIGateway.API.Controllers
                 else newStudents.Add(student);
             }
 
+            var courseMentors = getMentorsTask.Result.Where(t => t != null).ToArray();
+
             var result = new CourseViewModel
             {
                 Id = courseId,
                 Name = course.Name,
                 GroupName = course.GroupName,
-                Mentors = getMentorsTask.Result.Where(t => t != null).ToArray(),
+                Assignments = course.Assignments,
+                Mentors = courseMentors,
                 AcceptedStudents = acceptedStudents.ToArray(),
                 NewStudents = newStudents.ToArray(),
                 Homeworks = course.Homeworks,
