@@ -16,6 +16,7 @@ namespace HwProj.CoursesService.API.Repositories
         public async Task<Course?> GetWithCourseMatesAsync(long id)
         {
             return await Context.Set<Course>()
+                .Include(c => c.Assignments)
                 .Include(c => c.CourseMates)
                 .Include(c => c.Homeworks)
                 .ThenInclude(c => c.Tasks)
@@ -26,6 +27,7 @@ namespace HwProj.CoursesService.API.Repositories
         public IQueryable<Course> GetAllWithCourseMatesAndHomeworks()
         {
             return Context.Set<Course>()
+                .Include(c => c.Assignments)
                 .Include(c => c.CourseMates)
                 .Include(c => c.Homeworks)
                 .ThenInclude(c => c.Tasks)
