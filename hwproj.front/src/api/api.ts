@@ -7741,6 +7741,8 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"SolutionViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(solution || {}) : (solution || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -7748,18 +7750,18 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             };
         },
         /**
-         * 
-         * @param {number} taskId 
-         * @param {SolutionViewModel} [solution] 
+         *
+         * @param {number} taskId
+         * @param {SolutionViewModel} [model]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        solutionsGiveUp(taskId: number, options: any = {}): FetchArgs {
+        apiSolutionsRateEmptySolutionByTaskIdPost(taskId: number, model?: SolutionViewModel, options: any = {}): FetchArgs {
             // verify required parameter 'taskId' is not null or undefined
             if (taskId === null || taskId === undefined) {
-                throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling solutionsGiveUp.');
+                throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling apiSolutionsRateEmptySolutionByTaskIdPost.');
             }
-            const localVarPath = `/api/Solutions/giveUp/{taskId}`
+            const localVarPath = `/api/Solutions/rateEmptySolution/{taskId}`
                 .replace(`{${"taskId"}}`, encodeURIComponent(String(taskId)));
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
@@ -7774,12 +7776,14 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            localVarUrlObj.search = null;
+            delete localVarUrlObj.search;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"SolutionViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(solution || {}) : (solution || "");
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -8101,25 +8105,6 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         *
-         * @param {number} taskId
-         * @param {SolutionViewModel} [model]
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiSolutionsRateEmptySolutionByTaskIdPost(taskId: number, model?: SolutionViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsRateEmptySolutionByTaskIdPost(taskId, model, options);
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response;
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
          * 
          * @param {number} solutionId 
          * @param {RateSolutionModel} [rateSolutionModel] 
@@ -8277,16 +8262,6 @@ export const SolutionsApiFactory = function (configuration?: Configuration, fetc
             return SolutionsApiFp(configuration).solutionsGiveUp(taskId, options)(fetch, basePath);
         },
         /**
-         *
-         * @param {number} taskId
-         * @param {SolutionViewModel} [model]
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiSolutionsRateEmptySolutionByTaskIdPost(taskId: number, model?: SolutionViewModel, options?: any) {
-            return SolutionsApiFp(configuration).apiSolutionsRateEmptySolutionByTaskIdPost(taskId, model, options)(fetch, basePath);
-        },
-        /**
          * 
          * @param {number} solutionId 
          * @param {RateSolutionModel} [rateSolutionModel] 
@@ -8422,18 +8397,6 @@ export class SolutionsApi extends BaseAPI {
      */
     public solutionsGiveUp(taskId: number, options?: any) {
         return SolutionsApiFp(this.configuration).solutionsGiveUp(taskId, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     *
-     * @param {number} taskId
-     * @param {SolutionViewModel} [model]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof SolutionsApi
-     */
-    public apiSolutionsRateEmptySolutionByTaskIdPost(taskId: number, model?: SolutionViewModel, options?: any) {
-        return SolutionsApiFp(this.configuration).apiSolutionsRateEmptySolutionByTaskIdPost(taskId, model, options)(this.fetch, this.basePath);
     }
 
     /**
@@ -8600,13 +8563,12 @@ export const StatisticsApiFetchParamCreator = function (configuration?: Configur
         /**
          *
          * @param {number} [courseId]
-         * @param {string} [userId]
          * @param {string} [sheetUrl]
          * @param {string} [sheetName]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiStatisticsExportToSheetGet(courseId?: number, userId?: string, sheetUrl?: string, sheetName?: string, options: any = {}): FetchArgs {
+        apiStatisticsExportToSheetGet(courseId?: number, sheetUrl?: string, sheetName?: string, options: any = {}): FetchArgs {
             const localVarPath = `/api/Statistics/exportToSheet`;
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
@@ -8623,10 +8585,6 @@ export const StatisticsApiFetchParamCreator = function (configuration?: Configur
 
             if (courseId !== undefined) {
                 localVarQueryParameter['courseId'] = courseId;
-            }
-
-            if (userId !== undefined) {
-                localVarQueryParameter['userId'] = userId;
             }
 
             if (sheetUrl !== undefined) {
@@ -8650,12 +8608,11 @@ export const StatisticsApiFetchParamCreator = function (configuration?: Configur
         /**
          *
          * @param {number} [courseId]
-         * @param {string} [userId]
          * @param {string} [sheetName]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiStatisticsGetFileGet(courseId?: number, userId?: string, sheetName?: string, options: any = {}): FetchArgs {
+        apiStatisticsGetFileGet(courseId?: number, sheetName?: string, options: any = {}): FetchArgs {
             const localVarPath = `/api/Statistics/getFile`;
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
@@ -8672,10 +8629,6 @@ export const StatisticsApiFetchParamCreator = function (configuration?: Configur
 
             if (courseId !== undefined) {
                 localVarQueryParameter['courseId'] = courseId;
-            }
-
-            if (userId !== undefined) {
-                localVarQueryParameter['userId'] = userId;
             }
 
             if (sheetName !== undefined) {
@@ -8828,14 +8781,13 @@ export const StatisticsApiFp = function(configuration?: Configuration) {
         /**
          *
          * @param {number} [courseId]
-         * @param {string} [userId]
          * @param {string} [sheetUrl]
          * @param {string} [sheetName]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiStatisticsExportToSheetGet(courseId?: number, userId?: string, sheetUrl?: string, sheetName?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Result> {
-            const localVarFetchArgs = StatisticsApiFetchParamCreator(configuration).apiStatisticsExportToSheetGet(courseId, userId, sheetUrl, sheetName, options);
+        apiStatisticsExportToSheetGet(courseId?: number, sheetUrl?: string, sheetName?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Result> {
+            const localVarFetchArgs = StatisticsApiFetchParamCreator(configuration).apiStatisticsExportToSheetGet(courseId, sheetUrl, sheetName, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -8849,13 +8801,12 @@ export const StatisticsApiFp = function(configuration?: Configuration) {
         /**
          *
          * @param {number} [courseId]
-         * @param {string} [userId]
          * @param {string} [sheetName]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiStatisticsGetFileGet(courseId?: number, userId?: string, sheetName?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = StatisticsApiFetchParamCreator(configuration).apiStatisticsGetFileGet(courseId, userId, sheetName, options);
+        apiStatisticsGetFileGet(courseId?: number, sheetName?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = StatisticsApiFetchParamCreator(configuration).apiStatisticsGetFileGet(courseId, sheetName, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -8941,25 +8892,23 @@ export const StatisticsApiFactory = function (configuration?: Configuration, fet
         /**
          *
          * @param {number} [courseId]
-         * @param {string} [userId]
          * @param {string} [sheetUrl]
          * @param {string} [sheetName]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiStatisticsExportToSheetGet(courseId?: number, userId?: string, sheetUrl?: string, sheetName?: string, options?: any) {
-            return StatisticsApiFp(configuration).apiStatisticsExportToSheetGet(courseId, userId, sheetUrl, sheetName, options)(fetch, basePath);
+        apiStatisticsExportToSheetGet(courseId?: number, sheetUrl?: string, sheetName?: string, options?: any) {
+            return StatisticsApiFp(configuration).apiStatisticsExportToSheetGet(courseId, sheetUrl, sheetName, options)(fetch, basePath);
         },
         /**
          *
          * @param {number} [courseId]
-         * @param {string} [userId]
          * @param {string} [sheetName]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiStatisticsGetFileGet(courseId?: number, userId?: string, sheetName?: string, options?: any) {
-            return StatisticsApiFp(configuration).apiStatisticsGetFileGet(courseId, userId, sheetName, options)(fetch, basePath);
+        apiStatisticsGetFileGet(courseId?: number, sheetName?: string, options?: any) {
+            return StatisticsApiFp(configuration).apiStatisticsGetFileGet(courseId, sheetName, options)(fetch, basePath);
         },
         /**
          *
@@ -9025,28 +8974,26 @@ export class StatisticsApi extends BaseAPI {
     /**
      *
      * @param {number} [courseId]
-     * @param {string} [userId]
      * @param {string} [sheetUrl]
      * @param {string} [sheetName]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StatisticsApi
      */
-    public apiStatisticsExportToSheetGet(courseId?: number, userId?: string, sheetUrl?: string, sheetName?: string, options?: any) {
-        return StatisticsApiFp(this.configuration).apiStatisticsExportToSheetGet(courseId, userId, sheetUrl, sheetName, options)(this.fetch, this.basePath);
+    public apiStatisticsExportToSheetGet(courseId?: number, sheetUrl?: string, sheetName?: string, options?: any) {
+        return StatisticsApiFp(this.configuration).apiStatisticsExportToSheetGet(courseId, sheetUrl, sheetName, options)(this.fetch, this.basePath);
     }
 
     /**
      *
      * @param {number} [courseId]
-     * @param {string} [userId]
      * @param {string} [sheetName]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StatisticsApi
      */
-    public apiStatisticsGetFileGet(courseId?: number, userId?: string, sheetName?: string, options?: any) {
-        return StatisticsApiFp(this.configuration).apiStatisticsGetFileGet(courseId, userId, sheetName, options)(this.fetch, this.basePath);
+    public apiStatisticsGetFileGet(courseId?: number, sheetName?: string, options?: any) {
+        return StatisticsApiFp(this.configuration).apiStatisticsGetFileGet(courseId, sheetName, options)(this.fetch, this.basePath);
     }
 
     /**
