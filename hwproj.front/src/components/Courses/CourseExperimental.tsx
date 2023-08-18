@@ -16,7 +16,7 @@ import TimelineConnector from '@mui/lab/TimelineConnector';
 import TimelineContent from '@mui/lab/TimelineContent';
 import TimelineDot from '@mui/lab/TimelineDot';
 import TimelineOppositeContent from '@mui/lab/TimelineOppositeContent';
-import {Box, Card, CardActions, CardContent, Chip, Divider} from "@mui/material";
+import {Box, Card, CardActions, CardContent, Chip, Divider, Tooltip} from "@mui/material";
 import ReactMarkdown from "react-markdown";
 import {Link} from "react-router-dom";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
@@ -124,13 +124,17 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             const {
                 lastSolution,
                 lastRatedSolution,
-                color
+                color,
+                solutionsDescription
             } = StudentStatsUtils.calculateLastRatedSolutionInfo(solutions!, taskMaxRating)
             return lastSolution == undefined
                 ? <TimelineDot variant={"outlined"}/>
-                : <Chip style={{backgroundColor: color, marginTop: '11.5px'}}
-                        size={"small"}
-                        label={lastRatedSolution == undefined ? "⌛" : lastRatedSolution.rating}/>
+                : <Tooltip arrow disableInteractive enterDelay={1000}
+                           title={<span style={{whiteSpace: 'pre-line'}}>{solutionsDescription}</span>}>
+                    <Chip style={{backgroundColor: color, marginTop: '11.5px'}}
+                          size={"small"}
+                          label={lastRatedSolution == undefined ? "⌛" : lastRatedSolution.rating}/>
+                </Tooltip>
         }
         return <TimelineDot variant={"outlined"}/>
     }

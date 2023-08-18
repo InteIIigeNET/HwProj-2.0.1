@@ -2,8 +2,9 @@ import * as React from "react";
 import TableCell from "@material-ui/core/TableCell";
 import {Navigate} from "react-router-dom";
 import {StatisticsCourseSolutionsModel} from "api";
-import {Chip, Stack} from "@mui/material";
+import {Chip, Stack, Tooltip} from "@mui/material";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
+import Utils from "../../services/Utils";
 
 interface ITaskStudentCellProps {
     studentId: string;
@@ -21,6 +22,7 @@ interface ITaskStudentCellState {
     redirectForStudent: boolean;
     color: string;
     ratedSolutionsCount: number;
+    solutionsDescription: string;
 }
 
 export default class StudentStatsCell extends React.Component<ITaskStudentCellProps, ITaskStudentCellState> {
@@ -32,11 +34,14 @@ export default class StudentStatsCell extends React.Component<ITaskStudentCellPr
             redirectForMentor: false,
             redirectForStudent: false,
             color: "",
+            solutionsDescription: "",
             ratedSolutionsCount: 0
         };
     }
 
     public render() {
+        const {ratedSolutionsCount, solutionsDescription} = this.state
+
         if (this.state.redirectForMentor) {
             return (
                 <Navigate
@@ -60,13 +65,17 @@ export default class StudentStatsCell extends React.Component<ITaskStudentCellPr
                 : this.props.userId === this.props.studentId
                     ? () => this.onStudentCellClick()
                     : () => 0;
+            const tootltipTitle = ratedSolutionsCount === 0
+                ? solutionsDescription
+                : solutionsDescription + `\n\n${Utils.pluralizeHelper(["Проверена", "Проверены", "Проверено"], ratedSolutionsCount)} ${ratedSolutionsCount} ${Utils.pluralizeHelper(["попытка", "попытки", "попыток"], ratedSolutionsCount)}`
             const result = this.state.lastRatedSolution === undefined
                 ? ""
                 : <Stack direction="row" spacing={0.3} justifyContent={"center"} alignItems={"center"}>
                     <div>{this.state.lastRatedSolution.rating!}</div>
-                    <Chip color={"default"} size={"small"} label={this.state.ratedSolutionsCount}/>
+                    <Chip color={"default"} size={"small"} label={ratedSolutionsCount}/>
                 </Stack>
-            return (
+            return <Tooltip arrow disableInteractive enterDelay={2000}
+                            title={<span style={{whiteSpace: 'pre-line'}}>{tootltipTitle}</span>}>
                 <TableCell
                     onClick={onClick}
                     component="td"
@@ -77,7 +86,7 @@ export default class StudentStatsCell extends React.Component<ITaskStudentCellPr
                 >
                     {result}
                 </TableCell>
-            );
+            </Tooltip>
         }
 
         return "";
@@ -93,13 +102,19 @@ export default class StudentStatsCell extends React.Component<ITaskStudentCellPr
 
     async componentDidMount() {
         const {solutions, taskMaxRating} = this.props
-        const {color, lastRatedSolution, ratedSolutionsCount} = StudentStatsUtils.calculateLastRatedSolutionInfo(solutions!, taskMaxRating)
+        const {
+            color,
+            lastRatedSolution,
+            ratedSolutionsCount,
+            solutionsDescription
+        } = StudentStatsUtils.calculateLastRatedSolutionInfo(solutions!, taskMaxRating)
 
         this.setState({
-            color: color,
+            color,
             isLoaded: true,
-            lastRatedSolution: lastRatedSolution,
-            ratedSolutionsCount: ratedSolutionsCount
+            lastRatedSolution,
+            ratedSolutionsCount,
+            solutionsDescription
         })
     }
 }

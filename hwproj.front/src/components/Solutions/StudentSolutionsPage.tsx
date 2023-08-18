@@ -11,7 +11,7 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useEffect, useState} from "react";
 import {CircularProgress, Grid} from "@material-ui/core";
 import {useNavigate, useParams} from "react-router-dom";
-import {Chip, List, ListItemButton, ListItemText, Stack, Alert} from "@mui/material";
+import {Chip, List, ListItemButton, ListItemText, Stack, Alert, Tooltip} from "@mui/material";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import { Link } from 'react-router-dom';
 
@@ -28,7 +28,8 @@ interface IStudentSolutionsPageState {
         lastSolution: StatisticsCourseSolutionsModel,
         lastRatedSolution: StatisticsCourseSolutionsModel,
         color: string,
-        ratedSolutionsCount: number
+        ratedSolutionsCount: number,
+        solutionsDescription: string
     }[]
 }
 
@@ -126,7 +127,9 @@ const StudentSolutionsPage: FC = () => {
                     <Grid item xs={3}>
                         <List>
                             {studentSolutionsPreview!.map(({
-                                                               color, lastRatedSolution, student: {
+                                    color,
+                                    solutionsDescription,
+                                    lastRatedSolution, student: {
                                     name,
                                     surname,
                                     userId
@@ -137,9 +140,11 @@ const StudentSolutionsPage: FC = () => {
                                                     disableTouchRipple={currentStudentId === userId}
                                                     selected={currentStudentId === userId}>
                                         <Stack direction={"row"} spacing={1} sx={{paddingLeft: 1}}>
+                                            <Tooltip arrow disableInteractive enterDelay={1000} title={<span style={{ whiteSpace: 'pre-line' }}>{solutionsDescription}</span>}>
                                             <Chip style={{backgroundColor: color}}
                                                   size={"small"}
                                                   label={lastRatedSolution == undefined ? "?" : lastRatedSolution.rating}/>
+                                            </Tooltip>
                                             <ListItemText primary={surname + " " + name}/>
                                         </Stack>
                                     </ListItemButton>
