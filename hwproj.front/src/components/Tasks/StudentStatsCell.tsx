@@ -28,14 +28,12 @@ interface ITaskStudentCellState {
 export default class StudentStatsCell extends React.Component<ITaskStudentCellProps, ITaskStudentCellState> {
     constructor(props: ITaskStudentCellProps) {
         super(props);
+        const {solutions, taskMaxRating} = this.props
         this.state = {
-            isLoaded: false,
-            lastRatedSolution: {},
+            ...StudentStatsUtils.calculateLastRatedSolutionInfo(solutions!, taskMaxRating),
+            isLoaded: true,
             redirectForMentor: false,
             redirectForStudent: false,
-            color: "",
-            solutionsDescription: "",
-            ratedSolutionsCount: 0
         };
     }
 
@@ -98,23 +96,5 @@ export default class StudentStatsCell extends React.Component<ITaskStudentCellPr
 
     onStudentCellClick() {
         this.setState({redirectForStudent: true});
-    }
-
-    async componentDidMount() {
-        const {solutions, taskMaxRating} = this.props
-        const {
-            color,
-            lastRatedSolution,
-            ratedSolutionsCount,
-            solutionsDescription
-        } = StudentStatsUtils.calculateLastRatedSolutionInfo(solutions!, taskMaxRating)
-
-        this.setState({
-            color,
-            isLoaded: true,
-            lastRatedSolution,
-            ratedSolutionsCount,
-            solutionsDescription
-        })
     }
 }
