@@ -35,25 +35,25 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
     const unratedSolutions = props.unratedSolutionsPreviews.unratedSolutions!
     const renderStudent = (s: AccountDataDto) => `${s.surname} ${s.name}`
     const prepareStrings = (arr: string[]) => [...new Set(arr)].sort()
-    const courses = prepareStrings(unratedSolutions.map(s => s.courseTitle!))
-    const homeworks = prepareStrings(unratedSolutions.map(s => s.homeworkTitle!))
-    const tasks = prepareStrings(unratedSolutions.map(s => s.taskTitle!))
-    const students = prepareStrings(unratedSolutions.map(t => renderStudent(t.student!)))
+    const courses = new Set(unratedSolutions.map(s => s.courseTitle!))
+    const homeworks = new Set(unratedSolutions.map(s => s.homeworkTitle!))
+    const tasks = new Set(unratedSolutions.map(s => s.taskTitle!))
+    const students = new Set(unratedSolutions.map(t => renderStudent(t.student!)))
     const getFilterSetting = (key: FilterTitleName) => {
         const filterValue = localStorage.getItem(key)
         if (!filterValue) {
             return ""
         }
-        if (key === "coursesFilter" && !courses.includes(filterValue)) {
+        if (key === "coursesFilter" && !courses.has(filterValue)) {
             localStorage.removeItem("homeworksFilter")
             localStorage.removeItem("tasksFilter")
             localStorage.removeItem("studentsFilter")
-        } else if (key === "homeworksFilter" && !homeworks.includes(filterValue)) {
+        } else if (key === "homeworksFilter" && !homeworks.has(filterValue)) {
             localStorage.removeItem("tasksFilter")
             localStorage.removeItem("studentsFilter")
-        } else if (key === "tasksFilter" && !tasks.includes(filterValue)) {
+        } else if (key === "tasksFilter" && !tasks.has(filterValue)) {
             localStorage.removeItem("studentsFilter")
-        } else if (key === "studentsFilter" && !students.includes(filterValue)) {
+        } else if (key === "studentsFilter" && !students.has(filterValue)) {
         } else {
             return filterValue
         }
@@ -61,15 +61,24 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
         return ""
     }
 
+    const coursesFilter = getFilterSetting("coursesFilter")
+    const homeworksFilter = getFilterSetting("homeworksFilter")
+    const tasksFilter = getFilterSetting("tasksFilter")
+    const studentsFilter = getFilterSetting("studentsFilter")
+
+    const filteredHomeworks = coursesFilter == "" ? unratedSolutions : unratedSolutions.filter(t => t.courseTitle === coursesFilter)
+    const filteredTasks = homeworksFilter == "" ? filteredHomeworks : filteredHomeworks.filter(t => t.homeworkTitle === homeworksFilter)
+    const filteredStudents = tasksFilter == "" ? filteredTasks : filteredTasks.filter(t => t.taskTitle === tasksFilter)
+
     const [filtersState, setFiltersState] = useState<IFiltersState>({
-        coursesFilter: getFilterSetting("coursesFilter"),
-        homeworksFilter: getFilterSetting("homeworksFilter"),
-        tasksFilter: getFilterSetting("tasksFilter"),
-        studentsFilter: getFilterSetting("studentsFilter"),
-        courses: courses,
-        homeworks: homeworks,
-        tasks: tasks,
-        students: students
+        coursesFilter: coursesFilter,
+        homeworksFilter: homeworksFilter,
+        tasksFilter: tasksFilter,
+        studentsFilter: studentsFilter,
+        courses: [...courses].sort(),
+        homeworks: prepareStrings(filteredHomeworks.map(t => t.homeworkTitle!)),
+        tasks: prepareStrings(filteredTasks.map(t => t.taskTitle!)),
+        students: prepareStrings(filteredStudents.map(t => renderStudent(t.student!)))
     })
 
     const filteredUnratedSolutions = unratedSolutions
