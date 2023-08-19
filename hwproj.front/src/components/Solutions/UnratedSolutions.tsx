@@ -40,22 +40,22 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
     const tasks = prepareStrings(unratedSolutions.map(s => s.taskTitle!))
     const students = prepareStrings(unratedSolutions.map(t => renderStudent(t.student!)))
     const getFilterSetting = (key: FilterTitleName) => {
-        const localKeyValue = localStorage.getItem(key)
-        if (localKeyValue === null) {
+        const filterValue = localStorage.getItem(key)
+        if (!filterValue) {
             return ""
         }
-        if (key === "coursesFilter" && !courses.includes(localKeyValue)) {
+        if (key === "coursesFilter" && !courses.includes(filterValue)) {
             localStorage.removeItem("homeworksFilter")
             localStorage.removeItem("tasksFilter")
             localStorage.removeItem("studentsFilter")
-        } else if (key === "homeworksFilter" && !homeworks.includes(localKeyValue)) {
+        } else if (key === "homeworksFilter" && !homeworks.includes(filterValue)) {
             localStorage.removeItem("tasksFilter")
             localStorage.removeItem("studentsFilter")
-        } else if (key === "tasksFilter" && !tasks.includes(localKeyValue)) {
+        } else if (key === "tasksFilter" && !tasks.includes(filterValue)) {
             localStorage.removeItem("studentsFilter")
-        } else if (key === "studentsFilter" && !students.includes(localKeyValue)) {
+        } else if (key === "studentsFilter" && !students.includes(filterValue)) {
         } else {
-            return localKeyValue
+            return filterValue
         }
         localStorage.removeItem(key)
         return ""
