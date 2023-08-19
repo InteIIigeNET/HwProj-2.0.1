@@ -1,4 +1,4 @@
-import {AccountDataDto, SolutionPreviewView, UnratedSolutionPreviews} from "../../api";
+import {AccountDataDto, UnratedSolutionPreviews} from "../../api";
 import * as React from "react";
 import {NavLink} from "react-router-dom";
 import {
@@ -18,58 +18,106 @@ interface IUnratedSolutionsProps {
     unratedSolutionsPreviews: UnratedSolutionPreviews
 }
 
+interface IFiltersState {
+    coursesFilter: string,
+    homeworksFilter: string,
+    tasksFilter: string,
+    studentsFilter: string
+    courses: string[],
+    homeworks: string[],
+    tasks: string[],
+    students: string[]
+}
+
+type FilterTitleName = "coursesFilter" | "homeworksFilter" | "tasksFilter" | "studentsFilter"
+
 const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
-
-    const [courseTitleFilter, setCourseTitleFilter] = useState<string | undefined>(undefined)
-    const [homeworkTitleFilter, setHomeworkTitleFilter] = useState<string | undefined>(undefined)
-    const [taskTitleFilter, setTaskTitleFilter] = useState<string | undefined>(undefined)
-    const [studentNameFilter, setStudentNameFilter] = useState<string | undefined>(undefined)
-
+    const unratedSolutions = props.unratedSolutionsPreviews.unratedSolutions!
     const renderStudent = (s: AccountDataDto) => `${s.surname} ${s.name}`
+    const prepareStrings = (arr: string[]) => [...new Set(arr)].sort()
 
-    //TODO: make filter smarter
-    const {unratedSolutions} = props.unratedSolutionsPreviews
-    const filteredUnratedSolutions = unratedSolutions!
-        .filter(t => courseTitleFilter ? t.courseTitle === courseTitleFilter : true)
-        .filter(t => homeworkTitleFilter ? t.homeworkTitle === homeworkTitleFilter : true)
-        .filter(t => taskTitleFilter ? t.taskTitle === taskTitleFilter : true)
-        .filter(t => studentNameFilter ? renderStudent(t.student!) === studentNameFilter : true)
+    const [filtersState, setFiltersState] = useState<IFiltersState>({
+        coursesFilter: "",
+        homeworksFilter: "",
+        tasksFilter: "",
+        studentsFilter: "",
+        courses: prepareStrings(unratedSolutions.map(s => s.courseTitle!)),
+        homeworks: prepareStrings(unratedSolutions.map(s => s.homeworkTitle!)),
+        tasks: prepareStrings(unratedSolutions.map(s => s.taskTitle!)),
+        students: prepareStrings(unratedSolutions.map(t => renderStudent(t.student!)))
+    })
 
-    console.log(taskTitleFilter)
+    const filteredUnratedSolutions = unratedSolutions
+        .filter(t => !filtersState.coursesFilter || t.courseTitle === filtersState.coursesFilter)
+        .filter(t => !filtersState.homeworksFilter || t.homeworkTitle === filtersState.homeworksFilter)
+        .filter(t => !filtersState.tasksFilter || t.taskTitle === filtersState.tasksFilter)
+        .filter(t => !filtersState.studentsFilter || renderStudent(t.student!) === filtersState.studentsFilter)
 
-    const renderSelect = (name: string,
-                          value: string | undefined,
-                          renderTitle: (t: SolutionPreviewView) => string,
-                          onChange: React.Dispatch<React.SetStateAction<string | undefined>>) => {
-        const values = [...new Set(unratedSolutions!.map(renderTitle))]
-        return <FormControl fullWidth style={{minWidth: 220}}>
+    const handleFilterChange = (filterName: FilterTitleName, value: string) => {
+        let courseFilter = filtersState.coursesFilter
+        let homeworkFilter = filtersState.homeworksFilter
+        let taskFilter = filtersState.tasksFilter
+        let studentFilter = filtersState.studentsFilter
+
+        if (filterName === "coursesFilter") {
+            courseFilter = value
+            homeworkFilter = ""
+            taskFilter = ""
+            studentFilter = ""
+        } else if (filterName === "homeworksFilter") {
+            homeworkFilter = value
+            taskFilter = ""
+            studentFilter = ""
+        } else if (filterName === "tasksFilter") {
+            taskFilter = value
+            studentFilter = ""
+        } else if (filterName === "studentsFilter") {
+            studentFilter = value
+        }
+
+        const filteredHomeworks = courseFilter == "" ? unratedSolutions : unratedSolutions.filter(t => t.courseTitle === courseFilter)
+        const filteredTasks = homeworkFilter == "" ? filteredHomeworks : filteredHomeworks.filter(t => t.homeworkTitle === homeworkFilter)
+        const filteredStudents = taskFilter == "" ? filteredTasks : filteredTasks.filter(t => t.taskTitle === taskFilter)
+
+        setFiltersState(prevState => ({
+            ...prevState,
+            coursesFilter: courseFilter,
+            homeworksFilter: homeworkFilter,
+            tasksFilter: taskFilter,
+            studentsFilter: studentFilter,
+            homeworks: prepareStrings(filteredHomeworks.map(t => t.homeworkTitle!)),
+            tasks: prepareStrings(filteredTasks.map(t => t.taskTitle!)),
+            students: prepareStrings(filteredStudents.map(t => renderStudent(t.student!)))
+        }))
+    }
+
+    const renderSelect = (name: string, filterName: FilterTitleName, value: string, options: string[]) => {
+        return (<FormControl fullWidth style={{minWidth: 220}}>
             <InputLabel>{name}</InputLabel>
             <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={value || ""}
-                onChange={event => onChange(event.target.value as string)}
-                label="Course"
+                value={value}
+                onChange={(event) => handleFilterChange(filterName, event.target.value as string)}
+                label="demo-label"
             >
-                <MenuItem value={0}>Любое</MenuItem>
-                {values.map(t => <MenuItem value={t}>{t}</MenuItem>)}
+                <MenuItem value={""}>Любое</MenuItem>
+                {options.map(t => <MenuItem value={t}>{t}</MenuItem>)}
             </Select>
-        </FormControl>
+        </FormControl>)
     }
 
     const renderFilter = () => {
         return <Grid container xs={"auto"} style={{marginBottom: 15}} spacing={1} direction={"row"}>
             <Grid item>
-                {renderSelect("Курс", courseTitleFilter, s => s.courseTitle!, setCourseTitleFilter)}
+                {renderSelect("Курс", "coursesFilter", filtersState.coursesFilter, filtersState.courses)}
             </Grid>
             <Grid item>
-                {renderSelect("Домашняя работа", homeworkTitleFilter, s => s.homeworkTitle!, setHomeworkTitleFilter)}
+                {renderSelect("Домашняя работа", "homeworksFilter", filtersState.homeworksFilter, filtersState.homeworks)}
             </Grid>
             <Grid item>
-                {renderSelect("Задание", taskTitleFilter, s => s.taskTitle!, setTaskTitleFilter)}
+                {renderSelect("Задание", "tasksFilter", filtersState.tasksFilter, filtersState.tasks)}
             </Grid>
             <Grid item>
-                {renderSelect("Студент", studentNameFilter, s => renderStudent(s.student!), setStudentNameFilter)}
+                {renderSelect("Студент", "studentsFilter", filtersState.studentsFilter, filtersState.students)}
             </Grid>
         </Grid>
     }
@@ -111,4 +159,5 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
         </div>
     )
 }
+
 export default UnratedSolutions;
