@@ -22,7 +22,7 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPut("{courseId}/assignStudent")]
-        public async Task AssignStudentToMentor(long courseId, [FromQuery] string mentorId, [FromQuery] string studentId)
+        public async Task AssignStudentToMentor(long courseId, [FromQuery] string studentId, [FromQuery] string mentorId)
         {
             await _assignmentsService.AssignStudentAsync(studentId, mentorId, courseId);
         }

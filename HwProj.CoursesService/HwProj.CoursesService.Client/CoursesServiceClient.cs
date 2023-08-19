@@ -422,7 +422,7 @@ namespace HwProj.CoursesService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Put,
-                _coursesServiceUri + $"api/Assignments/{courseId}/assignStudent/{studentId}?mentorId={mentorId}"
+                _coursesServiceUri + $"api/Assignments/{courseId}/assignStudent?studentId={studentId}&mentorId={mentorId}"
             );
 
             var response = await _httpClient.SendAsync(httpRequest);
@@ -435,7 +435,7 @@ namespace HwProj.CoursesService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Delete,
-                _coursesServiceUri + $"api/Assignments/{courseId}/deassignStudent/{studentId}"
+                _coursesServiceUri + $"api/Assignments/{courseId}/deassignStudent?studentId={studentId}"
             );
 
             var response = await _httpClient.SendAsync(httpRequest);
