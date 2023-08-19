@@ -84,7 +84,7 @@ export default class AuthService {
 
     getToken = () => localStorage.getItem("id_token");
 
-    logout = () => localStorage.removeItem("id_token");
+    logout = () => localStorage.clear();
 
     getProfile = () => decode<TokenPayload>(this.getToken() as string);
 
