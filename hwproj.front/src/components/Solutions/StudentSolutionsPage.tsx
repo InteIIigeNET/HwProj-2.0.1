@@ -19,15 +19,11 @@ import {
     ListItemText,
     Stack,
     Alert,
-    Tooltip,
-    StepLabel,
-    StepIcon,
-    StepConnector
+    Tooltip
 } from "@mui/material";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import {Link} from 'react-router-dom';
 
-import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
 import StepButton from '@mui/material/StepButton';
 
@@ -148,6 +144,9 @@ const StudentSolutionsPage: FC = () => {
                                     <Link to={`/task/${t.taskId}/${userId!}`}
                                           style={{color: "black", textDecoration: "none"}}>
                                         <StepButton
+                                            ref={ref => {
+                                                if (isCurrent) ref?.scrollIntoView({inline: "nearest"})
+                                            }}
                                             color={color}
                                             icon={t.countUnratedSolutions
                                                 ? <Chip size={"small"} color={isCurrent ? "primary" : "default"}
