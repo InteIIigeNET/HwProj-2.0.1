@@ -205,5 +205,26 @@ namespace HwProj.SolutionsService.API.Controllers
 
             return solutions;
         }
+        
+        [HttpGet("allStatsForUnrated")]
+        public async Task<TaskSolutionsStats[]> GetStatsAllUnratedSolutionsForTasks([FromBody] long[] taskIds)
+        {
+            var statsSolutions = await _solutionsRepository
+                .FindAll(t => taskIds.Contains(t.TaskId))
+                .GroupBy(t => new { t.TaskId, t.StudentId })
+                .Select(t => t.OrderByDescending(x => x.PublicationDate))
+                .Select(t => new
+                {
+                    LastSolution = t.FirstOrDefault()
+                })
+                .Where(t => t.LastSolution != null && t.LastSolution.State == SolutionState.Posted)
+                .GroupBy(t => t.LastSolution.TaskId)
+                .Select(t => new TaskSolutionsStats(){
+                    TaskId = t.Key,
+                    CountUnratedSolutions = t.Count()
+                })
+                .ToArrayAsync();
+            return statsSolutions;
+        }
     }
 }

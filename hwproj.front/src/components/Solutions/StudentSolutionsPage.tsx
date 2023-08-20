@@ -2,7 +2,7 @@ import * as React from "react";
 import {
     AccountDataDto, GetSolutionModel,
     HomeworkTaskViewModel, Solution,
-    StatisticsCourseSolutionsModel
+    StatisticsCourseSolutionsModel, TaskSolutionsStats
 } from "../../api/";
 import Typography from "@material-ui/core/Typography";
 import Task from "../Tasks/Task";
@@ -15,6 +15,10 @@ import {Chip, List, ListItemButton, ListItemText, Stack, Alert, Tooltip} from "@
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import { Link } from 'react-router-dom';
 
+import Stepper from '@mui/material/Stepper';
+import Step from '@mui/material/Step';
+import StepButton from '@mui/material/StepButton';
+
 interface IStudentSolutionsPageState {
     currentTaskId: string
     currentStudentId: string
@@ -22,6 +26,7 @@ interface IStudentSolutionsPageState {
     isLoaded: boolean
     allSolutionsRated: boolean,
     courseId: number,
+    taskSolutionsStats: TaskSolutionsStats[],
     studentSolutionsPreview: {
         student: AccountDataDto,
         solutions: GetSolutionModel[]
@@ -36,7 +41,12 @@ interface IStudentSolutionsPageState {
 const StudentSolutionsPage: FC = () => {
     const {taskId, studentId} = useParams()
     const navigate = useNavigate()
-
+    const [activeStep, setActiveStep] = React.useState(0)
+    const stepperNavigate = (index: number, taskId: number, currentStudentId: string) => {
+        setActiveStep(index)
+        navigate(`/task/${taskId}/${currentStudentId}`)
+    }
+    
     const [studentSolutionsState, setStudentSolutionsState] = useState<IStudentSolutionsPageState>({
         currentTaskId: "",
         currentStudentId: studentId!,
@@ -44,6 +54,7 @@ const StudentSolutionsPage: FC = () => {
         task: {},
         isLoaded: false,
         courseId: -1,
+        taskSolutionsStats: [],
         studentSolutionsPreview: [],
     })
 
@@ -53,7 +64,8 @@ const StudentSolutionsPage: FC = () => {
         currentTaskId,
         studentSolutionsPreview,
         allSolutionsRated,
-        courseId
+        courseId,
+        taskSolutionsStats
     } = studentSolutionsState
     const userId = ApiSingleton.authService.isLoggedIn()
         ? ApiSingleton.authService.getUserId()
@@ -67,7 +79,8 @@ const StudentSolutionsPage: FC = () => {
 
         const {
             studentsSolutions,
-            courseId
+            courseId,
+            statsForTasks
         } = await ApiSingleton.solutionsApi.apiSolutionsTasksByTaskIdGet(+taskId!, studentId)
 
         const studentSolutionsPreview = studentsSolutions!.map(studentSolutions => {
@@ -81,6 +94,7 @@ const StudentSolutionsPage: FC = () => {
             isLoaded: true,
             currentStudentId: studentId,
             currentTaskId: taskId,
+            taskSolutionsStats: statsForTasks!,
             studentSolutionsPreview: studentSolutionsPreview,
             courseId: courseId!,
             allSolutionsRated: studentSolutionsPreview.findIndex(x => x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0) === -1
@@ -123,6 +137,15 @@ const StudentSolutionsPage: FC = () => {
                         </Alert>
                         : renderGoBackToCoursesStatsLink()}
                 </Grid>
+                <Stepper nonLinear activeStep={activeStep}>
+                    {taskSolutionsStats!.map((t, index) => (
+                        <Step key={t.taskId} >
+                            <StepButton color="inherit" onClick={async () => stepperNavigate(index, t.taskId!, currentStudentId)}>
+                                {t.taskId + " / " + t.countUnratedSolutions}
+                            </StepButton>
+                        </Step>
+                    ))}
+                </Stepper>
                 <Grid container spacing={3} style={{marginTop: '1px'}}>
                     <Grid item xs={3}>
                         <List>
