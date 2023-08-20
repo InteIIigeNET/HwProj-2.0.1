@@ -74,7 +74,7 @@ namespace HwProj.SolutionsService.API.Controllers
             var course = await _coursesClient.GetCourseByTask(taskId);
 
             if (!task.CanSendSolution) return BadRequest();
-            
+
             var solution = _mapper.Map<Solution>(solutionModel);
             solution.TaskId = taskId;
             var solutionId = await _solutionsService.PostOrUpdateAsync(taskId, solution);
@@ -171,11 +171,11 @@ namespace HwProj.SolutionsService.API.Controllers
         public async Task<IActionResult> GetTaskStats(long courseId, long taskId)
         {
             var groups = await _coursesClient.GetAllCourseGroups(courseId);
-            
+
             var solutions = await _solutionsRepository.FindAll(t => t.TaskId == taskId).ToListAsync();
             var solutionsGroups = solutions.Select(s => s.GroupId).Distinct();
             var taskGroups = groups.Where(g => solutionsGroups.Contains(g.Id));
-            
+
             var result = SolutionsStatsDomain.GetCourseTaskStatistics(solutions, taskGroups);
             return Ok(result);
         }
@@ -183,27 +183,13 @@ namespace HwProj.SolutionsService.API.Controllers
         [HttpPost("allUnrated")]
         public async Task<SolutionPreviewDto[]> GetAllUnratedSolutionsForTasks([FromBody] long[] taskIds)
         {
-            var solutions = await _solutionsRepository
-                .FindAll(t => taskIds.Contains(t.TaskId))
-                .GroupBy(t => new { t.TaskId, t.StudentId })
-                .Select(t => t.OrderByDescending(x => x.PublicationDate))
-                .Select(t => new
-                {
-                    LastSolution = t.FirstOrDefault(),
-                    IsFirstTry = t.Skip(1).All(s => s.State == SolutionState.Posted)
-                })
-                .Where(t => t.LastSolution != null && t.LastSolution.State == SolutionState.Posted)
-                .OrderBy(t => t.LastSolution!.PublicationDate)
-                .Select(t => new SolutionPreviewDto
-                {
-                    StudentId = t.LastSolution!.StudentId,
-                    TaskId = t.LastSolution.TaskId,
-                    PublicationDate = t.LastSolution.PublicationDate,
-                    IsFirstTry = t.IsFirstTry
-                })
-                .ToArrayAsync();
+            return await _solutionsService.GetAllUnratedSolutions(taskIds);
+        }
 
-            return solutions;
+        [HttpGet("taskSolutionsStats")]
+        public async Task<TaskSolutionsStats[]> GetTaskSolutionsStats([FromBody] long[] taskIds)
+        {
+            return await _solutionsService.GetTaskSolutionsStats(taskIds);
         }
     }
 }

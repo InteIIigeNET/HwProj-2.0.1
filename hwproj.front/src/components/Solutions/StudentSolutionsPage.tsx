@@ -2,7 +2,7 @@ import * as React from "react";
 import {
     AccountDataDto, GetSolutionModel,
     HomeworkTaskViewModel, Solution,
-    StatisticsCourseSolutionsModel
+    StatisticsCourseSolutionsModel, TaskSolutionsStats
 } from "../../api/";
 import Typography from "@material-ui/core/Typography";
 import Task from "../Tasks/Task";
@@ -11,9 +11,25 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useEffect, useState} from "react";
 import {CircularProgress, Grid} from "@material-ui/core";
 import {useNavigate, useParams} from "react-router-dom";
-import {Chip, List, ListItemButton, ListItemText, Stack, Alert, Tooltip} from "@mui/material";
+import TaskAltIcon from '@mui/icons-material/TaskAlt';
+import {
+    Chip,
+    List,
+    ListItemButton,
+    ListItemText,
+    Stack,
+    Alert,
+    Tooltip,
+    StepLabel,
+    StepIcon,
+    StepConnector
+} from "@mui/material";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
-import { Link } from 'react-router-dom';
+import {Link} from 'react-router-dom';
+
+import Stepper from '@mui/material/Stepper';
+import Step from '@mui/material/Step';
+import StepButton from '@mui/material/StepButton';
 
 interface IStudentSolutionsPageState {
     currentTaskId: string
@@ -22,6 +38,7 @@ interface IStudentSolutionsPageState {
     isLoaded: boolean
     allSolutionsRated: boolean,
     courseId: number,
+    taskSolutionsStats: TaskSolutionsStats[],
     studentSolutionsPreview: {
         student: AccountDataDto,
         solutions: GetSolutionModel[]
@@ -44,6 +61,7 @@ const StudentSolutionsPage: FC = () => {
         task: {},
         isLoaded: false,
         courseId: -1,
+        taskSolutionsStats: [],
         studentSolutionsPreview: [],
     })
 
@@ -53,7 +71,8 @@ const StudentSolutionsPage: FC = () => {
         currentTaskId,
         studentSolutionsPreview,
         allSolutionsRated,
-        courseId
+        courseId,
+        taskSolutionsStats
     } = studentSolutionsState
     const userId = ApiSingleton.authService.isLoggedIn()
         ? ApiSingleton.authService.getUserId()
@@ -67,7 +86,8 @@ const StudentSolutionsPage: FC = () => {
 
         const {
             studentsSolutions,
-            courseId
+            courseId,
+            statsForTasks
         } = await ApiSingleton.solutionsApi.apiSolutionsTasksByTaskIdGet(+taskId!, studentId)
 
         const studentSolutionsPreview = studentsSolutions!.map(studentSolutions => {
@@ -81,6 +101,7 @@ const StudentSolutionsPage: FC = () => {
             isLoaded: true,
             currentStudentId: studentId,
             currentTaskId: taskId,
+            taskSolutionsStats: statsForTasks!,
             studentSolutionsPreview: studentSolutionsPreview,
             courseId: courseId!,
             allSolutionsRated: studentSolutionsPreview.findIndex(x => x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0) === -1
@@ -116,40 +137,64 @@ const StudentSolutionsPage: FC = () => {
         return (
             <div className={"container"} style={{marginBottom: '50px', marginTop: '15px'}}>
                 <Grid direction={"column"} justifyContent="center" alignContent={"stretch"} spacing={2}>
-                    {allSolutionsRated
-                        ? <Alert severity="success" action={renderGoBackToCoursesStatsLink()}>
-                            Все решения на данный момент
-                            проверены!
-                        </Alert>
-                        : renderGoBackToCoursesStatsLink()}
+                    <Stack direction={"row"} spacing={1}
+                           style={{overflowY: "hidden", overflowX: "auto", minHeight: 80}}>
+                        {taskSolutionsStats!.map((t, index) => {
+                            const isCurrent = currentTaskId === String(t.taskId)
+                            const color = isCurrent ? "primary" : "default"
+                            return <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                {index > 0 && <hr style={{width: 100}}/>}
+                                <Step active={isCurrent}>
+                                    <Link to={`/task/${t.taskId}/${userId!}`}
+                                          style={{color: "black", textDecoration: "none"}}>
+                                        <StepButton
+                                            color={color}
+                                            icon={t.countUnratedSolutions
+                                                ? <Chip size={"small"} color={isCurrent ? "primary" : "default"}
+                                                        label={t.countUnratedSolutions}/>
+                                                : <TaskAltIcon color={isCurrent ? "primary" : "disabled"}/>}>
+                                            {t.title}
+                                        </StepButton>
+                                    </Link>
+                                </Step>
+                            </Stack>;
+                        })}
+                    </Stack>
+                    {allSolutionsRated && <Alert severity="success" action={renderGoBackToCoursesStatsLink()}>
+                        Все решения на данный момент
+                        проверены!
+                    </Alert>}
                 </Grid>
                 <Grid container spacing={3} style={{marginTop: '1px'}}>
                     <Grid item xs={3}>
                         <List>
                             {studentSolutionsPreview!.map(({
-                                    color,
-                                    solutionsDescription,
-                                    lastRatedSolution, student: {
+                                                               color,
+                                                               solutionsDescription,
+                                                               lastRatedSolution, student: {
                                     name,
                                     surname,
                                     userId
                                 }
                                                            }) =>
-                                <Link to={`/task/${currentTaskId}/${(userId)!}`} style={{color: "black", textDecoration: "none"}}>
+                                <Link to={`/task/${currentTaskId}/${(userId)!}`}
+                                      style={{color: "black", textDecoration: "none"}}>
                                     <ListItemButton disableGutters divider
                                                     disableTouchRipple={currentStudentId === userId}
                                                     selected={currentStudentId === userId}>
                                         <Stack direction={"row"} spacing={1} sx={{paddingLeft: 1}}>
-                                            <Tooltip arrow disableInteractive enterDelay={1000} title={<span style={{ whiteSpace: 'pre-line' }}>{solutionsDescription}</span>}>
-                                            <Chip style={{backgroundColor: color}}
-                                                  size={"small"}
-                                                  label={lastRatedSolution == undefined ? "?" : lastRatedSolution.rating}/>
+                                            <Tooltip arrow disableInteractive enterDelay={1000} title={<span
+                                                style={{whiteSpace: 'pre-line'}}>{solutionsDescription}</span>}>
+                                                <Chip style={{backgroundColor: color}}
+                                                      size={"small"}
+                                                      label={lastRatedSolution == undefined ? "?" : lastRatedSolution.rating}/>
                                             </Tooltip>
                                             <ListItemText primary={surname + " " + name}/>
                                         </Stack>
                                     </ListItemButton>
                                 </Link>)}
                         </List>
+                        {renderGoBackToCoursesStatsLink()}
                     </Grid>
                     <Grid item xs={9} spacing={2} justifyContent={"flex-start"}>
                         <Task

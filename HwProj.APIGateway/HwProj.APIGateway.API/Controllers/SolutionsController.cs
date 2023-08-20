@@ -7,6 +7,7 @@ using HwProj.APIGateway.API.ExceptionFilters;
 using HwProj.APIGateway.API.Models.Solutions;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
+using HwProj.Models;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
@@ -105,16 +106,28 @@ namespace HwProj.APIGateway.API.Controllers
                 .Select(t => t.StudentId)
                 .ToArray();
 
+            var currentDateTime = DateTimeUtils.GetMoscowNow();
+            var tasks = course.Homeworks
+                .SelectMany(t => t.Tasks)
+                .Where(t => t.PublicationDate <= currentDateTime)
+                .ToList();
+
+            var taskIds = tasks.Select(t => t.Id).ToArray();
+
             var getStudentsDataTask = AuthServiceClient.GetAccountsData(studentIds);
             var getStatisticsTask = _solutionsClient.GetTaskSolutionStatistics(course.Id, taskId);
+            var getStatsForTasks = _solutionsClient.GetTaskSolutionsStats(taskIds);
 
-            await Task.WhenAll(getStudentsDataTask, getStatisticsTask);
+            await Task.WhenAll(getStudentsDataTask, getStatisticsTask, getStatsForTasks);
 
             var usersData = getStudentsDataTask.Result.ToDictionary(t => t.UserId);
             var statistics = getStatisticsTask.Result.ToDictionary(t => t.StudentId);
+            var statsForTasks = getStatsForTasks.Result;
             var groups = course.Groups.ToDictionary(
                 t => t.Id,
                 t => t.StudentsIds.Select(s => usersData[s]).ToArray());
+
+            for (var i = 0; i < statsForTasks.Length; i++) statsForTasks[i].Title = tasks[i].Title;
 
             var result = new TaskSolutionStatisticsPageData()
             {
@@ -129,7 +142,8 @@ namespace HwProj.APIGateway.API.Controllers
                     })
                     .OrderBy(t => t.User.Surname)
                     .ThenBy(t => t.User.Name)
-                    .ToArray()
+                    .ToArray(),
+                StatsForTasks = statsForTasks
             };
 
             return Ok(result);

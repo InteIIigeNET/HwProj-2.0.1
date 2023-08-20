@@ -228,7 +228,24 @@ namespace HwProj.SolutionsService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<SolutionPreviewDto[]>();
         }
-
+        
+        public async Task<TaskSolutionsStats[]> GetTaskSolutionsStats(long[] taskIds)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _solutionServiceUri + "api/Solutions/taskSolutionsStats")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(taskIds),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+        
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<TaskSolutionsStats[]>();
+        }
+        
         public async Task<bool> Ping()
         {
             try
