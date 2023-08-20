@@ -229,11 +229,11 @@ namespace HwProj.SolutionsService.Client
             return await response.DeserializeAsync<SolutionPreviewDto[]>();
         }
         
-        public async Task<TaskSolutionsStats[]> GetStatsAllUnratedSolutionsForTasks(long[] taskIds)
+        public async Task<TaskSolutionsStats[]> GetTaskSolutionsStats(long[] taskIds)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
-                _solutionServiceUri + "api/Solutions/allStatsForUnrated")
+                _solutionServiceUri + "api/Solutions/taskSolutionsStats")
             {
                 Content = new StringContent(
                     JsonConvert.SerializeObject(taskIds),

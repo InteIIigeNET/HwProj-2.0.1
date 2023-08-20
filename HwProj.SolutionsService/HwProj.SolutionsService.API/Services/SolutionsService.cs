@@ -9,6 +9,7 @@ using HwProj.Models;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.SolutionsService;
+using HwProj.Models.StatisticsService;
 using HwProj.SolutionsService.API.Events;
 using HwProj.SolutionsService.API.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -141,6 +142,59 @@ namespace HwProj.SolutionsService.API.Services
         public async Task MarkSolutionFinal(long solutionId)
         {
             await _solutionsRepository.UpdateSolutionState(solutionId, SolutionState.Final);
+        }
+
+        public async Task<SolutionPreviewDto[]> GetAllUnratedSolutions(long[] taskIds)
+        {
+            var solutions = await _solutionsRepository
+                .FindAll(t => taskIds.Contains(t.TaskId))
+                .GroupBy(t => new { t.TaskId, t.StudentId })
+                .Select(t => t.OrderByDescending(x => x.PublicationDate))
+                .Select(t => new
+                {
+                    LastSolution = t.FirstOrDefault(),
+                    IsFirstTry = t.Skip(1).All(s => s.State == SolutionState.Posted)
+                })
+                .Where(t => t.LastSolution != null && t.LastSolution.State == SolutionState.Posted)
+                .OrderBy(t => t.LastSolution!.PublicationDate)
+                .Select(t => new SolutionPreviewDto
+                {
+                    StudentId = t.LastSolution!.StudentId,
+                    TaskId = t.LastSolution.TaskId,
+                    PublicationDate = t.LastSolution.PublicationDate,
+                    IsFirstTry = t.IsFirstTry
+                })
+                .ToArrayAsync();
+
+            return solutions;
+        }
+
+        public async Task<TaskSolutionsStats[]> GetTaskSolutionsStats(long[] taskIds)
+        {
+            var statsSolutions = await _solutionsRepository
+                .FindAll(t => taskIds.Contains(t.TaskId))
+                .GroupBy(t => new { t.TaskId, t.StudentId })
+                .Select(t => t.OrderByDescending(x => x.PublicationDate))
+                .Select(t => new
+                {
+                    LastSolution = t.FirstOrDefault()
+                })
+                .Where(t => t.LastSolution != null && t.LastSolution.State == SolutionState.Posted)
+                .GroupBy(t => t.LastSolution!.TaskId)
+                .Select(t => new TaskSolutionsStats()
+                {
+                    TaskId = t.Key,
+                    CountUnratedSolutions = t.Count()
+                })
+                .ToDictionaryAsync(t => t.TaskId);
+
+            return taskIds.Select(t => statsSolutions.TryGetValue(t, out var value)
+                ? value
+                : new TaskSolutionsStats
+                {
+                    TaskId = t,
+                    CountUnratedSolutions = 0
+                }).ToArray();
         }
 
         public Task<Solution[]> GetTaskSolutionsFromGroupAsync(long taskId, long groupId)

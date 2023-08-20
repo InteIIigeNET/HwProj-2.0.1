@@ -194,6 +194,7 @@ const StudentSolutionsPage: FC = () => {
                                     </ListItemButton>
                                 </Link>)}
                         </List>
+                        {renderGoBackToCoursesStatsLink()}
                     </Grid>
                     <Grid item xs={9} spacing={2} justifyContent={"flex-start"}>
                         <Task

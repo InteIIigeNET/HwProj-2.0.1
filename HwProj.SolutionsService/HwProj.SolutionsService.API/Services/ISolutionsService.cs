@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using HwProj.Models.SolutionsService;
+using HwProj.Models.StatisticsService;
 
 namespace HwProj.SolutionsService.API.Services
 {
@@ -13,14 +14,17 @@ namespace HwProj.SolutionsService.API.Services
         Task<Solution?[]> GetLastTaskSolutions(long[] taskIds, string studentId);
 
         Task<Solution[]> GetTaskSolutionsFromGroupAsync(long taskId, long groupId);
-        
+
         Task<long> PostOrUpdateAsync(long taskId, Solution solution);
         Task PostEmptySolutionWithRateAsync(long task, Solution solution);
 
         Task RateSolutionAsync(long solutionId, int newRating, string lecturerComment);
 
         Task DeleteSolutionAsync(long solutionId);
-        
+
         Task MarkSolutionFinal(long solutionId);
+
+        Task<SolutionPreviewDto[]> GetAllUnratedSolutions(long[] taskIds);
+        Task<TaskSolutionsStats[]> GetTaskSolutionsStats(long[] taskIds);
     }
 }
