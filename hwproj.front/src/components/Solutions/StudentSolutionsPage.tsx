@@ -11,9 +11,9 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useEffect, useState} from "react";
 import {CircularProgress, Grid} from "@material-ui/core";
 import {useNavigate, useParams} from "react-router-dom";
-import {Chip, List, ListItemButton, ListItemText, Stack, Alert, Tooltip} from "@mui/material";
+import {Chip, List, ListItemButton, ListItemText, Stack, Alert, Tooltip, StepLabel, StepIcon} from "@mui/material";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
-import { Link } from 'react-router-dom';
+import {Link} from 'react-router-dom';
 
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
@@ -46,7 +46,7 @@ const StudentSolutionsPage: FC = () => {
         setActiveStep(index)
         navigate(`/task/${taskId}/${currentStudentId}`)
     }
-    
+
     const [studentSolutionsState, setStudentSolutionsState] = useState<IStudentSolutionsPageState>({
         currentTaskId: "",
         currentStudentId: studentId!,
@@ -136,37 +136,39 @@ const StudentSolutionsPage: FC = () => {
                             проверены!
                         </Alert>
                         : renderGoBackToCoursesStatsLink()}
+                    <Stepper nonLinear activeStep={activeStep}>
+                        {taskSolutionsStats!.map((t, index) => (
+                            <Step key={t.taskId} completed={!t.countUnratedSolutions}>
+                                <StepButton icon={<Chip color={"default"} size={"small"} label={t.countUnratedSolutions}/>} color="inherit" onClick={async () => stepperNavigate(index, t.taskId!, currentStudentId)}>
+                                    {t.taskId}
+                                </StepButton>
+                            </Step>
+                        ))}
+                    </Stepper>
                 </Grid>
-                <Stepper nonLinear activeStep={activeStep}>
-                    {taskSolutionsStats!.map((t, index) => (
-                        <Step key={t.taskId} >
-                            <StepButton color="inherit" onClick={async () => stepperNavigate(index, t.taskId!, currentStudentId)}>
-                                {t.taskId + " / " + t.countUnratedSolutions}
-                            </StepButton>
-                        </Step>
-                    ))}
-                </Stepper>
                 <Grid container spacing={3} style={{marginTop: '1px'}}>
                     <Grid item xs={3}>
                         <List>
                             {studentSolutionsPreview!.map(({
-                                    color,
-                                    solutionsDescription,
-                                    lastRatedSolution, student: {
+                                                               color,
+                                                               solutionsDescription,
+                                                               lastRatedSolution, student: {
                                     name,
                                     surname,
                                     userId
                                 }
                                                            }) =>
-                                <Link to={`/task/${currentTaskId}/${(userId)!}`} style={{color: "black", textDecoration: "none"}}>
+                                <Link to={`/task/${currentTaskId}/${(userId)!}`}
+                                      style={{color: "black", textDecoration: "none"}}>
                                     <ListItemButton disableGutters divider
                                                     disableTouchRipple={currentStudentId === userId}
                                                     selected={currentStudentId === userId}>
                                         <Stack direction={"row"} spacing={1} sx={{paddingLeft: 1}}>
-                                            <Tooltip arrow disableInteractive enterDelay={1000} title={<span style={{ whiteSpace: 'pre-line' }}>{solutionsDescription}</span>}>
-                                            <Chip style={{backgroundColor: color}}
-                                                  size={"small"}
-                                                  label={lastRatedSolution == undefined ? "?" : lastRatedSolution.rating}/>
+                                            <Tooltip arrow disableInteractive enterDelay={1000} title={<span
+                                                style={{whiteSpace: 'pre-line'}}>{solutionsDescription}</span>}>
+                                                <Chip style={{backgroundColor: color}}
+                                                      size={"small"}
+                                                      label={lastRatedSolution == undefined ? "?" : lastRatedSolution.rating}/>
                                             </Tooltip>
                                             <ListItemText primary={surname + " " + name}/>
                                         </Stack>
