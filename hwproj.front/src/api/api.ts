@@ -1408,6 +1408,12 @@ export interface TaskSolutionsStats {
      * @memberof TaskSolutionsStats
      */
     countUnratedSolutions?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof TaskSolutionsStats
+     */
+    title?: string;
 }
 
 /**

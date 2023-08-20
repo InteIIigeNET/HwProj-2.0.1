@@ -223,8 +223,12 @@ namespace HwProj.SolutionsService.API.Controllers
                     TaskId = t.Key,
                     CountUnratedSolutions = t.Count()
                 })
-                .ToArrayAsync();
-            return statsSolutions;
+                .ToDictionaryAsync(t => t.TaskId);
+            return taskIds.Select(t => statsSolutions.TryGetValue(t, out var value) ? value : new TaskSolutionsStats
+            {
+                TaskId = t,
+                CountUnratedSolutions = 0
+            }).ToArray();
         }
     }
 }

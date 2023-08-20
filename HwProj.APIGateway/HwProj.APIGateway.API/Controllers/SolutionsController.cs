@@ -105,12 +105,12 @@ namespace HwProj.APIGateway.API.Controllers
                 .Select(t => t.StudentId)
                 .ToArray();
 
-            var homeworks = course.Homeworks.Select(t => t.Tasks).ToArray();
-            var taskIds = new List<long>();
-            foreach (var homework in homeworks)
-            foreach (var task in homework) 
-                taskIds.Add(task.Id);
-            var statsForTasks = await _solutionsClient.GetStatsAllUnratedSolutionsForTasks(taskIds.ToArray());
+            var tasks = course.Homeworks.SelectMany(t => t.Tasks).ToArray();
+            var statsForTasks = await _solutionsClient.GetStatsAllUnratedSolutionsForTasks(tasks.Select(t => t.Id).ToArray());
+           for (var i = 0; i < statsForTasks.Length; i++)
+           {
+               statsForTasks[i].Title = tasks[i].Title;
+           }
             
             var getStudentsDataTask = AuthServiceClient.GetAccountsData(studentIds);
             var getStatisticsTask = _solutionsClient.GetTaskSolutionStatistics(course.Id, taskId);

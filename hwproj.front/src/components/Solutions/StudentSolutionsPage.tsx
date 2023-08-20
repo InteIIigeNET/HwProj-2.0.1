@@ -11,7 +11,19 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useEffect, useState} from "react";
 import {CircularProgress, Grid} from "@material-ui/core";
 import {useNavigate, useParams} from "react-router-dom";
-import {Chip, List, ListItemButton, ListItemText, Stack, Alert, Tooltip, StepLabel, StepIcon} from "@mui/material";
+import TaskAltIcon from '@mui/icons-material/TaskAlt';
+import {
+    Chip,
+    List,
+    ListItemButton,
+    ListItemText,
+    Stack,
+    Alert,
+    Tooltip,
+    StepLabel,
+    StepIcon,
+    StepConnector
+} from "@mui/material";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import {Link} from 'react-router-dom';
 
@@ -41,11 +53,6 @@ interface IStudentSolutionsPageState {
 const StudentSolutionsPage: FC = () => {
     const {taskId, studentId} = useParams()
     const navigate = useNavigate()
-    const [activeStep, setActiveStep] = React.useState(0)
-    const stepperNavigate = (index: number, taskId: number, currentStudentId: string) => {
-        setActiveStep(index)
-        navigate(`/task/${taskId}/${currentStudentId}`)
-    }
 
     const [studentSolutionsState, setStudentSolutionsState] = useState<IStudentSolutionsPageState>({
         currentTaskId: "",
@@ -130,21 +137,33 @@ const StudentSolutionsPage: FC = () => {
         return (
             <div className={"container"} style={{marginBottom: '50px', marginTop: '15px'}}>
                 <Grid direction={"column"} justifyContent="center" alignContent={"stretch"} spacing={2}>
-                    {allSolutionsRated
-                        ? <Alert severity="success" action={renderGoBackToCoursesStatsLink()}>
-                            Все решения на данный момент
-                            проверены!
-                        </Alert>
-                        : renderGoBackToCoursesStatsLink()}
-                    <Stepper nonLinear activeStep={activeStep}>
-                        {taskSolutionsStats!.map((t, index) => (
-                            <Step key={t.taskId} completed={!t.countUnratedSolutions}>
-                                <StepButton icon={<Chip color={"default"} size={"small"} label={t.countUnratedSolutions}/>} color="inherit" onClick={async () => stepperNavigate(index, t.taskId!, currentStudentId)}>
-                                    {t.taskId}
-                                </StepButton>
-                            </Step>
-                        ))}
-                    </Stepper>
+                    <Stack direction={"row"} spacing={1}
+                           style={{overflowY: "hidden", overflowX: "auto", minHeight: 80}}>
+                        {taskSolutionsStats!.map((t, index) => {
+                            const isCurrent = currentTaskId === String(t.taskId)
+                            const color = isCurrent ? "primary" : "default"
+                            return <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                {index > 0 && <hr style={{width: 100}}/>}
+                                <Step active={isCurrent}>
+                                    <Link to={`/task/${t.taskId}/${userId!}`}
+                                          style={{color: "black", textDecoration: "none"}}>
+                                        <StepButton
+                                            color={color}
+                                            icon={t.countUnratedSolutions
+                                                ? <Chip size={"small"} color={isCurrent ? "primary" : "default"}
+                                                        label={t.countUnratedSolutions}/>
+                                                : <TaskAltIcon color={isCurrent ? "primary" : "disabled"}/>}>
+                                            {t.title}
+                                        </StepButton>
+                                    </Link>
+                                </Step>
+                            </Stack>;
+                        })}
+                    </Stack>
+                    {allSolutionsRated && <Alert severity="success" action={renderGoBackToCoursesStatsLink()}>
+                        Все решения на данный момент
+                        проверены!
+                    </Alert>}
                 </Grid>
                 <Grid container spacing={3} style={{marginTop: '1px'}}>
                     <Grid item xs={3}>
