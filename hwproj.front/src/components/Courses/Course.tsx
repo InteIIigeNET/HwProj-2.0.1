@@ -99,7 +99,7 @@ const Course: React.FC = () => {
     const showStatsTab = isMentor || isAcceptedStudent
     const showApplicationsTab = isMentor
 
-    const changeTab = (newTab: string, addToHistory?: boolean) => {
+    const changeTab = (newTab: string) => {
         if (isAcceptableTabValue(newTab) && newTab !== pageState.tabValue) {
             if (newTab === "stats" && !showStatsTab) return;
             if (newTab === "applications" && !showApplicationsTab) return;
