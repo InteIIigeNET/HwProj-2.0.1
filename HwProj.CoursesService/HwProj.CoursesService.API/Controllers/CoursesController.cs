@@ -25,18 +25,21 @@ namespace HwProj.CoursesService.API.Controllers
         private readonly ICoursesRepository _coursesRepository;
         private readonly ICourseMatesRepository _courseMatesRepository;
         private readonly IGroupsRepository _groupsRepository;
+        private readonly IAssignmentsRepository _assignmentsRepository;
         private readonly IMapper _mapper;
 
         public CoursesController(ICoursesService coursesService,
             ICoursesRepository coursesRepository,
             ICourseMatesRepository courseMatesRepository,
             IGroupsRepository groupsRepository,
+            IAssignmentsRepository assignmentsRepository,
             IMapper mapper)
         {
             _coursesService = coursesService;
             _coursesRepository = coursesRepository;
             _courseMatesRepository = courseMatesRepository;
             _groupsRepository = groupsRepository;
+            _assignmentsRepository = assignmentsRepository;
             _mapper = mapper;
         }
 
@@ -134,6 +137,18 @@ namespace HwProj.CoursesService.API.Controllers
             var userId = Request.GetUserIdFromHeader();
             var coursesFromDb = await _coursesService.GetUserCoursesAsync(userId);
             var courses = _mapper.Map<CourseDTO[]>(coursesFromDb).ToArray();
+            for (var i = 0; i < coursesFromDb.Length; ++i)
+            {
+                var assignments = await _assignmentsRepository.GetAllByCourseAsync(coursesFromDb[i].Id);
+                courses[i].Assignments = coursesFromDb[i].CourseMates.Where(cm => cm.IsAccepted)
+                    .GroupBy(cm => assignments.Where(a => a.StudentId == cm.StudentId)?.FirstOrDefault()?.MentorId)
+                    .Select(g => new AssignmentsViewModel()
+                    {
+                        MentorId = g.Key,
+                        StudentIds = g.Select(a => a.StudentId).ToArray()
+                    }).ToArray();
+            }
+
             return courses;
         }
 

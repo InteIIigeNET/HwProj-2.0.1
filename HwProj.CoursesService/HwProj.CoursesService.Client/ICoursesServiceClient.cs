@@ -43,6 +43,6 @@ namespace HwProj.CoursesService.Client
         Task<Result> AssignStudentToMentor(long courseId, string mentorId, string studentId);
         Task<Result> DeassignStudentFromMentor(long courseId, string studentId);
         Task<bool> Ping();
-        Task<AssignmentViewModel[]> GetAllAssignmentsByCourse(long courseId);
+        Task<AssignmentsViewModel[]> GetAllAssignmentsByCourse(long courseId);
     }
 }

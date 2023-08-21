@@ -24,6 +24,7 @@ namespace HwProj.CoursesService.API.Services
         private readonly IHomeworksRepository _homeworksRepository;
         private readonly ITasksRepository _tasksRepository;
         private readonly IGroupsRepository _groupsRepository;
+        private readonly IAssignmentsRepository _assignmentsRepository;
         private readonly IMapper _mapper;
 
         public CoursesService(ICoursesRepository coursesRepository,
@@ -33,6 +34,7 @@ namespace HwProj.CoursesService.API.Services
             ITasksRepository tasksRepository,
             IHomeworksRepository homeworksRepository,
             IGroupsRepository groupsRepository,
+            IAssignmentsRepository assignmentsRepository,
             IMapper mapper
         )
         {
@@ -43,6 +45,7 @@ namespace HwProj.CoursesService.API.Services
             _homeworksRepository = homeworksRepository;
             _tasksRepository = tasksRepository;
             _groupsRepository = groupsRepository;
+            _assignmentsRepository = assignmentsRepository;
             _mapper = mapper;
         }
 
@@ -68,6 +71,7 @@ namespace HwProj.CoursesService.API.Services
             if (course == null) return null;
 
             var groups = _groupsRepository.GetGroupsWithGroupMatesByCourse(course.Id).ToArray();
+            var assignments = await _assignmentsRepository.GetAllByCourseAsync(course.Id);
             
             var result = _mapper.Map<CourseDTO>(course);
             result.Groups = groups.Select(g =>
@@ -76,6 +80,15 @@ namespace HwProj.CoursesService.API.Services
                     Id = g.Id,
                     StudentsIds = g.GroupMates.Select(t => t.StudentId).ToArray()
                 }).ToArray();
+            result.Assignments = course.CourseMates.Where(cm => cm.IsAccepted)
+                .GroupBy(cm => assignments.Where(a => a.StudentId == cm.StudentId)?.FirstOrDefault()?.MentorId)
+                .Select(g => new AssignmentsViewModel()
+                {
+                    MentorId = g.Key,
+                    StudentIds = g.Select(a => a.StudentId).ToArray()
+                }).ToArray();
+
+
             
             return result;
         }
@@ -215,7 +228,7 @@ namespace HwProj.CoursesService.API.Services
             var getMentorCoursesTask = _coursesRepository
                 .FindAll(c => c.MentorIds.Contains(userId))
                 .Include(c => c.Homeworks).ThenInclude(t => t.Tasks)
-                .Include(a => a.Assignments)
+                .Include(c => c.CourseMates)
                 .ToArrayAsync();
 
             var mentorCourses = await getMentorCoursesTask.ConfigureAwait(false);

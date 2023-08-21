@@ -142,7 +142,8 @@ namespace HwProj.CoursesService.Client
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<CourseDTO[]>();
+            var test = await response.DeserializeAsync<CourseDTO[]>();
+            return test;
         }
 
         public async Task<TaskDeadlineDto[]> GetTaskDeadlines()
@@ -444,14 +445,14 @@ namespace HwProj.CoursesService.Client
                 : Result.Failed(response.ReasonPhrase);
         }
 
-        public async Task<AssignmentViewModel[]> GetAllAssignmentsByCourse(long courseId)
+        public async Task<AssignmentsViewModel[]> GetAllAssignmentsByCourse(long courseId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
                 _coursesServiceUri + $"api/Assignments/{courseId}/getAssignments");
 
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<AssignmentViewModel[]>();
+            return await response.DeserializeAsync<AssignmentsViewModel[]>();
         }
     }
 }
