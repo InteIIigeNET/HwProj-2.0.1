@@ -136,7 +136,7 @@ const StudentSolutionsPage: FC = () => {
                     <Stack direction={"row"} spacing={1}
                            style={{overflowY: "hidden", overflowX: "auto", minHeight: 80}}>
                         {taskSolutionsStats!.map((t, index) => {
-                            const isCurrent = currentTaskId === String(t.taskId)
+                            const isCurrent = taskId === String(t.taskId)
                             const color = isCurrent ? "primary" : "default"
                             return <Stack direction={"row"} spacing={1} alignItems={"center"}>
                                 {index > 0 && <hr style={{width: 100}}/>}
@@ -151,7 +151,7 @@ const StudentSolutionsPage: FC = () => {
                                             icon={t.countUnratedSolutions
                                                 ? <Chip size={"small"} color={isCurrent ? "primary" : "default"}
                                                         label={t.countUnratedSolutions}/>
-                                                : <TaskAltIcon color={isCurrent ? "primary" : "disabled"}/>}>
+                                                : <TaskAltIcon color={isCurrent ? "primary" : "success"}/>}>
                                             {t.title}
                                         </StepButton>
                                     </Link>
