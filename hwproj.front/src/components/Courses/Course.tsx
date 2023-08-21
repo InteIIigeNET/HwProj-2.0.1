@@ -104,7 +104,6 @@ const Course: React.FC = () => {
             if (newTab === "stats" && !showStatsTab) return;
             if (newTab === "applications" && !showApplicationsTab) return;
 
-            if (addToHistory) navigate(`/courses/${courseId}/${newTab}`)
             setPageState(prevState => ({
                 ...prevState,
                 tabValue: newTab
@@ -133,7 +132,7 @@ const Course: React.FC = () => {
         setCurrentState()
     }, [])
 
-    useEffect(() => changeTab(tab || ""), [tab, isFound])
+    useEffect(() => changeTab(tab || "homeworks"), [tab, isFound])
 
     const joinCourse = async () => {
         await ApiSingleton.coursesApi
@@ -220,9 +219,9 @@ const Course: React.FC = () => {
                         style={{marginTop: 15}}
                         indicatorColor="primary"
                         onChange={(event, value) => {
-                            if (value === 0) changeTab("homeworks", true)
-                            if (value === 1) changeTab("stats", true)
-                            if (value === 2) changeTab("applications", true)
+                            if (value === 0) navigate(`/courses/${courseId}/homeworks`)
+                            if (value === 1) navigate(`/courses/${courseId}/stats`)
+                            if (value === 2) navigate(`/courses/${courseId}/applications`)
                         }}
                     >
                         <Tab label="Домашние задания"/>
