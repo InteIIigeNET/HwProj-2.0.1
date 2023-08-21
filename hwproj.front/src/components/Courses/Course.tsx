@@ -132,7 +132,7 @@ const Course: React.FC = () => {
         setCurrentState()
     }, [])
 
-    useEffect(() => changeTab(tab || "homeworks"), [tab, isFound])
+    useEffect(() => changeTab(tab || "homeworks"), [tab, courseId])
 
     const joinCourse = async () => {
         await ApiSingleton.coursesApi

@@ -18,7 +18,6 @@ export class CoursesList extends React.Component<ICoursesProps, {}> {
                     <Grid item>
                         <ListItem
                             key={course.id}
-                            onClick={() => this.props.navigate("/courses/" + course.id!.toString())}
                             style={{padding: 0}}
                         >
                             <NavLink
