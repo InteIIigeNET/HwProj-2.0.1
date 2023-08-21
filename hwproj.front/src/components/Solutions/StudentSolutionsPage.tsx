@@ -141,7 +141,7 @@ const StudentSolutionsPage: FC = () => {
                             return <Stack direction={"row"} spacing={1} alignItems={"center"}>
                                 {index > 0 && <hr style={{width: 100}}/>}
                                 <Step active={isCurrent}>
-                                    <Link to={`/task/${t.taskId}/${userId!}`}
+                                    <Link to={`/task/${t.taskId}/${currentStudentId}`}
                                           style={{color: "black", textDecoration: "none"}}>
                                         <StepButton
                                             ref={ref => {
