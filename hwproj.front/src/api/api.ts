@@ -131,21 +131,21 @@ export interface AccountDataDto {
 /**
  * 
  * @export
- * @interface AssignmentViewModel
+ * @interface AssignmentsViewModel
  */
-export interface AssignmentViewModel {
+export interface AssignmentsViewModel {
     /**
      * 
      * @type {string}
-     * @memberof AssignmentViewModel
+     * @memberof AssignmentsViewModel
      */
     mentorId?: string;
     /**
      * 
-     * @type {string}
-     * @memberof AssignmentViewModel
+     * @type {Array<string>}
+     * @memberof AssignmentsViewModel
      */
-    studentId?: string;
+    studentIds?: Array<string>;
 }
 
 /**
@@ -267,10 +267,10 @@ export interface CourseViewModel {
     isCompleted?: boolean;
     /**
      * 
-     * @type {Array<AssignmentViewModel>}
+     * @type {Array<AssignmentsViewModel>}
      * @memberof CourseViewModel
      */
-    assignments?: Array<AssignmentViewModel>;
+    assignments?: Array<AssignmentsViewModel>;
     /**
      * 
      * @type {Array<AccountDataDto>}
@@ -1424,10 +1424,10 @@ export interface TaskSolutionStatisticsPageData {
     studentsSolutions?: Array<UserTaskSolutions>;
     /**
      * 
-     * @type {Array<AssignmentViewModel>}
+     * @type {Array<AssignmentsViewModel>}
      * @memberof TaskSolutionStatisticsPageData
      */
-    assignments?: Array<AssignmentViewModel>;
+    assignments?: Array<AssignmentsViewModel>;
     /**
      * 
      * @type {number}
