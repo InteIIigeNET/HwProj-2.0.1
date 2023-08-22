@@ -20,6 +20,7 @@ import {Box, Card, CardActions, CardContent, Chip, Divider, Tooltip} from "@mui/
 import ReactMarkdown from "react-markdown";
 import {Link} from "react-router-dom";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
+import Utils from "../../services/Utils";
 
 interface ICourseExperimentalProps {
     homeworks: HomeworkViewModel[]
@@ -70,6 +71,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
 
     const renderHomework = (homework: HomeworkViewModel) => {
         const deferredHomeworks = homework.tasks!.filter(t => t.isDeferred!)
+        const homeworkCount = homework.tasks!.length
         return <CardContent>
             <Grid container spacing={2}>
                 <Grid item>
@@ -80,7 +82,8 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 {props.isMentor && deferredHomeworks!.length > 0 &&
                     <Grid item><Chip label={"🕘 " + deferredHomeworks!.length}/></Grid>
                 }
-                <Grid item><Chip label={homework.tasks!.length + " заданий"}/></Grid>
+                <Grid item><Chip
+                    label={homeworkCount + " " + Utils.pluralizeHelper(["Задание", "Задания", "Заданий"], homeworkCount)}/></Grid>
             </Grid>
             <Divider style={{marginTop: 15, marginBottom: 15}}/>
             <Typography style={{color: "GrayText"}} gutterBottom variant="body1">
