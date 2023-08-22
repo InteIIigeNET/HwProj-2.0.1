@@ -23,11 +23,6 @@ namespace HwProj.CoursesService.API.Services
             }
         }
 
-        public async Task<Assignment[]> GetAllAssignmentsByCourseAsync(long courseId)
-        {
-            return await _assignmentsRepository.GetAllByCourseAsync(courseId);
-        }
-
         public async Task AssignStudentAsync(string studentId, string mentorId, long courseId)
         {
             var student = _assignmentsRepository.FindAsync(a => a.CourseId == courseId && a.StudentId == studentId);

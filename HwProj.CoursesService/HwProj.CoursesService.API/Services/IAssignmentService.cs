@@ -8,8 +8,5 @@ namespace HwProj.CoursesService.API.Services
         public Task AssignStudentAsync(string studentId, string mentorId, long courseId);
 
         public Task DeassignStudentAsync(string studentId, long courseId);
-
-        public Task<Assignment[]> GetAllAssignmentsByCourseAsync(long courseId);
-
     }
 }
