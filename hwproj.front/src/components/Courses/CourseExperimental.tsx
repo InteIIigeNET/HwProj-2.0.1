@@ -82,7 +82,8 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 {props.isMentor && deferredHomeworks!.length > 0 &&
                     <Grid item><Chip label={"🕘 " + deferredHomeworks!.length}/></Grid>
                 }
-                <Grid item><Chip label={homeworkCount + " " + Utils.pluralizeHelper(["Задание", "Задания", "Заданий"], homeworkCount)}/></Grid>
+                <Grid item><Chip
+                    label={homeworkCount + " " + Utils.pluralizeHelper(["Задание", "Задания", "Заданий"], homeworkCount)}/></Grid>
             </Grid>
             <Divider style={{marginTop: 15, marginBottom: 15}}/>
             <Typography style={{color: "GrayText"}} gutterBottom variant="body1">
