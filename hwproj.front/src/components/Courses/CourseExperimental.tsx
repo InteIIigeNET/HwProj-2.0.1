@@ -86,7 +86,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                     label={homeworkCount + " " + Utils.pluralizeHelper(["Задание", "Задания", "Заданий"], homeworkCount)}/></Grid>
             </Grid>
             <Divider style={{marginTop: 15, marginBottom: 15}}/>
-            <Typography style={{color: "GrayText"}} gutterBottom variant="body1">
+            <Typography style={{color: "#454545"}} gutterBottom variant="body1">
                 <ReactMarkdown children={homework.description!}/>
             </Typography>
         </CardContent>
@@ -105,7 +105,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 </Grid>
             </Grid>
             <Divider style={{marginTop: 15, marginBottom: 15}}/>
-            <Typography style={{color: "GrayText"}} gutterBottom variant="body1">
+            <Typography style={{color: "#454545"}} gutterBottom variant="body1">
                 <ReactMarkdown children={task.description!}/>
             </Typography>
         </CardContent>
