@@ -267,7 +267,11 @@ namespace HwProj.SolutionsService.IntegrationTests
             var solutionViewModelFromStudent = GenerateSolutionViewModel(studentId);
 
             var solutionId = await solutionClient.PostSolution(taskId, solutionViewModelFromStudent);
-            await solutionClient.RateSolution(solutionId, 2, "Not Bad", lectureId);
+            var postSolutionRatingModel = new PostSolutionRatingModel()
+            {
+                NewRating = 2,LecturerComment = "Not Bad", LecturerId = lectureId
+            };
+            await solutionClient.RateSolution(solutionId, postSolutionRatingModel );
             var solutionsGet = await solutionClient.GetSolutionById(solutionId);
 
             solutionsGet.LecturerComment.Should().Be("Not Bad");
@@ -286,8 +290,11 @@ namespace HwProj.SolutionsService.IntegrationTests
             var solutionViewModelFromStudent = GenerateSolutionViewModel(studentId);
 
             var solutionId = await solutionClient.PostSolution(taskId, solutionViewModelFromStudent);
-            
-            Assert.ThrowsAsync<ForbiddenException>(async () => await solutionClient.RateSolution(solutionId, 2, "Not Bad", studentId));
+            var postSolutionRatingModel = new PostSolutionRatingModel()
+            {
+                NewRating = 2,LecturerComment = "Not Bad", LecturerId = lectureId
+            };
+            Assert.ThrowsAsync<ForbiddenException>(async () => await solutionClient.RateSolution(solutionId, postSolutionRatingModel));
         }
         
         
@@ -341,7 +348,11 @@ namespace HwProj.SolutionsService.IntegrationTests
             var solutionViewModel = GenerateSolutionViewModel(studentId);
             
             var solutionId = await solutionClient.PostSolution(taskId, solutionViewModel);
-            await solutionClient.RateSolution(solutionId, 2, "Not Bad", lectureId);
+            var postSolutionRatingModel = new PostSolutionRatingModel()
+            {
+                NewRating = 2,LecturerComment = "Not Bad", LecturerId = lectureId
+            };
+            await solutionClient.RateSolution(solutionId, postSolutionRatingModel);
             var statisticsFromStudent = await solutionClient.GetCourseStatistics(courseId, studentId);
             var statisticsFromLecture = await solutionClient.GetCourseStatistics(courseId, lectureId);
             
@@ -423,15 +434,25 @@ namespace HwProj.SolutionsService.IntegrationTests
 
             var solution1ViewModel = GenerateGroupSolutionViewModel(studentsIds[0], group1Id);
             var solution1Id = await solutionClients[0].PostSolution(taskId, solution1ViewModel);
-            await solutionClient.RateSolution(solution1Id, 1, "Group", lecturer.Item1);
-
+            var postSolutionRatingModelOne = new PostSolutionRatingModel()
+            {
+                NewRating = 1, LecturerComment = "Group", LecturerId = lecturer.Item1
+            };
+            await solutionClient.RateSolution(solution1Id, postSolutionRatingModelOne);
+            var postSolutionRatingModelTwo = new PostSolutionRatingModel()
+            {
+                NewRating = 2, LecturerComment = "Pair", LecturerId = lecturer.Item1
+            };
             var solution2ViewModel = GenerateGroupSolutionViewModel(studentsIds[1], group2Id);
             var solution2Id = await solutionClients[1].PostSolution(taskId, solution2ViewModel);
-            await solutionClient.RateSolution(solution2Id, 2, "Pair", lecturer.Item1);
-
+            await solutionClient.RateSolution(solution2Id, postSolutionRatingModelTwo);
+            var postSolutionRatingModelThree = new PostSolutionRatingModel()
+            {
+                NewRating = 3, LecturerComment = "Individual", LecturerId = lecturer.Item1
+            };
             var solution3ViewModel = GenerateSolutionViewModel(studentsIds[1]);
             var solution3Id = await solutionClients[1].PostSolution(taskId, solution3ViewModel);
-            await solutionClient.RateSolution(solution3Id, 3, "Individual", lecturer.Item1);
+            await solutionClient.RateSolution(solution3Id, postSolutionRatingModelThree);
 
             var response = await solutionClient.GetTaskSolutionStatistics(courseId, taskId);
             var firstStudentSolutions = response.First(s => s.StudentId == studentsIds[0]).Solutions;
