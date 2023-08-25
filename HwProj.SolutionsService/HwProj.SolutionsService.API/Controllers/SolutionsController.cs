@@ -82,9 +82,10 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpPost("rateSolution/{solutionId}")]
-        public async Task<IActionResult> RateSolution(long solutionId, 
+        public async Task<IActionResult> RateSolution(long solutionId,
             [FromBody] PostSolutionRatingModel postSolutionRatingModel)
         {
+            var a = new PostSolutionRatingModel();
             var solution = await _solutionsService.GetSolutionAsync(solutionId);
             var task = await _coursesClient.GetTask(solution.TaskId);
             var homework = await _coursesClient.GetHomework(task.HomeworkId);
@@ -92,12 +93,13 @@ namespace HwProj.SolutionsService.API.Controllers
 
             if (course.MentorIds.Contains(postSolutionRatingModel.LecturerId))
             {
-                await _solutionsService.RateSolutionAsync(solutionId, postSolutionRatingModel.NewRating, postSolutionRatingModel.LecturerComment);
+                await _solutionsService.RateSolutionAsync(solutionId,
+                    postSolutionRatingModel.NewRating, postSolutionRatingModel.LecturerComment);
                 return Ok();
             }
 
             return Forbid();
-        } 
+        }
 
         [HttpPost("rateEmptySolution/{taskId}")]
         public async Task<IActionResult> PostEmptySolutionWithRate(long taskId,
