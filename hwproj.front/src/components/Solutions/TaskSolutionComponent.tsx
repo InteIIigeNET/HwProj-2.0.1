@@ -45,10 +45,12 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     const rateSolution = async () => {
         if (props.solution) {
             await ApiSingleton.solutionsApi
-                .apiSolutionsRateSolutionBySolutionIdByNewRatingPost(
+                .apiSolutionsRateSolutionBySolutionIdPost(
                     props.solution.id!,
-                    state.points,
-                    state.lecturerComment
+                    {
+                        rating: points,
+                        lecturerComment: lecturerComment
+                    }
                 )
         } else await ApiSingleton.solutionsApi
             .apiSolutionsRateEmptySolutionByTaskIdPost(

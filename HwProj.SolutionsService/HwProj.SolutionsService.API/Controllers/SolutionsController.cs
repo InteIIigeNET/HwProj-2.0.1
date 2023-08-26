@@ -83,18 +83,18 @@ namespace HwProj.SolutionsService.API.Controllers
 
         [HttpPost("rateSolution/{solutionId}")]
         public async Task<IActionResult> RateSolution(long solutionId,
-            [FromBody] PostSolutionRatingModel postSolutionRatingModel)
+            [FromBody] RateSolutionModel postSolutionRatingModel)
         {
-            var a = new PostSolutionRatingModel();
+            var a = new RateSolutionModel();
             var solution = await _solutionsService.GetSolutionAsync(solutionId);
             var task = await _coursesClient.GetTask(solution.TaskId);
             var homework = await _coursesClient.GetHomework(task.HomeworkId);
             var course = await _coursesClient.GetCourseById(homework.CourseId);
 
-            if (course.MentorIds.Contains(postSolutionRatingModel.LecturerId))
+            if (course != null && course.MentorIds.Contains(Request.GetUserIdFromHeader()))
             {
                 await _solutionsService.RateSolutionAsync(solutionId,
-                    postSolutionRatingModel.NewRating, postSolutionRatingModel.LecturerComment);
+                    postSolutionRatingModel.Rating, postSolutionRatingModel.LecturerComment);
                 return Ok();
             }
 

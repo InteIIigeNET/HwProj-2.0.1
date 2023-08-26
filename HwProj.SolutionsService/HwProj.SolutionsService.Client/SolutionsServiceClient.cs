@@ -110,7 +110,7 @@ namespace HwProj.SolutionsService.Client
                 throw new InvalidOperationException(response.ReasonPhrase);
         }
 
-        public async Task RateSolution(long solutionId, PostSolutionRatingModel postSolutionRatingModel)
+        public async Task RateSolution(long solutionId, RateSolutionModel postSolutionRatingModel)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
