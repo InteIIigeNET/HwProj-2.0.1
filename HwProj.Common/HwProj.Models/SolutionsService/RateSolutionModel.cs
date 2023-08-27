@@ -1,7 +1,8 @@
-namespace HwProj.Models.SolutionsService;
-
-public class RateSolutionModel
+namespace HwProj.Models.SolutionsService
 {
-    public int Rating { get; set; }
-    public string? LecturerComment { get; set; }
+    public class RateSolutionModel
+    {
+        public int Rating { get; set; }
+        public string? LecturerComment { get; set; }
+    }
 }
