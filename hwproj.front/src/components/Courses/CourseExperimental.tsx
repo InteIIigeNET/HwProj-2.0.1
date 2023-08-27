@@ -136,7 +136,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                            title={<span style={{whiteSpace: 'pre-line'}}>{solutionsDescription}</span>}>
                     <Chip style={{backgroundColor: color, marginTop: '11.5px'}}
                           size={"small"}
-                          label={lastRatedSolution == undefined ? "⌛" : lastRatedSolution.rating}/>
+                          label={lastRatedSolution == undefined ? "?" : lastRatedSolution.rating}/>
                 </Tooltip>
         }
         return <TimelineDot variant={"outlined"}/>

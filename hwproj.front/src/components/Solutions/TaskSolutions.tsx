@@ -26,7 +26,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
         props.onSolutionRateClick?.()
     }
 
-    useEffect(() => setState({tabValue: 0}), [props.student.userId])
+    useEffect(() => setState({tabValue: 0}), [props.student.userId, props.task.id])
 
     const {tabValue} = state
     const {solutions, student, forMentor} = props

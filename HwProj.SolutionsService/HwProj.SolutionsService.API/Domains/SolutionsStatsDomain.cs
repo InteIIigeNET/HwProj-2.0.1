@@ -37,13 +37,10 @@ namespace HwProj.SolutionsService.API.Domains
                                                  studentGroupIds.Contains(s.GroupId.GetValueOrDefault())
                                                 ))
                                             .OrderBy(s => s.PublicationDate);
-                                    var solutionsInRightModel =
-                                        new List<StatisticsCourseSolutionsModel>(solutions.Select(s =>
-                                            new StatisticsCourseSolutionsModel(s)));
                                     return new StatisticsCourseTasksModel
                                     {
                                         Id = t.Id,
-                                        Solution = solutionsInRightModel
+                                        Solution = solutions.ToList()
                                     };
                                 }))
                             }))
