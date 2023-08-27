@@ -272,7 +272,7 @@ namespace HwProj.SolutionsService.IntegrationTests
             await SignStudentInCourse(studentCourseClient, lectureCourseClient, courseId, studentId);
             var lectureClient = CreateSolutionsServiceClient(lectureId);
             var solutionClient = CreateSolutionsServiceClient(studentId);
-            var solutionViewModelFromStudent = GenerateSolutionViewModel(lectureId);
+            var solutionViewModelFromStudent = GenerateSolutionViewModel(studentId);
 
             var solutionId = await solutionClient.PostSolution(taskId, solutionViewModelFromStudent);
             var rateSolutionModel = new RateSolutionModel()

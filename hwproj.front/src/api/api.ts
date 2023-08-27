@@ -4815,11 +4815,11 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
         /**
          * 
          * @param {number} solutionId 
-         * @param {RateSolutionModel} [postSolutionRatingModel] 
+         * @param {RateSolutionModel} [rateSolutionModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSolutionsRateSolutionBySolutionIdPost(solutionId: number, postSolutionRatingModel?: RateSolutionModel, options: any = {}): FetchArgs {
+        apiSolutionsRateSolutionBySolutionIdPost(solutionId: number, rateSolutionModel?: RateSolutionModel, options: any = {}): FetchArgs {
             // verify required parameter 'solutionId' is not null or undefined
             if (solutionId === null || solutionId === undefined) {
                 throw new RequiredError('solutionId','Required parameter solutionId was null or undefined when calling apiSolutionsRateSolutionBySolutionIdPost.');
@@ -4846,7 +4846,7 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             delete localVarUrlObj.search;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"RateSolutionModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(postSolutionRatingModel || {}) : (postSolutionRatingModel || "");
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(rateSolutionModel || {}) : (rateSolutionModel || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -5070,12 +5070,12 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @param {number} solutionId 
-         * @param {RateSolutionModel} [postSolutionRatingModel] 
+         * @param {RateSolutionModel} [rateSolutionModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSolutionsRateSolutionBySolutionIdPost(solutionId: number, postSolutionRatingModel?: RateSolutionModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsRateSolutionBySolutionIdPost(solutionId, postSolutionRatingModel, options);
+        apiSolutionsRateSolutionBySolutionIdPost(solutionId: number, rateSolutionModel?: RateSolutionModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsRateSolutionBySolutionIdPost(solutionId, rateSolutionModel, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -5200,12 +5200,12 @@ export const SolutionsApiFactory = function (configuration?: Configuration, fetc
         /**
          * 
          * @param {number} solutionId 
-         * @param {RateSolutionModel} [postSolutionRatingModel] 
+         * @param {RateSolutionModel} [rateSolutionModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSolutionsRateSolutionBySolutionIdPost(solutionId: number, postSolutionRatingModel?: RateSolutionModel, options?: any) {
-            return SolutionsApiFp(configuration).apiSolutionsRateSolutionBySolutionIdPost(solutionId, postSolutionRatingModel, options)(fetch, basePath);
+        apiSolutionsRateSolutionBySolutionIdPost(solutionId: number, rateSolutionModel?: RateSolutionModel, options?: any) {
+            return SolutionsApiFp(configuration).apiSolutionsRateSolutionBySolutionIdPost(solutionId, rateSolutionModel, options)(fetch, basePath);
         },
         /**
          * 
@@ -5305,13 +5305,13 @@ export class SolutionsApi extends BaseAPI {
     /**
      * 
      * @param {number} solutionId 
-     * @param {RateSolutionModel} [postSolutionRatingModel] 
+     * @param {RateSolutionModel} [rateSolutionModel] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof SolutionsApi
      */
-    public apiSolutionsRateSolutionBySolutionIdPost(solutionId: number, postSolutionRatingModel?: RateSolutionModel, options?: any) {
-        return SolutionsApiFp(this.configuration).apiSolutionsRateSolutionBySolutionIdPost(solutionId, postSolutionRatingModel, options)(this.fetch, this.basePath);
+    public apiSolutionsRateSolutionBySolutionIdPost(solutionId: number, rateSolutionModel?: RateSolutionModel, options?: any) {
+        return SolutionsApiFp(this.configuration).apiSolutionsRateSolutionBySolutionIdPost(solutionId, rateSolutionModel, options)(this.fetch, this.basePath);
     }
 
     /**
