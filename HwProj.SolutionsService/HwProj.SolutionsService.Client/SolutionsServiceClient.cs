@@ -110,12 +110,18 @@ namespace HwProj.SolutionsService.Client
                 throw new InvalidOperationException(response.ReasonPhrase);
         }
 
-        public async Task RateSolution(long solutionId, int newRating, string lecturerComment, string lecturerId)
+        public async Task RateSolution(long solutionId, RateSolutionModel rateSolutionModel)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
                 _solutionServiceUri +
-                $"api/Solutions/rateSolution/{solutionId}?newRating={newRating}&lecturerComment={lecturerComment}&lecturerId={lecturerId}");
+                $"api/Solutions/rateSolution/{solutionId}")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(rateSolutionModel),
+                    Encoding.UTF8,
+                    "application/json")
+            };
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);

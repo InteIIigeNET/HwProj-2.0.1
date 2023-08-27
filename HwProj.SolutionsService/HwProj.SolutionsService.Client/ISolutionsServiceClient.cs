@@ -11,7 +11,7 @@ namespace HwProj.SolutionsService.Client
         Task<Solution[]> GetUserSolutions(long taskId, string studentId);
         Task<long> PostSolution(long taskId, PostSolutionModel model);
         Task PostEmptySolutionWithRate(long taskId, SolutionViewModel solution);
-        Task RateSolution(long solutionId, int newRating, string lecturerComment, string lecturerId);
+        Task RateSolution(long solutionId, RateSolutionModel rateSolutionModel);
         Task MarkSolution(long solutionId);
         Task DeleteSolution(long solutionId);
         Task<long> PostGroupSolution(SolutionViewModel model, long taskId, long groupId);

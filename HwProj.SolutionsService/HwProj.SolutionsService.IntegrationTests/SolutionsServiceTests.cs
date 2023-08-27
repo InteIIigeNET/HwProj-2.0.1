@@ -50,7 +50,7 @@ namespace HwProj.SolutionsService.IntegrationTests
                 .With(cvm => cvm.IsOpen, true);
             return fixture.Create();
         }
-        
+
         private CreateHomeworkViewModel GenerateCreateHomeworkViewModel()
         {
             var fixture = new Fixture().Build<CreateHomeworkViewModel>()
@@ -62,10 +62,10 @@ namespace HwProj.SolutionsService.IntegrationTests
         private CreateTaskViewModel GenerateCreateTaskViewModelWithoutDeadLine()
         {
             return new Fixture().Build<CreateTaskViewModel>()
-                .With(t  => t.HasDeadline, false)
+                .With(t => t.HasDeadline, false)
                 .Create();
         }
-        
+
         private CreateTaskViewModel GenerateCreateTaskViewModelWithStrictDeadLine()
         {
             return new Fixture().Build<CreateTaskViewModel>()
@@ -74,7 +74,7 @@ namespace HwProj.SolutionsService.IntegrationTests
                 .With(t => t.DeadlineDate, DateTime.MinValue)
                 .Create();
         }
-        
+
         private CoursesServiceClient CreateCourseServiceClient(string userId)
         {
             var mockIConfiguration = new Mock<IConfiguration>();
@@ -86,7 +86,7 @@ namespace HwProj.SolutionsService.IntegrationTests
             return new CoursesServiceClient(mockClientFactory.Object, mockHttpContextAccessor.Object,
                 mockIConfiguration.Object);
         }
-        
+
         private async Task<(string, string)> CreateAndRegisterUser()
         {
             var authClient = CreateAuthServiceClient();
@@ -105,7 +105,7 @@ namespace HwProj.SolutionsService.IntegrationTests
         {
             var (userId, mail) = await CreateAndRegisterUser();
             var authClient = CreateAuthServiceClient();
-            await authClient.InviteNewLecturer(new InviteLecturerViewModel() {Email = mail});
+            await authClient.InviteNewLecturer(new InviteLecturerViewModel() { Email = mail });
             return (userId, mail);
         }
 
@@ -136,7 +136,7 @@ namespace HwProj.SolutionsService.IntegrationTests
             viewModel.GroupId = null;
             return viewModel;
         }
-        
+
         private PostSolutionModel GenerateGroupSolutionViewModel(string userId, long groupId)
         {
             var url = new Fixture().Create<string>();
@@ -167,7 +167,8 @@ namespace HwProj.SolutionsService.IntegrationTests
             return (studentId, lectureId);
         }
 
-        private async Task<(long, long, long)> CreateCourseHomeworkTaskWithOutDeadLine(CoursesServiceClient lectureCourseClient, string lectureId)
+        private async Task<(long, long, long)> CreateCourseHomeworkTaskWithOutDeadLine(
+            CoursesServiceClient lectureCourseClient, string lectureId)
         {
             var courseId = await CreateCourse(lectureCourseClient, lectureId);
             var newHomeworkViewModel = GenerateCreateHomeworkViewModel();
@@ -176,17 +177,19 @@ namespace HwProj.SolutionsService.IntegrationTests
             var taskId = await lectureCourseClient.AddTask(newTaskViewModel, homeworkId.Value);
             return (courseId, homeworkId.Value, taskId.Value);
         }
-        
+
         [Test, Explicit]
         public async Task PostByStudentNotFromThisCourseTest()
         {
             var (studentId, lectureId) = await CreateUserAndLecture();
             var lectureCourseClient = CreateCourseServiceClient(lectureId);
-            var (courseId, homeworkId, taskId) = await CreateCourseHomeworkTaskWithOutDeadLine(lectureCourseClient, lectureId);
+            var (courseId, homeworkId, taskId) =
+                await CreateCourseHomeworkTaskWithOutDeadLine(lectureCourseClient, lectureId);
             var solutionClient = CreateSolutionsServiceClient(studentId);
             var solutionViewModel = GenerateSolutionViewModel(studentId);
 
-            Assert.ThrowsAsync<ForbiddenException>(async () => await solutionClient.PostSolution(taskId, solutionViewModel));
+            Assert.ThrowsAsync<ForbiddenException>(async () =>
+                await solutionClient.PostSolution(taskId, solutionViewModel));
         }
 
         [Test]
@@ -195,11 +198,12 @@ namespace HwProj.SolutionsService.IntegrationTests
             var (studentId, lectureId) = await CreateUserAndLecture();
             var studentCourseClient = CreateCourseServiceClient(studentId);
             var lectureCourseClient = CreateCourseServiceClient(lectureId);
-            var (courseId, homeworkId, taskId) = await CreateCourseHomeworkTaskWithOutDeadLine(lectureCourseClient, lectureId);
+            var (courseId, homeworkId, taskId) =
+                await CreateCourseHomeworkTaskWithOutDeadLine(lectureCourseClient, lectureId);
             await SignStudentInCourse(studentCourseClient, lectureCourseClient, courseId, studentId);
             var solutionClient = CreateSolutionsServiceClient(studentId);
             var solutionViewModel = GenerateSolutionViewModel(studentId);
-            
+
             var solutionId = await solutionClient.PostSolution(taskId, solutionViewModel);
             var solutionIdGet = await solutionClient.GetSolutionById(solutionId);
 
@@ -208,19 +212,20 @@ namespace HwProj.SolutionsService.IntegrationTests
             solutionIdGet.Comment.Should().Be(solutionViewModel.Comment);
             solutionIdGet.Comment.Should().Be(solutionViewModel.Comment);
         }
-        
+
         [Test]
         public async Task PostAndGetUserSolutionTest()
         {
             var (studentId, lectureId) = await CreateUserAndLecture();
             var studentCourseClient = CreateCourseServiceClient(studentId);
             var lectureCourseClient = CreateCourseServiceClient(lectureId);
-            var (courseId, homeworkId, taskId) = await CreateCourseHomeworkTaskWithOutDeadLine(lectureCourseClient, lectureId);
+            var (courseId, homeworkId, taskId) =
+                await CreateCourseHomeworkTaskWithOutDeadLine(lectureCourseClient, lectureId);
             await SignStudentInCourse(studentCourseClient, lectureCourseClient, courseId, studentId);
             var solutionClient = CreateSolutionsServiceClient(studentId);
             var solutionViewModel1 = GenerateSolutionViewModel(studentId);
             var solutionViewModel2 = GenerateSolutionViewModel(studentId);
-            
+
             var solutionId1 = await solutionClient.PostSolution(taskId, solutionViewModel1);
             var solutionId2 = await solutionClient.PostSolution(taskId, solutionViewModel2);
             var solutionIdGet = await solutionClient.GetUserSolutions(taskId, studentId);
@@ -238,7 +243,8 @@ namespace HwProj.SolutionsService.IntegrationTests
             var student1CourseClient = CreateCourseServiceClient(studentId1);
             var student2CourseClient = CreateCourseServiceClient(studentId2);
             var lectureCourseClient = CreateCourseServiceClient(lectureId);
-            var (courseId, homeworkId, taskId) = await CreateCourseHomeworkTaskWithOutDeadLine(lectureCourseClient, lectureId);
+            var (courseId, homeworkId, taskId) =
+                await CreateCourseHomeworkTaskWithOutDeadLine(lectureCourseClient, lectureId);
             await SignStudentInCourse(student1CourseClient, lectureCourseClient, courseId, studentId1);
             await SignStudentInCourse(student2CourseClient, lectureCourseClient, courseId, studentId2);
             var solutionClient = CreateSolutionsServiceClient(lectureId);
@@ -246,58 +252,70 @@ namespace HwProj.SolutionsService.IntegrationTests
             var solutionClient2 = CreateSolutionsServiceClient(studentId2);
             var solutionViewModelFromStudent1 = GenerateSolutionViewModel(studentId1);
             var solutionViewModelFromStudent2 = GenerateSolutionViewModel(studentId2);
-            
+
             var solutionIdFromStudent1 = await solutionClient1.PostSolution(taskId, solutionViewModelFromStudent1);
             var solutionIdFromStudent2 = await solutionClient2.PostSolution(taskId, solutionViewModelFromStudent2);
             var solutionsGet = await solutionClient.GetAllSolutions();
-            
+
             solutionsGet.Should().ContainSingle(s => s.Id == solutionIdFromStudent1);
             solutionsGet.Should().ContainSingle(s => s.Id == solutionIdFromStudent2);
         }
-        
+
         [Test]
         public async Task RateSolutionByLectureTest()
         {
             var (studentId, lectureId) = await CreateUserAndLecture();
             var studentCourseClient = CreateCourseServiceClient(studentId);
             var lectureCourseClient = CreateCourseServiceClient(lectureId);
-            var (courseId, homeworkId, taskId) = await CreateCourseHomeworkTaskWithOutDeadLine(lectureCourseClient, lectureId);
+            var (courseId, homeworkId, taskId) =
+                await CreateCourseHomeworkTaskWithOutDeadLine(lectureCourseClient, lectureId);
             await SignStudentInCourse(studentCourseClient, lectureCourseClient, courseId, studentId);
+            var lectureClient = CreateSolutionsServiceClient(lectureId);
             var solutionClient = CreateSolutionsServiceClient(studentId);
             var solutionViewModelFromStudent = GenerateSolutionViewModel(studentId);
 
             var solutionId = await solutionClient.PostSolution(taskId, solutionViewModelFromStudent);
-            await solutionClient.RateSolution(solutionId, 2, "Not Bad", lectureId);
+            var rateSolutionModel = new RateSolutionModel()
+            {
+                Rating = 2, LecturerComment = "Not Bad"
+            };
+            await lectureClient.RateSolution(solutionId, rateSolutionModel);
             var solutionsGet = await solutionClient.GetSolutionById(solutionId);
 
             solutionsGet.LecturerComment.Should().Be("Not Bad");
             solutionsGet.Rating.Should().Be(2);
         }
-        
+
         [Test]
         public async Task RateSolutionByNotLectureTest()
         {
             var (studentId, lectureId) = await CreateUserAndLecture();
             var studentCourseClient = CreateCourseServiceClient(studentId);
             var lectureCourseClient = CreateCourseServiceClient(lectureId);
-            var (courseId, homeworkId, taskId) = await CreateCourseHomeworkTaskWithOutDeadLine(lectureCourseClient, lectureId);
+            var (courseId, homeworkId, taskId) =
+                await CreateCourseHomeworkTaskWithOutDeadLine(lectureCourseClient, lectureId);
             await SignStudentInCourse(studentCourseClient, lectureCourseClient, courseId, studentId);
             var solutionClient = CreateSolutionsServiceClient(studentId);
             var solutionViewModelFromStudent = GenerateSolutionViewModel(studentId);
 
             var solutionId = await solutionClient.PostSolution(taskId, solutionViewModelFromStudent);
-            
-            Assert.ThrowsAsync<ForbiddenException>(async () => await solutionClient.RateSolution(solutionId, 2, "Not Bad", studentId));
+            var rateSolutionModel = new RateSolutionModel()
+            {
+                Rating = 2, LecturerComment = "Not Bad",
+            };
+            Assert.ThrowsAsync<ForbiddenException>(async () =>
+                await solutionClient.RateSolution(solutionId, rateSolutionModel));
         }
-        
-        
+
+
         [Test]
         public async Task MarkSolutionTest()
         {
             var (studentId, lectureId) = await CreateUserAndLecture();
             var studentCourseClient = CreateCourseServiceClient(studentId);
             var lectureCourseClient = CreateCourseServiceClient(lectureId);
-            var (courseId, homeworkId, taskId) = await CreateCourseHomeworkTaskWithOutDeadLine(lectureCourseClient, lectureId);
+            var (courseId, homeworkId, taskId) =
+                await CreateCourseHomeworkTaskWithOutDeadLine(lectureCourseClient, lectureId);
             await SignStudentInCourse(studentCourseClient, lectureCourseClient, courseId, studentId);
             var solutionClient = CreateSolutionsServiceClient(studentId);
             var solutionViewModelFromStudent = GenerateSolutionViewModel(studentId);
@@ -308,18 +326,19 @@ namespace HwProj.SolutionsService.IntegrationTests
 
             solutionsGet.State.Should().Be(SolutionState.Final);
         }
-        
+
         [Test]
         public async Task DeleteSolutionTest()
         {
             var (studentId, lectureId) = await CreateUserAndLecture();
             var studentCourseClient = CreateCourseServiceClient(studentId);
             var lectureCourseClient = CreateCourseServiceClient(lectureId);
-            var (courseId, homeworkId, taskId) = await CreateCourseHomeworkTaskWithOutDeadLine(lectureCourseClient, lectureId);
+            var (courseId, homeworkId, taskId) =
+                await CreateCourseHomeworkTaskWithOutDeadLine(lectureCourseClient, lectureId);
             await SignStudentInCourse(studentCourseClient, lectureCourseClient, courseId, studentId);
             var solutionClient = CreateSolutionsServiceClient(studentId);
             var solutionViewModel = GenerateSolutionViewModel(studentId);
-            
+
             var solutionId = await solutionClient.PostSolution(taskId, solutionViewModel);
             var solutionIdBefore = await solutionClient.GetSolutionById(solutionId);
             await solutionClient.DeleteSolution(solutionId);
@@ -335,16 +354,21 @@ namespace HwProj.SolutionsService.IntegrationTests
             var (studentId, lectureId) = await CreateUserAndLecture();
             var studentCourseClient = CreateCourseServiceClient(studentId);
             var lectureCourseClient = CreateCourseServiceClient(lectureId);
-            var (courseId, homeworkId, taskId) = await CreateCourseHomeworkTaskWithOutDeadLine(lectureCourseClient, lectureId);
+            var (courseId, homeworkId, taskId) =
+                await CreateCourseHomeworkTaskWithOutDeadLine(lectureCourseClient, lectureId);
             await SignStudentInCourse(studentCourseClient, lectureCourseClient, courseId, studentId);
             var solutionClient = CreateSolutionsServiceClient(lectureId);
             var solutionViewModel = GenerateSolutionViewModel(studentId);
-            
+
             var solutionId = await solutionClient.PostSolution(taskId, solutionViewModel);
-            await solutionClient.RateSolution(solutionId, 2, "Not Bad", lectureId);
+            var rateSolutionModel = new RateSolutionModel()
+            {
+                Rating = 2, LecturerComment = "Not Bad"
+            };
+            await solutionClient.RateSolution(solutionId, rateSolutionModel);
             var statisticsFromStudent = await solutionClient.GetCourseStatistics(courseId, studentId);
             var statisticsFromLecture = await solutionClient.GetCourseStatistics(courseId, lectureId);
-            
+
             statisticsFromStudent.Should().HaveCount(1);
             statisticsFromLecture.Should().HaveCount(1);
             statisticsFromLecture[0].Homeworks.Should().HaveCount(1);
@@ -352,7 +376,7 @@ namespace HwProj.SolutionsService.IntegrationTests
             statisticsFromLecture[0].Homeworks[0].Tasks[0].Solution.Should().HaveCount(1);
             statisticsFromLecture[0].Homeworks[0].Tasks[0].Solution[0].Rating.Should().Be(2);
         }
-        
+
         [Test]
         public async Task PostSolutionAfterNotStrictDeadLine()
         {
@@ -360,14 +384,14 @@ namespace HwProj.SolutionsService.IntegrationTests
             var studentCourseClient = CreateCourseServiceClient(studentId);
             var lectureCourseClient = CreateCourseServiceClient(lectureId);
             var courseId = await CreateCourse(lectureCourseClient, lectureId);
-            var homeworkViewModel =  GenerateCreateHomeworkViewModel();
+            var homeworkViewModel = GenerateCreateHomeworkViewModel();
             var homeworkId = await lectureCourseClient.AddHomeworkToCourse(homeworkViewModel, courseId);
             var taskViewModel = GenerateCreateTaskViewModelWithStrictDeadLine();
             taskViewModel.IsDeadlineStrict = false;
             var taskId = await lectureCourseClient.AddTask(taskViewModel, homeworkId.Value);
             await SignStudentInCourse(studentCourseClient, lectureCourseClient, courseId, studentId);
             var solutionsClient = CreateSolutionsServiceClient(studentId);
-            
+
             var solutionViewModel = GenerateSolutionViewModel(studentId);
             solutionViewModel.PublicationDate = DateTime.MaxValue;
 
@@ -385,17 +409,18 @@ namespace HwProj.SolutionsService.IntegrationTests
             var studentCourseClient = CreateCourseServiceClient(studentId);
             var lectureCourseClient = CreateCourseServiceClient(lectureId);
             var courseId = await CreateCourse(lectureCourseClient, lectureId);
-            var homeworkViewModel =  GenerateCreateHomeworkViewModel();
+            var homeworkViewModel = GenerateCreateHomeworkViewModel();
             var homeworkId = await lectureCourseClient.AddHomeworkToCourse(homeworkViewModel, courseId);
             var taskViewModel = GenerateCreateTaskViewModelWithStrictDeadLine();
             var taskId = await lectureCourseClient.AddTask(taskViewModel, homeworkId.Value);
             await SignStudentInCourse(studentCourseClient, lectureCourseClient, courseId, studentId);
             var solutionsClient = CreateSolutionsServiceClient(studentId);
-            
+
             var solutionViewModel = GenerateSolutionViewModel(studentId);
             solutionViewModel.PublicationDate = DateTime.MaxValue;
 
-            Assert.ThrowsAsync<ForbiddenException>(async () => await solutionsClient.PostSolution(taskId.Value, solutionViewModel));
+            Assert.ThrowsAsync<ForbiddenException>(async () =>
+                await solutionsClient.PostSolution(taskId.Value, solutionViewModel));
         }
 
         [Test]
@@ -423,15 +448,25 @@ namespace HwProj.SolutionsService.IntegrationTests
 
             var solution1ViewModel = GenerateGroupSolutionViewModel(studentsIds[0], group1Id);
             var solution1Id = await solutionClients[0].PostSolution(taskId, solution1ViewModel);
-            await solutionClient.RateSolution(solution1Id, 1, "Group", lecturer.Item1);
-
+            var rateSolutionModel = new RateSolutionModel()
+            {
+                Rating = 1, LecturerComment = "Group"
+            };
+            await solutionClient.RateSolution(solution1Id, rateSolutionModel);
+            var postSolutionRatingModelTwo = new RateSolutionModel()
+            {
+                Rating = 2, LecturerComment = "Pair"
+            };
             var solution2ViewModel = GenerateGroupSolutionViewModel(studentsIds[1], group2Id);
             var solution2Id = await solutionClients[1].PostSolution(taskId, solution2ViewModel);
-            await solutionClient.RateSolution(solution2Id, 2, "Pair", lecturer.Item1);
-
+            await solutionClient.RateSolution(solution2Id, postSolutionRatingModelTwo);
+            var postSolutionRatingModelThree = new RateSolutionModel()
+            {
+                Rating = 3, LecturerComment = "Individual"
+            };
             var solution3ViewModel = GenerateSolutionViewModel(studentsIds[1]);
             var solution3Id = await solutionClients[1].PostSolution(taskId, solution3ViewModel);
-            await solutionClient.RateSolution(solution3Id, 3, "Individual", lecturer.Item1);
+            await solutionClient.RateSolution(solution3Id, postSolutionRatingModelThree);
 
             var response = await solutionClient.GetTaskSolutionStatistics(courseId, taskId);
             var firstStudentSolutions = response.First(s => s.StudentId == studentsIds[0]).Solutions;
