@@ -68,39 +68,41 @@ const TaskSolutionsPage: FC = () => {
             return (
                 <div className={"container"} style={{marginBottom: '50px'}}>
                     <Grid container justify="center" style={{marginTop: '20px'}}>
-                        <Stack direction={"row"} spacing={1}
-                               style={{overflowY: "hidden", overflowX: "auto", minHeight: 80}}>
-                            {taskSolutions.map((t, index) => {
-                                const isCurrent = taskId === String(t.taskId)
-                                const {
-                                    color,
-                                    lastRatedSolution,
-                                    solutionsDescription
-                                } = StudentStatsUtils.calculateLastRatedSolutionInfo(t.solutions!, task.maxRating!)
-                                return <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                                    {index > 0 && <hr style={{width: 100}}/>}
-                                    <Step active={isCurrent}>
-                                        <Link to={`/task/${t.taskId}`}
-                                              style={{color: "black", textDecoration: "none"}}>
-                                            <StepButton
-                                                ref={ref => {
-                                                    if (isCurrent) ref?.scrollIntoView({inline: "nearest"})
-                                                }}
-                                                color={color}
-                                                icon={<Tooltip arrow disableInteractive enterDelay={1000} title={<span
-                                                    style={{whiteSpace: 'pre-line'}}>{solutionsDescription}</span>}>
-                                                    <Chip style={{backgroundColor: color}}
-                                                          size={"small"}
-                                                          label={lastRatedSolution == undefined ? "?" : lastRatedSolution.rating}/>
-                                                </Tooltip>}>
-                                                {t.title}
-                                            </StepButton>
-                                        </Link>
-                                    </Step>
+                        <Grid container xs={12}>
+                            <Grid item xs={12}>
+                                <Stack direction={"row"} spacing={1}
+                                       style={{overflowY: "hidden", overflowX: "auto", minHeight: 80}}>
+                                    {taskSolutions.map((t, index) => {
+                                        const isCurrent = taskId === String(t.taskId)
+                                        const {
+                                            color,
+                                            lastRatedSolution,
+                                            solutionsDescription
+                                        } = StudentStatsUtils.calculateLastRatedSolutionInfo(t.solutions!, task.maxRating!)
+                                        return <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                            {index > 0 && <hr style={{width: 100}}/>}
+                                            <Step active={isCurrent}>
+                                                <Link to={`/task/${t.taskId}`}
+                                                      style={{color: "black", textDecoration: "none"}}>
+                                                    <StepButton
+                                                        ref={ref => {
+                                                            if (isCurrent) ref?.scrollIntoView({inline: "nearest"})
+                                                        }}
+                                                        color={color}
+                                                        icon={<Tooltip arrow disableInteractive enterDelay={1000} title={<span
+                                                            style={{whiteSpace: 'pre-line'}}>{solutionsDescription}</span>}>
+                                                            <Chip style={{backgroundColor: color}}
+                                                                  size={"small"}
+                                                                  label={lastRatedSolution == undefined ? "?" : lastRatedSolution.rating}/>
+                                                        </Tooltip>}>
+                                                        {t.title}
+                                                    </StepButton>
+                                                </Link>
+                                            </Step>
+                                        </Stack>
+                                    })}
                                 </Stack>
-                            })}
-                        </Stack>
-                        <Grid container xs={11}>
+                            </Grid>
                             <Grid item xs={12}>
                                 <Task
                                     task={taskSolutionPage.task}
