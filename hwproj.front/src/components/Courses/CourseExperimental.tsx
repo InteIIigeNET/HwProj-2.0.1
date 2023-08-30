@@ -1,7 +1,7 @@
 import * as React from "react";
 import {
     HomeworkTaskViewModel,
-    HomeworkViewModel, StatisticsCourseMatesModel, StatisticsCourseSolutionsModel
+    HomeworkViewModel, Solution, StatisticsCourseMatesModel,
 } from "../../api";
 import {
     Button,
@@ -111,7 +111,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         </CardContent>
     }
 
-    const taskSolutionsMap = new Map<number, StatisticsCourseSolutionsModel[]>()
+    const taskSolutionsMap = new Map<number, Solution[]>()
 
     if (!isMentor && isStudentAccepted) {
         studentSolutions

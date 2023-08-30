@@ -1,8 +1,8 @@
 import * as React from "react";
 import {
     AccountDataDto, GetSolutionModel,
-    HomeworkTaskViewModel, Solution,
-    StatisticsCourseSolutionsModel, TaskSolutionsStats
+    HomeworkTaskViewModel,
+    Solution, TaskSolutionsStats
 } from "../../api/";
 import Typography from "@material-ui/core/Typography";
 import Task from "../Tasks/Task";
@@ -38,8 +38,8 @@ interface IStudentSolutionsPageState {
     studentSolutionsPreview: {
         student: AccountDataDto,
         solutions: GetSolutionModel[]
-        lastSolution: StatisticsCourseSolutionsModel,
-        lastRatedSolution: StatisticsCourseSolutionsModel,
+        lastSolution: Solution,
+        lastRatedSolution: Solution,
         color: string,
         ratedSolutionsCount: number,
         solutionsDescription: string
@@ -70,9 +70,6 @@ const StudentSolutionsPage: FC = () => {
         courseId,
         taskSolutionsStats
     } = studentSolutionsState
-    const userId = ApiSingleton.authService.isLoggedIn()
-        ? ApiSingleton.authService.getUserId()
-        : undefined
 
     const getTaskData = async (taskId: string, studentId: string) => {
         const fullUpdate = currentTaskId !== taskId
