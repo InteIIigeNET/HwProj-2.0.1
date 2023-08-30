@@ -1546,10 +1546,10 @@ export interface UserTaskSolutionsPageData {
     courseId?: number;
     /**
      * 
-     * @type {AccountDataDto}
+     * @type {Array<AccountDataDto>}
      * @memberof UserTaskSolutionsPageData
      */
-    user?: AccountDataDto;
+    courseMates?: Array<AccountDataDto>;
     /**
      * 
      * @type {HomeworkTaskViewModel}

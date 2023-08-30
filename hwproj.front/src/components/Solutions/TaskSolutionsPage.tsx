@@ -20,7 +20,7 @@ interface ITaskSolutionsState {
     addSolution: boolean
     courseId: number
     taskSolutions: UserTaskSolutions2[]
-    student: AccountDataDto
+    courseMates: AccountDataDto[]
 }
 
 const TaskSolutionsPage: FC = () => {
@@ -33,7 +33,7 @@ const TaskSolutionsPage: FC = () => {
         courseId: 0,
         addSolution: false,
         taskSolutions: [],
-        student: {}
+        courseMates: []
     })
 
     useEffect(() => {
@@ -48,11 +48,12 @@ const TaskSolutionsPage: FC = () => {
             courseId: pageData.courseId!,
             task: pageData.task!,
             taskSolutions: pageData.taskSolutions!,
-            student: pageData.user!,
+            courseMates: pageData.courseMates!,
         })
     }
 
-    const {taskSolutions, courseId, task, student} = taskSolutionPage
+    const {taskSolutions, courseId, task, courseMates} = taskSolutionPage
+    const student = courseMates.find(x => x.userId === userId)!
     const currentTaskSolutions = taskSolutions.find(x => x.taskId === taskId)?.solutions || []
     const lastSolution = currentTaskSolutions[currentTaskSolutions.length - 1]
 
@@ -159,7 +160,7 @@ const TaskSolutionsPage: FC = () => {
                                             onAdd={getTask}
                                             onCancel={onCancelAddSolution}
                                             lastSolutionUrl={lastSolution?.githubUrl}
-                                            students={[]}
+                                            students={courseMates}
                                             lastGroup={lastSolution?.groupMates?.map(s => s.userId!) || []}/>
                                     </div>
                                 </Grid>

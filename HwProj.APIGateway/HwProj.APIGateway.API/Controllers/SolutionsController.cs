@@ -8,7 +8,6 @@ using HwProj.APIGateway.API.Models.Solutions;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.Models;
-using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
 using HwProj.Models.SolutionsService;
@@ -56,28 +55,29 @@ namespace HwProj.APIGateway.API.Controllers
             if (courseMate == null || !courseMate.IsAccepted)
                 return NotFound();
 
-            var student = await AuthServiceClient.GetAccountData(studentId);
             var studentSolutions = (await _solutionsClient.GetCourseStatistics(course.Id, UserId)).Single();
             var tasks = course.Homeworks.SelectMany(t => t.Tasks).ToDictionary(t => t.Id);
 
             // Получаем группы только для выбранной задачи
+            var studentsOnCourse = course.CourseMates
+                .Where(model => model.IsAccepted)
+                .Select(t => t.StudentId)
+                .ToArray();
+
+            var accounts = await AuthServiceClient.GetAccountsData(studentsOnCourse);
+
             var solutionsGroupsIds = studentSolutions.Homeworks
                 .SelectMany(t => t.Tasks)
                 .First(x => x.Id == taskId).Solution
                 .Select(s => s.GroupId)
-                .Distinct();
+                .Distinct()
+                .ToList();
+
+            var accountsCache = accounts.ToDictionary(dto => dto.UserId);
+
             var solutionsGroups = course.Groups
                 .Where(g => solutionsGroupsIds.Contains(g.Id))
                 .ToDictionary(t => t.Id);
-
-            var groupMatesIds = course.Groups
-                .Where(g => solutionsGroupsIds.Contains(g.Id))
-                .SelectMany(g => g.StudentsIds)
-                .Distinct()
-                .ToArray();
-            var groupMates = groupMatesIds.Any()
-                ? await AuthServiceClient.GetAccountsData(groupMatesIds)
-                : Array.Empty<AccountDataDto>();
 
             var taskSolutions = studentSolutions.Homeworks
                 .SelectMany(t => t.Tasks)
@@ -90,8 +90,8 @@ namespace HwProj.APIGateway.API.Controllers
                         TaskId = task.Id.ToString(),
                         Solutions = t.Solution.Select(s => new GetSolutionModel(s,
                             s.TaskId == taskId && s.GroupId is { } groupId
-                                ? groupMates
-                                    .Where(x => solutionsGroups[groupId].StudentsIds.Contains(x.UserId))
+                                ? solutionsGroups[groupId].StudentsIds
+                                    .Select(x => accountsCache[x])
                                     .ToArray()
                                 : null)).ToArray()
                     };
@@ -100,8 +100,8 @@ namespace HwProj.APIGateway.API.Controllers
 
             return Ok(new UserTaskSolutionsPageData()
             {
-                User = student,
                 CourseId = course.Id,
+                CourseMates = accounts,
                 TaskSolutions = taskSolutions,
                 Task = tasks[taskId]
             });
