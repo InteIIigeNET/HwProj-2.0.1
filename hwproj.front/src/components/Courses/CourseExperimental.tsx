@@ -1,7 +1,7 @@
 import * as React from "react";
 import {
     HomeworkTaskViewModel,
-    HomeworkViewModel, StatisticsCourseMatesModel, StatisticsCourseSolutionsModel
+    HomeworkViewModel, Solution, StatisticsCourseMatesModel,
 } from "../../api";
 import {
     Button,
@@ -111,7 +111,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         </CardContent>
     }
 
-    const taskSolutionsMap = new Map<number, StatisticsCourseSolutionsModel[]>()
+    const taskSolutionsMap = new Map<number, Solution[]>()
 
     if (!isMentor && isStudentAccepted) {
         studentSolutions
@@ -136,7 +136,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                            title={<span style={{whiteSpace: 'pre-line'}}>{solutionsDescription}</span>}>
                     <Chip style={{backgroundColor: color, marginTop: '11.5px'}}
                           size={"small"}
-                          label={lastRatedSolution == undefined ? "⌛" : lastRatedSolution.rating}/>
+                          label={lastRatedSolution == undefined ? "?" : lastRatedSolution.rating}/>
                 </Tooltip>
         }
         return <TimelineDot variant={"outlined"}/>

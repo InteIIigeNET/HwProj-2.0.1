@@ -1,7 +1,7 @@
 import * as React from "react";
 import TableCell from "@material-ui/core/TableCell";
 import {Navigate} from "react-router-dom";
-import {StatisticsCourseSolutionsModel} from "api";
+import {Solution} from "api";
 import {Chip, Stack, Tooltip} from "@mui/material";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import Utils from "../../services/Utils";
@@ -12,12 +12,12 @@ interface ITaskStudentCellProps {
     forMentor: boolean;
     userId: string;
     taskMaxRating: number;
-    solutions?: StatisticsCourseSolutionsModel[];
+    solutions?: Solution[];
 }
 
 interface ITaskStudentCellState {
     isLoaded: boolean;
-    lastRatedSolution?: StatisticsCourseSolutionsModel;
+    lastRatedSolution?: Solution;
     redirectForMentor: boolean;
     redirectForStudent: boolean;
     color: string;

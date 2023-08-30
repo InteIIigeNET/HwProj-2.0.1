@@ -1213,48 +1213,6 @@ export interface StatisticsCourseMatesModel {
 /**
  * 
  * @export
- * @interface StatisticsCourseSolutionsModel
- */
-export interface StatisticsCourseSolutionsModel {
-    /**
-     * 
-     * @type {number}
-     * @memberof StatisticsCourseSolutionsModel
-     */
-    id?: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof StatisticsCourseSolutionsModel
-     */
-    state?: StatisticsCourseSolutionsModel.StateEnum;
-    /**
-     * 
-     * @type {number}
-     * @memberof StatisticsCourseSolutionsModel
-     */
-    rating?: number;
-}
-
-/**
- * @export
- * @namespace StatisticsCourseSolutionsModel
- */
-export namespace StatisticsCourseSolutionsModel {
-    /**
-     * @export
-     * @enum {string}
-     */
-    export enum StateEnum {
-        NUMBER_0 = <any> 0,
-        NUMBER_1 = <any> 1,
-        NUMBER_2 = <any> 2
-    }
-}
-
-/**
- * 
- * @export
  * @interface StatisticsCourseTasksModel
  */
 export interface StatisticsCourseTasksModel {
@@ -1266,10 +1224,10 @@ export interface StatisticsCourseTasksModel {
     id?: number;
     /**
      * 
-     * @type {Array<StatisticsCourseSolutionsModel>}
+     * @type {Array<Solution>}
      * @memberof StatisticsCourseTasksModel
      */
-    solution?: Array<StatisticsCourseSolutionsModel>;
+    solution?: Array<Solution>;
 }
 
 /**
@@ -1566,6 +1524,64 @@ export interface UserTaskSolutions {
      * @memberof UserTaskSolutions
      */
     user?: AccountDataDto;
+}
+
+/**
+ * 
+ * @export
+ * @interface UserTaskSolutions2
+ */
+export interface UserTaskSolutions2 {
+    /**
+     * 
+     * @type {string}
+     * @memberof UserTaskSolutions2
+     */
+    title?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserTaskSolutions2
+     */
+    taskId?: string;
+    /**
+     * 
+     * @type {Array<GetSolutionModel>}
+     * @memberof UserTaskSolutions2
+     */
+    solutions?: Array<GetSolutionModel>;
+}
+
+/**
+ * 
+ * @export
+ * @interface UserTaskSolutionsPageData
+ */
+export interface UserTaskSolutionsPageData {
+    /**
+     * 
+     * @type {number}
+     * @memberof UserTaskSolutionsPageData
+     */
+    courseId?: number;
+    /**
+     * 
+     * @type {Array<AccountDataDto>}
+     * @memberof UserTaskSolutionsPageData
+     */
+    courseMates?: Array<AccountDataDto>;
+    /**
+     * 
+     * @type {HomeworkTaskViewModel}
+     * @memberof UserTaskSolutionsPageData
+     */
+    task?: HomeworkTaskViewModel;
+    /**
+     * 
+     * @type {Array<UserTaskSolutions2>}
+     * @memberof UserTaskSolutionsPageData
+     */
+    taskSolutions?: Array<UserTaskSolutions2>;
 }
 
 
@@ -5093,7 +5109,7 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSolutionsTaskSolutionByTaskIdByStudentIdGet(taskId: number, studentId: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<UserTaskSolutions> {
+        apiSolutionsTaskSolutionByTaskIdByStudentIdGet(taskId: number, studentId: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<UserTaskSolutionsPageData> {
             const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsTaskSolutionByTaskIdByStudentIdGet(taskId, studentId, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
