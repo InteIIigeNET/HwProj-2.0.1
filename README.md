@@ -18,5 +18,4 @@
 В Visual Studio - запустить сервисы ApiGateway.API, AuthService.API, CoursesService.API, SolutionsService.API, NotificationsService.API
 
 ### Фронтенд
-0. _Добавить .env файл с секретами_
-1. Вызвать `npm start` в `HwProj-2.0.1/hwproj.front` (или в IDE)
+0. Вызвать `npm start` в `HwProj-2.0.1/hwproj.front` (Start All в Rider запустит и фронтенд)
