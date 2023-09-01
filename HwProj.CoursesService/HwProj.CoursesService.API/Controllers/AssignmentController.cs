@@ -12,13 +12,11 @@ namespace HwProj.CoursesService.API.Controllers
     public class AssignmentsController : Controller
     {
         private readonly IAssignmentsService _assignmentsService;
-        private IMapper _mapper;
 
         public AssignmentsController(IAssignmentsService assignmentsService,
             IMapper mapper)
         {
             _assignmentsService = assignmentsService;
-            _mapper = mapper;
         }
 
         [HttpPut("{courseId}/assignStudent")]
