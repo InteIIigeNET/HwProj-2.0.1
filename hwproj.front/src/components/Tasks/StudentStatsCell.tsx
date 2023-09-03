@@ -1,6 +1,7 @@
 import * as React from "react";
+import {useState, FC, useEffect} from "react";
 import TableCell from "@material-ui/core/TableCell";
-import {Navigate} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import {Solution} from "api";
 import {Chip, Stack, Tooltip} from "@mui/material";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
@@ -15,86 +16,46 @@ interface ITaskStudentCellProps {
     solutions?: Solution[];
 }
 
-interface ITaskStudentCellState {
-    isLoaded: boolean;
-    lastRatedSolution?: Solution;
-    redirectForMentor: boolean;
-    redirectForStudent: boolean;
-    color: string;
-    ratedSolutionsCount: number;
-    solutionsDescription: string;
-}
+const StudentStatsCell: FC<ITaskStudentCellProps> = (props) => {
+    const navigate = useNavigate()
+    const {solutions, taskMaxRating, forMentor} = props
+    const [cellState, setCellState] = useState({
+        ...StudentStatsUtils.calculateLastRatedSolutionInfo(solutions!, taskMaxRating)
+    })
 
-export default class StudentStatsCell extends React.Component<ITaskStudentCellProps, ITaskStudentCellState> {
-    constructor(props: ITaskStudentCellProps) {
-        super(props);
-        const {solutions, taskMaxRating} = this.props
-        this.state = {
-            ...StudentStatsUtils.calculateLastRatedSolutionInfo(solutions!, taskMaxRating),
-            isLoaded: true,
-            redirectForMentor: false,
-            redirectForStudent: false,
-        };
-    }
+    useEffect(() => setCellState({...StudentStatsUtils.calculateLastRatedSolutionInfo(solutions!, taskMaxRating)}),
+        [props.studentId, props.taskId]
+    )
 
-    public render() {
-        const {ratedSolutionsCount, solutionsDescription} = this.state
+    const {ratedSolutionsCount, solutionsDescription} = cellState;
 
-        if (this.state.redirectForMentor) {
-            return (
-                <Navigate
-                    to={
-                        "/task/" +
-                        this.props.taskId.toString() +
-                        "/" +
-                        this.props.studentId.toString()
-                    }
-                />
-            );
-        }
+    const tooltipTitle = ratedSolutionsCount === 0
+        ? solutionsDescription
+        : solutionsDescription + `\n\n${Utils.pluralizeHelper(["Проверена", "Проверены", "Проверено"], ratedSolutionsCount)} ${ratedSolutionsCount} ${Utils.pluralizeHelper(["попытка", "попытки", "попыток"], ratedSolutionsCount)}`;
 
-        if (this.state.redirectForStudent) {
-            return <Navigate to={"/task/" + this.props.taskId.toString()}/>;
-        }
+    const result = cellState.lastRatedSolution === undefined
+        ? ""
+        : <Stack direction="row" spacing={0.3} justifyContent={"center"} alignItems={"center"}>
+            <div>{cellState.lastRatedSolution.rating!}</div>
+            <Chip color={"default"} size={"small"} label={ratedSolutionsCount}/>
+        </Stack>;
 
-        if (this.state.isLoaded) {
-            let onClick = this.props.forMentor
-                ? () => this.onMentorCellClick()
-                : this.props.userId === this.props.studentId
-                    ? () => this.onStudentCellClick()
-                    : () => 0;
-            const tootltipTitle = ratedSolutionsCount === 0
-                ? solutionsDescription
-                : solutionsDescription + `\n\n${Utils.pluralizeHelper(["Проверена", "Проверены", "Проверено"], ratedSolutionsCount)} ${ratedSolutionsCount} ${Utils.pluralizeHelper(["попытка", "попытки", "попыток"], ratedSolutionsCount)}`
-            const result = this.state.lastRatedSolution === undefined
-                ? ""
-                : <Stack direction="row" spacing={0.3} justifyContent={"center"} alignItems={"center"}>
-                    <div>{this.state.lastRatedSolution.rating!}</div>
-                    <Chip color={"default"} size={"small"} label={ratedSolutionsCount}/>
-                </Stack>
-            return <Tooltip arrow disableInteractive enterDelay={2000}
-                            title={<span style={{whiteSpace: 'pre-line'}}>{tootltipTitle}</span>}>
-                <TableCell
-                    onClick={onClick}
-                    component="td"
-                    padding="none"
-                    scope="row"
-                    align="center"
-                    style={{backgroundColor: this.state.color, borderStyle: "none none ridge ridge", cursor: "pointer"}}
-                >
-                    {result}
-                </TableCell>
-            </Tooltip>
-        }
+    return (
+        <Tooltip arrow disableInteractive enterDelay={2000}
+                 title={<span style={{whiteSpace: 'pre-line'}}>{tooltipTitle}</span>}>
+            <TableCell
+                onClick={() => forMentor
+                    ? navigate(`/task/${props.taskId}/${props.studentId}`)
+                    : navigate(`/task/${props.taskId}`)}
+                component="td"
+                padding="none"
+                scope="row"
+                align="center"
+                style={{backgroundColor: cellState.color, borderStyle: "none none ridge ridge", cursor: "pointer"}}>
+                {result}
+            </TableCell>
+        </Tooltip>
+    );
+};
 
-        return "";
-    }
-
-    onMentorCellClick() {
-        this.setState({redirectForMentor: true});
-    }
-
-    onStudentCellClick() {
-        this.setState({redirectForStudent: true});
-    }
-}
+export default StudentStatsCell;
