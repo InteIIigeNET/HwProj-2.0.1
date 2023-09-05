@@ -49,9 +49,9 @@ export default class Courses extends React.Component<{navigate: any}, ICoursesSt
                         this.setState({tabValue: value});
                     }}
                 >
-                    <Tab label="Все курсы"/>
-                    {activeCourses.length > 0 && <Tab label="Ваши курсы"/>}
+                    {activeCourses.length > 0 && <Tab label="Ваши курсы"/>}                    
                     {completedCourses.length > 0 && <Tab label="Завершенные курсы"/>}
+                    <Tab label="Все курсы"/>
                 </Tabs>
                 <br/>
                 {tabValue === 0 && <CoursesList navigate={navigate} courses={allCourses}/>}
