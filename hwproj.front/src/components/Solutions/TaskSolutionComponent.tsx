@@ -24,6 +24,7 @@ interface ISolutionState {
     points: number,
     lecturerComment: string,
     clickedForRate: boolean,
+    addBonusPoints: boolean
 }
 
 const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
@@ -32,6 +33,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         points: props.solution?.rating || 0,
         lecturerComment: props.solution?.lecturerComment || "",
         clickedForRate: false,
+        addBonusPoints: false
     })
 
     useEffect(() => {
@@ -39,6 +41,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
             points: props.solution?.rating || 0,
             lecturerComment: props.solution?.lecturerComment || "",
             clickedForRate: false,
+            addBonusPoints: false
         })
     }, [props.student.userId, props.solution?.id])
 
@@ -72,7 +75,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     const maxRating = task.maxRating!
     //TODO: enum instead of string
     const isRated = solution && solution.state !== Solution.StateEnum.NUMBER_0 // != Posted
-    const {points, lecturerComment} = state
+    const {points, lecturerComment, addBonusPoints} = state
     const postedSolutionTime = solution && new Date(solution.publicationDate!).toLocaleString("ru-RU")
     const students = (solution?.groupMates?.length || 0) > 0 ? solution!.groupMates! : [student]
 
@@ -85,7 +88,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     }
 
     const renderRateInput = () => {
-        if (maxRating <= 10)
+        if (maxRating <= 10 && points <= maxRating && !addBonusPoints)
             return (<Grid container item direction={"row"} spacing={1} alignItems={"center"} style={{marginTop: 5}}>
                 <Grid item>
                     <Rating
@@ -107,13 +110,20 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 <Grid item>
                     {points + " / " + maxRating}
                 </Grid>
+                {!addBonusPoints && <Grid item>
+                    <Tooltip arrow title={"Позволяет поставить оценку выше максимальной"}>
+                        <Link onClick={() => setState(prevState => ({...prevState, addBonusPoints: true}))}>
+                            Нужна особая оценка?
+                        </Link>
+                    </Tooltip>
+                </Grid>}
             </Grid>)
         return (<Grid container item direction={"row"} spacing={1} alignItems={"center"} style={{marginTop: 5}}>
             <Grid item>
                 <TextField
                     style={{width: 100}}
                     required
-                    error={state.clickedForRate && points > maxRating}
+                    error={state.clickedForRate}
                     label="Баллы за решение"
                     variant="outlined"
                     margin="normal"
@@ -122,7 +132,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                     disabled={!props.forMentor}
                     InputProps={{
                         readOnly: !props.forMentor,
-                        inputProps: {max: maxRating, min: 0},
+                        inputProps: {min: 0},
                     }}
                     defaultValue={points!}
                     maxRows={10}
@@ -149,14 +159,21 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
 
     return (<div>
             <Grid container direction="column" spacing={2}>
-                {solution && <Stack direction={students.length > 1 ? "column" : "row"} spacing={1} style={{marginLeft: 7}}>
-                    <Stack direction={"row"} spacing={1}>
-                        {students && students.map(t => <Tooltip title={t.surname + " " + t.name}>
-                            <Avatar {...AvatarUtils.stringAvatar(t.name!, t.surname!)} />
-                        </Tooltip>)}
-                    </Stack>
-                    <Grid item spacing={1} container direction="column">
-                        {solution.comment &&
+                {solution &&
+                    <Stack direction={students.length > 1 ? "column" : "row"} spacing={1} style={{marginLeft: 7}}>
+                        <Stack direction={"row"} spacing={1}>
+                            {students && students.map(t => <Tooltip title={t.surname + " " + t.name}>
+                                <Avatar {...AvatarUtils.stringAvatar(t.name!, t.surname!)} />
+                            </Tooltip>)}
+                        </Stack>
+                        <Grid item spacing={1} container direction="column">
+                            {solution.comment &&
+                                <Grid item>
+                                    <Typography className="antiLongWords">
+                                        {solution.comment}
+                                    </Typography>
+                                </Grid>
+                            }
                             <Grid item>
                                 <Typography className="antiLongWords">
                                     {solution.comment}
@@ -183,6 +200,11 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 {sentAfterDeadline && <Grid item>
                     <Alert variant="standard" severity="warning">
                         Решение сдано на {sentAfterDeadline} позже дедлайна.
+                    </Alert>
+                </Grid>}
+                {points > maxRating && <Grid item>
+                    <Alert variant="standard" severity="info">
+                        Решение оценено выше максимального балла.
                     </Alert>
                 </Grid>}
                 {(props.forMentor || isRated) &&
@@ -232,7 +254,6 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                 variant="contained"
                                 color="primary"
                                 onClick={rateSolution}
-                                disabled={points > maxRating}
                             >
                                 {isRated ? "Изменить оценку" : "Оценить решение"}
                             </Button>
