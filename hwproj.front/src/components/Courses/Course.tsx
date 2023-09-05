@@ -116,11 +116,6 @@ const Course: React.FC = () => {
             if (newTab === "applications" && !showApplicationsTab) return;
             if (newTab === "assignments" && !showAssignmentTab) return;
 
-            if (pageState.tabValue === "assignments") { 
-                console.log("meme")
-                setCurrentState()
-            }
-
             setPageState(prevState => ({
                 ...prevState,
                 tabValue: newTab
@@ -162,8 +157,16 @@ const Course: React.FC = () => {
     useEffect(() => {
         setCurrentState()
     }, [])
+    
+    const initialTab = () => {
+        if (tab === "assignments" && !showAssignmentTab) {
+            navigate(`/courses/${courseId}/homeworks`)
+        } else {
+            changeTab(tab || "homeworks")
+        }
+    }
 
-    useEffect(() => changeTab(tab || "homeworks"), [tab, courseId, isFound])
+    useEffect(() => initialTab(), [tab, courseId, isFound])
 
     const joinCourse = async () => {
         await ApiSingleton.coursesApi
