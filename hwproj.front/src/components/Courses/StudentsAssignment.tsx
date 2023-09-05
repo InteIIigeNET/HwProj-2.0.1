@@ -19,33 +19,8 @@ interface IAssignmentsState {
 }
 
 const StudentsAssignment: FC<IStudentAssignmentProps> = (props) => {
-    const cloneAssignments = () => {
-        const clonedAssignments: AssignmentsViewModel[] = []
-        props.assignments.forEach(val => clonedAssignments.push(val))
-
-        if (clonedAssignments.length !== props.mentors.length + 1) {
-            props.mentors
-            .filter(mentor => !clonedAssignments.map(a => a.mentorId)
-            .includes(mentor.userId)).forEach(mentor => {
-                clonedAssignments.push({
-                    mentorId: mentor.userId,
-                    studentIds: [],
-                })    
-            })
-        }
-
-        if (!clonedAssignments.map(a => a.mentorId).includes(null)) {
-            clonedAssignments.push({
-                mentorId: null,
-                studentIds: [],
-            })  
-        }
-
-        return clonedAssignments
-    }
-
     const [assignmentsState, setAssignmentsState] = useState<IAssignmentsState>({
-        assignments: cloneAssignments()
+        assignments: props.assignments
     })
 
     const {assignments} = assignmentsState;
@@ -64,15 +39,33 @@ const StudentsAssignment: FC<IStudentAssignmentProps> = (props) => {
         borderBottom: "1px solid black"
     }
     
-    const findStudentsByMentor = (mentorId: string | null) => assignments.find(a => a.mentorId === mentorId)?.studentIds
+    const findAssignmentByMentor = (mentorId: string | null) => assignments.find(a => a.mentorId === mentorId)
+
+    const addStudentAssignment = (mentorId: string | null, studentId: string) => {
+        const mentorsStudents = findAssignmentByMentor(mentorId)
+        if (mentorsStudents == undefined) {
+            assignments.push({
+                mentorId: mentorId,
+                studentIds: [studentId]
+            })
+        } else { 
+            mentorsStudents.studentIds!.push(studentId)
+        }
+    }
+
+    const removeStudentAssignment = (mentorId: string | null, studentId: string) => {
+        const mentorsAssignments = findAssignmentByMentor(mentorId)
+        mentorsAssignments!.studentIds!.splice(mentorsAssignments!.studentIds!.findIndex(a => a === studentId), 1)
+        if (mentorsAssignments?.studentIds?.length === 0) {
+            assignments.splice(assignments!.findIndex(a => a === mentorsAssignments), 1)
+        }
+    }
 
     const assignStudent = async (mentorId: string, studentId: string) => {
         await ApiSingleton.coursesApi.apiCoursesByCourseIdAssignStudentPut(props.course.id!, mentorId, studentId)
 
-        const mentorsAssignments = findStudentsByMentor(null)
-
-        mentorsAssignments!.splice(mentorsAssignments!.findIndex(a => a === studentId), 1)
-        findStudentsByMentor(mentorId)!.push(studentId)
+        removeStudentAssignment(null, studentId)
+        addStudentAssignment(mentorId, studentId)
 
         setCurrentAssignmentsState()
     }
@@ -80,10 +73,8 @@ const StudentsAssignment: FC<IStudentAssignmentProps> = (props) => {
     const deassignStudent = async (mentorId: string, studentId: string) => {
         await ApiSingleton.coursesApi.apiCoursesByCourseIdDeassignStudentDelete(props.course.id!, studentId)
 
-        const mentorsAssignments = findStudentsByMentor(mentorId)
-
-        mentorsAssignments!.splice(mentorsAssignments!.findIndex(a => a === studentId), 1)
-        findStudentsByMentor(null)!.push(studentId)
+        removeStudentAssignment(mentorId, studentId)
+        addStudentAssignment(null, studentId)
 
         setCurrentAssignmentsState()
     }
@@ -91,9 +82,11 @@ const StudentsAssignment: FC<IStudentAssignmentProps> = (props) => {
     const createFullNameWithEmail = (user: AccountDataDto) => user.surname + " " + user.name + " / " + user.email;
 
     const createAutocompleteDefaultValue = (mentorId: string | null) => {
-        const studentIds = findStudentsByMentor(mentorId)
+        const mentorsAssignments = findAssignmentByMentor(mentorId)
 
-        return props.acceptedStudents.filter(student => studentIds?.includes(student.userId!))
+        return mentorsAssignments == undefined 
+                ? [] 
+                : props.acceptedStudents.filter(student => mentorsAssignments?.studentIds?.includes(student.userId!))
     }
 
     const UserCellStyle: React.CSSProperties = {
