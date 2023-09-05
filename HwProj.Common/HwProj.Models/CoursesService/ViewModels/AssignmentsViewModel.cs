@@ -2,7 +2,7 @@
 {
     public class AssignmentsViewModel
     {
-        public string MentorId { get; set; }
+        public string? MentorId { get; set; }
 
         public string[] StudentIds { get; set; }
     }

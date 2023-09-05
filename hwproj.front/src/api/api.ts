@@ -136,10 +136,10 @@ export interface AccountDataDto {
 export interface AssignmentsViewModel {
     /**
      * 
-     * @type {string}
+     * @type {string | null}
      * @memberof AssignmentsViewModel
      */
-    mentorId?: string;
+    mentorId?: string | null;
     /**
      * 
      * @type {Array<string>}
