@@ -102,6 +102,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                             setState((prevState) => ({
                                 ...prevState,
                                 points: newValue || 0,
+                                addBonusPoints: points > maxRating,
                                 clickedForRate: true
                             }))
                         }}
@@ -110,7 +111,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 <Grid item>
                     {points + " / " + maxRating}
                 </Grid>
-                {!addBonusPoints && <Grid item>
+                {!addBonusPoints && props.forMentor && <Grid item>
                     <Tooltip arrow title={"Позволяет поставить оценку выше максимальной"}>
                         <Link onClick={() => setState(prevState => ({...prevState, addBonusPoints: true}))}>
                             Нужна особая оценка?
@@ -123,7 +124,6 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 <TextField
                     style={{width: 100}}
                     required
-                    error={state.clickedForRate}
                     label="Баллы за решение"
                     variant="outlined"
                     margin="normal"
@@ -132,15 +132,15 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                     disabled={!props.forMentor}
                     InputProps={{
                         readOnly: !props.forMentor,
-                        inputProps: {min: 0},
+                        inputProps: {min: 0, value: points},
                     }}
-                    defaultValue={points!}
                     maxRows={10}
                     onChange={(e) => {
                         e.persist()
+                        const value = +e.target.value
                         setState((prevState) => ({
                             ...prevState,
-                            points: +e.target.value
+                            points: value
                         }))
                     }}
                     onClick={() => setState((prevState) => ({
@@ -175,28 +175,23 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                 </Grid>
                             }
                             <Grid item>
-                                <Typography className="antiLongWords">
-                                    {solution.comment}
+                                <Stack>
+                                    {solution.githubUrl && <Link
+                                        href={solution.githubUrl}
+                                        target="_blank"
+                                        style={{color: 'darkblue'}}
+                                    >
+                                        {solution.githubUrl?.startsWith("https://github.com/") && <GitHubIcon/>} Ссылка
+                                        на
+                                        решение
+                                    </Link>}
+                                </Stack>
+                                <Typography style={{color: "GrayText"}}>
+                                    {postedSolutionTime}
                                 </Typography>
                             </Grid>
-                        }
-                        <Grid item>
-                            <Stack>
-                                {solution.githubUrl && <Link
-                                    href={solution.githubUrl}
-                                    target="_blank"
-                                    style={{color: 'darkblue'}}
-                                >
-                                    {solution.githubUrl?.startsWith("https://github.com/") && <GitHubIcon/>} Ссылка на
-                                    решение
-                                </Link>}
-                            </Stack>
-                            <Typography style={{color: "GrayText"}}>
-                                {postedSolutionTime}
-                            </Typography>
                         </Grid>
-                    </Grid>
-                </Stack>}
+                    </Stack>}
                 {sentAfterDeadline && <Grid item>
                     <Alert variant="standard" severity="warning">
                         Решение сдано на {sentAfterDeadline} позже дедлайна.

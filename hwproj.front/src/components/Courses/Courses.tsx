@@ -38,8 +38,8 @@ export default class Courses extends React.Component<{navigate: any}, ICoursesSt
         let activeCourses = courses.filter((course) => !course.isCompleted);
         let completedCourses = courses.filter((course) => course.isCompleted);
 
-        let activeCoursesTab = activeCourses.length > 0 ? 1 : 2;
-        let completedCoursesTab = activeCourses.length > 0 ? 2 : 1;
+        let activeCoursesTab = activeCourses.length > 0 ? 0 : undefined;
+        let completedCoursesTab = completedCourses.length > 0 ? 2 : undefined;
         return (
             <div className="container">
                 <Tabs
@@ -54,8 +54,8 @@ export default class Courses extends React.Component<{navigate: any}, ICoursesSt
                     {completedCourses.length > 0 && <Tab label="Завершенные курсы"/>}
                 </Tabs>
                 <br/>
-                {tabValue === 0 && <CoursesList navigate={navigate} courses={allCourses}/>}
-                {tabValue === activeCoursesTab && <CoursesList navigate={navigate} courses={activeCourses}/>}
+                {tabValue === activeCoursesTab &&<CoursesList navigate={navigate} courses={activeCourses}/>}
+                {tabValue === 1 && <CoursesList navigate={navigate} courses={allCourses}/>}
                 {tabValue === completedCoursesTab && <CoursesList navigate={navigate} courses={completedCourses}/>}
             </div>
         );
