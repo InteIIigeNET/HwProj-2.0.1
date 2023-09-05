@@ -10,7 +10,7 @@ export default class StudentStatsUtils {
         if (state == Solution.StateEnum.NUMBER_0)
             return isFirstTry ? "#d0fcc7" : "#afeeee"
         return rating !== undefined
-            ? colorBetween(0xff0000, 0x2cba00, rating / maxRating * 100)
+            ? colorBetween(0xff0000, 0x2cba00, Math.min(rating, maxRating) / maxRating * 100)
             : "#ffffff"
     }
 

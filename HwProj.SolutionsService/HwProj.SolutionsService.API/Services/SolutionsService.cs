@@ -124,7 +124,7 @@ namespace HwProj.SolutionsService.API.Services
         {
             var solution = await _solutionsRepository.GetAsync(solutionId);
             var task = await _coursesServiceClient.GetTask(solution.TaskId);
-            if (0 <= newRating && newRating <= task.MaxRating)
+            if (0 <= newRating)
             {
                 var solutionModel = _mapper.Map<SolutionViewModel>(solution);
                 var taskModel = _mapper.Map<HomeworkTaskViewModel>(task);
