@@ -20,12 +20,14 @@ interface IStudentStatsState {
 
 const StudentStats: React.FC<IStudentStatsProps> = (props) => {
 
-    const [state, setState] = useState<IStudentStatsState>({
-        studentsFiltered: false,
-        ableSolutions: props.solutions
-    });
-
     const isMentorWithStudents = props.isMentor && props.course.assignments!.some(a => a.mentorId === props.userId)
+    const mentorStudentsIds = isMentorWithStudents
+        ? props.course.assignments!.find(a => a.mentorId === props.userId)?.studentIds
+        : []
+    const mentorStudentSolutions =  isMentorWithStudents
+        ? props.solutions.filter(solution => mentorStudentsIds!.some(studentId => solution.id === studentId))
+        : []
+
     const homeworks = props.homeworks.filter(h => h.tasks && h.tasks.length > 0)
     const fixedColumnStyles: React.CSSProperties = {
         position: "sticky",
@@ -34,18 +36,17 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
         borderRight: "1px solid black"
     }
 
+    const [state, setState] = useState<IStudentStatsState>({
+        studentsFiltered: true,
+        ableSolutions: isMentorWithStudents ? mentorStudentSolutions : props.solutions
+    });
+    
     const setStatsState = () => {
         const filter = !state.studentsFiltered
-        
-        const mentorStudentsIds = props.course.assignments!.find(a => a.mentorId === props.userId)?.studentIds;
-        const solutions = filter && isMentorWithStudents
-            ? props.solutions.filter(solution => mentorStudentsIds!.some(studentId => solution.id === studentId))
-            : props.solutions
-
         setState(prevState => ({
             ...prevState,
             studentsFiltered: filter,
-            ableSolutions: solutions
+            ableSolutions: filter ? mentorStudentSolutions : props.solutions
         }))
 
     }
