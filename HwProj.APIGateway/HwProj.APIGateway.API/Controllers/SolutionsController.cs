@@ -260,8 +260,8 @@ namespace HwProj.APIGateway.API.Controllers
             var allSolutions = await _solutionsClient.GetAllUnratedSolutionsForTasks(taskIds);
             var solutions = allSolutions
                 .Where(solution => mentorsStudentfulCourses.Contains(tasks[solution.TaskId].course.Id)
-                ? tasks[solution.TaskId].course.Assignments.Where(a => a.MentorId == UserId)!.First().StudentIds.Contains(solution.StudentId)
-                : tasks[solution.TaskId].course.Assignments.Where(a => a.MentorId is null)!.First().StudentIds.Contains(solution.StudentId));
+                ? tasks[solution.TaskId].course.Assignments.First(a => a.MentorId == UserId).StudentIds.Contains(solution.StudentId)
+                : tasks[solution.TaskId].course.Assignments.FirstOrDefault(a => a.MentorId == null)?.StudentIds.Contains(solution.StudentId) ?? false);
 
             var studentIds = solutions?.Select(t => t.StudentId).Distinct().ToArray();
             var accountsData = await AuthServiceClient.GetAccountsData(studentIds);

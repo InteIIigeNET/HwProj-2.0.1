@@ -1,8 +1,6 @@
 ﻿using System.Threading.Tasks;
-using HwProj.CoursesService.API.Filters;
 using AutoMapper;
 using HwProj.CoursesService.API.Services;
-using HwProj.Models.CoursesService.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.CoursesService.API.Controllers

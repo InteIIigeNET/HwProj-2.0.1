@@ -142,8 +142,7 @@ namespace HwProj.CoursesService.Client
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-            var test = await response.DeserializeAsync<CourseDTO[]>();
-            return test;
+            return await response.DeserializeAsync<CourseDTO[]>();
         }
 
         public async Task<TaskDeadlineDto[]> GetTaskDeadlines()

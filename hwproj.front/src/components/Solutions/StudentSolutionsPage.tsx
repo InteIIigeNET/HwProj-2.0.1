@@ -247,5 +247,4 @@ const StudentSolutionsPage: FC = () => {
         </div>
     )
 }
-
 export default StudentSolutionsPage

@@ -1,5 +1,5 @@
 import React from "react";
-import { AssignmentsViewModel, CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel } from "../../api/";
+import { CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel } from "../../api/";
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid } from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
 import Checkbox from '@mui/material/Checkbox';
@@ -74,7 +74,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                     padding="checkbox"
                                     component="td"
                                     align="center"
-                                    style={{ zIndex: -5 }}
+                                    style={{zIndex: -5}}
                                     colSpan={homework.tasks!.length}
                                 >
                                     {homework.title}
@@ -116,7 +116,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                             forMentor={props.isMentor}
                                             studentId={String(cm.id)}
                                             taskId={task.id!}
-                                            taskMaxRating={task.maxRating!} />
+                                            taskMaxRating={task.maxRating!}/>
                                     ))
                                 )}
                             </TableRow>
@@ -127,5 +127,4 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
         </div>
     );
 }
-
 export default StudentStats;
