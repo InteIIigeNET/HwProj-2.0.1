@@ -170,7 +170,7 @@ const TaskExperimental: FC<ITaskProp> = (props) => {
                     <Divider style={{marginTop: 15, marginBottom: 15}}/>
                     <Grid xs={12} item component="div">
                         <Typography style={{color: "GrayText"}} gutterBottom variant="body1">
-                            <ReactMarkdown children={task.description!}/>
+                            <p><ReactMarkdown children={task.description!}/></p>
                         </Typography> 
                     </Grid>
                 </Grid>
@@ -201,7 +201,7 @@ const TaskExperimental: FC<ITaskProp> = (props) => {
                         </Grid>
                         <Divider style={{marginTop: 15, marginBottom: 15}}/>
                         <Typography style={{color: "GrayText"}} gutterBottom variant="body1">
-                            <ReactMarkdown children={task.description!}/>
+                            <p><ReactMarkdown children={task.description!}/></p>
                         </Typography>
                     </Grid>
                     : 
@@ -299,7 +299,7 @@ const TaskExperimental: FC<ITaskProp> = (props) => {
                                         style={{color: "GrayText"}}
                                         gutterBottom
                                         variant="body1">
-                                <ReactMarkdown children={taskState.description!}/>
+                                <p><ReactMarkdown children={taskState.description!}/></p>
                             </Typography>
                             <Grid
                                 container

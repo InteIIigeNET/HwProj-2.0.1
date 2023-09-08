@@ -5,7 +5,7 @@ import Checkbox from "@material-ui/core/Checkbox";
 import Typography from "@material-ui/core/Typography";
 import ApiSingleton from "../../api/ApiSingleton";
 import {CreateTaskViewModel} from "../../api";
-/*import ReactMarkdown from "react-markdown";*/
+import ReactMarkdown from "react-markdown";
 import {Grid, Tab, Tabs, Zoom, CardContent, Card, Divider} from "@material-ui/core";
 import {makeStyles} from "@material-ui/styles";
 import {Box} from "@mui/material";
@@ -86,19 +86,17 @@ export default class AddHomeworkExperimental extends React.Component<IAddHomewor
                                 onChange={(e) => this.setState({description: e.target.value})}
                             />
                         </div>
-                        <Card role="tabpanel" hidden={!this.state.isPreview} id="simple-tab-1">
-                            <CardContent>
-                                <Grid item xs>
-                                    <Typography variant="h6" component="div" >
-                                        {this.state.title}
-                                    </Typography>
-                                </Grid>
-                                <Divider style={{marginTop: 15, marginBottom: 15}}/>
-                                <div>
-                                    <p>{this.state.description}</p>
-                                </div>
-                            </CardContent>
-                        </Card>
+                        <Grid xs item role="tabpanel" hidden={!this.state.isPreview} id="simple-tab-1">
+                            <Grid item xs>
+                                <Typography variant="h6" component="div" >
+                                    {this.state.title}
+                                </Typography>
+                            </Grid>
+                            <Divider style={{marginTop: 15, marginBottom: 15}}/>
+                            <div>
+                                <p><ReactMarkdown>{this.state.description}</ReactMarkdown></p>
+                            </div>
+                        </Grid>
                         <Grid container xs item style={{ display: 'flex', justifyContent: 'flex-end'}}>
                             <Button
                                 size="large"
