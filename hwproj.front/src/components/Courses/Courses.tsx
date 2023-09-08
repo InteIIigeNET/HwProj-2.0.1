@@ -55,7 +55,7 @@ export default class Courses extends React.Component<{navigate: any}, ICoursesSt
                 </Tabs>
                 <br/>
                 {tabValue === activeCoursesTab &&<CoursesList navigate={navigate} courses={activeCourses}/>}
-                {tabValue === 1 && <CoursesList navigate={navigate} courses={allCourses}/>}
+                {tabValue === 0 && <CoursesList navigate={navigate} courses={allCourses}/>}
                 {tabValue === completedCoursesTab && <CoursesList navigate={navigate} courses={completedCourses}/>}
             </div>
         );
