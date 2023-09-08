@@ -161,7 +161,7 @@ namespace HwProj.CoursesService.API.Controllers
         public async Task<TaskDeadlineDto[]> GetUserDeadlines()
         {
             var userId = Request.GetUserIdFromHeader();
-            var courseIds = await _courseMatesRepository.FindAll(t => t.StudentId == userId).Select(t => t.CourseId)
+            var courseIds = await _courseMatesRepository.FindAll(t => t.StudentId == userId && t.IsAccepted).Select(t => t.CourseId)
                 .ToListAsync();
 
             var currentDate = DateTimeUtils.GetMoscowNow();
