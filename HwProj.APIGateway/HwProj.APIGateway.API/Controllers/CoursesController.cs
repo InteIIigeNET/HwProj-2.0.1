@@ -7,6 +7,7 @@ using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
+using HwProj.Models.Result;
 using HwProj.Models.Roles;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -153,13 +154,16 @@ namespace HwProj.APIGateway.API.Controllers
         }
 
         [HttpPut("{courseId}/assignStudent")]
+        [Authorize(Roles = Roles.LecturerRole)]
         public async Task<IActionResult> AssignStudentToMentor(long courseId, [FromQuery] string mentorId, [FromQuery] string studentId)
         {
-            await _coursesClient.AssignStudentToMentor(courseId, mentorId, studentId);
-            return Ok();
+            return (await _coursesClient.AssignStudentToMentor(courseId, mentorId, studentId)).Succeeded
+                ? Ok()
+                : BadRequest("Введены некорректные данные");
         }
 
         [HttpDelete("{courseId}/deassignStudent")]
+        [Authorize(Roles = Roles.LecturerRole)]
         public async Task DeassignStudentFromMentor(long courseId, [FromQuery] string studentId)
         {
             await _coursesClient.DeassignStudentFromMentor(courseId, studentId);

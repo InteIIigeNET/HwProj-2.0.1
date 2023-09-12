@@ -18,9 +18,11 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPut("{courseId}/assignStudent")]
-        public async Task AssignStudentToMentor(long courseId, [FromQuery] string studentId, [FromQuery] string mentorId)
+        public async Task<IActionResult> AssignStudentToMentor(long courseId, [FromQuery] string studentId, [FromQuery] string mentorId)
         {
-            await _assignmentsService.AssignStudentAsync(studentId, mentorId, courseId);
+            return await _assignmentsService.AssignStudentAsync(studentId, mentorId, courseId)
+                ? Ok()
+                : NotFound();
         }
 
         [HttpDelete("{courseId}/deassignStudent")]

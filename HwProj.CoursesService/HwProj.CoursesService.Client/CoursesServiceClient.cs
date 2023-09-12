@@ -428,7 +428,7 @@ namespace HwProj.CoursesService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             return response.IsSuccessStatusCode
                 ? Result.Success()
-                : Result.Failed(response.ReasonPhrase);
+                : Result.Failed();
         }
 
         public async Task<Result> DeassignStudentFromMentor(long courseId, string studentId)

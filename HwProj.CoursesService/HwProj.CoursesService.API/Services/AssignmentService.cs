@@ -1,5 +1,7 @@
-﻿using HwProj.CoursesService.API.Models;
+﻿using System.Linq;
+using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
+
 using System.Threading.Tasks;
 
 namespace HwProj.CoursesService.API.Services
@@ -7,15 +9,21 @@ namespace HwProj.CoursesService.API.Services
     public class AssignmentService : IAssignmentsService
     {
         private readonly IAssignmentsRepository _assignmentsRepository;
+        private readonly ICourseMatesRepository _courseMatesRepository;
+        private readonly ICoursesRepository _coursesRepository;
 
-        public AssignmentService(IAssignmentsRepository assignmentRepository)
+        public AssignmentService(IAssignmentsRepository assignmentRepository,
+                ICourseMatesRepository courseMatesRepository,
+                ICoursesRepository coursesRepository)
         {
+            _courseMatesRepository = courseMatesRepository;
             _assignmentsRepository = assignmentRepository;
+            _coursesRepository = coursesRepository;
         }
 
         public async Task DeassignStudentAsync(string studentId, long courseId)
         {
-            var student = _assignmentsRepository.FindAsync(s => s.StudentId == studentId && s.CourseId == courseId).Result;
+            var student = await _assignmentsRepository.FindAsync(s => s.StudentId == studentId && s.CourseId == courseId);
 
             if (student != null)
             {
@@ -23,13 +31,22 @@ namespace HwProj.CoursesService.API.Services
             }
         }
 
-        public async Task AssignStudentAsync(string studentId, string mentorId, long courseId)
+        public async Task<bool> AssignStudentAsync(string studentId, string mentorId, long courseId)
         {
-            var student = _assignmentsRepository.FindAsync(a => a.CourseId == courseId && a.StudentId == studentId);
+            var course= await _coursesRepository.FindAsync(c => c.Id == courseId);
+            var isMentorIdCorrect = course?.MentorIds.Split('/')?.Contains(mentorId) ?? false;
 
-            if (student.Result != null)
+            if (course == null || !isMentorIdCorrect
+                               || await _courseMatesRepository.FindAsync(c => c.IsAccepted && c.StudentId == studentId && c.CourseId == courseId) == null)
             {
-                await _assignmentsRepository.UpdateAsync(student.Result.Id, a => new Assignment()
+                return false;
+            }
+
+            var student = await _assignmentsRepository.FindAsync(a => a.CourseId == courseId && a.StudentId == studentId);
+
+            if (student != null)
+            {
+                await _assignmentsRepository.UpdateAsync(student.Id, a => new Assignment()
                 {
                     MentorId = mentorId,
                 });
@@ -43,6 +60,8 @@ namespace HwProj.CoursesService.API.Services
                     MentorId = mentorId
                 });
             }
+
+            return true;
         }
     }
 }
