@@ -1,6 +1,6 @@
 import {TaskDeadlineView} from "../../api";
 import * as React from "react";
-import {NavLink} from "react-router-dom";
+import {NavLink, Link} from "react-router-dom";
 import {Divider, Grid, ListItem, Typography} from "@material-ui/core";
 import {Badge, LinearProgress} from "@mui/material";
 
@@ -34,35 +34,37 @@ export class TaskDeadlines extends React.Component<ITaskDeadlinesProps, {}> {
 
         return (
             <div className="container">
-                {taskDeadlines.map(({deadline: deadline, rating, maxRating, solutionState}, i) => (
+                {taskDeadlines.map(({deadline: deadline, rating, deadlinePast, solutionState}, i) => (
                     <Grid item>
-                        <ListItem
-                            key={deadline!.taskId}
-                            onClick={() => window.location.assign(`/task/${deadline!.taskId}`)}
-                            style={{padding: 0}}
-                        >
-                            <Grid container>
-                                <Grid item>
-                                    <NavLink
-                                        to={`/task/${deadline!.taskId}`}
-                                        style={{color: "#212529"}}
-                                    >
-                                        <Typography style={{fontSize: "20px"}}>
-                                            {deadline!.taskTitle}
-                                        </Typography>
-                                    </NavLink>
+                        <Link to={`/task/${deadline!.taskId}`}>
+                            <ListItem
+                                key={deadline!.taskId}
+                                style={{padding: 0}}
+                            >
+                                <Grid container>
+                                    <Grid item>
+                                        <NavLink
+                                            to={`/task/${deadline!.taskId}`}
+                                            style={{color: "#212529"}}
+                                        >
+                                            <Typography style={{fontSize: "20px"}}>
+                                                {deadline!.taskTitle}
+                                            </Typography>
+                                        </NavLink>
+                                    </Grid>
+                                    {!deadlinePast && <Grid item>
+                                        {this.renderBadge(solutionState!, rating!, deadline!.maxRating!)}
+                                    </Grid>}
                                 </Grid>
-                                <Grid item>
-                                    {this.renderBadge(solutionState!, rating!, maxRating!)}
-                                </Grid>
-                            </Grid>
-                        </ListItem>
+                            </ListItem>
+                        </Link>
                         <Typography style={{fontSize: "18px", color: "GrayText"}}>
                             {deadline!.courseTitle}
                         </Typography>
                         <LinearProgress variant="determinate"
+                                        color={deadlinePast ? "error" : "primary"}
                                         style={{marginTop: 5}}
-                                        value={this.getPercent(deadline!.publicationDate!, deadline!.deadlineDate!)}/>
+                                        value={deadlinePast ? 100 : this.getPercent(deadline!.publicationDate!, deadline!.deadlineDate!)}/>
                         {new Date(deadline!.deadlineDate!).toLocaleString("ru-RU")}
                         {i < taskDeadlines.length - 1 ?
                             <Divider style={{marginTop: 10, marginBottom: 10}}/> : null}

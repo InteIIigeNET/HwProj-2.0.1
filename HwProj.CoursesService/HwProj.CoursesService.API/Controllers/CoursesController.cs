@@ -174,7 +174,7 @@ namespace HwProj.CoursesService.API.Controllers
             var result = courses
                 .SelectMany(course => course.Homeworks
                     .SelectMany(x => x.Tasks)
-                    .Where(t => t.HasDeadline && t.PublicationDate <= currentDate && t.DeadlineDate > currentDate)
+                    .Where(t => t.HasDeadline && t.PublicationDate <= currentDate)
                     .Select(task => new TaskDeadlineDto
                     {
                         TaskId = task.Id,

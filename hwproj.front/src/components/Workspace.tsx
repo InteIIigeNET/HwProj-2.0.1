@@ -24,7 +24,7 @@ const useStyles = makeStyles(() => ({
 }))
 
 const Workspace: FC = () => {
-    const { id } = useParams()
+    const {id} = useParams()
     const navigate = useNavigate()
 
     const [profileState, setProfileState] = useState<IWorkspaceState>({
@@ -32,7 +32,9 @@ const Workspace: FC = () => {
         tabValue: 0
     })
 
-    const [accountState, setAccountState] = useState<UserDataDto & { unratedSolutionPreviews: UnratedSolutionPreviews | undefined }>({
+    const [accountState, setAccountState] = useState<UserDataDto & {
+        unratedSolutionPreviews: UnratedSolutionPreviews | undefined
+    }>({
         userData: undefined,
         unratedSolutionPreviews: undefined
     })
@@ -67,6 +69,9 @@ const Workspace: FC = () => {
 
     const {userData, courses, taskDeadlines, unratedSolutionPreviews} = accountState
     const {tabValue} = profileState
+
+    const nearestTaskDeadlines = taskDeadlines?.filter(x => !x.deadlinePast) || []
+    const pastTaskDeadlines = taskDeadlines?.filter(x => x.deadlinePast) || []
 
     if (!ApiSingleton.authService.isLoggedIn()) {
         return <Navigate to={"/login"}/>;
@@ -113,30 +118,37 @@ const Workspace: FC = () => {
                                 }));
                             }}
                         >
-                            {isLecturer
-                                ? <Tab
-                                    label={
-                                        <Stack direction="row" spacing={1}>
-                                            <div>Ожидают проверки</div>
-                                            <Chip size={"small"} color={"default"}
-                                                  label={(unratedSolutionPreviews!.unratedSolutions!.length)}/>
-                                        </Stack>}/>
-                                : <Tab label={
-                                    <Stack direction="row" spacing={1}>
-                                        <div>Дедлайны</div>
-                                        <Chip size={"small"} color={"default"}
-                                              label={(taskDeadlines!.length)}/>
-                                    </Stack>}/>}
-                            <Tab label="Курсы"/>
+                            {isLecturer && <Tab label={
+                                <Stack direction="row" spacing={1}>
+                                    <div>Ожидают проверки</div>
+                                    <Chip size={"small"} color={"default"}
+                                          label={(unratedSolutionPreviews!.unratedSolutions!.length)}/>
+                                </Stack>}/>}
+                            {isLecturer && <Tab label="Курсы"/>}
+
+                            {!isLecturer && <Tab label={
+                                <Stack direction="row" spacing={1}>
+                                    <div>Дедлайны</div>
+                                    <Chip size={"small"} color={"default"}
+                                          label={(nearestTaskDeadlines!.length)}/>
+                                </Stack>}/>}
+                            {!isLecturer && pastTaskDeadlines.length > 0 && <Tab label={
+                                <Stack direction="row" spacing={1}>
+                                    <div>Пропущенные дедлайны</div>
+                                    <Chip size={"small"} color={"default"}
+                                          label={(pastTaskDeadlines!.length)}/>
+                                </Stack>}/>}
                         </Tabs>
-                        {tabValue === 0 &&
-                            (isLecturer
-                                ? <div style={{marginTop: 15}}><UnratedSolutions
-                                    unratedSolutionsPreviews={unratedSolutionPreviews!}/>
-                                </div>
-                                : <div style={{marginTop: 15}}><TaskDeadlines taskDeadlines={taskDeadlines!}/></div>)}
-                        {tabValue === 1 && courses &&
-                            <div style={{marginTop: 15}}><CoursesList navigate={navigate} courses={courses!}/></div>}
+                        <div style={{marginTop: 15}}>
+                            {tabValue === 0 &&
+                                (isLecturer
+                                    ? <UnratedSolutions unratedSolutionsPreviews={unratedSolutionPreviews!}/>
+                                    : <TaskDeadlines taskDeadlines={nearestTaskDeadlines}/>)}
+                            {tabValue === 1 &&
+                                (isLecturer
+                                    ? courses && <CoursesList navigate={navigate} courses={courses!}/>
+                                    : <TaskDeadlines taskDeadlines={pastTaskDeadlines}/>)}
+                        </div>
                     </Grid>}
                 </Grid>
             </div>

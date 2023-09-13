@@ -6,6 +6,7 @@ using HwProj.APIGateway.API.Models;
 using HwProj.APIGateway.API.Models.Tasks;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
+using HwProj.Models;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.Result;
@@ -48,38 +49,36 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(UserDataDto), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetUserData()
         {
-            var getAccountDataTask = AuthServiceClient.GetAccountData(UserId);
-            var getCoursesTask = _coursesClient.GetAllUserCourses();
-
-            await Task.WhenAll(getAccountDataTask, getCoursesTask);
-
-            var courses = GetCoursePreviews(getCoursesTask.Result);
+            var accountData = await AuthServiceClient.GetAccountData(UserId);
 
             if (User.IsInRole(Roles.LecturerRole))
             {
+                var courses = await _coursesClient.GetAllUserCourses();
                 return Ok(new UserDataDto
                 {
-                    UserData = getAccountDataTask.Result,
-                    Courses = await courses,
+                    UserData = accountData,
+                    Courses = await GetCoursePreviews(courses),
                     TaskDeadlines = Array.Empty<TaskDeadlineView>()
                 });
             }
 
+            var currentTime = DateTimeUtils.GetMoscowNow();
             var taskDeadlines = await _coursesClient.GetTaskDeadlines();
             var taskIds = taskDeadlines.Select(t => t.TaskId).ToArray();
             var solutions = await _solutionsServiceClient.GetLastTaskSolutions(taskIds, UserId);
-            var taskDeadlinesInfo = taskDeadlines.Select((d, i) => new TaskDeadlineView
-            {
-                Deadline = d,
-                SolutionState = solutions[i]?.State,
-                Rating = solutions[i]?.Rating,
-                MaxRating = taskDeadlines[i].MaxRating
-            }).ToArray();
+            var taskDeadlinesInfo = taskDeadlines
+                .Where((t, i) => currentTime <= t.DeadlineDate || solutions[i] == null)
+                .Select((d, i) => new TaskDeadlineView
+                {
+                    Deadline = d,
+                    SolutionState = solutions[i]?.State,
+                    Rating = solutions[i]?.Rating,
+                    DeadlinePast = currentTime > d.DeadlineDate
+                }).ToArray();
 
             var aggregatedResult = new UserDataDto
             {
-                UserData = getAccountDataTask.Result,
-                Courses = await courses,
+                UserData = accountData,
                 TaskDeadlines = taskDeadlinesInfo
             };
             return Ok(aggregatedResult);
