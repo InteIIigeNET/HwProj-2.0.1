@@ -170,21 +170,13 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                         {!props.loggedIn && (
                             <div className={classes.tools}>
                                 <Link
-                                    style={{color: "white"}}
+                                    style={{color: "white", marginLeft: "10px"}}
                                     to={("/login")}>
-                                    <Button
-                                        className={classes.item}
-                                        style={{marginLeft: "10px"}}>
-                                    </Button>
                                     Вход
                                 </Link>
                                 <Link
-                                    style={{color: "white"}}
+                                    style={{color: "white", marginLeft: "10px"}}
                                     to={"/register"}>
-                                    <Button
-                                        className={classes.item}
-                                        style={{marginLeft: "10px"}}>
-                                    </Button>
                                     Регистрация
                                 </Link>
                             </div>
