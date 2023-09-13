@@ -132,12 +132,16 @@ const Workspace: FC = () => {
                                     <Chip size={"small"} color={"default"}
                                           label={(nearestTaskDeadlines!.length)}/>
                                 </Stack>}/>}
-                            {!isLecturer && pastTaskDeadlines.length > 0 && <Tab label={
-                                <Stack direction="row" spacing={1}>
-                                    <div>Пропущенные дедлайны</div>
-                                    <Chip size={"small"} color={"default"}
-                                          label={(pastTaskDeadlines!.length)}/>
-                                </Stack>}/>}
+                            {!isLecturer && pastTaskDeadlines.length > 0 &&
+                                <Tab style={{minWidth: "fit-content"}}
+                                     label={
+                                         <Stack direction="row" spacing={1}>
+                                             <div>Пропущенные дедлайны</div>
+                                             <Chip size={"small"}
+                                                   color={"default"}
+                                                   label={(10)}/>
+                                         </Stack>}
+                                />}
                         </Tabs>
                         <div style={{marginTop: 15}}>
                             {tabValue === 0 &&
