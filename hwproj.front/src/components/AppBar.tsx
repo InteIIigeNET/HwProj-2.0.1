@@ -2,13 +2,14 @@ import React, {useState} from "react";
 import {makeStyles} from '@material-ui/styles';
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
-import Link from "@material-ui/core/Link";
+import {Link} from "react-router-dom";
 import {Badge, Button, Grid, IconButton, MenuItem, Typography} from "@material-ui/core";
 import MenuIcon from "@material-ui/icons/Menu";
 import Menu from '@material-ui/core/Menu';
 import InviteLecturerModal from "./InviteLecturerModal";
 import MailIcon from '@mui/icons-material/Mail';
 import {useNavigate} from "react-router-dom";
+
 
 const styles = makeStyles(theme => ({
     tools: {
@@ -66,41 +67,45 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                     <Toolbar>
                         <Grid container spacing={1} alignItems={"center"}>
                             <Grid item style={{marginRight: 1}}>
-                                <Typography>
+                                <Typography variant="h6">
                                     <Link
-                                        className={classes.logo}
-                                        onClick={() => navigate("/")}
-                                        component="button"
-                                        variant="h6"
-                                        color="inherit"
-                                        style={{fontFamily: "Helvetica"}}
-                                    >
+                                        style={{color: "white"}}
+                                        to={"/"}>
+                                        <Button
+                                            color="inherit"
+                                            style={{fontFamily: "Helvetica"}}>
+                                        </Button>
                                         HW
                                     </Link>
                                 </Typography>
                             </Grid>
                             {props.loggedIn &&
                                 <Grid item>
-                                    <IconButton onClick={() => navigate(`/notifications`)}>
-                                        {props.newNotificationsCount > 0
-                                            ? <Badge badgeContent={props.newNotificationsCount} color="primary">
-                                                <MailIcon fontSize={"small"} htmlColor={"white"}/>
-                                            </Badge>
-                                            : <MailIcon fontSize={"small"} htmlColor={"white"}/>
-                                        }
-                                    </IconButton>
+                                    <Link to={"/notifications"}>
+                                        <IconButton>
+                                            {props.newNotificationsCount > 0
+                                                ? <Badge badgeContent={props.newNotificationsCount} color="primary">
+                                                    <MailIcon fontSize={"small"} htmlColor={"white"}/>
+                                                </Badge>
+                                                : <MailIcon fontSize={"small"} htmlColor={"white"}/>
+                                            }
+                                        </IconButton>
+                                    </Link>
                                 </Grid>
                             }
                             {props.loggedIn &&
                                 <Grid item>
                                     <Typography>
-                                        <Button
-                                            onClick={() => navigate(`/courses`)}
-                                            color="inherit"
-                                            style={{fontFamily: "Helvetica"}}
-                                        >
-                                            Курсы
-                                        </Button>
+                                        <Link
+                                            style={{color: 'white'}}
+                                            to={("/courses")}>
+                                            <Button
+                                                color="inherit"
+                                                style={{fontFamily: "Helvetica"}}
+                                            >
+                                                Курсы
+                                            </Button>
+                                        </Link>
                                     </Typography>
                                 </Grid>
                             }
@@ -126,9 +131,13 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                                         <MenuItem onClick={openInviteLecturer}>
                                             Пригласить преподавателя
                                         </MenuItem>
-                                        <MenuItem onClick={() => navigate("/create_course")}>
-                                            Создать курс
-                                        </MenuItem>
+                                        <Link
+                                            style={{color: 'black'}}
+                                            to={"/create_course"}>
+                                            <MenuItem>
+                                                Создать курс
+                                            </MenuItem>
+                                        </Link>
                                         <MenuItem onClick={props.onLogout}>
                                             Выйти
                                         </MenuItem>
@@ -161,21 +170,21 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                         {!props.loggedIn && (
                             <div className={classes.tools}>
                                 <Link
-                                    onClick={() => navigate("/login")}
-                                    component="button"
-                                    color="inherit"
-                                    className={classes.item}
-                                    style={{marginLeft: "10px"}}
-                                >
+                                    style={{color: "white"}}
+                                    to={("/login")}>
+                                    <Button
+                                        className={classes.item}
+                                        style={{marginLeft: "10px"}}>
+                                    </Button>
                                     Вход
                                 </Link>
                                 <Link
-                                    onClick={() => navigate("/register")}
-                                    component="button"
-                                    color="inherit"
-                                    className={classes.item}
-                                    style={{marginLeft: "10px"}}
-                                >
+                                    style={{color: "white"}}
+                                    to={"/register"}>
+                                    <Button
+                                        className={classes.item}
+                                        style={{marginLeft: "10px"}}>
+                                    </Button>
                                     Регистрация
                                 </Link>
                             </div>
