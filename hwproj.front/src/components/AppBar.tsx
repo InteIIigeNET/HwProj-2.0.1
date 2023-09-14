@@ -67,17 +67,15 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                     <Toolbar>
                         <Grid container spacing={1} alignItems={"center"}>
                             <Grid item style={{marginRight: 1}}>
-                                <Typography variant="h6">
-                                    <Link
-                                        style={{color: "white"}}
-                                        to={"/"}>
-                                        <Button
-                                            color="inherit"
-                                            style={{fontFamily: "Helvetica"}}>
-                                        </Button>
-                                        HW
-                                    </Link>
-                                </Typography>
+                                <MenuItem>
+                                    <Typography variant="h6">
+                                        <Link
+                                            style={{color: "white", fontFamily: "Helvetica", textDecoration: "none"}}
+                                            to={"/"}>
+                                            HW
+                                        </Link>
+                                    </Typography>
+                                </MenuItem>
                             </Grid>
                             {props.loggedIn &&
                                 <Grid item>
@@ -97,14 +95,13 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                                 <Grid item>
                                     <Typography>
                                         <Link
-                                            style={{color: 'white'}}
+                                            style={{color: 'white', fontFamily: "Helvetica", textDecoration: "none"}}
                                             to={("/courses")}>
-                                            <Button
-                                                color="inherit"
-                                                style={{fontFamily: "Helvetica"}}
-                                            >
-                                                Курсы
-                                            </Button>
+                                            <MenuItem>
+                                                <Typography>
+                                                    Курсы
+                                                </Typography>
+                                            </MenuItem>
                                         </Link>
                                     </Typography>
                                 </Grid>
@@ -132,7 +129,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                                             Пригласить преподавателя
                                         </MenuItem>
                                         <Link
-                                            style={{color: 'black'}}
+                                            style={{color: 'black', textDecoration: "none"}}
                                             to={"/create_course"}>
                                             <MenuItem>
                                                 Создать курс
