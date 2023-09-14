@@ -139,7 +139,7 @@ const Workspace: FC = () => {
                                              <div>Пропущенные дедлайны</div>
                                              <Chip size={"small"}
                                                    color={"default"}
-                                                   label={(10)}/>
+                                                   label={pastTaskDeadlines.length}/>
                                          </Stack>}
                                 />}
                         </Tabs>

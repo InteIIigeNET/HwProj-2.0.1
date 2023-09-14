@@ -67,13 +67,14 @@ namespace HwProj.APIGateway.API.Controllers
             var taskIds = taskDeadlines.Select(t => t.TaskId).ToArray();
             var solutions = await _solutionsServiceClient.GetLastTaskSolutions(taskIds, UserId);
             var taskDeadlinesInfo = taskDeadlines
-                .Where((t, i) => currentTime <= t.DeadlineDate || solutions[i] == null)
-                .Select((d, i) => new TaskDeadlineView
+                .Zip(solutions, (deadline, solution) => (deadline, solution))
+                .Where(t => currentTime <= t.deadline.DeadlineDate || t.solution == null)
+                .Select(t => new TaskDeadlineView
                 {
-                    Deadline = d,
-                    SolutionState = solutions[i]?.State,
-                    Rating = solutions[i]?.Rating,
-                    DeadlinePast = currentTime > d.DeadlineDate
+                    Deadline = t.deadline,
+                    SolutionState = t.solution?.State,
+                    Rating = t.solution?.Rating,
+                    DeadlinePast = currentTime > t.deadline.DeadlineDate
                 }).ToArray();
 
             var aggregatedResult = new UserDataDto
