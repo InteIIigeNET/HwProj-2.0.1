@@ -3,13 +3,13 @@ import {makeStyles} from '@material-ui/styles';
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import {Link} from "react-router-dom";
-import {Badge, Button, Grid, IconButton, MenuItem, Typography} from "@material-ui/core";
+import {Badge, Grid, IconButton, MenuItem, Typography} from "@material-ui/core";
 import MenuIcon from "@material-ui/icons/Menu";
 import Menu from '@material-ui/core/Menu';
 import InviteLecturerModal from "./InviteLecturerModal";
 import MailIcon from '@mui/icons-material/Mail';
 import {useNavigate} from "react-router-dom";
-
+import {Button} from "@mui/material";
 
 const styles = makeStyles(theme => ({
     tools: {
@@ -67,15 +67,11 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                     <Toolbar>
                         <Grid container spacing={1} alignItems={"center"}>
                             <Grid item style={{marginRight: 1}}>
-                                <MenuItem>
-                                    <Typography variant="h6">
-                                        <Link
-                                            style={{color: "white", fontFamily: "Helvetica", textDecoration: "none"}}
-                                            to={"/"}>
-                                            HW
-                                        </Link>
+                                <Link to={"/"}>
+                                    <Typography variant="h6" style={{color: 'white', fontFamily: "Helvetica"}}>
+                                        HW
                                     </Typography>
-                                </MenuItem>
+                                </Link>
                             </Grid>
                             {props.loggedIn &&
                                 <Grid item>
@@ -93,17 +89,15 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                             }
                             {props.loggedIn &&
                                 <Grid item>
-                                    <Typography>
-                                        <Link
-                                            style={{color: 'white', fontFamily: "Helvetica", textDecoration: "none"}}
-                                            to={("/courses")}>
-                                            <MenuItem>
-                                                <Typography>
-                                                    Курсы
-                                                </Typography>
-                                            </MenuItem>
-                                        </Link>
-                                    </Typography>
+                                    <Link
+                                        style={{color: 'white', fontFamily: "Helvetica", textDecoration: "none"}}
+                                        to={("/courses")}>
+                                        <Button>
+                                            <Typography style={{color: 'white', fontFamily: "Helvetica"}}>
+                                                Курсы
+                                            </Typography>
+                                        </Button>
+                                    </Link>
                                 </Grid>
                             }
                         </Grid>
@@ -129,7 +123,8 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                                             Пригласить преподавателя
                                         </MenuItem>
                                         <Link
-                                            style={{color: 'black', textDecoration: "none"}}
+                                            color={"initial"}
+                                            style={{textDecoration: "none"}}
                                             to={"/create_course"}>
                                             <MenuItem>
                                                 Создать курс
@@ -167,11 +162,13 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                         {!props.loggedIn && (
                             <div className={classes.tools}>
                                 <Link
+                                    className={classes.item}
                                     style={{color: "white", marginLeft: "10px"}}
                                     to={("/login")}>
                                     Вход
                                 </Link>
                                 <Link
+                                    className={classes.item}
                                     style={{color: "white", marginLeft: "10px"}}
                                     to={"/register"}>
                                     Регистрация
