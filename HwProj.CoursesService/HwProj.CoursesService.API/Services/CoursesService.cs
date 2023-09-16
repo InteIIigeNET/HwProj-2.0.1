@@ -12,6 +12,7 @@ using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
 using Microsoft.EntityFrameworkCore;
+using HwProj.CoursesService.API.Domains;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -80,16 +81,8 @@ namespace HwProj.CoursesService.API.Services
                     Id = g.Id,
                     StudentsIds = g.GroupMates.Select(t => t.StudentId).ToArray()
                 }).ToArray();
-            result.Assignments = course.CourseMates.Where(cm => cm.IsAccepted)
-                .GroupBy(cm => assignments.Where(a => a.StudentId == cm.StudentId)?.FirstOrDefault()?.MentorId)
-                .Select(g => new AssignmentsViewModel()
-                {
-                    MentorId = g.Key,
-                    StudentIds = g.Select(a => a.StudentId).ToArray()
-                }).ToArray();
+            result.Assignments = CourseViewModelsDomain.GetAssignmentsViewModels(result.CourseMates, assignments);
 
-
-            
             return result;
         }
 

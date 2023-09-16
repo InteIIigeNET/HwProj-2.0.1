@@ -14,6 +14,7 @@ using HwProj.Models;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
 using Microsoft.EntityFrameworkCore;
+using HwProj.CoursesService.API.Domains;
 
 namespace HwProj.CoursesService.API.Controllers
 {
@@ -140,13 +141,7 @@ namespace HwProj.CoursesService.API.Controllers
             for (var i = 0; i < coursesFromDb.Length; ++i)
             {
                 var assignments = await _assignmentsRepository.GetAllByCourseAsync(coursesFromDb[i].Id);
-                courses[i].Assignments = coursesFromDb[i].CourseMates.Where(cm => cm.IsAccepted)
-                    .GroupBy(cm => assignments.Where(a => a.StudentId == cm.StudentId)?.FirstOrDefault()?.MentorId)
-                    .Select(g => new AssignmentsViewModel()
-                    {
-                        MentorId = g.Key,
-                        StudentIds = g.Select(a => a.StudentId).ToArray()
-                    }).ToArray();
+                CourseViewModelsDomain.GetAssignmentsViewModels(courses[i].CourseMates, assignments);
             }
 
             return courses;
