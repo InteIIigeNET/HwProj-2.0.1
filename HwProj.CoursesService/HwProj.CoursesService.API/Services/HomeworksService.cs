@@ -26,7 +26,7 @@ namespace HwProj.CoursesService.API.Services
         public async Task<long> AddHomeworkAsync(long courseId, Homework homework)
         {
             homework.CourseId = courseId;
-            homework.Date = DateTimeUtils.GetMoscowNow();
+            homework.PublicationDate = DateTimeUtils.GetMoscowNow();
 
             var course = await _coursesRepository.GetWithCourseMatesAsync(courseId);
             var courseModel = _mapper.Map<CourseDTO>(course);

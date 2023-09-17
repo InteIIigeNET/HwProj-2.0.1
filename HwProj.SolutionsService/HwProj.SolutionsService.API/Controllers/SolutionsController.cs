@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.Client;
+using HwProj.Models;
 using HwProj.Models.SolutionsService;
 using HwProj.Models.StatisticsService;
 using HwProj.SolutionsService.API.Domains;
@@ -72,8 +73,10 @@ namespace HwProj.SolutionsService.API.Controllers
         {
             var task = await _coursesClient.GetTask(taskId);
             var course = await _coursesClient.GetCourseByTask(taskId);
+            var homework = course?.Homeworks.FirstOrDefault(h => h.Id == task.HomeworkId);
+            if (homework == null) return NotFound();
 
-            if (!task.CanSendSolution) return BadRequest();
+            if (homework.IsDeadlineStrict && DateTimeUtils.GetMoscowNow() <= homework.DeadlineDate) return BadRequest();
 
             var solution = _mapper.Map<Solution>(solutionModel);
             solution.TaskId = taskId;

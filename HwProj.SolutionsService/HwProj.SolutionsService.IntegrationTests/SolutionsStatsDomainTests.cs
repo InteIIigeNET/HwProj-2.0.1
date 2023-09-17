@@ -36,13 +36,8 @@ namespace HwProj.SolutionsService.IntegrationTests
                 Id = i,
                 Title = $"Task {i}",
                 Description = $"Task {i} description",
-                DeadlineDate = null,
-                HasDeadline = false,
                 HomeworkId = homeworkId,
-                IsDeadlineStrict = false,
-                IsDeferred = false,
                 MaxRating = 10,
-                PublicationDate = DateTime.Now
             })
             .ToList();
 
@@ -69,7 +64,7 @@ namespace HwProj.SolutionsService.IntegrationTests
             Id = id,
             Title = "Test",
             Description = "Test description",
-            Date = DateTime.Now,
+            PublicationDate = DateTime.Now,
             CourseId = courseId,
             Tasks = GenerateHomeworkTaskViewModels(taskAmount, id)
         };

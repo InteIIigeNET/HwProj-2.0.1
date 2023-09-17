@@ -173,17 +173,17 @@ namespace HwProj.CoursesService.API.Controllers
 
             var result = courses
                 .SelectMany(course => course.Homeworks
-                    .SelectMany(x => x.Tasks)
-                    .Where(t => t.HasDeadline && t.PublicationDate <= currentDate)
+                    .Where(h => h.HasDeadline && h.PublicationDate <= currentDate)
+                    .SelectMany(x => x.Tasks
                     .Select(task => new TaskDeadlineDto
                     {
                         TaskId = task.Id,
                         TaskTitle = task.Title,
                         CourseTitle = course.Name + " / " + course.GroupName,
-                        PublicationDate = task.PublicationDate,
+                        PublicationDate = x.PublicationDate,
                         MaxRating = task.MaxRating,
-                        DeadlineDate = task.DeadlineDate!.Value
-                    }))
+                        DeadlineDate = x.DeadlineDate!.Value
+                    })))
                 .OrderBy(t => t.DeadlineDate)
                 .ToArray();
 

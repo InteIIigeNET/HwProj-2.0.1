@@ -123,8 +123,8 @@ namespace HwProj.APIGateway.API.Controllers
 
             var currentDateTime = DateTimeUtils.GetMoscowNow();
             var tasks = course.Homeworks
+                .Where(h => h.PublicationDate <= currentDateTime)
                 .SelectMany(t => t.Tasks)
-                .Where(t => t.PublicationDate <= currentDateTime)
                 .ToList();
 
             var taskIds = tasks.Select(t => t.Id).ToArray();
@@ -261,19 +261,19 @@ namespace HwProj.APIGateway.API.Controllers
             var unratedSolutions = solutions
                 .Join(accountsData, s => s.StudentId, s => s.UserId, (solution, account) =>
                 {
-                    var (course, homeworkTitle, task) = tasks[solution.TaskId];
+                    var (course, homework, task) = tasks[solution.TaskId];
                     return new SolutionPreviewView
                     {
                         Student = account,
                         CourseTitle = $"{course.Name} / {course.GroupName}",
                         CourseId = course.Id,
-                        HomeworkTitle = homeworkTitle,
+                        HomeworkTitle = homework.Title,
                         TaskTitle = task.Title,
                         TaskId = task.Id,
                         PublicationDate = solution.PublicationDate,
                         IsFirstTry = solution.IsFirstTry,
-                        SentAfterDeadline = solution.IsFirstTry && task.DeadlineDate != null &&
-                                            solution.PublicationDate > task.DeadlineDate
+                        SentAfterDeadline = solution.IsFirstTry && homework.DeadlineDate != null &&
+                                            solution.PublicationDate > homework.DeadlineDate
                     };
                 })
                 .ToArray();
@@ -285,7 +285,7 @@ namespace HwProj.APIGateway.API.Controllers
         }
 
         private static IEnumerable<(long taskId,
-                (CourseDTO course, string homeworkTitle, HomeworkTaskViewModel task) data)>
+                (CourseDTO course, HomeworkViewModel homework, HomeworkTaskViewModel task) data)>
             FilterTasks(CourseDTO[] courses, long? taskId)
         {
             foreach (var course in courses)
@@ -294,12 +294,12 @@ namespace HwProj.APIGateway.API.Controllers
             {
                 if (taskId is { } id && task.Id == id)
                 {
-                    yield return (task.Id, (course, homework.Title, task));
+                    yield return (task.Id, (course, homework, task));
                     yield break;
                 }
 
                 if (!taskId.HasValue)
-                    yield return (task.Id, (course, homework.Title, task));
+                    yield return (task.Id, (course, homework, task));
             }
         }
     }

@@ -44,8 +44,8 @@ namespace HwProj.CoursesService.API.Services
 
             var taskId = await _tasksRepository.AddAsync(task);
 
-            if (task.PublicationDate <= DateTimeUtils.GetMoscowNow())
-                _eventBus.Publish(new NewHomeworkTaskEvent(task.Title, taskId, task.DeadlineDate, courseModel));
+            //if (task.PublicationDate <= DateTimeUtils.GetMoscowNow())
+              //  _eventBus.Publish(new NewHomeworkTaskEvent(task.Title, taskId, task.DeadlineDate, courseModel));
 
             return taskId;
         }
@@ -69,10 +69,7 @@ namespace HwProj.CoursesService.API.Services
                 Title = update.Title,
                 Description = update.Description,
                 MaxRating = update.MaxRating,
-                DeadlineDate = update.DeadlineDate,
-                HasDeadline = update.HasDeadline,
-                IsDeadlineStrict = update.IsDeadlineStrict,
-                PublicationDate = update.PublicationDate
+
             });
         }
     }
