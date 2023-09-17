@@ -6,17 +6,15 @@ namespace HwProj.CoursesService.API.Events
 {
     public class NewHomeworkTaskEvent : Event
     {
-        public NewHomeworkTaskEvent(string taskTitle, long taskId, DateTime? deadline, CourseDTO course)
+        public NewHomeworkTaskEvent(string taskTitle, long taskId, CourseDTO course)
         {
             TaskTitle = taskTitle;
             TaskId = taskId;
-            Deadline = deadline;
             Course = course;
         }
 
         public string TaskTitle { get; set; }
         public long TaskId { get; set; }
-        public DateTime? Deadline { get; set; }
         public CourseDTO Course { get; set; }
     }
 }

@@ -25,12 +25,7 @@ namespace HwProj.CoursesService.API.Filters
                 if (result?.Value is CourseDTO courseDto && !courseDto.MentorIds.Contains(userId))
                 {
                     var currentDate = DateTimeUtils.GetMoscowNow();
-                    foreach (var homework in courseDto.Homeworks)
-                    {
-                        homework.Tasks =
-                            new List<HomeworkTaskViewModel>(homework.Tasks.Where(t =>
-                                currentDate >= t.PublicationDate));
-                    }
+                    courseDto.Homeworks = courseDto.Homeworks.Where(h => h.PublicationDate <= currentDate).ToArray();
 
                     courseDto.CourseMates = courseDto.CourseMates
                         .Where(t => t.IsAccepted || t.StudentId == userId)

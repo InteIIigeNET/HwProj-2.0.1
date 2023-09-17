@@ -44,8 +44,8 @@ namespace HwProj.CoursesService.API.Services
 
             var taskId = await _tasksRepository.AddAsync(task);
 
-            //if (task.PublicationDate <= DateTimeUtils.GetMoscowNow())
-              //  _eventBus.Publish(new NewHomeworkTaskEvent(task.Title, taskId, task.DeadlineDate, courseModel));
+            if (task.PublicationDate <= DateTimeUtils.GetMoscowNow()) 
+                _eventBus.Publish(new NewHomeworkTaskEvent(task.Title, taskId, task.DeadlineDate, courseModel));
 
             return taskId;
         }
