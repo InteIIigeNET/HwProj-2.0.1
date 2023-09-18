@@ -44,8 +44,8 @@ namespace HwProj.CoursesService.API.Services
 
             var taskId = await _tasksRepository.AddAsync(task);
 
-            if (task.PublicationDate <= DateTimeUtils.GetMoscowNow()) 
-                _eventBus.Publish(new NewHomeworkTaskEvent(task.Title, taskId, task.DeadlineDate, courseModel));
+            if (homework.PublicationDate <= DateTimeUtils.GetMoscowNow()) 
+                _eventBus.Publish(new NewHomeworkTaskEvent(task.Title, taskId, courseModel));
 
             return taskId;
         }
@@ -62,7 +62,10 @@ namespace HwProj.CoursesService.API.Services
             var homework = await _homeworksRepository.GetAsync(task.HomeworkId);
             var course = await _coursesRepository.GetWithCourseMatesAsync(homework.CourseId);
             var courseModel = _mapper.Map<CourseDTO>(course);
-            _eventBus.Publish(new UpdateTaskMaxRatingEvent(courseModel, taskModel, update.MaxRating));
+
+            var currentTime = DateTimeUtils.GetMoscowNow();
+            if (homework.PublicationDate <= currentTime)
+                _eventBus.Publish(new UpdateTaskMaxRatingEvent(courseModel, taskModel, update.MaxRating));
 
             await _tasksRepository.UpdateAsync(taskId, t => new HomeworkTask()
             {

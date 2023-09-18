@@ -26,11 +26,14 @@ namespace HwProj.CoursesService.API.Services
         public async Task<long> AddHomeworkAsync(long courseId, Homework homework)
         {
             homework.CourseId = courseId;
-            homework.PublicationDate = DateTimeUtils.GetMoscowNow();
 
             var course = await _coursesRepository.GetWithCourseMatesAsync(courseId);
             var courseModel = _mapper.Map<CourseDTO>(course);
-            _eventBus.Publish(new NewHomeworkEvent(homework.Title, courseModel));
+
+            var currentTime = DateTimeUtils.GetMoscowNow();
+
+            if (currentTime >= homework.PublicationDate)
+                _eventBus.Publish(new NewHomeworkEvent(homework.Title, courseModel, homework.DeadlineDate));
 
             return await _homeworksRepository.AddAsync(homework);
         }
@@ -51,7 +54,11 @@ namespace HwProj.CoursesService.API.Services
             var course = await _coursesRepository.GetWithCourseMatesAsync(homework.CourseId);
             var courseModel = _mapper.Map<CourseDTO>(course);
             var homeworkModel = _mapper.Map<HomeworkViewModel>(homework);
-            _eventBus.Publish(new UpdateHomeworkEvent(homeworkModel, courseModel));
+
+            var currentTime = DateTimeUtils.GetMoscowNow();
+
+            if (homework.PublicationDate <= currentTime)
+                _eventBus.Publish(new UpdateHomeworkEvent(homeworkModel, courseModel));
 
             await _homeworksRepository.UpdateAsync(homeworkId, hw => new Homework()
             {
