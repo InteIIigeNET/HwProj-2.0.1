@@ -57,9 +57,23 @@ const Homework: FC<IHomeworkProps> = (props) => {
         props.onDeleteClick()
     }
 
+    const {
+        homework,
+        forMentor,
+        forStudent,
+        isReadingMode,
+        isExpanded,
+    } = props;
+
+    let deadlineDate
+
+    if (homework.hasDeadline) {
+        deadlineDate = new Date(homework.deadlineDate!).toLocaleString("ru-RU")
+    }
+
+    const publicationDate = new Date(homework.publicationDate!).toLocaleString("ru-RU");
+
     const classes = useStyles()
-    const homeworkDateString = new Date(props.homework.date!).toLocaleDateString("ru-RU");
-    const deferredHomeworks = props.homework.tasks!.filter(t => t.isDeferred!);
     return (
         <div style={{width: '100%'}}>
             <Accordion defaultExpanded={props.isExpanded}>
@@ -74,12 +88,9 @@ const Homework: FC<IHomeworkProps> = (props) => {
                             <Typography style={{fontSize: '18px'}}>
                                 {props.homework.title}
                             </Typography>
-                            <Typography>
-                                {homeworkDateString}
-                            </Typography>
-                            {props.forMentor && deferredHomeworks!.length > 0 &&
-                                <Chip label={"🕘 " + deferredHomeworks!.length}/>
-                            }
+                            {forMentor && <Chip label={"🕘 " + publicationDate}/>}
+                            {homework.hasDeadline && <Chip label={"⌛ " + deadlineDate}/>}
+                            {!homework.hasDeadline && <Chip label={"без дедлайна"}/>}
                             <Chip label={props.homework.tasks!.length + " заданий"}/>
                             {props.forMentor && !props.isReadingMode && <div>
                                 <IconButton aria-label="Delete" onClick={openDialogDeleteHomework}>

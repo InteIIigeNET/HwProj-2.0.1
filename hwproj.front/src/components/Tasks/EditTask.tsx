@@ -34,13 +34,7 @@ const useStyles = makeStyles(theme => ({
     form: {
         marginTop: theme.spacing(3),
         width: '100%',
-    },
-    checkBox: {
-        width: '100%',
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "space-between"
-    },
+    }
 }))
 
 const EditTask: FC = () => {
@@ -76,10 +70,6 @@ const EditTask: FC = () => {
             maxRating: task.maxRating!,
             courseId: homework.courseId!,
             courseMentorIds: course.mentors!.map(x => x.userId!),
-            hasDeadline: task.hasDeadline!,
-            deadlineDate: task.deadlineDate!,
-            isDeadlineStrict: task.isDeadlineStrict!,
-            publicationDate: task.publicationDate! as Date
         }))
     }
 
@@ -192,85 +182,6 @@ const EditTask: FC = () => {
                                     }}
                                 />
                             </Grid>
-                            <Grid item className={classes.checkBox}>
-                                <div>
-                                    <TextField
-                                        id="datetime-local"
-                                        label="Дата публикации"
-                                        type="datetime-local"
-                                        defaultValue={taskState.publicationDate?.toLocaleString("ru-RU")}
-                                        onChange={(e) => {
-                                            let date = new Date(e.target.value)
-                                            date = Utils.toMoscowDate(date)
-                                            e.persist()
-                                            setTaskState((prevState) => ({
-                                                ...prevState,
-                                                publicationDate: date,
-                                            }))
-                                        }}
-                                        InputLabelProps={{
-                                            shrink: true,
-                                        }}
-                                    />
-                                </div>
-                                <div>
-                                    <label>
-                                        <Checkbox
-                                            color="primary"
-                                            checked={taskState.hasDeadline}
-                                            onChange={(e) => {
-                                                e.persist()
-                                                setTaskState((prevState) => ({
-                                                    ...prevState,
-                                                    hasDeadline: e.target.checked,
-                                                    deadlineDate: undefined,
-                                                }))
-                                            }}
-                                        />
-                                        Добавить дедлайн
-                                    </label>
-                                </div>
-                            </Grid>
-                            {taskState.hasDeadline &&
-                                <Grid item className={classes.checkBox}>
-                                    <div>
-                                        <TextField
-                                            id="datetime-local"
-                                            label="Дедлайн задачи"
-                                            type="datetime-local"
-                                            defaultValue={taskState.deadlineDate?.toLocaleString("ru-RU")}
-                                            InputLabelProps={{
-                                                shrink: true,
-                                            }}
-                                            required
-                                            onChange={(e) => {
-                                                e.persist()
-                                                let date = new Date(e.target.value)
-                                                date = Utils.toMoscowDate(date)
-                                                setTaskState((prevState) => ({
-                                                    ...prevState,
-                                                    deadlineDate: date,
-                                                }))
-                                            }}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label>
-                                            <Checkbox
-                                                color="primary"
-                                                onChange={(e) => {
-                                                    e.persist()
-                                                    setTaskState((prevState) => ({
-                                                        ...prevState,
-                                                        isDeadlineStrict: e.target.checked
-                                                    }))
-                                                }}
-                                            />
-                                            Запретить отправку после дедлайна
-                                        </label>
-                                    </div>
-                                </Grid>
-                            }
                             <Grid item xs={12}>
                                 <Button
                                     fullWidth

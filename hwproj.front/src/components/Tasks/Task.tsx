@@ -59,13 +59,6 @@ const Task: FC<ITaskProp> = (props) => {
     }
 
     const task = props.task
-    let deadlineDate
-
-    if (task.hasDeadline) {
-        deadlineDate = new Date(task.deadlineDate!).toLocaleString("ru-RU")
-    }
-
-    const publicationDate = new Date(task.publicationDate!).toLocaleString("ru-RU")
     const classes = useStyles()
 
     return (
@@ -75,16 +68,13 @@ const Task: FC<ITaskProp> = (props) => {
                     expandIcon={!props.isExpanded ? <ExpandMoreIcon/> : undefined}
                     aria-controls="panel1a-content"
                     id="panel1a-header"
-                    style={{backgroundColor: task.isDeferred! ? "#d3d5db" : "#eceef8"}}
+                    style={{backgroundColor: "#eceef8"}}
                 >
                     <div className={classes.tools}>
                         <Stack direction={"row"} spacing={2} alignItems={"center"}>
                             <Typography style={{fontSize: '18px'}}>
                                 {task.title}
                             </Typography>
-                            {props.forMentor && task.isDeferred && <Chip label={"🕘 " + publicationDate}/>}
-                            {task.hasDeadline && <Chip label={"⌛ " + deadlineDate}/>}
-                            {!task.hasDeadline && <Chip label={"без дедлайна"}/>}
                             <Chip label={"⭐ " + task.maxRating}/>
                             {props.forMentor && !props.isReadingMode && <div>
                                 <IconButton aria-label="Delete" onClick={openDialogDeleteTask}>

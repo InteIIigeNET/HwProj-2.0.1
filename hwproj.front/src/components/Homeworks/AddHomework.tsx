@@ -7,6 +7,8 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {CreateTaskViewModel} from "../../api";
 import ReactMarkdown from "react-markdown";
 import {Grid, Tab, Tabs, Zoom} from "@material-ui/core";
+import Utils from "../../services/Utils";
+import {CreateHomeworkViewModel} from "../../api";
 
 interface IAddHomeworkProps {
     id: number;
@@ -19,24 +21,38 @@ interface IAddHomeworkState {
     description: string;
     tasks: CreateTaskViewModel[];
     added: boolean;
+    publicationDate: Date;
+    deadlineDate: Date | undefined;
+    hasDeadline: boolean,
     isPreview: boolean;
+    isDeadlineStrict: boolean;
 }
 
 export default class AddHomework extends React.Component<IAddHomeworkProps,
     IAddHomeworkState> {
     constructor(props: IAddHomeworkProps) {
         super(props);
+
+        const twoWeeks = 2 * 7 * 24 * 60 * 60 * 1000
+        const now = Date.now()
+
+        const publicationDay = Utils.toMoscowDate(new Date(now))
+        publicationDay.setHours(0, 0, 0, 0)
+
+        const deadlineDate = Utils.toMoscowDate(new Date(now + twoWeeks))
+        deadlineDate.setHours(23, 59, 0, 0)
+
         this.state = {
             title: "",
             description: "",
+            publicationDate: Utils.toMoscowDate(publicationDay),
+            hasDeadline: false,
+            deadlineDate: Utils.toMoscowDate(deadlineDate),
+            isDeadlineStrict: false,
             tasks: [{
                 title: "",
                 description: "",
                 maxRating: 10,
-                publicationDate: new Date(),
-                hasDeadline: false,
-                deadlineDate: undefined,
-                isDeadlineStrict: false,
             }],
             added: false,
             isPreview: false,
@@ -81,6 +97,80 @@ export default class AddHomework extends React.Component<IAddHomeworkProps,
                     <div role="tabpanel" hidden={!this.state.isPreview} id="simple-tab-1">
                         <p><ReactMarkdown>{this.state.description}</ReactMarkdown></p>
                     </div>
+                    <Grid
+                        container
+                        direction="row"
+                        alignItems="center"
+                        justifyContent="space-between"
+                    >
+                        <Grid item>
+                            <TextField
+                                size="small"
+                                id="datetime-local"
+                                label="Дата публикации"
+                                type="datetime-local"
+                                defaultValue={this.state.publicationDate?.toLocaleString("ru-RU")}
+                                onChange={(e) => this.setState({publicationDate: new Date(e.target.value)})}
+                                InputLabelProps={{
+                                    shrink: true,
+                                }}
+                            />
+                        </Grid>
+                        <Grid>
+                            <label style={{margin: 0, padding: 0}}>
+                                <Checkbox
+                                    color="primary"
+                                    onChange={(e) => {
+                                        this.setState({
+                                            hasDeadline: e.target.checked,
+                                            deadlineDate: undefined,
+                                            isDeadlineStrict: false,
+                                            added: false
+                                        })
+                                                                                        
+                                    }}
+                                />
+                                Добавить дедлайн
+                            </label>
+                        </Grid>
+                    </Grid>
+                    {this.state.hasDeadline && (
+                        <Grid
+                            container
+                            direction="row"
+                            alignItems="center"
+                            justifyContent="space-between"
+                            style={{marginTop: '10px'}}
+                        >
+                            <Grid item>
+                                <TextField
+                                    size="small"
+                                    id="datetime-local"
+                                    label="Дедлайн задачи"
+                                    type="datetime-local"
+                                    defaultValue={this.state.deadlineDate?.toLocaleString("ru-RU")}
+                                    onChange={(e) => {
+                                        this.setState({deadlineDate: new Date(e.target.value)});
+                                    }}
+                                    InputLabelProps={{
+                                        shrink: true,
+                                    }}
+                                    required
+                                />
+                            </Grid>
+                            <Grid item>
+                                <label style={{margin: 0, padding: 0}}>
+                                    <Checkbox
+                                        color="primary"
+                                        onChange={(e) => {
+                                            this.setState({isDeadlineStrict: e.target.checked});
+                                        }}
+                                    />
+                                    Запретить отправку решений после дедлайна
+                                </label>
+                            </Grid>
+                        </Grid>
+                    )}
                     <div>
                         <ol>
                             {this.state.tasks.map((task, index) => (
@@ -142,77 +232,6 @@ export default class AddHomework extends React.Component<IAddHomeworkProps,
                                                 onChange={(e) => (task.description = e.target.value)}
                                             />
                                         </Grid>
-                                        <Grid
-                                            container
-                                            direction="row"
-                                            alignItems="center"
-                                            justifyContent="space-between"
-                                        >
-                                            <Grid item>
-                                                <TextField
-                                                    size="small"
-                                                    id="datetime-local"
-                                                    label="Дата публикации"
-                                                    type="datetime-local"
-                                                    defaultValue={task.publicationDate?.toLocaleString("ru-RU")}
-                                                    onChange={(e) => task.publicationDate = new Date(e.target.value)}
-                                                    InputLabelProps={{
-                                                        shrink: true,
-                                                    }}
-                                                />
-                                            </Grid>
-                                            <Grid>
-                                                <label style={{margin: 0, padding: 0}}>
-                                                    <Checkbox
-                                                        color="primary"
-                                                        onChange={(e) => {
-                                                            task.hasDeadline = e.target.checked;
-                                                            task.deadlineDate = undefined;
-                                                            task.isDeadlineStrict = false;
-                                                            this.setState({added: false});
-                                                        }}
-                                                    />
-                                                    Добавить дедлайн
-                                                </label>
-                                            </Grid>
-                                        </Grid>
-                                        {task.hasDeadline && (
-                                            <Grid
-                                                container
-                                                direction="row"
-                                                alignItems="center"
-                                                justifyContent="space-between"
-                                                style={{marginTop: '10px'}}
-                                            >
-                                                <Grid item>
-                                                    <TextField
-                                                        size="small"
-                                                        id="datetime-local"
-                                                        label="Дедлайн задачи"
-                                                        type="datetime-local"
-                                                        defaultValue={task.deadlineDate?.toLocaleString("ru-RU")}
-                                                        onChange={(e) => {
-                                                            task.deadlineDate = new Date(e.target.value)
-                                                        }}
-                                                        InputLabelProps={{
-                                                            shrink: true,
-                                                        }}
-                                                        required
-                                                    />
-                                                </Grid>
-                                                <Grid item>
-                                                    <label style={{margin: 0, padding: 0}}>
-                                                        <Checkbox
-                                                            color="primary"
-                                                            onChange={(e) => {
-                                                                task.isDeadlineStrict = e.target.checked
-                                                            }}
-                                                        />
-                                                        Запретить отправку решений после дедлайна
-                                                    </label>
-                                                </Grid>
-                                            </Grid>
-                                        )}
                                     </li>
                                 </Grid>
                             ))}
@@ -226,11 +245,7 @@ export default class AddHomework extends React.Component<IAddHomeworkProps,
                                     tasks: [...this.state.tasks, {
                                         title: "",
                                         description: "",
-                                        maxRating: 10,
-                                        publicationDate: new Date(),
-                                        hasDeadline: false,
-                                        deadlineDate: undefined,
-                                        isDeadlineStrict: false
+                                        maxRating: 10
                                     }],
                                 })
                             }
@@ -269,6 +284,10 @@ export default class AddHomework extends React.Component<IAddHomeworkProps,
             title: this.state.title,
             description: this.state.description,
             tasks: this.state.tasks,
+            hasDeadline: this.state.hasDeadline,
+            deadlineDate: this.state.deadlineDate,
+            isDeadlineStrict: this.state.isDeadlineStrict,
+            publicationDate: this.state.publicationDate
         }
         await ApiSingleton.homeworksApi.apiHomeworksByCourseIdAddPost(this.props.id, homework)
         this.setState({added: true})
