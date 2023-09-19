@@ -19,7 +19,6 @@ const HomeworkTasks: FC<IHomeworkTasksProps> = (props) => {
     return (
         <div style={{width: '100%'}}>
             {props.tasks
-                .sort((t1, t2) => new Date(t1.publicationDate!).getTime() - new Date(t2.publicationDate!).getTime())
                 .map((task: any) => {
                     return (
                         <Task

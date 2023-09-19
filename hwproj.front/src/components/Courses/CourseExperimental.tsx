@@ -70,7 +70,6 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         itemIsHomework === isHomework && itemId === id ? hoveredItemStyle : {}
 
     const renderHomework = (homework: HomeworkViewModel) => {
-        const deferredHomeworks = homework.tasks!.filter(t => t.isDeferred!)
         const homeworkCount = homework.tasks!.length
         return <CardContent>
             <Grid container spacing={2}>
@@ -79,8 +78,8 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                         {homework.title}
                     </Typography>
                 </Grid>
-                {props.isMentor && deferredHomeworks!.length > 0 &&
-                    <Grid item><Chip label={"🕘 " + deferredHomeworks!.length}/></Grid>
+                {props.isMentor && homework.isDeferred &&
+                    <Grid item><Chip label={"🕘"}/></Grid>
                 }
                 <Grid item><Chip
                     label={homeworkCount + " " + Utils.pluralizeHelper(["Задание", "Задания", "Заданий"], homeworkCount)}/></Grid>
@@ -173,7 +172,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         <Grid item xs={4}>
             <Timeline style={{maxHeight: 500, overflow: 'auto'}}
                       sx={{'&::-webkit-scrollbar': {display: "none"}}}>
-                {homeworks.map(x => <div>
+                {homeworks.filter(h => !h.isDeferred || isMentor).map(x => <div>
                     <Box sx={{":hover": hoveredItemStyle}}
                          style={{...getStyle(true, x.id!), marginTop: 10, marginBottom: 10}}
                          onClick={() => {
@@ -210,9 +209,9 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                         style={{...getStyle(false, t.id!)}}
                         sx={{":hover": hoveredItemStyle}}>
                         <TimelineOppositeContent color="textSecondary">
-                            {t.deadlineDate ? renderDate(t.deadlineDate) : ""}
+                            {x.deadlineDate ? renderDate(x.deadlineDate) : ""}
                             <br/>
-                            {t.deadlineDate ? renderTime(t.deadlineDate) : ""}
+                            {x.deadlineDate ? renderTime(x.deadlineDate) : ""}
                         </TimelineOppositeContent>
                         <TimelineSeparator>
                             {renderTaskStatus(t.id!, t.maxRating!)}

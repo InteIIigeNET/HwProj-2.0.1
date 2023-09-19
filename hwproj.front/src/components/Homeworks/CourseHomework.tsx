@@ -15,7 +15,6 @@ interface ICourseHomeworkProps {
 }
 
 const CourseHomework: FC<ICourseHomeworkProps> = (props) => {
-
     const homeworkList = props.homework
         .map((hw, i) => (
             <ListItem key={hw.id} style={{padding: 0, marginBottom: 15, width: '100%'}}>

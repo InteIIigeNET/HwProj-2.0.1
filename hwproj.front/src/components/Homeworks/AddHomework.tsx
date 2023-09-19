@@ -146,7 +146,7 @@ export default class AddHomework extends React.Component<IAddHomeworkProps,
                                 <TextField
                                     size="small"
                                     id="datetime-local"
-                                    label="Дедлайн задачи"
+                                    label="Дедлайн задания"
                                     type="datetime-local"
                                     defaultValue={this.state.deadlineDate?.toLocaleString("ru-RU")}
                                     onChange={(e) => {

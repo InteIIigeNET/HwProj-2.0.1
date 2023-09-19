@@ -240,7 +240,7 @@ const EditHomework: FC = () => {
                                     <div>
                                         <TextField
                                             id="datetime-local"
-                                            label="Дедлайн задачи"
+                                            label="Дедлайн задания"
                                             type="datetime-local"
                                             defaultValue={editHomework.deadlineDate?.toLocaleString("ru-RU")}
                                             InputLabelProps={{
@@ -261,6 +261,7 @@ const EditHomework: FC = () => {
                                     <div>
                                         <label>
                                             <Checkbox
+                                                checked={editHomework.isDeadlineStrict}
                                                 color="primary"
                                                 onChange={(e) => {
                                                     e.persist()

@@ -21,6 +21,7 @@ interface ITaskSolutionsState {
     courseId: number
     taskSolutions: UserTaskSolutions2[]
     courseMates: AccountDataDto[]
+    canSendSolutions: boolean
 }
 
 const TaskSolutionsPage: FC = () => {
@@ -33,7 +34,8 @@ const TaskSolutionsPage: FC = () => {
         courseId: 0,
         addSolution: false,
         taskSolutions: [],
-        courseMates: []
+        courseMates: [],
+        canSendSolutions: true
     })
 
     useEffect(() => {
@@ -49,6 +51,7 @@ const TaskSolutionsPage: FC = () => {
             task: pageData.task!,
             taskSolutions: pageData.taskSolutions!,
             courseMates: pageData.courseMates!,
+            canSendSolutions: pageData.canSendSolution!
         })
     }
 
@@ -124,7 +127,7 @@ const TaskSolutionsPage: FC = () => {
                                         solutions={currentTaskSolutions}/>
                                 </Grid>
                             )}
-                            {(!taskSolutionPage.addSolution && task.canSendSolution) && (
+                            {(!taskSolutionPage.addSolution && taskSolutionPage.canSendSolutions) && (
                                 <Grid item xs={12} style={{marginTop: "10px"}}>
                                     <Divider style={{marginBottom: 15}}/>
                                     <Button
