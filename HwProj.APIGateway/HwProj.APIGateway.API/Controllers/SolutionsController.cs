@@ -51,6 +51,10 @@ namespace HwProj.APIGateway.API.Controllers
             var course = await _coursesServiceClient.GetCourseByTask(taskId);
             if (course == null) return NotFound();
 
+            var canSendSolutions = course.Homeworks
+                .FirstOrDefault(h => h.Tasks.Select(t => t.Id)
+                    .Contains(taskId))?.CanSendSolution ?? false;
+
             var courseMate = course.CourseMates.FirstOrDefault(t => t.StudentId == studentId);
             if (courseMate == null || !courseMate.IsAccepted)
                 return NotFound();
@@ -100,6 +104,7 @@ namespace HwProj.APIGateway.API.Controllers
 
             return Ok(new UserTaskSolutionsPageData()
             {
+                CanSendSolution = canSendSolutions,
                 CourseId = course.Id,
                 CourseMates = accounts,
                 TaskSolutions = taskSolutions,

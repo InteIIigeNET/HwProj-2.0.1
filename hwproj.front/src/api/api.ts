@@ -687,6 +687,12 @@ export interface HomeworkViewModel {
     isDeferred?: boolean;
     /**
      * 
+     * @type {boolean}
+     * @memberof HomeworkViewModel
+     */
+    canSendSolution?: boolean;
+    /**
+     * 
      * @type {Array<HomeworkTaskViewModel>}
      * @memberof HomeworkViewModel
      */
@@ -1552,6 +1558,12 @@ export interface UserTaskSolutions2 {
  * @interface UserTaskSolutionsPageData
  */
 export interface UserTaskSolutionsPageData {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof UserTaskSolutionsPageData
+     */
+    canSendSolution?: boolean;
     /**
      * 
      * @type {number}

@@ -53,6 +53,8 @@ namespace HwProj.Models.CoursesService.ViewModels
 
         public bool IsDeferred { get; set; }
 
+        public bool CanSendSolution => !IsDeadlineStrict || DateTimeUtils.GetMoscowNow() <= DeadlineDate;
+
         public List<HomeworkTaskViewModel> Tasks { get; set; } = new List<HomeworkTaskViewModel>();
     }
 }

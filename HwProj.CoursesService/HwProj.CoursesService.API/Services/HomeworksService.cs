@@ -63,7 +63,11 @@ namespace HwProj.CoursesService.API.Services
             await _homeworksRepository.UpdateAsync(homeworkId, hw => new Homework()
             {
                 Title = update.Title,
-                Description = update.Description
+                Description = update.Description,
+                HasDeadline = update.HasDeadline,
+                DeadlineDate = update.DeadlineDate,
+                IsDeadlineStrict = update.IsDeadlineStrict,
+                PublicationDate = update.PublicationDate
             });
         }
     }

@@ -27,6 +27,7 @@ namespace HwProj.APIGateway.API.Models.Solutions
 
     public class UserTaskSolutionsPageData
     {
+        public bool CanSendSolution { get; set; }
         public long CourseId { get; set; }
         public AccountDataDto[] CourseMates { get; set; }
         public HomeworkTaskViewModel Task { get; set; }

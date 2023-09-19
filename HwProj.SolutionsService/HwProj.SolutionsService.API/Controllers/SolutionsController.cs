@@ -76,7 +76,7 @@ namespace HwProj.SolutionsService.API.Controllers
             var homework = course?.Homeworks.FirstOrDefault(h => h.Id == task.HomeworkId);
             if (homework == null) return NotFound();
 
-            if (homework.IsDeadlineStrict && DateTimeUtils.GetMoscowNow() <= homework.DeadlineDate) return BadRequest();
+            if (!homework.CanSendSolution) return BadRequest();
 
             var solution = _mapper.Map<Solution>(solutionModel);
             solution.TaskId = taskId;
