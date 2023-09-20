@@ -13,7 +13,6 @@ import ApiSingleton from '../../api/ApiSingleton';
 import {FC, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
 import DeletionConfirmation from "../DeletionConfirmation";
-import Utils from "../../services/Utils";
 import {Chip, Stack} from '@mui/material';
 
 interface IHomeworkProps {
@@ -81,7 +80,7 @@ const Homework: FC<IHomeworkProps> = (props) => {
                     expandIcon={<ExpandMoreIcon/>}
                     aria-controls="panel1a-content"
                     id="panel1a-header"
-                    style={{backgroundColor: "#c6cceb"}}
+                    style={{backgroundColor: homework.isDeferred ? "#d3d5db" : "#c6cceb"}}
                 >
                     <div className={classes.tools}>
                         <Stack direction={"row"} spacing={1} alignItems={"center"}>

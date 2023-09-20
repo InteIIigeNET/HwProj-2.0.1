@@ -25,8 +25,6 @@ namespace HwProj.Models.CoursesService.ViewModels
 
         public string Description { get; set; }
 
-        public bool HasDeadline { get; set; }
-
         [Required] public int MaxRating { get; set; }
     }
 }

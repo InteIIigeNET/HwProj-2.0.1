@@ -8,7 +8,6 @@ import {CreateTaskViewModel} from "../../api";
 import ReactMarkdown from "react-markdown";
 import {Grid, Tab, Tabs, Zoom} from "@material-ui/core";
 import Utils from "../../services/Utils";
-import {CreateHomeworkViewModel} from "../../api";
 
 interface IAddHomeworkProps {
     id: number;

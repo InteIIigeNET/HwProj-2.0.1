@@ -72,7 +72,6 @@ namespace HwProj.CoursesService.API.Services
                 Title = update.Title,
                 Description = update.Description,
                 MaxRating = update.MaxRating,
-
             });
         }
     }
