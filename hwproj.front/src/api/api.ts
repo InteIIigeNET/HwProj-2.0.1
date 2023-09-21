@@ -1534,6 +1534,12 @@ export interface UserTaskSolutions {
 export interface UserTaskSolutions2 {
     /**
      * 
+     * @type {number}
+     * @memberof UserTaskSolutions2
+     */
+    maxRating?: number;
+    /**
+     * 
      * @type {string}
      * @memberof UserTaskSolutions2
      */
