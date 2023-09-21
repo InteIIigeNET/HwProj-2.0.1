@@ -86,6 +86,7 @@ namespace HwProj.APIGateway.API.Controllers
                     var task = tasks[t.Id];
                     return new UserTaskSolutions2
                     {
+                        MaxRating = task.MaxRating,
                         Title = task.Title,
                         TaskId = task.Id.ToString(),
                         Solutions = t.Solution.Select(s => new GetSolutionModel(s,

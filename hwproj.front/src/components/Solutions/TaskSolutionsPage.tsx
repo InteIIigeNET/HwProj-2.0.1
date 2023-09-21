@@ -79,7 +79,7 @@ const TaskSolutionsPage: FC = () => {
                                             color,
                                             lastRatedSolution,
                                             solutionsDescription
-                                        } = StudentStatsUtils.calculateLastRatedSolutionInfo(t.solutions!, task.maxRating!)
+                                        } = StudentStatsUtils.calculateLastRatedSolutionInfo(t.solutions!, t.maxRating!)
                                         return <Stack direction={"row"} spacing={1} alignItems={"center"}>
                                             {index > 0 && <hr style={{width: 100}}/>}
                                             <Step active={isCurrent}>
