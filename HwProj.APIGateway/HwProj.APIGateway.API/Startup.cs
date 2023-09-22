@@ -6,7 +6,6 @@ using HwProj.Utils.Auth;
 using HwProj.Utils.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -50,22 +49,11 @@ namespace HwProj.APIGateway.API
             services.AddCoursesServiceClient();
             services.AddSolutionServiceClient();
             services.AddNotificationsServiceClient();
-
-            services.AddHsts(options =>
-            {
-            });
-            services.AddHttpsRedirection(options =>
-            {
-                options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
-            });
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             app.ConfigureHwProj(env, "API Gateway");
-
-            app.UseHsts();
-            app.UseHttpsRedirection();
         }
     }
 }
