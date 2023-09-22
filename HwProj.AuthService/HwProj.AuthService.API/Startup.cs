@@ -34,7 +34,6 @@ namespace HwProj.AuthService.API
             services.AddAuthentication(options =>
                 {
                     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                    //options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
                 })
                 .AddJwtBearer(x =>
                 {
@@ -48,16 +47,7 @@ namespace HwProj.AuthService.API
                         IssuerSigningKey = AuthorizationKey.SecurityKey,
                         ValidateIssuerSigningKey = true
                     };
-                })
-                /*.AddCookie()
-                .AddGoogle(options =>
-                {
-                    IConfigurationSection googleAuthNSection =
-                        Configuration.GetSection("Authentication:Google");
-
-                    options.ClientId = googleAuthNSection["ClientId"];
-                    options.ClientSecret = googleAuthNSection["ClientSecret"];
-                })*/;
+                });
 
             var connectionString = ConnectionString.GetConnectionString(Configuration);
             services.AddDbContext<IdentityContext>(options =>

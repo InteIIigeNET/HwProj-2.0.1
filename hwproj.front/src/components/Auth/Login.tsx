@@ -104,21 +104,9 @@ const Login: FC<LoginProps> = (props) => {
             password: e.target.value
         }))
     }
-
-    const googleResponse = async (response: any) => {
-        const result = await ApiSingleton.authService.loginByGoogle(response.tokenId)
-        setLoginState(prevState => ({
-            ...prevState,
-            error: result!.error,
-            isLogin: result.isLogin
-        }))
-        if (result.isLogin) {
-            props.onLogin?.()
-        }
-    }
+    
 
     const headerStyles: React.CSSProperties = {marginRight: "9.5rem"};
-    const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID!
 
     if (loginState.isLogin) {
         return <Navigate to={"/"}/>;
