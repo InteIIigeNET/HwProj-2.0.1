@@ -118,15 +118,7 @@ namespace HwProj.APIGateway.API.Controllers
             var result = await AuthServiceClient.InviteNewLecturer(model).ConfigureAwait(false);
             return Ok(result);
         }
-
-        [HttpPost("google")]
-        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> LoginByGoogle(string tokenId)
-        {
-            var tokenMeta = await AuthServiceClient.LoginByGoogle(tokenId).ConfigureAwait(false);
-            return Ok(tokenMeta);
-        }
-
+        
         [HttpPut("editExternal")]
         [Authorize]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]

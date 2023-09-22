@@ -112,17 +112,6 @@ namespace HwProj.AuthService.Client
             return await response.DeserializeAsync<Result>();
         }
 
-        public async Task<Result<TokenCredentials>> LoginByGoogle(string tokenId)
-        {
-            using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Post,
-                _authServiceUri + $"api/account/google/{tokenId}");
-
-            var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<Result<TokenCredentials>>();
-            ;
-        }
-
         public async Task<Result> EditExternal(EditExternalViewModel model, string userId)
         {
             using var httpRequest = new HttpRequestMessage(

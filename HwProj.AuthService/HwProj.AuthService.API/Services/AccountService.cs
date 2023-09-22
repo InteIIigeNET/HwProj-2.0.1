@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
 using System.Linq;
 using AutoMapper;
-using Google.Apis.Auth;
 using HwProj.AuthService.API.Extensions;
 using HwProj.Models.Roles;
 using HwProj.AuthService.API.Events;
@@ -98,25 +97,6 @@ namespace HwProj.AuthService.API.Services
 
             var token = await _tokenService.GetTokenAsync(user).ConfigureAwait(false);
             return Result<TokenCredentials>.Success(token);
-        }
-
-        public async Task<Result<TokenCredentials>> LoginUserByGoogleAsync(GoogleJsonWebSignature.Payload payload)
-        {
-            if (await _userManager.FindByEmailAsync(payload.Email).ConfigureAwait(false)
-                    is var user && user == null)
-            {
-                var userModel = new RegisterDataDTO()
-                {
-                    Email = payload.Email,
-                    Name = payload.GivenName,
-                    Surname = payload.FamilyName,
-                    IsExternalAuth = true
-                };
-
-                return await RegisterUserAsync(userModel);
-            }
-
-            return await GetToken(user);
         }
 
         public async Task<Result<TokenCredentials>> RegisterUserAsync(RegisterDataDTO model)

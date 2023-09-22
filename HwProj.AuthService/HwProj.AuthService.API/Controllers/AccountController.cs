@@ -7,7 +7,6 @@ using HwProj.AuthService.API.Services;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.Result;
-using Google.Apis.Auth;
 using HwProj.Models.Roles;
 using Microsoft.AspNetCore.Identity;
 
@@ -87,16 +86,6 @@ namespace HwProj.AuthService.API.Controllers
             return Ok(result);
         }
 
-        [HttpPost("google/{tokenId}")]
-        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GoogleRegister(string tokenId)
-        {
-            var payload =
-                await GoogleJsonWebSignature.ValidateAsync(tokenId, new GoogleJsonWebSignature.ValidationSettings());
-            var result = await _accountService.LoginUserByGoogleAsync(payload).ConfigureAwait(false);
-            return Ok(result);
-        }
-
         [HttpPut("editExternal/{userId}")]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> EditExternal([FromBody] EditExternalViewModel model, string userId)
@@ -105,7 +94,6 @@ namespace HwProj.AuthService.API.Controllers
             var result = await _accountService.EditAccountAsync(userId, newModel).ConfigureAwait(false);
             return Ok(result);
         }
-
 
         [HttpGet("findByEmail/{email}")]
         [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
