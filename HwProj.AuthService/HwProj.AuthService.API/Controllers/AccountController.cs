@@ -71,7 +71,7 @@ namespace HwProj.AuthService.API.Controllers
 
         [HttpGet("refreshToken")]
         [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Login(string userId)
+        public async Task<IActionResult> RefreshToken(string userId)
         {
             var tokenMeta = await _accountService.RefreshToken(userId);
             return Ok(tokenMeta);
