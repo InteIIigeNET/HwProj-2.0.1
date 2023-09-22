@@ -113,6 +113,19 @@ const Course: React.FC = () => {
 
     const setCurrentState = async () => {
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+courseId!)
+
+        // У пользователя изменилась роль (иначе он не может стать лектором в курсе), 
+        // однако он все ещё использует токен с прежней ролью
+        const shouldRefreshToken =
+            !ApiSingleton.authService.isLecturer() &&
+            course &&
+            course.mentors!.some(t => t.userId === userId)
+        if (shouldRefreshToken) {
+            const newToken = await ApiSingleton.accountApi.apiAccountRefreshTokenGet()
+            newToken.value && ApiSingleton.authService.refreshToken(newToken.value.accessToken!)
+            return
+        }
+
         const solutions = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdGet(+courseId!)
 
         setCourseState(prevState => ({

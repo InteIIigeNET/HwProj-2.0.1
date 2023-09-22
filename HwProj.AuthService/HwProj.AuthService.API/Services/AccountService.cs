@@ -99,6 +99,13 @@ namespace HwProj.AuthService.API.Services
             return Result<TokenCredentials>.Success(token);
         }
 
+        public async Task<Result<TokenCredentials>> RefreshToken(string userId)
+        {
+            return await _userManager.FindByIdAsync(userId) is var user && user == null
+                ? Result<TokenCredentials>.Failed("Пользователь не найден")
+                : await GetToken(user);
+        }
+
         public async Task<Result<TokenCredentials>> RegisterUserAsync(RegisterDataDTO model)
         {
             if (await _userManager.FindByEmailAsync(model.Email) != null)

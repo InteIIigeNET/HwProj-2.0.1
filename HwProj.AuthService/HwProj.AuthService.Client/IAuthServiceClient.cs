@@ -11,6 +11,7 @@ namespace HwProj.AuthService.Client
         Task<AccountDataDto[]> GetAccountsData(string[] userId);
         Task<Result<TokenCredentials>> Register(RegisterViewModel model);
         Task<Result<TokenCredentials>> Login(LoginViewModel model);
+        Task<Result<TokenCredentials>> RefreshToken(string userId);
         Task<Result> Edit(EditAccountViewModel model, string userId);
         Task<Result> InviteNewLecturer(InviteLecturerViewModel model);
         Task<Result> EditExternal(EditExternalViewModel model, string userId);

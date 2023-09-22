@@ -67,6 +67,11 @@ export default class AuthService {
 
     setToken = (idToken: string) => localStorage.setItem("id_token", idToken);
 
+    refreshToken = (idToken: string) => {
+        this.setToken(idToken)
+        window.location.reload()
+    }
+
     getToken = () => localStorage.getItem("id_token");
 
     logout = () => localStorage.clear();

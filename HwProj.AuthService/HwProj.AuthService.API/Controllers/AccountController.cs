@@ -69,6 +69,14 @@ namespace HwProj.AuthService.API.Controllers
             return Ok(tokenMeta);
         }
 
+        [HttpGet("refreshToken")]
+        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> RefreshToken(string userId)
+        {
+            var tokenMeta = await _accountService.RefreshToken(userId);
+            return Ok(tokenMeta);
+        }
+
         [HttpPut("edit/{userId}")]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Edit([FromBody] EditAccountViewModel model, string userId)
