@@ -95,7 +95,6 @@ namespace HwProj.AuthService.API.Controllers
             return Ok(result);
         }
 
-
         [HttpGet("findByEmail/{email}")]
         [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> FindByEmail(string email)
