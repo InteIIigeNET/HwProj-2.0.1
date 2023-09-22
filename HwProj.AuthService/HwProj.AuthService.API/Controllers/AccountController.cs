@@ -7,7 +7,6 @@ using HwProj.AuthService.API.Services;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.Result;
-using Google.Apis.Auth;
 using HwProj.Models.Roles;
 using Microsoft.AspNetCore.Identity;
 
@@ -84,16 +83,6 @@ namespace HwProj.AuthService.API.Controllers
         public async Task<IActionResult> InviteNewLecturer(InviteLecturerViewModel model)
         {
             var result = await _accountService.InviteNewLecturer(model.Email).ConfigureAwait(false);
-            return Ok(result);
-        }
-
-        [HttpPost("google/{tokenId}")]
-        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GoogleRegister(string tokenId)
-        {
-            var payload =
-                await GoogleJsonWebSignature.ValidateAsync(tokenId, new GoogleJsonWebSignature.ValidationSettings());
-            var result = await _accountService.LoginUserByGoogleAsync(payload).ConfigureAwait(false);
             return Ok(result);
         }
 
