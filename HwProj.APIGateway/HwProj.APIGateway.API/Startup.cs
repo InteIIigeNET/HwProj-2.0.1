@@ -1,5 +1,4 @@
-﻿using System;
-using HwProj.AuthService.Client;
+﻿using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.NotificationsService.Client;
 using HwProj.SolutionsService.Client;
