@@ -1,11 +1,14 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using AutoMapper;
+using Hangfire;
 using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models;
 using HwProj.Models.CoursesService.ViewModels;
+using static System.TimeSpan;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -45,7 +48,15 @@ namespace HwProj.CoursesService.API.Services
             var taskId = await _tasksRepository.AddAsync(task);
 
             if (task.PublicationDate <= DateTimeUtils.GetMoscowNow())
+            {
                 _eventBus.Publish(new NewHomeworkTaskEvent(task.Title, taskId, task.DeadlineDate, courseModel));
+            }
+            else
+            {
+                BackgroundJob.Schedule(() 
+                   => _eventBus.Publish(new NewHomeworkTaskEvent(task.Title, taskId, task.DeadlineDate, courseModel)),
+                    task.PublicationDate.Subtract(FromHours(3)));
+            }
 
             return taskId;
         }
