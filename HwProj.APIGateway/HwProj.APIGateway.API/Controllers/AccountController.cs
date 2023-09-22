@@ -101,6 +101,15 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok(tokenMeta);
         }
 
+        [Authorize]
+        [HttpGet("refreshToken")]
+        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> RefreshToken()
+        {
+            var tokenMeta = await AuthServiceClient.RefreshToken(UserId!);
+            return Ok(tokenMeta);
+        }
+
         [HttpPut("edit")]
         [Authorize]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]

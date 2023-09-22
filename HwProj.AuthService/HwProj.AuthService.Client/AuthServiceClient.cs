@@ -80,6 +80,16 @@ namespace HwProj.AuthService.Client
             return await response.DeserializeAsync<Result<TokenCredentials>>();
         }
 
+        public async Task<Result<TokenCredentials>> RefreshToken(string userId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _authServiceUri + $"api/account/refreshToken?userId={userId}");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<Result<TokenCredentials>>();
+        }
+
         public async Task<Result> Edit(EditAccountViewModel model, string userId)
         {
             using var httpRequest = new HttpRequestMessage(
