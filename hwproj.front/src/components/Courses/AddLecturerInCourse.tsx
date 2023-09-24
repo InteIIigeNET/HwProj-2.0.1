@@ -56,6 +56,7 @@ const AddLecturerInCourse: FC<AddLecturerInCourseProps> = (props) => {
             setLecturerState((prevState) => ({
                 ...prevState,
                 info: ['Преподаватель добавлен'],
+                errors: [],
                 data: data
             }))
             props.update()
