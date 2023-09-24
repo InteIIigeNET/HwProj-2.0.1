@@ -177,7 +177,7 @@ const AddLecturerInCourse: FC<AddLecturerInCourseProps> = (props) => {
                                 >
                                     <Grid item>
                                         <Button
-                                            onClick={props.onClose}
+                                            onClick={closeDialogIcon}
                                             color="primary"
                                             variant="contained"
                                             style={{marginRight: '10px'}}
