@@ -10,7 +10,8 @@ namespace HwProj.CoursesService.API.Migrations
             migrationBuilder.RenameColumn(
                 name: "Date",
                 table: "Homeworks",
-                newName: "PublicationDate");
+                newName: "PublicationDate",
+                schema: "dbo");
 
             migrationBuilder.AddColumn<DateTime>(
                 name: "DeadlineDate",
