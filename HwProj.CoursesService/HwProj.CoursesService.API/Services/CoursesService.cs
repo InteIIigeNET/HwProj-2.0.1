@@ -68,7 +68,6 @@ namespace HwProj.CoursesService.API.Services
             if (course == null) return null;
 
             var groups = _groupsRepository.GetGroupsWithGroupMatesByCourse(course.Id).ToArray();
-            
             var result = _mapper.Map<CourseDTO>(course);
             result.Groups = groups.Select(g =>
                 new GroupViewModel
@@ -76,7 +75,6 @@ namespace HwProj.CoursesService.API.Services
                     Id = g.Id,
                     StudentsIds = g.GroupMates.Select(t => t.StudentId).ToArray()
                 }).ToArray();
-            
             return result;
         }
 
@@ -183,7 +181,7 @@ namespace HwProj.CoursesService.API.Services
             {
                 return false;
             }
-
+            
             await _courseMatesRepository.DeleteAsync(getCourseMateTask.Result.Id);
 
             var course = getCourseTask.Result;
@@ -194,7 +192,6 @@ namespace HwProj.CoursesService.API.Services
                 MentorIds = course.MentorIds,
                 StudentId = studentId
             });
-
             return true;
         }
 
@@ -222,33 +219,29 @@ namespace HwProj.CoursesService.API.Services
             return studentCourses.Union(mentorCourses).ToArray();
         }
 
-        public async Task AcceptLecturerAsync(long courseId, string lecturerEmail)
+        public async Task<bool> AcceptLecturerAsync(long courseId, string lecturerEmail, string lecturerId)
         {
-            var userId = await _authServiceClient.FindByEmailAsync(lecturerEmail);
-            if (!(userId is null))
+            var course = await _coursesRepository.GetAsync(courseId);
+            if (course == null) return false;
+            if (!course.MentorIds.Contains(lecturerId))
             {
-                var course = await _coursesRepository.GetAsync(courseId);
-                var user = await _authServiceClient.GetAccountData(userId);
-                if (user.Role == Roles.LecturerRole && !course.MentorIds.Contains(userId))
+                var newMentors = course.MentorIds + "/" + lecturerId;
+                await _coursesRepository.UpdateAsync(courseId, с => new Course
                 {
-                    string newMentors = course.MentorIds + "/" + userId;
-                    await _coursesRepository.UpdateAsync(courseId, с => new Course
-                    {
-                        MentorIds = newMentors,
-                    });
+                    MentorIds = newMentors,
+                });
 
-                    _eventBus.Publish(new LecturerInvitedToCourseEvent
-                    {
-                        CourseId = courseId,
-                        CourseName = course.Name,
-                        MentorId = userId,
-                        MentorEmail = lecturerEmail
-                    });
-
-                    //TODO: remove
-                    await RejectCourseMateAsync(courseId, userId);
-                }
+                _eventBus.Publish(new LecturerInvitedToCourseEvent
+                {
+                    CourseId = courseId,
+                    CourseName = course.Name,
+                    MentorId = lecturerId,
+                    MentorEmail = lecturerEmail
+                });
+                //TODO: remove
+                await RejectCourseMateAsync(courseId, lecturerId);
             }
+            return true;
         }
 
         public async Task<string[]> GetCourseLecturers(long courseId)

@@ -37,23 +37,30 @@ namespace HwProj.AuthService.API.Services
             _aspUserManager = aspUserManager;
         }
 
-        public async Task<AccountDataDto> GetAccountDataAsync(string userId)
+        private async Task<AccountDataDto> GetAccountDataAsync(User user)
         {
-            var user = await _userManager.FindByIdAsync(userId).ConfigureAwait(false);
-            if (user == null)
-            {
-                return null;
-            }
-
-            var userRoles = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
+            if (user == null) return null;
+            var userRoles = await _userManager.GetRolesAsync(user);
             var userRole = userRoles.FirstOrDefault() ?? Roles.StudentRole;
             return new AccountDataDto(user.Id, user.Name, user.Surname, user.Email, userRole, user.IsExternalAuth,
                 user.MiddleName);
         }
 
+        public async Task<AccountDataDto> GetAccountDataAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            return await GetAccountDataAsync(user);
+        }
+
+        public async Task<AccountDataDto> GetAccountDataByEmailAsync(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            return await GetAccountDataAsync(user);
+        }
+
         public async Task<Result> EditAccountAsync(string id, EditDataDTO model)
         {
-            var user = await _userManager.FindByIdAsync(id).ConfigureAwait(false);
+            var user = await _userManager.FindByIdAsync(id);
             if (user == null)
             {
                 return Result.Failed("Пользователь не найден");
@@ -78,7 +85,7 @@ namespace HwProj.AuthService.API.Services
 
         public async Task<Result<TokenCredentials>> LoginUserAsync(LoginViewModel model)
         {
-            if (await _userManager.FindByEmailAsync(model.Email).ConfigureAwait(false)
+            if (await _userManager.FindByEmailAsync(model.Email)
                     is var user && user == null)
             {
                 return Result<TokenCredentials>.Failed("Пользователь не найден");
@@ -95,7 +102,7 @@ namespace HwProj.AuthService.API.Services
                 return Result<TokenCredentials>.Failed(result.TryGetIdentityError());
             }
 
-            var token = await _tokenService.GetTokenAsync(user).ConfigureAwait(false);
+            var token = await _tokenService.GetTokenAsync(user);
             return Result<TokenCredentials>.Success(token);
         }
 
