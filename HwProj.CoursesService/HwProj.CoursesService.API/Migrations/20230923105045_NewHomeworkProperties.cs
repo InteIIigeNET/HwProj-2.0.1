@@ -12,23 +12,17 @@ namespace HwProj.CoursesService.API.Migrations
                 table: "Homeworks",
                 newName: "PublicationDate");
 
-            migrationBuilder.Sql(@"UPDATE Homeworks SET PublicationDate = (SELECT MIN (Tasks.PublicationDate) FROM Tasks WHERE Tasks.HomeworkId = Homeworks.Id)");
-
             migrationBuilder.AddColumn<DateTime>(
                 name: "DeadlineDate",
                 table: "Homeworks",
                 nullable: true,
                 defaultValue: null);
 
-            migrationBuilder.Sql(@"UPDATE Homeworks SET DeadlineDate = (SELECT MAX (Tasks.DeadlineDate) FROM Tasks WHERE Tasks.HomeworkId = Homeworks.Id)");
-
             migrationBuilder.AddColumn<bool>(
                 name: "HasDeadline",
                 table: "Homeworks",
                 nullable: false,
                 defaultValue: false);
-
-            migrationBuilder.Sql(@"UPDATE Homeworks SET HasDeadline = 1 WHERE DeadlineDate IS NOT NULL");
 
             migrationBuilder.AddColumn<bool>(
                 name: "IsDeadlineStrict",
@@ -37,9 +31,9 @@ namespace HwProj.CoursesService.API.Migrations
                 defaultValue: false);
 
             migrationBuilder.Sql(
-                @"UPDATE Homeworks SET PublicationDate = (SELECT MIN (Tasks.PublicationDate) FROM Tasks WHERE Tasks.HomeworkId = Homeworks.Id), " +
-                @"DeadlineDate = (SELECT MAX (Tasks.DeadlineDate) FROM Tasks WHERE Tasks.HomeworkId = Homeworks.Id), " +
-                @"HasDeadline = 1 WHERE DeadlineDate IS NOT NULL");
+                "UPDATE Homeworks SET PublicationDate = (SELECT MIN (Tasks.PublicationDate) FROM Tasks WHERE Tasks.HomeworkId = Homeworks.Id) " +
+                "UPDATE Homeworks SET DeadlineDate = (SELECT MAX (Tasks.DeadlineDate) FROM Tasks WHERE Tasks.HomeworkId = Homeworks.Id) " +
+                "UPDATE Homeworks SET HasDeadline = 1 WHERE DeadlineDate IS NOT NULL");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

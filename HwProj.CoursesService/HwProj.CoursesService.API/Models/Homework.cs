@@ -20,6 +20,8 @@ namespace HwProj.CoursesService.API.Models
 
         public DateTime PublicationDate { get; set; }
 
+        public DateTime Date { get; set; }
+
         public long CourseId { get; set; }
         
         public List<HomeworkTask> Tasks { get; set; }

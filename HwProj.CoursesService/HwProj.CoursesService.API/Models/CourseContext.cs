@@ -16,6 +16,7 @@ namespace HwProj.CoursesService.API.Models
             : base(options)
         {
             Database.EnsureCreated();
+            Database.Migrate();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
