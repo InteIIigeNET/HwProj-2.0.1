@@ -25,7 +25,6 @@ namespace HwProj.CoursesService.API.Services
         private readonly ITasksRepository _tasksRepository;
         private readonly IGroupsRepository _groupsRepository;
         private readonly IMapper _mapper;
-        private ICoursesService _coursesServiceImplementation;
 
         public CoursesService(ICoursesRepository coursesRepository,
             ICourseMatesRepository courseMatesRepository,
@@ -69,7 +68,6 @@ namespace HwProj.CoursesService.API.Services
             if (course == null) return null;
 
             var groups = _groupsRepository.GetGroupsWithGroupMatesByCourse(course.Id).ToArray();
-
             var result = _mapper.Map<CourseDTO>(course);
             result.Groups = groups.Select(g =>
                 new GroupViewModel
@@ -77,7 +75,6 @@ namespace HwProj.CoursesService.API.Services
                     Id = g.Id,
                     StudentsIds = g.GroupMates.Select(t => t.StudentId).ToArray()
                 }).ToArray();
-
             return result;
         }
 
@@ -184,7 +181,7 @@ namespace HwProj.CoursesService.API.Services
             {
                 return false;
             }
-
+            
             await _courseMatesRepository.DeleteAsync(getCourseMateTask.Result.Id);
 
             var course = getCourseTask.Result;
@@ -195,7 +192,6 @@ namespace HwProj.CoursesService.API.Services
                 MentorIds = course.MentorIds,
                 StudentId = studentId
             });
-
             return true;
         }
 
@@ -242,13 +238,11 @@ namespace HwProj.CoursesService.API.Services
                     MentorId = lecturerId,
                     MentorEmail = lecturerEmail
                 });
-
                 //TODO: remove
                 await RejectCourseMateAsync(courseId, lecturerId);
             }
             return true;
         }
-
 
         public async Task<string[]> GetCourseLecturers(long courseId)
         {
