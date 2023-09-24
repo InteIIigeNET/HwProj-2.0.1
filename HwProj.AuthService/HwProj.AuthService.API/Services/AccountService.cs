@@ -39,11 +39,19 @@ namespace HwProj.AuthService.API.Services
 
         public async Task<AccountDataDto> GetAccountDataAsync(string userId)
         {
-            var user = await _userManager.FindByIdAsync(userId).ConfigureAwait(false);
-            if (user == null)
-            {
-                return null;
-            }
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return null;
+
+            var userRoles = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
+            var userRole = userRoles.FirstOrDefault() ?? Roles.StudentRole;
+            return new AccountDataDto(user.Id, user.Name, user.Surname, user.Email, userRole, user.IsExternalAuth,
+                user.MiddleName);
+        }
+
+        public async Task<AccountDataDto> GetAccountDataByEmailAsync(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null) return null;
 
             var userRoles = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
             var userRole = userRoles.FirstOrDefault() ?? Roles.StudentRole;

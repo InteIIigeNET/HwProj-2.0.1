@@ -136,8 +136,14 @@ namespace HwProj.APIGateway.API.Controllers
         [Authorize(Roles = Roles.LecturerRole)]
         public async Task<IActionResult> AcceptLecturer(long courseId, string lecturerEmail)
         {
-            await _coursesClient.AcceptLecturer(courseId, lecturerEmail);
-            return Ok();
+            var lecturer = await AuthServiceClient.GetAccountDataByEmail(lecturerEmail);
+            if (lecturer == null) return NotFound("Преподаватель с такой почтой не найден");
+            if (lecturer.Role != Roles.LecturerRole) return BadRequest("Пользователь не является преподавателем");
+
+            var result = await _coursesClient.AcceptLecturer(courseId, lecturerEmail, lecturer.UserId);
+            return result.Succeeded
+                ? Ok(result)
+                : BadRequest(result.Errors);
         }
 
         [HttpGet("getLecturersAvailableForCourse/{courseId}")]

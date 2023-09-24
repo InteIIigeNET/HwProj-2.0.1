@@ -43,6 +43,14 @@ namespace HwProj.AuthService.API.Controllers
                 : NotFound();
         }
 
+        [HttpGet("getUserDataByEmail/{email}")]
+        [ProducesResponseType(typeof(AccountDataDto), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetUserDataByEmail(string email)
+        {
+            var accountData = await _accountService.GetAccountDataByEmailAsync(email);
+            return Ok(accountData);
+        }
+
         [HttpGet("getUsersData")]
         public async Task<AccountDataDto?[]> GetUsersData([FromBody] string[] userIds)
         {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Http;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using HwProj.HttpUtils;
@@ -30,6 +31,16 @@ namespace HwProj.AuthService.Client
 
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<AccountDataDto>().ConfigureAwait(false);
+        }
+
+        public async Task<AccountDataDto> GetAccountDataByEmail(string email)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _authServiceUri + $"api/account/getUserDataByEmail/{email}");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<AccountDataDto>();
         }
 
         public async Task<AccountDataDto[]> GetAccountsData(string[] userIds)

@@ -380,15 +380,18 @@ namespace HwProj.CoursesService.Client
             return await response.DeserializeAsync<long[]>();
         }
 
-        public async Task<Result> AcceptLecturer(long courseId, string lecturerEmail)
+        public async Task<Result> AcceptLecturer(long courseId, string lecturerEmail, string lecturerId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
-                _coursesServiceUri + $"api/Courses/acceptLecturer/{courseId}?lecturerEmail={lecturerEmail}");
+                _coursesServiceUri +
+                $"api/Courses/acceptLecturer/{courseId}?lecturerEmail={lecturerEmail}&lecturerId={lecturerId}");
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-            return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
+            return response.IsSuccessStatusCode
+                ? Result.Success()
+                : Result.Failed(response.ReasonPhrase);
         }
 
         public async Task<Result<AccountDataDto[]>> GetLecturersAvailableForCourse(long courseId)
