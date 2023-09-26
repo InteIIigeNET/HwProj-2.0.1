@@ -125,19 +125,17 @@ namespace HwProj.AuthService.API.Services
                 return Result<TokenCredentials>.Failed("Пароль должен содержать не менее 6 символов");
             }
 
+            if (!model.IsExternalAuth && model.Password != model.PasswordConfirm)
+            {
+                return Result<TokenCredentials>.Failed("Пароли не совпадают");
+            }
             var user = _mapper.Map<User>(model);
             user.UserName = user.Email.Split('@')[0];
 
             var createUserTask = model.IsExternalAuth
                 ? _userManager.CreateAsync(user)
                 : _userManager.CreateAsync(user, model.Password);
-
-            if (!model.IsExternalAuth && createUserTask.Result.Succeeded &&
-                !await _userManager.CheckPasswordAsync(user, model.PasswordConfirm))
-            {
-                return Result<TokenCredentials>.Failed("Пароли не совпадают");
-            }
-
+            
             var result = await createUserTask
                 .Then(() => _userManager.AddToRoleAsync(user, Roles.StudentRole))
                 .Then(() =>

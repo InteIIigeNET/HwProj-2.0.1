@@ -65,7 +65,7 @@ namespace HwProj.AuthService.API.Controllers
         public async Task<IActionResult> Register([FromBody] RegisterViewModel model)
         {
             var newModel = _mapper.Map<RegisterDataDTO>(model);
-            var result = await _accountService.RegisterUserAsync(newModel).ConfigureAwait(false);
+            var result = await _accountService.RegisterUserAsync(newModel);
             return Ok(result);
         }
 
