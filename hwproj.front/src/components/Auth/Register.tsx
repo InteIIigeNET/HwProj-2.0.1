@@ -57,13 +57,13 @@ const Register: FC<LoginProps> = (props) => {
         error: [],
     })
     const [passwordError, setPasswordError] = useState<string>(""); // Состояние для ошибки паролей
-    const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(false); // Состояние для блокировки кнопки
+    const [isRegisterButtonDisabled, setIsRegisterButtonDisabled] = useState<boolean>(false); // Состояние для блокировки кнопки
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
        if (registerState.password !== registerState.passwordConfirm) {
             setPasswordError("Пароли не совпадают");
-            setIsButtonDisabled(true);
+            setIsRegisterButtonDisabled(true);
             return;
         }
         e.preventDefault()
@@ -210,7 +210,7 @@ const Register: FC<LoginProps> = (props) => {
                                         passwordConfirm: e.target.value
                                     }))
                                     setPasswordError("");
-                                    setIsButtonDisabled(false);
+                                    setIsRegisterButtonDisabled(false);
                                 }}
                                 error={passwordError !== ""}
                                 helperText={passwordError}
@@ -223,7 +223,7 @@ const Register: FC<LoginProps> = (props) => {
                         variant="contained"
                         color="primary"
                         type="submit"
-                        disabled={isButtonDisabled}
+                        disabled={isRegisterButtonDisabled}
                     >
                         Зарегистрироваться
                     </Button>
