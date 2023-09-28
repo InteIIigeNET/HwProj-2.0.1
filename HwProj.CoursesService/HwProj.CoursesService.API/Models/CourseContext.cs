@@ -12,11 +12,18 @@ namespace HwProj.CoursesService.API.Models
         public DbSet<Homework> Homeworks { get; set; }
         public DbSet<HomeworkTask> Tasks { get; set; }
 
+        private static bool _isMigrated;
+
         public CourseContext(DbContextOptions options)
             : base(options)
         {
             Database.EnsureCreated();
-            Database.Migrate();
+
+            if (!_isMigrated)
+            {
+                Database.Migrate();
+                _isMigrated = true;
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
