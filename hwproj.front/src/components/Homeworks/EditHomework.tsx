@@ -1,15 +1,11 @@
 import * as React from "react";
-import TextField from "@material-ui/core/TextField";
-import Button from "@material-ui/core/Button";
-import Typography from "@material-ui/core/Typography";
 import {Navigate, Link, useParams} from "react-router-dom";
 import ApiSingleton from "../../api/ApiSingleton";
 import ReactMarkdown from "react-markdown";
-import {Tabs, Tab} from "@material-ui/core";
 import {FC, useEffect, useState} from "react";
-import Grid from "@material-ui/core/Grid";
 import {makeStyles} from "@material-ui/styles";
 import EditIcon from '@material-ui/icons/Edit';
+import {Grid, Tabs, Tab, Typography, Button, TextField} from "@material-ui/core";
 
 interface IEditHomeworkState {
     isLoaded: boolean;
@@ -95,20 +91,21 @@ const EditHomework: FC = () => {
             );
         }
         return (
-            <div>
-                <Grid container justify="center" style={{marginTop: '20px'}}>
-                    <Grid xs={11}>
-                        <Link
-                            style={{color: '#212529'}}
-                            to={"/courses/" + editHomework.courseId.toString()}
-                        >
-                            <Typography>
-                                Назад к курсу
-                            </Typography>
-                        </Link>
+            <Grid container justifyContent="center">
+                <Grid item xs={9}>
+                    <Grid container justify="center" style={{marginTop: '20px'}}>
+                        <Grid xs={11}>
+                            <Link
+                                style={{color: '#212529'}}
+                                to={"/courses/" + editHomework.courseId.toString()}
+                            >
+                                <Typography>
+                                    Назад к курсу
+                                </Typography>
+                            </Link>
+                        </Grid>
                     </Grid>
-                </Grid>
-                <div>
+
                     <Grid style={{marginTop: "15px"}}>
                         <div className={classes.logo}>
                             <div>
@@ -143,6 +140,7 @@ const EditHomework: FC = () => {
                                         }}
                                     />
                                 </Grid>
+
                                 <Grid item xs={11}>
                                     <Tabs
                                         indicatorColor="primary"
@@ -192,8 +190,8 @@ const EditHomework: FC = () => {
                             </Grid>
                         </form>
                     </Grid>
-                </div>
-            </div>
+                </Grid>
+            </Grid>
         );
     }
     return (

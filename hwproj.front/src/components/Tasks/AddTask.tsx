@@ -1,12 +1,8 @@
 import * as React from "react";
-import TextField from "@material-ui/core/TextField";
-import Button from "@material-ui/core/Button";
-import Typography from "@material-ui/core/Typography";
 import ApiSingleton from "../../api/ApiSingleton";
-import {CreateTaskViewModel} from "../../api";
-import Checkbox from "@material-ui/core/Checkbox";
-import Grid from "@material-ui/core/Grid";
 import Utils from "../../services/Utils";
+import ReactMarkdown from "react-markdown";
+import {Grid, Tab, Tabs, Checkbox, Button, TextField, Typography} from "@material-ui/core";
 
 interface IAddTaskProps {
     id: number;
@@ -15,8 +11,19 @@ interface IAddTaskProps {
     update: () => void;
 }
 
+interface AddTaskState {
+    isPreview: boolean;
+    title: string
+    description: string;
+    maxRating: number;
+    publicationDate: Date;
+    hasDeadline: boolean;
+    deadlineDate: Date;
+    isDeadlineStrict: boolean;
+}
+
 export default class AddTask extends React.Component<IAddTaskProps,
-    CreateTaskViewModel> {
+    AddTaskState> {
     constructor(props: IAddTaskProps) {
         super(props);
 
@@ -36,7 +43,8 @@ export default class AddTask extends React.Component<IAddTaskProps,
             publicationDate: Utils.toMoscowDate(publicationDay),
             hasDeadline: true,
             deadlineDate: Utils.toMoscowDate(deadlineDate),
-            isDeadlineStrict: false
+            isDeadlineStrict: false,
+            isPreview: false,
         };
     }
 
@@ -75,16 +83,36 @@ export default class AddTask extends React.Component<IAddTaskProps,
                                 onChange={(e) => this.setState({maxRating: +e.target.value})}
                             />
                         </Grid>
-                        <TextField
-                            multiline
-                            fullWidth
-                            rows="10"
-                            label="Условие задачи"
-                            variant="outlined"
-                            margin="normal"
-                            value={this.state.description}
-                            onChange={(e) => this.setState({description: e.target.value})}
-                        />
+                        <Grid container>
+                            <Grid item>
+                                <Tabs
+                                    onChange={(event, newValue) => this.setState({isPreview: newValue === 1})}
+                                    indicatorColor="primary"
+                                    value={this.state.isPreview ? 1 : 0}
+                                    >
+                                    <Tab label="Редактировать" id="simple-tab-0" aria-controls="simple-tabpanel-0"/>
+                                    <Tab label="Превью" id="simple-tab-1" aria-controls="simple-tabpanel-1"/>
+                                </Tabs>
+                            </Grid>
+                        </Grid>
+                        <Grid container>
+                            <Grid item xs={12} hidden={this.state.isPreview} id="simple-tab-0">
+                                <TextField
+                                    multiline
+                                    fullWidth
+                                    minRows="4"
+                                    maxRows="20"
+                                    label="Описание"
+                                    variant="outlined"
+                                    margin="normal"
+                                    name={this.state.description}
+                                    onChange={(e) => this.setState({description: e.target.value})}
+                                />
+                            </Grid>
+                            <Grid item xs={11} role="tabpanel" hidden={!this.state.isPreview} id="simple-tab-1">
+                                <p><ReactMarkdown>{this.state.description}</ReactMarkdown></p>
+                            </Grid>
+                        </Grid>
                         <Grid
                             container
                             direction="row"

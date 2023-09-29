@@ -1,12 +1,7 @@
 import * as React from "react";
-import TextField from "@material-ui/core/TextField";
-import Button from "@material-ui/core/Button";
-import Checkbox from "@material-ui/core/Checkbox";
-import Typography from "@material-ui/core/Typography";
 import ApiSingleton from "../../api/ApiSingleton";
-import {CreateTaskViewModel} from "../../api";
 import ReactMarkdown from "react-markdown";
-import {Grid, Tab, Tabs, Zoom} from "@material-ui/core";
+import {Grid, Tab, Tabs, TextField, Button, Checkbox, Typography} from "@material-ui/core";
 
 interface IAddHomeworkProps {
     id: number;
@@ -17,9 +12,20 @@ interface IAddHomeworkProps {
 interface IAddHomeworkState {
     title: string;
     description: string;
-    tasks: CreateTaskViewModel[];
+    tasks: AddTaskProps[];
     added: boolean;
     isPreview: boolean;
+}
+
+interface AddTaskProps {
+    isPreview: boolean;
+    title: string
+    description: string;
+    maxRating: number;
+    publicationDate: Date;
+    hasDeadline: boolean;
+    deadlineDate: Date | undefined;
+    isDeadlineStrict: boolean;
 }
 
 export default class AddHomework extends React.Component<IAddHomeworkProps,
@@ -37,11 +43,25 @@ export default class AddHomework extends React.Component<IAddHomeworkProps,
                 hasDeadline: false,
                 deadlineDate: undefined,
                 isDeadlineStrict: false,
+                isPreview: false,
             }],
             added: false,
             isPreview: false,
         };
     }
+
+    onUpdateIsPreviewInTask = (index: number, newIsPreviewValue: boolean) => {
+        this.setState(state => {
+            const newTasks = state.tasks.map((task, i) => {
+                if (i === index)
+                    task.isPreview = newIsPreviewValue
+
+                return task
+                });
+        
+            return {...state, tasks: newTasks}
+        });
+    };
 
     render() {
         return (
@@ -130,18 +150,31 @@ export default class AddHomework extends React.Component<IAddHomeworkProps,
                                                 onChange={(e) => (task.maxRating = +e.target.value)}
                                             />
                                         </Grid>
-                                        <Grid>
+                                        <Tabs
+                                            onChange={(event, newValue) => (this.onUpdateIsPreviewInTask(index, newValue === 1))}
+                                            indicatorColor="primary"
+                                            value={task.isPreview ? 1 : 0}
+                                        >
+                                            <Tab label="Редактировать"/>
+                                            <Tab label="Превью"/>
+                                        </Tabs>
+
+                                        <div role="tabpanel" hidden={task.isPreview}>
                                             <TextField
                                                 multiline
                                                 fullWidth
-                                                rows="10"
-                                                label="Условие задачи"
+                                                rows="4"
+                                                rowsMax="20"
+                                                label="Описание"
                                                 variant="outlined"
                                                 margin="normal"
                                                 name={task.description}
                                                 onChange={(e) => (task.description = e.target.value)}
                                             />
-                                        </Grid>
+                                        </div>
+                                        <div role="tabpanel" hidden={!task.isPreview}>
+                                            <p><ReactMarkdown>{task.description}</ReactMarkdown></p>
+                                        </div>
                                         <Grid
                                             container
                                             direction="row"
@@ -230,7 +263,8 @@ export default class AddHomework extends React.Component<IAddHomeworkProps,
                                         publicationDate: new Date(),
                                         hasDeadline: false,
                                         deadlineDate: undefined,
-                                        isDeadlineStrict: false
+                                        isDeadlineStrict: false,
+                                        isPreview: false,
                                     }],
                                 })
                             }
