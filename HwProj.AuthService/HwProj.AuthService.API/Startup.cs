@@ -76,8 +76,7 @@ namespace HwProj.AuthService.API
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IdentityContext context)
         {
-            app.ConfigureHwProj(env, "AuthService API");
-            context.Database.EnsureCreated();
+            app.ConfigureHwProj(env, "AuthService API", context);
 
             using (var scope = app.ApplicationServices.CreateScope())
             {

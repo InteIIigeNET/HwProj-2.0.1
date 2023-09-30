@@ -73,8 +73,7 @@ namespace HwProj.NotificationsService.API
                 eventBustSubscriber.Subscribe<PasswordRecoveryEvent, PasswordRecoveryEventHandler>();
             }
 
-            app.ConfigureHwProj(env, "Notifications API");
-            context.Database.EnsureCreated();
+            app.ConfigureHwProj(env, "Notifications API", context);
         }
     }
 }

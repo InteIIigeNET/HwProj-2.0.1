@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -127,7 +128,7 @@ namespace HwProj.Utils.Configuration
         }
 
         public static IApplicationBuilder ConfigureHwProj(this IApplicationBuilder app, IHostingEnvironment env,
-            string serviceName)
+            string serviceName, DbContext? context = null)
         {
             if (env.IsDevelopment())
             {
@@ -148,6 +149,7 @@ namespace HwProj.Utils.Configuration
                 .AllowCredentials());
             app.UseMvc();
 
+            context?.Database.EnsureCreated();
             return app;
         }
 
