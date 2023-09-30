@@ -100,7 +100,7 @@ namespace HwProj.APIGateway.API.Controllers
         }
 
         [HttpPost("signInCourse/{courseId}")]
-        [Authorize]
+        [Authorize(Roles = Roles.StudentRole)]
         public async Task<IActionResult> SignInCourse(long courseId)
         {
             await _coursesClient.SignInCourse(courseId, UserId);

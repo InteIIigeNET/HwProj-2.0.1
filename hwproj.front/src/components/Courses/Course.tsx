@@ -81,16 +81,17 @@ const Course: React.FC = () => {
 
     const userId = ApiSingleton.authService.getUserId()
 
-    const isMentor = mentors.some(t => t.userId === userId)
+    const isLecturer = ApiSingleton.authService.isLecturer()
+    const isCourseMentor = mentors.some(t => t.userId === userId)
 
     const isSignedInCourse = newStudents!.some(cm => cm.userId === userId)
 
     const isAcceptedStudent = acceptedStudents!.some(cm => cm.userId === userId)
 
-    const showExperimentalFeature = isMentor ? courseState.showExperimentalFeature : true
+    const showExperimentalFeature = isCourseMentor ? courseState.showExperimentalFeature : true
 
-    const showStatsTab = isMentor || isAcceptedStudent
-    const showApplicationsTab = isMentor
+    const showStatsTab = isCourseMentor || isAcceptedStudent
+    const showApplicationsTab = isCourseMentor
 
     const changeTab = (newTab: string) => {
         if (isAcceptableTabValue(newTab) && newTab !== pageState.tabValue) {
@@ -163,7 +164,7 @@ const Course: React.FC = () => {
                             <Grid item>
                                 <Typography style={{fontSize: '22px'}}>
                                     {`${course.name} / ${course.groupName}`} &nbsp;
-                                    {isMentor &&
+                                    {isCourseMentor &&
                                         <IconButton style={{marginLeft: -5}} onClick={() =>
                                             setCourseState(prevState => ({
                                                 ...prevState,
@@ -179,7 +180,7 @@ const Course: React.FC = () => {
                                                 />}
                                         </IconButton>
                                     }
-                                    {isMentor && !isReadingMode! && (
+                                    {isCourseMentor && !isReadingMode! && (
                                         <RouterLink to={`/courses/${courseId}/edit`}>
                                             <EditIcon fontSize="small"/>
                                         </RouterLink>
@@ -188,7 +189,7 @@ const Course: React.FC = () => {
                                 <Typography style={{fontSize: "18px", color: "GrayText"}}>
                                     {mentors.map(t => `${t.name} ${t.surname}`).join(", ")}
                                 </Typography>
-                                {isMentor && <div><Switch value={showExperimentalFeature}
+                                {isCourseMentor && <div><Switch value={showExperimentalFeature}
                                                           onChange={(e, checked) => setCourseState(prevState => ({
                                                               ...prevState,
                                                               showExperimentalFeature: checked
@@ -197,7 +198,7 @@ const Course: React.FC = () => {
                             </Grid>
                             <Grid item style={{width: '187px'}}>
                                 <Grid container alignItems="flex-end" direction="column" xs={12}>
-                                    {!isSignedInCourse && !isMentor && !isAcceptedStudent && (
+                                    {!isSignedInCourse && !isLecturer && !isAcceptedStudent && (
                                         <Grid item style={{width: '100%', marginTop: '16px'}}>
                                             <Button
                                                 fullWidth
@@ -249,7 +250,7 @@ const Course: React.FC = () => {
                     {tabValue === "homeworks" && <div>
                         {
                             showExperimentalFeature ?
-                                <CourseExperimental homeworks={courseState.courseHomework} isMentor={isMentor}
+                                <CourseExperimental homeworks={courseState.courseHomework} isMentor={isCourseMentor}
                                                     studentSolutions={studentSolutions}
                                                     isStudentAccepted={isAcceptedStudent}
                                                     userId={userId!}/> :
@@ -268,7 +269,7 @@ const Course: React.FC = () => {
                                                     <CourseHomework
                                                         onDelete={() => setCurrentState()}
                                                         isStudent={isAcceptedStudent}
-                                                        isMentor={isMentor}
+                                                        isMentor={isCourseMentor}
                                                         isReadingMode={isReadingMode}
                                                         homework={courseState.courseHomework}
                                                     />
@@ -276,7 +277,7 @@ const Course: React.FC = () => {
                                             </Grid>
                                         </div>
                                     )}
-                                    {isMentor && !createHomework && (
+                                    {isCourseMentor && !createHomework && (
                                         <div>
                                             <Grid container>
                                                 {!isReadingMode! &&
@@ -300,7 +301,7 @@ const Course: React.FC = () => {
                                                     <CourseHomework
                                                         onDelete={() => setCurrentState()}
                                                         isStudent={isAcceptedStudent}
-                                                        isMentor={isMentor}
+                                                        isMentor={isCourseMentor}
                                                         isReadingMode={isReadingMode}
                                                         homework={courseState.courseHomework}
                                                     />
@@ -308,14 +309,14 @@ const Course: React.FC = () => {
                                             </Grid>
                                         </div>
                                     )}
-                                    {!isMentor && (
+                                    {!isCourseMentor && (
                                         <Grid container>
                                             <Grid xs={11}>
                                                 <CourseHomework
                                                     onDelete={() => setCurrentState()}
                                                     homework={courseState.courseHomework}
                                                     isStudent={isAcceptedStudent}
-                                                    isMentor={isMentor}
+                                                    isMentor={isCourseMentor}
                                                     isReadingMode={isReadingMode}
                                                 />
                                             </Grid>
@@ -330,7 +331,7 @@ const Course: React.FC = () => {
                                 <StudentStats
                                     homeworks={courseState.courseHomework}
                                     userId={userId as string}
-                                    isMentor={isMentor}
+                                    isMentor={isCourseMentor}
                                     course={courseState.course}
                                     solutions={studentSolutions}
                                 />
