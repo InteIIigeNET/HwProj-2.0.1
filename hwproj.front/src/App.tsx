@@ -21,6 +21,7 @@ import SystemInfoComponent from "./components/System/SystemInfoComponent";
 import WrongPath from "./components/WrongPath";
 import ResetPassword from "components/Auth/ResetPassword";
 import PasswordRecovery from "components/Auth/PasswordRecovery";
+import AuthLayout from "./AuthLayout";
 
 // TODO: add flux
 
@@ -43,8 +44,8 @@ const withRouter = (Component: any) => {
     };
 };
 
-class App extends Component<{navigate: any}, AppState> {
-    constructor(props: {navigate: any}) {
+class App extends Component<{ navigate: any }, AppState> {
+    constructor(props: { navigate: any }) {
         super(props);
         this.state = {
             loggedIn: ApiSingleton.authService.isLoggedIn(),
@@ -87,20 +88,23 @@ class App extends Component<{navigate: any}, AppState> {
                         isLecturer={this.state.isLecturer}
                         onLogout={this.logout}/>
                 <Routes>
+                    <Route element={<AuthLayout/>}>
+                        <Route path="user/edit" element={<EditProfile/>}/>
+                        <Route path="/" element={<Workspace/>}/>
+                        <Route path="notifications"
+                               element={<Notifications onMarkAsSeen={this.updatedNewNotificationsCount}/>}/>
+                        <Route path="courses" element={<Courses navigate={this.props.navigate}/>}/>
+                        <Route path="profile/:id" element={<Workspace/>}/>
+                        <Route path="create_course" element={<CreateCourse/>}/>
+                        <Route path="courses/:courseId" element={<Course/>}/>
+                        <Route path="courses/:courseId/:tab" element={<Course/>}/>
+                        <Route path="courses/:courseId/edit" element={<EditCourse/>}/>
+                        <Route path="homework/:homeworkId/edit" element={<EditHomework/>}/>
+                        <Route path="task/:taskId/edit" element={<EditTask/>}/>
+                        <Route path="task/:taskId/:studentId" element={<StudentSolutionsPage/>}/>
+                        <Route path="task/:taskId/" element={<TaskSolutionsPage/>}/>
+                    </Route>
                     <Route path="system" element={<SystemInfoComponent/>}/>
-                    <Route path="user/edit" element={<EditProfile/>}/>
-                    <Route path="/" element={<Workspace/>}/>
-                    <Route path="notifications" element={<Notifications onMarkAsSeen={this.updatedNewNotificationsCount}/>}/>
-                    <Route path="courses" element={<Courses navigate={this.props.navigate}/>}/>
-                    <Route path="profile/:id" element={<Workspace/>}/>
-                    <Route path="create_course" element={<CreateCourse/>}/>
-                    <Route path="courses/:courseId" element={<Course/>}/>
-                    <Route path="courses/:courseId/:tab" element={<Course/>}/>
-                    <Route path="courses/:courseId/edit" element={<EditCourse/>}/>
-                    <Route path="homework/:homeworkId/edit" element={<EditHomework/>}/>
-                    <Route path="task/:taskId/edit" element={<EditTask/>}/>
-                    <Route path="task/:taskId/:studentId" element={<StudentSolutionsPage/>}/>
-                    <Route path="task/:taskId/" element={<TaskSolutionsPage/>}/>
                     <Route path="login" element={<Login onLogin={this.login}/>}/>
                     <Route path="register" element={<Register onLogin={this.login}/>}/>
                     <Route path="recovery" element={<PasswordRecovery/>}/>
