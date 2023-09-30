@@ -31,10 +31,10 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
         public override async Task HandleAsync(RateEvent @event)
         {
-            var commentBody = string.IsNullOrWhiteSpace(@event.Solution.Comment)
+            var commentBody = string.IsNullOrWhiteSpace(@event.Solution.LecturerComment)
                 ? ""
                 : "<br><br><b>Комментарий преподавателя:</b>" +
-                  $"<br><i>{@event.Solution.Comment}</i>";
+                  $"<br><i>{@event.Solution.LecturerComment}</i>";
 
             var notification = new Notification
             {

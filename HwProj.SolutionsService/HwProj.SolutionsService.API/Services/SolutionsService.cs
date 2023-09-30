@@ -122,15 +122,18 @@ namespace HwProj.SolutionsService.API.Services
 
         public async Task RateSolutionAsync(long solutionId, int newRating, string lecturerComment)
         {
-            var solution = await _solutionsRepository.GetAsync(solutionId);
-            var task = await _coursesServiceClient.GetTask(solution.TaskId);
             if (0 <= newRating)
             {
-                var solutionModel = _mapper.Map<SolutionViewModel>(solution);
-                var taskModel = _mapper.Map<HomeworkTaskViewModel>(task);
-                _eventBus.Publish(new RateEvent(taskModel, solutionModel));
+                var solution = await _solutionsRepository.GetAsync(solutionId);
+                var task = await _coursesServiceClient.GetTask(solution.TaskId);
                 var state = newRating >= task.MaxRating ? SolutionState.Final : SolutionState.Rated;
                 await _solutionsRepository.RateSolutionAsync(solutionId, state, newRating, lecturerComment);
+
+                var solutionModel = _mapper.Map<SolutionViewModel>(solution);
+                solutionModel.LecturerComment = lecturerComment;
+                solutionModel.Rating = newRating;
+                var taskModel = _mapper.Map<HomeworkTaskViewModel>(task);
+                _eventBus.Publish(new RateEvent(taskModel, solutionModel));
             }
         }
 
