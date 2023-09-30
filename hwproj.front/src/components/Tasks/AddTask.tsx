@@ -1,18 +1,17 @@
 import * as React from "react";
 import ApiSingleton from "../../api/ApiSingleton";
 import Utils from "../../services/Utils";
-import ReactMarkdown from "react-markdown";
-import {Grid, Tab, Tabs, Checkbox, Button, TextField, Typography} from "@material-ui/core";
+import {Grid, Checkbox, Button, TextField, Typography} from "@material-ui/core";
+import TextFieldWithPreview from "../Common/TextFieldWithPreview";
 
 interface IAddTaskProps {
-    id: number;
+    homeworkId: number;
     onAdding: () => void;
     onCancel: () => void;
     update: () => void;
 }
 
 interface AddTaskState {
-    isPreview: boolean;
     title: string
     description: string;
     maxRating: number;
@@ -44,13 +43,12 @@ export default class AddTask extends React.Component<IAddTaskProps,
             hasDeadline: true,
             deadlineDate: Utils.toMoscowDate(deadlineDate),
             isDeadlineStrict: false,
-            isPreview: false,
         };
     }
 
     public async handleSubmit(e: any) {
         e.preventDefault();
-        await ApiSingleton.tasksApi.apiTasksAddByHomeworkIdPost(this.props.id, this.state);
+        await ApiSingleton.tasksApi.apiTasksAddByHomeworkIdPost(this.props.homeworkId, this.state);
         this.props.onAdding()
     }
 
@@ -83,37 +81,21 @@ export default class AddTask extends React.Component<IAddTaskProps,
                                 onChange={(e) => this.setState({maxRating: +e.target.value})}
                             />
                         </Grid>
-                        <Grid container>
-                            <Grid item>
-                                <Tabs
-                                    onChange={(event, newValue) => this.setState({isPreview: newValue === 1})}
-                                    indicatorColor="primary"
-                                    value={this.state.isPreview ? 1 : 0}
-                                    >
-                                    <Tab label="Редактировать" id="simple-tab-0" aria-controls="simple-tabpanel-0"/>
-                                    <Tab label="Превью" id="simple-tab-1" aria-controls="simple-tabpanel-1"/>
-                                </Tabs>
-                            </Grid>
-                        </Grid>
-                        <Grid container>
-                            <Grid item xs={12} hidden={this.state.isPreview} id="simple-tab-0">
-                                <TextField
-                                    multiline
-                                    fullWidth
-                                    minRows="4"
-                                    maxRows="20"
-                                    label="Описание"
-                                    variant="outlined"
-                                    margin="normal"
-                                    name={this.state.description}
-                                    onChange={(e) => this.setState({description: e.target.value})}
-                                />
-                            </Grid>
-                            <Grid item xs={11} role="tabpanel" hidden={!this.state.isPreview} id="simple-tab-1">
-                                <p><ReactMarkdown>{this.state.description}</ReactMarkdown></p>
-                            </Grid>
+                        <Grid item xs={12}>
+                            <TextFieldWithPreview
+                                multiline
+                                fullWidth
+                                minRows={7}
+                                maxRows="20"
+                                label="Условие задачи"
+                                variant="outlined"
+                                margin="normal"
+                                value={this.state.description}
+                                onChange={(e) => this.setState({description: e.target.value})}
+                            />
                         </Grid>
                         <Grid
+                            style={{marginTop: '16px'}}
                             container
                             direction="row"
                             alignItems="center"

@@ -1,12 +1,12 @@
 import * as React from "react";
 import {Navigate, Link, useParams} from "react-router-dom";
 import ApiSingleton from "../../api/ApiSingleton";
-import ReactMarkdown from "react-markdown";
 import {FC, useEffect, useState} from "react";
 import EditIcon from "@material-ui/icons/Edit";
 import {makeStyles} from "@material-ui/styles";
 import Utils from "../../services/Utils";
-import {Tab, Tabs, Checkbox, Typography, Button, TextField, Grid} from "@material-ui/core";
+import {Checkbox, Typography, Button, TextField, Grid} from "@material-ui/core";
+import TextFieldWithPreview from "../Common/TextFieldWithPreview";
 
 interface IEditTaskState {
     isLoaded: boolean;
@@ -20,7 +20,6 @@ interface IEditTaskState {
     deadlineDate: Date | undefined;
     isDeadlineStrict: boolean;
     publicationDate: Date;
-    isPreview: boolean;
 }
 
 const useStyles = makeStyles(theme => ({
@@ -53,8 +52,7 @@ const EditTask: FC = () => {
         hasDeadline: false,
         deadlineDate: new Date(),
         isDeadlineStrict: false,
-        publicationDate: new Date(),
-        isPreview: false,
+        publicationDate: new Date()
     })
 
     useEffect(() => {
@@ -143,7 +141,7 @@ const EditTask: FC = () => {
                                     <TextField
                                         required
                                         fullWidth
-                                        style={{ width: '300px'}}
+                                        style={{width: '300px'}}
                                         label="Название задачи"
                                         variant="outlined"
                                         margin="normal"
@@ -161,7 +159,7 @@ const EditTask: FC = () => {
                                     <TextField
                                         required
                                         fullWidth
-                                        style={{ width: '300px'}}
+                                        style={{width: '300px'}}
                                         label="Баллы"
                                         variant="outlined"
                                         margin="normal"
@@ -178,41 +176,24 @@ const EditTask: FC = () => {
                                 </Grid>
                             </Grid>
                             <Grid item xs={11}>
-                                        <Tabs
-                                            indicatorColor="primary"
-                                            value={taskState.isPreview ? 1 : 0}
-                                            onChange={(event, newValue) => setTaskState(prevState => ({
-                                                ...prevState,
-                                                isPreview: newValue === 1
-                                            }))}
-                                        >
-                                            <Tab label="Редактировать" id="simple-tab-0" aria-controls="simple-tabpanel-0"/>
-                                            <Tab label="Превью" id="simple-tab-1" aria-controls="simple-tabpanel-1"/>
-                                        </Tabs>
-                                    </Grid>
-
-                                    <Grid item xs={11} role="tabpanel" hidden={taskState.isPreview} id="simple-tab-0">
-                                        <TextField
-                                            multiline
-                                            rows="4"
-                                            fullWidth
-                                            rowsMax="20"
-                                            label="Описание"
-                                            variant="outlined"
-                                            margin="normal"
-                                            value={taskState.description}
-                                            onChange={(e) => {
-                                                e.persist()
-                                                setTaskState((prevState) => ({
-                                                    ...prevState,
-                                                    description: e.target.value
-                                                }))
-                                            }}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={11} role="tabpanel" hidden={!taskState.isPreview} id="simple-tab-1">
-                                        <p><ReactMarkdown>{taskState.description}</ReactMarkdown></p>
-                                    </Grid>
+                                <TextFieldWithPreview
+                                    multiline
+                                    fullWidth
+                                    minRows={7}
+                                    maxRows="20"
+                                    label="Условие задачи"
+                                    variant="outlined"
+                                    margin="normal"
+                                    value={taskState.description}
+                                    onChange={(e) => {
+                                        e.persist()
+                                        setTaskState((prevState) => ({
+                                            ...prevState,
+                                            description: e.target.value
+                                        }))
+                                    }}
+                                />
+                            </Grid>
                             <Grid item className={classes.checkBox}>
                                 <div>
                                     <TextField
@@ -292,7 +273,7 @@ const EditTask: FC = () => {
                                     </div>
                                 </Grid>
                             }
-                            <Grid item xs={11} style={{marginTop : 10}}>
+                            <Grid item xs={11}>
                                 <Button
                                     fullWidth
                                     variant="contained"

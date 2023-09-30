@@ -1,11 +1,11 @@
 import * as React from "react";
 import {Navigate, Link, useParams} from "react-router-dom";
 import ApiSingleton from "../../api/ApiSingleton";
-import ReactMarkdown from "react-markdown";
 import {FC, useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
 import EditIcon from '@material-ui/icons/Edit';
-import {Grid, Tabs, Tab, Typography, Button, TextField} from "@material-ui/core";
+import {Grid, Typography, Button, TextField} from "@material-ui/core";
+import TextFieldWithPreview from "../Common/TextFieldWithPreview";
 
 interface IEditHomeworkState {
     isLoaded: boolean;
@@ -14,7 +14,6 @@ interface IEditHomeworkState {
     courseId: number;
     courseMentorIds: string[];
     edited: boolean;
-    isPreview: boolean;
 }
 
 const useStyles = makeStyles(theme => ({
@@ -38,7 +37,6 @@ const EditHomework: FC = () => {
         courseId: 0,
         courseMentorIds: [],
         edited: false,
-        isPreview: false,
     })
 
     useEffect(() => {
@@ -93,7 +91,7 @@ const EditHomework: FC = () => {
         return (
             <Grid container justifyContent="center">
                 <Grid item xs={9}>
-                    <Grid container justify="center" style={{marginTop: '20px'}}>
+                    <Grid container justifyContent="center" style={{marginTop: '20px'}}>
                         <Grid xs={11}>
                             <Link
                                 style={{color: '#212529'}}
@@ -121,7 +119,7 @@ const EditHomework: FC = () => {
                             className={classes.main}
                             onSubmit={(e) => handleSubmit(e)}
                         >
-                            <Grid container justify="center">
+                            <Grid container justifyContent="center">
                                 <Grid item xs={11}>
                                     <TextField
                                         style={{ width: '300px'}}
@@ -142,25 +140,11 @@ const EditHomework: FC = () => {
                                 </Grid>
 
                                 <Grid item xs={11}>
-                                    <Tabs
-                                        indicatorColor="primary"
-                                        value={editHomework.isPreview ? 1 : 0}
-                                        onChange={(event, newValue) => setEditHomework(prevState => ({
-                                            ...prevState,
-                                            isPreview: newValue === 1
-                                        }))}
-                                    >
-                                        <Tab label="Редактировать" id="simple-tab-0" aria-controls="simple-tabpanel-0"/>
-                                        <Tab label="Превью" id="simple-tab-1" aria-controls="simple-tabpanel-1"/>
-                                    </Tabs>
-                                </Grid>
-
-                                <Grid item xs={11} role="tabpanel" hidden={editHomework.isPreview} id="simple-tab-0">
-                                    <TextField
+                                    <TextFieldWithPreview
                                         multiline
-                                        rows="4"
+                                        minRows="4"
                                         fullWidth
-                                        rowsMax="20"
+                                        maxRows="20"
                                         label="Описание"
                                         variant="outlined"
                                         margin="normal"
@@ -174,11 +158,9 @@ const EditHomework: FC = () => {
                                         }}
                                     />
                                 </Grid>
-                                <Grid item xs={11} role="tabpanel" hidden={!editHomework.isPreview} id="simple-tab-1">
-                                    <p><ReactMarkdown>{editHomework.description}</ReactMarkdown></p>
-                                </Grid>
                                 <Grid item xs={11}>
                                     <Button
+                                        fullWidth
                                         size="medium"
                                         variant="contained"
                                         color="primary"
