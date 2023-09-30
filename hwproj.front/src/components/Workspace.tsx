@@ -159,10 +159,10 @@ const Workspace: FC = () => {
         )
     }
     return (
-        <Box m={2}>
+        <div className="container">
             <p>Загрузка...</p>
             <CircularProgress/>
-        </Box>
+        </div>
     )
 }
 
