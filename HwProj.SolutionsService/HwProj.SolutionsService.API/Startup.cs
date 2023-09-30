@@ -39,9 +39,11 @@ namespace HwProj.SolutionsService.API
             services.ConfigureHwProjServices("Solutions API");
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IEventBus eventBus)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IEventBus eventBus,
+            SolutionContext context)
         {
             app.ConfigureHwProj(env, "Solutions API");
+            context.Database.EnsureCreated();
         }
     }
 }

@@ -74,9 +74,10 @@ namespace HwProj.AuthService.API
                 .AddScoped<IUserManager, ProxyUserManager>();
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IdentityContext context)
         {
             app.ConfigureHwProj(env, "AuthService API");
+            context.Database.EnsureCreated();
 
             using (var scope = app.ApplicationServices.CreateScope())
             {

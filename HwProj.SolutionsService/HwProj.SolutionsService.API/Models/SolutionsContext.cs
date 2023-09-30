@@ -10,7 +10,6 @@ namespace HwProj.SolutionsService.API.Models
         public SolutionContext(DbContextOptions options)
             : base(options)
         {
-            Database.EnsureCreated();
         }
     }
 }

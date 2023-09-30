@@ -53,7 +53,8 @@ namespace HwProj.NotificationsService.API
             services.ConfigureHwProjServices("Notifications API");
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IEventBus eventBus)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IEventBus eventBus,
+            NotificationsContext context)
         {
             using (var eventBustSubscriber = eventBus.CreateSubscriber())
             {
@@ -73,6 +74,7 @@ namespace HwProj.NotificationsService.API
             }
 
             app.ConfigureHwProj(env, "Notifications API");
+            context.Database.EnsureCreated();
         }
     }
 }

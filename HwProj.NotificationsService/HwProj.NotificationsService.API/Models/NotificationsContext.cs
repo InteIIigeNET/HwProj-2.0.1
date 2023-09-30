@@ -10,7 +10,6 @@ namespace HwProj.NotificationsService.API.Models
         public NotificationsContext(DbContextOptions options)
             : base(options)
         {
-            Database.EnsureCreated();
         }
     }
 }
