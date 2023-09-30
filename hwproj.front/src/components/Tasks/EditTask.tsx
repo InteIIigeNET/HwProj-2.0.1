@@ -6,7 +6,7 @@ import EditIcon from "@material-ui/icons/Edit";
 import {makeStyles} from "@material-ui/styles";
 import Utils from "../../services/Utils";
 import {Checkbox, Typography, Button, TextField, Grid} from "@material-ui/core";
-import TextFieldWithPreview from "../Common/TextFieldWithPreview";
+import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 
 interface IEditTaskState {
     isLoaded: boolean;

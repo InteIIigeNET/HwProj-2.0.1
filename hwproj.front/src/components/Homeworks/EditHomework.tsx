@@ -5,7 +5,7 @@ import {FC, useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
 import EditIcon from '@material-ui/icons/Edit';
 import {Grid, Typography, Button, TextField} from "@material-ui/core";
-import TextFieldWithPreview from "../Common/TextFieldWithPreview";
+import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 
 interface IEditHomeworkState {
     isLoaded: boolean;

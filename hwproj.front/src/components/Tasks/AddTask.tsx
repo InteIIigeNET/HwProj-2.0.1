@@ -2,7 +2,7 @@ import * as React from "react";
 import ApiSingleton from "../../api/ApiSingleton";
 import Utils from "../../services/Utils";
 import {Grid, Checkbox, Button, TextField, Typography} from "@material-ui/core";
-import TextFieldWithPreview from "../Common/TextFieldWithPreview";
+import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 
 interface IAddTaskProps {
     homeworkId: number;

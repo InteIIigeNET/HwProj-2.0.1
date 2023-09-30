@@ -4,7 +4,6 @@ import IconButton from '@material-ui/core/IconButton'
 import DeleteIcon from '@material-ui/icons/Delete'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import EditIcon from '@material-ui/icons/Edit'
-import ReactMarkdown from 'react-markdown'
 import {HomeworkTaskViewModel} from "../../api";
 import {Link as RouterLink} from 'react-router-dom'
 import ApiSingleton from "../../api/ApiSingleton";
@@ -12,9 +11,8 @@ import {Accordion, AccordionDetails, AccordionSummary, Button} from '@material-u
 import {FC, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
 import DeletionConfirmation from "../DeletionConfirmation";
-import HourglassEmpty from "@material-ui/icons/HourglassEmpty";
-import Utils from "../../services/Utils";
 import {Chip, Stack} from "@mui/material";
+import {ReactMarkdownWithCodeHighlighting} from "../Common/TextFieldWithPreview";
 
 interface ITaskProp {
     task: HomeworkTaskViewModel,
@@ -101,7 +99,7 @@ const Task: FC<ITaskProp> = (props) => {
                 <AccordionDetails>
                     <div>
                         <Typography variant="body1">
-                            <ReactMarkdown children={task.description!}/>
+                            <ReactMarkdownWithCodeHighlighting value={task.description!}/>
                         </Typography>
                         {props.showForCourse && props.forStudent &&
                             <div style={{marginTop: '15px'}}>

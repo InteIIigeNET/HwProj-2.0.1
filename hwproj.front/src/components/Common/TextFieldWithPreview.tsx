@@ -4,6 +4,20 @@ import {FC, useState} from "react";
 import {Tabs, Tab, TextField} from "@material-ui/core";
 import {TextFieldProps} from "@material-ui/core/TextField/TextField";
 import {Card, CardContent} from "@mui/material";
+import SyntaxHighlighter from "react-syntax-highlighter";
+
+interface CodeBlockProps {
+    language: string;
+    value: string;
+}
+
+const CodeBlock: FC<CodeBlockProps> = ({language, value}: CodeBlockProps) =>
+    <SyntaxHighlighter language={language}>
+        {value}
+    </SyntaxHighlighter>
+
+const ReactMarkdownWithCodeHighlighting: FC<{ value: string }> = (props) =>
+    <ReactMarkdown renderers={{code: CodeBlock}}>{props.value}</ReactMarkdown>
 
 const TextFieldWithPreview: FC<TextFieldProps> = (props) => {
     const [state, setState] = useState<{ isPreview: boolean }>({
@@ -28,11 +42,11 @@ const TextFieldWithPreview: FC<TextFieldProps> = (props) => {
         {isPreview
             ? <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
                 <CardContent>
-                    <ReactMarkdown>{props.value as string}</ReactMarkdown>
+                    <ReactMarkdownWithCodeHighlighting value={props.value as string}/>
                 </CardContent>
             </Card>
             : <TextField {...props}/>}
     </>
 }
 
-export default TextFieldWithPreview
+export {TextFieldWithPreview, ReactMarkdownWithCodeHighlighting}

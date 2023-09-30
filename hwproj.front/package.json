@@ -40,7 +40,8 @@
     "react-query": "^3.21.1",
     "react-router-dom": "^6.5.0",
     "react-scripts": "^4.0.3",
-    "react-social-login-buttons": "^3.5.1"
+    "react-social-login-buttons": "^3.5.1",
+    "react-syntax-highlighter": "^15.5.0"
   },
   "scripts": {
     "start": "react-scripts start",

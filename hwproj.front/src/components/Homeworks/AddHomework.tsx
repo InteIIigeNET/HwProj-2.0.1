@@ -1,7 +1,7 @@
 import * as React from "react";
 import ApiSingleton from "../../api/ApiSingleton";
 import {Grid, TextField, Button, Checkbox, Typography} from "@material-ui/core";
-import TextFieldWithPreview from "../Common/TextFieldWithPreview";
+import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 import {CreateTaskViewModel} from "../../api";
 
 interface IAddHomeworkProps {

@@ -2,7 +2,6 @@ import * as React from 'react';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import DeleteIcon from '@material-ui/icons/Delete'
 import EditIcon from '@material-ui/icons/Edit'
-import ReactMarkdown from 'react-markdown';
 import {HomeworkViewModel} from "../../api";
 import AddTask from '../Tasks/AddTask'
 import HomeworkTasks from '../Tasks/HomeworkTasks'
@@ -13,6 +12,7 @@ import {makeStyles} from "@material-ui/styles";
 import DeletionConfirmation from "../DeletionConfirmation";
 import {Chip, Accordion, AccordionSummary, Typography, IconButton, Button, AccordionDetails} from '@material-ui/core';
 import {Stack} from '@mui/material';
+import {ReactMarkdownWithCodeHighlighting} from "../Common/TextFieldWithPreview";
 
 interface IHomeworkProps {
     homework: HomeworkViewModel,
@@ -94,7 +94,7 @@ const Homework: FC<IHomeworkProps> = (props) => {
                 </AccordionSummary>
                 <AccordionDetails>
                     <div style={{width: '100%'}}>
-                        <ReactMarkdown children={props.homework.description!}/>
+                        <ReactMarkdownWithCodeHighlighting value={props.homework.description!}/>
                         {(props.forMentor && homeworkState.createTask) &&
                             <div style={{width: '100%'}}>
                                 <HomeworkTasks
