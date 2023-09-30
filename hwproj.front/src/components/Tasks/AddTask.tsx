@@ -1,22 +1,28 @@
 import * as React from "react";
-import TextField from "@material-ui/core/TextField";
-import Button from "@material-ui/core/Button";
-import Typography from "@material-ui/core/Typography";
 import ApiSingleton from "../../api/ApiSingleton";
-import {CreateTaskViewModel} from "../../api";
-import Checkbox from "@material-ui/core/Checkbox";
-import Grid from "@material-ui/core/Grid";
 import Utils from "../../services/Utils";
+import {Grid, Checkbox, Button, TextField, Typography} from "@material-ui/core";
+import TextFieldWithPreview from "../Common/TextFieldWithPreview";
 
 interface IAddTaskProps {
-    id: number;
+    homeworkId: number;
     onAdding: () => void;
     onCancel: () => void;
     update: () => void;
 }
 
+interface AddTaskState {
+    title: string
+    description: string;
+    maxRating: number;
+    publicationDate: Date;
+    hasDeadline: boolean;
+    deadlineDate: Date;
+    isDeadlineStrict: boolean;
+}
+
 export default class AddTask extends React.Component<IAddTaskProps,
-    CreateTaskViewModel> {
+    AddTaskState> {
     constructor(props: IAddTaskProps) {
         super(props);
 
@@ -36,13 +42,13 @@ export default class AddTask extends React.Component<IAddTaskProps,
             publicationDate: Utils.toMoscowDate(publicationDay),
             hasDeadline: true,
             deadlineDate: Utils.toMoscowDate(deadlineDate),
-            isDeadlineStrict: false
+            isDeadlineStrict: false,
         };
     }
 
     public async handleSubmit(e: any) {
         e.preventDefault();
-        await ApiSingleton.tasksApi.apiTasksAddByHomeworkIdPost(this.props.id, this.state);
+        await ApiSingleton.tasksApi.apiTasksAddByHomeworkIdPost(this.props.homeworkId, this.state);
         this.props.onAdding()
     }
 
@@ -75,17 +81,21 @@ export default class AddTask extends React.Component<IAddTaskProps,
                                 onChange={(e) => this.setState({maxRating: +e.target.value})}
                             />
                         </Grid>
-                        <TextField
-                            multiline
-                            fullWidth
-                            rows="10"
-                            label="Условие задачи"
-                            variant="outlined"
-                            margin="normal"
-                            value={this.state.description}
-                            onChange={(e) => this.setState({description: e.target.value})}
-                        />
+                        <Grid item xs={12}>
+                            <TextFieldWithPreview
+                                multiline
+                                fullWidth
+                                minRows={7}
+                                maxRows="20"
+                                label="Условие задачи"
+                                variant="outlined"
+                                margin="normal"
+                                value={this.state.description}
+                                onChange={(e) => this.setState({description: e.target.value})}
+                            />
+                        </Grid>
                         <Grid
+                            style={{marginTop: '16px'}}
                             container
                             direction="row"
                             alignItems="center"

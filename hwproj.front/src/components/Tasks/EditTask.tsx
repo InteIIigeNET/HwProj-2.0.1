@@ -1,16 +1,12 @@
 import * as React from "react";
-import TextField from "@material-ui/core/TextField";
-import Button from "@material-ui/core/Button";
-import Typography from "@material-ui/core/Typography";
 import {Navigate, Link, useParams} from "react-router-dom";
 import ApiSingleton from "../../api/ApiSingleton";
-import Checkbox from "@material-ui/core/Checkbox";
 import {FC, useEffect, useState} from "react";
-import Grid from "@material-ui/core/Grid";
 import EditIcon from "@material-ui/icons/Edit";
 import {makeStyles} from "@material-ui/styles";
-import Container from "@material-ui/core/Container";
 import Utils from "../../services/Utils";
+import {Checkbox, Typography, Button, TextField, Grid} from "@material-ui/core";
+import TextFieldWithPreview from "../Common/TextFieldWithPreview";
 
 interface IEditTaskState {
     isLoaded: boolean;
@@ -32,11 +28,10 @@ const useStyles = makeStyles(theme => ({
         justifyContent: "center",
     },
     form: {
-        marginTop: theme.spacing(3),
-        width: '100%',
+        marginTop: "20px"
     },
     checkBox: {
-        width: '100%',
+        width: '90%',
         display: "flex",
         flexDirection: "row",
         justifyContent: "space-between"
@@ -111,20 +106,21 @@ const EditTask: FC = () => {
             );
         }
         return (
-            <div>
-                <Grid container justify="center" style={{marginTop: '20px'}}>
-                    <Grid item xs={11}>
-                        <Link
-                            style={{color: '#212529'}}
-                            to={"/courses/" + taskState.courseId.toString()}
-                        >
-                            <Typography>
-                                Назад к курсу
-                            </Typography>
-                        </Link>
+            <Grid container justifyContent="center">
+                <Grid item xs={8}>
+                    <Grid container style={{marginTop: '20px'}}>
+                        <Grid item xs={11}>
+                            <Link
+                                style={{color: '#212529'}}
+                                to={"/courses/" + taskState.courseId.toString()}
+                            >
+                                <Typography>
+                                    Назад к курсу
+                                </Typography>
+                            </Link>
+                        </Grid>
                     </Grid>
-                </Grid>
-                <Container component="main" maxWidth="sm">
+
                     <div className={classes.logo}>
                         <div>
                             <EditIcon style={{color: 'red'}}/>
@@ -139,55 +135,61 @@ const EditTask: FC = () => {
                         onSubmit={(e) => handleSubmit(e)}
                         className={classes.form}
                     >
-                        <Grid container spacing={2}>
-                            <Grid item xs={12} sm={6}>
-                                <TextField
-                                    required
-                                    fullWidth
-                                    label="Название задачи"
-                                    variant="outlined"
-                                    margin="normal"
-                                    value={taskState.title}
-                                    onChange={(e) => {
-                                        e.persist()
-                                        setTaskState((prevState) => ({
-                                            ...prevState,
-                                            title: e.target.value,
-                                        }))
-                                    }}
-                                />
+                        <Grid container spacing={1}>
+                            <Grid container xs={"auto"} spacing={1} direction={"row"}>
+                                <Grid item>
+                                    <TextField
+                                        required
+                                        fullWidth
+                                        style={{width: '300px'}}
+                                        label="Название задачи"
+                                        variant="outlined"
+                                        margin="normal"
+                                        value={taskState.title}
+                                        onChange={(e) => {
+                                            e.persist()
+                                            setTaskState((prevState) => ({
+                                                ...prevState,
+                                                title: e.target.value,
+                                            }))
+                                        }}
+                                    />
+                                </Grid>
+                                <Grid item>
+                                    <TextField
+                                        required
+                                        fullWidth
+                                        style={{width: '300px'}}
+                                        label="Баллы"
+                                        variant="outlined"
+                                        margin="normal"
+                                        type="number"
+                                        value={taskState.maxRating}
+                                        onChange={(e) => {
+                                            e.persist()
+                                            setTaskState((prevState) => ({
+                                                ...prevState,
+                                                maxRating: +e.target.value,
+                                            }))
+                                        }}
+                                    />
+                                </Grid>
                             </Grid>
-                            <Grid item xs={12} sm={6}>
-                                <TextField
-                                    required
-                                    fullWidth
-                                    label="Баллы"
-                                    variant="outlined"
-                                    margin="normal"
-                                    type="number"
-                                    value={taskState.maxRating}
-                                    onChange={(e) => {
-                                        e.persist()
-                                        setTaskState((prevState) => ({
-                                            ...prevState,
-                                            maxRating: +e.target.value,
-                                        }))
-                                    }}
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
-                                <TextField
+                            <Grid item xs={11}>
+                                <TextFieldWithPreview
                                     multiline
                                     fullWidth
-                                    rows="8"
+                                    minRows={7}
+                                    maxRows="20"
                                     label="Условие задачи"
                                     variant="outlined"
+                                    margin="normal"
                                     value={taskState.description}
                                     onChange={(e) => {
                                         e.persist()
                                         setTaskState((prevState) => ({
                                             ...prevState,
-                                            description: e.target.value,
+                                            description: e.target.value
                                         }))
                                     }}
                                 />
@@ -271,7 +273,7 @@ const EditTask: FC = () => {
                                     </div>
                                 </Grid>
                             }
-                            <Grid item xs={12}>
+                            <Grid item xs={11}>
                                 <Button
                                     fullWidth
                                     variant="contained"
@@ -283,8 +285,8 @@ const EditTask: FC = () => {
                             </Grid>
                         </Grid>
                     </form>
-                </Container>
-            </div>
+                </Grid>
+            </Grid>
         )
     }
 

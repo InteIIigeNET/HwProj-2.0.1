@@ -1,12 +1,8 @@
 import * as React from "react";
-import TextField from "@material-ui/core/TextField";
-import Button from "@material-ui/core/Button";
-import Checkbox from "@material-ui/core/Checkbox";
-import Typography from "@material-ui/core/Typography";
 import ApiSingleton from "../../api/ApiSingleton";
+import {Grid, TextField, Button, Checkbox, Typography} from "@material-ui/core";
+import TextFieldWithPreview from "../Common/TextFieldWithPreview";
 import {CreateTaskViewModel} from "../../api";
-import ReactMarkdown from "react-markdown";
-import {Grid, Tab, Tabs, Zoom} from "@material-ui/core";
 
 interface IAddHomeworkProps {
     id: number;
@@ -19,7 +15,6 @@ interface IAddHomeworkState {
     description: string;
     tasks: CreateTaskViewModel[];
     added: boolean;
-    isPreview: boolean;
 }
 
 export default class AddHomework extends React.Component<IAddHomeworkProps,
@@ -39,7 +34,6 @@ export default class AddHomework extends React.Component<IAddHomeworkProps,
                 isDeadlineStrict: false,
             }],
             added: false,
-            isPreview: false,
         };
     }
 
@@ -56,31 +50,17 @@ export default class AddHomework extends React.Component<IAddHomeworkProps,
                         name={this.state.title}
                         onChange={(e) => this.setState({title: e.target.value})}
                     />
-                    <Tabs
-                        onChange={(event, newValue) => this.setState({isPreview: newValue === 1})}
-                        indicatorColor="primary"
-                        value={this.state.isPreview ? 1 : 0}
-                    >
-                        <Tab label="Редактировать" id="simple-tab-0" aria-controls="simple-tabpanel-0"/>
-                        <Tab label="Превью" id="simple-tab-1" aria-controls="simple-tabpanel-1"/>
-                    </Tabs>
-
-                    <div role="tabpanel" hidden={this.state.isPreview} id="simple-tab-0">
-                        <TextField
-                            multiline
-                            fullWidth
-                            rows="4"
-                            rowsMax="20"
-                            label="Описание"
-                            variant="outlined"
-                            margin="normal"
-                            name={this.state.description}
-                            onChange={(e) => this.setState({description: e.target.value})}
-                        />
-                    </div>
-                    <div role="tabpanel" hidden={!this.state.isPreview} id="simple-tab-1">
-                        <p><ReactMarkdown>{this.state.description}</ReactMarkdown></p>
-                    </div>
+                    <TextFieldWithPreview
+                        multiline
+                        fullWidth
+                        minRows={4}
+                        maxRows="20"
+                        label="Описание"
+                        variant="outlined"
+                        margin="normal"
+                        value={this.state.description}
+                        onChange={(e) => this.setState({description: e.target.value})}
+                    />
                     <div>
                         <ol>
                             {this.state.tasks.map((task, index) => (
@@ -108,7 +88,7 @@ export default class AddHomework extends React.Component<IAddHomeworkProps,
                                             </Button>
                                         </Grid>
                                         <Grid container>
-                                            <div style={{ marginRight: '10px' }}>
+                                            <div style={{marginRight: '10px'}}>
                                                 <TextField
                                                     size="small"
                                                     required
@@ -130,19 +110,22 @@ export default class AddHomework extends React.Component<IAddHomeworkProps,
                                                 onChange={(e) => (task.maxRating = +e.target.value)}
                                             />
                                         </Grid>
-                                        <Grid>
-                                            <TextField
-                                                multiline
-                                                fullWidth
-                                                rows="10"
-                                                label="Условие задачи"
-                                                variant="outlined"
-                                                margin="normal"
-                                                name={task.description}
-                                                onChange={(e) => (task.description = e.target.value)}
-                                            />
-                                        </Grid>
+                                        <TextFieldWithPreview
+                                            multiline
+                                            fullWidth
+                                            minRows={7}
+                                            maxRows="20"
+                                            label="Условие задачи"
+                                            variant="outlined"
+                                            margin="normal"
+                                            value={task.description}
+                                            onChange={(e) => {
+                                                task.description = e.target.value;
+                                                this.setState(prevState => prevState)
+                                            }}
+                                        />
                                         <Grid
+                                            style={{marginTop: "16px"}}
                                             container
                                             direction="row"
                                             alignItems="center"
@@ -230,7 +213,7 @@ export default class AddHomework extends React.Component<IAddHomeworkProps,
                                         publicationDate: new Date(),
                                         hasDeadline: false,
                                         deadlineDate: undefined,
-                                        isDeadlineStrict: false
+                                        isDeadlineStrict: false,
                                     }],
                                 })
                             }
