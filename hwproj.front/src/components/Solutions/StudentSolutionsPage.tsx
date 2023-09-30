@@ -118,15 +118,6 @@ const StudentSolutionsPage: FC = () => {
     }
 
     if (isLoaded) {
-        if (
-            !ApiSingleton.authService.isLoggedIn()
-        ) {
-            return (
-                <Typography variant="h6">
-                    Страница не найдена
-                </Typography>
-            )
-        }
         return (
             <div className={"container"} style={{marginBottom: '50px', marginTop: '15px'}}>
                 <Grid direction={"column"} justifyContent="center" alignContent={"stretch"} spacing={2}>

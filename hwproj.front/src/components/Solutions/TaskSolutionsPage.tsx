@@ -64,134 +64,121 @@ const TaskSolutionsPage: FC = () => {
         }))
     }
 
-    if (taskSolutionPage.isLoaded) {
-        if (ApiSingleton.authService.isLoggedIn()) {
-            return (
-                <div className={"container"} style={{marginBottom: '50px'}}>
-                    <Grid container justify="center" style={{marginTop: '20px'}}>
-                        <Grid container xs={12}>
-                            <Grid item xs={12}>
-                                <Stack direction={"row"} spacing={1}
-                                       style={{overflowY: "hidden", overflowX: "auto", minHeight: 80}}>
-                                    {taskSolutions.map((t, index) => {
-                                        const isCurrent = taskId === String(t.taskId)
-                                        const {
-                                            color,
-                                            lastRatedSolution,
-                                            solutionsDescription
-                                        } = StudentStatsUtils.calculateLastRatedSolutionInfo(t.solutions!, t.maxRating!)
-                                        return <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                                            {index > 0 && <hr style={{width: 100}}/>}
-                                            <Step active={isCurrent}>
-                                                <Link to={`/task/${t.taskId}`}
-                                                      style={{color: "black", textDecoration: "none"}}>
-                                                    <StepButton
-                                                        ref={ref => {
-                                                            if (isCurrent) ref?.scrollIntoView({inline: "nearest"})
-                                                        }}
-                                                        color={color}
-                                                        icon={<Tooltip arrow disableInteractive enterDelay={1000} title={<span
-                                                            style={{whiteSpace: 'pre-line'}}>{solutionsDescription}</span>}>
-                                                            <Chip style={{backgroundColor: color}}
-                                                                  size={"small"}
-                                                                  label={lastRatedSolution == undefined ? "?" : lastRatedSolution.rating}/>
-                                                        </Tooltip>}>
-                                                        {t.title}
-                                                    </StepButton>
-                                                </Link>
-                                            </Step>
-                                        </Stack>
-                                    })}
-                                </Stack>
-                            </Grid>
-                            <Grid item xs={12}>
-                                <Task
-                                    task={taskSolutionPage.task}
-                                    forStudent={true}
-                                    forMentor={false}
-                                    isReadingMode={true}
-                                    onDeleteClick={() => 3}
-                                    isExpanded={true}
-                                    showForCourse={false}
-                                />
-                            </Grid>
-                            {!taskSolutionPage.addSolution && (
-                                <Grid item xs={6}>
-                                    <TaskSolutions
-                                        task={task}
-                                        forMentor={false}
-                                        student={student}
-                                        solutions={currentTaskSolutions}/>
-                                </Grid>
-                            )}
-                            {(!taskSolutionPage.addSolution && task.canSendSolution) && (
-                                <Grid item xs={12} style={{marginTop: "10px"}}>
-                                    <Divider style={{marginBottom: 15}}/>
-                                    <Button
-                                        size="small"
-                                        variant="contained"
-                                        color="primary"
-                                        onClick={(e) => {
-                                            e.persist()
-                                            setTaskSolutionPage((prevState) => ({
-                                                ...prevState,
-                                                addSolution: true,
-                                            }))
-                                        }}
-                                    >
-                                        Добавить решение
-                                    </Button>
-                                </Grid>
-                            )}
-                            {taskSolutionPage.addSolution && (
-                                <Grid item xs={6}>
-                                    <div>
-                                        <TaskSolutions
-                                            task={task}
-                                            forMentor={false}
-                                            student={student!}
-                                            solutions={currentTaskSolutions}/>
-                                    </div>
-                                    <div style={{marginTop: "10px"}}>
-                                        <Divider style={{marginBottom: 15}}/>
-                                        <AddSolution
-                                            userId={userId}
-                                            taskId={+taskId!}
-                                            onAdd={getTask}
-                                            onCancel={onCancelAddSolution}
-                                            lastSolutionUrl={lastSolution?.githubUrl}
-                                            students={courseMates}
-                                            lastGroup={lastSolution?.groupMates?.map(s => s.userId!) || []}/>
-                                    </div>
-                                </Grid>
-                            )}
-                        </Grid>
-                        <Grid item>
-                            <Link
-                                style={{color: '#212529'}}
-                                to={`/courses/${courseId}`}
-                            >
-                                <Typography>
-                                    Назад к курсу
-                                </Typography>
-                            </Link>
-                        </Grid>
+    return taskSolutionPage.isLoaded ? <div className={"container"} style={{marginBottom: '50px'}}>
+        <Grid container justify="center" style={{marginTop: '20px'}}>
+            <Grid container xs={12}>
+                <Grid item xs={12}>
+                    <Stack direction={"row"} spacing={1}
+                           style={{overflowY: "hidden", overflowX: "auto", minHeight: 80}}>
+                        {taskSolutions.map((t, index) => {
+                            const isCurrent = taskId === String(t.taskId)
+                            const {
+                                color,
+                                lastRatedSolution,
+                                solutionsDescription
+                            } = StudentStatsUtils.calculateLastRatedSolutionInfo(t.solutions!, t.maxRating!)
+                            return <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                {index > 0 && <hr style={{width: 100}}/>}
+                                <Step active={isCurrent}>
+                                    <Link to={`/task/${t.taskId}`}
+                                          style={{color: "black", textDecoration: "none"}}>
+                                        <StepButton
+                                            ref={ref => {
+                                                if (isCurrent) ref?.scrollIntoView({inline: "nearest"})
+                                            }}
+                                            color={color}
+                                            icon={<Tooltip arrow disableInteractive enterDelay={1000} title={<span
+                                                style={{whiteSpace: 'pre-line'}}>{solutionsDescription}</span>}>
+                                                <Chip style={{backgroundColor: color}}
+                                                      size={"small"}
+                                                      label={lastRatedSolution == undefined ? "?" : lastRatedSolution.rating}/>
+                                            </Tooltip>}>
+                                            {t.title}
+                                        </StepButton>
+                                    </Link>
+                                </Step>
+                            </Stack>
+                        })}
+                    </Stack>
+                </Grid>
+                <Grid item xs={12}>
+                    <Task
+                        task={taskSolutionPage.task}
+                        forStudent={true}
+                        forMentor={false}
+                        isReadingMode={true}
+                        onDeleteClick={() => 3}
+                        isExpanded={true}
+                        showForCourse={false}
+                    />
+                </Grid>
+                {!taskSolutionPage.addSolution && (
+                    <Grid item xs={6}>
+                        <TaskSolutions
+                            task={task}
+                            forMentor={false}
+                            student={student}
+                            solutions={currentTaskSolutions}/>
                     </Grid>
-                </div>
-            )
-        } else {
-            return (
-                <Typography variant="h6">
-                    Страница не найдена
-                </Typography>
-            )
-        }
-    }
-    return (
+                )}
+                {(!taskSolutionPage.addSolution && task.canSendSolution) && (
+                    <Grid item xs={12} style={{marginTop: "10px"}}>
+                        <Divider style={{marginBottom: 15}}/>
+                        <Button
+                            size="small"
+                            variant="contained"
+                            color="primary"
+                            onClick={(e) => {
+                                e.persist()
+                                setTaskSolutionPage((prevState) => ({
+                                    ...prevState,
+                                    addSolution: true,
+                                }))
+                            }}
+                        >
+                            Добавить решение
+                        </Button>
+                    </Grid>
+                )}
+                {taskSolutionPage.addSolution && (
+                    <Grid item xs={6}>
+                        <div>
+                            <TaskSolutions
+                                task={task}
+                                forMentor={false}
+                                student={student!}
+                                solutions={currentTaskSolutions}/>
+                        </div>
+                        <div style={{marginTop: "10px"}}>
+                            <Divider style={{marginBottom: 15}}/>
+                            <AddSolution
+                                userId={userId}
+                                taskId={+taskId!}
+                                onAdd={getTask}
+                                onCancel={onCancelAddSolution}
+                                lastSolutionUrl={lastSolution?.githubUrl}
+                                students={courseMates}
+                                lastGroup={lastSolution?.groupMates?.map(s => s.userId!) || []}/>
+                        </div>
+                    </Grid>
+                )}
+            </Grid>
+            <Grid item>
+                <Link
+                    style={{color: '#212529'}}
+                    to={`/courses/${courseId}`}
+                >
+                    <Typography>
+                        Назад к курсу
+                    </Typography>
+                </Link>
+            </Grid>
+        </Grid>
+    </div> : (
         <div>
 
         </div>
-    )
+    );
 }
 
 export default TaskSolutionsPage

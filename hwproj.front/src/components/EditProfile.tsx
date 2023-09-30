@@ -1,6 +1,6 @@
 import * as React from "react";
 import {FC, FormEvent, useEffect, useState} from "react";
-import { Navigate } from "react-router-dom";
+import {Navigate} from "react-router-dom";
 import Avatar from '@material-ui/core/Avatar';
 
 import {Button, TextField, Typography, Container, Grid} from "@material-ui/core";
@@ -59,7 +59,7 @@ const EditProfile: FC = () => {
             currentPassword: profile.currentPassword,
             newPassword: profile.newPassword,
         }
-        try{
+        try {
             if (profile.isExternalAuth) {
                 const result = await ApiSingleton.accountApi.apiAccountEditExternalPut(editForm)
                 result.succeeded
@@ -83,8 +83,7 @@ const EditProfile: FC = () => {
                     ...prevState,
                     errors: result.errors!
                 }))
-        }
-        catch (e) {
+        } catch (e) {
             setProfile((prevState) => ({
                 ...prevState,
                 isLoaded: true,
@@ -98,7 +97,7 @@ const EditProfile: FC = () => {
     }, [])
 
     const getUserInfo = async () => {
-        try{
+        try {
             const currentUser = await (await ApiSingleton.accountApi.apiAccountGetUserDataGet()).userData!
             setProfile((prevState) => ({
                 ...prevState,
@@ -108,8 +107,7 @@ const EditProfile: FC = () => {
                 middleName: currentUser.middleName!,
                 isExternalAuth: currentUser.isExternalAuth,
             }))
-        }
-        catch (e) {
+        } catch (e) {
             setProfile((prevState) => ({
                 ...prevState,
                 isLoaded: true,
@@ -123,225 +121,206 @@ const EditProfile: FC = () => {
     if (profile.edited) {
         return <Navigate to={"/"}/>;
     }
-    if (profile.isLoaded) {
-        if (!ApiSingleton.authService.isLoggedIn()) {
-            return (
-                <Typography variant="h6" gutterBottom>
-                    Страница не найдена
-                </Typography>
-            );
-        }
-
-        return (
-            <div>
-                {!profile.isExternalAuth && (
-                    <Container component="main" maxWidth="xs">
-                        <div className={classes.paper}>
-                            <Avatar
-                                src="/broken-image.jpg"
-                                style={{ color: 'white', backgroundColor: '#3fcb27' }}
-                                className={classes.avatar}
-                            />
-                            <Typography component="h1" variant="h5">
-                                Редактировать профиль
-                            </Typography>
-                            {profile.errors && (
-                                <p style={{color: "red", marginBottom: "0"}}>{profile.errors}</p>
-                            )}
-                            <form
-                                onSubmit={(e) => handleSubmit(e)}
-                                className={classes.form}
-                            >
-                                <Grid container spacing={2}>
-                                    <Grid item xs={12} sm={6}>
-                                        <TextField
-                                            fullWidth
-                                            required
-                                            label="Имя"
-                                            variant="outlined"
-                                            value={profile.name}
-                                            onChange={(e) =>
-                                            {
-                                                e.persist()
-                                                setProfile((prevState) => ({
-                                                    ...prevState,
-                                                    name: e.target.value
-                                                }))
-                                            }}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12} sm={6}>
-                                        <TextField
-                                            required
-                                            fullWidth
-                                            label="Фамилия"
-                                            variant="outlined"
-                                            value={profile.surname}
-                                            onChange={(e) =>
-                                            {
-                                                e.persist()
-                                                setProfile((prevState) => ({
-                                                    ...prevState,
-                                                    surname: e.target.value
-                                                }))
-                                            }}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12}>
-                                        <TextField
-                                            fullWidth
-                                            label="Отчество"
-                                            variant="outlined"
-                                            value={profile.middleName}
-                                            onChange={(e) =>
-                                            {
-                                                e.persist()
-                                                setProfile((prevState) => ({
-                                                    ...prevState,
-                                                    middleName: e.target.value
-                                                }))
-                                            }}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12}>
-                                        <TextField
-                                            fullWidth
-                                            required
-                                            label="Пароль"
-                                            variant="outlined"
-                                            value={profile.currentPassword}
-                                            onChange={(e) =>
-                                            {
-                                                e.persist()
-                                                setProfile((prevState) => ({
-                                                    ...prevState,
-                                                    currentPassword: e.target.value
-                                                }))
-                                            }}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12}>
-                                        <TextField
-                                            fullWidth
-                                            required
-                                            label="Новый пароль"
-                                            variant="outlined"
-                                            value={profile.newPassword}
-                                            onChange={(e) =>
-                                            {
-                                                e.persist()
-                                                setProfile((prevState) => ({
-                                                    ...prevState,
-                                                    newPassword: e.target.value
-                                                }))
-                                            }}
-                                        />
-                                    </Grid>
+    return profile.isLoaded ? (
+        <div>
+            {!profile.isExternalAuth && (
+                <Container component="main" maxWidth="xs">
+                    <div className={classes.paper}>
+                        <Avatar
+                            src="/broken-image.jpg"
+                            style={{color: 'white', backgroundColor: '#3fcb27'}}
+                            className={classes.avatar}
+                        />
+                        <Typography component="h1" variant="h5">
+                            Редактировать профиль
+                        </Typography>
+                        {profile.errors && (
+                            <p style={{color: "red", marginBottom: "0"}}>{profile.errors}</p>
+                        )}
+                        <form
+                            onSubmit={(e) => handleSubmit(e)}
+                            className={classes.form}
+                        >
+                            <Grid container spacing={2}>
+                                <Grid item xs={12} sm={6}>
+                                    <TextField
+                                        fullWidth
+                                        required
+                                        label="Имя"
+                                        variant="outlined"
+                                        value={profile.name}
+                                        onChange={(e) => {
+                                            e.persist()
+                                            setProfile((prevState) => ({
+                                                ...prevState,
+                                                name: e.target.value
+                                            }))
+                                        }}
+                                    />
                                 </Grid>
-                                <Button
-                                    style={{ marginTop: '15px'}}
-                                    fullWidth
-                                    variant="contained"
-                                    color="primary"
-                                    type="submit"
-                                >
-                                    Редактировать профиль
-                                </Button>
-                            </form>
-                        </div>
-                    </Container>
-                )}
-                {profile.isExternalAuth && (
-                    <Container component="main" maxWidth="xs">
-                        <div className={classes.paper}>
-                            <Avatar
-                                src="/broken-image.jpg"
-                                style={{ color: 'white', backgroundColor: '#3fcb27' }}
-                                className={classes.avatar}
-                            />
-                            <Typography component="h1" variant="h5">
-                                Редактировать профиль
-                            </Typography>
-                            {profile.errors && (
-                                <p style={{color: "red", marginBottom: "0"}}>{profile.errors}</p>
-                            )}
-                            <form
-                                onSubmit={(e) => handleSubmit(e)}
-                                className={classes.form}
-                            >
-                                <Grid container spacing={2}>
-                                    <Grid item xs={12} sm={6}>
-                                        <TextField
-                                            fullWidth
-                                            required
-                                            label="Имя"
-                                            variant="outlined"
-                                            value={profile.name}
-                                            onChange={(e) =>
-                                            {
-                                                e.persist()
-                                                setProfile((prevState) => ({
-                                                    ...prevState,
-                                                    name: e.target.value
-                                                }))
-                                            }}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12} sm={6}>
-                                        <TextField
-                                            required
-                                            fullWidth
-                                            label="Фамилия"
-                                            variant="outlined"
-                                            value={profile.surname}
-                                            onChange={(e) =>
-                                            {
-                                                e.persist()
-                                                setProfile((prevState) => ({
-                                                    ...prevState,
-                                                    surname: e.target.value
-                                                }))
-                                            }}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12}>
-                                        <TextField
-                                            fullWidth
-                                            label="Отчество"
-                                            variant="outlined"
-                                            value={profile.middleName}
-                                            onChange={(e) =>
-                                            {
-                                                e.persist()
-                                                setProfile((prevState) => ({
-                                                    ...prevState,
-                                                    middleName: e.target.value
-                                                }))
-                                            }}
-                                        />
-                                    </Grid>
+                                <Grid item xs={12} sm={6}>
+                                    <TextField
+                                        required
+                                        fullWidth
+                                        label="Фамилия"
+                                        variant="outlined"
+                                        value={profile.surname}
+                                        onChange={(e) => {
+                                            e.persist()
+                                            setProfile((prevState) => ({
+                                                ...prevState,
+                                                surname: e.target.value
+                                            }))
+                                        }}
+                                    />
                                 </Grid>
-                                <Button
-                                    style={{ marginTop: '15px'}}
-                                    fullWidth
-                                    variant="contained"
-                                    color="primary"
-                                    type="submit"
-                                >
-                                    Редактировать профиль
-                                </Button>
-                            </form>
-                        </div>
-                    </Container>
-                )}
-            </div>
-        )
-    }
-    return(
+                                <Grid item xs={12}>
+                                    <TextField
+                                        fullWidth
+                                        label="Отчество"
+                                        variant="outlined"
+                                        value={profile.middleName}
+                                        onChange={(e) => {
+                                            e.persist()
+                                            setProfile((prevState) => ({
+                                                ...prevState,
+                                                middleName: e.target.value
+                                            }))
+                                        }}
+                                    />
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <TextField
+                                        fullWidth
+                                        required
+                                        label="Пароль"
+                                        variant="outlined"
+                                        value={profile.currentPassword}
+                                        onChange={(e) => {
+                                            e.persist()
+                                            setProfile((prevState) => ({
+                                                ...prevState,
+                                                currentPassword: e.target.value
+                                            }))
+                                        }}
+                                    />
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <TextField
+                                        fullWidth
+                                        required
+                                        label="Новый пароль"
+                                        variant="outlined"
+                                        value={profile.newPassword}
+                                        onChange={(e) => {
+                                            e.persist()
+                                            setProfile((prevState) => ({
+                                                ...prevState,
+                                                newPassword: e.target.value
+                                            }))
+                                        }}
+                                    />
+                                </Grid>
+                            </Grid>
+                            <Button
+                                style={{marginTop: '15px'}}
+                                fullWidth
+                                variant="contained"
+                                color="primary"
+                                type="submit"
+                            >
+                                Редактировать профиль
+                            </Button>
+                        </form>
+                    </div>
+                </Container>
+            )}
+            {profile.isExternalAuth && (
+                <Container component="main" maxWidth="xs">
+                    <div className={classes.paper}>
+                        <Avatar
+                            src="/broken-image.jpg"
+                            style={{color: 'white', backgroundColor: '#3fcb27'}}
+                            className={classes.avatar}
+                        />
+                        <Typography component="h1" variant="h5">
+                            Редактировать профиль
+                        </Typography>
+                        {profile.errors && (
+                            <p style={{color: "red", marginBottom: "0"}}>{profile.errors}</p>
+                        )}
+                        <form
+                            onSubmit={(e) => handleSubmit(e)}
+                            className={classes.form}
+                        >
+                            <Grid container spacing={2}>
+                                <Grid item xs={12} sm={6}>
+                                    <TextField
+                                        fullWidth
+                                        required
+                                        label="Имя"
+                                        variant="outlined"
+                                        value={profile.name}
+                                        onChange={(e) => {
+                                            e.persist()
+                                            setProfile((prevState) => ({
+                                                ...prevState,
+                                                name: e.target.value
+                                            }))
+                                        }}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} sm={6}>
+                                    <TextField
+                                        required
+                                        fullWidth
+                                        label="Фамилия"
+                                        variant="outlined"
+                                        value={profile.surname}
+                                        onChange={(e) => {
+                                            e.persist()
+                                            setProfile((prevState) => ({
+                                                ...prevState,
+                                                surname: e.target.value
+                                            }))
+                                        }}
+                                    />
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <TextField
+                                        fullWidth
+                                        label="Отчество"
+                                        variant="outlined"
+                                        value={profile.middleName}
+                                        onChange={(e) => {
+                                            e.persist()
+                                            setProfile((prevState) => ({
+                                                ...prevState,
+                                                middleName: e.target.value
+                                            }))
+                                        }}
+                                    />
+                                </Grid>
+                            </Grid>
+                            <Button
+                                style={{marginTop: '15px'}}
+                                fullWidth
+                                variant="contained"
+                                color="primary"
+                                type="submit"
+                            >
+                                Редактировать профиль
+                            </Button>
+                        </form>
+                    </div>
+                </Container>
+            )}
+        </div>
+    ) : (
         <div>
 
         </div>
-    )
+    );
 }
 
 export default EditProfile

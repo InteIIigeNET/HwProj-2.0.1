@@ -11,8 +11,8 @@ interface ICoursesState {
     tabValue: number;
 }
 
-export default class Courses extends React.Component<{navigate: any}, ICoursesState> {
-    constructor(props: {navigate: any}) {
+export default class Courses extends React.Component<{ navigate: any }, ICoursesState> {
+    constructor(props: { navigate: any }) {
         super(props);
         this.state = {
             isLoaded: false,
@@ -66,9 +66,6 @@ export default class Courses extends React.Component<{navigate: any}, ICoursesSt
     }
 
     async componentDidMount() {
-        if (!ApiSingleton.authService.isLoggedIn()) {
-            window.location.assign("/login");
-        }
         try {
             const courses = await ApiSingleton.coursesApi.apiCoursesUserCoursesGet()
             const allCourses = await ApiSingleton.coursesApi.apiCoursesGet();

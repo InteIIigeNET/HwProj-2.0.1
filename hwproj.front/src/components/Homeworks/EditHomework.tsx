@@ -28,7 +28,7 @@ const useStyles = makeStyles(theme => ({
 
 
 const EditHomework: FC = () => {
-    const { homeworkId } = useParams()
+    const {homeworkId} = useParams()
 
     const [editHomework, setEditHomework] = useState<IEditHomeworkState>({
         isLoaded: false,
@@ -78,10 +78,7 @@ const EditHomework: FC = () => {
     }
 
     if (editHomework.isLoaded) {
-        if (
-            !ApiSingleton.authService.isLoggedIn() ||
-            !editHomework.courseMentorIds.includes(ApiSingleton.authService.getUserId())
-        ) {
+        if (!editHomework.courseMentorIds.includes(ApiSingleton.authService.getUserId())) {
             return (
                 <Typography variant="h6" gutterBottom>
                     Только преподаватель может редактировать домашнюю работу
@@ -122,7 +119,7 @@ const EditHomework: FC = () => {
                             <Grid container justifyContent="center">
                                 <Grid item xs={11}>
                                     <TextField
-                                        style={{ width: '300px'}}
+                                        style={{width: '300px'}}
                                         required
                                         label="Название задания"
                                         variant="outlined"

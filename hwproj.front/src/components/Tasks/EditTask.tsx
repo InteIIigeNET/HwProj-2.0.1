@@ -95,10 +95,7 @@ const EditTask: FC = () => {
     }
 
     if (taskState.isLoaded) {
-        if (
-            !ApiSingleton.authService.isLoggedIn() ||
-            !taskState.courseMentorIds.includes(ApiSingleton.authService.getUserId())
-        ) {
+        if (!taskState.courseMentorIds.includes(ApiSingleton.authService.getUserId())) {
             return (
                 <Typography variant="h6" gutterBottom>
                     Только преподаваталь может редактировать задачу

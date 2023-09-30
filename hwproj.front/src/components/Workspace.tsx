@@ -1,10 +1,10 @@
 ﻿import * as React from "react";
-import {Typography, CircularProgress, Box, Grid, Tabs, Tab} from "@material-ui/core";
+import {Typography, CircularProgress, Grid, Tabs, Tab} from "@material-ui/core";
 import ApiSingleton from "api/ApiSingleton";
 import {UnratedSolutionPreviews, UserDataDto} from "../api/";
 import "./Styles/Profile.css";
 import {FC, useEffect, useState} from "react";
-import {Link as RouterLink, Navigate, useNavigate, useParams} from "react-router-dom";
+import {Link as RouterLink, useNavigate, useParams} from "react-router-dom";
 import {makeStyles} from "@material-ui/styles";
 import {CoursesList} from "./Courses/CoursesList";
 import EditIcon from "@material-ui/icons/Edit";
@@ -72,10 +72,6 @@ const Workspace: FC = () => {
 
     const nearestTaskDeadlines = taskDeadlines?.filter(x => !x.deadlinePast) || []
     const pastTaskDeadlines = taskDeadlines?.filter(x => x.deadlinePast) || []
-
-    if (!ApiSingleton.authService.isLoggedIn()) {
-        return <Navigate to={"/login"}/>;
-    }
 
     if (profileState.isLoaded) {
         const isUserProfile = userData!.userId === ApiSingleton.authService.getUserId()

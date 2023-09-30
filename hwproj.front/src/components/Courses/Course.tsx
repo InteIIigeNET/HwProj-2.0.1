@@ -79,20 +79,13 @@ const Course: React.FC = () => {
         studentSolutions
     } = courseState;
 
-    const isLogged = ApiSingleton.authService.isLoggedIn()
+    const userId = ApiSingleton.authService.getUserId()
 
-    //TODO: move to authservice
-    const userId = isLogged
-        ? ApiSingleton.authService.getUserId()
-        : undefined
+    const isMentor = mentors.some(t => t.userId === userId)
 
-    const isMentor = isLogged && mentors.some(t => t.userId === userId)
+    const isSignedInCourse = newStudents!.some(cm => cm.userId === userId)
 
-    const isSignedInCourse =
-        isLogged && newStudents!.some(cm => cm.userId === userId)
-
-    const isAcceptedStudent =
-        isLogged && acceptedStudents!.some(cm => cm.userId === userId)
+    const isAcceptedStudent = acceptedStudents!.some(cm => cm.userId === userId)
 
     const showExperimentalFeature = isMentor ? courseState.showExperimentalFeature : true
 
@@ -204,7 +197,7 @@ const Course: React.FC = () => {
                             </Grid>
                             <Grid item style={{width: '187px'}}>
                                 <Grid container alignItems="flex-end" direction="column" xs={12}>
-                                    {isLogged && !isSignedInCourse && !isMentor && !isAcceptedStudent && (
+                                    {!isSignedInCourse && !isMentor && !isAcceptedStudent && (
                                         <Grid item style={{width: '100%', marginTop: '16px'}}>
                                             <Button
                                                 fullWidth
@@ -216,7 +209,7 @@ const Course: React.FC = () => {
                                             </Button>
                                         </Grid>
                                     )}
-                                    {isLogged && isSignedInCourse && !isAcceptedStudent &&
+                                    {isSignedInCourse && !isAcceptedStudent &&
                                         <Grid item style={{width: '100%', marginTop: '16px'}}>
                                             <Typography style={{fontSize: '15px'}}>
                                                 Ваша заявка рассматривается

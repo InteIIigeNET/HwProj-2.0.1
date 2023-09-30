@@ -14,7 +14,6 @@ import ApiSingleton from "api/ApiSingleton";
 import {CategorizedNotifications, NotificationViewModel} from "../api/";
 import "./Styles/Profile.css";
 import parse from 'html-react-parser';
-import {Navigate} from "react-router-dom";
 import {Button} from "@mui/material";
 
 let CategoryEnum = CategorizedNotifications.CategoryEnum;
@@ -63,7 +62,7 @@ const Notifications: FC<IProfileProps> = (props) => {
         isLoaded: false,
         notifications: []
     })
-    
+
     const allNotSeen = getAllNotSeen(profileState.notifications)
 
     const [filterState, setFilterState] = useState<IFilterState>({
@@ -177,10 +176,6 @@ const Notifications: FC<IProfileProps> = (props) => {
                 )}
             </div>
         )
-    }
-
-    if (!ApiSingleton.authService.isLoggedIn()) {
-        return <Navigate to={"/login"}/>;
     }
 
     if (profileState.isLoaded) {
