@@ -2,6 +2,7 @@ import * as React from "react";
 import ApiSingleton from "../../api/ApiSingleton";
 import {Grid, TextField, Button, Checkbox, Typography} from "@material-ui/core";
 import TextFieldWithPreview from "../Common/TextFieldWithPreview";
+import {CreateTaskViewModel} from "../../api";
 
 interface IAddHomeworkProps {
     id: number;
@@ -12,18 +13,8 @@ interface IAddHomeworkProps {
 interface IAddHomeworkState {
     title: string;
     description: string;
-    tasks: AddTaskProps[];
+    tasks: CreateTaskViewModel[];
     added: boolean;
-}
-
-interface AddTaskProps {
-    title: string
-    description: string;
-    maxRating: number;
-    publicationDate: Date;
-    hasDeadline: boolean;
-    deadlineDate: Date | undefined;
-    isDeadlineStrict: boolean;
 }
 
 export default class AddHomework extends React.Component<IAddHomeworkProps,
