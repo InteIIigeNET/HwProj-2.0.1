@@ -142,7 +142,7 @@ namespace HwProj.APIGateway.API.Controllers
 
             var result = await _coursesClient.AcceptLecturer(courseId, lecturerEmail, lecturer.UserId);
             return result.Succeeded
-                ? Ok(result)
+                ? Ok(result) as IActionResult
                 : BadRequest(result.Errors);
         }
 
