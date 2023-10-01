@@ -113,9 +113,11 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 </Grid>
                 {!addBonusPoints && props.forMentor && <Grid item>
                     <Tooltip arrow title={"Позволяет поставить оценку выше максимальной"}>
-                        <Link onClick={() => setState(prevState => ({...prevState, addBonusPoints: true}))}>
-                            Нужна особая оценка?
-                        </Link>
+                        <Typography variant={"caption"}>
+                            <Link onClick={() => setState(prevState => ({...prevState, addBonusPoints: true}))}>
+                                Нужна особая оценка?
+                            </Link>
+                        </Typography>
                     </Tooltip>
                 </Grid>}
             </Grid>)
