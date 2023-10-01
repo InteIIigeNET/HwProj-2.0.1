@@ -15,6 +15,7 @@ import VisibilityIcon from '@material-ui/icons/Visibility';
 import {Chip, Stack} from "@mui/material";
 import CourseExperimental from "./CourseExperimental";
 import {useParams, useNavigate} from 'react-router-dom';
+import MentorsList from "../Common/MentorsList";
 
 type TabValue = "homeworks" | "stats" | "applications"
 
@@ -186,9 +187,7 @@ const Course: React.FC = () => {
                                         </RouterLink>
                                     )}
                                 </Typography>
-                                <Typography style={{fontSize: "18px", color: "GrayText"}}>
-                                    {mentors.map(t => `${t.name} ${t.surname}`).join(", ")}
-                                </Typography>
+                                <MentorsList mentors={mentors} />
                                 {isCourseMentor && <div><Switch value={showExperimentalFeature}
                                                           onChange={(e, checked) => setCourseState(prevState => ({
                                                               ...prevState,

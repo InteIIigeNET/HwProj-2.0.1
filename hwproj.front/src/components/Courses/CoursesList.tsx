@@ -2,6 +2,7 @@ import * as React from "react";
 import {CoursePreviewView} from "../../api/";
 import {Divider, Grid, ListItem, Typography} from "@material-ui/core";
 import {NavLink} from "react-router-dom";
+import MentorsList from "../Common/MentorsList";
 
 interface ICoursesProps {
     navigate: any
@@ -29,9 +30,7 @@ export class CoursesList extends React.Component<ICoursesProps, {}> {
                                 </Typography>
                             </NavLink>
                         </ListItem>
-                        <Typography style={{fontSize: "18px", color: "GrayText"}}>
-                            {course.mentors?.map(t => `${t.name} ${t.surname}`).join(", ")}
-                        </Typography>
+                        <MentorsList mentors={course.mentors!}/>
                         {i < courses.length - 1 ? <Divider style={{marginTop: 5, marginBottom: 5}}/> : null}
                     </Grid>
                 ))}
