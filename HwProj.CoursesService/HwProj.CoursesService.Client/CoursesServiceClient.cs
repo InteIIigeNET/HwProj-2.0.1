@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Http;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using HwProj.HttpUtils;
@@ -136,9 +137,10 @@ namespace HwProj.CoursesService.Client
 
         public async Task<CourseDTO[]> GetAllUserCourses()
         {
+            var role = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Role).Value;
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
-                _coursesServiceUri + "api/Courses/userCourses");
+                _coursesServiceUri + $"api/Courses/userCourses?role={role}");
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);

@@ -129,10 +129,10 @@ namespace HwProj.CoursesService.API.Controllers
 
         [CourseDataFilter]
         [HttpGet("userCourses")]
-        public async Task<CourseDTO[]> GetUserCourses()
+        public async Task<CourseDTO[]> GetUserCourses(string role)
         {
             var userId = Request.GetUserIdFromHeader();
-            var coursesFromDb = await _coursesService.GetUserCoursesAsync(userId);
+            var coursesFromDb = await _coursesService.GetUserCoursesAsync(userId, role);
             var courses = _mapper.Map<CourseDTO[]>(coursesFromDb).ToArray();
             return courses;
         }

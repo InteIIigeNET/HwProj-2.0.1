@@ -181,7 +181,7 @@ namespace HwProj.CoursesService.API.Services
             {
                 return false;
             }
-            
+
             await _courseMatesRepository.DeleteAsync(getCourseMateTask.Result.Id);
 
             var course = getCourseTask.Result;
@@ -195,19 +195,17 @@ namespace HwProj.CoursesService.API.Services
             return true;
         }
 
-        public async Task<Course[]> GetUserCoursesAsync(string userId)
+        public async Task<Course[]> GetUserCoursesAsync(string userId, string role)
         {
-            var studentCoursesIds = await _courseMatesRepository
-                .FindAll(cm => cm.StudentId == userId && cm.IsAccepted == true)
-                .Select(cm => cm.CourseId)
-                .ToArrayAsync()
-                .ConfigureAwait(false);
+            if (role == Roles.StudentRole)
+            {
+                var studentCoursesIds = await _courseMatesRepository
+                    .FindAll(cm => cm.StudentId == userId && cm.IsAccepted == true)
+                    .Select(cm => cm.CourseId)
+                    .ToArrayAsync();
 
-            var getStudentCoursesTasks = studentCoursesIds
-                .Select(id => _coursesRepository.GetAsync(id)) // TODO: optimize 
-                .ToArray();
-
-            var studentCourses = await Task.WhenAll(getStudentCoursesTasks).ConfigureAwait(false);
+                return await _coursesRepository.FindAll(t => studentCoursesIds.Contains(t.Id)).ToArrayAsync();
+            }
 
             //TODO: refactor CourseMates & NewStudents
             var getMentorCoursesTask = _coursesRepository
@@ -216,9 +214,7 @@ namespace HwProj.CoursesService.API.Services
                 .Include(c => c.Homeworks).ThenInclude(t => t.Tasks)
                 .ToArrayAsync();
 
-            var mentorCourses = await getMentorCoursesTask.ConfigureAwait(false);
-
-            return studentCourses.Union(mentorCourses).ToArray();
+            return await getMentorCoursesTask;
         }
 
         public async Task<bool> AcceptLecturerAsync(long courseId, string lecturerEmail, string lecturerId)
