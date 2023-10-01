@@ -13,6 +13,7 @@ import {
     Chip
 } from "@mui/material";
 import {FC, useState} from "react";
+import Utils from "../../services/Utils";
 
 interface IUnratedSolutionsProps {
     unratedSolutionsPreviews: UnratedSolutionPreviews
@@ -28,6 +29,8 @@ interface IFiltersState {
     tasks: string[],
     students: string[]
 }
+
+const solutionPlurals = ["решение", "решения", "решений"]
 
 type FilterTitleName = "coursesFilter" | "homeworksFilter" | "tasksFilter" | "studentsFilter"
 
@@ -143,26 +146,37 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
     }
 
     const renderFilter = () => {
-        return <Grid container xs={"auto"} style={{marginBottom: 15}} spacing={1} direction={"row"}>
-            <Grid item>
-                {renderSelect("Курс", "coursesFilter", filtersState.coursesFilter, filtersState.courses)}
+        return <div style={{marginBottom: 15}}>
+            <Grid container xs={"auto"} spacing={1} direction={"row"}>
+                <Grid item>
+                    {renderSelect("Курс", "coursesFilter", filtersState.coursesFilter, filtersState.courses)}
+                </Grid>
+                <Grid item>
+                    {renderSelect("Домашняя работа", "homeworksFilter", filtersState.homeworksFilter, filtersState.homeworks)}
+                </Grid>
+                <Grid item>
+                    {renderSelect("Задание", "tasksFilter", filtersState.tasksFilter, filtersState.tasks)}
+                </Grid>
+                <Grid item>
+                    {renderSelect("Студент", "studentsFilter", filtersState.studentsFilter, filtersState.students)}
+                </Grid>
             </Grid>
-            <Grid item>
-                {renderSelect("Домашняя работа", "homeworksFilter", filtersState.homeworksFilter, filtersState.homeworks)}
-            </Grid>
-            <Grid item>
-                {renderSelect("Задание", "tasksFilter", filtersState.tasksFilter, filtersState.tasks)}
-            </Grid>
-            <Grid item>
-                {renderSelect("Студент", "studentsFilter", filtersState.studentsFilter, filtersState.students)}
-            </Grid>
-        </Grid>
+            {filteredUnratedSolutions.length < unratedSolutions.length &&
+                <div style={{marginTop: 10}}>
+                    <Typography variant={"caption"} color={"GrayText"}>
+                        {`${filteredUnratedSolutions.length} ${Utils.pluralizeHelper(solutionPlurals, filteredUnratedSolutions.length)} найдено по заданному фильтру`}
+                    </Typography>
+                </div>}
+        </div>
     }
 
     return (
         <div className="container">
             {renderFilter()}
-            {filteredUnratedSolutions.length == 0 ? <div>По заданному фильтру все решения проверены.</div> :
+            {unratedSolutions.length == 0 ?
+                <div>
+                    <Typography variant={"body1"} color={"GrayText"}>Все решения проверены.</Typography>
+                </div> :
                 <div>
                     {filteredUnratedSolutions.map((solution, i) => (
                         <Grid item>
