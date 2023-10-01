@@ -209,8 +209,10 @@ namespace HwProj.CoursesService.API.Services
 
             var studentCourses = await Task.WhenAll(getStudentCoursesTasks).ConfigureAwait(false);
 
+            //TODO: refactor CourseMates & NewStudents
             var getMentorCoursesTask = _coursesRepository
                 .FindAll(c => c.MentorIds.Contains(userId))
+                .Include(c => c.CourseMates)
                 .Include(c => c.Homeworks).ThenInclude(t => t.Tasks)
                 .ToArrayAsync();
 

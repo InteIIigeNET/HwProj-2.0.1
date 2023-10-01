@@ -174,6 +174,44 @@ export namespace CategorizedNotifications {
 /**
  * 
  * @export
+ * @interface CourseEvents
+ */
+export interface CourseEvents {
+    /**
+     * 
+     * @type {number}
+     * @memberof CourseEvents
+     */
+    id?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof CourseEvents
+     */
+    name?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CourseEvents
+     */
+    groupName?: string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof CourseEvents
+     */
+    isCompleted?: boolean;
+    /**
+     * 
+     * @type {number}
+     * @memberof CourseEvents
+     */
+    newStudentsCount?: number;
+}
+
+/**
+ * 
+ * @export
  * @interface CoursePreviewView
  */
 export interface CoursePreviewView {
@@ -1494,10 +1532,10 @@ export interface UserDataDto {
     userData?: AccountDataDto;
     /**
      * 
-     * @type {Array<CoursePreviewView>}
+     * @type {Array<CourseEvents>}
      * @memberof UserDataDto
      */
-    courses?: Array<CoursePreviewView>;
+    courseEvents?: Array<CourseEvents>;
     /**
      * 
      * @type {Array<TaskDeadlineView>}

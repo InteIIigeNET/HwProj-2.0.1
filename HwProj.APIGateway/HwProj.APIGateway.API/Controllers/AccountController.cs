@@ -54,10 +54,23 @@ namespace HwProj.APIGateway.API.Controllers
             if (User.IsInRole(Roles.LecturerRole))
             {
                 var courses = await _coursesClient.GetAllUserCourses();
+                var courseEvents = courses
+                    .Where(t => !t.IsCompleted)
+                    .Select(t => new CourseEvents
+                    {
+                        Id = t.Id,
+                        Name = t.Name,
+                        GroupName = t.GroupName,
+                        IsCompleted = t.IsOpen,
+                        NewStudentsCount = t.CourseMates.Count(x => !x.IsAccepted)
+                    })
+                    .Where(t => t.NewStudentsCount > 0)
+                    .ToArray();
+
                 return Ok(new UserDataDto
                 {
                     UserData = accountData,
-                    Courses = await GetCoursePreviews(courses),
+                    CourseEvents = courseEvents,
                     TaskDeadlines = Array.Empty<TaskDeadlineView>()
                 });
             }
@@ -127,7 +140,7 @@ namespace HwProj.APIGateway.API.Controllers
             var result = await AuthServiceClient.InviteNewLecturer(model).ConfigureAwait(false);
             return Ok(result);
         }
-        
+
         [HttpPut("editExternal")]
         [Authorize]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
