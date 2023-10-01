@@ -150,6 +150,8 @@ namespace HwProj.Utils.Configuration
             app.UseMvc();
 
             context?.Database.EnsureCreated();
+            context?.Database.Migrate();
+
             return app;
         }
 
