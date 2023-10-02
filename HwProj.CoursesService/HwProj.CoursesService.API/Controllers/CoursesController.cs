@@ -141,7 +141,7 @@ namespace HwProj.CoursesService.API.Controllers
             for (var i = 0; i < coursesFromDb.Length; ++i)
             {
                 var assignments = await _assignmentsRepository.GetAllByCourseAsync(coursesFromDb[i].Id);
-                CourseViewModelsDomain.GetAssignmentsViewModels(courses[i].CourseMates, assignments);
+                courses[i].Assignments = CourseViewModelsDomain.GetAssignmentsViewModels(courses[i].CourseMates, assignments);
             }
 
             return courses;

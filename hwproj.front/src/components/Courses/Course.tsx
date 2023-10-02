@@ -106,7 +106,7 @@ const Course: React.FC = () => {
 
     const showStatsTab = isMentor || isAcceptedStudent
     const showApplicationsTab = isMentor
-    const showAssignmentTab = isMentor && !isReadingMode
+    const showAssignmentTab = isMentor
 
     const freeStudentsCount = assignments.find(a => a.mentorId == null)?.studentIds?.length ?? 0
 
@@ -123,22 +123,9 @@ const Course: React.FC = () => {
         }
     }
 
-    const putUserInMentorsFirst = (course: CourseViewModel) => {
-        const userIndex = course.mentors!.findIndex(mentor => mentor.userId === userId)
-        if (userIndex === -1) {
-            return
-        }
-
-        const temp = course.mentors![userIndex]
-        course.mentors![userIndex] = course.mentors![0]
-        course.mentors![0] = temp
-    }
-
     const setCurrentState = async () => {
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+courseId!)
         const solutions = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdGet(+courseId!)
-
-        putUserInMentorsFirst(course)
 
         setCourseState(prevState => ({
             ...prevState,
@@ -158,15 +145,7 @@ const Course: React.FC = () => {
         setCurrentState()
     }, [])
     
-    const initialTab = () => {
-        if (tab === "assignments" && !showAssignmentTab) {
-            navigate(`/courses/${courseId}/homeworks`)
-        } else {
-            changeTab(tab || "homeworks")
-        }
-    }
-
-    useEffect(() => initialTab(), [tab, courseId, isFound])
+    useEffect(() => changeTab(tab || "homeworks"), [tab, courseId, isFound])
 
     const joinCourse = async () => {
         await ApiSingleton.coursesApi

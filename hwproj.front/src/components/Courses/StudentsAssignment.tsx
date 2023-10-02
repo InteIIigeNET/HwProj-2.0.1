@@ -136,7 +136,8 @@ const StudentsAssignment: FC<IStudentAssignmentProps> = (props) => {
                     </TableHead>
                     <TableBody>
                         {
-                        props.mentors.map((mentor, index) => (
+                        [props.mentors.find(m => m.userId === props.userId)!, ...props.mentors.filter(m => m.userId !== props.userId)]
+                            .map((mentor, index) => (
                             <TableRow key={index} hover style={{ height: 65 }}>
                                 <TableCell
                                     style={index === 0 ? UserCellStyle : OtherCellStyle}
