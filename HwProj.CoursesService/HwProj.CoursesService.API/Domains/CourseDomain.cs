@@ -5,9 +5,9 @@ using HwProj.Models.CoursesService.ViewModels;
 
 namespace HwProj.CoursesService.API.Domains
 {
-    public static class CourseViewModelsDomain
+    public static class CourseDomain
     {
-        public static AssignmentsViewModel[] GetAssignmentsViewModels(IEnumerable<CourseMateViewModel> courseMates, IEnumerable<Assignment> assignments)
+        public static AssignmentsViewModel[] GetAssignments(IEnumerable<CourseMateViewModel> courseMates, IEnumerable<Assignment> assignments)
         {
             return courseMates.Where(cm => cm.IsAccepted)
                 .GroupBy(cm => assignments.Where(a => a.StudentId == cm.StudentId)?.FirstOrDefault()?.MentorId)

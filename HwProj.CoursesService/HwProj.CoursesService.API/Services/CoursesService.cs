@@ -81,7 +81,7 @@ namespace HwProj.CoursesService.API.Services
                     Id = g.Id,
                     StudentsIds = g.GroupMates.Select(t => t.StudentId).ToArray()
                 }).ToArray();
-            result.Assignments = CourseViewModelsDomain.GetAssignmentsViewModels(result.CourseMates, assignments);
+            result.Assignments = CourseDomain.GetAssignments(result.CourseMates, assignments);
 
             return result;
         }
