@@ -2,7 +2,8 @@ import {TaskDeadlineView} from "../../api";
 import * as React from "react";
 import {NavLink, Link} from "react-router-dom";
 import {Divider, Grid, ListItem, Typography} from "@material-ui/core";
-import {Badge, LinearProgress} from "@mui/material";
+import {Chip, LinearProgress} from "@mui/material";
+import {colorBetween} from "../../services/JsUtils";
 
 interface ITaskDeadlinesProps {
     taskDeadlines: TaskDeadlineView[]
@@ -17,16 +18,23 @@ export class TaskDeadlines extends React.Component<ITaskDeadlinesProps, {}> {
         return this.clamp((currentDateNumber - startDateNumber) * 100 / (endDateNumber - startDateNumber), 0, 100)
     }
 
+    renderBadgeLabel = (text: string) =>
+        <Typography style={{color: "white", fontSize: "small"}} variant={"subtitle2"}>{text}</Typography>
+
     renderBadge = (solutionState: TaskDeadlineView.SolutionStateEnum | null,
                    rating: number | null,
                    maxRating: number | null) => {
         if (solutionState === null)
-            return <Badge color="error" badgeContent="Не решено" variant="standard" style={{width: 80}}/>
+            return <Chip color="error" size={"small"} style={{height: 20}}
+                         label={this.renderBadgeLabel("Не решено")}/>
 
         if (solutionState === 0) //POSTED
-            return <Badge color="info" badgeContent="Ожидает проверки" variant="standard" style={{width: 140}}/>
+            return <Chip color="info" size={"small"} style={{height: 20}}
+                         label={this.renderBadgeLabel("Ожидает проверки")}/>
 
-        return <Badge color="success" badgeContent={`⭐ ${rating}/${maxRating}`} variant="standard" style={{width: 70}}/>
+        const color = colorBetween(0xff0000, 0x2cba00, Math.min(rating!, maxRating!) / maxRating! * 100)
+        return <Chip size={"small"} style={{height: 20, backgroundColor: color}}
+                     label={this.renderBadgeLabel(`⭐ ${rating}/${maxRating}`)}/>
     }
 
     public render() {
@@ -41,7 +49,8 @@ export class TaskDeadlines extends React.Component<ITaskDeadlinesProps, {}> {
                                 key={deadline!.taskId}
                                 style={{padding: 0}}
                             >
-                                <Grid container>
+                                <Grid container direction={"row"} spacing={1}
+                                      style={{justifyContent: "space-between"}}>
                                     <Grid item>
                                         <NavLink
                                             to={`/task/${deadline!.taskId}`}
