@@ -19,7 +19,7 @@ namespace HwProj.CoursesService.API.Models
         
         public bool IsDeadlineStrict { get; set; }
 
-        public DateTime PublicationDate { get; set; }
+        public DateTime? PublicationDate { get; set; }
 
         public long HomeworkId { get; set; }
         

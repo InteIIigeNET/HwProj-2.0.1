@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
@@ -13,6 +14,7 @@ using HwProj.Models;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
 using Microsoft.EntityFrameworkCore;
+using HwProj.CoursesService.API.Domains;
 
 namespace HwProj.CoursesService.API.Controllers
 {
@@ -128,8 +130,8 @@ namespace HwProj.CoursesService.API.Controllers
         public async Task<CourseDTO[]> GetUserCourses(string role)
         {
             var userId = Request.GetUserIdFromHeader();
-            var coursesFromDb = await _coursesService.GetUserCoursesAsync(userId, role);
-            var courses = _mapper.Map<CourseDTO[]>(coursesFromDb).ToArray();
+            var courses = await _coursesService.GetUserCoursesAsync(userId, role);
+
             return courses;
         }
 
@@ -169,6 +171,8 @@ namespace HwProj.CoursesService.API.Controllers
                 .ThenInclude(t => t.Tasks)
                 .ToListAsync();
 
+            CourseDomain.FillTasksInCourses(courses);
+
             var result = courses
                 .SelectMany(course => course.Homeworks
                     .SelectMany(x => x.Tasks)
@@ -181,7 +185,7 @@ namespace HwProj.CoursesService.API.Controllers
                         TaskId = task.Id,
                         TaskTitle = task.Title,
                         CourseTitle = course.Name + " / " + course.GroupName,
-                        PublicationDate = task.PublicationDate,
+                        PublicationDate = task.PublicationDate ?? DateTime.MinValue,
                         MaxRating = task.MaxRating,
                         DeadlineDate = task.DeadlineDate!.Value
                     }))

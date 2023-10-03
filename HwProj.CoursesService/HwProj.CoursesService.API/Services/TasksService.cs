@@ -6,6 +6,7 @@ using HwProj.CoursesService.API.Repositories;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models;
 using HwProj.Models.CoursesService.ViewModels;
+using HwProj.CoursesService.API.Domains;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -31,7 +32,15 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<HomeworkTask> GetTaskAsync(long taskId)
         {
-            return await _tasksRepository.GetAsync(taskId);
+            var task = await _tasksRepository.GetAsync(taskId);
+
+            if (task.PublicationDate == null)
+            {
+                var homework = await _homeworksRepository.GetAsync(task.HomeworkId);
+                CourseDomain.FillSpecificTaskInHomework(task, homework);
+            }
+
+            return task;
         }
 
         public async Task<long> AddTaskAsync(long homeworkId, HomeworkTask task)

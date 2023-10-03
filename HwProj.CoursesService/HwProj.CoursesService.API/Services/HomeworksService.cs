@@ -1,11 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.CoursesService.API.Events;
-using HwProj.Models;
 using HwProj.Models.CoursesService.ViewModels;
+using HwProj.CoursesService.API.Domains;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -26,7 +27,6 @@ namespace HwProj.CoursesService.API.Services
         public async Task<long> AddHomeworkAsync(long courseId, Homework homework)
         {
             homework.CourseId = courseId;
-            homework.Date = DateTimeUtils.GetMoscowNow();
 
             var course = await _coursesRepository.GetWithCourseMatesAsync(courseId);
             var courseModel = _mapper.Map<CourseDTO>(course);
@@ -37,7 +37,11 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<Homework> GetHomeworkAsync(long homeworkId)
         {
-            return await _homeworksRepository.GetWithTasksAsync(homeworkId);
+            var homework = await _homeworksRepository.GetWithTasksAsync(homeworkId);
+
+            CourseDomain.FillAllTasksInHomework(homework);
+
+            return homework;
         }
 
         public async Task DeleteHomeworkAsync(long homeworkId)

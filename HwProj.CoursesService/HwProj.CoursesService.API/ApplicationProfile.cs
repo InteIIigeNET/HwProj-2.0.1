@@ -2,6 +2,7 @@
 using HwProj.CoursesService.API.Models;
 using HwProj.Models.CoursesService.ViewModels;
 using System;
+using System.Linq;
 using HwProj.Models;
 
 namespace HwProj.CoursesService.API
@@ -23,7 +24,9 @@ namespace HwProj.CoursesService.API
             CreateMap<CourseMate, CourseMateViewModel>();
 
             CreateMap<CreateHomeworkViewModel, Homework>();
-            CreateMap<Homework, HomeworkViewModel>();
+            CreateMap<Homework, HomeworkViewModel>()
+                .ForMember("IsDeferred",
+                    cm => cm.MapFrom(g => DateTimeUtils.GetMoscowNow() < g.Tasks.Select(t => t.PublicationDate).Min()));
             CreateMap<HomeworkTask, HomeworkTaskViewModel>().ReverseMap();
             CreateMap<HomeworkTask, HomeworkTaskViewModel>()
                 .ForMember("IsDeferred", cm => cm.MapFrom(g => DateTimeUtils.GetMoscowNow() < g.PublicationDate));

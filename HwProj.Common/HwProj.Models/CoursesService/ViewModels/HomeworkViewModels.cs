@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -12,6 +13,14 @@ namespace HwProj.Models.CoursesService.ViewModels
         
         public string Description { get; set; }
 
+        public bool HasDeadline { get; set; }
+
+        public DateTime? DeadlineDate { get; set; }
+
+        public bool IsDeadlineStrict { get; set; }
+
+        public DateTime PublicationDate { get; set; }
+
         public List<CreateTaskViewModel> Tasks { get; set; } = new List<CreateTaskViewModel>();
     }
 
@@ -22,10 +31,18 @@ namespace HwProj.Models.CoursesService.ViewModels
         public string Title { get; set; }
         
         public string Description { get; set; }
-        
-        public DateTime Date { get; set; }
-        
+
+        public bool HasDeadline { get; set; }
+
+        public DateTime? DeadlineDate { get; set; }
+
+        public bool IsDeadlineStrict { get; set; }
+
+        public DateTime PublicationDate { get; set; }
+
         public long CourseId { get; set; }
+
+        public bool IsDeferred { get; set; }
 
         public List<HomeworkTaskViewModel> Tasks { get; set; } = new List<HomeworkTaskViewModel>();
     }

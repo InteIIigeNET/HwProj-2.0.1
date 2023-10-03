@@ -10,6 +10,7 @@ using HwProj.CoursesService.API.Repositories.Groups;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
+using HwProj.CoursesService.API.Domains;
 using HwProj.Models.Roles;
 using Microsoft.EntityFrameworkCore;
 
@@ -48,7 +49,11 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<Course[]> GetAllAsync()
         {
-            return await _coursesRepository.GetAllWithCourseMatesAndHomeworks().ToArrayAsync();
+            var courses = await _coursesRepository.GetAllWithCourseMatesAndHomeworks().ToArrayAsync();
+
+            CourseDomain.FillTasksInCourses(courses);
+
+            return courses;
         }
 
         public async Task<CourseDTO?> GetByTaskAsync(long taskId)
@@ -66,6 +71,8 @@ namespace HwProj.CoursesService.API.Services
         {
             var course = await _coursesRepository.GetWithCourseMatesAsync(id);
             if (course == null) return null;
+
+            CourseDomain.FillTasksInCourses(new [] { course });
 
             var groups = _groupsRepository.GetGroupsWithGroupMatesByCourse(course.Id).ToArray();
             var result = _mapper.Map<CourseDTO>(course);
@@ -195,8 +202,10 @@ namespace HwProj.CoursesService.API.Services
             return true;
         }
 
-        public async Task<Course[]> GetUserCoursesAsync(string userId, string role)
+        public async Task<CourseDTO[]> GetUserCoursesAsync(string userId, string role)
         {
+            Course[] courses;
+
             if (role == Roles.StudentRole)
             {
                 var studentCoursesIds = await _courseMatesRepository
@@ -204,17 +213,21 @@ namespace HwProj.CoursesService.API.Services
                     .Select(cm => cm.CourseId)
                     .ToArrayAsync();
 
-                return await _coursesRepository.FindAll(t => studentCoursesIds.Contains(t.Id)).ToArrayAsync();
+                courses =  await _coursesRepository.FindAll(t => studentCoursesIds.Contains(t.Id)).ToArrayAsync();
+            }
+            else
+            {
+                //TODO: refactor CourseMates & NewStudents
+                courses = await _coursesRepository
+                    .FindAll(c => c.MentorIds.Contains(userId))
+                    .Include(c => c.CourseMates)
+                    .Include(c => c.Homeworks).ThenInclude(t => t.Tasks)
+                    .ToArrayAsync();
+
+                CourseDomain.FillTasksInCourses(courses);
             }
 
-            //TODO: refactor CourseMates & NewStudents
-            var getMentorCoursesTask = _coursesRepository
-                .FindAll(c => c.MentorIds.Contains(userId))
-                .Include(c => c.CourseMates)
-                .Include(c => c.Homeworks).ThenInclude(t => t.Tasks)
-                .ToArrayAsync();
-
-            return await getMentorCoursesTask;
+            return _mapper.Map<CourseDTO[]>(courses).ToArray();
         }
 
         public async Task<bool> AcceptLecturerAsync(long courseId, string lecturerEmail, string lecturerId)

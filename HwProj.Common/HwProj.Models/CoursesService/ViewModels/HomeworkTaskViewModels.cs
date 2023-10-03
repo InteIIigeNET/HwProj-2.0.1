@@ -22,7 +22,7 @@ namespace HwProj.Models.CoursesService.ViewModels
 
         [JsonProperty] public bool CanSendSolution => !IsDeadlineStrict || DateTimeUtils.GetMoscowNow() <= DeadlineDate;
 
-        public DateTime PublicationDate { get; set; }
+        public DateTime? PublicationDate { get; set; }
 
         public long HomeworkId { get; set; }
 
@@ -43,7 +43,7 @@ namespace HwProj.Models.CoursesService.ViewModels
 
         public bool IsDeadlineStrict { get; set; }
 
-        public DateTime PublicationDate { get; set; }
+        public DateTime? PublicationDate { get; set; }
 
         [Required] public int MaxRating { get; set; }
 
