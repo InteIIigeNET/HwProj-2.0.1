@@ -14,6 +14,7 @@ using HwProj.Models.SolutionsService;
 using HwProj.SolutionsService.Client;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace HwProj.APIGateway.API.Controllers
 {
@@ -223,7 +224,7 @@ namespace HwProj.APIGateway.API.Controllers
 
         [HttpPost("rateSolution/{solutionId}")]
         [Authorize(Roles = Roles.LecturerRole)]
-        public async Task<IActionResult> RateSolution(long solutionId, 
+        public async Task<IActionResult> RateSolution(long solutionId,
             RateSolutionModel rateSolutionModel)
         {
             await _solutionsClient.RateSolution(solutionId, rateSolutionModel);
@@ -251,17 +252,32 @@ namespace HwProj.APIGateway.API.Controllers
         public async Task<UnratedSolutionPreviews> GetUnratedSolutions(long? taskId)
         {
             var mentorCourses = await _coursesServiceClient.GetAllUserCourses();
-            var tasks = FilterTasks(mentorCourses, taskId).ToDictionary(t => t.taskId, t => t.data);
+            var mentorStudentIds = mentorCourses
+                .Select(course => course.Assignments
+                    .Where(assignment => assignment.MentorId == UserId)
+                    .Select(a => a.StudentIds))
+                .SelectMany(x => x.SelectMany(y => y));
 
+
+            foreach (var course in mentorCourses)
+            {
+                var mentorAssignment = course.Assignments.FirstOrDefault(assignment => assignment.MentorId == UserId);
+
+                if (mentorAssignment == default(AssignmentsViewModel) || mentorAssignment.StudentIds.Length == 0)
+                {
+                    var emptyAssignment = course.Assignments.FirstOrDefault(assignment => assignment.MentorId == null);
+                    if (emptyAssignment != null)
+                    {
+                        mentorStudentIds = mentorStudentIds.Union(emptyAssignment.StudentIds);
+                    }
+                }
+            }
+
+            var tasks = FilterTasks(mentorCourses, taskId).ToDictionary(t => t.taskId, t => t.data);
             var taskIds = tasks.Select(t => t.Key).ToArray();
 
-            var mentorsStudentfulCourses = mentorCourses.Where(c => c.Assignments.Select(a => a.MentorId).Contains(UserId)).Select(c => c.Id).ToHashSet();
-
             var allSolutions = await _solutionsClient.GetAllUnratedSolutionsForTasks(taskIds);
-            var solutions = allSolutions
-                .Where(solution => mentorsStudentfulCourses.Contains(tasks[solution.TaskId].course.Id)
-                ? tasks[solution.TaskId].course.Assignments.First(a => a.MentorId == UserId).StudentIds.Contains(solution.StudentId)
-                : tasks[solution.TaskId].course.Assignments.FirstOrDefault(a => a.MentorId == null)?.StudentIds.Contains(solution.StudentId) ?? false);
+            var solutions = allSolutions.Where(solution => mentorStudentIds.Contains(solution.StudentId));
 
             var studentIds = solutions?.Select(t => t.StudentId).Distinct().ToArray();
             var accountsData = await AuthServiceClient.GetAccountsData(studentIds);
