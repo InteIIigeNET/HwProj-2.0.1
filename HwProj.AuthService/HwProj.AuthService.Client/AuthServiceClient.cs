@@ -232,5 +232,23 @@ namespace HwProj.AuthService.Client
                 ? await response.DeserializeAsync<Result>()
                 : Result.Failed(response.ReasonPhrase);
         }
+
+        public async Task<Result> EmailConfirmation(ConfirmationEmailVievModel model)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _authServiceUri + "api/account/emailConfirmation")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(model),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return response.IsSuccessStatusCode
+                ? await response.DeserializeAsync<Result>()
+                : Result.Failed(response.ReasonPhrase);
+        }
     }
 }

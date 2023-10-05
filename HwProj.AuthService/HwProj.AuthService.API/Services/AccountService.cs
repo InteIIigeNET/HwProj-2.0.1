@@ -242,6 +242,15 @@ namespace HwProj.AuthService.API.Services
                 : Result.Failed(string.Join(", ", removeTokenResult.Errors.Select(t => t.Description)));
         }
 
+        public async Task<Result> EmailConfirmation(string userId, string token)
+        {
+            var user = await _aspUserManager.FindByIdAsync(userId);
+            if (user == null) return Result.Failed("Пользователь не найден");
+
+            await _aspUserManager.ConfirmEmailAsync(user, token);
+            return Result.Success();
+        }
+
         private Task<IdentityResult> ChangeUserNameTask(User user, EditDataDTO model)
         {
             if (!string.IsNullOrWhiteSpace(model.Name))

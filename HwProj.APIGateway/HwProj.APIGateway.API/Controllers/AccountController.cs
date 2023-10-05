@@ -164,11 +164,17 @@ namespace HwProj.APIGateway.API.Controllers
         {
             return await AuthServiceClient.RequestPasswordRecovery(model);
         }
-
+        
         [HttpPost("resetPassword")]
         public async Task<Result> ResetPassword(ResetPasswordViewModel model)
         {
             return await AuthServiceClient.ResetPassword(model);
+        }
+        
+        [HttpPost("emailConfirmation")]
+        public async Task<Result> EmailConfirmation([FromQuery] ConfirmationEmailVievModel model)
+        {
+            return await AuthServiceClient.EmailConfirmation(model);
         }
     }
 }
