@@ -101,7 +101,7 @@ const TaskSolutionsPage: FC = () => {
                         })}
                     </Stack>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid item xs={12} style={{marginTop: "15px"}}>
                     <Task
                         task={taskSolutionPage.task}
                         forStudent={true}

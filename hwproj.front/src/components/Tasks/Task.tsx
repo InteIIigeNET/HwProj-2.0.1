@@ -67,7 +67,7 @@ const Task: FC<ITaskProp> = (props) => {
     const classes = useStyles()
 
     return (
-        <div style={{width: '100%', marginTop: "15px"}}>
+        <div style={{width: '100%'}}>
             <Accordion expanded={props.isExpanded ? true : undefined}>
                 <AccordionSummary
                     expandIcon={!props.isExpanded ? <ExpandMoreIcon/> : undefined}

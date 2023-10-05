@@ -22,15 +22,17 @@ const HomeworkTasks: FC<IHomeworkTasksProps> = (props) => {
                 .sort((t1, t2) => new Date(t1.publicationDate!).getTime() - new Date(t2.publicationDate!).getTime())
                 .map((task: any) => {
                     return (
-                        <Task
-                            task={task}
-                            forStudent={props.forStudent}
-                            forMentor={props.forMentor}
-                            isReadingMode={props.isReadingMode}
-                            onDeleteClick={() => props.onDelete()}
-                            isExpanded={false}
-                            showForCourse={true}
-                        />
+                        <div style={{marginTop: "15px"}}>
+                            <Task
+                                task={task}
+                                forStudent={props.forStudent}
+                                forMentor={props.forMentor}
+                                isReadingMode={props.isReadingMode}
+                                onDeleteClick={() => props.onDelete()}
+                                isExpanded={false}
+                                showForCourse={true}
+                            />
+                        </div>
                     )
                 }).reverse()}
         </div>

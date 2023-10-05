@@ -1,28 +1,29 @@
 import * as React from "react";
-import {
-    AccountDataDto, GetSolutionModel,
-    HomeworkTaskViewModel,
-    Solution, TaskSolutionsStats
-} from "../../api/";
+import {FC, useEffect, useState} from "react";
+import {AccountDataDto, GetSolutionModel, HomeworkTaskViewModel, Solution, TaskSolutionsStats} from "../../api/";
 import Typography from "@material-ui/core/Typography";
 import Task from "../Tasks/Task";
 import TaskSolutions from "./TaskSolutions";
 import ApiSingleton from "../../api/ApiSingleton";
-import {FC, useEffect, useState} from "react";
 import {CircularProgress, Grid} from "@material-ui/core";
-import {useNavigate, useParams} from "react-router-dom";
+import {Link, useNavigate, useParams} from "react-router-dom";
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import {
+    Alert,
     Chip,
+    FormControl,
+    InputLabel,
     List,
     ListItemButton,
     ListItemText,
+    MenuItem,
+    OutlinedInput,
+    Select,
+    SelectChangeEvent,
     Stack,
-    Alert,
     Tooltip
 } from "@mui/material";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
-import {Link} from 'react-router-dom';
 
 import Step from '@mui/material/Step';
 import StepButton from '@mui/material/StepButton';
@@ -34,8 +35,8 @@ interface IStudentSolutionsPageState {
     isLoaded: boolean
     allSolutionsRated: boolean,
     courseId: number,
-    taskSolutionsStats: TaskSolutionsStats[],
-    studentSolutionsPreview: {
+    allTaskSolutionsStats: TaskSolutionsStats[],
+    allStudentSolutionsPreview: {
         student: AccountDataDto,
         solutions: GetSolutionModel[]
         lastSolution: Solution,
@@ -44,6 +45,19 @@ interface IStudentSolutionsPageState {
         ratedSolutionsCount: number,
         solutionsDescription: string
     }[]
+}
+
+type Filter = "Только непроверенные"
+const FilterStorageKey = "StudentSolutionsPage"
+
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const FilterProps = {
+    PaperProps: {
+        style: {
+            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP
+        },
+    },
 }
 
 const StudentSolutionsPage: FC = () => {
@@ -57,19 +71,39 @@ const StudentSolutionsPage: FC = () => {
         task: {},
         isLoaded: false,
         courseId: -1,
-        taskSolutionsStats: [],
-        studentSolutionsPreview: [],
+        allTaskSolutionsStats: [],
+        allStudentSolutionsPreview: [],
     })
+    const [filterState, setFilterState] = React.useState<Filter[]>(
+        localStorage.getItem(FilterStorageKey)?.split(", ").filter(x => x != "").map(x => x as Filter) || []
+    )
+    console.log(filterState)
+    const handleFilterChange = (event: SelectChangeEvent<typeof filterState>) => {
+        const {target: {value}} = event
+        const filters = filterState.length > 0 ? [] : ["Только непроверенные" as Filter]
+        localStorage.setItem(FilterStorageKey, filters.join(", "))
+        setFilterState(filters)
+    }
+
+    const showOnlyUnrated = filterState.some(x => x === "Только непроверенные")
 
     const {
         isLoaded,
         currentStudentId,
         currentTaskId,
-        studentSolutionsPreview,
+        allStudentSolutionsPreview,
         allSolutionsRated,
         courseId,
-        taskSolutionsStats
+        allTaskSolutionsStats
     } = studentSolutionsState
+
+    const taskSolutionsStats = showOnlyUnrated
+        ? allTaskSolutionsStats.filter(x => x.countUnratedSolutions && x.countUnratedSolutions > 0)
+        : allTaskSolutionsStats
+
+    const studentSolutionsPreview = showOnlyUnrated
+        ? allStudentSolutionsPreview.filter(x => x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0)
+        : allStudentSolutionsPreview
 
     const getTaskData = async (taskId: string, studentId: string) => {
         const fullUpdate = currentTaskId !== taskId
@@ -94,8 +128,8 @@ const StudentSolutionsPage: FC = () => {
             isLoaded: true,
             currentStudentId: studentId,
             currentTaskId: taskId,
-            taskSolutionsStats: statsForTasks!,
-            studentSolutionsPreview: studentSolutionsPreview,
+            allTaskSolutionsStats: statsForTasks!,
+            allStudentSolutionsPreview: studentSolutionsPreview,
             courseId: courseId!,
             allSolutionsRated: studentSolutionsPreview.findIndex(x => x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0) === -1
         })
@@ -154,6 +188,20 @@ const StudentSolutionsPage: FC = () => {
                 </Grid>
                 <Grid container spacing={3} style={{marginTop: '1px'}}>
                     <Grid item xs={3}>
+                        <FormControl fullWidth>
+                            <InputLabel>Фильтр</InputLabel>
+                            <Select
+                                size={"medium"}
+                                value={filterState}
+                                onChange={handleFilterChange}
+                                input={<OutlinedInput label="Фильтр"/>}
+                                MenuProps={FilterProps}
+                            >
+                                <MenuItem key="Только непроверенные" value={"Только непроверенные" as Filter}>
+                                    Только непроверенные
+                                </MenuItem>
+                            </Select>
+                        </FormControl>
                         <List>
                             {studentSolutionsPreview!.map(({
                                                                color,
