@@ -111,6 +111,7 @@ class App extends Component<{ navigate: any }, AppState> {
                     <Route path="resetPassword" element={<ResetPassword/>}/>
                     <Route path={"*"} element={<WrongPath/>}/>
                 </Routes>
+                <div style={{marginBottom: 10}}/>
             </>
         );
     }

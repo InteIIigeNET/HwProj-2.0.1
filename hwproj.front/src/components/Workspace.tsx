@@ -4,7 +4,7 @@ import ApiSingleton from "api/ApiSingleton";
 import {UnratedSolutionPreviews, UserDataDto} from "../api/";
 import "./Styles/Profile.css";
 import {FC, useEffect, useState} from "react";
-import {Link as RouterLink, useNavigate, useParams} from "react-router-dom";
+import {Link as RouterLink, useParams} from "react-router-dom";
 import {makeStyles} from "@material-ui/styles";
 import EditIcon from "@material-ui/icons/Edit";
 import {TaskDeadlines} from "./Tasks/TaskDeadlines";
@@ -25,7 +25,6 @@ const useStyles = makeStyles(() => ({
 
 const Workspace: FC = () => {
     const {id} = useParams()
-    const navigate = useNavigate()
 
     const [profileState, setProfileState] = useState<IWorkspaceState>({
         isLoaded: false,
@@ -120,7 +119,7 @@ const Workspace: FC = () => {
                                     <Chip size={"small"} color={"default"}
                                           label={(unratedSolutionPreviews!.unratedSolutions!.length)}/>
                                 </Stack>}/>}
-                            {isLecturer && <Tab label={<Stack direction="row" spacing={1}>
+                            {isLecturer && courseEvents!.length > 0 && <Tab label={<Stack direction="row" spacing={1}>
                                 <div>Курсы</div>
                                 <Chip size={"small"} color={"default"}
                                       label={(courseEvents!.length)}/>
