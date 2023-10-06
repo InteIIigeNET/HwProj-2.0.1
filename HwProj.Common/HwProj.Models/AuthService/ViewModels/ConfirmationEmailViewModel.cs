@@ -1,6 +1,6 @@
 ﻿namespace HwProj.Models.AuthService.ViewModels;
 
-public class ConfirmationEmailVievModel
+public class ConfirmationEmailViewModel
 {
     public string UserId { get; set; }
     public string Token { get; set; }

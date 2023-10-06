@@ -233,7 +233,7 @@ namespace HwProj.AuthService.Client
                 : Result.Failed(response.ReasonPhrase);
         }
 
-        public async Task<Result> EmailConfirmation(ConfirmationEmailVievModel model)
+        public async Task<Result> EmailConfirmation(ConfirmationEmailViewModel model)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,

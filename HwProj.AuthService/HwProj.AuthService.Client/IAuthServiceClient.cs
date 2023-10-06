@@ -22,6 +22,6 @@ namespace HwProj.AuthService.Client
         Task<bool> Ping();
         Task<Result> RequestPasswordRecovery(RequestPasswordRecoveryViewModel model);
         Task<Result> ResetPassword(ResetPasswordViewModel model);
-        Task<Result> EmailConfirmation(ConfirmationEmailVievModel model);
+        Task<Result> EmailConfirmation(ConfirmationEmailViewModel model);
     }
 }

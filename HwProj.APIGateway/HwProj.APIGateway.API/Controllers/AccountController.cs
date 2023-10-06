@@ -172,7 +172,7 @@ namespace HwProj.APIGateway.API.Controllers
         }
         
         [HttpPost("emailConfirmation")]
-        public async Task<Result> EmailConfirmation([FromQuery] ConfirmationEmailVievModel model)
+        public async Task<Result> EmailConfirmation([FromQuery] ConfirmationEmailViewModel model)
         {
             return await AuthServiceClient.EmailConfirmation(model);
         }
