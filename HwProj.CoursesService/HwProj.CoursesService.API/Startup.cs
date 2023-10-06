@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Threading.Channels;
-using Hangfire;
-using Hangfire.SqlServer;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
@@ -29,16 +27,6 @@ namespace HwProj.CoursesService.API
         public void ConfigureServices(IServiceCollection services)
         {
             var connectionString = ConnectionString.GetConnectionString(Configuration);
-            
-            // Add Hangfire services.
-            services.AddHangfire(configuration => configuration
-                .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
-                .UseSimpleAssemblyNameTypeSerializer()
-                .UseRecommendedSerializerSettings()
-                .UseSqlServerStorage(Configuration.GetConnectionString("HangfireConnection")));
-            
-            // Add the processing server as IHostedService
-            services.AddHangfireServer();
             
             services.AddDbContext<CourseContext>(options => options.UseSqlServer(connectionString));
             services.AddScoped<ICoursesRepository, CoursesRepository>();

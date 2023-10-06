@@ -6,6 +6,8 @@ using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
 using HwProj.Utils.Configuration;
+using Hangfire;
+using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -29,6 +31,17 @@ namespace HwProj.NotificationsService.API
         public void ConfigureServices(IServiceCollection services)
         {
             var connectionString = ConnectionString.GetConnectionString(Configuration);
+            
+            // Add Hangfire services.
+            services.AddHangfire(configuration => configuration
+                .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UseSqlServerStorage(Configuration.GetConnectionString("HangfireConnection")));
+
+            // Add the processing server as IHostedService
+            services.AddHangfireServer();
+            
             services.AddDbContext<NotificationsContext>(options => options.UseSqlServer(connectionString));
             services.AddScoped<INotificationsRepository, NotificationsRepository>();
             services.AddScoped<INotificationSettingsRepository, NotificationSettingsRepository>();
@@ -73,7 +86,8 @@ namespace HwProj.NotificationsService.API
                 eventBustSubscriber.Subscribe<NewCourseMateEvent, NewCourseMateHandler>();
                 eventBustSubscriber.Subscribe<PasswordRecoveryEvent, PasswordRecoveryEventHandler>();
             }
-
+            
+            app.UseHangfireDashboard();
             app.ConfigureHwProj(env, "Notifications API", context);
         }
     }

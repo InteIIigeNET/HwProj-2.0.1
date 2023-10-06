@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using Hangfire;
 using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
@@ -48,19 +47,15 @@ namespace HwProj.CoursesService.API.Services
             var courseModel = _mapper.Map<CourseDTO>(course);
 
             var taskId = await _tasksRepository.AddAsync(task);
-            BackgroundJob.Schedule(()
-                    => _eventBus.Publish(new NewHomeworkTaskEvent(task.Title, taskId, task.DeadlineDate,
-                        courseModel)),
-                task.PublicationDate.Subtract(FromHours(3)));
+
+            if (task.PublicationDate <= DateTimeUtils.GetMoscowNow())
+                _eventBus.Publish(new NewHomeworkTaskEvent(task.Title, taskId, task.DeadlineDate, courseModel));
 
             return taskId;
         }
 
         public async Task DeleteTaskAsync(long taskId)
         {
-            var task = await _tasksRepository.GetAsync(taskId);
-            DeleteJobsByTask(task);
-
             await _tasksRepository.DeleteAsync(taskId);
         }
 
@@ -71,6 +66,7 @@ namespace HwProj.CoursesService.API.Services
             var homework = await _homeworksRepository.GetAsync(task.HomeworkId);
             var course = await _coursesRepository.GetWithCourseMatesAsync(homework.CourseId);
             var courseModel = _mapper.Map<CourseDTO>(course);
+            _eventBus.Publish(new UpdateTaskMaxRatingEvent(courseModel, taskModel, update.MaxRating));
 
             await _tasksRepository.UpdateAsync(taskId, t => new HomeworkTask()
             {
@@ -82,33 +78,6 @@ namespace HwProj.CoursesService.API.Services
                 IsDeadlineStrict = update.IsDeadlineStrict,
                 PublicationDate = update.PublicationDate
             });
-
-            DeleteJobsByTask(task);
-
-            BackgroundJob.Schedule(()
-                    => _eventBus.Publish(new UpdateTaskMaxRatingEvent(courseModel, taskModel, update.MaxRating)),
-                update.PublicationDate.Subtract(FromHours(3)));
-        }
-
-
-        private void DeleteJobsByTask(HomeworkTask task)
-        {
-            if (task.PublicationDate <= DateTimeUtils.GetMoscowNow()) return;
-
-            var monitor = JobStorage.Current.GetMonitoringApi();
-            var jobsScheduled = monitor.ScheduledJobs(0, int.MaxValue)
-                .Where(x => x.Value.Job.Method.Name == nameof(_eventBus.Publish));
-            
-            foreach (var job in jobsScheduled)
-            {
-                if ((job.Value.Job.Args[0] is NewHomeworkTaskEvent newHomeworkTaskEvent
-                     && newHomeworkTaskEvent.TaskId == task.Id) ||
-                    (job.Value.Job.Args[0] is UpdateTaskMaxRatingEvent updateTaskMaxRatingEvent
-                     && updateTaskMaxRatingEvent.Task.Id == task.Id))
-                {
-                    BackgroundJob.Delete(job.Key);
-                }
-            }
         }
     }
 }
