@@ -156,8 +156,6 @@ const Course: React.FC = () => {
         .filter(t => t!.solution!.slice(-1)[0]?.state === 0) //last solution
         .length
 
-
-    //"Вы продолжите получать уведомления о {isCourseMentor}новых заявках на вступление и решениях.";
     if (isFound) {
         return (
             <div className="container">
