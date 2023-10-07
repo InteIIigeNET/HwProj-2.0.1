@@ -14,6 +14,7 @@ namespace HwProj.APIGateway.API.Models.Solutions
         public DateTime PublicationDate { get; set; }
         public bool IsFirstTry { get; set; }
         public bool SentAfterDeadline { get; set; }
+        public bool IsCourseCompleted { get; set; }
     }
 
     public class UnratedSolutionPreviews

@@ -274,7 +274,8 @@ namespace HwProj.APIGateway.API.Controllers
                         PublicationDate = solution.PublicationDate,
                         IsFirstTry = solution.IsFirstTry,
                         SentAfterDeadline = solution.IsFirstTry && task.DeadlineDate != null &&
-                                            solution.PublicationDate > task.DeadlineDate
+                                            solution.PublicationDate > task.DeadlineDate,
+                        IsCourseCompleted = course.IsCompleted
                     };
                 })
                 .ToArray();

@@ -61,7 +61,7 @@ namespace HwProj.APIGateway.API.Controllers
                         Id = t.Id,
                         Name = t.Name,
                         GroupName = t.GroupName,
-                        IsCompleted = t.IsOpen,
+                        IsCompleted = !t.IsOpen,
                         NewStudentsCount = t.CourseMates.Count(x => !x.IsAccepted)
                     })
                     .Where(t => t.NewStudentsCount > 0)
