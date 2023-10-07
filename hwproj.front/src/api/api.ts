@@ -1144,6 +1144,12 @@ export interface SolutionPreviewView {
      * @memberof SolutionPreviewView
      */
     sentAfterDeadline?: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof SolutionPreviewView
+     */
+    isCourseCompleted?: boolean;
 }
 
 /**

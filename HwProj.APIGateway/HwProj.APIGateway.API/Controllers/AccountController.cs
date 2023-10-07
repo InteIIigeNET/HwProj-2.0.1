@@ -55,13 +55,12 @@ namespace HwProj.APIGateway.API.Controllers
             {
                 var courses = await _coursesClient.GetAllUserCourses();
                 var courseEvents = courses
-                    .Where(t => !t.IsCompleted)
                     .Select(t => new CourseEvents
                     {
                         Id = t.Id,
                         Name = t.Name,
                         GroupName = t.GroupName,
-                        IsCompleted = t.IsOpen,
+                        IsCompleted = t.IsCompleted,
                         NewStudentsCount = t.CourseMates.Count(x => !x.IsAccepted)
                     })
                     .Where(t => t.NewStudentsCount > 0)
