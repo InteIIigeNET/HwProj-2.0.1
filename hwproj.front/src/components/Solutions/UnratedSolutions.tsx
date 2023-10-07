@@ -195,7 +195,11 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
                                 {solution.isFirstTry && solution.sentAfterDeadline &&
                                     <Chip color="error" label="Дедлайн" size={"small"} style={{marginLeft: 10}}/>}
                                 {!solution.isFirstTry &&
-                                    <Chip color="secondary" label="Повторно" size={"small"} style={{marginLeft: 10}}/>}
+                                    <Chip color="secondary" label="Повторно" size={"small"}
+                                          style={{marginLeft: 10}}/>}
+                                {solution.isCourseCompleted &&
+                                    <Chip style={{color: "GrayText", marginLeft: 10}} label="Курс завершен"
+                                          size={"small"}/>}
                             </ListItem>
                             <Typography style={{fontSize: "18px", color: "GrayText"}}>
                                 {solution.courseTitle + " • " + solution.homeworkTitle}
