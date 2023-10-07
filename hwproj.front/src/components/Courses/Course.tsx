@@ -12,7 +12,7 @@ import {useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import VisibilityIcon from '@material-ui/icons/Visibility';
-import {Chip, Stack} from "@mui/material";
+import {Alert, AlertTitle, Chip, Stack} from "@mui/material";
 import CourseExperimental from "./CourseExperimental";
 import {useParams, useNavigate} from 'react-router-dom';
 import MentorsList from "../Common/MentorsList";
@@ -156,12 +156,24 @@ const Course: React.FC = () => {
         .filter(t => t!.solution!.slice(-1)[0]?.state === 0) //last solution
         .length
 
+
+    //"Вы продолжите получать уведомления о {isCourseMentor}новых заявках на вступление и решениях.";
     if (isFound) {
         return (
             <div className="container">
-                <Grid style={{marginBottom: '50px'}}>
-                    <Grid container style={{marginTop: "15px"}}>
-                        <Grid container xs={11} className={classes.info}>
+                <Grid style={{marginBottom: '50px', marginTop: "15px"}}>
+                    <Grid container direction={"column"} spacing={1}>
+                        {course.isCompleted && <Grid item>
+                            <Alert severity="warning">
+                                <AlertTitle>Курс завершен!</AlertTitle>
+                                {isAcceptedStudent
+                                    ? "Вы можете отправлять решения и получать уведомления об их проверке."
+                                    : isCourseMentor
+                                        ? "Вы продолжите получать уведомления о новых заявках на вступление и решениях."
+                                        : !isLecturer ? "Вы можете записаться на курс и отправлять решения." : ""}
+                            </Alert>
+                        </Grid>}
+                        <Grid item container xs={11} className={classes.info}>
                             <Grid item>
                                 <Typography style={{fontSize: '22px'}}>
                                     {`${course.name} / ${course.groupName}`} &nbsp;
@@ -187,12 +199,12 @@ const Course: React.FC = () => {
                                         </RouterLink>
                                     )}
                                 </Typography>
-                                <MentorsList mentors={mentors} />
+                                <MentorsList mentors={mentors}/>
                                 {isCourseMentor && <div><Switch value={showExperimentalFeature}
-                                                          onChange={(e, checked) => setCourseState(prevState => ({
-                                                              ...prevState,
-                                                              showExperimentalFeature: checked
-                                                          }))}/> Включить экспериментальный режим отображения
+                                                                onChange={(e, checked) => setCourseState(prevState => ({
+                                                                    ...prevState,
+                                                                    showExperimentalFeature: checked
+                                                                }))}/> Включить экспериментальный режим отображения
                                 </div>}
                             </Grid>
                             <Grid item style={{width: '187px'}}>
