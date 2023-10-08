@@ -44,16 +44,16 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
             var scheduleWork = new ScheduleWork
             {
-                ScheduleWorkId = @event.TaskId,
+                Id = @event.TaskId,
                 JobId = jobId,
-                ScheduleWorkType = @event.Type
+                Type = typeof(NewHomeworkTaskEvent)
             };
 
             await _scheduleWorksRepository.AddAsync(scheduleWork);
         }
 
         
-        public override async Task ScheduleWorkAsync(NewHomeworkTaskEvent @event)
+        protected override async Task ScheduleWorkAsync(NewHomeworkTaskEvent @event)
         {
             var studentIds = @event.Course.CourseMates.Select(t => t.StudentId).ToArray();
             var accountsData = await _authServiceClient.GetAccountsData(studentIds);

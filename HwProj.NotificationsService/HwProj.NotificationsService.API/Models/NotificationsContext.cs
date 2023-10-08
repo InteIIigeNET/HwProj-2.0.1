@@ -22,7 +22,7 @@ namespace HwProj.NotificationsService.API.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<ScheduleWork>().Ignore(work => work.ScheduleWorkType);
+            modelBuilder.Entity<ScheduleWork>().Ignore(work => work.Type);
         }
     }
 }

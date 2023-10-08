@@ -7,8 +7,8 @@ namespace HwProj.CoursesService.API.Events
     public class NewHomeworkTaskEvent : ScheduleEvent
     {
         public NewHomeworkTaskEvent(string taskTitle, long taskId, DateTime? deadline,
-            DateTime publicationDate,CourseDTO course, Type type)
-            : base(taskId, publicationDate, type)
+            DateTime publicationDate,CourseDTO course)
+            : base(taskId, publicationDate)
         {
             TaskTitle = taskTitle;
             TaskId = taskId;

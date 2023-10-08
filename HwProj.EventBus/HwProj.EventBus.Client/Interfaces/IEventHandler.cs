@@ -18,12 +18,12 @@ namespace HwProj.EventBus.Client.Interfaces
     public abstract class ScheduleEventHandlerBase<TScheduleEvent>
         : EventHandlerBase<TScheduleEvent> where TScheduleEvent : ScheduleEvent
     {
-        public abstract Task ScheduleWorkAsync(TScheduleEvent @event);
+        protected abstract Task ScheduleWorkAsync(TScheduleEvent @event);
     }
 
-    public abstract class UpdateScheduleEventHandlerBase<TScheduleEvent>
-        : ScheduleEventHandlerBase<TScheduleEvent> where TScheduleEvent : ScheduleEvent
+    public abstract class UpdateScheduleEventHandlerBase<TUpdateScheduleEvent>
+        : ScheduleEventHandlerBase<TUpdateScheduleEvent> where TUpdateScheduleEvent : UpdateScheduleEvent
     {
-        public abstract Task DeletePreviousScheduleWorkAsync(TScheduleEvent @event);
+        protected abstract Task DeletePreviousScheduleWorkAsync(TUpdateScheduleEvent @event);
     }
 }
