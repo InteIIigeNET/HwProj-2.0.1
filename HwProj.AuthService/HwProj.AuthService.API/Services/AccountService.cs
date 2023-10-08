@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
 using System.Linq;
@@ -77,7 +77,7 @@ namespace HwProj.AuthService.API.Services
 
             if (result.Succeeded)
             {
-                return Result.Success();
+                return Result.Success;
             }
 
             return Result.Failed();
@@ -113,53 +113,60 @@ namespace HwProj.AuthService.API.Services
                 : await GetToken(user);
         }
 
-        public async Task<Result<TokenCredentials>> RegisterUserAsync(RegisterDataDTO model)
+        public async Task<Result> SendEmailConfirmationToken(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+                return Result.Failed("Такого пользователя не существует");
+            if (user.EmailConfirmed)
+                return Result.Failed("У пользователя уже подтверждена почта");
+
+            var emailConfirmationToken = await _aspUserManager.GenerateEmailConfirmationTokenAsync(user);
+            var registerEvent = new EmailConfirmationEvent
+            {
+                UserId = user.Id,
+                Name = user.Name,
+                Surname = user.Surname,
+                MiddleName = user.MiddleName,
+                Email = user.Email,
+                EmailConfirmationToken = emailConfirmationToken
+            };
+            _eventBus.Publish(registerEvent);
+            return Result.Success;
+        }
+
+        public async Task<Result> RegisterUserAsync(RegisterDataDTO model)
         {
             if (await _userManager.FindByEmailAsync(model.Email) != null)
             {
-                return Result<TokenCredentials>.Failed("Пользователь уже зарегистрирован");
+                return Result.Failed("Пользователь уже зарегистрирован");
             }
 
             if (!model.IsExternalAuth && model.Password.Length < 6)
             {
-                return Result<TokenCredentials>.Failed("Пароль должен содержать не менее 6 символов");
+                return Result.Failed("Пароль должен содержать не менее 6 символов");
             }
 
             if (!model.IsExternalAuth && model.Password != model.PasswordConfirm)
             {
-                return Result<TokenCredentials>.Failed("Пароли не совпадают");
+                return Result.Failed("Пароли не совпадают");
             }
+
             var user = _mapper.Map<User>(model);
             user.UserName = user.Email.Split('@')[0];
 
             var createUserTask = model.IsExternalAuth
                 ? _userManager.CreateAsync(user)
                 : _userManager.CreateAsync(user, model.Password);
-            
+
             var result = await createUserTask
                 .Then(() => _userManager.AddToRoleAsync(user, Roles.StudentRole))
-                .Then(() =>
-                {
-                    user.EmailConfirmed = true;
-                    return _userManager.UpdateAsync(user);
-                });
+                .Then(() => _userManager.UpdateAsync(user));
 
             if (result.Succeeded)
-            {
-                var newUser = await _userManager.FindByEmailAsync(model.Email).ConfigureAwait(false);
-                var registerEvent = new StudentRegisterEvent(newUser.Id, newUser.Email, newUser.Name,
-                    newUser.Surname, newUser.MiddleName);
-                _eventBus.Publish(registerEvent);
+                return await SendEmailConfirmationToken(user.Email);
 
-                if (!model.IsExternalAuth)
-                {
-                    await SignIn(user, model.Password);
-                }
-
-                return await GetToken(user);
-            }
-
-            return Result<TokenCredentials>.Failed(result.Errors.Select(errors => errors.Description).ToArray());
+            return Result.Failed(result.Errors.Select(errors => errors.Description).ToArray());
         }
 
         public async Task<Result> InviteNewLecturer(string emailOfInvitedUser)
@@ -182,7 +189,7 @@ namespace HwProj.AuthService.API.Services
                     UserEmail = invitedUser.Email
                 };
                 _eventBus.Publish(inviteEvent);
-                return Result.Success();
+                return Result.Success;
             }
 
             return Result.Failed("Пользователь уже является преподавателем");
@@ -211,7 +218,7 @@ namespace HwProj.AuthService.API.Services
             };
             _eventBus.Publish(passwordRecoveryEvent);
 
-            return Result.Success();
+            return Result.Success;
         }
 
         public async Task<Result> ResetPassword(ResetPasswordViewModel model)
@@ -238,7 +245,7 @@ namespace HwProj.AuthService.API.Services
                 UserManager<User>.ResetPasswordTokenPurpose);
 
             return removeTokenResult.Succeeded
-                ? Result.Success()
+                ? Result.Success
                 : Result.Failed(string.Join(", ", removeTokenResult.Errors.Select(t => t.Description)));
         }
 
@@ -248,7 +255,7 @@ namespace HwProj.AuthService.API.Services
             if (user == null) return Result.Failed("Пользователь не найден");
 
             await _aspUserManager.ConfirmEmailAsync(user, token);
-            return Result.Success();
+            return Result.Success;
         }
 
         private Task<IdentityResult> ChangeUserNameTask(User user, EditDataDTO model)

@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using HwProj.AuthService.API.Events;
 using HwProj.EventBus.Client.Interfaces;
@@ -25,7 +25,7 @@ public class ConfirmationEmailEventHandler : EventHandlerBase<EmailConfirmationE
     public override async Task HandleAsync(EmailConfirmationEvent @event)
     {
         var frontendUrl = _configuration.GetSection("Notification")["Url"];
-        var confirmationLink = $"{frontendUrl}/emailConfirmation?={@event.UserId}&{@event.Token}";
+        var confirmationLink = $"{frontendUrl}/emailConfirmation?={@event.UserId}&{@event.EmailConfirmationToken}";
         var emailNotification = new Notification
         {
             Sender = "AuthService",
