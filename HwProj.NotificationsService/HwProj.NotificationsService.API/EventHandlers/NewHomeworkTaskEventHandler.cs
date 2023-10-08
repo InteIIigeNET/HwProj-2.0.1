@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using HwProj.AuthService.Client;
@@ -6,31 +7,53 @@ using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.CoursesService.API.Events;
 using HwProj.Models;
+using Hangfire;
+using HwProj.EventBus.Client;
 using HwProj.NotificationsService.API.Services;
+using Microsoft.Azure.KeyVault.Models;
 using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {
-    public class NewHomeworkTaskEventHandler : EventHandlerBase<NewHomeworkTaskEvent>
+    public class NewHomeworkTaskEventHandler : ScheduleEventHandlerBase<NewHomeworkTaskEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
+        private readonly IScheduleWorksRepository _scheduleWorksRepository;
         private readonly IAuthServiceClient _authServiceClient;
         private readonly IConfigurationSection _configuration;
         private readonly IEmailService _emailService;
 
         public NewHomeworkTaskEventHandler(
             INotificationsRepository notificationRepository,
+            IScheduleWorksRepository scheduleWorksRepository,
             IAuthServiceClient authServiceClient,
             IConfiguration configuration,
             IEmailService emailService)
         {
             _notificationRepository = notificationRepository;
+            _scheduleWorksRepository = scheduleWorksRepository;
             _authServiceClient = authServiceClient;
             _emailService = emailService;
             _configuration = configuration.GetSection("Notification");
         }
 
         public override async Task HandleAsync(NewHomeworkTaskEvent @event)
+        {
+            var jobId = BackgroundJob.Schedule(() => ScheduleWorkAsync(@event),
+                @event.PublicationDate.Subtract(TimeSpan.FromHours(3)));
+
+            var scheduleWork = new ScheduleWork
+            {
+                ScheduleWorkId = @event.TaskId,
+                JobId = jobId,
+                ScheduleWorkType = @event.Type
+            };
+
+            await _scheduleWorksRepository.AddAsync(scheduleWork);
+        }
+
+        
+        public override async Task ScheduleWorkAsync(NewHomeworkTaskEvent @event)
         {
             var studentIds = @event.Course.CourseMates.Select(t => t.StudentId).ToArray();
             var accountsData = await _authServiceClient.GetAccountsData(studentIds);

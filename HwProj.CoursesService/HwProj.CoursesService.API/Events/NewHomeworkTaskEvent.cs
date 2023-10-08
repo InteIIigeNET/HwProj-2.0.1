@@ -4,9 +4,11 @@ using HwProj.Models.CoursesService.ViewModels;
 
 namespace HwProj.CoursesService.API.Events
 {
-    public class NewHomeworkTaskEvent : Event
+    public class NewHomeworkTaskEvent : ScheduleEvent
     {
-        public NewHomeworkTaskEvent(string taskTitle, long taskId, DateTime? deadline, CourseDTO course)
+        public NewHomeworkTaskEvent(string taskTitle, long taskId, DateTime? deadline,
+            DateTime publicationDate,CourseDTO course, Type type)
+            : base(taskId, publicationDate, type)
         {
             TaskTitle = taskTitle;
             TaskId = taskId;

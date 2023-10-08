@@ -7,6 +7,7 @@ namespace HwProj.NotificationsService.API.Models
     {
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<NotificationsSetting> Settings { get; set; }
+        public DbSet<ScheduleWork> ScheduleWorks { get; set; }
 
         public NotificationsContext(DbContextOptions options)
             : base(options)
@@ -17,6 +18,11 @@ namespace HwProj.NotificationsService.API.Models
         {
             modelBuilder.Entity<NotificationsSetting>().HasIndex(n => n.UserId);
             modelBuilder.Entity<NotificationsSetting>().HasKey(n => new { n.UserId, n.Category });
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<ScheduleWork>().Ignore(work => work.ScheduleWorkType);
         }
     }
 }

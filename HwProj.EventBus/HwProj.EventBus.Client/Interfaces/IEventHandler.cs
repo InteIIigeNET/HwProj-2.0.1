@@ -14,4 +14,16 @@ namespace HwProj.EventBus.Client.Interfaces
 
         public abstract Task HandleAsync(TEvent @event);
     }
+
+    public abstract class ScheduleEventHandlerBase<TScheduleEvent>
+        : EventHandlerBase<TScheduleEvent> where TScheduleEvent : ScheduleEvent
+    {
+        public abstract Task ScheduleWorkAsync(TScheduleEvent @event);
+    }
+
+    public abstract class UpdateScheduleEventHandlerBase<TScheduleEvent>
+        : ScheduleEventHandlerBase<TScheduleEvent> where TScheduleEvent : ScheduleEvent
+    {
+        public abstract Task DeletePreviousScheduleWorkAsync(TScheduleEvent @event);
+    }
 }

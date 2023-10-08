@@ -45,6 +45,7 @@ namespace HwProj.NotificationsService.API
             services.AddDbContext<NotificationsContext>(options => options.UseSqlServer(connectionString));
             services.AddScoped<INotificationsRepository, NotificationsRepository>();
             services.AddScoped<INotificationSettingsRepository, NotificationSettingsRepository>();
+            services.AddScoped<IScheduleWorksRepository, ScheduleWorksRepository>();
             services.AddEventBus(Configuration);
             services.AddTransient<IEventHandler<StudentRegisterEvent>, RegisterEventHandler>();
             services.AddTransient<IEventHandler<RateEvent>, RateEventHandler>();
@@ -63,7 +64,7 @@ namespace HwProj.NotificationsService.API
 
             services.AddHttpClient();
             services.AddAuthServiceClient();
-
+            
             services.ConfigureHwProjServices("Notifications API");
         }
 

@@ -23,4 +23,20 @@ namespace HwProj.EventBus.Client
             CreationData = data;
         }
     }
+
+    public class ScheduleEvent : Event
+    {
+        public long ScheduleWorkId { get; set; }
+        
+        public Type Type { get; set; }
+        
+        public DateTime PublicationDate { get; set; }
+
+        protected ScheduleEvent(long scheduleWorkId, DateTime publicationDate, Type type)
+        {
+            ScheduleWorkId = scheduleWorkId;
+            PublicationDate = publicationDate;
+            Type = type;
+        }
+    }
 }
