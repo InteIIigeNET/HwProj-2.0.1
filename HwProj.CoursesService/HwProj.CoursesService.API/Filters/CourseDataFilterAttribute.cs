@@ -32,6 +32,9 @@ namespace HwProj.CoursesService.API.Filters
                                 currentDate >= t.PublicationDate));
                     }
 
+                    courseDto.Homeworks =
+                        courseDto.Homeworks.Where(h => h.Tasks.Count != 0 || currentDate >= h.PublicationDate).ToArray();
+
                     courseDto.CourseMates = courseDto.CourseMates
                         .Where(t => t.IsAccepted || t.StudentId == userId)
                         .ToArray();

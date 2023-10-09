@@ -7,6 +7,7 @@ using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.CoursesService.API.Domains;
+using System.Linq;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -34,12 +35,6 @@ namespace HwProj.CoursesService.API.Services
         {
             var task = await _tasksRepository.GetAsync(taskId);
 
-            if (task.PublicationDate == null)
-            {
-                var homework = await _homeworksRepository.GetAsync(task.HomeworkId);
-                CourseDomain.FillSpecificTaskInHomework(task, homework);
-            }
-
             return task;
         }
 
@@ -49,12 +44,14 @@ namespace HwProj.CoursesService.API.Services
 
             var homework = await _homeworksRepository.GetAsync(task.HomeworkId);
             var course = await _coursesRepository.GetWithCourseMatesAsync(homework.CourseId);
-            var courseModel = _mapper.Map<CourseDTO>(course);
+                var courseModel = _mapper.Map<CourseDTO>(course);
 
             var taskId = await _tasksRepository.AddAsync(task);
+            var deadlineDate = task.PublicationDate == null ? homework.DeadlineDate : task.DeadlineDate;
+            var studentIds = courseModel.CourseMates.Select(cm => cm.StudentId).ToArray();
 
             if (task.PublicationDate <= DateTimeUtils.GetMoscowNow())
-                _eventBus.Publish(new NewHomeworkTaskEvent(task.Title, taskId, task.DeadlineDate, courseModel));
+                _eventBus.Publish(new NewHomeworkTaskEvent(task.Title, taskId, deadlineDate, courseModel.Name, studentIds, courseModel.Id));
 
             return taskId;
         }

@@ -6,7 +6,7 @@ namespace HwProj.CoursesService.API.Events
 {
     public class NewHomeworkEvent : Event
     {
-        public NewHomeworkEvent(string homeworkTitle, string courseName, string[] studentIds, DateTime? deadlineDate, int courseId)
+        public NewHomeworkEvent(string homeworkTitle, string courseName, string[] studentIds, DateTime? deadlineDate, long courseId)
         {
             HomeworkTitle = homeworkTitle;
             CourseName = courseName;
@@ -17,7 +17,7 @@ namespace HwProj.CoursesService.API.Events
 
         public string HomeworkTitle { get; set; }
         public string CourseName { get; set; }
-        public int CourseId { get; set; }
+        public long CourseId { get; set; }
         public DateTime? DeadlineDate { get; set; }
         public string[] StudentIds { get; set; }
     }

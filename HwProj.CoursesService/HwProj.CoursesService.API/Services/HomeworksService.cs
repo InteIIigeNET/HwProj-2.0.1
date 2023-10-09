@@ -7,6 +7,7 @@ using HwProj.EventBus.Client.Interfaces;
 using HwProj.CoursesService.API.Events;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.CoursesService.API.Domains;
+using HwProj.Models;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -30,7 +31,17 @@ namespace HwProj.CoursesService.API.Services
 
             var course = await _coursesRepository.GetWithCourseMatesAsync(courseId);
             var courseModel = _mapper.Map<CourseDTO>(course);
-            _eventBus.Publish(new NewHomeworkEvent(homework.Title, courseModel));
+            var studentIds = courseModel.CourseMates.Select(cm => cm.StudentId).ToArray();
+            var publicationDate = homework.Tasks
+                    .Where(t => t.PublicationDate != null)
+                    .Select(t => t.PublicationDate).Append(homework.PublicationDate)
+                    .Min();
+
+            if (DateTimeUtils.GetMoscowNow() >= publicationDate)
+            {
+                _eventBus.Publish(new NewHomeworkEvent(homework.Title, courseModel.Name, studentIds,
+                    homework.DeadlineDate, courseModel.Id));
+            }
 
             return await _homeworksRepository.AddAsync(homework);
         }
@@ -39,7 +50,7 @@ namespace HwProj.CoursesService.API.Services
         {
             var homework = await _homeworksRepository.GetWithTasksAsync(homeworkId);
 
-            CourseDomain.FillAllTasksInHomework(homework);
+            CourseDomain.FillTasksInHomework(homework);
 
             return homework;
         }
@@ -53,14 +64,27 @@ namespace HwProj.CoursesService.API.Services
         {
             var homework = await _homeworksRepository.GetAsync(homeworkId);
             var course = await _coursesRepository.GetWithCourseMatesAsync(homework.CourseId);
-            var courseModel = _mapper.Map<CourseDTO>(course);
-            var homeworkModel = _mapper.Map<HomeworkViewModel>(homework);
-            _eventBus.Publish(new UpdateHomeworkEvent(homeworkModel, courseModel));
+            var courseModel = _mapper.Map<CourseDTO>(course);   
+            var studentIds = courseModel.CourseMates.Select(cm => cm.StudentId).ToArray();
+            var publicationDate = homework.Tasks
+                .Where(t => t.PublicationDate != null)
+                .Select(t => t.PublicationDate).Append(homework.PublicationDate)
+                .Min();
+
+            if (publicationDate <= DateTimeUtils.GetMoscowNow())
+            {
+                _eventBus.Publish(new UpdateHomeworkEvent(update.Title, courseModel.Id, studentIds, courseModel.Name));
+            }
 
             await _homeworksRepository.UpdateAsync(homeworkId, hw => new Homework()
             {
                 Title = update.Title,
-                Description = update.Description
+                Description = update.Description,
+                HasDeadline = update.HasDeadline,
+                DeadlineDate = update.DeadlineDate,
+                PublicationDate = update.PublicationDate,
+                IsDeadlineStrict = update.IsDeadlineStrict,
+
             });
         }
     }

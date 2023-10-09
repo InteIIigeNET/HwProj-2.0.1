@@ -54,7 +54,11 @@ namespace HwProj.CoursesService.API.Controllers
             await _homeworksService.UpdateHomeworkAsync(homeworkId, new Homework
             {
                 Title = homeworkViewModel.Title,
-                Description = homeworkViewModel.Description
+                Description = homeworkViewModel.Description,
+                HasDeadline = homeworkViewModel.HasDeadline,
+                DeadlineDate = homeworkViewModel.DeadlineDate,
+                PublicationDate = homeworkViewModel.PublicationDate,
+                IsDeadlineStrict = homeworkViewModel.IsDeadlineStrict,
             });
         }
     }
