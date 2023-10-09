@@ -32,8 +32,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
         public override async Task HandleAsync(NewHomeworkTaskEvent @event)
         {
-            var studentIds = @event.Course.CourseMates.Select(t => t.StudentId).ToArray();
-            var accountsData = await _authServiceClient.GetAccountsData(studentIds);
+            var accountsData = await _authServiceClient.GetAccountsData(@event.StudentIds);
             var url = _configuration["Url"];
 
             foreach (var student in accountsData)
@@ -42,9 +41,9 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 {
                     Sender = "CourseService",
                     Body =
-                        $"В курсе <a href='{url}/courses/{@event.Course.Id}'>{@event.Course.Name}</a>" +
+                        $"В курсе <a href='{url}/courses/{@event.CourseId}'>{@event.CourseName}</a>" +
                         $" опубликована новая задача <a href='{url}/task/{@event.TaskId}'>{@event.TaskTitle}</a>." +
-                        (@event.Deadline is { } deadline ? $"\n\nДедлайн: {deadline:U}" : ""),
+                        (@event.DeadlineDate is { } deadline ? $"\n\nДедлайн: {deadline:U}" : ""),
 
                     Category = CategoryState.Homeworks,
                     Date = DateTimeUtils.GetMoscowNow(),

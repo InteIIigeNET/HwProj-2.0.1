@@ -5,13 +5,17 @@ namespace HwProj.CoursesService.API.Events
 {
     public class UpdateHomeworkEvent : Event
     {
-        public HomeworkViewModel Homework { get; set; }
-        public CourseDTO Course { get; set; }
-
-        public UpdateHomeworkEvent(HomeworkViewModel homework, CourseDTO course)
+        public UpdateHomeworkEvent(HomeworkViewModel homework, int courseId, string[] studentIds, string courseName)
         {
+            CourseId = courseId;
             Homework = homework;
-            Course = course;
+            StudentIds = studentIds;
+            CourseName = courseName;
         }
+
+        public HomeworkViewModel Homework { get; set; }
+        public string[] StudentIds { get; set; }
+        public int CourseId { get; set; }
+        public string CourseName { get; set; }
     }
 }

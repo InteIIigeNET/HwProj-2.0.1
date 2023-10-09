@@ -7,32 +7,26 @@ namespace HwProj.CoursesService.API.Domains
 {
     public static class CourseDomain
     {
-        // TODO: Try with null
         public static void FillTasksInCourses(IEnumerable<Course> courses)
         {
             foreach (var course in courses)
             {
                 foreach (var homework in course.Homeworks)
                 {
-                    FillAllTasksInHomework(homework);
+                    FillTasksInHomework(homework);
                 }
             }
         }
 
-        public static void FillAllTasksInHomework(Homework homework)
+        public static void FillTasksInHomework(Homework homework)
         {
             foreach (var task in homework.Tasks.Where(task => task.PublicationDate == null))
             {
-                FillSpecificTaskInHomework(task, homework);
+                task.HasDeadline = homework.HasDeadline;
+                task.DeadlineDate = homework.DeadlineDate;
+                task.PublicationDate = homework.PublicationDate;
+                task.IsDeadlineStrict = homework.IsDeadlineStrict;
             }
-        }
-
-        public static void FillSpecificTaskInHomework(HomeworkTask task, Homework homework)
-        {
-            task.HasDeadline = homework.HasDeadline;
-            task.DeadlineDate = homework.DeadlineDate;
-            task.PublicationDate = homework.PublicationDate;
-            task.IsDeadlineStrict = homework.IsDeadlineStrict;
         }
     }
 }
