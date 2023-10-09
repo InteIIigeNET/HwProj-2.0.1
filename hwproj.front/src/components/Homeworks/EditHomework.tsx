@@ -4,8 +4,9 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
 import EditIcon from '@material-ui/icons/Edit';
-import {Grid, Typography, Button, TextField} from "@material-ui/core";
+import {Grid, Typography, Button, TextField, Checkbox} from "@material-ui/core";
 import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
+import Utils from "../../services/Utils";
 
 interface IEditHomeworkState {
     isLoaded: boolean;
@@ -14,6 +15,10 @@ interface IEditHomeworkState {
     courseId: number;
     courseMentorIds: string[];
     edited: boolean;
+    hasDeadline: boolean;
+    deadlineDate: Date | undefined;
+    isDeadlineStrict: boolean;
+    publicationDate: Date;
 }
 
 const useStyles = makeStyles(theme => ({
@@ -23,7 +28,12 @@ const useStyles = makeStyles(theme => ({
     },
     main: {
         marginTop: "20px"
-    }
+    },
+    checkBox: {
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between",
+    },
 }))
 
 
@@ -37,6 +47,10 @@ const EditHomework: FC = () => {
         courseId: 0,
         courseMentorIds: [],
         edited: false,
+        hasDeadline: false,
+        deadlineDate: new Date(),
+        isDeadlineStrict: false,
+        publicationDate: new Date()
     })
 
     useEffect(() => {
@@ -46,6 +60,8 @@ const EditHomework: FC = () => {
     const getHomework = async () => {
         const homework = await ApiSingleton.homeworksApi.apiHomeworksGetByHomeworkIdGet(+homeworkId!)
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(homework.courseId!)
+
+        
         setEditHomework((prevState) => ({
             ...prevState,
             isLoaded: true,
@@ -53,17 +69,18 @@ const EditHomework: FC = () => {
             description: homework.description!,
             courseId: homework.courseId!,
             courseMentorIds: course.mentors!.map(x => x.userId!),
+            hasDeadline: homework.hasDeadline!,
+            deadlineDate: homework.deadlineDate!,
+            isDeadlineStrict: homework.isDeadlineStrict!,
+            publicationDate: homework.publicationDate!
         }))
     }
 
     const handleSubmit = async (e: any) => {
         e.preventDefault()
-        const homeworkViewModel = {
-            title: editHomework.title,
-            description: editHomework.description,
-        };
+        
         await ApiSingleton.homeworksApi
-            .apiHomeworksUpdateByHomeworkIdPut(+homeworkId!, homeworkViewModel)
+            .apiHomeworksUpdateByHomeworkIdPut(+homeworkId!, editHomework)
 
         setEditHomework((prevState) => ({
             ...prevState,
@@ -116,7 +133,7 @@ const EditHomework: FC = () => {
                             className={classes.main}
                             onSubmit={(e) => handleSubmit(e)}
                         >
-                            <Grid container justifyContent="center">
+                            <Grid container justifyContent="center" spacing={1}>
                                 <Grid item xs={11}>
                                     <TextField
                                         style={{width: '300px'}}
@@ -155,6 +172,86 @@ const EditHomework: FC = () => {
                                         }}
                                     />
                                 </Grid>
+                                <Grid item xs={11} className={classes.checkBox}>
+                                <div>
+                                    <TextField
+                                        id="datetime-local"
+                                        label="Дата публикации"
+                                        type="datetime-local"
+                                        defaultValue={editHomework.publicationDate?.toLocaleString("ru-RU")}
+                                        onChange={(e) => {
+                                            let date = new Date(e.target.value)
+                                            date = Utils.toMoscowDate(date)
+                                            e.persist()
+                                            setEditHomework((prevState) => ({
+                                                ...prevState,
+                                                publicationDate: date,
+                                            }))
+                                        }}
+                                        InputLabelProps={{
+                                            shrink: true,
+                                        }}
+                                    />
+                                    </div>
+                                    <div>
+                                        <label>
+                                            <Checkbox
+                                                color="primary"
+                                                checked={editHomework.hasDeadline}
+                                                onChange={(e) => {
+                                                    e.persist()
+                                                    setEditHomework((prevState) => ({
+                                                        ...prevState,
+                                                        hasDeadline: e.target.checked,
+                                                        isDeadlineStrict: false,
+                                                        deadlineDate: undefined,
+                                                    }))
+                                                }}
+                                            />
+                                            Добавить дедлайн
+                                        </label>
+                                    </div>
+                             </Grid>
+                            {editHomework.hasDeadline &&
+                                <Grid item xs={11} className={classes.checkBox}>
+                                    <div>
+                                        <TextField
+                                            id="datetime-local"
+                                            label="Дедлайн задания"
+                                            type="datetime-local"
+                                            defaultValue={editHomework.deadlineDate?.toLocaleString("ru-RU")}
+                                            InputLabelProps={{
+                                                shrink: true,
+                                            }}
+                                            required
+                                            onChange={(e) => {
+                                                e.persist()
+                                                let date = new Date(e.target.value)
+                                                date = Utils.toMoscowDate(date)
+                                                setEditHomework((prevState) => ({
+                                                    ...prevState,
+                                                    deadlineDate: date,
+                                                }))
+                                            }}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label>
+                                            <Checkbox
+                                                checked={editHomework.isDeadlineStrict}
+                                                color="primary"
+                                                onChange={(e) => {
+                                                    e.persist()
+                                                    setEditHomework((prevState) => ({
+                                                        ...prevState,
+                                                        isDeadlineStrict: e.target.checked
+                                                    }))
+                                                }}
+                                            />
+                                            Запретить отправку после дедлайна
+                                        </label>
+                                    </div>
+                                </Grid>}
                                 <Grid item xs={11}>
                                     <Button
                                         fullWidth

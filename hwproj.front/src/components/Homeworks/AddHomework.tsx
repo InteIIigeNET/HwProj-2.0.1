@@ -1,8 +1,9 @@
 import * as React from "react";
 import ApiSingleton from "../../api/ApiSingleton";
-import {Grid, TextField, Button, Checkbox, Typography} from "@material-ui/core";
+import {Grid, TextField, Button, Checkbox, Typography, Tooltip, Link} from "@material-ui/core";
 import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 import {CreateTaskViewModel} from "../../api";
+import Utils from "../../services/Utils";
 
 interface IAddHomeworkProps {
     id: number;
@@ -15,12 +16,23 @@ interface IAddHomeworkState {
     description: string;
     tasks: CreateTaskViewModel[];
     added: boolean;
+    publicationDate: Date;
+    deadlineDate: Date | undefined;
+    hasDeadline: boolean,
+    isDeadlineStrict: boolean;
 }
 
 export default class AddHomework extends React.Component<IAddHomeworkProps,
     IAddHomeworkState> {
     constructor(props: IAddHomeworkProps) {
         super(props);
+
+        const twoWeeks = 2 * 7 * 24 * 60 * 60 * 1000
+        const now = Date.now()
+
+        const deadlineDate = Utils.toMoscowDate(new Date(now + twoWeeks))
+        deadlineDate.setHours(23, 59, 0, 0)
+
         this.state = {
             title: "",
             description: "",
@@ -28,13 +40,24 @@ export default class AddHomework extends React.Component<IAddHomeworkProps,
                 title: "",
                 description: "",
                 maxRating: 10,
-                publicationDate: new Date(),
+                publicationDate: undefined,
                 hasDeadline: false,
                 deadlineDate: undefined,
                 isDeadlineStrict: false,
             }],
+            publicationDate: this.getInitialPublicationDate(),
+            hasDeadline: true,
+            deadlineDate: Utils.toMoscowDate(deadlineDate),
+            isDeadlineStrict: false,
             added: false,
         };
+    }
+
+    public getInitialPublicationDate() {
+        const publicationDay = Utils.toMoscowDate(new Date(Date.now()))
+        publicationDay.setHours(0, 0, 0, 0)
+
+        return Utils.toMoscowDate(publicationDay)
     }
 
     render() {
@@ -61,6 +84,78 @@ export default class AddHomework extends React.Component<IAddHomeworkProps,
                         value={this.state.description}
                         onChange={(e) => this.setState({description: e.target.value})}
                     />
+                    <Grid
+                        container
+                        direction="row"
+                        alignItems="center"
+                        justifyContent="space-between"
+                    >
+                        <Grid item>
+                            <TextField
+                                size="small"
+                                id="datetime-local"
+                                label="Дата публикации"
+                                type="datetime-local"
+                                defaultValue={this.state.publicationDate?.toISOString().slice(0, -1)}
+                                onChange={(e) => this.setState({publicationDate: new Date(e.target.value)})}
+                                InputLabelProps={{
+                                    shrink: true,
+                                }}
+                            />
+                        </Grid>
+                        <Grid>
+                            <label style={{margin: 0, padding: 0}}>
+                                <Checkbox
+                                    color="primary"
+                                    checked={this.state.hasDeadline}
+                                    onChange={(e) => this.setState({
+                                            hasDeadline: e.target.checked,
+                                            deadlineDate: undefined,
+                                            isDeadlineStrict: false,
+                                            added: false
+                                        })}
+                                />
+                                Добавить дедлайн
+                            </label>
+                        </Grid>
+                    </Grid>
+                    {this.state.hasDeadline && (
+                        <Grid
+                            container
+                            direction="row"
+                            alignItems="center"
+                            justifyContent="space-between"
+                            style={{marginTop: '10px'}}
+                        >
+                            <Grid item>
+                                <TextField
+                                    size="small"
+                                    id="datetime-local"
+                                    label="Дедлайн задания"
+                                    type="datetime-local"
+                                    defaultValue={this.state.deadlineDate?.toISOString().slice(0, -1)}
+                                    onChange={(e) => {
+                                        this.setState({deadlineDate: new Date(e.target.value)});
+                                    }}
+                                    InputLabelProps={{
+                                        shrink: true,
+                                    }}
+                                    required
+                                />
+                            </Grid>
+                            <Grid item>
+                                <label style={{margin: 0, padding: 0}}>
+                                    <Checkbox
+                                        color="primary"
+                                        onChange={(e) => {
+                                            this.setState({isDeadlineStrict: e.target.checked});
+                                        }}
+                                    />
+                                    Запретить отправку решений после дедлайна
+                                </label>
+                            </Grid>
+                        </Grid>
+                    )}
                     <div>
                         <ol>
                             {this.state.tasks.map((task, index) => (
@@ -124,6 +219,38 @@ export default class AddHomework extends React.Component<IAddHomeworkProps,
                                                 this.setState(prevState => prevState)
                                             }}
                                         />
+                                        {task.publicationDate == undefined && <Grid item>
+                                        <Tooltip arrow title={"Позволяет установить даты для определенной задачи"}>
+                                            <Typography variant={"caption"} style={{fontSize: "14px"}}>
+                                                <Link onClick={() => {
+                                                    task.publicationDate = this.getInitialPublicationDate()
+                                                    this.setState(prevState => prevState)
+                                                }}>
+                                                    Нужны особые даты?
+                                                </Link>
+                                            </Typography>
+                                        </Tooltip>
+                                    </Grid>}
+                                                
+                                        {task.publicationDate != undefined &&
+                                            <Grid item>
+                                                <Tooltip arrow title={"Позволяет выставить даты как у домашнего задания"}>
+                                                    <Typography variant={"caption"} style={{fontSize: "14px"}}>
+                                                        <Link onClick={() => {
+                                                            task.hasDeadline = false
+                                                            task.deadlineDate = undefined
+                                                            task.isDeadlineStrict = false
+                                                            task.publicationDate = undefined
+                                                            this.setState(prevState => prevState)
+                                                        }}>
+                                                            Оставить обычные даты
+                                                        </Link>
+                                                    </Typography>
+                                                </Tooltip>
+                                            </Grid>
+                                        }
+                                        
+                                        {task.publicationDate != undefined &&
                                         <Grid
                                             style={{marginTop: "16px"}}
                                             container
@@ -137,7 +264,7 @@ export default class AddHomework extends React.Component<IAddHomeworkProps,
                                                     id="datetime-local"
                                                     label="Дата публикации"
                                                     type="datetime-local"
-                                                    defaultValue={task.publicationDate?.toLocaleString("ru-RU")}
+                                                    defaultValue={task.publicationDate?.toISOString().slice(0, -1)}
                                                     onChange={(e) => task.publicationDate = new Date(e.target.value)}
                                                     InputLabelProps={{
                                                         shrink: true,
@@ -159,6 +286,8 @@ export default class AddHomework extends React.Component<IAddHomeworkProps,
                                                 </label>
                                             </Grid>
                                         </Grid>
+                                        }
+                                        
                                         {task.hasDeadline && (
                                             <Grid
                                                 container
@@ -173,7 +302,7 @@ export default class AddHomework extends React.Component<IAddHomeworkProps,
                                                         id="datetime-local"
                                                         label="Дедлайн задачи"
                                                         type="datetime-local"
-                                                        defaultValue={task.deadlineDate?.toLocaleString("ru-RU")}
+                                                        defaultValue={task.deadlineDate?.toISOString().slice(0, -1)}
                                                         onChange={(e) => {
                                                             task.deadlineDate = new Date(e.target.value)
                                                         }}
@@ -210,7 +339,7 @@ export default class AddHomework extends React.Component<IAddHomeworkProps,
                                         title: "",
                                         description: "",
                                         maxRating: 10,
-                                        publicationDate: new Date(),
+                                        publicationDate: undefined,
                                         hasDeadline: false,
                                         deadlineDate: undefined,
                                         isDeadlineStrict: false,
@@ -248,12 +377,7 @@ export default class AddHomework extends React.Component<IAddHomeworkProps,
     async handleSubmit(e: any) {
         e.preventDefault();
 
-        const homework = {
-            title: this.state.title,
-            description: this.state.description,
-            tasks: this.state.tasks,
-        }
-        await ApiSingleton.homeworksApi.apiHomeworksByCourseIdAddPost(this.props.id, homework)
+        await ApiSingleton.homeworksApi.apiHomeworksByCourseIdAddPost(this.props.id, this.state)
         this.setState({added: true})
         this.props.onSubmit()
     }

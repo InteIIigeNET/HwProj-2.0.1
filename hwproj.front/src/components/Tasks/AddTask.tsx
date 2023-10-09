@@ -1,7 +1,7 @@
 import * as React from "react";
 import ApiSingleton from "../../api/ApiSingleton";
 import Utils from "../../services/Utils";
-import {Grid, Checkbox, Button, TextField, Typography} from "@material-ui/core";
+import {Grid, Checkbox, Button, TextField, Typography, Tooltip, Link} from "@material-ui/core";
 import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 
 interface IAddTaskProps {
@@ -15,35 +15,46 @@ interface AddTaskState {
     title: string
     description: string;
     maxRating: number;
-    publicationDate: Date;
+    publicationDate: Date | undefined;
     hasDeadline: boolean;
-    deadlineDate: Date;
+    deadlineDate: Date | undefined;
     isDeadlineStrict: boolean;
 }
 
 export default class AddTask extends React.Component<IAddTaskProps,
     AddTaskState> {
+        
     constructor(props: IAddTaskProps) {
         super(props);
-
-        const twoWeeks = 2 * 7 * 24 * 60 * 60 * 1000
-        const now = Date.now()
-
-        const publicationDay = Utils.toMoscowDate(new Date(now))
-        publicationDay.setHours(0, 0, 0, 0)
-
-        const deadlineDate = Utils.toMoscowDate(new Date(now + twoWeeks))
-        deadlineDate.setHours(23, 59, 0, 0)
 
         this.state = {
             title: "",
             description: "",
             maxRating: 10,
-            publicationDate: Utils.toMoscowDate(publicationDay),
-            hasDeadline: true,
-            deadlineDate: Utils.toMoscowDate(deadlineDate),
+            publicationDate: undefined,
+            hasDeadline: false,
+            deadlineDate: undefined,
             isDeadlineStrict: false,
         };
+    }
+
+    public getInitialPublicationDate() {
+        const now = Date.now()
+
+        const publicationDay = Utils.toMoscowDate(new Date(now))
+        publicationDay.setHours(0, 0, 0, 0)
+
+        return publicationDay
+    }
+
+    public getInitialDeadlineDate() {
+        const now = Date.now()
+        const twoWeeks = 2 * 7 * 24 * 60 * 60 * 1000
+
+        const deadlineDate = Utils.toMoscowDate(new Date(now + twoWeeks))
+        deadlineDate.setHours(23, 59, 0, 0)
+
+        return deadlineDate
     }
 
     public async handleSubmit(e: any) {
@@ -51,6 +62,7 @@ export default class AddTask extends React.Component<IAddTaskProps,
         await ApiSingleton.tasksApi.apiTasksAddByHomeworkIdPost(this.props.homeworkId, this.state);
         this.props.onAdding()
     }
+
 
     public render() {
         return (
@@ -94,6 +106,37 @@ export default class AddTask extends React.Component<IAddTaskProps,
                                 onChange={(e) => this.setState({description: e.target.value})}
                             />
                         </Grid>
+                        {this.state.publicationDate == undefined && <Grid item>
+                        <Tooltip arrow title={"Позволяет установить даты для определенной задачи"}>
+                            <Typography variant={"caption"} style={{fontSize: "14px"}}>
+                                <Link onClick={() => {
+                                    this.setState({publicationDate: this.getInitialPublicationDate()})
+                                }}>
+                                    Нужны особые даты?
+                                </Link>
+                            </Typography>
+                        </Tooltip>
+                    </Grid>}
+                                
+                        {this.state.publicationDate != undefined &&
+                            <Grid item>
+                                <Tooltip arrow title={"Позволяет выставить даты как у домашнего задания"}>
+                                    <Typography variant={"caption"} style={{fontSize: "14px"}}>
+                                        <Link onClick={() => {
+                                            this.setState({
+                                                hasDeadline: false,
+                                                deadlineDate: undefined,
+                                                isDeadlineStrict: false,
+                                                publicationDate: undefined,
+                                            })
+                                        }}>
+                                            Оставить обычные даты
+                                        </Link>
+                                    </Typography>
+                                </Tooltip>
+                            </Grid>
+                        }      
+                        {this.state.publicationDate != undefined &&             
                         <Grid
                             style={{marginTop: '16px'}}
                             container
@@ -123,7 +166,8 @@ export default class AddTask extends React.Component<IAddTaskProps,
                                         color="primary"
                                         onChange={(e) => {
                                             this.setState({
-                                                hasDeadline: e.target.checked
+                                                hasDeadline: e.target.checked,
+                                                deadlineDate: this.getInitialDeadlineDate()
                                             })
                                         }}
                                         checked={this.state.hasDeadline}
@@ -131,7 +175,7 @@ export default class AddTask extends React.Component<IAddTaskProps,
                                     Добавить дедлайн
                                 </label>
                             </Grid>
-                        </Grid>
+                        </Grid>}
                         {this.state.hasDeadline &&
                             <Grid
                                 container

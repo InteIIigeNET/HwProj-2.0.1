@@ -5,8 +5,9 @@ import {FC, useEffect, useState} from "react";
 import EditIcon from "@material-ui/icons/Edit";
 import {makeStyles} from "@material-ui/styles";
 import Utils from "../../services/Utils";
-import {Checkbox, Typography, Button, TextField, Grid} from "@material-ui/core";
+import {Checkbox, Typography, Button, TextField, Grid, Tooltip, Link as LinkMUI} from "@material-ui/core";
 import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
+import { HomeworkTaskViewModel, HomeworkViewModel } from "api";
 
 interface IEditTaskState {
     isLoaded: boolean;
@@ -19,7 +20,7 @@ interface IEditTaskState {
     hasDeadline: boolean;
     deadlineDate: Date | undefined;
     isDeadlineStrict: boolean;
-    publicationDate: Date;
+    publicationDate: Date | undefined;
 }
 
 const useStyles = makeStyles(theme => ({
@@ -50,9 +51,9 @@ const EditTask: FC = () => {
         courseMentorIds: [],
         edited: false,
         hasDeadline: false,
-        deadlineDate: new Date(),
+        deadlineDate: undefined,
         isDeadlineStrict: false,
-        publicationDate: new Date()
+        publicationDate: undefined
     })
 
     useEffect(() => {
@@ -63,6 +64,8 @@ const EditTask: FC = () => {
         const task = await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+taskId!)
         const homework = await ApiSingleton.homeworksApi.apiHomeworksGetByHomeworkIdGet(task.homeworkId!)
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(homework.courseId!)
+        const isDefaultProps = task.publicationDate == undefined 
+
         setTaskState((prevState) => ({
             ...prevState,
             isLoaded: true,
@@ -74,8 +77,25 @@ const EditTask: FC = () => {
             hasDeadline: task.hasDeadline!,
             deadlineDate: task.deadlineDate!,
             isDeadlineStrict: task.isDeadlineStrict!,
-            publicationDate: task.publicationDate! as Date
+            publicationDate: task.publicationDate!,
         }))
+    }
+
+    const getInitialPublicationDate = () => {
+        const publicationDay = Utils.toMoscowDate(new Date(Date.now()))
+        publicationDay.setHours(0, 0, 0, 0)
+
+        return Utils.toMoscowDate(publicationDay)
+    }
+
+    const getInitialDeadlineDate = () => {
+        const now = Date.now()
+        const twoWeeks = 2 * 7 * 24 * 60 * 60 * 1000
+
+        const deadlineDate = Utils.toMoscowDate(new Date(now + twoWeeks))
+        deadlineDate.setHours(23, 59, 0, 0)
+
+        return deadlineDate
     }
 
     const handleSubmit = async (e: any) => {
@@ -191,7 +211,43 @@ const EditTask: FC = () => {
                                     }}
                                 />
                             </Grid>
-                            <Grid item xs={12} className={classes.checkBox}>
+                            {taskState.publicationDate == undefined && 
+                            <Grid item>
+                                <Tooltip arrow title={"Позволяет установить даты для определенной задачи"}>
+                                    <Typography variant={"caption"} style={{fontSize: "14px"}}>
+                                        <LinkMUI onClick={() => {
+                                            setTaskState((prevState) => ({
+                                                ...prevState,
+                                                publicationDate: getInitialPublicationDate(),
+                                            }))
+                                        }}>
+                                            Нужны особые даты?
+                                        </LinkMUI>
+                                    </Typography>
+                                </Tooltip>
+                            </Grid>}
+                                
+                            {taskState.publicationDate != undefined &&
+                                <Grid item>
+                                    <Tooltip arrow title={"Позволяет выставить даты как у домашнего задания"}>
+                                        <Typography variant={"caption"} style={{fontSize: "14px"}}>
+                                            <LinkMUI onClick={() => {
+                                                setTaskState((prevState) => ({
+                                                    ...prevState,
+                                                    hasDeadline: false,
+                                                    deadlineDate: undefined,
+                                                    isDeadlineStrict: false,
+                                                    publicationDate: undefined,
+                                                }))
+                                            }}>
+                                                Оставить обычные даты
+                                            </LinkMUI>
+                                        </Typography>
+                                    </Tooltip>
+                                </Grid>
+                            }     
+                            {taskState.publicationDate != undefined &&
+                            <Grid item className={classes.checkBox}>
                                 <div>
                                     <TextField
                                         id="datetime-local"
@@ -223,13 +279,14 @@ const EditTask: FC = () => {
                                                     ...prevState,
                                                     hasDeadline: e.target.checked,
                                                     deadlineDate: undefined,
+                                                    isDeadlineStrict: false,
                                                 }))
                                             }}
                                         />
                                         Добавить дедлайн
                                     </label>
                                 </div>
-                            </Grid>
+                            </Grid>}
                             {taskState.hasDeadline &&
                                 <Grid item xs={12} className={classes.checkBox}>
                                     <div>
@@ -237,7 +294,7 @@ const EditTask: FC = () => {
                                             id="datetime-local"
                                             label="Дедлайн задачи"
                                             type="datetime-local"
-                                            defaultValue={taskState.deadlineDate?.toLocaleString("ru-RU")}
+                                            defaultValue={taskState?.deadlineDate?.toLocaleString("ru-RU")}
                                             InputLabelProps={{
                                                 shrink: true,
                                             }}

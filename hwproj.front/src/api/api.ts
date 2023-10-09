@@ -381,6 +381,30 @@ export interface CreateHomeworkViewModel {
     description?: string;
     /**
      * 
+     * @type {boolean}
+     * @memberof CreateHomeworkViewModel
+     */
+    hasDeadline?: boolean;
+    /**
+     * 
+     * @type {Date}
+     * @memberof CreateHomeworkViewModel
+     */
+    deadlineDate?: Date;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof CreateHomeworkViewModel
+     */
+    isDeadlineStrict?: boolean;
+    /**
+     * 
+     * @type {Date}
+     * @memberof CreateHomeworkViewModel
+     */
+    publicationDate?: Date;
+    /**
+     * 
      * @type {Array<CreateTaskViewModel>}
      * @memberof CreateHomeworkViewModel
      */
@@ -707,16 +731,40 @@ export interface HomeworkViewModel {
     description?: string;
     /**
      * 
+     * @type {boolean}
+     * @memberof HomeworkViewModel
+     */
+    hasDeadline?: boolean;
+    /**
+     * 
      * @type {Date}
      * @memberof HomeworkViewModel
      */
-    date?: Date;
+    deadlineDate?: Date;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof HomeworkViewModel
+     */
+    isDeadlineStrict?: boolean;
+    /**
+     * 
+     * @type {Date}
+     * @memberof HomeworkViewModel
+     */
+    publicationDate?: Date;
     /**
      * 
      * @type {number}
      * @memberof HomeworkViewModel
      */
     courseId?: number;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof HomeworkViewModel
+     */
+    isDeferred?: boolean;
     /**
      * 
      * @type {Array<HomeworkTaskViewModel>}

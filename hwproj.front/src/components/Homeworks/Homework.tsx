@@ -56,8 +56,8 @@ const Homework: FC<IHomeworkProps> = (props) => {
     }
 
     const classes = useStyles()
-    const homeworkDateString = new Date(props.homework.date!).toLocaleDateString("ru-RU");
-    const deferredHomeworks = props.homework.tasks!.filter(t => t.isDeferred!);
+    const homeworkPublicationDateString = new Date(props.homework.publicationDate!).toLocaleDateString("ru-RU");
+    const homeworkDeadlineDateString = new Date(props.homework.deadlineDate!).toLocaleDateString("ru-RU");
     return (
         <div style={{width: '100%'}}>
             <Accordion defaultExpanded={props.isExpanded}>
@@ -65,18 +65,18 @@ const Homework: FC<IHomeworkProps> = (props) => {
                     expandIcon={<ExpandMoreIcon/>}
                     aria-controls="panel1a-content"
                     id="panel1a-header"
-                    style={{backgroundColor: "#c6cceb"}}
+                    style={{backgroundColor: props.homework.isDeferred ? "#d3d5db" : "#c6cceb"}}
                 >
                     <div className={classes.tools}>
                         <Stack direction={"row"} spacing={1} alignItems={"center"}>
                             <Typography style={{fontSize: '18px'}}>
                                 {props.homework.title}
                             </Typography>
-                            <Typography>
-                                {homeworkDateString}
-                            </Typography>
-                            {props.forMentor && deferredHomeworks!.length > 0 &&
-                                <Chip label={"🕘 " + deferredHomeworks!.length}/>
+                            {props.forMentor &&
+                            <Chip label={"🕘 " + homeworkPublicationDateString}/>
+                            }
+                            {props.homework.hasDeadline && 
+                            <Chip label={"⌛ " + homeworkDeadlineDateString}/>
                             }
                             <Chip label={props.homework.tasks!.length + " заданий"}/>
                             {props.forMentor && !props.isReadingMode && <div>
