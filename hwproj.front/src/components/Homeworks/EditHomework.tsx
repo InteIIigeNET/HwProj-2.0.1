@@ -7,6 +7,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import {Grid, Typography, Button, TextField, Checkbox} from "@material-ui/core";
 import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 import Utils from "../../services/Utils";
+import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
 
 interface IEditHomeworkState {
     isLoaded: boolean;
@@ -26,14 +27,9 @@ const useStyles = makeStyles(theme => ({
         display: "flex",
         justifyContent: "center",
     },
-    main: {
+    form: {
         marginTop: "20px"
-    },
-    checkBox: {
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "space-between",
-    },
+    }
 }))
 
 
@@ -48,7 +44,7 @@ const EditHomework: FC = () => {
         courseMentorIds: [],
         edited: false,
         hasDeadline: false,
-        deadlineDate: new Date(),
+        deadlineDate: undefined,
         isDeadlineStrict: false,
         publicationDate: new Date()
     })
@@ -61,6 +57,9 @@ const EditHomework: FC = () => {
         const homework = await ApiSingleton.homeworksApi.apiHomeworksGetByHomeworkIdGet(+homeworkId!)
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(homework.courseId!)
 
+        const deadline = homework.deadlineDate == undefined
+            ? undefined
+            : Utils.toMoscowDate(new Date(homework.deadlineDate))
         
         setEditHomework((prevState) => ({
             ...prevState,
@@ -70,9 +69,9 @@ const EditHomework: FC = () => {
             courseId: homework.courseId!,
             courseMentorIds: course.mentors!.map(x => x.userId!),
             hasDeadline: homework.hasDeadline!,
-            deadlineDate: homework.deadlineDate!,
+            deadlineDate: deadline,
             isDeadlineStrict: homework.isDeadlineStrict!,
-            publicationDate: homework.publicationDate!
+            publicationDate: Utils.toMoscowDate(new Date(homework.publicationDate!))
         }))
     }
 
@@ -104,9 +103,9 @@ const EditHomework: FC = () => {
         }
         return (
             <Grid container justifyContent="center">
-                <Grid item xs={9}>
-                    <Grid container justifyContent="center" style={{marginTop: '20px'}}>
-                        <Grid xs={11}>
+                <Grid item xs={8}>
+                    <Grid container style={{marginTop: '20px'}}>
+                        <Grid item xs={11}>
                             <Link
                                 style={{color: '#212529'}}
                                 to={"/courses/" + editHomework.courseId.toString()}
@@ -118,157 +117,90 @@ const EditHomework: FC = () => {
                         </Grid>
                     </Grid>
 
-                    <Grid style={{marginTop: "15px"}}>
-                        <div className={classes.logo}>
-                            <div>
-                                <EditIcon style={{color: 'red'}}/>
-                            </div>
-                            <div>
-                                <Typography style={{fontSize: '22px'}}>
-                                    Редактировать домашнее задание
-                                </Typography>
-                            </div>
+                    <div className={classes.logo}>
+                        <div>
+                            <EditIcon style={{color: 'red'}}/>
                         </div>
-                        <form
-                            className={classes.main}
-                            onSubmit={(e) => handleSubmit(e)}
-                        >
-                            <Grid container justifyContent="center" spacing={1}>
-                                <Grid item xs={11}>
+                        <div>
+                            <Typography style={{fontSize: '22px'}}>
+                                Редактировать домашнее задание
+                            </Typography>
+                        </div>
+                    </div>
+                    <form
+                        onSubmit={(e) => handleSubmit(e)}
+                        className={classes.form}
+                    >
+                        <Grid container spacing={1}>
+                            <Grid container xs={"auto"} spacing={1} direction={"row"}>
+                                <Grid item>
                                     <TextField
-                                        style={{width: '300px'}}
                                         required
+                                        fullWidth
+                                        style={{width: '300px'}}
                                         label="Название задания"
                                         variant="outlined"
                                         margin="normal"
-                                        size="medium"
                                         value={editHomework.title}
                                         onChange={(e) => {
                                             e.persist()
                                             setEditHomework((prevState) => ({
                                                 ...prevState,
-                                                title: e.target.value
+                                                title: e.target.value,
                                             }))
                                         }}
                                     />
-                                </Grid>
-
-                                <Grid item xs={11}>
-                                    <TextFieldWithPreview
-                                        multiline
-                                        minRows="4"
-                                        fullWidth
-                                        maxRows="20"
-                                        label="Описание"
-                                        variant="outlined"
-                                        margin="normal"
-                                        value={editHomework.description}
-                                        onChange={(e) => {
-                                            e.persist()
-                                            setEditHomework((prevState) => ({
-                                                ...prevState,
-                                                description: e.target.value
-                                            }))
-                                        }}
-                                    />
-                                </Grid>
-                                <Grid item xs={11} className={classes.checkBox}>
-                                <div>
-                                    <TextField
-                                        id="datetime-local"
-                                        label="Дата публикации"
-                                        type="datetime-local"
-                                        defaultValue={editHomework.publicationDate?.toLocaleString("ru-RU")}
-                                        onChange={(e) => {
-                                            let date = new Date(e.target.value)
-                                            date = Utils.toMoscowDate(date)
-                                            e.persist()
-                                            setEditHomework((prevState) => ({
-                                                ...prevState,
-                                                publicationDate: date,
-                                            }))
-                                        }}
-                                        InputLabelProps={{
-                                            shrink: true,
-                                        }}
-                                    />
-                                    </div>
-                                    <div>
-                                        <label>
-                                            <Checkbox
-                                                color="primary"
-                                                checked={editHomework.hasDeadline}
-                                                onChange={(e) => {
-                                                    e.persist()
-                                                    setEditHomework((prevState) => ({
-                                                        ...prevState,
-                                                        hasDeadline: e.target.checked,
-                                                        isDeadlineStrict: false,
-                                                        deadlineDate: undefined,
-                                                    }))
-                                                }}
-                                            />
-                                            Добавить дедлайн
-                                        </label>
-                                    </div>
-                             </Grid>
-                            {editHomework.hasDeadline &&
-                                <Grid item xs={11} className={classes.checkBox}>
-                                    <div>
-                                        <TextField
-                                            id="datetime-local"
-                                            label="Дедлайн задания"
-                                            type="datetime-local"
-                                            defaultValue={editHomework.deadlineDate?.toLocaleString("ru-RU")}
-                                            InputLabelProps={{
-                                                shrink: true,
-                                            }}
-                                            required
-                                            onChange={(e) => {
-                                                e.persist()
-                                                let date = new Date(e.target.value)
-                                                date = Utils.toMoscowDate(date)
-                                                setEditHomework((prevState) => ({
-                                                    ...prevState,
-                                                    deadlineDate: date,
-                                                }))
-                                            }}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label>
-                                            <Checkbox
-                                                checked={editHomework.isDeadlineStrict}
-                                                color="primary"
-                                                onChange={(e) => {
-                                                    e.persist()
-                                                    setEditHomework((prevState) => ({
-                                                        ...prevState,
-                                                        isDeadlineStrict: e.target.checked
-                                                    }))
-                                                }}
-                                            />
-                                            Запретить отправку после дедлайна
-                                        </label>
-                                    </div>
-                                </Grid>}
-                                <Grid item xs={11}>
-                                    <Button
-                                        fullWidth
-                                        size="medium"
-                                        variant="contained"
-                                        color="primary"
-                                        type="submit"
-                                    >
-                                        Редактировать
-                                    </Button>
                                 </Grid>
                             </Grid>
-                        </form>
-                    </Grid>
+                            <Grid item xs={11}>
+                                <TextFieldWithPreview
+                                    multiline
+                                    fullWidth
+                                    minRows={7}
+                                    maxRows="20"
+                                    label="Условие задания"
+                                    variant="outlined"
+                                    margin="normal"
+                                    value={editHomework.description}
+                                    onChange={(e) => {
+                                        e.persist()
+                                        setEditHomework((prevState) => ({
+                                            ...prevState,
+                                            description: e.target.value
+                                        }))
+                                    }}
+                                />
+                            </Grid>
+                            <Grid style={{width: "90%", marginBottom: 15}}>
+                                <PublicationAndDeadlineDates
+                                hasDeadline={editHomework.hasDeadline}
+                                isDeadlineStrict={editHomework.isDeadlineStrict}
+                                publicationDate={editHomework.publicationDate}
+                                deadlineDate={editHomework.deadlineDate}
+                                onChange={(state) => setEditHomework(prevState => ({
+                                    ...prevState,
+                                    hasDeadline: state.hasDeadline,
+                                    isDeadlineStrict: state.isDeadlineStrict,
+                                    publicationDate: state.publicationDate,
+                                    deadlineDate: state.deadlineDate
+                                }))}
+                                />
+                            </Grid>
+                            <Grid item xs={11}>
+                                <Button
+                                    fullWidth
+                                    variant="contained"
+                                    color="primary"
+                                    type="submit"
+                                >
+                                    Редактировать
+                                </Button>
+                            </Grid>
+                        </Grid>
+                    </form>
                 </Grid>
             </Grid>
-        );
+        )
     }
     return (
         <div>

@@ -8,6 +8,7 @@ import Utils from "../../services/Utils";
 import {Checkbox, Typography, Button, TextField, Grid, Tooltip, Link as LinkMUI} from "@material-ui/core";
 import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 import { HomeworkTaskViewModel, HomeworkViewModel } from "api";
+import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
 
 interface IEditTaskState {
     isLoaded: boolean;
@@ -31,12 +32,6 @@ const useStyles = makeStyles(theme => ({
     form: {
         marginTop: "20px"
     },
-    checkBox: {
-        width: '90%',
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "space-between"
-    },
 }))
 
 const EditTask: FC = () => {
@@ -56,6 +51,8 @@ const EditTask: FC = () => {
         publicationDate: undefined
     })
 
+    const [isOpenDates, setIsOpenDates] = useState<boolean>()
+
     useEffect(() => {
         getTask()
     }, [])
@@ -64,7 +61,16 @@ const EditTask: FC = () => {
         const task = await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+taskId!)
         const homework = await ApiSingleton.homeworksApi.apiHomeworksGetByHomeworkIdGet(task.homeworkId!)
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(homework.courseId!)
-        const isDefaultProps = task.publicationDate == undefined 
+
+        const publication = task.publicationDate == undefined
+            ? undefined
+            : Utils.toMoscowDate(new Date(task.publicationDate))
+
+        const deadline = task.deadlineDate == undefined
+            ? undefined
+            : Utils.toMoscowDate(new Date(task.deadlineDate))
+
+        setIsOpenDates(publication != undefined)
 
         setTaskState((prevState) => ({
             ...prevState,
@@ -75,27 +81,10 @@ const EditTask: FC = () => {
             courseId: homework.courseId!,
             courseMentorIds: course.mentors!.map(x => x.userId!),
             hasDeadline: task.hasDeadline!,
-            deadlineDate: task.deadlineDate!,
+            deadlineDate: deadline,
             isDeadlineStrict: task.isDeadlineStrict!,
-            publicationDate: task.publicationDate!,
+            publicationDate: publication,
         }))
-    }
-
-    const getInitialPublicationDate = () => {
-        const publicationDay = Utils.toMoscowDate(new Date(Date.now()))
-        publicationDay.setHours(0, 0, 0, 0)
-
-        return Utils.toMoscowDate(publicationDay)
-    }
-
-    const getInitialDeadlineDate = () => {
-        const now = Date.now()
-        const twoWeeks = 2 * 7 * 24 * 60 * 60 * 1000
-
-        const deadlineDate = Utils.toMoscowDate(new Date(now + twoWeeks))
-        deadlineDate.setHours(23, 59, 0, 0)
-
-        return deadlineDate
     }
 
     const handleSubmit = async (e: any) => {
@@ -211,23 +200,19 @@ const EditTask: FC = () => {
                                     }}
                                 />
                             </Grid>
-                            {taskState.publicationDate == undefined && 
+                            {!isOpenDates && 
                             <Grid item>
                                 <Tooltip arrow title={"Позволяет установить даты для определенной задачи"}>
                                     <Typography variant={"caption"} style={{fontSize: "14px"}}>
-                                        <LinkMUI onClick={() => {
-                                            setTaskState((prevState) => ({
-                                                ...prevState,
-                                                publicationDate: getInitialPublicationDate(),
-                                            }))
-                                        }}>
+                                        <LinkMUI onClick={() => setIsOpenDates(true)}>
                                             Нужны особые даты?
                                         </LinkMUI>
                                     </Typography>
                                 </Tooltip>
                             </Grid>}
                                 
-                            {taskState.publicationDate != undefined &&
+                            {isOpenDates &&
+                            <Grid container>
                                 <Grid item>
                                     <Tooltip arrow title={"Позволяет выставить даты как у домашнего задания"}>
                                         <Typography variant={"caption"} style={{fontSize: "14px"}}>
@@ -239,93 +224,30 @@ const EditTask: FC = () => {
                                                     isDeadlineStrict: false,
                                                     publicationDate: undefined,
                                                 }))
+
+                                                setIsOpenDates(false)
                                             }}>
                                                 Оставить обычные даты
                                             </LinkMUI>
                                         </Typography>
                                     </Tooltip>
                                 </Grid>
-                            }     
-                            {taskState.publicationDate != undefined &&
-                            <Grid item className={classes.checkBox}>
-                                <div>
-                                    <TextField
-                                        id="datetime-local"
-                                        label="Дата публикации"
-                                        type="datetime-local"
-                                        defaultValue={taskState.publicationDate?.toLocaleString("ru-RU")}
-                                        onChange={(e) => {
-                                            let date = new Date(e.target.value)
-                                            date = Utils.toMoscowDate(date)
-                                            e.persist()
-                                            setTaskState((prevState) => ({
-                                                ...prevState,
-                                                publicationDate: date,
-                                            }))
-                                        }}
-                                        InputLabelProps={{
-                                            shrink: true,
-                                        }}
+                                <Grid item style={{width: "90%"}}>
+                                    <PublicationAndDeadlineDates
+                                    hasDeadline={taskState.hasDeadline}
+                                    isDeadlineStrict={taskState.isDeadlineStrict}
+                                    publicationDate={taskState.publicationDate}
+                                    deadlineDate={taskState.deadlineDate}
+                                    onChange={(state) => setTaskState(prevState => ({
+                                        ...prevState,
+                                        hasDeadline: state.hasDeadline,
+                                        isDeadlineStrict: state.isDeadlineStrict,
+                                        publicationDate: state.publicationDate,
+                                        deadlineDate: state.deadlineDate
+                                    }))}
                                     />
-                                </div>
-                                <div>
-                                    <label>
-                                        <Checkbox
-                                            color="primary"
-                                            checked={taskState.hasDeadline}
-                                            onChange={(e) => {
-                                                e.persist()
-                                                setTaskState((prevState) => ({
-                                                    ...prevState,
-                                                    hasDeadline: e.target.checked,
-                                                    deadlineDate: undefined,
-                                                    isDeadlineStrict: false,
-                                                }))
-                                            }}
-                                        />
-                                        Добавить дедлайн
-                                    </label>
-                                </div>
-                            </Grid>}
-                            {taskState.hasDeadline &&
-                                <Grid item xs={12} className={classes.checkBox}>
-                                    <div>
-                                        <TextField
-                                            id="datetime-local"
-                                            label="Дедлайн задачи"
-                                            type="datetime-local"
-                                            defaultValue={taskState?.deadlineDate?.toLocaleString("ru-RU")}
-                                            InputLabelProps={{
-                                                shrink: true,
-                                            }}
-                                            required
-                                            onChange={(e) => {
-                                                e.persist()
-                                                let date = new Date(e.target.value)
-                                                date = Utils.toMoscowDate(date)
-                                                setTaskState((prevState) => ({
-                                                    ...prevState,
-                                                    deadlineDate: date,
-                                                }))
-                                            }}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label>
-                                            <Checkbox
-                                                color="primary"
-                                                onChange={(e) => {
-                                                    e.persist()
-                                                    setTaskState((prevState) => ({
-                                                        ...prevState,
-                                                        isDeadlineStrict: e.target.checked
-                                                    }))
-                                                }}
-                                            />
-                                            Запретить отправку после дедлайна
-                                        </label>
-                                    </div>
                                 </Grid>
+                            </Grid>
                             }
                             <Grid item xs={12}>
                                 <Button

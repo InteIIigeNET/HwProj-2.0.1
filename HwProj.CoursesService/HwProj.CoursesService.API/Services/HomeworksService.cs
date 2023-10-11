@@ -62,7 +62,7 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task UpdateHomeworkAsync(long homeworkId, Homework update)
         {
-            var homework = await _homeworksRepository.GetAsync(homeworkId);
+            var homework = await _homeworksRepository.GetWithTasksAsync(homeworkId);
             var course = await _coursesRepository.GetWithCourseMatesAsync(homework.CourseId);
             var courseModel = _mapper.Map<CourseDTO>(course);   
             var studentIds = courseModel.CourseMates.Select(cm => cm.StudentId).ToArray();

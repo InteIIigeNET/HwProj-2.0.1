@@ -1,0 +1,145 @@
+import * as React from "react";
+import {FC, useEffect, useState} from "react";
+import {Grid, Checkbox, Button, TextField, Typography, Tooltip, Link} from "@material-ui/core";
+import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
+import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
+
+interface ICreateTaskProps {
+    onChange: (c: ICreateTaskState) => void
+}
+
+interface ICreateTaskState {
+    title: string
+    description: string;
+    maxRating: number;
+    publicationDate: Date | undefined;
+    hasDeadline: boolean;
+    deadlineDate: Date | undefined;
+    isDeadlineStrict: boolean;
+}
+
+const CreateTask: FC<ICreateTaskProps> = (props) => {
+    const [createTaskState, setCreateTaskState] = useState<ICreateTaskState>({
+        title: "",
+        description: "",
+        maxRating: 10,
+        publicationDate: undefined,
+        hasDeadline: false,
+        deadlineDate: undefined,
+        isDeadlineStrict: false,
+    })
+
+    useEffect(() => props.onChange(createTaskState), [createTaskState])
+
+    const [isOpenDates, setIsOpenDates] = useState<boolean>(false)
+
+    return (
+        <Grid style={{width: "100%"}}>
+            <Grid container>
+                <div style={{marginRight: '10px'}}>
+                    <TextField
+                        size="small"
+                        required
+                        label="Название задачи"
+                        variant="outlined"
+                        margin="normal"
+                        value={createTaskState.title}
+                        onChange={(e) => {
+                            e.persist()
+                            setCreateTaskState((prevState) => ({
+                            ...prevState,
+                            title: e.target.value,
+                        }))}}
+                    />
+                </div>
+                <TextField
+                    size="small"
+                    required
+                    label="Баллы"
+                    variant="outlined"
+                    type="number"
+                    margin="normal"
+                    value={createTaskState.maxRating}
+                    onChange={(e) => {
+                        e.persist()
+                        setCreateTaskState((prevState) => ({
+                        ...prevState,
+                        maxRating: +e.target.value,
+                    }))}}
+                />
+            </Grid>
+            <TextFieldWithPreview
+                multiline
+                fullWidth
+                minRows={7}
+                maxRows="20"
+                label="Условие задачи"
+                variant="outlined"
+                margin="normal"
+                value={createTaskState.description}
+                onChange={(e) => {
+                    e.persist()
+                    setCreateTaskState((prevState) => ({
+                    ...prevState,
+                    description: e.target.value,
+                }))}}
+            />
+
+            {!isOpenDates && 
+            <Grid item>
+                <Tooltip arrow title={"Позволяет установить даты для определенной задачи"}>
+                    <Typography variant={"caption"} style={{fontSize: "14px"}}>
+                        <Link onClick={() => {
+                            setIsOpenDates(true)
+                        }}>
+                            Нужны особые даты?
+                        </Link>
+                    </Typography>
+                </Tooltip>
+            </Grid>}
+                            
+            {isOpenDates &&
+            <Grid container>
+                <Grid item>
+                    <Tooltip arrow title={"Позволяет выставить даты как у домашнего задания"}>
+                        <Typography variant={"caption"} style={{fontSize: "14px"}}>
+                            <Link onClick={() => {
+                                setCreateTaskState((prevState) => ({
+                                    ...prevState,
+                                    hasDeadline: false,
+                                    deadlineDate: undefined,
+                                    isDeadlineStrict: false,
+                                    publicationDate: undefined,
+                                }))
+
+                                setIsOpenDates(false)
+                            }}>
+                                Оставить обычные даты
+                            </Link>
+                        </Typography>
+                    </Tooltip>
+                </Grid>
+                
+                <Grid item style={{width: "100%"}}>          
+                    <PublicationAndDeadlineDates
+                        hasDeadline={false}
+                        isDeadlineStrict={false}
+                        publicationDate={undefined}
+                        deadlineDate={undefined}
+                        onChange={(state) => setCreateTaskState((prevState) => ({
+                            ...prevState,
+                            hasDeadline: state.hasDeadline,
+                            isDeadlineStrict: state.isDeadlineStrict,
+                            publicationDate: state.publicationDate,
+                            deadlineDate: state.deadlineDate
+                        }))}
+                    />
+                    </Grid>
+                </Grid>
+            }
+            
+        </Grid>
+    )
+}
+
+export default CreateTask
