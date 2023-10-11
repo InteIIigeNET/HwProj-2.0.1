@@ -51,7 +51,7 @@ namespace HwProj.CoursesService.API.Services
             var studentIds = courseModel.CourseMates.Select(cm => cm.StudentId).ToArray();
 
             if (task.PublicationDate <= DateTimeUtils.GetMoscowNow())
-                _eventBus.Publish(new NewHomeworkTaskEvent(task.Title, taskId, deadlineDate, courseModel.Name, studentIds, courseModel.Id));
+                _eventBus.Publish(new NewHomeworkTaskEvent(task.Title, taskId, deadlineDate, courseModel.Name, courseModel.Id, studentIds));
 
             return taskId;
         }
@@ -64,11 +64,12 @@ namespace HwProj.CoursesService.API.Services
         public async Task UpdateTaskAsync(long taskId, HomeworkTask update)
         {
             var task = await _tasksRepository.GetAsync(taskId);
-            var taskModel = _mapper.Map<HomeworkTaskViewModel>(task);
             var homework = await _homeworksRepository.GetAsync(task.HomeworkId);
             var course = await _coursesRepository.GetWithCourseMatesAsync(homework.CourseId);
             var courseModel = _mapper.Map<CourseDTO>(course);
-            _eventBus.Publish(new UpdateTaskMaxRatingEvent(courseModel, taskModel, update.MaxRating));
+            var studentIds = courseModel.CourseMates.Select(cm => cm.StudentId).ToArray();
+
+            _eventBus.Publish(new UpdateTaskMaxRatingEvent(courseModel.Name, courseModel.Id, task.Title, task.Id, studentIds));
 
             await _tasksRepository.UpdateAsync(taskId, t => new HomeworkTask()
             {

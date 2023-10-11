@@ -6,7 +6,7 @@ namespace HwProj.CoursesService.API.Events
 {
     public class NewHomeworkTaskEvent : Event
     {
-        public NewHomeworkTaskEvent(string taskTitle, long taskId, DateTime? deadlineDate, string courseName, string[] studentIds, long courseId)
+        public NewHomeworkTaskEvent(string taskTitle, long taskId, DateTime? deadlineDate, string courseName, long courseId, string[] studentIds)
         {
             TaskTitle = taskTitle;
             TaskId = taskId;

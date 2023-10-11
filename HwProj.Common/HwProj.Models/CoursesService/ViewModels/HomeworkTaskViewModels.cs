@@ -46,15 +46,5 @@ namespace HwProj.Models.CoursesService.ViewModels
         public DateTime? PublicationDate { get; set; }
 
         [Required] public int MaxRating { get; set; }
-
-        public void InitializeDeadline()
-        {
-            if (!HasDeadline || DeadlineDate == null)
-            {
-                IsDeadlineStrict = false;
-                HasDeadline = false;
-                DeadlineDate = null;
-            }
-        }
     }
 }

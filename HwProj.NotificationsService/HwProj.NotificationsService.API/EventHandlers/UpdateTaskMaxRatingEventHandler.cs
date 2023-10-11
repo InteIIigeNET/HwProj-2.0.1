@@ -36,19 +36,19 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
         public override async Task HandleAsync(UpdateTaskMaxRatingEvent @event)
         {
-            foreach (var student in @event.Course.CourseMates)
+            foreach (var student in @event.StudentIds)
             {
-                var studentAccount = await _authServiceClient.GetAccountData(student.StudentId);
+                var studentAccount = await _authServiceClient.GetAccountData(student);
                 var studentModel = _mapper.Map<AccountDataDto>(studentAccount);
                 var notification = new Notification
                 {
                     Sender = "CourseService",
-                    Body = $"Задача <a href='{_configuration["Url"]}/task/{@event.Task.Id}'>{@event.Task.Title}</a>" +
-                           $" из курса <a href='{_configuration["Url"]}/courses/{@event.Course.Id}'>{@event.Course.Name}</a> обновлена.",
+                    Body = $"Задача <a href='{_configuration["Url"]}/task/{@event.TaskId}'>{@event.TaskTitle}</a>" +
+                           $" из курса <a href='{_configuration["Url"]}/courses/{@event.CourseId}'>{@event.CourseName}</a> обновлена.",
                     Category = CategoryState.Courses,
                     Date = DateTimeUtils.GetMoscowNow(),
                     HasSeen = false,
-                    Owner = student.StudentId
+                    Owner = student
                 };
 
                 var addNotificationTask = _notificationRepository.AddAsync(notification);

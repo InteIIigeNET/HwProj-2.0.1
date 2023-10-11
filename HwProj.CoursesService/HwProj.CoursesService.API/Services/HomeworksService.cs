@@ -39,8 +39,8 @@ namespace HwProj.CoursesService.API.Services
 
             if (DateTimeUtils.GetMoscowNow() >= publicationDate)
             {
-                _eventBus.Publish(new NewHomeworkEvent(homework.Title, courseModel.Name, studentIds,
-                    homework.DeadlineDate, courseModel.Id));
+                _eventBus.Publish(new NewHomeworkEvent(homework.Title, courseModel.Name, courseModel.Id, studentIds,
+                    homework.DeadlineDate));
             }
 
             return await _homeworksRepository.AddAsync(homework);
@@ -73,7 +73,7 @@ namespace HwProj.CoursesService.API.Services
 
             if (publicationDate <= DateTimeUtils.GetMoscowNow())
             {
-                _eventBus.Publish(new UpdateHomeworkEvent(update.Title, courseModel.Id, studentIds, courseModel.Name));
+                _eventBus.Publish(new UpdateHomeworkEvent(update.Title, courseModel.Id, courseModel.Name, studentIds));
             }
 
             await _homeworksRepository.UpdateAsync(homeworkId, hw => new Homework()
