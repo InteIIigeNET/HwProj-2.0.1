@@ -130,7 +130,7 @@ namespace HwProj.AuthService.API.Services
                 return Result<TokenCredentials>.Failed("Пароли не совпадают");
             }
             var user = _mapper.Map<User>(model);
-            user.UserName = user.Email.Split('@')[0];
+            user.UserName = user.Email;
 
             var createUserTask = model.IsExternalAuth
                 ? _userManager.CreateAsync(user)
