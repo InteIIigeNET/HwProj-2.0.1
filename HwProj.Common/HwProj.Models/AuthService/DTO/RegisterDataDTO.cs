@@ -9,5 +9,6 @@
         public string Password { get; set; }
         public string PasswordConfirm { get; set; }
         public bool IsExternalAuth { get; set; }
+        public string GitHubID {get; set; }
     }
 }

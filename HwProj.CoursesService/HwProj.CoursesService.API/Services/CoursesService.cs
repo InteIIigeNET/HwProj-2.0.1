@@ -259,7 +259,7 @@ namespace HwProj.CoursesService.API.Services
 
             return availableLecturers
                 .Select(u => new AccountDataDto(u.Id, u.Name, u.Surname, u.Email, Roles.LecturerRole, u.IsExternalAuth,
-                    u.MiddleName))
+                    u.MiddleName, u.GitHubId))
                 .ToArray();
         }
     }

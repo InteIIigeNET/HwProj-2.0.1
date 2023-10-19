@@ -20,5 +20,7 @@ namespace HwProj.Models.AuthService.ViewModels
         [DataType(DataType.Password)]
         [StringLength(100, ErrorMessage = "Пароль должен содержать не менее 6 символов", MinimumLength = 6)]
         public string NewPassword { get; set; }
+
+        public string GitHubID { get; set; }
     }
 }

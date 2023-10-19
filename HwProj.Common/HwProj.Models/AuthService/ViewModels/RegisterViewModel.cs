@@ -28,5 +28,7 @@ namespace HwProj.Models.AuthService.ViewModels
         [DataType(DataType.Password)]
         //[Compare("Password", ErrorMessage = "Пароли не совпадают")]
         public string PasswordConfirm { get; set; }
+
+        public string GitHubID { get; set; }
     }
 }

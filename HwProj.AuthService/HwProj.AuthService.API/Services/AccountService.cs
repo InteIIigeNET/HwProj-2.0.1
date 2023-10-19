@@ -43,7 +43,7 @@ namespace HwProj.AuthService.API.Services
             var userRoles = await _userManager.GetRolesAsync(user);
             var userRole = userRoles.FirstOrDefault() ?? Roles.StudentRole;
             return new AccountDataDto(user.Id, user.Name, user.Surname, user.Email, userRole, user.IsExternalAuth,
-                user.MiddleName);
+                user.MiddleName, user.GitHubId);
         }
 
         public async Task<AccountDataDto> GetAccountDataAsync(string userId)
@@ -72,8 +72,8 @@ namespace HwProj.AuthService.API.Services
             }
 
             var result = user.IsExternalAuth
-                ? await ChangeUserNameTask(user, model)
-                : await ChangeUserNameTask(user, model).Then(() => ChangePasswordAsync(user, model));
+                ? await ChangeUserNameAndGitHubIDTask(user, model)
+                : await ChangeUserNameAndGitHubIDTask(user, model).Then(() => ChangePasswordAsync(user, model));
 
             if (result.Succeeded)
             {
@@ -148,7 +148,7 @@ namespace HwProj.AuthService.API.Services
             {
                 var newUser = await _userManager.FindByEmailAsync(model.Email).ConfigureAwait(false);
                 var registerEvent = new StudentRegisterEvent(newUser.Id, newUser.Email, newUser.Name,
-                    newUser.Surname, newUser.MiddleName);
+                    newUser.Surname, newUser.MiddleName, newUser.GitHubId);
                 _eventBus.Publish(registerEvent);
 
                 if (!model.IsExternalAuth)
@@ -242,7 +242,7 @@ namespace HwProj.AuthService.API.Services
                 : Result.Failed(string.Join(", ", removeTokenResult.Errors.Select(t => t.Description)));
         }
 
-        private Task<IdentityResult> ChangeUserNameTask(User user, EditDataDTO model)
+        private Task<IdentityResult> ChangeUserNameAndGitHubIDTask(User user, EditDataDTO model)
         {
             if (!string.IsNullOrWhiteSpace(model.Name))
             {
@@ -257,6 +257,11 @@ namespace HwProj.AuthService.API.Services
             if (!string.IsNullOrWhiteSpace(model.Name))
             {
                 user.MiddleName = model.MiddleName;
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.GitHubID))
+            {
+                user.GitHubId = model.GitHubID;
             }
 
             return _userManager.UpdateAsync(user);

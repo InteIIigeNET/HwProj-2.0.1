@@ -126,6 +126,12 @@ export interface AccountDataDto {
      * @memberof AccountDataDto
      */
     isExternalAuth?: boolean;
+    gitHubID?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof AccountDataDto
+     */
 }
 
 /**
@@ -473,6 +479,12 @@ export interface EditAccountViewModel {
      * @memberof EditAccountViewModel
      */
     newPassword: string;
+    gitHubID?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof EditAccountViewModel
+     */
 }
 
 /**
@@ -906,6 +918,12 @@ export interface RegisterViewModel {
      * @memberof RegisterViewModel
      */
     passwordConfirm: string;
+    gitHubID?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof RegisterViewModel
+     */
 }
 
 /**

@@ -22,6 +22,7 @@ import WrongPath from "./components/WrongPath";
 import ResetPassword from "components/Auth/ResetPassword";
 import PasswordRecovery from "components/Auth/PasswordRecovery";
 import AuthLayout from "./AuthLayout";
+import { SessionProvider } from "next-auth/react"
 
 // TODO: add flux
 

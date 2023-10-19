@@ -110,7 +110,8 @@ namespace HwProj.AuthService.IntegrationTests
                 model.Email,
                 "Student",
                 false,
-                model.MiddleName);
+                model.MiddleName,
+                model.GitHubID);
 
         private static User GenerateUser(RegisterViewModel model)
             => new User

@@ -7,5 +7,6 @@
         public string MiddleName { get; set; }
         public string CurrentPassword { get; set; }
         public string NewPassword { get; set; }
+        public string GitHubID { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-import React, {FC, useState} from "react";
+import React, {FC, useState, useEffect} from "react";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
@@ -50,6 +50,7 @@ const Register: FC<LoginProps> = (props) => {
         middleName: "",
         password: "",
         passwordConfirm: "",
+        gitHubID: "",
     })
 
     const [commonState, setCommonState] = useState<ICommonState>({
@@ -214,6 +215,22 @@ const Register: FC<LoginProps> = (props) => {
                                 }}
                                 error={passwordError !== ""}
                                 helperText={passwordError}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                fullWidth
+                                label="GitHub ID"
+                                variant="outlined"
+                                name={registerState.gitHubID}
+                                onChange={(e) =>
+                                {
+                                    e.persist()
+                                    setRegisterState((prevState) => ({
+                                        ...prevState,
+                                        gitHubID: e.target.value
+                                    }))
+                                }}
                             />
                         </Grid>
                     </Grid>

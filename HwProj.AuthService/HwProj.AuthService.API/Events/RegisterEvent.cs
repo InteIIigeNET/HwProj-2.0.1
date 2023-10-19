@@ -9,14 +9,16 @@ namespace HwProj.AuthService.API.Events
         public string Surname { get; set; }
         public string MiddleName { get; set; }
         public string Email { get; set; }
+        public string GitHubID { get; set; }
 
-        protected RegisterEvent(string userId, string email, string name, string surname = "", string middleName = "")
+        protected RegisterEvent(string userId, string email, string name, string surname = "", string middleName = "", string gitHubID = "")
         {
             UserId = userId;
             Name = name;
             Surname = surname;
             MiddleName = middleName;
             Email = email;
+            GitHubID = gitHubID;
         }
     }
 }

@@ -135,7 +135,7 @@ namespace HwProj.AuthService.API.Controllers
             var result = allStudents
                 .Select(u =>
                     new AccountDataDto(u.Id, u.Name, u.Surname, u.Email, Roles.StudentRole, u.IsExternalAuth,
-                        u.MiddleName))
+                        u.MiddleName, u.GitHubId))
                 .ToArray();
 
             return Ok(result);

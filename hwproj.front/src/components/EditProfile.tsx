@@ -18,6 +18,7 @@ interface IEditProfileState {
     currentPassword: string;
     newPassword: string;
     isExternalAuth?: boolean;
+    gitHubID?: string;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -48,6 +49,7 @@ const EditProfile: FC = () => {
         currentPassword: "",
         newPassword: "",
         isExternalAuth: false,
+        gitHubID: ""
     })
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -58,6 +60,7 @@ const EditProfile: FC = () => {
             middleName: profile.middleName,
             currentPassword: profile.currentPassword,
             newPassword: profile.newPassword,
+            gitHubID: profile.gitHubID
         }
         try {
             if (profile.isExternalAuth) {
@@ -106,6 +109,7 @@ const EditProfile: FC = () => {
                 surname: currentUser.surname!,
                 middleName: currentUser.middleName!,
                 isExternalAuth: currentUser.isExternalAuth,
+                gitHubID: currentUser.gitHubID
             }))
         } catch (e) {
             setProfile((prevState) => ({
@@ -221,6 +225,21 @@ const EditProfile: FC = () => {
                                         }}
                                     />
                                 </Grid>
+                                <Grid item xs={12}>
+                                    <TextField
+                                        fullWidth
+                                        label="GitHub ID"
+                                        variant="outlined"
+                                        value={profile.gitHubID}
+                                        onChange={(e) => {
+                                            e.persist()
+                                            setProfile((prevState) => ({
+                                                ...prevState,
+                                                gitHubID: e.target.value
+                                            }))
+                                        }}
+                                    />
+                                </Grid>
                             </Grid>
                             <Button
                                 style={{marginTop: '15px'}}
@@ -297,6 +316,21 @@ const EditProfile: FC = () => {
                                             setProfile((prevState) => ({
                                                 ...prevState,
                                                 middleName: e.target.value
+                                            }))
+                                        }}
+                                    />
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <TextField
+                                        fullWidth
+                                        label="GitHub ID"
+                                        variant="outlined"
+                                        value={profile.gitHubID}
+                                        onChange={(e) => {
+                                            e.persist()
+                                            setProfile((prevState) => ({
+                                                ...prevState,
+                                                gitHubID: e.target.value
                                             }))
                                         }}
                                     />
