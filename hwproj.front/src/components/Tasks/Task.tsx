@@ -13,6 +13,7 @@ import {makeStyles} from "@material-ui/styles";
 import DeletionConfirmation from "../DeletionConfirmation";
 import {Chip, Stack} from "@mui/material";
 import {ReactMarkdownWithCodeHighlighting} from "../Common/TextFieldWithPreview";
+import Utils from "../../services/Utils";
 
 interface ITaskProp {
     task: HomeworkTaskViewModel,
@@ -60,7 +61,7 @@ const Task: FC<ITaskProp> = (props) => {
     let deadlineDate
 
     if (task.hasDeadline) {
-        deadlineDate = new Date(task.deadlineDate!).toLocaleString("ru-RU")
+        deadlineDate = Utils.renderReadableDate(task!.deadlineDate!)
     }
 
     const publicationDate = new Date(task.publicationDate!).toLocaleString("ru-RU")

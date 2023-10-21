@@ -76,7 +76,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     //TODO: enum instead of string
     const isRated = solution && solution.state !== Solution.StateEnum.NUMBER_0 // != Posted
     const {points, lecturerComment, addBonusPoints} = state
-    const postedSolutionTime = solution && new Date(solution.publicationDate!).toLocaleString("ru-RU")
+    const postedSolutionTime = solution && Utils.renderReadableDate(solution.publicationDate!)
     const students = (solution?.groupMates?.length || 0) > 0 ? solution!.groupMates! : [student]
 
     const getDatesDiff = (_date1: Date, _date2: Date) => {

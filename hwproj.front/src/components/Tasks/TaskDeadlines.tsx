@@ -4,6 +4,7 @@ import {NavLink, Link} from "react-router-dom";
 import {Divider, Grid, ListItem, Typography} from "@material-ui/core";
 import {Chip, LinearProgress} from "@mui/material";
 import {colorBetween} from "../../services/JsUtils";
+import Utils from "../../services/Utils";
 
 interface ITaskDeadlinesProps {
     taskDeadlines: TaskDeadlineView[]
@@ -74,7 +75,7 @@ export class TaskDeadlines extends React.Component<ITaskDeadlinesProps, {}> {
                                         color={deadlinePast ? "error" : "primary"}
                                         style={{marginTop: 5}}
                                         value={deadlinePast ? 100 : this.getPercent(deadline!.publicationDate!, deadline!.deadlineDate!)}/>
-                        {new Date(deadline!.deadlineDate!).toLocaleString("ru-RU")}
+                        {Utils.renderReadableDate(deadline!.deadlineDate!)}
                         {i < taskDeadlines.length - 1 ?
                             <Divider style={{marginTop: 10, marginBottom: 10}}/> : null}
                     </Grid>
