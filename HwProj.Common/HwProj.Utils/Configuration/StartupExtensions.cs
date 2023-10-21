@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
+using System.Threading;
 using AutoMapper;
 using HwProj.EventBus.Client;
 using HwProj.EventBus.Client.Implementations;
@@ -15,6 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Polly;
@@ -149,7 +151,25 @@ namespace HwProj.Utils.Configuration
                 .AllowCredentials());
             app.UseMvc();
 
-            context?.Database.EnsureCreated();
+            if (context != null)
+            {
+                var logger = app.ApplicationServices
+                    .GetService<ILoggerFactory>()
+                    .CreateLogger(typeof(StartupExtensions));
+
+                var tries = 0;
+                const int maxTries = 100;
+
+                while (!context.Database.CanConnect() && ++tries <= maxTries)
+                {
+                    logger.LogWarning($"Can't connect to database. Try {tries}.");
+                    Thread.Sleep(5000);
+                }
+
+                if (tries > maxTries) throw new Exception("Can't connect to database");
+                context.Database.EnsureCreated();
+            }
+
             return app;
         }
 
