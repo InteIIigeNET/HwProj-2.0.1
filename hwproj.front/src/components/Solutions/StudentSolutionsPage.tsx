@@ -77,7 +77,6 @@ const StudentSolutionsPage: FC = () => {
     const [filterState, setFilterState] = React.useState<Filter[]>(
         localStorage.getItem(FilterStorageKey)?.split(", ").filter(x => x != "").map(x => x as Filter) || ["Только непроверенные"]
     )
-    console.log(filterState)
     const handleFilterChange = (event: SelectChangeEvent<typeof filterState>) => {
         const {target: {value}} = event
         const filters = filterState.length > 0 ? [] : ["Только непроверенные" as Filter]
