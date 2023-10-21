@@ -42,8 +42,9 @@ namespace HwProj.NotificationsService.API.EventHandlers
                     Owner = m
                 };
 
+                var subject = $"Новое решение задачи {@event.Task.Title}";
                 var mentor = await _authServiceClient.GetAccountData(notification.Owner);
-                await _emailService.SendEmailAsync(notification, mentor.Email, "HwProj");
+                await _emailService.SendEmailAsync(notification, mentor.Email, subject);
             }
         }
     }
