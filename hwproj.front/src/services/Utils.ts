@@ -20,11 +20,20 @@ export default class Utils {
     }
 
     static pluralizeDateTime(milliseconds: number) {
-        const diffHours = milliseconds / (1000 * 60 * 60);
-        const diffDays = Math.trunc(diffHours / 24);
-        return diffDays === 0
-            ? Math.trunc(diffHours) + " " + this.pluralizeHelper(["час", "часа", "часов"], diffHours)
-            : diffDays + " " + this.pluralizeHelper(["день", "дня", "дней"], diffDays)
+        const diffHours = milliseconds / (1000 * 60 * 60)
+        const diffHoursInt = Math.trunc(diffHours)
+
+        if (diffHoursInt === 0) {
+            const diffMinutes = Math.trunc(milliseconds / (1000 * 60))
+            return diffMinutes + " " + this.pluralizeHelper(["минуту", "минуты", "минут"], diffMinutes)
+        }
+
+        const diffDays = Math.trunc(diffHours / 24)
+        if (diffDays === 0) {
+            return diffHoursInt + " " + this.pluralizeHelper(["час", "часа", "часов"], diffHoursInt)
+        } else {
+            return diffDays + " " + this.pluralizeHelper(["день", "дня", "дней"], diffDays)
+        }
     }
 
     static pluralizeHelper(forms: Array<string>, n: number) {

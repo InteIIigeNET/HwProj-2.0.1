@@ -126,7 +126,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 <TextField
                     style={{width: 100}}
                     required
-                    label="Баллы за решение"
+                    label="Баллы"
                     variant="outlined"
                     margin="normal"
                     type="number"
