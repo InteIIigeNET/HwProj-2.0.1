@@ -39,10 +39,7 @@ namespace HwProj.Models.Result
             Errors = errors;
         }
 
-        public static Result Success()
-        {
-            return new Result(true, null);
-        }
+        public static Result Success = new Result(true, null);
 
         public static Result Failed(params string[] errors)
         {

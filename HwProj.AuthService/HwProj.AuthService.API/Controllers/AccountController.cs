@@ -18,7 +18,6 @@ namespace HwProj.AuthService.API.Controllers
     {
         private readonly IAccountService _accountService;
         private readonly IUserManager _userManager;
-        private readonly UserManager<User> _aspUserManager;
         private readonly IMapper _mapper;
 
         public AccountController(
@@ -28,7 +27,6 @@ namespace HwProj.AuthService.API.Controllers
         {
             _accountService = accountService;
             _userManager = userManager;
-            _aspUserManager = aspUserManager;
             _mapper = mapper;
         }
 
@@ -67,6 +65,12 @@ namespace HwProj.AuthService.API.Controllers
             var newModel = _mapper.Map<RegisterDataDTO>(model);
             var result = await _accountService.RegisterUserAsync(newModel);
             return Ok(result);
+        }
+        
+        [HttpPost("emailConfirmation")]
+        public async Task<Result> EmailConfirmation([FromQuery] string userId, [FromQuery] string token)
+        {
+            return await _accountService.EmailConfirmation(userId, token);
         }
 
         [HttpPost("login")]

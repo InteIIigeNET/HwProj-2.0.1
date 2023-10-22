@@ -11,7 +11,8 @@ namespace HwProj.AuthService.API.Services
     {
         Task<AccountDataDto> GetAccountDataAsync(string userId);
         Task<AccountDataDto> GetAccountDataByEmailAsync(string email);
-        Task<Result<TokenCredentials>> RegisterUserAsync(RegisterDataDTO model);
+        Task<Result> RegisterUserAsync(RegisterDataDTO model);
+        Task<Result> SendEmailConfirmationToken(string email);
         Task<Result> EditAccountAsync(string accountId, EditDataDTO model);
         Task<Result<TokenCredentials>> LoginUserAsync(LoginViewModel model);
         Task<Result<TokenCredentials>> RefreshToken(string userId);
@@ -19,5 +20,6 @@ namespace HwProj.AuthService.API.Services
         Task<IList<User>> GetUsersInRole(string role);
         Task<Result> RequestPasswordRecovery(RequestPasswordRecoveryViewModel model);
         Task<Result> ResetPassword(ResetPasswordViewModel model);
+        Task<Result> EmailConfirmation(string userId, string token);
     }
 }

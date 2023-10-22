@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
@@ -68,7 +68,7 @@ namespace HwProj.CoursesService.Client
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-            return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
+            return response.IsSuccessStatusCode ? Result.Success : Result.Failed(response.ReasonPhrase);
         }
 
         public async Task<long> CreateCourse(CreateCourseViewModel model, string mentorId)
@@ -101,7 +101,7 @@ namespace HwProj.CoursesService.Client
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-            return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
+            return response.IsSuccessStatusCode ? Result.Success : Result.Failed(response.ReasonPhrase);
         }
 
         public async Task SignInCourse(long courseId, string studentId)
@@ -121,7 +121,7 @@ namespace HwProj.CoursesService.Client
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-            return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
+            return response.IsSuccessStatusCode ? Result.Success : Result.Failed(response.ReasonPhrase);
         }
 
         public async Task<Result> RejectStudent(long courseId, string studentId)
@@ -132,7 +132,7 @@ namespace HwProj.CoursesService.Client
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-            return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
+            return response.IsSuccessStatusCode ? Result.Success : Result.Failed(response.ReasonPhrase);
         }
 
         public async Task<CourseDTO[]> GetAllUserCourses()
@@ -202,7 +202,7 @@ namespace HwProj.CoursesService.Client
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-            return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
+            return response.IsSuccessStatusCode ? Result.Success : Result.Failed(response.ReasonPhrase);
         }
 
         public async Task<Result> DeleteHomework(long homeworkId)
@@ -213,7 +213,7 @@ namespace HwProj.CoursesService.Client
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-            return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
+            return response.IsSuccessStatusCode ? Result.Success : Result.Failed(response.ReasonPhrase);
         }
 
         public async Task<HomeworkTaskViewModel> GetTask(long taskId)
@@ -254,7 +254,7 @@ namespace HwProj.CoursesService.Client
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-            return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
+            return response.IsSuccessStatusCode ? Result.Success : Result.Failed(response.ReasonPhrase);
         }
 
         public async Task<Result> UpdateTask(CreateTaskViewModel taskViewModel, long taskId)
@@ -271,7 +271,7 @@ namespace HwProj.CoursesService.Client
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-            return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
+            return response.IsSuccessStatusCode ? Result.Success : Result.Failed(response.ReasonPhrase);
         }
 
         public async Task<GroupViewModel[]> GetAllCourseGroups(long courseId)
@@ -392,7 +392,7 @@ namespace HwProj.CoursesService.Client
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
             return response.IsSuccessStatusCode
-                ? Result.Success()
+                ? Result.Success
                 : Result.Failed(response.ReasonPhrase);
         }
 
