@@ -170,7 +170,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     }
 
     return <Grid container direction={"row"} spacing={1}>
-        <Grid item xs={4}>
+        <Grid item lg={4}>
             <Timeline style={{maxHeight: 500, overflow: 'auto'}}
                       sx={{'&::-webkit-scrollbar': {display: "none"}}}>
                 {homeworks.map(x => <div>
@@ -228,7 +228,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             </Timeline>
         </Grid>
 
-        <Grid item xs={8}>
+        <Grid item lg={8}>
             {renderSelectedItem()}
         </Grid>
     </Grid>
