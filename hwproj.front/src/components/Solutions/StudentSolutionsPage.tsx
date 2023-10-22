@@ -180,7 +180,7 @@ const StudentSolutionsPage: FC = () => {
                             </Stack>;
                         })}
                     </Stack>
-                    {allSolutionsRated && <Alert severity="success" action={renderGoBackToCoursesStatsLink()}>
+                    {allSolutionsRated && <Alert severity="success">
                         Все решения на данный момент
                         проверены!
                     </Alert>}
