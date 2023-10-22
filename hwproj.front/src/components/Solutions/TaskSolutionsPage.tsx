@@ -8,7 +8,17 @@ import {AccountDataDto, HomeworkTaskViewModel, UserTaskSolutions2} from "../../a
 import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useEffect, useState} from "react";
 import {Grid} from "@material-ui/core";
-import {Chip, Divider, Stack, Tooltip} from "@mui/material";
+import {
+    Chip,
+    FormControl,
+    InputLabel,
+    MenuItem,
+    OutlinedInput,
+    Select,
+    SelectChangeEvent,
+    Stack,
+    Tooltip
+} from "@mui/material";
 import {useParams, Link} from "react-router-dom";
 import Step from "@mui/material/Step";
 import StepButton from "@mui/material/StepButton";
@@ -19,8 +29,21 @@ interface ITaskSolutionsState {
     task: HomeworkTaskViewModel
     addSolution: boolean
     courseId: number
-    taskSolutions: UserTaskSolutions2[]
+    allTaskSolutions: UserTaskSolutions2[]
     courseMates: AccountDataDto[]
+}
+
+type Filter = "Только нерешенные"
+const FilterStorageKey = "TaskSolutionsPage"
+
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const FilterProps = {
+    PaperProps: {
+        style: {
+            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP
+        },
+    },
 }
 
 const TaskSolutionsPage: FC = () => {
@@ -32,9 +55,21 @@ const TaskSolutionsPage: FC = () => {
         task: {},
         courseId: 0,
         addSolution: false,
-        taskSolutions: [],
+        allTaskSolutions: [],
         courseMates: []
     })
+
+    const [filterState, setFilterState] = React.useState<Filter[]>(
+        localStorage.getItem(FilterStorageKey)?.split(", ").filter(x => x != "").map(x => x as Filter) || []
+    )
+    const handleFilterChange = (event: SelectChangeEvent<typeof filterState>) => {
+        const {target: {value}} = event
+        const filters = filterState.length > 0 ? [] : ["Только нерешенные" as Filter]
+        localStorage.setItem(FilterStorageKey, filters.join(", "))
+        setFilterState(filters)
+    }
+
+    const showOnlyNotSolved = filterState.some(x => x === "Только нерешенные")
 
     useEffect(() => {
         getTask()
@@ -47,15 +82,18 @@ const TaskSolutionsPage: FC = () => {
             addSolution: false,
             courseId: pageData.courseId!,
             task: pageData.task!,
-            taskSolutions: pageData.taskSolutions!,
+            allTaskSolutions: pageData.taskSolutions!,
             courseMates: pageData.courseMates!,
         })
     }
 
-    const {taskSolutions, courseId, task, courseMates} = taskSolutionPage
+    const {allTaskSolutions, courseId, task, courseMates} = taskSolutionPage
     const student = courseMates.find(x => x.userId === userId)!
-    const currentTaskSolutions = taskSolutions.find(x => x.taskId === taskId)?.solutions || []
+    const currentTaskSolutions = allTaskSolutions.find(x => x.taskId === taskId)?.solutions || []
     const lastSolution = currentTaskSolutions[currentTaskSolutions.length - 1]
+    const taskSolutions = showOnlyNotSolved
+        ? allTaskSolutions.filter(x => x.solutions?.length == 0)
+        : allTaskSolutions
 
     const onCancelAddSolution = () => {
         setTaskSolutionPage((prevState) => ({
@@ -66,7 +104,7 @@ const TaskSolutionsPage: FC = () => {
 
     return taskSolutionPage.isLoaded ? <div className={"container"} style={{marginBottom: '50px'}}>
         <Grid container justify="center" style={{marginTop: '20px'}}>
-            <Grid container xs={12}>
+            <Grid container spacing={2} xs={12}>
                 <Grid item xs={12}>
                     <Stack direction={"row"} spacing={1}
                            style={{overflowY: "hidden", overflowX: "auto", minHeight: 80}}>
@@ -101,31 +139,27 @@ const TaskSolutionsPage: FC = () => {
                         })}
                     </Stack>
                 </Grid>
-                <Grid item xs={12} style={{marginTop: "15px"}}>
-                    <Task
-                        task={taskSolutionPage.task}
-                        forStudent={true}
-                        forMentor={false}
-                        isReadingMode={true}
-                        onDeleteClick={() => 3}
-                        isExpanded={true}
-                        showForCourse={false}
-                    />
-                </Grid>
-                {!taskSolutionPage.addSolution && (
-                    <Grid item xs={6}>
-                        <TaskSolutions
-                            task={task}
-                            forMentor={false}
-                            student={student}
-                            solutions={currentTaskSolutions}/>
-                    </Grid>
-                )}
-                {(!taskSolutionPage.addSolution && task.canSendSolution) && (
-                    <Grid item xs={12} style={{marginTop: "10px"}}>
-                        <Divider style={{marginBottom: 15}}/>
-                        <Button
-                            size="small"
+                <Grid container item direction={"row"} spacing={2}>
+                    <Grid container item lg={3} spacing={1} direction={"column"}>
+                        <Grid item>
+                            <FormControl fullWidth>
+                                <InputLabel>Фильтр</InputLabel>
+                                <Select
+                                    size={"medium"}
+                                    value={filterState}
+                                    onChange={handleFilterChange}
+                                    input={<OutlinedInput label="Фильтр"/>}
+                                    MenuProps={FilterProps}
+                                >
+                                    <MenuItem key="Только нерешенные" value={"Только нерешенные" as Filter}>
+                                        Только нерешенные
+                                    </MenuItem>
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                        {task.canSendSolution && <Grid item><Button
+                            fullWidth
+                            size="large"
                             variant="contained"
                             color="primary"
                             onClick={(e) => {
@@ -137,42 +171,50 @@ const TaskSolutionsPage: FC = () => {
                             }}
                         >
                             Добавить решение
-                        </Button>
+                        </Button></Grid>}
+                        <Grid item>
+                            <Link
+                                style={{color: '#212529'}}
+                                to={`/courses/${courseId}`}
+                            >
+                                <Typography>
+                                    Назад к курсу
+                                </Typography>
+                            </Link>
+                        </Grid>
                     </Grid>
-                )}
-                {taskSolutionPage.addSolution && (
-                    <Grid item xs={6}>
-                        <div>
-                            <TaskSolutions
-                                task={task}
+                    <Grid item lg={9}>
+                        <Grid item xs={12}>
+                            <Task
+                                task={taskSolutionPage.task}
+                                forStudent={true}
                                 forMentor={false}
-                                student={student!}
-                                solutions={currentTaskSolutions}/>
-                        </div>
-                        <div style={{marginTop: "10px"}}>
-                            <Divider style={{marginBottom: 15}}/>
-                            <AddSolution
-                                userId={userId}
-                                taskId={+taskId!}
-                                onAdd={getTask}
-                                onCancel={onCancelAddSolution}
-                                lastSolutionUrl={lastSolution?.githubUrl}
-                                students={courseMates}
-                                lastGroup={lastSolution?.groupMates?.map(s => s.userId!) || []}/>
-                        </div>
+                                isReadingMode={true}
+                                onDeleteClick={() => 3}
+                                isExpanded={true}
+                                showForCourse={false}
+                            />
+                        </Grid>
+                        {!taskSolutionPage.addSolution && (
+                            <Grid item xs={6}>
+                                <TaskSolutions
+                                    task={task}
+                                    forMentor={false}
+                                    student={student}
+                                    solutions={currentTaskSolutions}/>
+                            </Grid>
+                        )}
                     </Grid>
-                )}
+                </Grid>
             </Grid>
-            <Grid item>
-                <Link
-                    style={{color: '#212529'}}
-                    to={`/courses/${courseId}`}
-                >
-                    <Typography>
-                        Назад к курсу
-                    </Typography>
-                </Link>
-            </Grid>
+            {taskSolutionPage.addSolution && <AddSolution
+                userId={userId}
+                taskId={+taskId!}
+                onAdd={getTask}
+                onCancel={onCancelAddSolution}
+                lastSolutionUrl={lastSolution?.githubUrl}
+                students={courseMates}
+                lastGroup={lastSolution?.groupMates?.map(s => s.userId!) || []}/>}
         </Grid>
     </div> : (
         <div>
