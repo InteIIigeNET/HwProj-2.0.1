@@ -1134,6 +1134,12 @@ export interface SolutionPreviewView {
     publicationDate?: Date;
     /**
      * 
+     * @type {number}
+     * @memberof SolutionPreviewView
+     */
+    groupId?: number;
+    /**
+     * 
      * @type {boolean}
      * @memberof SolutionPreviewView
      */

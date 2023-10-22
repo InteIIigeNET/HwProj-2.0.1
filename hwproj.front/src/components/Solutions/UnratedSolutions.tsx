@@ -197,6 +197,9 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
                                 {!solution.isFirstTry &&
                                     <Chip color="secondary" label="Повторно" size={"small"}
                                           style={{marginLeft: 10}}/>}
+                                {solution.groupId &&
+                                    <Chip color="primary" label="Командное" size={"small"}
+                                          style={{marginLeft: 10}}/>}
                                 {solution.isCourseCompleted &&
                                     <Chip style={{color: "GrayText", marginLeft: 10}} label="Курс завершен"
                                           size={"small"}/>}

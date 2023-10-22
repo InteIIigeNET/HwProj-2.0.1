@@ -12,6 +12,7 @@ namespace HwProj.APIGateway.API.Models.Solutions
         public string TaskTitle { get; set; }
         public long TaskId { get; set; }
         public DateTime PublicationDate { get; set; }
+        public long? GroupId { get; set; }
         public bool IsFirstTry { get; set; }
         public bool SentAfterDeadline { get; set; }
         public bool IsCourseCompleted { get; set; }

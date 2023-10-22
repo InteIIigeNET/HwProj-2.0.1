@@ -7,7 +7,7 @@ namespace HwProj.Models.SolutionsService
         public string StudentId { get; set; }
 
         public long TaskId { get; set; }
-
+        public long? GroupId { get; set; }
         public DateTime PublicationDate { get; set; }
         public bool IsFirstTry { get; set; }
     }

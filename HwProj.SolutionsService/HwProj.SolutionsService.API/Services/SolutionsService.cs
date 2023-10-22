@@ -163,6 +163,7 @@ namespace HwProj.SolutionsService.API.Services
                 .Select(t => new SolutionPreviewDto
                 {
                     StudentId = t.LastSolution!.StudentId,
+                    GroupId = t.LastSolution.GroupId,
                     TaskId = t.LastSolution.TaskId,
                     PublicationDate = t.LastSolution.PublicationDate,
                     IsFirstTry = t.IsFirstTry

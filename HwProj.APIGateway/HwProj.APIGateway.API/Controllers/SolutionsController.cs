@@ -273,6 +273,7 @@ namespace HwProj.APIGateway.API.Controllers
                         TaskId = task.Id,
                         PublicationDate = solution.PublicationDate,
                         IsFirstTry = solution.IsFirstTry,
+                        GroupId = solution.GroupId,
                         SentAfterDeadline = solution.IsFirstTry && task.DeadlineDate != null &&
                                             solution.PublicationDate > task.DeadlineDate,
                         IsCourseCompleted = course.IsCompleted
