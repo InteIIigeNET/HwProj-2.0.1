@@ -21,6 +21,18 @@ namespace HwProj.Models.CoursesService.ViewModels
         public DateTime PublicationDate { get; set; }
 
         public List<CreateTaskViewModel> Tasks { get; set; } = new List<CreateTaskViewModel>();
+
+        public void InitializeDates()
+        {
+            Tasks.ForEach(task => task.InitializeDates());
+
+            if (!HasDeadline || DeadlineDate == null)
+            {
+                IsDeadlineStrict = false;
+                HasDeadline = false;
+                DeadlineDate = null;
+            }
+        }
     }
 
     public class HomeworkViewModel

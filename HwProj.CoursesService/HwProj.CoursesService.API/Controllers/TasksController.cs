@@ -52,6 +52,8 @@ namespace HwProj.CoursesService.API.Controllers
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<long> AddTask(long homeworkId, [FromBody] CreateTaskViewModel taskViewModel)
         {
+            taskViewModel.InitializeDates();
+
             var task = _mapper.Map<HomeworkTask>(taskViewModel);
             var taskId = await _tasksService.AddTaskAsync(homeworkId, task);
             return taskId;
@@ -68,6 +70,7 @@ namespace HwProj.CoursesService.API.Controllers
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task UpdateTask(long taskId, [FromBody] CreateTaskViewModel taskViewModel)
         {
+            taskViewModel.InitializeDates();
             await _tasksService.UpdateTaskAsync(taskId, new HomeworkTask()
             {
                 Title = taskViewModel.Title,
