@@ -4,9 +4,7 @@ import Button from '@material-ui/core/Button'
 import ApiSingleton from "../../api/ApiSingleton";
 import {AccountDataDto, SolutionViewModel} from "../../api";
 import {FC, useState} from "react";
-import Grid from "@material-ui/core/Grid";
-import makeStyles from "@material-ui/styles/makeStyles";
-import {Alert, Autocomplete} from "@mui/material";
+import {Alert, Autocomplete, Grid, DialogContent, Dialog, DialogTitle, DialogActions} from "@mui/material";
 
 interface IAddSolutionProps {
     userId: string
@@ -17,17 +15,6 @@ interface IAddSolutionProps {
     onAdd: () => void,
     onCancel: () => void,
 }
-
-const useStyles = makeStyles(theme => ({
-    buttons: {
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'row',
-    },
-    button: {
-        marginRight: '16px',
-    }
-}))
 
 const AddSolution: FC<IAddSolutionProps> = (props) => {
 
@@ -43,14 +30,16 @@ const AddSolution: FC<IAddSolutionProps> = (props) => {
         props.onAdd()
     }
 
-    const classes = useStyles()
     const {githubUrl} = solution
     const courseMates = props.students.filter(s => props.userId !== s.userId)
 
     return (
-        <div>
-            <form onSubmit={e => handleSubmit(e)}>
-                <Grid container xs={12}>
+        <Dialog open={true} onClose={() => props.onCancel()} aria-labelledby="form-dialog-title">
+            <DialogTitle id="form-dialog-title">
+                Отправить новое решение
+            </DialogTitle>
+            <DialogContent>
+                <Grid style={{marginTop: 10}} container xs={12}>
                     <Grid item xs={12}>
                         <TextField
                             fullWidth
@@ -67,7 +56,8 @@ const AddSolution: FC<IAddSolutionProps> = (props) => {
                             }}
                         />
                         {githubUrl === props.lastSolutionUrl &&
-                            <Alert sx={{paddingTop: 0, paddingBottom: 0, marginTop: 0.2}} severity="info">Ссылка взята из предыдущего
+                            <Alert sx={{paddingTop: 0, paddingBottom: 0, marginTop: 0.2}} severity="info">Ссылка
+                                взята из предыдущего
                                 решения</Alert>}
                     </Grid>
                     <Grid item xs={12} style={{marginTop: '16px'}}>
@@ -94,7 +84,8 @@ const AddSolution: FC<IAddSolutionProps> = (props) => {
                             )}
                         />
                         {props.lastGroup?.length > 0 && solution.groupMateIds === props.lastGroup &&
-                            <Alert sx={{paddingTop: 0, paddingBottom: 0, marginTop: 0.2}} severity="info">Команда взята из предыдущего
+                            <Alert sx={{paddingTop: 0, paddingBottom: 0, marginTop: 0.2}} severity="info">Команда
+                                взята из предыдущего
                                 решения</Alert>}
                     </Grid>
                     <Grid item xs={12} style={{marginTop: '16px'}}>
@@ -114,33 +105,28 @@ const AddSolution: FC<IAddSolutionProps> = (props) => {
                             }}
                         />
                     </Grid>
-                    <Grid item xs={12} style={{marginTop: '16px'}}>
-                        <div className={classes.buttons}>
-                            <div style={{marginRight: '16px'}}>
-                                <Button
-                                    size="small"
-                                    variant="contained"
-                                    color="primary"
-                                    type="submit"
-                                >
-                                    Отправить решение
-                                </Button>
-                            </div>
-                            <div>
-                                <Button
-                                    size="small"
-                                    onClick={() => props.onCancel()}
-                                    variant="contained"
-                                    color="primary"
-                                >
-                                    Отменить
-                                </Button>
-                            </div>
-                        </div>
-                    </Grid>
                 </Grid>
-            </form>
-        </div>
+            </DialogContent>
+            <DialogActions>
+                <Button
+                    size="small"
+                    variant="contained"
+                    color="primary"
+                    type="submit"
+                    onClick={e => handleSubmit(e)}
+                >
+                    Отправить решение
+                </Button>
+                <Button
+                    size="small"
+                    onClick={() => props.onCancel()}
+                    variant="contained"
+                    color="primary"
+                >
+                    Отменить
+                </Button>
+            </DialogActions>
+        </Dialog>
     )
 }
 
