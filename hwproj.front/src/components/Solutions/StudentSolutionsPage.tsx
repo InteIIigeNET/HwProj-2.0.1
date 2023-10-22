@@ -39,7 +39,7 @@ interface IStudentSolutionsPageState {
     allStudentSolutionsPreview: {
         student: AccountDataDto,
         solutions: GetSolutionModel[]
-        lastSolution: Solution,
+        lastSolution: GetSolutionModel,
         lastRatedSolution: Solution,
         color: string,
         ratedSolutionsCount: number,
@@ -203,6 +203,7 @@ const StudentSolutionsPage: FC = () => {
                         </FormControl>
                         <List>
                             {studentSolutionsPreview!.map(({
+                                                               lastSolution,
                                                                color,
                                                                solutionsDescription,
                                                                lastRatedSolution, student: {
@@ -215,7 +216,7 @@ const StudentSolutionsPage: FC = () => {
                                       style={{color: "black", textDecoration: "none"}}>
                                     <ListItemButton disableGutters divider
                                                     disableTouchRipple={currentStudentId === userId}
-                                                    selected={currentStudentId === userId}>
+                                                    selected={currentStudentId === userId || lastSolution?.groupMates?.some(x => x.userId === userId)}>
                                         <Stack direction={"row"} spacing={1} sx={{paddingLeft: 1}}>
                                             <Tooltip arrow disableInteractive enterDelay={1000} title={<span
                                                 style={{whiteSpace: 'pre-line'}}>{solutionsDescription}</span>}>
