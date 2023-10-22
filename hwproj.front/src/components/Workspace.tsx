@@ -121,7 +121,7 @@ const Workspace: FC = () => {
                                 </Stack>}/>}
                             {isLecturer && courseEvents!.length > 0 && <Tab label={<Stack direction="row" spacing={1}>
                                 <div>Курсы</div>
-                                <Chip size={"small"} color={"default"}
+                                <Chip size={"small"} color={"primary"}
                                       label={(courseEvents!.length)}/>
                             </Stack>}/>}
 
