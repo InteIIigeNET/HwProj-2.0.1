@@ -6,7 +6,7 @@ import AddHomework from "../Homeworks/AddHomework";
 import StudentStats from "./StudentStats";
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
-import {Button, Grid, Tab, Tabs, Typography, IconButton, Switch} from "@material-ui/core";
+import {Button, Grid, Tab, Tabs, Typography, IconButton, Switch, CircularProgress} from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
 import {useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
@@ -351,10 +351,10 @@ const Course: React.FC = () => {
             </div>
         );
     }
-    return (
-        <Typography>
-        </Typography>
-    )
+    return <div className="container">
+        <p>Загрузка...</p>
+        <CircularProgress/>
+    </div>
 }
 
 export default Course

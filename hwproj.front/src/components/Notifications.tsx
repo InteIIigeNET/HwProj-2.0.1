@@ -243,12 +243,10 @@ const Notifications: FC<IProfileProps> = (props) => {
             </Grid>
         </div>
     }
-    return (
-        <Box sx={{minWidth: 150}}>
-            <p>Загрузка...</p>
-            <CircularProgress/>
-        </Box>
-    )
+    return <div className={"container"}>
+        <p>Загрузка...</p>
+        <CircularProgress/>
+    </div>
 }
 
 export default Notifications
