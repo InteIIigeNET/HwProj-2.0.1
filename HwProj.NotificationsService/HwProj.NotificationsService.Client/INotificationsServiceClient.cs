@@ -8,6 +8,8 @@ namespace HwProj.NotificationsService.Client
         Task<CategorizedNotifications[]> Get(string userId);
         Task MarkAsSeen(string userId, long[] notificationIds);
         Task<int> GetNewNotificationsCount(string userId);
+        Task<NotificationsSettingDto[]> GetSettings(string userId);
+        Task ChangeSetting(string userId, NotificationsSettingDto newSetting);
         Task<bool> Ping();
     }
 }

@@ -6,15 +6,18 @@ import {
     CardContent,
     Checkbox,
     CircularProgress,
-    FormControlLabel, FormGroup,
+    Divider,
+    FormControlLabel,
+    FormGroup,
     Grid,
-    Typography, Divider
+    Typography
 } from "@material-ui/core";
 import ApiSingleton from "api/ApiSingleton";
 import {CategorizedNotifications, NotificationViewModel} from "../api/";
 import "./Styles/Profile.css";
 import parse from 'html-react-parser';
-import {Button} from "@mui/material";
+import {Button, Link} from "@mui/material";
+import NotificationSettings from "./NotificationSettings";
 
 let CategoryEnum = CategorizedNotifications.CategoryEnum;
 const dateTimeOptions = {year: '2-digit', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'};
@@ -64,6 +67,7 @@ const Notifications: FC<IProfileProps> = (props) => {
     })
 
     const allNotSeen = getAllNotSeen(profileState.notifications)
+    const isLecturer = ApiSingleton.authService.isLecturer()
 
     const [filterState, setFilterState] = useState<IFilterState>({
         categoryFlag: new Map([
@@ -75,6 +79,8 @@ const Notifications: FC<IProfileProps> = (props) => {
         showOnlyUnread: true,
         showAll: true
     });
+
+    const [showSettings, setShowSettings] = useState<boolean>(false);
 
     useEffect(() => {
         getUserInfo()
@@ -230,7 +236,15 @@ const Notifications: FC<IProfileProps> = (props) => {
                                         />
                                     } label="Домашние задания"
                                     />
-                                    {allNotSeen.length != 0 && <Button fullWidth variant="contained" onClick={markAllNotificationsAsSeen}>Прочитать все</Button>}
+                                    {allNotSeen.length != 0 &&
+                                        <Button fullWidth variant="contained" onClick={markAllNotificationsAsSeen}>Прочитать
+                                            все</Button>}
+                                    {isLecturer &&
+                                        <Button style={{marginTop: 10}}
+                                                fullWidth variant="outlined"
+                                                onClick={() => setShowSettings(true)}>Настройки
+                                        </Button>}
+                                    {showSettings && <NotificationSettings onClose={() => setShowSettings(false)}/>}
                                 </FormGroup>
                             </div>
                         </CardContent>

@@ -31,6 +31,7 @@ namespace HwProj.NotificationsService.API
             var connectionString = ConnectionString.GetConnectionString(Configuration);
             services.AddDbContext<NotificationsContext>(options => options.UseSqlServer(connectionString));
             services.AddScoped<INotificationsRepository, NotificationsRepository>();
+            services.AddScoped<INotificationSettingsRepository, NotificationSettingsRepository>();
             services.AddEventBus(Configuration);
             services.AddTransient<IEventHandler<StudentRegisterEvent>, RegisterEventHandler>();
             services.AddTransient<IEventHandler<RateEvent>, RateEventHandler>();
