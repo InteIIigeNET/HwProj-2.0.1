@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
 using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
-using HwProj.Models;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Repositories;
@@ -32,6 +31,11 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
         public override async Task HandleAsync(StudentPassTaskEvent @event)
         {
+            var body = $"{@event.Student.Name} {@event.Student.Surname} добавил новое " +
+                       $"<a href='{@event.Solution.GithubUrl}' target='_blank'>решение</a>" +
+                       $" задачи <a href='{_configuration["Url"]}/task/{@event.Task.Id}/{@event.Student.UserId}'>{@event.Task.Title}</a>" +
+                       $" из курса <a href='{_configuration["Url"]}/courses/{@event.Course.Id}'>{@event.Course.Name}</a>.";
+
             foreach (var m in @event.Course.MentorIds)
             {
                 var setting = await _settingsRepository.GetAsync(m, NotificationsSettingCategory.NewSolutionsCategory);
@@ -40,12 +44,9 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 var notification = new Notification
                 {
                     Sender = "SolutionService",
-                    Body = $"{@event.Student.Name} {@event.Student.Surname} добавил новое " +
-                           $"<a href='{@event.Solution.GithubUrl}' target='_blank'>решение</a>" +
-                           $" задачи <a href='{_configuration["Url"]}/task/{@event.Task.Id}/{@event.Student.UserId}'>{@event.Task.Title}</a>" +
-                           $" из курса <a href='{_configuration["Url"]}/courses/{@event.Course.Id}'>{@event.Course.Name}</a>.",
+                    Body = body,
                     Category = CategoryState.Homeworks,
-                    Date = DateTimeUtils.GetMoscowNow(),
+                    Date = @event.CreationData,
                     HasSeen = false,
                     Owner = m
                 };
