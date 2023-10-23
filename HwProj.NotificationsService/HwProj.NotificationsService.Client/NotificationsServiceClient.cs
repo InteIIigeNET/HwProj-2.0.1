@@ -46,6 +46,28 @@ namespace HwProj.NotificationsService.Client
             return await response.DeserializeAsync<int>();
         }
 
+        public async Task<NotificationsSettingDto[]> GetSettings(string userId)
+        {
+            using var response =
+                await _httpClient.GetAsync(_notificationServiceUri + $"api/notificationSettings/{userId}");
+            return await response.DeserializeAsync<NotificationsSettingDto[]>();
+        }
+
+        public async Task ChangeSetting(string userId, NotificationsSettingDto newSetting)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Put,
+                _notificationServiceUri + $"api/notificationSettings/{userId}")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(newSetting),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+
+            await _httpClient.SendAsync(httpRequest);
+        }
+
         public async Task<bool> Ping()
         {
             try

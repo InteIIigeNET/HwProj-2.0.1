@@ -1,8 +1,10 @@
+using System;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.Client;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Threading.Tasks;
+using HwProj.Models.Roles;
 using Microsoft.AspNetCore.Authorization;
 
 namespace HwProj.APIGateway.API.Controllers
@@ -38,6 +40,26 @@ namespace HwProj.APIGateway.API.Controllers
         public async Task<IActionResult> MarkAsSeen([FromBody] long[] notificationIds)
         {
             await _notificationsClient.MarkAsSeen(UserId, notificationIds);
+            return Ok();
+        }
+
+        [HttpGet("settings")]
+        [Authorize]
+        [ProducesResponseType(typeof(NotificationsSettingDto[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetSettings()
+        {
+            var isLecturer = User.IsInRole(Roles.LecturerRole);
+            if (!isLecturer) return Ok(Array.Empty<NotificationsSettingDto>());
+
+            var settings = await _notificationsClient.GetSettings(UserId);
+            return Ok(settings);
+        }
+
+        [HttpPut("settings")]
+        [Authorize]
+        public async Task<IActionResult> ChangeSetting(NotificationsSettingDto newSetting)
+        {
+            await _notificationsClient.ChangeSetting(UserId, newSetting);
             return Ok();
         }
     }

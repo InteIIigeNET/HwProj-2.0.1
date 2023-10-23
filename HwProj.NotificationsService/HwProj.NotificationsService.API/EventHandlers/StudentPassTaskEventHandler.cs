@@ -3,6 +3,8 @@ using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models;
 using HwProj.Models.NotificationsService;
+using HwProj.NotificationsService.API.Models;
+using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
 using HwProj.SolutionsService.API.Events;
 using Microsoft.Extensions.Configuration;
@@ -14,14 +16,17 @@ namespace HwProj.NotificationsService.API.EventHandlers
         private readonly IAuthServiceClient _authServiceClient;
         private readonly IConfigurationSection _configuration;
         private readonly IEmailService _emailService;
+        private readonly INotificationSettingsRepository _settingsRepository;
 
         public StudentPassTaskEventHandler(
             IAuthServiceClient authServiceClient,
             IConfiguration configuration,
-            IEmailService emailService)
+            IEmailService emailService,
+            INotificationSettingsRepository settingsRepository)
         {
             _authServiceClient = authServiceClient;
             _emailService = emailService;
+            _settingsRepository = settingsRepository;
             _configuration = configuration.GetSection("Notification");
         }
 
@@ -29,6 +34,9 @@ namespace HwProj.NotificationsService.API.EventHandlers
         {
             foreach (var m in @event.Course.MentorIds)
             {
+                var setting = await _settingsRepository.GetAsync(m, NotificationsSettingCategory.NewSolutionsCategory);
+                if (!setting!.IsEnabled) continue;
+
                 var notification = new Notification
                 {
                     Sender = "SolutionService",

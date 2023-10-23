@@ -168,6 +168,7 @@ namespace HwProj.Utils.Configuration
 
                 if (tries > maxTries) throw new Exception("Can't connect to database");
                 context.Database.EnsureCreated();
+                context.Database.Migrate();
             }
 
             return app;
