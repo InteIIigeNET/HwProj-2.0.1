@@ -1,4 +1,5 @@
-﻿using HwProj.Models.NotificationsService;
+﻿using HwProj.EventBus.Client;
+using HwProj.Models.NotificationsService;
 using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.NotificationsService.API.Models
@@ -22,7 +23,8 @@ namespace HwProj.NotificationsService.API.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<ScheduleWork>().Ignore(work => work.Type);
+            modelBuilder.Entity<ScheduleWork>().HasKey(work => new { work.TaskId, work.HomeworkId,
+                work.CourseId, work.CategoryId });
         }
     }
 }

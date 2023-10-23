@@ -21,28 +21,4 @@ namespace HwProj.EventBus.Client
             CreationData = data;
         }
     }
-
-    public class ScheduleEvent : Event
-    {
-        public long ScheduleWorkId { get; set; }
-
-        public DateTime PublicationDate { get; set; }
-
-        protected ScheduleEvent(long scheduleWorkId, DateTime publicationDate)
-        {
-            ScheduleWorkId = scheduleWorkId;
-            PublicationDate = publicationDate;
-        }
-    }
-
-    public class UpdateScheduleEvent : ScheduleEvent
-    {
-        public Type PreviousScheduleEventType { get; set; }
-
-        protected UpdateScheduleEvent(long scheduleWorkId, DateTime publicationDate, Type previousScheduleEventType)
-            : base(scheduleWorkId, publicationDate)
-        {
-            PreviousScheduleEventType = previousScheduleEventType;
-        }
-    }
 }

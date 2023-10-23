@@ -1,9 +1,12 @@
-﻿using HwProj.Models.NotificationsService;
-using HwProj.Repositories;
+﻿using System.Threading.Tasks;
+using HwProj.Models.NotificationsService;
+
 
 namespace HwProj.NotificationsService.API.Repositories;
 
-public interface IScheduleWorksRepository : ICrudRepository<ScheduleWork, long>
+public interface IScheduleWorksRepository
 {
-    
+    Task AddAsync(ScheduleWork work);
+
+    Task DeleteAsync((long? taskId, long? homeworkId, long? courseId, string categoryId) id);
 }

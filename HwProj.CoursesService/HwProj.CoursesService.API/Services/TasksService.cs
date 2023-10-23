@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
+using HwProj.EventBus.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models;
 using HwProj.Models.CoursesService.ViewModels;
@@ -56,6 +58,7 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task DeleteTaskAsync(long taskId)
         {
+            var task = await _tasksRepository.GetAsync(taskId);
             await _tasksRepository.DeleteAsync(taskId);
         }
 

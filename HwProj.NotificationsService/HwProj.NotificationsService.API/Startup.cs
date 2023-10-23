@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using HwProj.CoursesService.API.Events;
+using HwProj.EventBus.Client;
 using HwProj.SolutionsService.API.Events;
 using UpdateTaskMaxRatingEvent = HwProj.CoursesService.API.Events.UpdateTaskMaxRatingEvent;
 
@@ -41,7 +42,6 @@ namespace HwProj.NotificationsService.API
 
             // Add the processing server as IHostedService
             services.AddHangfireServer();
-            
             services.AddDbContext<NotificationsContext>(options => options.UseSqlServer(connectionString));
             services.AddScoped<INotificationsRepository, NotificationsRepository>();
             services.AddScoped<INotificationSettingsRepository, NotificationSettingsRepository>();

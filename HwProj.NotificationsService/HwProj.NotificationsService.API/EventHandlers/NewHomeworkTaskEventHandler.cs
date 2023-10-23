@@ -1,5 +1,7 @@
 using System;
 using System.Linq;
+using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
@@ -15,7 +17,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {
-    public class NewHomeworkTaskEventHandler : ScheduleEventHandlerBase<NewHomeworkTaskEvent>
+    public class NewHomeworkTaskEventHandler : EventHandlerBase<NewHomeworkTaskEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
         private readonly IScheduleWorksRepository _scheduleWorksRepository;
@@ -39,21 +41,26 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
         public override async Task HandleAsync(NewHomeworkTaskEvent @event)
         {
-            var jobId = BackgroundJob.Schedule(() => ScheduleWorkAsync(@event),
+            (long? taskId, long? homeworkId, long? courseId, string categoryId) id
+                = (@event.TaskId, null, @event.Course.Id, "Task");
+            
+            var jobId = BackgroundJob.Schedule(() => ScheduleWorkAsync(@event, id),
                 @event.PublicationDate.Subtract(TimeSpan.FromHours(3)));
 
             var scheduleWork = new ScheduleWork
             {
-                Id = @event.TaskId,
-                JobId = jobId,
-                Type = typeof(NewHomeworkTaskEvent)
+                TaskId = id.taskId,
+                HomeworkId = id.homeworkId,
+                CourseId = id.courseId,
+                CategoryId = id.categoryId,
+                JobId = jobId
             };
-
             await _scheduleWorksRepository.AddAsync(scheduleWork);
         }
 
-        
-        protected override async Task ScheduleWorkAsync(NewHomeworkTaskEvent @event)
+
+        public async Task ScheduleWorkAsync(NewHomeworkTaskEvent @event,
+            (long? taskId, long? homeworkId, long? courseId, string categoryId) id)
         {
             var studentIds = @event.Course.CourseMates.Select(t => t.StudentId).ToArray();
             var accountsData = await _authServiceClient.GetAccountsData(studentIds);
@@ -79,6 +86,8 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
                 await Task.WhenAll(addNotificationTask, sendEmailTask);
             }
+
+            await _scheduleWorksRepository.DeleteAsync(id);
         }
     }
 }
