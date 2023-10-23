@@ -1,31 +1,31 @@
-﻿namespace HwProj.Models.NotificationsService
+﻿using System.ComponentModel.DataAnnotations;
+using HwProj.Repositories;
+
+
+namespace HwProj.Models.NotificationsService
 {
-    public class ScheduleWork
+    public class ScheduleWork : IEntity<string>
     {
-        private long _taskId;
-        private long _homeworkId;
-        private long _courseId;
-
-        public long? TaskId
-        {
-            get => _taskId;
-            set => _taskId = value ?? -1;
-        }
-
-        public long? HomeworkId
-        {
-            get => _homeworkId;
-            set => _homeworkId = value ?? -1;
-        }
-
-        public long? CourseId
-        {
-            get => _courseId;
-            set => _courseId = value ?? -1;
-        }
-
-        public string CategoryId { get; set; }
-
+        [Key] public string Id { get; set; }
         public string JobId { get; set; }
+    }
+
+    public static class ScheduleWorkIdBuilder
+    {
+        public static string Build(string eventName, long id)
+        {
+            //TODO: fill
+            var category = eventName switch
+            {
+                _ when eventName.Equals("NewHomeworkTaskEvent") || eventName.Equals("UpdateTaskMaxRatingEvent") ||
+                       eventName.Equals("UpdateSolutionMaxRatingEvent")
+                    => "Task",
+                _ when eventName.Equals("NewHomeworkEvent")
+                    => "Homework",
+                _ => "Unknown"
+            };
+
+            return $"{category}/{id}";
+        }
     }
 }

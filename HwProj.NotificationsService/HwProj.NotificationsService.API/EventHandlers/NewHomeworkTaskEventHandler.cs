@@ -1,7 +1,5 @@
 using System;
 using System.Linq;
-using System.Net.Sockets;
-using System.Threading;
 using System.Threading.Tasks;
 using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
@@ -10,9 +8,7 @@ using HwProj.NotificationsService.API.Repositories;
 using HwProj.CoursesService.API.Events;
 using HwProj.Models;
 using Hangfire;
-using HwProj.EventBus.Client;
 using HwProj.NotificationsService.API.Services;
-using Microsoft.Azure.KeyVault.Models;
 using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.API.EventHandlers
@@ -41,26 +37,20 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
         public override async Task HandleAsync(NewHomeworkTaskEvent @event)
         {
-            (long? taskId, long? homeworkId, long? courseId, string categoryId) id
-                = (@event.TaskId, null, @event.Course.Id, "Task");
-            
+            var id = ScheduleWorkIdBuilder.Build(nameof(NewHomeworkTaskEvent), @event.TaskId);
             var jobId = BackgroundJob.Schedule(() => ScheduleWorkAsync(@event, id),
                 @event.PublicationDate.Subtract(TimeSpan.FromHours(3)));
 
             var scheduleWork = new ScheduleWork
             {
-                TaskId = id.taskId,
-                HomeworkId = id.homeworkId,
-                CourseId = id.courseId,
-                CategoryId = id.categoryId,
+                Id = id,
                 JobId = jobId
             };
             await _scheduleWorksRepository.AddAsync(scheduleWork);
         }
 
 
-        public async Task ScheduleWorkAsync(NewHomeworkTaskEvent @event,
-            (long? taskId, long? homeworkId, long? courseId, string categoryId) id)
+        public async Task ScheduleWorkAsync(NewHomeworkTaskEvent @event, string id)
         {
             var studentIds = @event.Course.CourseMates.Select(t => t.StudentId).ToArray();
             var accountsData = await _authServiceClient.GetAccountsData(studentIds);

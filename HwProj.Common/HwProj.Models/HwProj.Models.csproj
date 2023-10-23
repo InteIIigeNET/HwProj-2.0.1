@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\HwProj.EventBus\HwProj.EventBus.Client\HwProj.EventBus.Client.csproj" />
     <ProjectReference Include="..\HwProj.Repositories\HwProj.Repositories.csproj" />
   </ItemGroup>
 

@@ -20,11 +20,5 @@ namespace HwProj.NotificationsService.API.Models
             modelBuilder.Entity<NotificationsSetting>().HasIndex(n => n.UserId);
             modelBuilder.Entity<NotificationsSetting>().HasKey(n => new { n.UserId, n.Category });
         }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<ScheduleWork>().HasKey(work => new { work.TaskId, work.HomeworkId,
-                work.CourseId, work.CategoryId });
-        }
     }
 }
