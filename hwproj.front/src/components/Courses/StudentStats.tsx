@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api/";
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
@@ -22,27 +22,23 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
     });
 
     const {searched} = state
-    //
-    // useEffect(() => {
-    //     const keyDownHandler = (event: KeyboardEvent) => {
-    //         if (searched && event.key === "Escape") {
-    //             event.preventDefault();
-    //             setSearched({searched: ""});
-    //         } else if (searched && event.key === "Backspace") {
-    //             event.preventDefault();
-    //             setSearched({searched: searched.slice(0, -1)})
-    //         } else if (event.key.length === 1 && event.key.match(/[a-zA-Zа-яА-Я\s]/i)
-    //         ) {
-    //             event.preventDefault();
-    //             setSearched({searched: searched + event.key})
-    //         }
-    //     };
-    //
-    //     document.addEventListener('keydown', keyDownHandler);
-    //     return () => {
-    //         document.removeEventListener('keydown', keyDownHandler);
-    //     };
-    // }, [searched]);
+
+    useEffect(() => {
+        const keyDownHandler = (event: KeyboardEvent) => {
+            if (event.ctrlKey || event.altKey) return
+            if (searched && event.key === "Escape") {
+                setSearched({searched: ""});
+            } else if (searched && event.key === "Backspace") {
+                setSearched({searched: searched.slice(0, -1)})
+            } else if (event.key.length === 1 && event.key.match(/[a-zA-Zа-яА-Я\s]/i)
+            ) {
+                setSearched({searched: searched + event.key})
+            }
+        };
+
+        document.addEventListener('keydown', keyDownHandler);
+        return () => document.removeEventListener('keydown', keyDownHandler);
+    }, [searched]);
 
     const homeworks = props.homeworks.filter(h => h.tasks && h.tasks.length > 0)
     const solutions = searched
@@ -58,7 +54,8 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
     return (
         <div>
             {searched &&
-                <Alert style={{marginBottom: 5}} severity="info"><b>Студенты:</b> {searched.replaceAll(" ", "·")}
+                <Alert style={{marginBottom: 5}} severity="info"><b>Поиск: </b>
+                    {searched.replaceAll(" ", "·")}
                 </Alert>}
             <TableContainer style={{maxHeight: "100vh"}}>
                 <Table stickyHeader aria-label="sticky table">
