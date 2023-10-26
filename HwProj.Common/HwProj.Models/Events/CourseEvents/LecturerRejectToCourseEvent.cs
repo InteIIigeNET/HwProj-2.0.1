@@ -1,8 +1,8 @@
 using HwProj.EventBus.Client;
 
-namespace HwProj.CoursesService.API.Events
+namespace  HwProj.Events.CourseEvents
 {
-    public class LecturerAcceptToCourseEvent : Event
+    public class LecturerRejectToCourseEvent : Event
     {
         public long CourseId { get; set; }
         public string CourseName { get; set; }

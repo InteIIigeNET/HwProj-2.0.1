@@ -16,7 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using HwProj.CoursesService.API.Events;
 using HwProj.EventBus.Client;
 using HwProj.SolutionsService.API.Events;
-using UpdateTaskMaxRatingEvent = HwProj.CoursesService.API.Events.UpdateTaskMaxRatingEvent;
+using HwProj.Events.CourseEvents;
 
 namespace HwProj.NotificationsService.API
 {
@@ -51,12 +51,12 @@ namespace HwProj.NotificationsService.API
             services.AddTransient<IEventHandler<RateEvent>, RateEventHandler>();
             services.AddTransient<IEventHandler<StudentPassTaskEvent>, StudentPassTaskEventHandler>();
             services.AddTransient<IEventHandler<UpdateHomeworkEvent>, UpdateHomeworkEventHandler>();
-            services.AddTransient<IEventHandler<UpdateTaskMaxRatingEvent>, UpdateTaskMaxRatingEventHandler>();
+            services.AddTransient<IEventHandler<UpdateTaskEvent>, UpdateTaskEventHandler>();
             services.AddTransient<IEventHandler<LecturerAcceptToCourseEvent>, LecturerAcceptToCourseEventHandler>();
             services.AddTransient<IEventHandler<LecturerRejectToCourseEvent>, LecturerRejectToCourseEventHandler>();
             services.AddTransient<IEventHandler<LecturerInvitedToCourseEvent>, LecturerInvitedToCourseEventHandler>();
             services.AddTransient<IEventHandler<NewHomeworkEvent>, NewHomeworkEventHandler>();
-            services.AddTransient<IEventHandler<NewHomeworkTaskEvent>, NewHomeworkTaskEventHandler>();
+            services.AddTransient<IEventHandler<NewTaskEvent>, NewHomeworkTaskEventHandler>();
             services.AddTransient<IEventHandler<InviteLecturerEvent>, InviteLecturerEventHandler>();
             services.AddTransient<IEventHandler<NewCourseMateEvent>, NewCourseMateHandler>();
             services.AddTransient<IEventHandler<PasswordRecoveryEvent>, PasswordRecoveryEventHandler>();
@@ -77,12 +77,12 @@ namespace HwProj.NotificationsService.API
                 eventBustSubscriber.Subscribe<RateEvent, RateEventHandler>();
                 eventBustSubscriber.Subscribe<StudentPassTaskEvent, StudentPassTaskEventHandler>();
                 eventBustSubscriber.Subscribe<UpdateHomeworkEvent, UpdateHomeworkEventHandler>();
-                eventBustSubscriber.Subscribe<UpdateTaskMaxRatingEvent, UpdateTaskMaxRatingEventHandler>();
+                eventBustSubscriber.Subscribe<UpdateTaskEvent, UpdateTaskEventHandler>();
                 eventBustSubscriber.Subscribe<LecturerAcceptToCourseEvent, LecturerAcceptToCourseEventHandler>();
                 eventBustSubscriber.Subscribe<LecturerRejectToCourseEvent, LecturerRejectToCourseEventHandler>();
                 eventBustSubscriber.Subscribe<LecturerInvitedToCourseEvent, LecturerInvitedToCourseEventHandler>();
                 eventBustSubscriber.Subscribe<NewHomeworkEvent, NewHomeworkEventHandler>();
-                eventBustSubscriber.Subscribe<NewHomeworkTaskEvent, NewHomeworkTaskEventHandler>();
+                eventBustSubscriber.Subscribe<NewTaskEvent, NewHomeworkTaskEventHandler>();
                 eventBustSubscriber.Subscribe<InviteLecturerEvent, InviteLecturerEventHandler>();
                 eventBustSubscriber.Subscribe<NewCourseMateEvent, NewCourseMateHandler>();
                 eventBustSubscriber.Subscribe<PasswordRecoveryEvent, PasswordRecoveryEventHandler>();

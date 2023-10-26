@@ -1,6 +1,6 @@
 using HwProj.EventBus.Client;
 
-namespace HwProj.CoursesService.API.Events
+namespace HwProj.Events.CourseEvents
 {
     public class LecturerInvitedToCourseEvent : Event
     {

@@ -6,6 +6,7 @@ using HwProj.EventBus.Client.Interfaces;
 using HwProj.CoursesService.API.Events;
 using HwProj.Models;
 using HwProj.Models.CoursesService.ViewModels;
+using HwProj.Events.CourseEvents;
 
 namespace HwProj.CoursesService.API.Services
 {

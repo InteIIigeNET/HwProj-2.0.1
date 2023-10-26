@@ -2,9 +2,9 @@ using System;
 using HwProj.EventBus.Client;
 using HwProj.Models.CoursesService.ViewModels;
 
-namespace HwProj.CoursesService.API.Events
+namespace HwProj.Events.CourseEvents
 {
-    public class NewHomeworkTaskEvent : Event
+    public class NewTaskEvent : Event
     {
         public string TaskTitle { get; set; }
         
@@ -17,7 +17,7 @@ namespace HwProj.CoursesService.API.Events
         public CourseDTO Course { get; set; }
         
 
-        public NewHomeworkTaskEvent(string taskTitle, long taskId, DateTime? deadline,
+        public NewTaskEvent(string taskTitle, long taskId, DateTime? deadline,
             DateTime publicationDate, CourseDTO course)
         {
             TaskTitle = taskTitle;

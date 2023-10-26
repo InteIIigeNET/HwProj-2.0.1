@@ -8,12 +8,13 @@ using HwProj.NotificationsService.API.Repositories;
 using HwProj.CoursesService.API.Events;
 using HwProj.Models;
 using Hangfire;
+using HwProj.Events.CourseEvents;
 using HwProj.NotificationsService.API.Services;
 using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {
-    public class NewHomeworkTaskEventHandler : EventHandlerBase<NewHomeworkTaskEvent>
+    public class NewHomeworkTaskEventHandler : EventHandlerBase<NewTaskEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
         private readonly IScheduleWorksRepository _scheduleWorksRepository;
@@ -35,11 +36,13 @@ namespace HwProj.NotificationsService.API.EventHandlers
             _configuration = configuration.GetSection("Notification");
         }
 
-        public override async Task HandleAsync(NewHomeworkTaskEvent @event)
+        public override async Task HandleAsync(NewTaskEvent @event)
         {
-            var id = ScheduleWorkIdBuilder.Build(nameof(NewHomeworkTaskEvent), @event.TaskId);
-            var jobId = BackgroundJob.Schedule(() => ScheduleWorkAsync(@event, id),
-                @event.PublicationDate.Subtract(TimeSpan.FromHours(3)));
+            var id = ScheduleWorkIdBuilder.Build(@event, @event.TaskId);
+            var jobId = BackgroundJob.Schedule( () => ScheduleWorkAsync(@event, id),
+                @event.PublicationDate >= DateTimeUtils.GetMoscowNow()
+                    ? @event.PublicationDate.Subtract(TimeSpan.FromHours(3))
+                    : DateTimeUtils.GetMoscowNow().Subtract(TimeSpan.FromHours(3)));
 
             var scheduleWork = new ScheduleWork
             {
@@ -50,7 +53,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
         }
 
 
-        public async Task ScheduleWorkAsync(NewHomeworkTaskEvent @event, string id)
+        public async Task ScheduleWorkAsync(NewTaskEvent @event, string id)
         {
             var studentIds = @event.Course.CourseMates.Select(t => t.StudentId).ToArray();
             var accountsData = await _authServiceClient.GetAccountsData(studentIds);

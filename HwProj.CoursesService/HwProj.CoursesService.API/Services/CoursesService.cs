@@ -12,6 +12,7 @@ using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
 using Microsoft.EntityFrameworkCore;
+using HwProj.Events.CourseEvents;
 
 namespace HwProj.CoursesService.API.Services
 {

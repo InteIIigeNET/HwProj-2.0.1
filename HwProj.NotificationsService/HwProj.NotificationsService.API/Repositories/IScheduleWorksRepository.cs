@@ -7,4 +7,5 @@ namespace HwProj.NotificationsService.API.Repositories;
 
 public interface IScheduleWorksRepository : ICrudRepository<ScheduleWork, string>
 {
+    bool Contains(string id);
 }

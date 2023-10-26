@@ -8,6 +8,7 @@ using HwProj.CoursesService.API.Events;
 using HwProj.Models;
 using HwProj.NotificationsService.API.Services;
 using Microsoft.Extensions.Configuration;
+using HwProj.Events.CourseEvents;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {

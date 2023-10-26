@@ -11,6 +11,7 @@ using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models;
 using HwProj.Models.CoursesService.ViewModels;
 using static System.TimeSpan;
+using HwProj.Events.CourseEvents;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -50,26 +51,27 @@ namespace HwProj.CoursesService.API.Services
 
             var taskId = await _tasksRepository.AddAsync(task);
 
-            if (task.PublicationDate > DateTimeUtils.GetMoscowNow())
-                _eventBus.Publish(new NewHomeworkTaskEvent(task.Title, taskId, task.DeadlineDate, task.PublicationDate, courseModel));
+            _eventBus.Publish(new NewTaskEvent(task.Title, taskId, task.DeadlineDate, task.PublicationDate,
+                courseModel));
 
             return taskId;
         }
 
         public async Task DeleteTaskAsync(long taskId)
         {
-            var task = await _tasksRepository.GetAsync(taskId);
+            _eventBus.Publish(new DeleteTaskEvent(taskId));
             await _tasksRepository.DeleteAsync(taskId);
         }
 
         public async Task UpdateTaskAsync(long taskId, HomeworkTask update)
         {
             var task = await _tasksRepository.GetAsync(taskId);
-            var taskModel = _mapper.Map<HomeworkTaskViewModel>(task);
             var homework = await _homeworksRepository.GetAsync(task.HomeworkId);
             var course = await _coursesRepository.GetWithCourseMatesAsync(homework.CourseId);
             var courseModel = _mapper.Map<CourseDTO>(course);
-            _eventBus.Publish(new UpdateTaskMaxRatingEvent(courseModel, taskModel, update.MaxRating));
+
+
+            _eventBus.Publish(new UpdateTaskEvent(courseModel, update.Title, taskId, update.PublicationDate));
 
             await _tasksRepository.UpdateAsync(taskId, t => new HomeworkTask()
             {

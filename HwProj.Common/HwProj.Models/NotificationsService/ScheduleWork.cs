@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using HwProj.EventBus.Client;
+using HwProj.Events.CourseEvents;
 using HwProj.Repositories;
 
 
@@ -12,15 +14,16 @@ namespace HwProj.Models.NotificationsService
 
     public static class ScheduleWorkIdBuilder
     {
-        public static string Build(string eventName, long id)
+        public static string Build(Event @event, long id)
         {
             //TODO: fill
-            var category = eventName switch
+            var eventType = @event.GetType();
+            var category = eventType switch
             {
-                _ when eventName.Equals("NewHomeworkTaskEvent") || eventName.Equals("UpdateTaskMaxRatingEvent") ||
-                       eventName.Equals("UpdateSolutionMaxRatingEvent")
+                _ when eventType == typeof(NewTaskEvent) || eventType == typeof(UpdateTaskEvent) ||
+                       eventType == typeof(DeleteTaskEvent)
                     => "Task",
-                _ when eventName.Equals("NewHomeworkEvent")
+                _ when eventType == typeof(NewHomeworkEvent) 
                     => "Homework",
                 _ => "Unknown"
             };
