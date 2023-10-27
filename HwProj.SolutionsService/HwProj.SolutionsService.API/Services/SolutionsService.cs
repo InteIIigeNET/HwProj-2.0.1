@@ -115,7 +115,6 @@ namespace HwProj.SolutionsService.API.Services
 
             solution.PublicationDate = DateTimeUtils.GetMoscowNow();
             solution.TaskId = taskId;
-            solution.Comment = "[Решение было сдано вне сервиса]";
             var id = await _solutionsRepository.AddAsync(solution);
             await RateSolutionAsync(id, solution.Rating, solution.LecturerComment);
         }

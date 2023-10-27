@@ -66,6 +66,10 @@ const Workspace: FC = () => {
         }))
     }
 
+    const onGiveUpClick = () => {
+        getUserInfo()
+    }
+
     const {userData, courseEvents, taskDeadlines, unratedSolutionPreviews} = accountState
     const {tabValue} = profileState
 
@@ -146,11 +150,13 @@ const Workspace: FC = () => {
                             {tabValue === 0 &&
                                 (isLecturer
                                     ? <UnratedSolutions unratedSolutionsPreviews={unratedSolutionPreviews!}/>
-                                    : <TaskDeadlines taskDeadlines={nearestTaskDeadlines}/>)}
+                                    : <TaskDeadlines taskDeadlines={nearestTaskDeadlines}
+                                                     onGiveUpClick={onGiveUpClick}/>)}
                             {tabValue === 1 &&
                                 (isLecturer
                                     ? <NewCourseEvents courseEvents={courseEvents!}/>
-                                    : <TaskDeadlines taskDeadlines={pastTaskDeadlines}/>)}
+                                    : <TaskDeadlines taskDeadlines={pastTaskDeadlines}
+                                                     onGiveUpClick={onGiveUpClick}/>)}
                         </div>
                     </Grid>}
                 </Grid>

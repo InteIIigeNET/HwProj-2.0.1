@@ -1,16 +1,26 @@
 import {TaskDeadlineView} from "../../api";
 import * as React from "react";
-import {NavLink, Link} from "react-router-dom";
+import {Link, NavLink} from "react-router-dom";
 import {Divider, Grid, ListItem, Typography} from "@material-ui/core";
-import {Chip, LinearProgress} from "@mui/material";
+import {Chip, IconButton, LinearProgress, Tooltip} from "@mui/material";
 import {colorBetween} from "../../services/JsUtils";
 import Utils from "../../services/Utils";
+import DeleteIcon from "@material-ui/icons/Delete";
+import ApiSingleton from "../../api/ApiSingleton";
 
 interface ITaskDeadlinesProps {
     taskDeadlines: TaskDeadlineView[]
+    onGiveUpClick: () => void
 }
 
-export class TaskDeadlines extends React.Component<ITaskDeadlinesProps, {}> {
+export class TaskDeadlines extends React.Component<ITaskDeadlinesProps, { hoveredElement: number | undefined }> {
+    constructor(props: ITaskDeadlinesProps) {
+        super(props);
+        this.state = {
+            hoveredElement: undefined
+        };
+    }
+
     clamp = (num: number, min: number, max: number) => Math.min(Math.max(num, min), max)
     getPercent = (startDate: Date, endDate: Date) => {
         const startDateNumber = new Date(startDate).getTime()
@@ -21,6 +31,11 @@ export class TaskDeadlines extends React.Component<ITaskDeadlinesProps, {}> {
 
     renderBadgeLabel = (text: string) =>
         <Typography style={{color: "white", fontSize: "small"}} variant={"subtitle2"}>{text}</Typography>
+
+    giveUp = async (taskId: number) => {
+        await ApiSingleton.solutionsApi.apiSolutionsGiveUpByTaskIdPost(taskId)
+        this.props.onGiveUpClick()
+    }
 
     renderBadge = (solutionState: TaskDeadlineView.SolutionStateEnum | null,
                    rating: number | null,
@@ -39,47 +54,65 @@ export class TaskDeadlines extends React.Component<ITaskDeadlinesProps, {}> {
     }
 
     public render() {
-        const {taskDeadlines} = this.props;
-
+        const {taskDeadlines} = this.props
+        const {hoveredElement} = this.state
         return (
             <div className="container">
-                {taskDeadlines.map(({deadline: deadline, rating, deadlinePast, solutionState}, i) => (
-                    <Grid item>
-                        <Link to={`/task/${deadline!.taskId}`}>
-                            <ListItem
-                                key={deadline!.taskId}
-                                style={{padding: 0}}
-                            >
-                                <Grid container direction={"row"} spacing={1}
-                                      style={{justifyContent: "space-between"}}>
-                                    <Grid item>
-                                        <NavLink
-                                            to={`/task/${deadline!.taskId}`}
-                                            style={{color: "#212529"}}
-                                        >
-                                            <Typography style={{fontSize: "20px"}}>
-                                                {deadline!.taskTitle}
-                                            </Typography>
-                                        </NavLink>
-                                    </Grid>
-                                    {!deadlinePast && <Grid item>
-                                        {this.renderBadge(solutionState!, rating!, deadline!.maxRating!)}
-                                    </Grid>}
-                                </Grid>
-                            </ListItem>
-                        </Link>
-                        <Typography style={{fontSize: "18px", color: "GrayText"}}>
-                            {deadline!.courseTitle}
-                        </Typography>
-                        <LinearProgress variant="determinate"
-                                        color={deadlinePast ? "error" : "primary"}
-                                        style={{marginTop: 5}}
-                                        value={deadlinePast ? 100 : this.getPercent(deadline!.publicationDate!, deadline!.deadlineDate!)}/>
-                        {Utils.renderReadableDate(deadline!.deadlineDate!)}
-                        {i < taskDeadlines.length - 1 ?
-                            <Divider style={{marginTop: 10, marginBottom: 10}}/> : null}
-                    </Grid>
-                ))}
+                {taskDeadlines.map(({deadline: deadline, rating, deadlinePast, solutionState}, i) => {
+                    return (
+                        <Grid container alignItems={"center"} spacing={2}
+                              onMouseEnter={() => this.setState({hoveredElement: i})}
+                              onMouseLeave={() => this.setState({hoveredElement: undefined})}
+                        >
+                            <Grid item>
+                                <Link to={`/task/${deadline!.taskId}`}>
+                                    <ListItem
+                                        key={deadline!.taskId}
+                                        style={{padding: 0}}
+                                    >
+                                        <Grid container direction={"row"} spacing={1}
+                                              style={{justifyContent: "space-between"}}>
+                                            <Grid item>
+                                                <NavLink
+                                                    to={`/task/${deadline!.taskId}`}
+                                                    style={{color: "#212529"}}
+                                                >
+                                                    <Typography style={{fontSize: "20px"}}>
+                                                        {deadline!.taskTitle}
+                                                    </Typography>
+                                                </NavLink>
+                                            </Grid>
+                                            {!deadlinePast && <Grid item>
+                                                {this.renderBadge(solutionState!, rating!, deadline!.maxRating!)}
+                                            </Grid>}
+                                        </Grid>
+                                    </ListItem>
+                                </Link>
+                                <Typography style={{fontSize: "18px", color: "GrayText"}}>
+                                    {deadline!.courseTitle}
+                                </Typography>
+                                <LinearProgress variant="determinate"
+                                                color={deadlinePast ? "error" : "primary"}
+                                                style={{marginTop: 5}}
+                                                value={deadlinePast ? 100 : this.getPercent(deadline!.publicationDate!, deadline!.deadlineDate!)}/>
+                                {Utils.renderReadableDate(deadline!.deadlineDate!)}
+                                {i < taskDeadlines.length - 1 ?
+                                    <Divider style={{marginTop: 10, marginBottom: 10}}/> : null}
+                            </Grid>
+                            {hoveredElement === i && <Grid item>
+                                <Tooltip
+                                    arrow
+                                    title={<span style={{whiteSpace: 'pre-line'}}>
+                                        {"Отказаться от решения задачи.\nЗадача автоматически оценивается в 0 баллов."}
+                                </span>}>
+                                    <IconButton aria-label="delete" onClick={() => this.giveUp(deadline!.taskId!)}>
+                                        <DeleteIcon/>
+                                    </IconButton>
+                                </Tooltip>
+                            </Grid>}
+                        </Grid>
+                    );
+                })}
             </div>
         );
     }
