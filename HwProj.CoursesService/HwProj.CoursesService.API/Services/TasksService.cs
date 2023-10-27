@@ -70,8 +70,8 @@ namespace HwProj.CoursesService.API.Services
             var course = await _coursesRepository.GetWithCourseMatesAsync(homework.CourseId);
             var courseModel = _mapper.Map<CourseDTO>(course);
 
-
-            _eventBus.Publish(new UpdateTaskEvent(courseModel, update.Title, taskId, update.PublicationDate));
+            _eventBus.Publish(new UpdateTaskEvent(courseModel, update.Title, taskId, task.PublicationDate,
+                update.PublicationDate, update.DeadlineDate));
 
             await _tasksRepository.UpdateAsync(taskId, t => new HomeworkTask()
             {

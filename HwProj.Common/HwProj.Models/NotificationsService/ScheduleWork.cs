@@ -23,7 +23,7 @@ namespace HwProj.Models.NotificationsService
                 _ when eventType == typeof(NewTaskEvent) || eventType == typeof(UpdateTaskEvent) ||
                        eventType == typeof(DeleteTaskEvent)
                     => "Task",
-                _ when eventType == typeof(NewHomeworkEvent) 
+                _ when eventType == typeof(NewHomeworkEvent)
                     => "Homework",
                 _ => "Unknown"
             };

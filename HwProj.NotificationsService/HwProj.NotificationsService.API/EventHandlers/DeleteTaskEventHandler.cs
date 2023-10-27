@@ -22,7 +22,6 @@ namespace HwProj.NotificationsService.API.EventHandlers
             var scheduleWork = await _scheduleWorksRepository.GetAsync(id);
 
             BackgroundJob.Delete(scheduleWork.JobId);
-            
             await _scheduleWorksRepository.DeleteAsync(id);
         }
     }

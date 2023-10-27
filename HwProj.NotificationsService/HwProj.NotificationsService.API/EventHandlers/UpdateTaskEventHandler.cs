@@ -1,5 +1,7 @@
+using System;
 using System.Threading.Tasks;
 using AutoMapper;
+using Hangfire;
 using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Events.CourseEvents;
@@ -39,8 +41,37 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
         public override async Task HandleAsync(UpdateTaskEvent @event)
         {
-            //TODO: event types
             var id = ScheduleWorkIdBuilder.Build(@event, @event.TaskId);
+            var isTaskPublished = @event.PreviousPublicationDate <= DateTimeUtils.GetMoscowNow();
+            if (isTaskPublished)
+            {
+                await AddNotificationsAsync(@event);
+                return;
+            }
+
+            var previousWork = await _scheduleWorksRepository.GetAsync(id);
+            BackgroundJob.Delete(previousWork.JobId);
+
+            var jobId = BackgroundJob.Schedule(() => AddNotificationsAsync(@event),
+                @event.PublicationDate.Subtract(TimeSpan.FromHours(3)));
+
+            await _scheduleWorksRepository.UpdateAsync(id, work => new ScheduleWork()
+            {
+                Id = id,
+                JobId = jobId
+            });
+        }
+
+        public async Task AddNotificationsAsync(UpdateTaskEvent @event)
+        {
+            var url = _configuration["Url"];
+            var isTaskPublished = @event.PreviousPublicationDate < DateTimeUtils.GetMoscowNow();
+            var message = isTaskPublished
+                ? $"Задача <a href='{_configuration["Url"]}/task/{@event.TaskId}'>{@event.TaskTitle}</a>" +
+                  $" из курса <a href='{_configuration["Url"]}/courses/{@event.Course.Id}'>{@event.Course.Name}</a> обновлена."
+                : $"В курсе <a href='{url}/courses/{@event.Course.Id}'>{@event.Course.Name}</a>" +
+                  $" опубликована новая задача <a href='{url}/task/{@event.TaskId}'>{@event.TaskTitle}</a>." +
+                  (@event.Deadline is { } deadline ? $"\n\nДедлайн: {deadline:U}" : "");
             
             foreach (var student in @event.Course.CourseMates)
             {
@@ -49,8 +80,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 var notification = new Notification
                 {
                     Sender = "CourseService",
-                    Body = $"Задача <a href='{_configuration["Url"]}/task/{@event.TaskId}'>{@event.TaskTitle}</a>" +
-                           $" из курса <a href='{_configuration["Url"]}/courses/{@event.Course.Id}'>{@event.Course.Name}</a> обновлена.",
+                    Body = message,
                     Category = CategoryState.Courses,
                     Date = DateTimeUtils.GetMoscowNow(),
                     HasSeen = false,
@@ -62,11 +92,6 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
                 await Task.WhenAll(addNotificationTask, sendEmailTask);
             }
-        }
-
-        public async Task ScheduleWorkAsync()
-        {
-            
         }
     }
 }

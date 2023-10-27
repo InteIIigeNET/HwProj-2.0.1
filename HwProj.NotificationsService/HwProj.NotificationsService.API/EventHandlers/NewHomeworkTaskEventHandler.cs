@@ -1,14 +1,13 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Hangfire;
 using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
+using HwProj.Events.CourseEvents;
+using HwProj.Models;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
-using HwProj.CoursesService.API.Events;
-using HwProj.Models;
-using Hangfire;
-using HwProj.Events.CourseEvents;
 using HwProj.NotificationsService.API.Services;
 using Microsoft.Extensions.Configuration;
 
@@ -39,10 +38,15 @@ namespace HwProj.NotificationsService.API.EventHandlers
         public override async Task HandleAsync(NewTaskEvent @event)
         {
             var id = ScheduleWorkIdBuilder.Build(@event, @event.TaskId);
-            var jobId = BackgroundJob.Schedule( () => ScheduleWorkAsync(@event, id),
-                @event.PublicationDate >= DateTimeUtils.GetMoscowNow()
-                    ? @event.PublicationDate.Subtract(TimeSpan.FromHours(3))
-                    : DateTimeUtils.GetMoscowNow().Subtract(TimeSpan.FromHours(3)));
+
+            if (@event.PublicationDate <= DateTimeUtils.GetMoscowNow())
+            {
+                await AddNotificationsAsync(@event);
+                return;
+            }
+
+            var jobId = BackgroundJob.Schedule(() => AddNotificationsAsync(@event),
+                @event.PublicationDate.Subtract(TimeSpan.FromHours(3)));
 
             var scheduleWork = new ScheduleWork
             {
@@ -53,7 +57,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
         }
 
 
-        public async Task ScheduleWorkAsync(NewTaskEvent @event, string id)
+        public async Task AddNotificationsAsync(NewTaskEvent @event)
         {
             var studentIds = @event.Course.CourseMates.Select(t => t.StudentId).ToArray();
             var accountsData = await _authServiceClient.GetAccountsData(studentIds);
@@ -79,8 +83,6 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
                 await Task.WhenAll(addNotificationTask, sendEmailTask);
             }
-
-            await _scheduleWorksRepository.DeleteAsync(id);
         }
     }
 }

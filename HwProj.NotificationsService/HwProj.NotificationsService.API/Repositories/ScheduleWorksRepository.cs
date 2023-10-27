@@ -13,9 +13,5 @@ namespace HwProj.NotificationsService.API.Repositories
         {
         }
         
-        public bool Contains(string id)
-        {
-            return Context.Set<ScheduleWork>().AsNoTracking().Any(work => work.Id.Equals(id));
-        }
     }
 }

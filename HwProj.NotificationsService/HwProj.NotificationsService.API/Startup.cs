@@ -1,22 +1,20 @@
-﻿using HwProj.AuthService.API.Events;
+﻿using Hangfire;
+using HwProj.AuthService.API.Events;
 using HwProj.AuthService.Client;
+using HwProj.CoursesService.API.Events;
 using HwProj.EventBus.Client.Interfaces;
+using HwProj.Events.CourseEvents;
 using HwProj.NotificationsService.API.EventHandlers;
 using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
+using HwProj.SolutionsService.API.Events;
 using HwProj.Utils.Configuration;
-using Hangfire;
-using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using HwProj.CoursesService.API.Events;
-using HwProj.EventBus.Client;
-using HwProj.SolutionsService.API.Events;
-using HwProj.Events.CourseEvents;
 
 namespace HwProj.NotificationsService.API
 {
@@ -52,6 +50,7 @@ namespace HwProj.NotificationsService.API
             services.AddTransient<IEventHandler<StudentPassTaskEvent>, StudentPassTaskEventHandler>();
             services.AddTransient<IEventHandler<UpdateHomeworkEvent>, UpdateHomeworkEventHandler>();
             services.AddTransient<IEventHandler<UpdateTaskEvent>, UpdateTaskEventHandler>();
+            services.AddTransient<IEventHandler<DeleteTaskEvent>, DeleteTaskEventHandler>();
             services.AddTransient<IEventHandler<LecturerAcceptToCourseEvent>, LecturerAcceptToCourseEventHandler>();
             services.AddTransient<IEventHandler<LecturerRejectToCourseEvent>, LecturerRejectToCourseEventHandler>();
             services.AddTransient<IEventHandler<LecturerInvitedToCourseEvent>, LecturerInvitedToCourseEventHandler>();
@@ -78,6 +77,7 @@ namespace HwProj.NotificationsService.API
                 eventBustSubscriber.Subscribe<StudentPassTaskEvent, StudentPassTaskEventHandler>();
                 eventBustSubscriber.Subscribe<UpdateHomeworkEvent, UpdateHomeworkEventHandler>();
                 eventBustSubscriber.Subscribe<UpdateTaskEvent, UpdateTaskEventHandler>();
+                eventBustSubscriber.Subscribe<DeleteTaskEvent, DeleteTaskEventHandler>();
                 eventBustSubscriber.Subscribe<LecturerAcceptToCourseEvent, LecturerAcceptToCourseEventHandler>();
                 eventBustSubscriber.Subscribe<LecturerRejectToCourseEvent, LecturerRejectToCourseEventHandler>();
                 eventBustSubscriber.Subscribe<LecturerInvitedToCourseEvent, LecturerInvitedToCourseEventHandler>();
