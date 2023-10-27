@@ -62,8 +62,13 @@ const Workspace: FC = () => {
         setAccountState({...data, unratedSolutionPreviews: unratedSolutions})
         setProfileState(prevState => ({
             ...prevState,
+            tabValue: taskDeadlines?.some(x => x.deadlinePast) ? prevState.tabValue : 0,
             isLoaded: true
         }))
+    }
+
+    const onGiveUpClick = () => {
+        getUserInfo()
     }
 
     const {userData, courseEvents, taskDeadlines, unratedSolutionPreviews} = accountState
@@ -101,7 +106,7 @@ const Workspace: FC = () => {
                             </Typography>
                         </Grid>
                     </Grid>
-                    {isUserProfile && <Grid item>
+                    {isUserProfile && <Grid item xs={10}>
                         <Tabs
                             value={tabValue}
                             style={{marginTop: 15}}
@@ -146,11 +151,13 @@ const Workspace: FC = () => {
                             {tabValue === 0 &&
                                 (isLecturer
                                     ? <UnratedSolutions unratedSolutionsPreviews={unratedSolutionPreviews!}/>
-                                    : <TaskDeadlines taskDeadlines={nearestTaskDeadlines}/>)}
+                                    : <TaskDeadlines taskDeadlines={nearestTaskDeadlines}
+                                                     onGiveUpClick={onGiveUpClick}/>)}
                             {tabValue === 1 &&
                                 (isLecturer
                                     ? <NewCourseEvents courseEvents={courseEvents!}/>
-                                    : <TaskDeadlines taskDeadlines={pastTaskDeadlines}/>)}
+                                    : <TaskDeadlines taskDeadlines={pastTaskDeadlines}
+                                                     onGiveUpClick={onGiveUpClick}/>)}
                         </div>
                     </Grid>}
                 </Grid>
