@@ -172,7 +172,7 @@ const EditTask: FC = () => {
                                     />
                                 </Grid>
                             </Grid>
-                            <Grid item xs={11}>
+                            <Grid item xs={12}>
                                 <TextFieldWithPreview
                                     multiline
                                     fullWidth
@@ -191,7 +191,7 @@ const EditTask: FC = () => {
                                     }}
                                 />
                             </Grid>
-                            <Grid item className={classes.checkBox}>
+                            <Grid item xs={12} className={classes.checkBox}>
                                 <div>
                                     <TextField
                                         id="datetime-local"
@@ -231,7 +231,7 @@ const EditTask: FC = () => {
                                 </div>
                             </Grid>
                             {taskState.hasDeadline &&
-                                <Grid item className={classes.checkBox}>
+                                <Grid item xs={12} className={classes.checkBox}>
                                     <div>
                                         <TextField
                                             id="datetime-local"
@@ -270,7 +270,7 @@ const EditTask: FC = () => {
                                     </div>
                                 </Grid>
                             }
-                            <Grid item xs={11}>
+                            <Grid item xs={12}>
                                 <Button
                                     fullWidth
                                     variant="contained"
