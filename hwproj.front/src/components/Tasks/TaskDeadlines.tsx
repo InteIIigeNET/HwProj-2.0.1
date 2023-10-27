@@ -2,22 +2,38 @@ import {TaskDeadlineView} from "../../api";
 import * as React from "react";
 import {Link, NavLink} from "react-router-dom";
 import {Divider, Grid, ListItem, Typography} from "@material-ui/core";
-import {Chip, IconButton, LinearProgress, Tooltip} from "@mui/material";
+import {
+    Alert,
+    Autocomplete,
+    Chip,
+    Dialog, DialogActions,
+    DialogContent,
+    DialogTitle,
+    IconButton,
+    LinearProgress,
+    Tooltip
+} from "@mui/material";
 import {colorBetween} from "../../services/JsUtils";
 import Utils from "../../services/Utils";
 import DeleteIcon from "@material-ui/icons/Delete";
 import ApiSingleton from "../../api/ApiSingleton";
+import TextField from "@material-ui/core/TextField";
+import Button from "@material-ui/core/Button";
 
 interface ITaskDeadlinesProps {
     taskDeadlines: TaskDeadlineView[]
     onGiveUpClick: () => void
 }
 
-export class TaskDeadlines extends React.Component<ITaskDeadlinesProps, { hoveredElement: number | undefined }> {
+export class TaskDeadlines extends React.Component<ITaskDeadlinesProps, {
+    hoveredElement: number | undefined,
+    showGiveUpModalForTaskId: number | undefined
+}> {
     constructor(props: ITaskDeadlinesProps) {
         super(props);
         this.state = {
-            hoveredElement: undefined
+            hoveredElement: undefined,
+            showGiveUpModalForTaskId: undefined
         };
     }
 
@@ -55,20 +71,20 @@ export class TaskDeadlines extends React.Component<ITaskDeadlinesProps, { hovere
 
     public render() {
         const {taskDeadlines} = this.props
-        const {hoveredElement} = this.state
+        const {hoveredElement, showGiveUpModalForTaskId} = this.state
         return (
-            <div className="container">
+            <Grid>
                 {taskDeadlines.map(({deadline: deadline, rating, deadlinePast, solutionState}, i) => {
                     return (
-                        <Grid container alignItems={"center"} spacing={2}
+                        <Grid container alignItems={"center"} spacing={2} direction={"row"}
                               onMouseEnter={() => this.setState({hoveredElement: i})}
                               onMouseLeave={() => this.setState({hoveredElement: undefined})}
                         >
-                            <Grid item>
+                            <Grid xs={10} item>
                                 <Link to={`/task/${deadline!.taskId}`}>
                                     <ListItem
                                         key={deadline!.taskId}
-                                        style={{padding: 0}}
+                                        style={{padding: 0, color: "#212529"}}
                                     >
                                         <Grid container direction={"row"} spacing={1}
                                               style={{justifyContent: "space-between"}}>
@@ -99,13 +115,14 @@ export class TaskDeadlines extends React.Component<ITaskDeadlinesProps, { hovere
                                 {i < taskDeadlines.length - 1 ?
                                     <Divider style={{marginTop: 10, marginBottom: 10}}/> : null}
                             </Grid>
-                            {hoveredElement === i && <Grid item>
+                            {hoveredElement === i && <Grid item xs={2}>
                                 <Tooltip
                                     arrow
                                     title={<span style={{whiteSpace: 'pre-line'}}>
                                         {"Отказаться от решения задачи.\nЗадача автоматически оценивается в 0 баллов."}
                                 </span>}>
-                                    <IconButton aria-label="delete" onClick={() => this.giveUp(deadline!.taskId!)}>
+                                    <IconButton aria-label="delete"
+                                                onClick={() => this.setState({showGiveUpModalForTaskId: deadline!.taskId!})}>
                                         <DeleteIcon/>
                                     </IconButton>
                                 </Tooltip>
@@ -113,7 +130,38 @@ export class TaskDeadlines extends React.Component<ITaskDeadlinesProps, { hovere
                         </Grid>
                     );
                 })}
-            </div>
+                <Dialog open={showGiveUpModalForTaskId !== undefined}
+                        onClose={() => this.setState({showGiveUpModalForTaskId: undefined})}
+                        aria-labelledby="form-dialog-title">
+                    <DialogTitle id="form-dialog-title">
+                        Отказаться от решения задачи
+                    </DialogTitle>
+                    <DialogContent>
+                        <Typography>
+                            Вы уверены? Задача автоматически будет оценена в 0 баллов.
+                        </Typography>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button
+                            size="small"
+                            variant="contained"
+                            color="primary"
+                            type="submit"
+                            onClick={e => showGiveUpModalForTaskId && this.giveUp(showGiveUpModalForTaskId)}
+                        >
+                            Да
+                        </Button>
+                        <Button
+                            size="small"
+                            onClick={() => this.setState({showGiveUpModalForTaskId: undefined})}
+                            variant="contained"
+                            color="primary"
+                        >
+                            Отменить
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            </Grid>
         );
     }
 }

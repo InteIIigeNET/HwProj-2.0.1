@@ -62,6 +62,7 @@ const Workspace: FC = () => {
         setAccountState({...data, unratedSolutionPreviews: unratedSolutions})
         setProfileState(prevState => ({
             ...prevState,
+            tabValue: taskDeadlines?.some(x => x.deadlinePast) ? prevState.tabValue : 0,
             isLoaded: true
         }))
     }
@@ -105,7 +106,7 @@ const Workspace: FC = () => {
                             </Typography>
                         </Grid>
                     </Grid>
-                    {isUserProfile && <Grid item>
+                    {isUserProfile && <Grid item xs={10}>
                         <Tabs
                             value={tabValue}
                             style={{marginTop: 15}}
