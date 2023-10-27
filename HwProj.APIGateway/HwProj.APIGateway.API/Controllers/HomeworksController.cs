@@ -26,8 +26,17 @@ namespace HwProj.APIGateway.API.Controllers
         {
             var result = await _coursesClient.GetHomework(homeworkId);
             return Ok(result);
-        } 
-        
+        }
+
+        [HttpGet("getForEditing/{homeworkId}")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        [ProducesResponseType(typeof(HomeworkTaskViewModel), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetForEditingHomework(long homeworkId)
+        {
+            var result = await _coursesClient.GetForEditingHomework(homeworkId);
+            return Ok(result);
+        }
+
         [HttpPost("{courseId}/add")]
         [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]

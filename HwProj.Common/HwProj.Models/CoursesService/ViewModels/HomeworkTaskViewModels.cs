@@ -14,13 +14,13 @@ namespace HwProj.Models.CoursesService.ViewModels
 
         public int MaxRating { get; set; }
 
-        public bool HasDeadline { get; set; }
+        public bool? HasDeadline { get; set; }
 
         public DateTime? DeadlineDate { get; set; }
 
-        public bool IsDeadlineStrict { get; set; }
+        public bool? IsDeadlineStrict { get; set; }
 
-        [JsonProperty] public bool CanSendSolution => !IsDeadlineStrict || DateTimeUtils.GetMoscowNow() <= DeadlineDate;
+        [JsonProperty] public bool CanSendSolution => (!IsDeadlineStrict ?? false) || DateTimeUtils.GetMoscowNow() <= DeadlineDate;
 
         public DateTime? PublicationDate { get; set; }
 
@@ -37,11 +37,11 @@ namespace HwProj.Models.CoursesService.ViewModels
 
         public string Description { get; set; }
 
-        public bool HasDeadline { get; set; }
+        public bool? HasDeadline { get; set; }
 
         public DateTime? DeadlineDate { get; set; }
 
-        public bool IsDeadlineStrict { get; set; }
+        public bool? IsDeadlineStrict { get; set; }
 
         public DateTime? PublicationDate { get; set; }
 
@@ -49,11 +49,13 @@ namespace HwProj.Models.CoursesService.ViewModels
 
         public void InitializeDates()
         {
-            if (!HasDeadline || DeadlineDate == null || PublicationDate == null)
+            if (!HasDeadline ?? true)
             {
-                IsDeadlineStrict = false;
-                HasDeadline = false;
                 DeadlineDate = null;
+            }
+            else if (DeadlineDate == null)
+            {
+                HasDeadline = null;
             }
         }
     }

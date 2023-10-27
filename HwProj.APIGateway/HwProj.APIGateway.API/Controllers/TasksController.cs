@@ -30,13 +30,28 @@ namespace HwProj.APIGateway.API.Controllers
                 : Ok(result);
         }
 
+        [HttpGet("getForEditing/{taskId}")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        [ProducesResponseType(typeof(HomeworkTaskViewModel), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetForEditingTask(long taskId)
+        {
+            var result = await _coursesClient.GetForEditingTask(taskId);
+            return result == null
+                ? NotFound() as IActionResult
+                : Ok(result);
+        }
+
         [HttpPost("add/{homeworkId}")]
         [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> AddTask(CreateTaskViewModel taskViewModel, long homeworkId)
         {
+            //taskViewModel.HomeworkId = homeworkId;
+
             var result = await _coursesClient.AddTask(taskViewModel, homeworkId);
-            return Ok(result.Value);
+            return result.Succeeded
+                ? Ok(result.Value) as IActionResult
+                : BadRequest(result.Errors);
         }
 
         [HttpDelete("delete/{taskId}")]

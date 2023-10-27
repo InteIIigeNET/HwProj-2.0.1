@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using AutoMapper;
+using FluentValidation;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Services;
@@ -14,28 +15,43 @@ namespace HwProj.CoursesService.API.Controllers
     {
         private readonly IHomeworksService _homeworksService;
         private readonly IMapper _mapper;
+        private readonly IValidator<CreateHomeworkViewModel> _validator;
 
-        public HomeworksController(IHomeworksService homeworksService, IMapper mapper)
+        public HomeworksController(IHomeworksService homeworksService, IMapper mapper, IValidator<CreateHomeworkViewModel> validator)
         {
             _homeworksService = homeworksService;
             _mapper = mapper;
+            _validator = validator;
         }
 
         [HttpPost("{courseId}/add")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        public async Task<long> AddHomework(long courseId, [FromBody] CreateHomeworkViewModel homeworkViewModel)
+        public async Task<IActionResult> AddHomework(long courseId, [FromBody] CreateHomeworkViewModel homeworkViewModel)
         {
-            homeworkViewModel.InitializeDates();
+            /*var validationResult = await _validator.ValidateAsync(homeworkViewModel);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors);
+            }*/
 
             var homework = _mapper.Map<Homework>(homeworkViewModel);
             var homeworkId = await _homeworksService.AddHomeworkAsync(courseId, homework);
-            return homeworkId;
+            return Ok(homeworkId);
         }
 
         [HttpGet("get/{homeworkId}")]
         public async Task<HomeworkViewModel> GetHomework(long homeworkId)
         {
             var homeworkFromDb = await _homeworksService.GetHomeworkAsync(homeworkId);
+            var homework = _mapper.Map<HomeworkViewModel>(homeworkFromDb);
+            return homework;
+        }
+
+        [HttpGet("getForEditing/{homeworkId}")]
+        public async Task<HomeworkViewModel> GetForEditingHomework(long homeworkId)
+        {
+            var homeworkFromDb = await _homeworksService.GetForEditingHomeworkAsync(homeworkId);
             var homework = _mapper.Map<HomeworkViewModel>(homeworkFromDb);
             return homework;
         }

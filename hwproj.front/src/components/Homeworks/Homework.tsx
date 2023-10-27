@@ -10,7 +10,7 @@ import ApiSingleton from '../../api/ApiSingleton';
 import {FC, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
 import DeletionConfirmation from "../DeletionConfirmation";
-import {Chip, Accordion, AccordionSummary, Typography, IconButton, Button, AccordionDetails} from '@material-ui/core';
+import {Chip, Accordion, AccordionSummary, Typography, IconButton, Button, AccordionDetails, Tooltip} from '@material-ui/core';
 import {Stack} from '@mui/material';
 import {ReactMarkdownWithCodeHighlighting} from "../Common/TextFieldWithPreview";
 
@@ -55,9 +55,11 @@ const Homework: FC<IHomeworkProps> = (props) => {
         props.onDeleteClick()
     }
 
+    const options: Intl.DateTimeFormatOptions = {hour: "2-digit", minute: "2-digit"}
+
     const classes = useStyles()
-    const homeworkPublicationDateString = new Date(props.homework.publicationDate!).toLocaleDateString("ru-RU");
-    const homeworkDeadlineDateString = new Date(props.homework.deadlineDate!).toLocaleDateString("ru-RU");
+    const homeworkPublicationDateString = new Date(props.homework.publicationDate!).toLocaleDateString("ru-RU", options);
+    const homeworkDeadlineDateString = new Date(props.homework.deadlineDate!).toLocaleDateString("ru-RU", options);
     return (
         <div style={{width: '100%'}}>
             <Accordion defaultExpanded={props.isExpanded}>
@@ -77,6 +79,11 @@ const Homework: FC<IHomeworkProps> = (props) => {
                             }
                             {props.homework.hasDeadline && 
                             <Chip label={"⌛ " + homeworkDeadlineDateString}/>
+                            }
+                            {props.forMentor && props.homework.isDeadlineStrict &&
+                            <Tooltip arrow title={"Нельзя публиковать решения после дедлайна"}>
+                                <Chip label={"⛔"}/>
+                            </Tooltip>
                             }
                             <Chip label={props.homework.tasks!.length + " заданий"}/>
                             {props.forMentor && !props.isReadingMode && <div>
@@ -105,7 +112,7 @@ const Homework: FC<IHomeworkProps> = (props) => {
                                     isReadingMode={props.isReadingMode}
                                 />
                                 <AddTask
-                                    homeworkId={props.homework.id!}
+                                    homework={props.homework}
                                     onAdding={() => window.location.reload()}
                                     onCancel={() => setHomeworkState({
                                         createTask: false

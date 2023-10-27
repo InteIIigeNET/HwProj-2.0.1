@@ -34,8 +34,16 @@ namespace HwProj.CoursesService.API.Services
         public async Task<HomeworkTask> GetTaskAsync(long taskId)
         {
             var task = await _tasksRepository.GetAsync(taskId);
+            var homework = await _homeworksRepository.GetAsync(task.HomeworkId);
+
+            CourseDomain.FillTask(homework, task);
 
             return task;
+        }
+
+        public async Task<HomeworkTask> GetForEditingTaskAsync(long taskId)
+        {
+            return await _tasksRepository.GetAsync(taskId);
         }
 
         public async Task<long> AddTaskAsync(long homeworkId, HomeworkTask task)
@@ -44,11 +52,11 @@ namespace HwProj.CoursesService.API.Services
 
             var homework = await _homeworksRepository.GetAsync(task.HomeworkId);
             var course = await _coursesRepository.GetWithCourseMatesAsync(homework.CourseId);
-                var courseModel = _mapper.Map<CourseDTO>(course);
+            var courseModel = _mapper.Map<CourseDTO>(course);
 
             var taskId = await _tasksRepository.AddAsync(task);
             var deadlineDate = task.PublicationDate == null ? homework.DeadlineDate : task.DeadlineDate;
-            var studentIds = courseModel.CourseMates.Select(cm => cm.StudentId).ToArray();
+            var studentIds = courseModel.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
 
             if (task.PublicationDate <= DateTimeUtils.GetMoscowNow())
                 _eventBus.Publish(new NewHomeworkTaskEvent(task.Title, taskId, deadlineDate, courseModel.Name, courseModel.Id, studentIds));
@@ -67,7 +75,7 @@ namespace HwProj.CoursesService.API.Services
             var homework = await _homeworksRepository.GetAsync(task.HomeworkId);
             var course = await _coursesRepository.GetWithCourseMatesAsync(homework.CourseId);
             var courseModel = _mapper.Map<CourseDTO>(course);
-            var studentIds = courseModel.CourseMates.Select(cm => cm.StudentId).ToArray();
+            var studentIds = courseModel.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
 
             _eventBus.Publish(new UpdateTaskMaxRatingEvent(courseModel.Name, courseModel.Id, task.Title, task.Id, studentIds));
 

@@ -31,7 +31,7 @@ namespace HwProj.CoursesService.API.Services
 
             var course = await _coursesRepository.GetWithCourseMatesAsync(courseId);
             var courseModel = _mapper.Map<CourseDTO>(course);
-            var studentIds = courseModel.CourseMates.Select(cm => cm.StudentId).ToArray();
+            var studentIds = courseModel.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
             var publicationDate = homework.Tasks
                     .Where(t => t.PublicationDate != null)
                     .Select(t => t.PublicationDate).Append(homework.PublicationDate)
@@ -55,6 +55,11 @@ namespace HwProj.CoursesService.API.Services
             return homework;
         }
 
+        public async Task<Homework> GetForEditingHomeworkAsync(long homeworkId)
+        {
+            return await _homeworksRepository.GetWithTasksAsync(homeworkId);
+        }
+
         public async Task DeleteHomeworkAsync(long homeworkId)
         {
             await _homeworksRepository.DeleteAsync(homeworkId);
@@ -65,7 +70,7 @@ namespace HwProj.CoursesService.API.Services
             var homework = await _homeworksRepository.GetWithTasksAsync(homeworkId);
             var course = await _coursesRepository.GetWithCourseMatesAsync(homework.CourseId);
             var courseModel = _mapper.Map<CourseDTO>(course);   
-            var studentIds = courseModel.CourseMates.Select(cm => cm.StudentId).ToArray();
+            var studentIds = courseModel.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
             var publicationDate = homework.Tasks
                 .Where(t => t.PublicationDate != null)
                 .Select(t => t.PublicationDate).Append(homework.PublicationDate)

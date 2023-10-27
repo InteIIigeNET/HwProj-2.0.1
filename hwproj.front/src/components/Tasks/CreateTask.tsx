@@ -2,9 +2,11 @@ import * as React from "react";
 import {FC, useEffect, useState} from "react";
 import {Grid, Checkbox, Button, TextField, Typography, Tooltip, Link} from "@material-ui/core";
 import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
-import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
+import TaskPublicationAndDeadlineDates from "../Common/TaskPublicationAndDeadlineDates";
+import { HomeworkViewModel } from "api";
 
 interface ICreateTaskProps {
+    homework: HomeworkViewModel
     onChange: (c: ICreateTaskState) => void
 }
 
@@ -13,9 +15,9 @@ interface ICreateTaskState {
     description: string;
     maxRating: number;
     publicationDate: Date | undefined;
-    hasDeadline: boolean;
+    hasDeadline: boolean | undefined;
     deadlineDate: Date | undefined;
-    isDeadlineStrict: boolean;
+    isDeadlineStrict: boolean | undefined;
 }
 
 const CreateTask: FC<ICreateTaskProps> = (props) => {
@@ -121,11 +123,12 @@ const CreateTask: FC<ICreateTaskProps> = (props) => {
                 </Grid>
                 
                 <Grid item style={{width: "100%"}}>          
-                    <PublicationAndDeadlineDates
-                        hasDeadline={false}
-                        isDeadlineStrict={false}
+                    <TaskPublicationAndDeadlineDates
+                        hasDeadline={undefined}
+                        isDeadlineStrict={undefined}
                         publicationDate={undefined}
                         deadlineDate={undefined}
+                        homework={props.homework}
                         onChange={(state) => setCreateTaskState((prevState) => ({
                             ...prevState,
                             hasDeadline: state.hasDeadline,

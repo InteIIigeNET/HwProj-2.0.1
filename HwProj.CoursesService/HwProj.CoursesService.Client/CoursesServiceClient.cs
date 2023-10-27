@@ -9,6 +9,7 @@ using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Result;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
@@ -188,6 +189,16 @@ namespace HwProj.CoursesService.Client
             return await response.DeserializeAsync<HomeworkViewModel>();
         }
 
+        public async Task<HomeworkViewModel> GetForEditingHomework(long homeworkId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + $"api/Homeworks/getForEditing/{homeworkId}");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<HomeworkViewModel>();
+        }
+
         public async Task<Result> UpdateHomework(CreateHomeworkViewModel model, long homeworkId)
         {
             using var httpRequest = new HttpRequestMessage(
@@ -228,6 +239,16 @@ namespace HwProj.CoursesService.Client
             return await response.DeserializeAsync<HomeworkTaskViewModel>();
         }
 
+        public async Task<HomeworkTaskViewModel> GetForEditingTask(long taskId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + $"api/Tasks/getForEditing/{taskId}");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<HomeworkTaskViewModel>();
+        }
+
         public async Task<Result<long>> AddTask(CreateTaskViewModel taskViewModel, long homeworkId)
         {
             using var httpRequest = new HttpRequestMessage(
@@ -243,9 +264,8 @@ namespace HwProj.CoursesService.Client
             httpRequest.TryAddUserId(_httpContextAccessor);
 
             var response = await _httpClient.SendAsync(httpRequest);
-            return response.IsSuccessStatusCode
-                ? Result<long>.Success(await response.DeserializeAsync<long>())
-                : Result<long>.Failed(response.ReasonPhrase);
+            var result = await response.DeserializeAsync<long>();
+            return Result<long>.Success(result);
         }
 
         public async Task<Result> DeleteTask(long taskId)

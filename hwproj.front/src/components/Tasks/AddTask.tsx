@@ -4,9 +4,10 @@ import Utils from "../../services/Utils";
 import {FC, useEffect, useState} from "react";
 import {Grid, Checkbox, Button, TextField, Typography, Tooltip, Link} from "@material-ui/core";
 import CreateTask from "./CreateTask";
+import {HomeworkViewModel} from "../../api";
 
 interface IAddTaskProps {
-    homeworkId: number;
+    homework: HomeworkViewModel;
     onAdding: () => void;
     onCancel: () => void;
     update: () => void;
@@ -17,9 +18,9 @@ interface IAddTaskState {
     description: string;
     maxRating: number;
     publicationDate: Date | undefined;
-    hasDeadline: boolean;
+    hasDeadline: boolean | undefined;
     deadlineDate: Date | undefined;
-    isDeadlineStrict: boolean;
+    isDeadlineStrict: boolean | undefined;
 }
 
 const AddTask: React.FC<IAddTaskProps> = (props) => {
@@ -36,7 +37,7 @@ const AddTask: React.FC<IAddTaskProps> = (props) => {
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
-        await ApiSingleton.tasksApi.apiTasksAddByHomeworkIdPost(props.homeworkId, state);
+        await ApiSingleton.tasksApi.apiTasksAddByHomeworkIdPost(props.homework.id!, state);
         props.onAdding()
     }
 
@@ -48,6 +49,7 @@ const AddTask: React.FC<IAddTaskProps> = (props) => {
             <form onSubmit={(e) => handleSubmit(e)}>
                 <Grid container>
                     <CreateTask
+                        homework={props.homework}
                         onChange={(e) => setTaskState(e)}
                     />
                     <Grid

@@ -1,5 +1,4 @@
 import * as React from 'react';
-import {FC, useState} from 'react';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton'
 import DeleteIcon from '@material-ui/icons/Delete'
@@ -8,7 +7,8 @@ import EditIcon from '@material-ui/icons/Edit'
 import {HomeworkTaskViewModel} from "../../api";
 import {Link as RouterLink} from 'react-router-dom'
 import ApiSingleton from "../../api/ApiSingleton";
-import {Accordion, AccordionDetails, AccordionSummary, Button, Grid} from '@material-ui/core';
+import {Accordion, AccordionDetails, AccordionSummary, Button, Grid, Tooltip} from '@material-ui/core';
+import {FC, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
 import DeletionConfirmation from "../DeletionConfirmation";
 import {Chip, Stack} from "@mui/material";
@@ -83,6 +83,11 @@ const Task: FC<ITaskProp> = (props) => {
                             </Typography>
                             {props.forMentor && task.isDeferred && <Chip label={"🕘 " + publicationDate}/>}
                             {task.hasDeadline && <Chip label={"⌛ " + deadlineDate}/>}
+                            {props.forMentor && props.task.isDeadlineStrict &&
+                            <Tooltip arrow title={"Нельзя публиковать решения после дедлайна"}>
+                                <Chip label={"⛔"}/>
+                            </Tooltip>
+                            }
                             {!task.hasDeadline && <Chip label={"без дедлайна"}/>}
                             <Chip label={"⭐ " + task.maxRating}/>
                             {props.forMentor && !props.isReadingMode && <div>

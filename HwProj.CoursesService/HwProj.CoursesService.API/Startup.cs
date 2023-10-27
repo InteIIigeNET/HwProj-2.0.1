@@ -1,12 +1,15 @@
-﻿using HwProj.AuthService.Client;
+﻿using FluentValidation;
+using HwProj.AuthService.Client;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.CoursesService.API.Repositories.Groups;
 using HwProj.CoursesService.API.Services;
+using HwProj.CoursesService.API.Validators;
 using HwProj.Utils.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

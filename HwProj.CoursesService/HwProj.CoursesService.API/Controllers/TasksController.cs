@@ -1,14 +1,17 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using FluentValidation;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.CoursesService.API.Services;
 using HwProj.Models;
+using HwProj.CoursesService.API.Validators;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.WindowsAzure.Storage;
 
 namespace HwProj.CoursesService.API.Controllers
 {
@@ -48,15 +51,35 @@ namespace HwProj.CoursesService.API.Controllers
             return Ok(task);
         }
 
+        [HttpGet("getForEditing/{taskId}")]
+        public async Task<IActionResult> GetForEditingTask(long taskId)
+        {
+            var taskFromDb = await _tasksService.GetForEditingTaskAsync(taskId);
+
+            if (taskFromDb == null)
+            {
+                return NotFound();
+            }
+
+            var task = _mapper.Map<HomeworkTaskViewModel>(taskFromDb);
+            return Ok(task);
+        }
+
         [HttpPost("{homeworkId}/add")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        public async Task<long> AddTask(long homeworkId, [FromBody] CreateTaskViewModel taskViewModel)
+        public async Task<IActionResult> AddTask(long homeworkId, [FromBody] CreateTaskViewModel taskViewModel)
         {
-            taskViewModel.InitializeDates();
+            /*var validationResult = await _validator.ValidateAsync(taskViewModel);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors);
+            }*/
 
             var task = _mapper.Map<HomeworkTask>(taskViewModel);
             var taskId = await _tasksService.AddTaskAsync(homeworkId, task);
-            return taskId;
+
+            return Ok(taskId);
         }
 
         [HttpDelete("delete/{taskId}")] //bug with rights
@@ -68,9 +91,15 @@ namespace HwProj.CoursesService.API.Controllers
 
         [HttpPut("update/{taskId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        public async Task UpdateTask(long taskId, [FromBody] CreateTaskViewModel taskViewModel)
+        public async Task<IActionResult> UpdateTask(long taskId, [FromBody] CreateTaskViewModel taskViewModel)
         {
-            taskViewModel.InitializeDates();
+            /*var validationResult = await _validator.ValidateAsync(taskViewModel);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors);
+            }*/
+
             await _tasksService.UpdateTaskAsync(taskId, new HomeworkTask()
             {
                 Title = taskViewModel.Title,
@@ -81,6 +110,8 @@ namespace HwProj.CoursesService.API.Controllers
                 IsDeadlineStrict = taskViewModel.IsDeadlineStrict,
                 PublicationDate = taskViewModel.PublicationDate
             });
+
+            return Ok();
         }
     }
 }

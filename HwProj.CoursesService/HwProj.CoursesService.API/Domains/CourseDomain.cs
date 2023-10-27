@@ -20,13 +20,18 @@ namespace HwProj.CoursesService.API.Domains
 
         public static void FillTasksInHomework(Homework homework)
         {
-            foreach (var task in homework.Tasks.Where(task => task.PublicationDate == null))
+            foreach (var task in homework.Tasks)
             {
-                task.HasDeadline = homework.HasDeadline;
-                task.DeadlineDate = homework.DeadlineDate;
-                task.PublicationDate = homework.PublicationDate;
-                task.IsDeadlineStrict = homework.IsDeadlineStrict;
+                FillTask(homework, task);
             }
+        }
+
+        public static void FillTask(Homework homework, HomeworkTask task)
+        {
+            var hasDeadline = task.HasDeadline ??= homework.HasDeadline;
+            task.IsDeadlineStrict ??= homework.IsDeadlineStrict;
+            task.DeadlineDate ??= hasDeadline ? homework.DeadlineDate : null;
+            task.PublicationDate ??= homework.PublicationDate;
         }
     }
 }
