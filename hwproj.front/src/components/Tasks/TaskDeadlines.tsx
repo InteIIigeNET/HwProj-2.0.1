@@ -81,7 +81,7 @@ export class TaskDeadlines extends React.Component<ITaskDeadlinesProps, {
                               onMouseEnter={() => this.setState({hoveredElement: i})}
                               onMouseLeave={() => this.setState({hoveredElement: undefined})}
                         >
-                            <Grid item>
+                            <Grid xs={7} item>
                                 <Link to={`/task/${deadline!.taskId}`}>
                                     <ListItem
                                         key={deadline!.taskId}
@@ -116,7 +116,7 @@ export class TaskDeadlines extends React.Component<ITaskDeadlinesProps, {
                                 {i < taskDeadlines.length - 1 ?
                                     <Divider style={{marginTop: 10, marginBottom: 10}}/> : null}
                             </Grid>
-                            {hoveredElement === i && <Grid item>
+                            {hoveredElement === i && <Grid xs={1} item>
                                 <Tooltip
                                     arrow
                                     title={<span style={{whiteSpace: 'pre-line'}}>
