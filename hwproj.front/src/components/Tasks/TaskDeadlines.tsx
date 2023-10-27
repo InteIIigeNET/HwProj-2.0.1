@@ -50,6 +50,7 @@ export class TaskDeadlines extends React.Component<ITaskDeadlinesProps, {
 
     giveUp = async (taskId: number) => {
         await ApiSingleton.solutionsApi.apiSolutionsGiveUpByTaskIdPost(taskId)
+        this.setState({showGiveUpModalForTaskId: undefined})
         this.props.onGiveUpClick()
     }
 
@@ -73,14 +74,14 @@ export class TaskDeadlines extends React.Component<ITaskDeadlinesProps, {
         const {taskDeadlines} = this.props
         const {hoveredElement, showGiveUpModalForTaskId} = this.state
         return (
-            <Grid>
+            <Grid container xs={12}>
                 {taskDeadlines.map(({deadline: deadline, rating, deadlinePast, solutionState}, i) => {
                     return (
-                        <Grid container alignItems={"center"} spacing={2} direction={"row"}
+                        <Grid container item alignItems={"center"} spacing={2} direction={"row"} xs={12}
                               onMouseEnter={() => this.setState({hoveredElement: i})}
                               onMouseLeave={() => this.setState({hoveredElement: undefined})}
                         >
-                            <Grid xs={10} item>
+                            <Grid item>
                                 <Link to={`/task/${deadline!.taskId}`}>
                                     <ListItem
                                         key={deadline!.taskId}
@@ -115,7 +116,7 @@ export class TaskDeadlines extends React.Component<ITaskDeadlinesProps, {
                                 {i < taskDeadlines.length - 1 ?
                                     <Divider style={{marginTop: 10, marginBottom: 10}}/> : null}
                             </Grid>
-                            {hoveredElement === i && <Grid item xs={2}>
+                            {hoveredElement === i && <Grid item>
                                 <Tooltip
                                     arrow
                                     title={<span style={{whiteSpace: 'pre-line'}}>
