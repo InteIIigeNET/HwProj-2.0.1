@@ -183,7 +183,7 @@ const TaskSolutionsPage: FC = () => {
                             </Link>
                         </Grid>
                     </Grid>
-                    <Grid item lg={9}>
+                    <Grid container item lg={9}>
                         <Grid item xs={12}>
                             <Task
                                 task={taskSolutionPage.task}
