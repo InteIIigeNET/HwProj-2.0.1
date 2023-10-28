@@ -8,6 +8,7 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {CircularProgress} from "@material-ui/core";
 import {Link, useNavigate, useParams} from "react-router-dom";
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
+import EditIcon from '@mui/icons-material/Edit';
 import {
     Alert,
     Chip,
@@ -27,6 +28,7 @@ import StudentStatsUtils from "../../services/StudentStatsUtils";
 
 import Step from '@mui/material/Step';
 import StepButton from '@mui/material/StepButton';
+import {RatingStorage} from "../Storages/RatingStorage";
 
 interface IStudentSolutionsPageState {
     currentTaskId: string
@@ -211,23 +213,31 @@ const StudentSolutionsPage: FC = () => {
                                     surname,
                                     userId
                                 }
-                                                           }) =>
-                                <Link to={`/task/${currentTaskId}/${(userId)!}`}
-                                      style={{color: "black", textDecoration: "none"}}>
+                                                           }) => {
+                                const storageKey = {taskId: +currentTaskId, studentId: userId!, solutionId: lastSolution?.id}
+                                const ratingStorageValue = RatingStorage.tryGet(storageKey)
+                                return <Link to={`/task/${currentTaskId}/${(userId)!}`}
+                                             style={{color: "black", textDecoration: "none"}}>
                                     <ListItemButton disableGutters divider
                                                     disableTouchRipple={currentStudentId === userId}
                                                     selected={currentStudentId === userId || currentStudent?.lastSolution?.groupMates?.some(x => x.userId === userId)}>
                                         <Stack direction={"row"} spacing={1} sx={{paddingLeft: 1}}>
-                                            <Tooltip arrow disableInteractive enterDelay={1000} title={<span
-                                                style={{whiteSpace: 'pre-line'}}>{solutionsDescription}</span>}>
-                                                <Chip style={{backgroundColor: color}}
-                                                      size={"small"}
-                                                      label={lastRatedSolution == undefined ? "?" : lastRatedSolution.rating}/>
-                                            </Tooltip>
+                                            {ratingStorageValue
+                                                ? <Tooltip arrow disableInteractive enterDelay={1000}
+                                                           title={"Решение частично проверено"}>
+                                                    <EditIcon fontSize={"small"} color={"primary"}/>
+                                                </Tooltip>
+                                                : <Tooltip arrow disableInteractive enterDelay={1000} title={<span
+                                                    style={{whiteSpace: 'pre-line'}}>{solutionsDescription}</span>}>
+                                                    <Chip style={{backgroundColor: color}}
+                                                          size={"small"}
+                                                          label={lastRatedSolution == undefined ? "?" : lastRatedSolution.rating}/>
+                                                </Tooltip>}
                                             <ListItemText primary={surname + " " + name}/>
                                         </Stack>
                                     </ListItemButton>
-                                </Link>)}
+                                </Link>;
+                            })}
                         </List>
                         {renderGoBackToCoursesStatsLink()}
                     </Grid>
