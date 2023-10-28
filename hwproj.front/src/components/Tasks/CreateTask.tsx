@@ -3,10 +3,12 @@ import {FC, useEffect, useState} from "react";
 import {Grid, Checkbox, Button, TextField, Typography, Tooltip, Link} from "@material-ui/core";
 import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 import TaskPublicationAndDeadlineDates from "../Common/TaskPublicationAndDeadlineDates";
-import { HomeworkViewModel } from "api";
 
 interface ICreateTaskProps {
-    homework: HomeworkViewModel
+    homeworkPublicationDate: Date;
+    homeworkHasDeadline: boolean;
+    homeworkDeadlineDate: Date | undefined;
+    homeworkIsDeadlineStrict: boolean;
     onChange: (c: ICreateTaskState) => void
 }
 
@@ -30,6 +32,9 @@ const CreateTask: FC<ICreateTaskProps> = (props) => {
         deadlineDate: undefined,
         isDeadlineStrict: false,
     })
+
+    console.log("tttt")
+    console.log(props)
 
     useEffect(() => props.onChange(createTaskState), [createTaskState])
 
@@ -128,7 +133,10 @@ const CreateTask: FC<ICreateTaskProps> = (props) => {
                         isDeadlineStrict={undefined}
                         publicationDate={undefined}
                         deadlineDate={undefined}
-                        homework={props.homework}
+                        homeworkPublicationDate={props.homeworkPublicationDate}
+                        homeworkHasDeadline={props.homeworkHasDeadline}
+                        homeworkDeadlineDate={props.homeworkDeadlineDate}
+                        homeworkIsDeadlineStrict={props.homeworkIsDeadlineStrict}
                         onChange={(state) => setCreateTaskState((prevState) => ({
                             ...prevState,
                             hasDeadline: state.hasDeadline,

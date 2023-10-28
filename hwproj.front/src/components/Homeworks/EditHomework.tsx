@@ -8,6 +8,7 @@ import {Grid, Typography, Button, TextField, Checkbox} from "@material-ui/core";
 import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 import Utils from "../../services/Utils";
 import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
+import { Alert } from "@mui/material";
 
 interface IEditHomeworkState {
     isLoaded: boolean;
@@ -20,6 +21,7 @@ interface IEditHomeworkState {
     deadlineDate: Date | undefined;
     isDeadlineStrict: boolean;
     publicationDate: Date;
+    changedTaskPublicationDates: Date[]
 }
 
 const useStyles = makeStyles(theme => ({
@@ -46,7 +48,8 @@ const EditHomework: FC = () => {
         hasDeadline: false,
         deadlineDate: undefined,
         isDeadlineStrict: false,
-        publicationDate: new Date()
+        publicationDate: new Date(),
+        changedTaskPublicationDates: []
     })
 
     useEffect(() => {
@@ -54,13 +57,13 @@ const EditHomework: FC = () => {
     }, [])
 
     const getHomework = async () => {
-        const homework = await ApiSingleton.homeworksApi.apiHomeworksGetByHomeworkIdGet(+homeworkId!)
+        const homework = await ApiSingleton.homeworksApi.apiHomeworksGetForEditingByHomeworkIdGet(+homeworkId!)
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(homework.courseId!)
 
         const deadline = homework.deadlineDate == undefined
             ? undefined
             : Utils.toMoscowDate(new Date(homework.deadlineDate))
-        
+
         setEditHomework((prevState) => ({
             ...prevState,
             isLoaded: true,
@@ -71,7 +74,10 @@ const EditHomework: FC = () => {
             hasDeadline: homework.hasDeadline!,
             deadlineDate: deadline,
             isDeadlineStrict: homework.isDeadlineStrict!,
-            publicationDate: Utils.toMoscowDate(new Date(homework.publicationDate!))
+            publicationDate: Utils.toMoscowDate(new Date(homework.publicationDate!)),
+            changedTaskPublicationDates: homework.tasks!
+                .filter(t => t.publicationDate != undefined)
+                .map(t => new Date(t.publicationDate!))
         }))
     }
 
@@ -88,6 +94,9 @@ const EditHomework: FC = () => {
     }
 
     const classes = useStyles()
+
+    const isSomeTaskSoonerThanHomework = editHomework.changedTaskPublicationDates
+        .filter(d => d < Utils.convertLocalDateToUTCDate(new Date(editHomework.publicationDate))).length !== 0
 
     if (editHomework.edited) {
         return <Navigate to={"/courses/" + editHomework.courseId}/>;
@@ -171,6 +180,12 @@ const EditHomework: FC = () => {
                                     }}
                                 />
                             </Grid>
+                            {isSomeTaskSoonerThanHomework &&
+                            <Grid item xs={11}>
+                                <Alert severity="error">
+                                    Дата публикации домашнего задания позже даты публикации задачи
+                                </Alert>
+                            </Grid>}
                             <Grid style={{width: "90%", marginBottom: 15}}>
                                 <PublicationAndDeadlineDates
                                 hasDeadline={editHomework.hasDeadline}

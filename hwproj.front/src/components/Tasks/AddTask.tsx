@@ -49,7 +49,10 @@ const AddTask: React.FC<IAddTaskProps> = (props) => {
             <form onSubmit={(e) => handleSubmit(e)}>
                 <Grid container>
                     <CreateTask
-                        homework={props.homework}
+                        homeworkPublicationDate={props.homework.publicationDate!}
+                        homeworkHasDeadline={props.homework.hasDeadline!}
+                        homeworkDeadlineDate={props.homework.deadlineDate}
+                        homeworkIsDeadlineStrict={props.homework.isDeadlineStrict!}
                         onChange={(e) => setTaskState(e)}
                     />
                     <Grid

@@ -30,7 +30,7 @@ namespace HwProj.APIGateway.API.Controllers
 
         [HttpGet("getForEditing/{homeworkId}")]
         [Authorize(Roles = Roles.LecturerRole)]
-        [ProducesResponseType(typeof(HomeworkTaskViewModel), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(HomeworkViewModel), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetForEditingHomework(long homeworkId)
         {
             var result = await _coursesClient.GetForEditingHomework(homeworkId);

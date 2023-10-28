@@ -459,12 +459,6 @@ export interface CreateTaskViewModel {
      * @memberof CreateTaskViewModel
      */
     maxRating: number;
-    /**
-     * 
-     * @type {number}
-     * @memberof CreateTaskViewModel
-     */
-    homeworkId?: number;
 }
 
 /**
@@ -4421,7 +4415,7 @@ export const HomeworksApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiHomeworksGetForEditingByHomeworkIdGet(homeworkId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<HomeworkTaskViewModel> {
+        apiHomeworksGetForEditingByHomeworkIdGet(homeworkId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<HomeworkViewModel> {
             const localVarFetchArgs = HomeworksApiFetchParamCreator(configuration).apiHomeworksGetForEditingByHomeworkIdGet(homeworkId, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {

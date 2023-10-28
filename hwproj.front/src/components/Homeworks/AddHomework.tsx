@@ -48,6 +48,7 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
     const handleSubmit = async (e: any) => {
         e.preventDefault();
 
+        console.log(addHomeworkState)
         await ApiSingleton.homeworksApi.apiHomeworksByCourseIdAddPost(props.id, addHomeworkState)
         setAddHomeworkState((prevState) => ({
             ...prevState,
@@ -129,8 +130,11 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                                             Убрать задачу
                                         </Button>
                                     </Grid>
-                                    
                                     <CreateTask
+                                        homeworkPublicationDate={Utils.convertLocalDateToUTCDate(addHomeworkState.publicationDate!)}
+                                        homeworkDeadlineDate={Utils.convertLocalDateToUTCDate(addHomeworkState.deadlineDate!)}
+                                        homeworkHasDeadline={addHomeworkState.hasDeadline}
+                                        homeworkIsDeadlineStrict={addHomeworkState.isDeadlineStrict}
                                         onChange={(state) => {
                                             addHomeworkState.tasks[index] = state
 

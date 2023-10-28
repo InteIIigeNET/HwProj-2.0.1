@@ -15,13 +15,11 @@ namespace HwProj.CoursesService.API.Controllers
     {
         private readonly IHomeworksService _homeworksService;
         private readonly IMapper _mapper;
-        private readonly IValidator<CreateHomeworkViewModel> _validator;
 
-        public HomeworksController(IHomeworksService homeworksService, IMapper mapper, IValidator<CreateHomeworkViewModel> validator)
+        public HomeworksController(IHomeworksService homeworksService, IMapper mapper)
         {
             _homeworksService = homeworksService;
             _mapper = mapper;
-            _validator = validator;
         }
 
         [HttpPost("{courseId}/add")]

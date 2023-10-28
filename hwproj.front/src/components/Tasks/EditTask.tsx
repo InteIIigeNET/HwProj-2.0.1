@@ -8,7 +8,7 @@ import Utils from "../../services/Utils";
 import {Checkbox, Typography, Button, TextField, Grid, Tooltip, Link as LinkMUI} from "@material-ui/core";
 import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 import { HomeworkTaskViewModel, HomeworkViewModel } from "api";
-import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
+import TaskPublicationAndDeadlineDates from "../Common/TaskPublicationAndDeadlineDates";
 
 interface IEditTaskState {
     isLoaded: boolean;
@@ -18,10 +18,14 @@ interface IEditTaskState {
     courseId: number;
     courseMentorIds: string[];
     edited: boolean;
-    hasDeadline: boolean;
+    hasDeadline: boolean | undefined;
     deadlineDate: Date | undefined;
-    isDeadlineStrict: boolean;
+    isDeadlineStrict: boolean | undefined;
     publicationDate: Date | undefined;
+    homeworkPublicationDate: Date;
+    homeworkHasDeadline: boolean;
+    homeworkDeadlineDate: Date | undefined;
+    homeworkIsDeadlineStrict: boolean;
 }
 
 const useStyles = makeStyles(theme => ({
@@ -48,8 +52,12 @@ const EditTask: FC = () => {
         hasDeadline: false,
         deadlineDate: undefined,
         isDeadlineStrict: false,
-        publicationDate: undefined
-    })
+        publicationDate: undefined,
+        homeworkPublicationDate: new Date(),
+        homeworkHasDeadline: false,
+        homeworkDeadlineDate: undefined,
+        homeworkIsDeadlineStrict: false,
+})
 
     const [isOpenDates, setIsOpenDates] = useState<boolean>()
 
@@ -58,7 +66,7 @@ const EditTask: FC = () => {
     }, [])
 
     const getTask = async () => {
-        const task = await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+taskId!)
+        const task = await ApiSingleton.tasksApi.apiTasksGetForEditingByTaskIdGet(+taskId!)
         const homework = await ApiSingleton.homeworksApi.apiHomeworksGetByHomeworkIdGet(task.homeworkId!)
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(homework.courseId!)
 
@@ -84,6 +92,10 @@ const EditTask: FC = () => {
             deadlineDate: deadline,
             isDeadlineStrict: task.isDeadlineStrict!,
             publicationDate: publication,
+            homeworkPublicationDate: homework.publicationDate!,
+            homeworkHasDeadline: homework.hasDeadline!,
+            homeworkDeadlineDate: homework.deadlineDate,
+            homeworkIsDeadlineStrict: homework.isDeadlineStrict!,
         }))
     }
 
@@ -102,7 +114,7 @@ const EditTask: FC = () => {
     if (taskState.edited) {
         return <Navigate to={"/courses/" + taskState.courseId}/>;
     }
-
+    
     if (taskState.isLoaded) {
         if (!taskState.courseMentorIds.includes(ApiSingleton.authService.getUserId())) {
             return (
@@ -233,7 +245,11 @@ const EditTask: FC = () => {
                                     </Tooltip>
                                 </Grid>
                                 <Grid item style={{width: "90%"}}>
-                                    <PublicationAndDeadlineDates
+                                    <TaskPublicationAndDeadlineDates
+                                    homeworkPublicationDate={taskState.homeworkPublicationDate}
+                                    homeworkHasDeadline={taskState.homeworkHasDeadline}
+                                    homeworkDeadlineDate={taskState.homeworkDeadlineDate}
+                                    homeworkIsDeadlineStrict={taskState.homeworkIsDeadlineStrict}
                                     hasDeadline={taskState.hasDeadline}
                                     isDeadlineStrict={taskState.isDeadlineStrict}
                                     publicationDate={taskState.publicationDate}
