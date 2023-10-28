@@ -28,22 +28,39 @@ interface ISolutionState {
 }
 
 const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
+    const commentKey = props.solution
+        ? `${props.solution.id}`
+        : `${props.task.id}/${props.student.userId}`
+    const pointsKey = `${commentKey}/points`
 
-    const [state, setState] = useState<ISolutionState>({
-        points: props.solution?.rating || 0,
-        lecturerComment: props.solution?.lecturerComment || "",
-        clickedForRate: false,
-        addBonusPoints: false
-    })
+    const getDefaultState = (): ISolutionState => {
+        const initialPoints = localStorage.getItem(pointsKey)
+        const initialComment = localStorage.getItem(commentKey)
+        return ({
+            points: Number(initialPoints) || props.solution?.rating || 0,
+            lecturerComment: initialComment || props.solution?.lecturerComment || "",
+            clickedForRate: initialPoints != null || initialComment != null,
+            addBonusPoints: false
+        });
+    }
+
+    const [state, setState] = useState<ISolutionState>(getDefaultState)
 
     useEffect(() => {
-        setState({
-            points: props.solution?.rating || 0,
-            lecturerComment: props.solution?.lecturerComment || "",
-            clickedForRate: false,
-            addBonusPoints: false
-        })
-    }, [props.student.userId, props.solution?.id])
+        setState(getDefaultState())
+    }, [props.student.userId, props.task.id, props.solution?.id])
+
+    useEffect(() => {
+        if (!state.clickedForRate) return
+        localStorage.setItem(pointsKey, state.points.toString())
+        localStorage.setItem(commentKey, state.lecturerComment)
+    }, [state.points, state.lecturerComment])
+
+    useEffect(() => {
+        if (state.clickedForRate) return
+        localStorage.removeItem(pointsKey)
+        localStorage.removeItem(commentKey)
+    }, [state.clickedForRate]);
 
     const rateSolution = async () => {
         if (props.solution) {
@@ -98,7 +115,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                         max={maxRating}
                         value={points}
                         disabled={!props.forMentor}
-                        onChange={(event, newValue) => {
+                        onChange={(_, newValue) => {
                             setState((prevState) => ({
                                 ...prevState,
                                 points: newValue || 0,
@@ -139,10 +156,9 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                     maxRows={10}
                     onChange={(e) => {
                         e.persist()
-                        const value = +e.target.value
                         setState((prevState) => ({
                             ...prevState,
-                            points: value
+                            points: +e.target.value
                         }))
                     }}
                     onClick={() => setState((prevState) => ({
@@ -260,10 +276,11 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                 size="small"
                                 variant="contained"
                                 color="primary"
-                                onClick={(e) => {
-                                    e.persist()
-                                    setState((prevState) => ({
+                                onClick={() => {
+                                    setState(prevState => ({
                                         ...prevState,
+                                        points: props.solution?.rating || 0,
+                                        lecturerComment: props.solution?.lecturerComment || "",
                                         clickedForRate: false
                                     }))
                                 }}
