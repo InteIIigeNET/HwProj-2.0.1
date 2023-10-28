@@ -37,9 +37,7 @@ interface AppBarProps {
 }
 
 export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
-    const navigate = useNavigate()
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
-
     const [isOpenInviteLecturer, setIsOpenInviteLecturer] = useState<boolean>(false)
 
     const closeInviteLecturer = () => {
