@@ -16,7 +16,7 @@ import ApiSingleton from "api/ApiSingleton";
 import {CategorizedNotifications, NotificationViewModel} from "../api/";
 import "./Styles/Profile.css";
 import parse from 'html-react-parser';
-import {Button, Link} from "@mui/material";
+import {Button} from "@mui/material";
 import NotificationSettings from "./NotificationSettings";
 
 let CategoryEnum = CategorizedNotifications.CategoryEnum;
@@ -192,6 +192,7 @@ const Notifications: FC<IProfileProps> = (props) => {
                         <CardContent>
                             <FormControlLabel control={
                                 <Checkbox
+                                    color={"primary"}
                                     checked={filterState.showOnlyUnread}
                                     onChange={changeShowOnlyUnread}
                                     inputProps={{'aria-label': 'controlled'}}
@@ -202,6 +203,7 @@ const Notifications: FC<IProfileProps> = (props) => {
                                 <FormGroup>
                                     <FormControlLabel control={
                                         <Checkbox
+                                            color={"primary"}
                                             checked={filterState.showAll}
                                             onChange={changeCheckAll}
                                             value={filterState.showAll}
@@ -211,6 +213,7 @@ const Notifications: FC<IProfileProps> = (props) => {
                                     />
                                     <FormControlLabel control={
                                         <Checkbox
+                                            color={"primary"}
                                             checked={filterState.categoryFlag.get(CategoryEnum.NUMBER_1)}
                                             onChange={changeCategory}
                                             value={CategoryEnum.NUMBER_1}
@@ -220,6 +223,7 @@ const Notifications: FC<IProfileProps> = (props) => {
                                     />
                                     <FormControlLabel control={
                                         <Checkbox
+                                            color={"primary"}
                                             checked={filterState.categoryFlag.get(CategoryEnum.NUMBER_2)}
                                             onChange={changeCategory}
                                             value={CategoryEnum.NUMBER_2}
@@ -229,6 +233,7 @@ const Notifications: FC<IProfileProps> = (props) => {
                                     />
                                     <FormControlLabel control={
                                         <Checkbox
+                                            color={"primary"}
                                             checked={filterState.categoryFlag.get(CategoryEnum.NUMBER_3)}
                                             onChange={changeCategory}
                                             value={CategoryEnum.NUMBER_3}
