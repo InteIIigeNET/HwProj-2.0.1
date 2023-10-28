@@ -15,8 +15,6 @@ interface IEditProfileState {
     name: string;
     surname: string;
     middleName?: string;
-    currentPassword: string;
-    newPassword: string;
     isExternalAuth?: boolean;
 }
 
@@ -45,8 +43,6 @@ const EditProfile: FC = () => {
         name: "",
         surname: "",
         middleName: "",
-        currentPassword: "",
-        newPassword: "",
         isExternalAuth: false,
     })
 
@@ -56,8 +52,6 @@ const EditProfile: FC = () => {
             name: profile.name,
             surname: profile.surname,
             middleName: profile.middleName,
-            currentPassword: profile.currentPassword,
-            newPassword: profile.newPassword,
         }
         try {
             if (profile.isExternalAuth) {
