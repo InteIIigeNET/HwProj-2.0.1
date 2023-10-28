@@ -66,21 +66,11 @@ namespace HwProj.AuthService.API.Services
                 return Result.Failed("Пользователь не найден");
             }
 
-            if (!user.IsExternalAuth && !await _userManager.CheckPasswordAsync(user, model.CurrentPassword))
-            {
-                return Result.Failed("Неправильный логин или пароль");
-            }
-
             var result = user.IsExternalAuth
                 ? await ChangeUserNameTask(user, model)
                 : await ChangeUserNameTask(user, model).Then(() => ChangePasswordAsync(user, model));
 
-            if (result.Succeeded)
-            {
-                return Result.Success();
-            }
-
-            return Result.Failed();
+            return result.Succeeded ? Result.Success() : Result.Failed();
         }
 
         public async Task<Result<TokenCredentials>> LoginUserAsync(LoginViewModel model)
@@ -129,13 +119,14 @@ namespace HwProj.AuthService.API.Services
             {
                 return Result<TokenCredentials>.Failed("Пароли не совпадают");
             }
+
             var user = _mapper.Map<User>(model);
             user.UserName = user.Email;
 
             var createUserTask = model.IsExternalAuth
                 ? _userManager.CreateAsync(user)
                 : _userManager.CreateAsync(user, model.Password);
-            
+
             var result = await createUserTask
                 .Then(() => _userManager.AddToRoleAsync(user, Roles.StudentRole))
                 .Then(() =>

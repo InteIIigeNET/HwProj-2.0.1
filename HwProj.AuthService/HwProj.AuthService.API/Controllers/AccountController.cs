@@ -90,7 +90,7 @@ namespace HwProj.AuthService.API.Controllers
         public async Task<IActionResult> Edit([FromBody] EditAccountViewModel model, string userId)
         {
             var newModel = _mapper.Map<EditDataDTO>(model);
-            var result = await _accountService.EditAccountAsync(userId, newModel).ConfigureAwait(false);
+            var result = await _accountService.EditAccountAsync(userId, newModel);
             return Ok(result);
         }
 

@@ -461,18 +461,6 @@ export interface EditAccountViewModel {
      * @memberof EditAccountViewModel
      */
     middleName?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof EditAccountViewModel
-     */
-    currentPassword: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof EditAccountViewModel
-     */
-    newPassword: string;
 }
 
 /**
