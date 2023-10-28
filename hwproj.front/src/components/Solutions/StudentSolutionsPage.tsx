@@ -231,7 +231,7 @@ const StudentSolutionsPage: FC = () => {
                                                     style={{whiteSpace: 'pre-line'}}>{solutionsDescription}</span>}>
                                                     <Chip style={{backgroundColor: color}}
                                                           size={"small"}
-                                                          label={getStudentSolutionChip(userId!, lastSolution, lastRatedSolution)}/>
+                                                          label={lastRatedSolution == undefined ? "?" : lastRatedSolution.rating}/>
                                                 </Tooltip>}
                                             <ListItemText primary={surname + " " + name}/>
                                         </Stack>
