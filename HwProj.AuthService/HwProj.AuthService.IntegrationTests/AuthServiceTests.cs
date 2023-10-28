@@ -7,23 +7,25 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using AutoFixture;
+using FluentAssertions;
 using HwProj.AuthService.Client;
+using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
+using HwProj.Models.Result;
+using HwProj.Models.Roles;
+using HwProj.Utils.Auth;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Moq;
 using NUnit.Framework;
-using FluentAssertions;
-using HwProj.Models.AuthService.DTO;
-using HwProj.Models.Result;
-using HwProj.Models.Roles;
-using HwProj.Utils.Auth;
 
 namespace HwProj.AuthService.IntegrationTests
 {
     public class Tests
     {
+        private IAuthServiceClient _authServiceClient;
+
         private Claim[] ValidateToken(Result<TokenCredentials> resultData)
         {
             const string secret = "this is a string used for encrypt and decrypt token";
@@ -71,57 +73,63 @@ namespace HwProj.AuthService.IntegrationTests
         }
 
         private static LoginViewModel GenerateLoginViewModel(RegisterViewModel model)
-            => new LoginViewModel
+        {
+            return new LoginViewModel
             {
                 Email = model.Email,
                 Password = model.Password,
                 RememberMe = false
             };
+        }
 
         private static EditAccountViewModel GenerateEditViewModel(RegisterViewModel model)
-            => new EditAccountViewModel
+        {
+            return new EditAccountViewModel
             {
                 Name = model.Name,
                 Surname = model.Surname,
-                MiddleName = model.MiddleName,
-                CurrentPassword = model.Password,
-                NewPassword = new Fixture().Create<string>()
+                MiddleName = model.MiddleName
             };
+        }
 
         private static EditAccountViewModel GenerateEditAccountViewModel(RegisterViewModel model)
-            => new EditAccountViewModel
+        {
+            return new EditAccountViewModel
             {
                 Name = new Fixture().Create<string>(),
                 Surname = new Fixture().Create<string>(),
-                MiddleName = new Fixture().Create<string>(),
-                CurrentPassword = model.Password,
-                NewPassword = model.Password
+                MiddleName = new Fixture().Create<string>()
             };
+        }
 
         private static InviteLecturerViewModel GenerateInviteNewLecturerViewModel(RegisterViewModel model)
-            => new InviteLecturerViewModel
+        {
+            return new InviteLecturerViewModel
             {
                 Email = model.Email
             };
+        }
 
         private static AccountDataDto GenerateAccountDataDto(RegisterViewModel model)
-            => new AccountDataDto(Guid.NewGuid().ToString(), model.Name,
+        {
+            return new AccountDataDto(Guid.NewGuid().ToString(), model.Name,
                 model.Surname,
                 model.Email,
                 "Student",
                 false,
                 model.MiddleName);
+        }
 
         private static User GenerateUser(RegisterViewModel model)
-            => new User
+        {
+            return new User
             {
                 Name = model.Name,
                 Surname = model.Surname,
                 MiddleName = model.MiddleName,
                 IsExternalAuth = false
             };
-
-        private IAuthServiceClient _authServiceClient;
+        }
 
         [SetUp]
         public void SetUp()
@@ -278,32 +286,6 @@ namespace HwProj.AuthService.IntegrationTests
                 options.ExcludingMissingMembers());
         }
 
-        [Test]
-        public async Task TestEditPassword()
-        {
-            var userData = GenerateRegisterViewModel();
-            await _authServiceClient.Register(userData);
-
-            var editData = GenerateEditViewModel(userData);
-            var userId = await _authServiceClient.FindByEmailAsync(userData.Email);
-            var resultData = await _authServiceClient.Edit(editData, userId);
-
-            resultData.Succeeded.Should().BeTrue();
-            resultData.Errors.Should().BeNullOrEmpty();
-
-            var loginData = GenerateLoginViewModel(userData);
-            var failedResult = await _authServiceClient.Login(loginData);
-
-            failedResult.Succeeded.Should().BeFalse();
-            failedResult.Errors.Should()
-                .BeEquivalentTo("Неправильный логин или пароль");
-
-            loginData.Password = editData.NewPassword;
-            var result = await _authServiceClient.Login(loginData);
-
-            result.Succeeded.Should().BeTrue();
-            result.Errors.Should().BeNullOrEmpty();
-        }
 
         [Test]
         public async Task EditAccountDataForUserThatDoesNotExistTest()
@@ -317,22 +299,6 @@ namespace HwProj.AuthService.IntegrationTests
             result.Succeeded.Should().BeFalse();
             result.Errors.Should()
                 .BeEquivalentTo("Пользователь не найден");
-        }
-
-        [Test]
-        public async Task EditAccountDataForUserWithWrongCurrentPasswordTest()
-        {
-            var userData = GenerateRegisterViewModel();
-            await _authServiceClient.Register(userData);
-            var editData = GenerateEditAccountViewModel(userData);
-            editData.CurrentPassword = new Fixture().Create<string>();
-            var userId = await _authServiceClient.FindByEmailAsync(userData.Email);
-
-            var result = await _authServiceClient.Edit(editData, userId);
-
-            result.Succeeded.Should().BeFalse();
-            result.Errors.Should()
-                .BeEquivalentTo("Неправильный логин или пароль");
         }
 
         [Test]

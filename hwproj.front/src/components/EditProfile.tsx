@@ -3,7 +3,7 @@ import {FC, FormEvent, useEffect, useState} from "react";
 import {Navigate} from "react-router-dom";
 import Avatar from '@material-ui/core/Avatar';
 
-import {Button, TextField, Typography, Container, Grid} from "@material-ui/core";
+import {Button, Container, Grid, TextField, Typography} from "@material-ui/core";
 
 import ApiSingleton from "../api/ApiSingleton";
 import makeStyles from "@material-ui/styles/makeStyles";
@@ -185,38 +185,6 @@ const EditProfile: FC = () => {
                                             setProfile((prevState) => ({
                                                 ...prevState,
                                                 middleName: e.target.value
-                                            }))
-                                        }}
-                                    />
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <TextField
-                                        fullWidth
-                                        required
-                                        label="Пароль"
-                                        variant="outlined"
-                                        value={profile.currentPassword}
-                                        onChange={(e) => {
-                                            e.persist()
-                                            setProfile((prevState) => ({
-                                                ...prevState,
-                                                currentPassword: e.target.value
-                                            }))
-                                        }}
-                                    />
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <TextField
-                                        fullWidth
-                                        required
-                                        label="Новый пароль"
-                                        variant="outlined"
-                                        value={profile.newPassword}
-                                        onChange={(e) => {
-                                            e.persist()
-                                            setProfile((prevState) => ({
-                                                ...prevState,
-                                                newPassword: e.target.value
                                             }))
                                         }}
                                     />
