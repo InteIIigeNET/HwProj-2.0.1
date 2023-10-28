@@ -9,6 +9,7 @@ import {Alert, Avatar, Rating, Stack, Tooltip} from "@mui/material";
 import AvatarUtils from "../Utils/AvatarUtils";
 import GitHubIcon from '@mui/icons-material/GitHub';
 import Utils from "../../services/Utils";
+import {RatingStorage} from "../Storages/RatingStorage";
 
 interface ISolutionProps {
     solution: GetSolutionModel | undefined,
@@ -28,18 +29,14 @@ interface ISolutionState {
 }
 
 const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
-    const commentKey = props.solution
-        ? `${props.solution.id}`
-        : `${props.task.id}/${props.student.userId}`
-    const pointsKey = `${commentKey}/points`
+    const storageKey = {taskId: props.task.id!, studentId: props.student.userId!, solutionId: props.solution?.id}
 
     const getDefaultState = (): ISolutionState => {
-        const initialPoints = localStorage.getItem(pointsKey)
-        const initialComment = localStorage.getItem(commentKey)
+        const storageValue = RatingStorage.tryGet(storageKey)
         return ({
-            points: Number(initialPoints) || props.solution?.rating || 0,
-            lecturerComment: initialComment || props.solution?.lecturerComment || "",
-            clickedForRate: initialPoints != null || initialComment != null,
+            points: storageValue?.points || props.solution?.rating || 0,
+            lecturerComment: storageValue?.comment || props.solution?.lecturerComment || "",
+            clickedForRate: storageValue !== null,
             addBonusPoints: false
         });
     }
@@ -52,14 +49,12 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
 
     useEffect(() => {
         if (!state.clickedForRate) return
-        localStorage.setItem(pointsKey, state.points.toString())
-        localStorage.setItem(commentKey, state.lecturerComment)
+        RatingStorage.set(storageKey, {points: state.points, comment: state.lecturerComment})
     }, [state.points, state.lecturerComment])
 
     useEffect(() => {
         if (state.clickedForRate) return
-        localStorage.removeItem(pointsKey)
-        localStorage.removeItem(commentKey)
+        RatingStorage.clean(storageKey)
     }, [state.clickedForRate]);
 
     const rateSolution = async () => {
