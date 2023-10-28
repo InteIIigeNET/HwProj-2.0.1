@@ -106,7 +106,7 @@ const Workspace: FC = () => {
                             </Typography>
                         </Grid>
                     </Grid>
-                    {isUserProfile && <Grid item xs={10}>
+                    {isUserProfile && <Grid item>
                         <Tabs
                             value={tabValue}
                             style={{marginTop: 15}}

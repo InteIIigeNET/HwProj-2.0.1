@@ -1,23 +1,17 @@
 import {TaskDeadlineView} from "../../api";
 import * as React from "react";
 import {Link, NavLink} from "react-router-dom";
-import {Divider, Grid, ListItem, Typography} from "@material-ui/core";
+import {Divider, Grid, ListItem, Typography, Link as LinkText} from "@material-ui/core";
 import {
-    Alert,
-    Autocomplete,
     Chip,
     Dialog, DialogActions,
     DialogContent,
     DialogTitle,
-    IconButton,
-    LinearProgress,
-    Tooltip
+    LinearProgress, Stack
 } from "@mui/material";
 import {colorBetween} from "../../services/JsUtils";
 import Utils from "../../services/Utils";
-import DeleteIcon from "@material-ui/icons/Delete";
 import ApiSingleton from "../../api/ApiSingleton";
-import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 
 interface ITaskDeadlinesProps {
@@ -73,96 +67,87 @@ export class TaskDeadlines extends React.Component<ITaskDeadlinesProps, {
     public render() {
         const {taskDeadlines} = this.props
         const {hoveredElement, showGiveUpModalForTaskId} = this.state
-        return (
-            <Grid container xs={12}>
-                {taskDeadlines.map(({deadline: deadline, rating, deadlinePast, solutionState}, i) => {
-                    return (
-                        <Grid container item alignItems={"center"} spacing={2} direction={"row"} xs={12}
-                              onMouseEnter={() => this.setState({hoveredElement: i})}
-                              onMouseLeave={() => this.setState({hoveredElement: undefined})}
+        return <div className={"container"}>
+            {taskDeadlines.map(({deadline: deadline, rating, deadlinePast, solutionState}, i) =>
+                <Grid onMouseEnter={() => this.setState({hoveredElement: i})}
+                      onMouseLeave={() => this.setState({hoveredElement: undefined})}>
+                    <Link to={`/task/${deadline!.taskId}`}>
+                        <ListItem
+                            key={deadline!.taskId}
+                            style={{padding: 0, color: "#212529"}}
                         >
-                            <Grid xs={7} item>
-                                <Link to={`/task/${deadline!.taskId}`}>
-                                    <ListItem
-                                        key={deadline!.taskId}
-                                        style={{padding: 0, color: "#212529"}}
+                            <Grid container direction={"row"} spacing={1}
+                                  style={{justifyContent: "space-between"}}>
+                                <Grid item>
+                                    <NavLink
+                                        to={`/task/${deadline!.taskId}`}
+                                        style={{color: "#212529"}}
                                     >
-                                        <Grid container direction={"row"} spacing={1}
-                                              style={{justifyContent: "space-between"}}>
-                                            <Grid item>
-                                                <NavLink
-                                                    to={`/task/${deadline!.taskId}`}
-                                                    style={{color: "#212529"}}
-                                                >
-                                                    <Typography style={{fontSize: "20px"}}>
-                                                        {deadline!.taskTitle}
-                                                    </Typography>
-                                                </NavLink>
-                                            </Grid>
-                                            {!deadlinePast && <Grid item>
-                                                {this.renderBadge(solutionState!, rating!, deadline!.maxRating!)}
-                                            </Grid>}
-                                        </Grid>
-                                    </ListItem>
-                                </Link>
-                                <Typography style={{fontSize: "18px", color: "GrayText"}}>
-                                    {deadline!.courseTitle}
-                                </Typography>
-                                <LinearProgress variant="determinate"
-                                                color={deadlinePast ? "error" : "primary"}
-                                                style={{marginTop: 5}}
-                                                value={deadlinePast ? 100 : this.getPercent(deadline!.publicationDate!, deadline!.deadlineDate!)}/>
-                                {Utils.renderReadableDate(deadline!.deadlineDate!)}
-                                {i < taskDeadlines.length - 1 ?
-                                    <Divider style={{marginTop: 10, marginBottom: 10}}/> : null}
+                                        <Typography style={{fontSize: "20px"}}>
+                                            {deadline!.taskTitle}
+                                        </Typography>
+                                    </NavLink>
+                                </Grid>
+                                {!deadlinePast && <Grid item>
+                                    {this.renderBadge(solutionState!, rating!, deadline!.maxRating!)}
+                                </Grid>}
                             </Grid>
-                            {hoveredElement === i && <Grid xs={1} item>
-                                <Tooltip
-                                    arrow
-                                    title={<span style={{whiteSpace: 'pre-line'}}>
-                                        {"Отказаться от решения задачи.\nЗадача автоматически оценивается в 0 баллов."}
-                                </span>}>
-                                    <IconButton aria-label="delete"
-                                                onClick={() => this.setState({showGiveUpModalForTaskId: deadline!.taskId!})}>
-                                        <DeleteIcon/>
-                                    </IconButton>
-                                </Tooltip>
-                            </Grid>}
-                        </Grid>
-                    );
-                })}
-                <Dialog open={showGiveUpModalForTaskId !== undefined}
-                        onClose={() => this.setState({showGiveUpModalForTaskId: undefined})}
-                        aria-labelledby="form-dialog-title">
-                    <DialogTitle id="form-dialog-title">
-                        Отказаться от решения задачи
-                    </DialogTitle>
-                    <DialogContent>
-                        <Typography>
-                            Вы уверены? Задача автоматически будет оценена в 0 баллов.
-                        </Typography>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button
-                            size="small"
-                            variant="contained"
-                            color="primary"
-                            type="submit"
-                            onClick={e => showGiveUpModalForTaskId && this.giveUp(showGiveUpModalForTaskId)}
-                        >
-                            Да
-                        </Button>
-                        <Button
-                            size="small"
-                            onClick={() => this.setState({showGiveUpModalForTaskId: undefined})}
-                            variant="contained"
-                            color="primary"
-                        >
-                            Отменить
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-            </Grid>
-        );
+                        </ListItem>
+                    </Link>
+                    <Typography style={{fontSize: "18px", color: "GrayText"}}>
+                        {deadline!.courseTitle}
+                    </Typography>
+                    <LinearProgress variant="determinate"
+                                    color={deadlinePast ? "error" : "primary"}
+                                    style={{marginTop: 5}}
+                                    value={deadlinePast ? 100 : this.getPercent(deadline!.publicationDate!, deadline!.deadlineDate!)}/>
+                    <Stack direction={"row"} spacing={10} alignItems={"baseline"} justifyContent={"space-between"}
+                           style={{height: 27}}>
+                        {Utils.renderReadableDate(deadline!.deadlineDate!)}
+                        {hoveredElement === i &&
+                            <Typography variant={"caption"}>
+                                <LinkText
+                                    style={{textDecoration: "none", cursor: "pointer"}}
+                                    onClick={() => this.setState({showGiveUpModalForTaskId: deadline!.taskId!})}>
+                                    Отказаться от решения задачи
+                                </LinkText>
+                            </Typography>}
+                    </Stack>
+                    {i < taskDeadlines.length - 1 ?
+                        <Divider style={{marginTop: 10, marginBottom: 10}}/> : null}
+                </Grid>)}
+            <Dialog open={showGiveUpModalForTaskId !== undefined}
+                    onClose={() => this.setState({showGiveUpModalForTaskId: undefined})}
+                    aria-labelledby="form-dialog-title">
+                <DialogTitle id="form-dialog-title">
+                    Отказаться от решения задачи
+                </DialogTitle>
+                <DialogContent>
+                    <Typography>
+                        Вы уверены? Задача автоматически будет оценена в 0 баллов.
+                    </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button
+                        size="small"
+                        variant="contained"
+                        color="primary"
+                        type="submit"
+                        onClick={e => showGiveUpModalForTaskId && this.giveUp(showGiveUpModalForTaskId)}
+                    >
+                        Да
+                    </Button>
+                    <Button
+                        size="small"
+                        onClick={() => this.setState({showGiveUpModalForTaskId: undefined})}
+                        variant="contained"
+                        color="primary"
+                    >
+                        Отменить
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </div>
+            ;
     }
 }
