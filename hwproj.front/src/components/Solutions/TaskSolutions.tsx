@@ -42,15 +42,15 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
         : undefined
 
     const renderSolutionsRate = () => {
-        if (lastSolution === undefined) return null
-
         const ratedSolutions = solutions
             .filter(x => x.state !== Solution.StateEnum.NUMBER_0)
             .map(x => ({publicationTime: new Date(x.publicationDate!).getTime(), rating: x.rating}))
 
+        if (ratedSolutions.length === 0) return null
+        const lastSolution = ratedSolutions[ratedSolutions.length - 1]
+
         const startDate = new Date(props.task.publicationDate!)
-        const endDate = new Date(lastSolution.publicationDate!)
-        const total = endDate.getTime() - startDate.getTime()
+        const total = lastSolution.publicationTime - startDate.getTime()
 
         return <Stack direction={"row"}>
             {ratedSolutions
