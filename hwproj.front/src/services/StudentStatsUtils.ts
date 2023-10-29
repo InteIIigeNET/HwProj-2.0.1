@@ -4,13 +4,16 @@ import Utils from "./Utils";
 
 export default class StudentStatsUtils {
 
+    static getRatingColor = (rating: number, maxRating: number) =>
+        colorBetween(0xff0000, 0x2cba00, Math.min(rating, maxRating) / maxRating * 100)
+
     static getCellBackgroundColor = (state: Solution.StateEnum | undefined,
                                      rating: number | undefined, maxRating: number,
                                      isFirstTry: boolean): string => {
         if (state == Solution.StateEnum.NUMBER_0)
             return isFirstTry ? "#d0fcc7" : "#afeeee"
         return rating !== undefined
-            ? colorBetween(0xff0000, 0x2cba00, Math.min(rating, maxRating) / maxRating * 100)
+            ? StudentStatsUtils.getRatingColor(rating, maxRating)
             : "#ffffff"
     }
 

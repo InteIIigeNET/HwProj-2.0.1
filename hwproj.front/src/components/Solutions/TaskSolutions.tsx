@@ -3,7 +3,11 @@ import {FC, useEffect, useState} from 'react';
 import TaskSolutionComponent from "./TaskSolutionComponent";
 import {AccountDataDto, GetSolutionModel, HomeworkTaskViewModel, Solution} from '../../api';
 import {Grid, Tab, Tabs} from "@material-ui/core";
-import {Divider} from "@mui/material";
+import {Divider, Stack} from "@mui/material";
+import {Start} from "@mui/icons-material";
+import Utils from "../../services/Utils";
+import StudentStatsUtils from "../../services/StudentStatsUtils";
+import {colorBetween} from "../../services/JsUtils";
 
 interface ITaskSolutionsProps {
     task: HomeworkTaskViewModel
@@ -29,7 +33,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
     useEffect(() => setState({tabValue: 0}), [props.student.userId, props.task.id])
 
     const {tabValue} = state
-    const {solutions, student, forMentor} = props
+    const {solutions, student, forMentor, task} = props
     const lastSolution = solutions[solutions.length - 1]
     const arrayOfRatedSolutions = solutions.slice(0, solutions.length - 1)
     const previousSolution = arrayOfRatedSolutions && arrayOfRatedSolutions[arrayOfRatedSolutions.length - 1]
@@ -37,7 +41,31 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
         ? previousSolution.rating
         : undefined
 
+    const renderSolutionsRate = () => {
+        if (lastSolution === undefined) return null
+
+        const ratedSolutions = solutions
+            .filter(x => x.state !== Solution.StateEnum.NUMBER_0)
+            .map(x => ({publicationTime: new Date(x.publicationDate!).getTime(), rating: x.rating}))
+
+        const startDate = new Date(props.task.publicationDate!)
+        const endDate = new Date(lastSolution.publicationDate!)
+        const total = endDate.getTime() - startDate.getTime()
+
+        return <Stack direction={"row"}>
+            {ratedSolutions
+                .map(({publicationTime, rating}, i) => {
+                    let offset = i === 0
+                        ? publicationTime - startDate.getTime()
+                        : publicationTime - ratedSolutions[i - 1].publicationTime
+                    const color = StudentStatsUtils.getRatingColor(rating!, task.maxRating!)
+                    return <div style={{height: 10, width: `${offset * 100 / total}%`, backgroundColor: color}}/>
+                })}
+        </Stack>
+    }
+
     return <Grid container alignItems="stretch" direction="column">
+        {renderSolutionsRate()}
         <Tabs
             value={tabValue}
             style={{marginTop: 3}}

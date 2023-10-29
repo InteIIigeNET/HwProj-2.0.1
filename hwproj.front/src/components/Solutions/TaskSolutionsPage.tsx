@@ -196,7 +196,7 @@ const TaskSolutionsPage: FC = () => {
                             />
                         </Grid>
                         {!taskSolutionPage.addSolution && (
-                            <Grid item xs={6}>
+                            <Grid item xs={12}>
                                 <TaskSolutions
                                     task={task}
                                     forMentor={false}
