@@ -252,7 +252,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                 }))
                             }}
                         />
-                        {state.clickedForRate && <Typography variant={"caption"}>
+                        {props.forMentor && state.clickedForRate && <Typography variant={"caption"}>
                             Промежуточное оценивание будет сохранено локально
                         </Typography>}
                     </Grid>
