@@ -45,10 +45,12 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
         added: false,
     })
 
+    const isSomeTaskSoonerThanHomework = addHomeworkState.tasks
+        .some(t => t.publicationDate != undefined && t.publicationDate < addHomeworkState.publicationDate)
+
     const handleSubmit = async (e: any) => {
         e.preventDefault();
 
-        console.log(addHomeworkState)
         await ApiSingleton.homeworksApi.apiHomeworksByCourseIdAddPost(props.id, addHomeworkState)
         setAddHomeworkState((prevState) => ({
             ...prevState,
@@ -173,6 +175,7 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                         variant="contained"
                         color="primary"
                         type="submit"
+                        disabled={isSomeTaskSoonerThanHomework}
                     >
                         Добавить домашнее задание
                     </Button>

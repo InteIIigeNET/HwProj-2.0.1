@@ -20,6 +20,7 @@ interface ICreateTaskState {
     hasDeadline: boolean | undefined;
     deadlineDate: Date | undefined;
     isDeadlineStrict: boolean | undefined;
+    hasError: boolean;
 }
 
 const CreateTask: FC<ICreateTaskProps> = (props) => {
@@ -31,10 +32,8 @@ const CreateTask: FC<ICreateTaskProps> = (props) => {
         hasDeadline: false,
         deadlineDate: undefined,
         isDeadlineStrict: false,
+        hasError: false,
     })
-
-    console.log("tttt")
-    console.log(props)
 
     useEffect(() => props.onChange(createTaskState), [createTaskState])
 
@@ -113,9 +112,9 @@ const CreateTask: FC<ICreateTaskProps> = (props) => {
                             <Link onClick={() => {
                                 setCreateTaskState((prevState) => ({
                                     ...prevState,
-                                    hasDeadline: false,
+                                    hasDeadline: undefined,
                                     deadlineDate: undefined,
-                                    isDeadlineStrict: false,
+                                    isDeadlineStrict: undefined,
                                     publicationDate: undefined,
                                 }))
 
@@ -142,7 +141,8 @@ const CreateTask: FC<ICreateTaskProps> = (props) => {
                             hasDeadline: state.hasDeadline,
                             isDeadlineStrict: state.isDeadlineStrict,
                             publicationDate: state.publicationDate,
-                            deadlineDate: state.deadlineDate
+                            deadlineDate: state.deadlineDate,
+                            hasError: state.hasError,
                         }))}
                     />
                     </Grid>

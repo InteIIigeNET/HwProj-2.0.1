@@ -20,19 +20,6 @@ interface IDateFieldsState {
 }
 
 const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
-    const [state, setState] = useState<IDateFieldsState>({
-        hasDeadline: false,
-        publicationDate: new Date(),
-        deadlineDate: undefined,
-        isDeadlineStrict: false,
-    });
-
-    useEffect(() => {
-        props.onChange(state)
-    }, [state])
-
-    useEffect(() => setInitialState(), [])
-
     const getInitialDeadlineDate = (publicationDate: Date) => {
         const twoWeeks = 2 * 7 * 24 * 60 * 60 * 1000
 
@@ -43,32 +30,35 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
     }
 
     const getInitialPublicationDate = () => {
-        const now = Date.now()
-
         const publicationDate = new Date(Date.now())
         publicationDate.setHours(0, 0, 0, 0)
 
         return Utils.toMoscowDate(publicationDate)
     }
 
-    const setInitialState = () => {
+    const [state, setState] = useState<IDateFieldsState>(() => 
+    {
         const publicationDate = props.publicationDate == undefined
-            ? getInitialPublicationDate()
-            : props.publicationDate 
+        ? getInitialPublicationDate()
+        : props.publicationDate
 
-        const deadlineDate = props.hasDeadline
-            ? props.deadlineDate == undefined 
-                ? getInitialDeadlineDate(publicationDate) 
-                : props.deadlineDate
-            : undefined
-        
-        setState({
+        return {
             hasDeadline: props.hasDeadline,
+            publicationDate: props.publicationDate == undefined
+                ? getInitialPublicationDate()
+                : props.publicationDate ,
+            deadlineDate: props.hasDeadline
+                ? props.deadlineDate == undefined 
+                    ? getInitialDeadlineDate(publicationDate) 
+                    : props.deadlineDate
+                : undefined,
             isDeadlineStrict: props.isDeadlineStrict,
-            publicationDate: publicationDate,
-            deadlineDate: deadlineDate
-        })
-    }
+        }
+    });
+
+    useEffect(() => {
+        props.onChange(state)
+    }, [state])
 
     return (
         <div>
@@ -88,8 +78,10 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                         variant='standard'
                         value={state.publicationDate?.toISOString().substring(0, 16)}
                         onChange={(e) => {
-                            let date = new Date(e.target.value)
-                            date = Utils.toMoscowDate(date)
+                            const date = e.target.value === ''
+                                ? Utils.toMoscowDate(new Date(e.target.value))
+                                : getInitialPublicationDate();
+
                             setState(prevState => ({
                                 ...prevState,
                                 publicationDate: date

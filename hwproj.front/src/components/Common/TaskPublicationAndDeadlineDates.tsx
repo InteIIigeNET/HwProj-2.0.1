@@ -23,14 +23,18 @@ interface IDateFieldsState {
     hasDeadline: boolean | undefined;
     deadlineDate: Date | undefined;
     isDeadlineStrict: boolean | undefined;
+    hasError: boolean;
 }
 
 const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
+    const homeworkPublicationDate = new Date(props.homeworkPublicationDate!)
+
     const [state, setState] = useState<IDateFieldsState>({
         hasDeadline: props.hasDeadline,
         publicationDate: props.publicationDate ,
         deadlineDate: props.deadlineDate,
         isDeadlineStrict: props.isDeadlineStrict,
+        hasError: props.publicationDate != undefined && homeworkPublicationDate > props.publicationDate,
     });
 
     useEffect(() => {
@@ -53,8 +57,6 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
     {
         return obj == undefined ? {fontSize: 13} : {textDecoration: "underline", fontSize: 13}
     }
-
-    const homeworkPublicationDate = new Date(props.homeworkPublicationDate!)
 
     const isDateSoonerThanHomework = (newDate: Date | string) => {
         return newDate != undefined 

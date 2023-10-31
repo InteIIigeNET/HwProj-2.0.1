@@ -26,6 +26,7 @@ interface IEditTaskState {
     homeworkHasDeadline: boolean;
     homeworkDeadlineDate: Date | undefined;
     homeworkIsDeadlineStrict: boolean;
+    hasError: boolean;
 }
 
 const useStyles = makeStyles(theme => ({
@@ -57,6 +58,7 @@ const EditTask: FC = () => {
         homeworkHasDeadline: false,
         homeworkDeadlineDate: undefined,
         homeworkIsDeadlineStrict: false,
+        hasError: false,
 })
 
     const [isOpenDates, setIsOpenDates] = useState<boolean>()
@@ -96,6 +98,7 @@ const EditTask: FC = () => {
             homeworkHasDeadline: homework.hasDeadline!,
             homeworkDeadlineDate: homework.deadlineDate,
             homeworkIsDeadlineStrict: homework.isDeadlineStrict!,
+            hasError: false,
         }))
     }
 
@@ -114,7 +117,7 @@ const EditTask: FC = () => {
     if (taskState.edited) {
         return <Navigate to={"/courses/" + taskState.courseId}/>;
     }
-    
+
     if (taskState.isLoaded) {
         if (!taskState.courseMentorIds.includes(ApiSingleton.authService.getUserId())) {
             return (
@@ -231,9 +234,9 @@ const EditTask: FC = () => {
                                             <LinkMUI onClick={() => {
                                                 setTaskState((prevState) => ({
                                                     ...prevState,
-                                                    hasDeadline: false,
+                                                    hasDeadline: undefined,
                                                     deadlineDate: undefined,
-                                                    isDeadlineStrict: false,
+                                                    isDeadlineStrict: undefined,
                                                     publicationDate: undefined,
                                                 }))
 
@@ -259,7 +262,8 @@ const EditTask: FC = () => {
                                         hasDeadline: state.hasDeadline,
                                         isDeadlineStrict: state.isDeadlineStrict,
                                         publicationDate: state.publicationDate,
-                                        deadlineDate: state.deadlineDate
+                                        deadlineDate: state.deadlineDate,
+                                        hasError: state.hasError
                                     }))}
                                     />
                                 </Grid>
@@ -271,6 +275,7 @@ const EditTask: FC = () => {
                                     variant="contained"
                                     color="primary"
                                     type="submit"
+                                    disabled={taskState.hasError}
                                 >
                                     Редактировать задачу
                                 </Button>

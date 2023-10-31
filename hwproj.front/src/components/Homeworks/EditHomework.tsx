@@ -96,7 +96,7 @@ const EditHomework: FC = () => {
     const classes = useStyles()
 
     const isSomeTaskSoonerThanHomework = editHomework.changedTaskPublicationDates
-        .filter(d => d < Utils.convertLocalDateToUTCDate(new Date(editHomework.publicationDate))).length !== 0
+        .some(d => d < Utils.convertLocalDateToUTCDate(new Date(editHomework.publicationDate)))
 
     if (editHomework.edited) {
         return <Navigate to={"/courses/" + editHomework.courseId}/>;
@@ -207,6 +207,7 @@ const EditHomework: FC = () => {
                                     variant="contained"
                                     color="primary"
                                     type="submit"
+                                    disabled={isSomeTaskSoonerThanHomework}
                                 >
                                     Редактировать
                                 </Button>
