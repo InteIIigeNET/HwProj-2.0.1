@@ -52,22 +52,35 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
         const lastSolution = ratedSolutions[ratedSolutions.length - 1]
 
         const startDate = new Date(props.task.publicationDate!)
-        const total = lastSolution.publicationTime.getTime() - startDate.getTime()
+        const startTime = startDate.getTime()
+        const deadline = props.task.deadlineDate && new Date(props.task.deadlineDate)
+        const deadlineTime = deadline && new Date(deadline).getTime()
+        const endTime = lastSolution.publicationTime.getTime()
+        const total = endTime - startTime
+        const totalPercent = deadlineTime && deadlineTime < endTime ? 99 : 100
 
         const tooltip = <div style={{fontSize: 13}}>
             {Utils.renderReadableDate(startDate)} — Задача опубликована
             <br/>
             <br/>
             <Stack direction={"column"} spacing={1}>
-                {ratedSolutions.map(x =>
-                    <Stack direction={"row"} alignItems={"center"}>
+                {ratedSolutions.map(({color, publicationTime, rating}, i) => {
+                    const previousTime = i === 0
+                        ? startTime
+                        : ratedSolutions[i - 1].publicationTime.getTime()
+                    const currentTime = publicationTime.getTime()
+                    const element = <Stack direction={"row"} alignItems={"center"}>
                         <Chip
-                            label={x.rating}
+                            label={rating}
                             size={"small"}
-                            style={{backgroundColor: x.color, marginRight: 3, color: "white"}}
+                            style={{backgroundColor: color, marginRight: 3, color: "white"}}
                         />
-                        {" — " + Utils.renderReadableDate(x.publicationTime)}
-                    </Stack>)}
+                        {" — " + Utils.renderReadableDate(publicationTime)}
+                    </Stack>
+                    return deadlineTime && deadlineTime >= previousTime && deadlineTime <= currentTime
+                        ? [<div>{Utils.renderReadableDate(deadline!)} — Дедлайн</div>, element]
+                        : element;
+                })}
             </Stack>
         </div>
 
@@ -75,10 +88,28 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
             <Stack direction={"row"}>
                 {ratedSolutions
                     .map(({publicationTime, rating, color}, i) => {
-                        let offset = i === 0
-                            ? publicationTime.getTime() - startDate.getTime()
-                            : publicationTime.getTime() - ratedSolutions[i - 1].publicationTime.getTime()
-                        return <div style={{height: 10, width: `${offset * 100 / total}%`, backgroundColor: color}}/>
+                        const previousTime = i === 0
+                            ? startTime
+                            : ratedSolutions[i - 1].publicationTime.getTime()
+                        const currentTime = publicationTime.getTime()
+
+                        return deadlineTime && deadlineTime > previousTime && deadlineTime < currentTime
+                            ? [<div style={{
+                                height: 10,
+                                width: `${(deadlineTime - previousTime) * totalPercent / total}%`,
+                                backgroundColor: color
+                            }}/>,
+                                <div style={{height: 10, width: `${100 - totalPercent}%`, backgroundColor: "black"}}/>,
+                                <div style={{
+                                    height: 10,
+                                    width: `${(currentTime - deadlineTime) * totalPercent / total}%`,
+                                    backgroundColor: color
+                                }}/>]
+                            : <div style={{
+                                height: 10,
+                                width: `${(currentTime - previousTime) * totalPercent / total}%`,
+                                backgroundColor: color
+                            }}/>;
                     })}
             </Stack>
         </Tooltip>
