@@ -54,7 +54,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
         const startDate = new Date(props.task.publicationDate!)
         const total = lastSolution.publicationTime.getTime() - startDate.getTime()
 
-        const tooltip = <div>
+        const tooltip = <div style={{fontSize: 13}}>
             {Utils.renderReadableDate(startDate)} — Задача опубликована
             <br/>
             <br/>
