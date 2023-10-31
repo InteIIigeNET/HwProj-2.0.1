@@ -64,7 +64,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                         <Chip
                             label={x.rating}
                             size={"small"}
-                            style={{backgroundColor: x.color, marginRight: 3}}
+                            style={{backgroundColor: x.color, marginRight: 3, color: "white"}}
                         />
                         {" — " + Utils.renderReadableDate(x.publicationTime)}
                     </Stack>)}
