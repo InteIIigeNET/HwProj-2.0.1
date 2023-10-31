@@ -3,11 +3,9 @@ import {FC, useEffect, useState} from 'react';
 import TaskSolutionComponent from "./TaskSolutionComponent";
 import {AccountDataDto, GetSolutionModel, HomeworkTaskViewModel, Solution} from '../../api';
 import {Grid, Tab, Tabs} from "@material-ui/core";
-import {Divider, Stack} from "@mui/material";
-import {Start} from "@mui/icons-material";
+import {Chip, Divider, Stack, Tooltip} from "@mui/material";
 import Utils from "../../services/Utils";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
-import {colorBetween} from "../../services/JsUtils";
 
 interface ITaskSolutionsProps {
     task: HomeworkTaskViewModel
@@ -44,24 +42,46 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
     const renderSolutionsRate = () => {
         const ratedSolutions = solutions
             .filter(x => x.state !== Solution.StateEnum.NUMBER_0)
-            .map(x => ({publicationTime: new Date(x.publicationDate!).getTime(), rating: x.rating}))
+            .map(x => ({
+                publicationTime: new Date(x.publicationDate!),
+                rating: x.rating,
+                color: StudentStatsUtils.getRatingColor(x.rating!, task.maxRating!)
+            }))
 
         if (ratedSolutions.length === 0) return null
         const lastSolution = ratedSolutions[ratedSolutions.length - 1]
 
         const startDate = new Date(props.task.publicationDate!)
-        const total = lastSolution.publicationTime - startDate.getTime()
+        const total = lastSolution.publicationTime.getTime() - startDate.getTime()
 
-        return <Stack direction={"row"}>
-            {ratedSolutions
-                .map(({publicationTime, rating}, i) => {
-                    let offset = i === 0
-                        ? publicationTime - startDate.getTime()
-                        : publicationTime - ratedSolutions[i - 1].publicationTime
-                    const color = StudentStatsUtils.getRatingColor(rating!, task.maxRating!)
-                    return <div style={{height: 10, width: `${offset * 100 / total}%`, backgroundColor: color}}/>
-                })}
-        </Stack>
+        const tooltip = <div>
+            {Utils.renderReadableDate(startDate)} — Задача опубликована
+            <br/>
+            <br/>
+            <Stack direction={"column"} spacing={1}>
+                {ratedSolutions.map(x =>
+                    <Stack direction={"row"} alignItems={"center"}>
+                        <Chip
+                            label={x.rating}
+                            size={"small"}
+                            style={{backgroundColor: x.color, marginRight: 3}}
+                        />
+                        {" — " + Utils.renderReadableDate(x.publicationTime)}
+                    </Stack>)}
+            </Stack>
+        </div>
+
+        return <Tooltip arrow title={tooltip}>
+            <Stack direction={"row"}>
+                {ratedSolutions
+                    .map(({publicationTime, rating, color}, i) => {
+                        let offset = i === 0
+                            ? publicationTime.getTime() - startDate.getTime()
+                            : publicationTime.getTime() - ratedSolutions[i - 1].publicationTime.getTime()
+                        return <div style={{height: 10, width: `${offset * 100 / total}%`, backgroundColor: color}}/>
+                    })}
+            </Stack>
+        </Tooltip>
     }
 
     return <Grid container alignItems="stretch" direction="column">
