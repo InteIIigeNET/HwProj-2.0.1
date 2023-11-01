@@ -3,7 +3,7 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useEffect, useState} from "react";
 import {Grid, TextField, Button, Checkbox, Typography, Tooltip, Link} from "@material-ui/core";
 import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
-import {CreateTaskViewModel} from "../../api";
+import {CreateHomeworkViewModel, CreateTaskViewModel} from "../../api";
 import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
 import CreateTask from "../Tasks/CreateTask"
 import Utils from "../../services/Utils";
@@ -17,7 +17,7 @@ interface IAddHomeworkProps {
 interface IAddHomeworkState {
     title: string;
     description: string;
-    tasks: CreateTaskViewModel[];
+    tasks: IAddHomeworkTaskState[];
     added: boolean;
     publicationDate: Date;
     deadlineDate: Date | undefined;
@@ -25,18 +25,26 @@ interface IAddHomeworkState {
     isDeadlineStrict: boolean;
 }
 
+interface IAddHomeworkTaskState {
+    task : CreateTaskViewModel;
+    hasError: boolean;
+}
+
 const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
     const [addHomeworkState, setAddHomeworkState] = useState<IAddHomeworkState>({
         title: "",
         description: "",
         tasks: [{
-            title: "",
-            description: "",
-            maxRating: 10,
-            publicationDate: undefined,
-            hasDeadline: false,
-            deadlineDate: undefined,
-            isDeadlineStrict: false,
+            task: {
+                title: "",
+                description: "",
+                maxRating: 10,
+                publicationDate: undefined,
+                hasDeadline: false,
+                deadlineDate: undefined,
+                isDeadlineStrict: false,
+            },
+            hasError: false,
         }],
         publicationDate: new Date(),
         hasDeadline: true,
@@ -45,19 +53,23 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
         added: false,
     })
 
-    const isSomeTaskSoonerThanHomework = addHomeworkState.tasks
-        .some(t => t.publicationDate != undefined && t.publicationDate < addHomeworkState.publicationDate)
-
     const handleSubmit = async (e: any) => {
         e.preventDefault();
 
-        await ApiSingleton.homeworksApi.apiHomeworksByCourseIdAddPost(props.id, addHomeworkState)
+        const addHomework: CreateHomeworkViewModel = {
+            ...addHomeworkState,
+            tasks: addHomeworkState.tasks.map(t => t.task)
+        }
+
+        await ApiSingleton.homeworksApi.apiHomeworksByCourseIdAddPost(props.id, addHomework)
         setAddHomeworkState((prevState) => ({
             ...prevState,
             added: true
         }))
         props.onSubmit()
     }
+
+    console.log(addHomeworkState)
 
     return (
         <div>
@@ -138,9 +150,13 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                                         homeworkHasDeadline={addHomeworkState.hasDeadline}
                                         homeworkIsDeadlineStrict={addHomeworkState.isDeadlineStrict}
                                         onChange={(state) => {
-                                            addHomeworkState.tasks[index] = state
+                                            addHomeworkState.tasks[index].task = state
+                                            addHomeworkState.tasks[index].hasError = state.hasError
 
-                                            setAddHomeworkState((prevState) => prevState)
+                                            setAddHomeworkState((prevState) => ({
+                                                ...prevState,
+
+                                            }))
                                         }}
                                      />
                                 </li>
@@ -155,13 +171,16 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                             setAddHomeworkState((prevState) => ({
                                 ...prevState,
                                 tasks: [...addHomeworkState.tasks, {
-                                    title: "",
-                                    description: "",
-                                    maxRating: 10,
-                                    publicationDate: undefined,
-                                    hasDeadline: false,
-                                    deadlineDate: undefined,
-                                    isDeadlineStrict: false,
+                                    task: {
+                                        title: "",
+                                        description: "",
+                                        maxRating: 10,
+                                        publicationDate: undefined,
+                                        hasDeadline: false,
+                                        deadlineDate: undefined,
+                                        isDeadlineStrict: false,
+                                    },
+                                    hasError: false,
                                 }],
                             }))
                         }
@@ -175,7 +194,7 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                         variant="contained"
                         color="primary"
                         type="submit"
-                        disabled={isSomeTaskSoonerThanHomework}
+                        disabled={addHomeworkState.tasks.some(t => t.hasError)}
                     >
                         Добавить домашнее задание
                     </Button>

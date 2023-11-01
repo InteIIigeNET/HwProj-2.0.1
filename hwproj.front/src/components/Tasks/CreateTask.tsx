@@ -116,6 +116,7 @@ const CreateTask: FC<ICreateTaskProps> = (props) => {
                                     deadlineDate: undefined,
                                     isDeadlineStrict: undefined,
                                     publicationDate: undefined,
+                                    hasError: false,
                                 }))
 
                                 setIsOpenDates(false)

@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using HwProj.CoursesService.Client;
 using HwProj.Models.CoursesService.ViewModels;
+using HwProj.Models.Result;
 using HwProj.Models.Roles;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -43,7 +44,9 @@ namespace HwProj.APIGateway.API.Controllers
         public async Task<IActionResult> AddHomework(CreateHomeworkViewModel homeworkViewModel, long courseId)
         {
             var result = await _coursesClient.AddHomeworkToCourse(homeworkViewModel, courseId);
-            return Ok(result.Value);
+            return result.Succeeded
+                ? Ok(result.Value) as IActionResult
+                : BadRequest(result.Errors);
         } 
 
         [HttpDelete("delete/{homeworkId}")]
@@ -58,8 +61,10 @@ namespace HwProj.APIGateway.API.Controllers
         [Authorize(Roles = Roles.LecturerRole)]
         public async Task<IActionResult> UpdateHomework(CreateHomeworkViewModel homeworkViewModel, long homeworkId)
         {
-            await _coursesClient.UpdateHomework(homeworkViewModel, homeworkId);
-            return Ok();
+            var result = await _coursesClient.UpdateHomework(homeworkViewModel, homeworkId);
+            return result.Succeeded
+                ? Ok() as IActionResult
+                : BadRequest(result.Errors);
         }
     }
 }

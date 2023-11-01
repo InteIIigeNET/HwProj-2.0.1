@@ -63,7 +63,10 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
             && (Utils.convertLocalDateToUTCDate(new Date(newDate)) < homeworkPublicationDate)
     }
 
+    console.log(state)
+
     const isTaskSoonerThanHomework = isDateSoonerThanHomework(state.publicationDate!)
+    console.log(isTaskSoonerThanHomework)
 
     return (
         <div>
@@ -87,7 +90,7 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                         value={state.publicationDate?.toISOString().substring(0, 16)}
                         onChange={(e) => {
                             const date = e.target.value === '' ? undefined : Utils.toMoscowDate(new Date(e.target.value))
-                            const isErrorState = isDateSoonerThanHomework(e.target.value)
+                            const isErrorState = date != undefined && isDateSoonerThanHomework(date)
 
                             setState(prevState => ({
                                 ...prevState,

@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using HwProj.CoursesService.Client;
 using HwProj.Models.CoursesService.ViewModels;
+using HwProj.Models.Result;
 using HwProj.Models.Roles;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -66,8 +67,10 @@ namespace HwProj.APIGateway.API.Controllers
         [Authorize(Roles = Roles.LecturerRole)]
         public async Task<IActionResult> UpdateTask(CreateTaskViewModel taskViewModel, long taskId)
         {
-            await _coursesClient.UpdateTask(taskViewModel, taskId);
-            return Ok();
+            var result = await _coursesClient.UpdateTask(taskViewModel, taskId);
+            return result.Succeeded
+                ? Ok() as IActionResult
+                : BadRequest(result.Errors);
         }
     }
 }

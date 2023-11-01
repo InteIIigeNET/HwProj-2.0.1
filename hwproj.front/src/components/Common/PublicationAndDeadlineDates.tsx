@@ -78,7 +78,7 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                         variant='standard'
                         value={state.publicationDate?.toISOString().substring(0, 16)}
                         onChange={(e) => {
-                            const date = e.target.value === ''
+                            const date = e.target.value !== ''
                                 ? Utils.toMoscowDate(new Date(e.target.value))
                                 : getInitialPublicationDate();
 

@@ -1,15 +1,32 @@
 ﻿using System;
+using AutoMapper;
 using FluentValidation;
+using HwProj.CoursesService.API.Models;
+using HwProj.CoursesService.API.Repositories;
+using HwProj.Models;
 using HwProj.Models.CoursesService.ViewModels;
+using Newtonsoft.Json.Schema;
 
 namespace HwProj.CoursesService.API.Validators
 {
     public sealed class CreateHomeworkViewModelValidator : AbstractValidator<CreateHomeworkViewModel>
     {
-        public CreateHomeworkViewModelValidator()
+        public CreateHomeworkViewModelValidator(IMapper mapper, Homework? previousHomeworkState = null)
         {
             RuleForEach(homework => homework.Tasks)
-                .SetValidator(h => new TaskInHomeworkViewModelValidator(h.PublicationDate));
+                .SetValidator(h => new CreateTaskViewModelValidator(mapper.Map<Homework>(h)));
+
+            RuleFor(homework => homework.PublicationDate)
+                .Must(p => previousHomeworkState?.Tasks.TrueForAll(t =>
+                    t.PublicationDate == null || t.PublicationDate >= p) ?? false)
+                .When(_ => previousHomeworkState != null)
+                .WithMessage("Homework's publication date cannot to be earlier than task publication date");
+
+            RuleFor(homework => homework.PublicationDate)
+                .Must(p => previousHomeworkState?.PublicationDate > DateTimeUtils.GetMoscowNow()
+                           || p == previousHomeworkState?.PublicationDate)
+                .When(_ => previousHomeworkState != null)
+                .WithMessage("It is not possible to change the publication date of a homework if it has already been published to students.");
 
             RuleFor(homework => homework.DeadlineDate)
                 .Null()
@@ -25,24 +42,6 @@ namespace HwProj.CoursesService.API.Validators
                 .Equal(false)
                 .When(h => !h.HasDeadline || h.DeadlineDate == null)
                 .WithMessage("The deadline cannot be a string if there is no deadline in the homework.");
-        }
-
-        private class TaskInHomeworkViewModelValidator : AbstractValidator<CreateTaskViewModel>
-        {
-            public TaskInHomeworkViewModelValidator(DateTime homeworkPublicationDate)
-            {
-                RuleFor(task => task.PublicationDate)
-                    .Must(p => p >= homeworkPublicationDate)
-                    .When(t => t.PublicationDate != null)
-                    .WithMessage("Publication date of task cannot to be sooner than homework publication date");
-
-                RuleFor(task => task.DeadlineDate).Null().When(task => !task.HasDeadline ?? true)
-                    .WithMessage("DeadlineDate cannot to have a value if the task has no deadline or it is null.");
-
-                RuleFor(task => task.HasDeadline).Null()
-                    .When(task => (task.HasDeadline ?? false) && task.DeadlineDate == null)
-                    .WithMessage("Task HasDeadline cannot to be true if deadline undefined.");
-            }
         }
     }
 }

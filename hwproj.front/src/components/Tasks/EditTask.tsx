@@ -238,6 +238,7 @@ const EditTask: FC = () => {
                                                     deadlineDate: undefined,
                                                     isDeadlineStrict: undefined,
                                                     publicationDate: undefined,
+                                                    hasError: false,
                                                 }))
 
                                                 setIsOpenDates(false)
