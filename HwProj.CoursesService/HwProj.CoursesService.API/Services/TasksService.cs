@@ -55,7 +55,7 @@ namespace HwProj.CoursesService.API.Services
             var courseModel = _mapper.Map<CourseDTO>(course);
 
             var taskId = await _tasksRepository.AddAsync(task);
-            var deadlineDate = task.PublicationDate == null ? homework.DeadlineDate : task.DeadlineDate;
+            var deadlineDate = task.DeadlineDate ?? homework.DeadlineDate;
             var studentIds = courseModel.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
 
             if (task.PublicationDate <= DateTimeUtils.GetMoscowNow())

@@ -67,12 +67,8 @@ namespace HwProj.CoursesService.API.Services
             var course = await _coursesRepository.GetWithCourseMatesAsync(homework.CourseId);
             var courseModel = _mapper.Map<CourseDTO>(course);   
             var studentIds = courseModel.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
-            var publicationDate = homework.Tasks
-                .Where(t => t.PublicationDate != null)
-                .Select(t => t.PublicationDate).Append(homework.PublicationDate)
-                .Min();
 
-            if (publicationDate <= DateTimeUtils.GetMoscowNow())
+            if (update.PublicationDate <= DateTimeUtils.GetMoscowNow())
             {
                 _eventBus.Publish(new UpdateHomeworkEvent(update.Title, courseModel.Id, courseModel.Name, studentIds));
             }
