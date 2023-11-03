@@ -98,6 +98,8 @@ const EditHomework: FC = () => {
     const isSomeTaskSoonerThanHomework = editHomework.changedTaskPublicationDates
         .some(d => d < Utils.convertLocalDateToUTCDate(new Date(editHomework.publicationDate)))
 
+    const isHomeworkPublished = new Date(editHomework.publicationDate) <= new Date(Date.now())
+
     if (editHomework.edited) {
         return <Navigate to={"/courses/" + editHomework.courseId}/>;
     }
@@ -180,18 +182,13 @@ const EditHomework: FC = () => {
                                     }}
                                 />
                             </Grid>
-                            {isSomeTaskSoonerThanHomework &&
-                            <Grid item xs={11}>
-                                <Alert severity="error">
-                                    Дата публикации домашнего задания позже даты публикации задачи
-                                </Alert>
-                            </Grid>}
                             <Grid style={{width: "90%", marginBottom: 15}}>
                                 <PublicationAndDeadlineDates
                                 hasDeadline={editHomework.hasDeadline}
                                 isDeadlineStrict={editHomework.isDeadlineStrict}
                                 publicationDate={editHomework.publicationDate}
                                 deadlineDate={editHomework.deadlineDate}
+                                disabledPublicationDate={isHomeworkPublished}
                                 onChange={(state) => setEditHomework(prevState => ({
                                     ...prevState,
                                     hasDeadline: state.hasDeadline,
@@ -201,6 +198,12 @@ const EditHomework: FC = () => {
                                 }))}
                                 />
                             </Grid>
+                            {isSomeTaskSoonerThanHomework &&
+                            <Grid item xs={11}>
+                                <Alert severity="error">
+                                    Дата публикации домашнего задания позже даты публикации задачи
+                                </Alert>
+                            </Grid>}
                             <Grid item xs={11}>
                                 <Button
                                     fullWidth

@@ -96,8 +96,17 @@ const CreateTask: FC<ICreateTaskProps> = (props) => {
                 <Tooltip arrow title={"Позволяет установить даты для определенной задачи"}>
                     <Typography variant={"caption"} style={{fontSize: "14px"}}>
                         <Link onClick={() => {
-                            setIsOpenDates(true)
-                        }}>
+                                setCreateTaskState((prevState) => ({
+                                    ...prevState,
+                                    hasDeadline: undefined,
+                                    deadlineDate: undefined,
+                                    isDeadlineStrict: undefined,
+                                    publicationDate: undefined,
+                                    hasError: false,
+                                }))
+
+                                setIsOpenDates(true)
+                            }}>
                             Нужны особые даты?
                         </Link>
                     </Typography>

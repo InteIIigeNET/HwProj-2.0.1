@@ -69,8 +69,6 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
         props.onSubmit()
     }
 
-    console.log(addHomeworkState)
-
     return (
         <div>
             <form onSubmit={(e) => handleSubmit(e)} style={{maxWidth: "100%"}}>

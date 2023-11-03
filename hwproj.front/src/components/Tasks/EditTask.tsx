@@ -7,7 +7,6 @@ import {makeStyles} from "@material-ui/styles";
 import Utils from "../../services/Utils";
 import {Checkbox, Typography, Button, TextField, Grid, Tooltip, Link as LinkMUI} from "@material-ui/core";
 import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
-import { HomeworkTaskViewModel, HomeworkViewModel } from "api";
 import TaskPublicationAndDeadlineDates from "../Common/TaskPublicationAndDeadlineDates";
 
 interface IEditTaskState {
@@ -27,6 +26,7 @@ interface IEditTaskState {
     homeworkDeadlineDate: Date | undefined;
     homeworkIsDeadlineStrict: boolean;
     hasError: boolean;
+    isTaskPublished: boolean;
 }
 
 const useStyles = makeStyles(theme => ({
@@ -59,6 +59,7 @@ const EditTask: FC = () => {
         homeworkDeadlineDate: undefined,
         homeworkIsDeadlineStrict: false,
         hasError: false,
+        isTaskPublished: false,
 })
 
     const [isOpenDates, setIsOpenDates] = useState<boolean>()
@@ -80,6 +81,8 @@ const EditTask: FC = () => {
             ? undefined
             : Utils.toMoscowDate(new Date(task.deadlineDate))
 
+        const isTaskPublished = new Date(task.publicationDate ?? homework.publicationDate!) <= new Date(Date.now())
+
         setIsOpenDates(publication != undefined)
 
         setTaskState((prevState) => ({
@@ -99,6 +102,7 @@ const EditTask: FC = () => {
             homeworkDeadlineDate: homework.deadlineDate,
             homeworkIsDeadlineStrict: homework.isDeadlineStrict!,
             hasError: false,
+            isTaskPublished: isTaskPublished,
         }))
     }
 
@@ -219,7 +223,18 @@ const EditTask: FC = () => {
                             <Grid item>
                                 <Tooltip arrow title={"Позволяет установить даты для определенной задачи"}>
                                     <Typography variant={"caption"} style={{fontSize: "14px"}}>
-                                        <LinkMUI onClick={() => setIsOpenDates(true)}>
+                                        <LinkMUI onClick={() => {
+                                                setTaskState((prevState) => ({
+                                                    ...prevState,
+                                                    hasDeadline: undefined,
+                                                    deadlineDate: undefined,
+                                                    isDeadlineStrict: undefined,
+                                                    publicationDate: undefined,
+                                                    hasError: false,
+                                                }))
+
+                                                setIsOpenDates(true)
+                                            }}>
                                             Нужны особые даты?
                                         </LinkMUI>
                                     </Typography>
@@ -258,6 +273,7 @@ const EditTask: FC = () => {
                                     isDeadlineStrict={taskState.isDeadlineStrict}
                                     publicationDate={taskState.publicationDate}
                                     deadlineDate={taskState.deadlineDate}
+                                    disabledPublicationDate={taskState.isTaskPublished}
                                     onChange={(state) => setTaskState(prevState => ({
                                         ...prevState,
                                         hasDeadline: state.hasDeadline,

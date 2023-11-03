@@ -9,6 +9,7 @@ interface IDateFieldsProps {
     hasDeadline: boolean;
     deadlineDate: Date | undefined;
     isDeadlineStrict: boolean;
+    disabledPublicationDate?: boolean;
     onChange: (c: IDateFieldsState) => void;
 }
 
@@ -76,6 +77,7 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                         label="Дата публикации"
                         type="datetime-local"
                         variant='standard'
+                        disabled={props.disabledPublicationDate}
                         value={state.publicationDate?.toISOString().substring(0, 16)}
                         onChange={(e) => {
                             const date = e.target.value !== ''

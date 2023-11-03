@@ -4,7 +4,6 @@ import Utils from "../../services/Utils";
 import Checkbox from '@mui/material/Checkbox';
 import {Alert, Grid} from "@mui/material";
 import { Typography } from '@material-ui/core';
-import Homework from 'components/Homeworks/Homework';
 
 interface IDateFieldsProps {
     homeworkPublicationDate: Date;
@@ -15,6 +14,7 @@ interface IDateFieldsProps {
     hasDeadline: boolean | undefined;
     deadlineDate: Date | undefined;
     isDeadlineStrict: boolean | undefined;
+    disabledPublicationDate?: boolean;
     onChange: (c: IDateFieldsState) => void;
 }
 
@@ -36,10 +36,6 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
         isDeadlineStrict: props.isDeadlineStrict,
         hasError: props.publicationDate != undefined && homeworkPublicationDate > props.publicationDate,
     });
-
-    useEffect(() => {
-        props.onChange(state)
-    }, [state])
 
     const getInitialDeadlineDate = (publicationDate: Date | undefined) => {
         if (publicationDate == undefined)
@@ -63,10 +59,17 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
             && (Utils.convertLocalDateToUTCDate(new Date(newDate)) < homeworkPublicationDate)
     }
 
-    console.log(state)
-
     const isTaskSoonerThanHomework = isDateSoonerThanHomework(state.publicationDate!)
-    console.log(isTaskSoonerThanHomework)
+
+    useEffect(() => {
+        props.onChange(state)
+    }, [state])
+
+    useEffect(() => {
+        if (isTaskSoonerThanHomework !== state.hasError) {
+            setState((prevState) => ({ ...prevState, hasError: isTaskSoonerThanHomework }));
+        }
+    }, [props])
 
     return (
         <div>
@@ -85,6 +88,7 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                         type="datetime-local"
                         variant='standard'
                         style={{marginTop: "10px"}}
+                        disabled={props.disabledPublicationDate}
                         error={isTaskSoonerThanHomework}
                         helperText={isTaskSoonerThanHomework ? 'Публикация задачи раньше ДЗ' : ' '}
                         value={state.publicationDate?.toISOString().substring(0, 16)}
@@ -127,6 +131,7 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                                     ...prevState,
                                     hasDeadline: e.target.checked ? false : undefined,
                                     deadlineDate: undefined,
+                                    isDeadlineStrict: undefined,
                                 }))
                             }}
                         />
@@ -154,6 +159,7 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                 </Grid>
             </Grid>
             
+            {state.hasDeadline != false &&
                 <Grid
                     container
                     direction="row"
@@ -229,7 +235,7 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                             Запретить отправку решений после дедлайна
                         </label>
                     </Grid>
-                </Grid>
+                </Grid>}
         </div>
     );
 };
