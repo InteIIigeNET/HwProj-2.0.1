@@ -9,6 +9,7 @@ import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 import Utils from "../../services/Utils";
 import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
 import { Alert } from "@mui/material";
+import {CreateHomeworkViewModel, CreateTaskViewModel} from "../../api";
 
 interface IEditHomeworkState {
     isLoaded: boolean;
@@ -84,8 +85,13 @@ const EditHomework: FC = () => {
     const handleSubmit = async (e: any) => {
         e.preventDefault()
         
+        const updateHomework: CreateHomeworkViewModel = {
+            ...editHomework,
+            id: +homeworkId!
+        }
+        
         await ApiSingleton.homeworksApi
-            .apiHomeworksUpdateByHomeworkIdPut(+homeworkId!, editHomework)
+            .apiHomeworksUpdatePut(updateHomework)
 
         setEditHomework((prevState) => ({
             ...prevState,
@@ -98,7 +104,7 @@ const EditHomework: FC = () => {
     const isSomeTaskSoonerThanHomework = editHomework.changedTaskPublicationDates
         .some(d => d < Utils.convertLocalDateToUTCDate(new Date(editHomework.publicationDate)))
 
-    const isHomeworkPublished = new Date(editHomework.publicationDate) <= new Date(Date.now())
+    const isHomeworkPublished = Utils.convertLocalDateToUTCDate(new Date(editHomework.publicationDate)) <= new Date(Date.now())
 
     if (editHomework.edited) {
         return <Navigate to={"/courses/" + editHomework.courseId}/>;

@@ -409,6 +409,12 @@ export interface CreateHomeworkViewModel {
      * @memberof CreateHomeworkViewModel
      */
     tasks?: Array<CreateTaskViewModel>;
+    /**
+     * 
+     * @type {number}
+     * @memberof CreateHomeworkViewModel
+     */
+    id?: number;
 }
 
 /**
@@ -459,6 +465,18 @@ export interface CreateTaskViewModel {
      * @memberof CreateTaskViewModel
      */
     maxRating: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof CreateTaskViewModel
+     */
+    id?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof CreateTaskViewModel
+     */
+    homeworkId?: number;
 }
 
 /**
@@ -4306,18 +4324,12 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
         },
         /**
          * 
-         * @param {number} homeworkId 
          * @param {CreateHomeworkViewModel} [homeworkViewModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiHomeworksUpdateByHomeworkIdPut(homeworkId: number, homeworkViewModel?: CreateHomeworkViewModel, options: any = {}): FetchArgs {
-            // verify required parameter 'homeworkId' is not null or undefined
-            if (homeworkId === null || homeworkId === undefined) {
-                throw new RequiredError('homeworkId','Required parameter homeworkId was null or undefined when calling apiHomeworksUpdateByHomeworkIdPut.');
-            }
-            const localVarPath = `/api/Homeworks/update/{homeworkId}`
-                .replace(`{${"homeworkId"}}`, encodeURIComponent(String(homeworkId)));
+        apiHomeworksUpdatePut(homeworkViewModel?: CreateHomeworkViewModel, options: any = {}): FetchArgs {
+            const localVarPath = `/api/Homeworks/update`;
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
             const localVarHeaderParameter = {} as any;
@@ -4429,13 +4441,12 @@ export const HomeworksApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @param {number} homeworkId 
          * @param {CreateHomeworkViewModel} [homeworkViewModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiHomeworksUpdateByHomeworkIdPut(homeworkId: number, homeworkViewModel?: CreateHomeworkViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = HomeworksApiFetchParamCreator(configuration).apiHomeworksUpdateByHomeworkIdPut(homeworkId, homeworkViewModel, options);
+        apiHomeworksUpdatePut(homeworkViewModel?: CreateHomeworkViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = HomeworksApiFetchParamCreator(configuration).apiHomeworksUpdatePut(homeworkViewModel, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -4494,13 +4505,12 @@ export const HomeworksApiFactory = function (configuration?: Configuration, fetc
         },
         /**
          * 
-         * @param {number} homeworkId 
          * @param {CreateHomeworkViewModel} [homeworkViewModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiHomeworksUpdateByHomeworkIdPut(homeworkId: number, homeworkViewModel?: CreateHomeworkViewModel, options?: any) {
-            return HomeworksApiFp(configuration).apiHomeworksUpdateByHomeworkIdPut(homeworkId, homeworkViewModel, options)(fetch, basePath);
+        apiHomeworksUpdatePut(homeworkViewModel?: CreateHomeworkViewModel, options?: any) {
+            return HomeworksApiFp(configuration).apiHomeworksUpdatePut(homeworkViewModel, options)(fetch, basePath);
         },
     };
 };
@@ -4559,14 +4569,13 @@ export class HomeworksApi extends BaseAPI {
 
     /**
      * 
-     * @param {number} homeworkId 
      * @param {CreateHomeworkViewModel} [homeworkViewModel] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof HomeworksApi
      */
-    public apiHomeworksUpdateByHomeworkIdPut(homeworkId: number, homeworkViewModel?: CreateHomeworkViewModel, options?: any) {
-        return HomeworksApiFp(this.configuration).apiHomeworksUpdateByHomeworkIdPut(homeworkId, homeworkViewModel, options)(this.fetch, this.basePath);
+    public apiHomeworksUpdatePut(homeworkViewModel?: CreateHomeworkViewModel, options?: any) {
+        return HomeworksApiFp(this.configuration).apiHomeworksUpdatePut(homeworkViewModel, options)(this.fetch, this.basePath);
     }
 
 }
@@ -5975,18 +5984,12 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
     return {
         /**
          * 
-         * @param {number} homeworkId 
          * @param {CreateTaskViewModel} [taskViewModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiTasksAddByHomeworkIdPost(homeworkId: number, taskViewModel?: CreateTaskViewModel, options: any = {}): FetchArgs {
-            // verify required parameter 'homeworkId' is not null or undefined
-            if (homeworkId === null || homeworkId === undefined) {
-                throw new RequiredError('homeworkId','Required parameter homeworkId was null or undefined when calling apiTasksAddByHomeworkIdPost.');
-            }
-            const localVarPath = `/api/Tasks/add/{homeworkId}`
-                .replace(`{${"homeworkId"}}`, encodeURIComponent(String(homeworkId)));
+        apiTasksAddPost(taskViewModel?: CreateTaskViewModel, options: any = {}): FetchArgs {
+            const localVarPath = `/api/Tasks/add`;
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
@@ -6124,18 +6127,12 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
         },
         /**
          * 
-         * @param {number} taskId 
          * @param {CreateTaskViewModel} [taskViewModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiTasksUpdateByTaskIdPut(taskId: number, taskViewModel?: CreateTaskViewModel, options: any = {}): FetchArgs {
-            // verify required parameter 'taskId' is not null or undefined
-            if (taskId === null || taskId === undefined) {
-                throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling apiTasksUpdateByTaskIdPut.');
-            }
-            const localVarPath = `/api/Tasks/update/{taskId}`
-                .replace(`{${"taskId"}}`, encodeURIComponent(String(taskId)));
+        apiTasksUpdatePut(taskViewModel?: CreateTaskViewModel, options: any = {}): FetchArgs {
+            const localVarPath = `/api/Tasks/update`;
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
             const localVarHeaderParameter = {} as any;
@@ -6174,13 +6171,12 @@ export const TasksApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
-         * @param {number} homeworkId 
          * @param {CreateTaskViewModel} [taskViewModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiTasksAddByHomeworkIdPost(homeworkId: number, taskViewModel?: CreateTaskViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
-            const localVarFetchArgs = TasksApiFetchParamCreator(configuration).apiTasksAddByHomeworkIdPost(homeworkId, taskViewModel, options);
+        apiTasksAddPost(taskViewModel?: CreateTaskViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
+            const localVarFetchArgs = TasksApiFetchParamCreator(configuration).apiTasksAddPost(taskViewModel, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -6247,13 +6243,12 @@ export const TasksApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @param {number} taskId 
          * @param {CreateTaskViewModel} [taskViewModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiTasksUpdateByTaskIdPut(taskId: number, taskViewModel?: CreateTaskViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = TasksApiFetchParamCreator(configuration).apiTasksUpdateByTaskIdPut(taskId, taskViewModel, options);
+        apiTasksUpdatePut(taskViewModel?: CreateTaskViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = TasksApiFetchParamCreator(configuration).apiTasksUpdatePut(taskViewModel, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -6275,13 +6270,12 @@ export const TasksApiFactory = function (configuration?: Configuration, fetch?: 
     return {
         /**
          * 
-         * @param {number} homeworkId 
          * @param {CreateTaskViewModel} [taskViewModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiTasksAddByHomeworkIdPost(homeworkId: number, taskViewModel?: CreateTaskViewModel, options?: any) {
-            return TasksApiFp(configuration).apiTasksAddByHomeworkIdPost(homeworkId, taskViewModel, options)(fetch, basePath);
+        apiTasksAddPost(taskViewModel?: CreateTaskViewModel, options?: any) {
+            return TasksApiFp(configuration).apiTasksAddPost(taskViewModel, options)(fetch, basePath);
         },
         /**
          * 
@@ -6312,13 +6306,12 @@ export const TasksApiFactory = function (configuration?: Configuration, fetch?: 
         },
         /**
          * 
-         * @param {number} taskId 
          * @param {CreateTaskViewModel} [taskViewModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiTasksUpdateByTaskIdPut(taskId: number, taskViewModel?: CreateTaskViewModel, options?: any) {
-            return TasksApiFp(configuration).apiTasksUpdateByTaskIdPut(taskId, taskViewModel, options)(fetch, basePath);
+        apiTasksUpdatePut(taskViewModel?: CreateTaskViewModel, options?: any) {
+            return TasksApiFp(configuration).apiTasksUpdatePut(taskViewModel, options)(fetch, basePath);
         },
     };
 };
@@ -6332,14 +6325,13 @@ export const TasksApiFactory = function (configuration?: Configuration, fetch?: 
 export class TasksApi extends BaseAPI {
     /**
      * 
-     * @param {number} homeworkId 
      * @param {CreateTaskViewModel} [taskViewModel] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof TasksApi
      */
-    public apiTasksAddByHomeworkIdPost(homeworkId: number, taskViewModel?: CreateTaskViewModel, options?: any) {
-        return TasksApiFp(this.configuration).apiTasksAddByHomeworkIdPost(homeworkId, taskViewModel, options)(this.fetch, this.basePath);
+    public apiTasksAddPost(taskViewModel?: CreateTaskViewModel, options?: any) {
+        return TasksApiFp(this.configuration).apiTasksAddPost(taskViewModel, options)(this.fetch, this.basePath);
     }
 
     /**
@@ -6377,14 +6369,13 @@ export class TasksApi extends BaseAPI {
 
     /**
      * 
-     * @param {number} taskId 
      * @param {CreateTaskViewModel} [taskViewModel] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof TasksApi
      */
-    public apiTasksUpdateByTaskIdPut(taskId: number, taskViewModel?: CreateTaskViewModel, options?: any) {
-        return TasksApiFp(this.configuration).apiTasksUpdateByTaskIdPut(taskId, taskViewModel, options)(this.fetch, this.basePath);
+    public apiTasksUpdatePut(taskViewModel?: CreateTaskViewModel, options?: any) {
+        return TasksApiFp(this.configuration).apiTasksUpdatePut(taskViewModel, options)(this.fetch, this.basePath);
     }
 
 }

@@ -4,7 +4,7 @@ import Utils from "../../services/Utils";
 import {FC, useEffect, useState} from "react";
 import {Grid, Checkbox, Button, TextField, Typography, Tooltip, Link} from "@material-ui/core";
 import CreateTask from "./CreateTask";
-import {HomeworkViewModel} from "../../api";
+import {HomeworkViewModel, CreateTaskViewModel} from "../../api";
 
 interface IAddTaskProps {
     homework: HomeworkViewModel;
@@ -39,7 +39,13 @@ const AddTask: React.FC<IAddTaskProps> = (props) => {
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
-        await ApiSingleton.tasksApi.apiTasksAddByHomeworkIdPost(props.homework.id!, state);
+
+        const addHomework: CreateTaskViewModel = {
+            ...state,
+            homeworkId: props.homework.id!
+        }
+
+        await ApiSingleton.tasksApi.apiTasksAddPost(addHomework);
         props.onAdding()
     }
 

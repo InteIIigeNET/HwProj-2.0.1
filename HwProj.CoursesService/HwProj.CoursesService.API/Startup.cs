@@ -13,6 +13,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
+using HwProj.Models.CoursesService.ViewModels;
 
 namespace HwProj.CoursesService.API
 {
@@ -41,6 +43,9 @@ namespace HwProj.CoursesService.API
             services.AddScoped<IHomeworksService, HomeworksService>();
             services.AddScoped<ITasksService, TasksService>();
             services.AddScoped<CourseMentorOnlyAttribute>();
+
+            services.AddScoped<IValidator<CreateTaskViewModel>, CreateTaskViewModelValidator>();
+            services.AddScoped<IValidator<CreateHomeworkViewModel>, CreateHomeworkViewModelValidator>();
 
             services.AddEventBus(Configuration);
 

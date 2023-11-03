@@ -16,20 +16,20 @@ namespace HwProj.CoursesService.API.Controllers
     {
         private readonly IHomeworksService _homeworksService;
         private readonly IMapper _mapper;
+        private readonly IValidator<CreateHomeworkViewModel> _validator;
 
-        public HomeworksController(IHomeworksService homeworksService, IMapper mapper)
+        public HomeworksController(IHomeworksService homeworksService, IMapper mapper, IValidator<CreateHomeworkViewModel> validator)
         {
             _homeworksService = homeworksService;
             _mapper = mapper;
+            _validator = validator;
         }
 
         [HttpPost("{courseId}/add")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> AddHomework(long courseId, [FromBody] CreateHomeworkViewModel homeworkViewModel)
-        {
-            var validator = new CreateHomeworkViewModelValidator(_mapper);
-
-            var validationResult = await validator.ValidateAsync(homeworkViewModel);
+        { 
+            var validationResult = await _validator.ValidateAsync(homeworkViewModel);
 
             if (!validationResult.IsValid)
             {
@@ -64,21 +64,18 @@ namespace HwProj.CoursesService.API.Controllers
             await _homeworksService.DeleteHomeworkAsync(homeworkId);
         }
 
-        [HttpPut("update/{homeworkId}")]
+        [HttpPut("update")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        public async Task<IActionResult> UpdateHomework(long homeworkId, [FromBody] CreateHomeworkViewModel homeworkViewModel)
+        public async Task<IActionResult> UpdateHomework([FromBody] CreateHomeworkViewModel homeworkViewModel)
         {
-            var previousState = await _homeworksService.GetForEditingHomeworkAsync(homeworkId);
-            var validator = new CreateHomeworkViewModelValidator(_mapper, previousState);
-
-            var validationResult = await validator.ValidateAsync(homeworkViewModel);
+            var validationResult = await _validator.ValidateAsync(homeworkViewModel);
 
             if (!validationResult.IsValid)
             {
                 return BadRequest(validationResult.Errors);
             }
 
-            await _homeworksService.UpdateHomeworkAsync(homeworkId, new Homework
+            await _homeworksService.UpdateHomeworkAsync(homeworkViewModel.Id, new Homework
             {
                 Title = homeworkViewModel.Title,
                 Description = homeworkViewModel.Description,

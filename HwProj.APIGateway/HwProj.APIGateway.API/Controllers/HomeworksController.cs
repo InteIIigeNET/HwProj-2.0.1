@@ -57,11 +57,11 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok();
         }
 
-        [HttpPut("update/{homeworkId}")]
+        [HttpPut("update")]
         [Authorize(Roles = Roles.LecturerRole)]
-        public async Task<IActionResult> UpdateHomework(CreateHomeworkViewModel homeworkViewModel, long homeworkId)
+        public async Task<IActionResult> UpdateHomework(CreateHomeworkViewModel homeworkViewModel)
         {
-            var result = await _coursesClient.UpdateHomework(homeworkViewModel, homeworkId);
+            var result = await _coursesClient.UpdateHomework(homeworkViewModel);
             return result.Succeeded
                 ? Ok() as IActionResult
                 : BadRequest(result.Errors);

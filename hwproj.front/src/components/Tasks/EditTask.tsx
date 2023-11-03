@@ -8,6 +8,7 @@ import Utils from "../../services/Utils";
 import {Checkbox, Typography, Button, TextField, Grid, Tooltip, Link as LinkMUI} from "@material-ui/core";
 import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 import TaskPublicationAndDeadlineDates from "../Common/TaskPublicationAndDeadlineDates";
+import {CreateTaskViewModel} from "../../api";
 
 interface IEditTaskState {
     isLoaded: boolean;
@@ -27,6 +28,7 @@ interface IEditTaskState {
     homeworkIsDeadlineStrict: boolean;
     hasError: boolean;
     isTaskPublished: boolean;
+    homeworkId: number;
 }
 
 const useStyles = makeStyles(theme => ({
@@ -60,6 +62,7 @@ const EditTask: FC = () => {
         homeworkIsDeadlineStrict: false,
         hasError: false,
         isTaskPublished: false,
+        homeworkId: 0,
 })
 
     const [isOpenDates, setIsOpenDates] = useState<boolean>()
@@ -103,12 +106,19 @@ const EditTask: FC = () => {
             homeworkIsDeadlineStrict: homework.isDeadlineStrict!,
             hasError: false,
             isTaskPublished: isTaskPublished,
+            homeworkId: task.homeworkId!
         }))
     }
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
-        await ApiSingleton.tasksApi.apiTasksUpdateByTaskIdPut(+taskId!, taskState)
+
+        const addHomework: CreateTaskViewModel = {
+            ...taskState,
+            id: +taskId!
+        }
+
+        await ApiSingleton.tasksApi.apiTasksUpdatePut(addHomework)
 
         setTaskState((prevState) => ({
             ...prevState,

@@ -42,14 +42,12 @@ namespace HwProj.APIGateway.API.Controllers
                 : Ok(result);
         }
 
-        [HttpPost("add/{homeworkId}")]
+        [HttpPost("add")]
         [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> AddTask(CreateTaskViewModel taskViewModel, long homeworkId)
+        public async Task<IActionResult> AddTask(CreateTaskViewModel taskViewModel)
         {
-            //taskViewModel.HomeworkId = homeworkId;
-
-            var result = await _coursesClient.AddTask(taskViewModel, homeworkId);
+            var result = await _coursesClient.AddTask(taskViewModel);
             return result.Succeeded
                 ? Ok(result.Value) as IActionResult
                 : BadRequest(result.Errors);
@@ -62,12 +60,14 @@ namespace HwProj.APIGateway.API.Controllers
             await _coursesClient.DeleteTask(taskId);
             return Ok();
         }
-
-        [HttpPut("update/{taskId}")]
+        
+        [HttpPut("update")]
         [Authorize(Roles = Roles.LecturerRole)]
-        public async Task<IActionResult> UpdateTask(CreateTaskViewModel taskViewModel, long taskId)
+        public async Task<IActionResult> UpdateTask(CreateTaskViewModel taskViewModel)
         {
-            var result = await _coursesClient.UpdateTask(taskViewModel, taskId);
+            //taskViewModel.Id = taskId;
+
+            var result = await _coursesClient.UpdateTask(taskViewModel);
             return result.Succeeded
                 ? Ok() as IActionResult
                 : BadRequest(result.Errors);

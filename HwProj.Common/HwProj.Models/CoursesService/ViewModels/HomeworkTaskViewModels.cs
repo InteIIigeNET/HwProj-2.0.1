@@ -47,16 +47,8 @@ namespace HwProj.Models.CoursesService.ViewModels
 
         [Required] public int MaxRating { get; set; }
 
-        public void InitializeDates()
-        {
-            if (!HasDeadline ?? true)
-            {
-                DeadlineDate = null;
-            }
-            else if (DeadlineDate == null)
-            {
-                HasDeadline = null;
-            }
-        }
+        public long Id { get; set; }
+
+        public long HomeworkId { get; set; }
     }
 }
