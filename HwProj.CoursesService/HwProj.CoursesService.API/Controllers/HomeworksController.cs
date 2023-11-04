@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using AutoMapper;
 using FluentValidation;
+using HwProj.CoursesService.API.Domains;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Services;
@@ -45,7 +46,7 @@ namespace HwProj.CoursesService.API.Controllers
         public async Task<HomeworkViewModel> GetHomework(long homeworkId)
         {
             var homeworkFromDb = await _homeworksService.GetHomeworkAsync(homeworkId);
-            var homework = _mapper.Map<HomeworkViewModel>(homeworkFromDb);
+            var homework = homeworkFromDb.ToHomeworkViewModel();
             return homework;
         }
 
@@ -53,7 +54,7 @@ namespace HwProj.CoursesService.API.Controllers
         public async Task<HomeworkViewModel> GetForEditingHomework(long homeworkId)
         {
             var homeworkFromDb = await _homeworksService.GetForEditingHomeworkAsync(homeworkId);
-            var homework = _mapper.Map<HomeworkViewModel>(homeworkFromDb);
+            var homework = homeworkFromDb.ToHomeworkViewModel();
             return homework;
         }
 

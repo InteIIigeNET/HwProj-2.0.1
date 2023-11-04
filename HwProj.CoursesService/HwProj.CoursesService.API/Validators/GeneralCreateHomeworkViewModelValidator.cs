@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using AutoMapper;
 using FluentValidation;
+using HwProj.CoursesService.API.Domains;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Services;
 using HwProj.Models;
@@ -10,11 +11,11 @@ namespace HwProj.CoursesService.API.Validators
 {
     public sealed class GeneralCreateHomeworkViewModelValidator : AbstractValidator<CreateHomeworkViewModel>
     {
-        public GeneralCreateHomeworkViewModelValidator(IMapper mapper, Task<Homework>? previousHomeworkStatePromise = null)
+        public GeneralCreateHomeworkViewModelValidator(Task<Homework>? previousHomeworkStatePromise = null)
         {
             RuleForEach(homework => homework.Tasks)
                 .SetValidator(h
-                    => new GeneralCreateTaskViewModelValidator(Task.Run(() => mapper.Map<Homework>(h))));
+                    => new GeneralCreateTaskViewModelValidator(Task.Run(h.ToHomework)));
 
             RuleFor(homework => homework.PublicationDate)
                 .MustAsync(async (p, _) => (await previousHomeworkStatePromise!)?.Tasks.TrueForAll(t =>

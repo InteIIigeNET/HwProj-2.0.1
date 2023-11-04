@@ -30,7 +30,7 @@ namespace HwProj.CoursesService.API.Services
             homework.CourseId = courseId;
 
             var course = await _coursesRepository.GetWithCourseMatesAsync(courseId);
-            var courseModel = _mapper.Map<CourseDTO>(course);
+            var courseModel = course.ToCourseDto();
             var studentIds = courseModel.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
 
             if (DateTimeUtils.GetMoscowNow() >= homework.PublicationDate)
@@ -65,7 +65,7 @@ namespace HwProj.CoursesService.API.Services
         {
             var homework = await _homeworksRepository.GetWithTasksAsync(homeworkId);
             var course = await _coursesRepository.GetWithCourseMatesAsync(homework.CourseId);
-            var courseModel = _mapper.Map<CourseDTO>(course);   
+            var courseModel = course.ToCourseDto();   
             var studentIds = courseModel.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
 
             if (update.PublicationDate <= DateTimeUtils.GetMoscowNow())

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using AutoMapper;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.API.Models;
@@ -25,7 +24,6 @@ namespace HwProj.CoursesService.API.Services
         private readonly IHomeworksRepository _homeworksRepository;
         private readonly ITasksRepository _tasksRepository;
         private readonly IGroupsRepository _groupsRepository;
-        private readonly IMapper _mapper;
 
         public CoursesService(ICoursesRepository coursesRepository,
             ICourseMatesRepository courseMatesRepository,
@@ -33,8 +31,7 @@ namespace HwProj.CoursesService.API.Services
             IAuthServiceClient authServiceClient,
             ITasksRepository tasksRepository,
             IHomeworksRepository homeworksRepository,
-            IGroupsRepository groupsRepository,
-            IMapper mapper
+            IGroupsRepository groupsRepository
         )
         {
             _coursesRepository = coursesRepository;
@@ -44,7 +41,6 @@ namespace HwProj.CoursesService.API.Services
             _homeworksRepository = homeworksRepository;
             _tasksRepository = tasksRepository;
             _groupsRepository = groupsRepository;
-            _mapper = mapper;
         }
 
         public async Task<Course[]> GetAllAsync()
@@ -75,7 +71,7 @@ namespace HwProj.CoursesService.API.Services
             CourseDomain.FillTasksInCourses(new [] { course });
 
             var groups = _groupsRepository.GetGroupsWithGroupMatesByCourse(course.Id).ToArray();
-            var result = _mapper.Map<CourseDTO>(course);
+            var result = course.ToCourseDto();
             result.Groups = groups.Select(g =>
                 new GroupViewModel
                 {
@@ -227,7 +223,7 @@ namespace HwProj.CoursesService.API.Services
                 CourseDomain.FillTasksInCourses(courses);
             }
 
-            return _mapper.Map<CourseDTO[]>(courses).ToArray();
+            return courses.Select(c => c.ToCourseDto()).ToArray();
         }
 
         public async Task<bool> AcceptLecturerAsync(long courseId, string lecturerEmail, string lecturerId)

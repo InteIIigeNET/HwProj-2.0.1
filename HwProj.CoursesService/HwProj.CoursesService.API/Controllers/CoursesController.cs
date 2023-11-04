@@ -42,7 +42,7 @@ namespace HwProj.CoursesService.API.Controllers
         public async Task<CoursePreview[]> GetAll()
         {
             var coursesFromDb = await _coursesService.GetAllAsync();
-            var courses = _mapper.Map<CoursePreview[]>(coursesFromDb).ToArray();
+            var courses = coursesFromDb.Select(c => c.ToCoursePreview()).ToArray();
             return courses;
         }
 

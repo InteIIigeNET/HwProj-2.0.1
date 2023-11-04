@@ -7,10 +7,9 @@ namespace HwProj.CoursesService.API.Validators
 {
     public sealed class CreateHomeworkViewModelValidator : AbstractValidator<CreateHomeworkViewModel>
     {
-        public CreateHomeworkViewModelValidator(IHomeworksService homeworksService, IMapper mapper)
+        public CreateHomeworkViewModelValidator(IHomeworksService homeworksService)
         {
             Include((h) => new GeneralCreateHomeworkViewModelValidator(
-                mapper,
                 h.Id == 0 ? null : homeworksService.GetForEditingHomeworkAsync(h.Id)
             ));
         }

@@ -2,6 +2,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using FluentValidation;
+using HwProj.CoursesService.API.Domains;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
@@ -47,7 +48,7 @@ namespace HwProj.CoursesService.API.Controllers
                 if (!lecturers.Contains(userId)) return BadRequest();
             }
 
-            var task = _mapper.Map<HomeworkTaskViewModel>(taskFromDb);
+            var task = taskFromDb.ToHomeworkTaskViewModel();
             return Ok(task);
         }
 
@@ -61,7 +62,7 @@ namespace HwProj.CoursesService.API.Controllers
                 return NotFound();
             }
 
-            var task = _mapper.Map<HomeworkTaskViewModel>(taskFromDb);
+            var task = taskFromDb.ToHomeworkTaskViewModel();
             return Ok(task);
         }
 
