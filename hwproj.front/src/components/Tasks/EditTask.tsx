@@ -65,8 +65,6 @@ const EditTask: FC = () => {
         homeworkId: 0,
 })
 
-    const [isOpenDates, setIsOpenDates] = useState<boolean>()
-
     useEffect(() => {
         getTask()
     }, [])
@@ -85,8 +83,6 @@ const EditTask: FC = () => {
             : Utils.toMoscowDate(new Date(task.deadlineDate))
 
         const isTaskPublished = new Date(task.publicationDate ?? homework.publicationDate!) <= new Date(Date.now())
-
-        setIsOpenDates(publication != undefined)
 
         setTaskState((prevState) => ({
             ...prevState,
@@ -229,71 +225,26 @@ const EditTask: FC = () => {
                                     }}
                                 />
                             </Grid>
-                            {!isOpenDates && 
-                            <Grid item>
-                                <Tooltip arrow title={"Позволяет установить даты для определенной задачи"}>
-                                    <Typography variant={"caption"} style={{fontSize: "14px"}}>
-                                        <LinkMUI onClick={() => {
-                                                setTaskState((prevState) => ({
-                                                    ...prevState,
-                                                    hasDeadline: undefined,
-                                                    deadlineDate: undefined,
-                                                    isDeadlineStrict: undefined,
-                                                    publicationDate: undefined,
-                                                    hasError: false,
-                                                }))
-
-                                                setIsOpenDates(true)
-                                            }}>
-                                            Нужны особые даты?
-                                        </LinkMUI>
-                                    </Typography>
-                                </Tooltip>
-                            </Grid>}
-                                
-                            {isOpenDates &&
-                            <Grid container>
-                                <Grid item>
-                                    <Tooltip arrow title={"Позволяет выставить даты как у домашнего задания"}>
-                                        <Typography variant={"caption"} style={{fontSize: "14px"}}>
-                                            <LinkMUI onClick={() => {
-                                                setTaskState((prevState) => ({
-                                                    ...prevState,
-                                                    hasDeadline: undefined,
-                                                    deadlineDate: undefined,
-                                                    isDeadlineStrict: undefined,
-                                                    publicationDate: undefined,
-                                                    hasError: false,
-                                                }))
-
-                                                setIsOpenDates(false)
-                                            }}>
-                                                Оставить обычные даты
-                                            </LinkMUI>
-                                        </Typography>
-                                    </Tooltip>
-                                </Grid>
-                                <Grid item style={{width: "90%"}}>
-                                    <TaskPublicationAndDeadlineDates
-                                    homeworkPublicationDate={taskState.homeworkPublicationDate}
-                                    homeworkHasDeadline={taskState.homeworkHasDeadline}
-                                    homeworkDeadlineDate={taskState.homeworkDeadlineDate}
-                                    homeworkIsDeadlineStrict={taskState.homeworkIsDeadlineStrict}
-                                    hasDeadline={taskState.hasDeadline}
-                                    isDeadlineStrict={taskState.isDeadlineStrict}
-                                    publicationDate={taskState.publicationDate}
-                                    deadlineDate={taskState.deadlineDate}
-                                    disabledPublicationDate={taskState.isTaskPublished}
-                                    onChange={(state) => setTaskState(prevState => ({
-                                        ...prevState,
-                                        hasDeadline: state.hasDeadline,
-                                        isDeadlineStrict: state.isDeadlineStrict,
-                                        publicationDate: state.publicationDate,
-                                        deadlineDate: state.deadlineDate,
-                                        hasError: state.hasError
-                                    }))}
-                                    />
-                                </Grid>
+                            <Grid item style={{width: "90%"}}>
+                                <TaskPublicationAndDeadlineDates
+                                homeworkPublicationDate={taskState.homeworkPublicationDate}
+                                homeworkHasDeadline={taskState.homeworkHasDeadline}
+                                homeworkDeadlineDate={taskState.homeworkDeadlineDate}
+                                homeworkIsDeadlineStrict={taskState.homeworkIsDeadlineStrict}
+                                hasDeadline={taskState.hasDeadline}
+                                isDeadlineStrict={taskState.isDeadlineStrict}
+                                publicationDate={taskState.publicationDate}
+                                deadlineDate={taskState.deadlineDate}
+                                disabledPublicationDate={taskState.isTaskPublished}
+                                onChange={(state) => setTaskState(prevState => ({
+                                    ...prevState,
+                                    hasDeadline: state.hasDeadline,
+                                    isDeadlineStrict: state.isDeadlineStrict,
+                                    publicationDate: state.publicationDate,
+                                    deadlineDate: state.deadlineDate,
+                                    hasError: state.hasError
+                                }))}
+                                />
                             </Grid>
                             }
                             <Grid item xs={12}>

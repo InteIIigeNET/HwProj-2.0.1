@@ -90,75 +90,25 @@ const CreateTask: FC<ICreateTaskProps> = (props) => {
                     description: e.target.value,
                 }))}}
             />
-
-            {!isOpenDates && 
-            <Grid item>
-                <Tooltip arrow title={"Позволяет установить даты для определенной задачи"}>
-                    <Typography variant={"caption"} style={{fontSize: "14px"}}>
-                        <Link onClick={() => {
-                                setCreateTaskState((prevState) => ({
-                                    ...prevState,
-                                    hasDeadline: undefined,
-                                    deadlineDate: undefined,
-                                    isDeadlineStrict: undefined,
-                                    publicationDate: undefined,
-                                    hasError: false,
-                                }))
-
-                                setIsOpenDates(true)
-                            }}>
-                            Нужны особые даты?
-                        </Link>
-                    </Typography>
-                </Tooltip>
-            </Grid>}
-                            
-            {isOpenDates &&
-            <Grid container>
-                <Grid item>
-                    <Tooltip arrow title={"Позволяет выставить даты как у домашнего задания"}>
-                        <Typography variant={"caption"} style={{fontSize: "14px"}}>
-                            <Link onClick={() => {
-                                setCreateTaskState((prevState) => ({
-                                    ...prevState,
-                                    hasDeadline: undefined,
-                                    deadlineDate: undefined,
-                                    isDeadlineStrict: undefined,
-                                    publicationDate: undefined,
-                                    hasError: false,
-                                }))
-
-                                setIsOpenDates(false)
-                            }}>
-                                Оставить обычные даты
-                            </Link>
-                        </Typography>
-                    </Tooltip>
-                </Grid>
-                
-                <Grid item style={{width: "100%"}}>          
-                    <TaskPublicationAndDeadlineDates
-                        hasDeadline={undefined}
-                        isDeadlineStrict={undefined}
-                        publicationDate={undefined}
-                        deadlineDate={undefined}
-                        homeworkPublicationDate={props.homeworkPublicationDate}
-                        homeworkHasDeadline={props.homeworkHasDeadline}
-                        homeworkDeadlineDate={props.homeworkDeadlineDate}
-                        homeworkIsDeadlineStrict={props.homeworkIsDeadlineStrict}
-                        onChange={(state) => setCreateTaskState((prevState) => ({
-                            ...prevState,
-                            hasDeadline: state.hasDeadline,
-                            isDeadlineStrict: state.isDeadlineStrict,
-                            publicationDate: state.publicationDate,
-                            deadlineDate: state.deadlineDate,
-                            hasError: state.hasError,
-                        }))}
-                    />
-                    </Grid>
-                </Grid>
-            }
-            
+                    
+            <TaskPublicationAndDeadlineDates
+                hasDeadline={undefined}
+                isDeadlineStrict={undefined}
+                publicationDate={undefined}
+                deadlineDate={undefined}
+                homeworkPublicationDate={props.homeworkPublicationDate}
+                homeworkHasDeadline={props.homeworkHasDeadline}
+                homeworkDeadlineDate={props.homeworkDeadlineDate}
+                homeworkIsDeadlineStrict={props.homeworkIsDeadlineStrict}
+                onChange={(state) => setCreateTaskState((prevState) => ({
+                    ...prevState,
+                    hasDeadline: state.hasDeadline,
+                    isDeadlineStrict: state.isDeadlineStrict,
+                    publicationDate: state.publicationDate,
+                    deadlineDate: state.deadlineDate,
+                    hasError: state.hasError,
+                }))}
+            />
         </Grid>
     )
 }
