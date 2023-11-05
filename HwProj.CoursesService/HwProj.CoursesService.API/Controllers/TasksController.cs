@@ -33,17 +33,17 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpGet("get/{taskId}")]
         public async Task<IActionResult> GetTask(long taskId)
         {
-            var userId = Request.GetUserIdFromHeader();
             var taskFromDb = await _tasksService.GetTaskAsync(taskId);
             if (taskFromDb == null) return NotFound();
 
             if (taskFromDb.PublicationDate > DateTimeUtils.GetMoscowNow())
             {
+                var userId = Request.GetUserIdFromHeader();
                 var homework = await _homeworksRepository.GetAsync(taskFromDb.HomeworkId);
                 var lecturers = await _coursesService.GetCourseLecturers(homework.CourseId);
                 if (!lecturers.Contains(userId)) return BadRequest();
             }
-            
+
             var task = _mapper.Map<HomeworkTaskViewModel>(taskFromDb);
             return Ok(task);
         }
