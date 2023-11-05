@@ -7,8 +7,6 @@ using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.CoursesService.API.Services;
-using HwProj.Models;
-using HwProj.CoursesService.API.Validators;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;

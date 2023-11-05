@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using FluentValidation;
+﻿using FluentValidation;
 using HwProj.CoursesService.API.Services;
 using HwProj.Models.CoursesService.ViewModels;
 

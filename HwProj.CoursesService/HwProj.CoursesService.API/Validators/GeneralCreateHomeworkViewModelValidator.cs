@@ -1,9 +1,7 @@
 ﻿using System.Threading.Tasks;
-using AutoMapper;
 using FluentValidation;
 using HwProj.CoursesService.API.Domains;
 using HwProj.CoursesService.API.Models;
-using HwProj.CoursesService.API.Services;
 using HwProj.Models;
 using HwProj.Models.CoursesService.ViewModels;
 
