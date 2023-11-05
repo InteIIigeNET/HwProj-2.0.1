@@ -18,8 +18,9 @@ namespace HwProj.APIGateway.API.Controllers
         {
             _coursesClient = coursesClient;
         }
-        
+
         [HttpGet("get/{taskId}")]
+        [Authorize]
         [ProducesResponseType(typeof(HomeworkTaskViewModel), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetTask(long taskId)
         {
@@ -28,7 +29,7 @@ namespace HwProj.APIGateway.API.Controllers
                 ? NotFound() as IActionResult
                 : Ok(result);
         }
-        
+
         [HttpPost("add/{homeworkId}")]
         [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
@@ -45,7 +46,7 @@ namespace HwProj.APIGateway.API.Controllers
             await _coursesClient.DeleteTask(taskId);
             return Ok();
         }
-        
+
         [HttpPut("update/{taskId}")]
         [Authorize(Roles = Roles.LecturerRole)]
         public async Task<IActionResult> UpdateTask(CreateTaskViewModel taskViewModel, long taskId)
