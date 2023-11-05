@@ -221,7 +221,9 @@ namespace HwProj.CoursesService.Client
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
                 _coursesServiceUri + $"api/Tasks/get/{taskId}");
-
+            
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<HomeworkTaskViewModel>();
         }
