@@ -42,7 +42,9 @@ const AddTask: React.FC<IAddTaskProps> = (props) => {
 
         const addHomework: CreateTaskViewModel = {
             ...state,
-            homeworkId: props.homework.id!
+            homeworkId: props.homework.id!,
+            publicationDate: Utils.convertUTCDateToLocalDate(state.publicationDate),
+            deadlineDate: Utils.convertUTCDateToLocalDate(state.deadlineDate),
         }
 
         await ApiSingleton.tasksApi.apiTasksAddPost(addHomework);
@@ -57,10 +59,7 @@ const AddTask: React.FC<IAddTaskProps> = (props) => {
             <form onSubmit={(e) => handleSubmit(e)}>
                 <Grid container>
                     <CreateTask
-                        homeworkPublicationDate={props.homework.publicationDate!}
-                        homeworkHasDeadline={props.homework.hasDeadline!}
-                        homeworkDeadlineDate={props.homework.deadlineDate}
-                        homeworkIsDeadlineStrict={props.homework.isDeadlineStrict!}
+                        homework={props.homework}
                         onChange={(e) => setTaskState(e)}
                     />
                     <Grid

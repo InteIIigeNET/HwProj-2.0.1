@@ -25,7 +25,7 @@ namespace HwProj.CoursesService.Client
         Task<Result> UpdateHomework(CreateHomeworkViewModel model);
         Task<Result> DeleteHomework(long homeworkId);
         Task<HomeworkTaskViewModel> GetTask(long taskId);
-        Task<HomeworkTaskViewModel> GetForEditingTask(long taskId);
+        Task<HomeworkTaskForEditingViewModel> GetForEditingTask(long taskId);
         Task<Result<long>> AddTask(CreateTaskViewModel taskViewModel);
         Task<Result> DeleteTask(long taskId);
         Task<Result> UpdateTask(CreateTaskViewModel taskViewModel);

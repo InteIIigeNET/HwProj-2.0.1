@@ -68,7 +68,7 @@ namespace HwProj.CoursesService.API.Services
             var course = await _coursesRepository.GetWithCourseMatesAsync(id);
             if (course == null) return null;
 
-            CourseDomain.FillTasksInCourses(new [] { course });
+            CourseDomain.FillTasksInCourses(course);
 
             var groups = _groupsRepository.GetGroupsWithGroupMatesByCourse(course.Id).ToArray();
             var result = course.ToCourseDto();

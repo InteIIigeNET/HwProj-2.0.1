@@ -29,6 +29,11 @@ namespace HwProj.Models.CoursesService.ViewModels
         public bool IsDeferred { get; set; }
     }
 
+    public class HomeworkTaskForEditingViewModel : HomeworkTaskViewModel
+    {
+        public HomeworkViewModel Homework { get; set; }
+    }
+
     public class CreateTaskViewModel
     {
         [Required]

@@ -652,6 +652,86 @@ export interface GroupViewModel {
 /**
  * 
  * @export
+ * @interface HomeworkTaskForEditingViewModel
+ */
+export interface HomeworkTaskForEditingViewModel {
+    /**
+     * 
+     * @type {HomeworkViewModel}
+     * @memberof HomeworkTaskForEditingViewModel
+     */
+    homework?: HomeworkViewModel;
+    /**
+     * 
+     * @type {number}
+     * @memberof HomeworkTaskForEditingViewModel
+     */
+    id?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof HomeworkTaskForEditingViewModel
+     */
+    title?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof HomeworkTaskForEditingViewModel
+     */
+    description?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof HomeworkTaskForEditingViewModel
+     */
+    maxRating?: number;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof HomeworkTaskForEditingViewModel
+     */
+    hasDeadline?: boolean;
+    /**
+     * 
+     * @type {Date}
+     * @memberof HomeworkTaskForEditingViewModel
+     */
+    deadlineDate?: Date;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof HomeworkTaskForEditingViewModel
+     */
+    isDeadlineStrict?: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof HomeworkTaskForEditingViewModel
+     */
+    canSendSolution?: boolean;
+    /**
+     * 
+     * @type {Date}
+     * @memberof HomeworkTaskForEditingViewModel
+     */
+    publicationDate?: Date;
+    /**
+     * 
+     * @type {number}
+     * @memberof HomeworkTaskForEditingViewModel
+     */
+    homeworkId?: number;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof HomeworkTaskForEditingViewModel
+     */
+    isDeferred?: boolean;
+}
+
+/**
+ * 
+ * @export
  * @interface HomeworkTaskViewModel
  */
 export interface HomeworkTaskViewModel {
@@ -6229,7 +6309,7 @@ export const TasksApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiTasksGetForEditingByTaskIdGet(taskId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<HomeworkTaskViewModel> {
+        apiTasksGetForEditingByTaskIdGet(taskId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<HomeworkTaskForEditingViewModel> {
             const localVarFetchArgs = TasksApiFetchParamCreator(configuration).apiTasksGetForEditingByTaskIdGet(taskId, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {

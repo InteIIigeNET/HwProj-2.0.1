@@ -8,7 +8,7 @@ import Utils from "../../services/Utils";
 import {Checkbox, Typography, Button, TextField, Grid, Tooltip, Link as LinkMUI} from "@material-ui/core";
 import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 import TaskPublicationAndDeadlineDates from "../Common/TaskPublicationAndDeadlineDates";
-import {CreateTaskViewModel} from "../../api";
+import {CreateTaskViewModel, HomeworkViewModel} from "../../api";
 
 interface IEditTaskState {
     isLoaded: boolean;
@@ -22,10 +22,7 @@ interface IEditTaskState {
     deadlineDate: Date | undefined;
     isDeadlineStrict: boolean | undefined;
     publicationDate: Date | undefined;
-    homeworkPublicationDate: Date;
-    homeworkHasDeadline: boolean;
-    homeworkDeadlineDate: Date | undefined;
-    homeworkIsDeadlineStrict: boolean;
+    homework: HomeworkViewModel | undefined;
     hasError: boolean;
     isTaskPublished: boolean;
     homeworkId: number;
@@ -56,10 +53,7 @@ const EditTask: FC = () => {
         deadlineDate: undefined,
         isDeadlineStrict: false,
         publicationDate: undefined,
-        homeworkPublicationDate: new Date(),
-        homeworkHasDeadline: false,
-        homeworkDeadlineDate: undefined,
-        homeworkIsDeadlineStrict: false,
+        homework: undefined,
         hasError: false,
         isTaskPublished: false,
         homeworkId: 0,
@@ -71,16 +65,16 @@ const EditTask: FC = () => {
 
     const getTask = async () => {
         const task = await ApiSingleton.tasksApi.apiTasksGetForEditingByTaskIdGet(+taskId!)
-        const homework = await ApiSingleton.homeworksApi.apiHomeworksGetByHomeworkIdGet(task.homeworkId!)
+        const homework = task.homework!
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(homework.courseId!)
 
         const publication = task.publicationDate == undefined
             ? undefined
-            : Utils.toMoscowDate(new Date(task.publicationDate))
+            : new Date(task.publicationDate)
 
         const deadline = task.deadlineDate == undefined
             ? undefined
-            : Utils.toMoscowDate(new Date(task.deadlineDate))
+            : new Date(task.deadlineDate)
 
         const isTaskPublished = new Date(task.publicationDate ?? homework.publicationDate!) <= new Date(Date.now())
 
@@ -96,10 +90,7 @@ const EditTask: FC = () => {
             deadlineDate: deadline,
             isDeadlineStrict: task.isDeadlineStrict!,
             publicationDate: publication,
-            homeworkPublicationDate: homework.publicationDate!,
-            homeworkHasDeadline: homework.hasDeadline!,
-            homeworkDeadlineDate: homework.deadlineDate,
-            homeworkIsDeadlineStrict: homework.isDeadlineStrict!,
+            homework: homework,
             hasError: false,
             isTaskPublished: isTaskPublished,
             homeworkId: task.homeworkId!
@@ -111,7 +102,9 @@ const EditTask: FC = () => {
 
         const addHomework: CreateTaskViewModel = {
             ...taskState,
-            id: +taskId!
+            id: +taskId!,
+            publicationDate: Utils.convertUTCDateToLocalDate(taskState.publicationDate),
+            deadlineDate: Utils.convertUTCDateToLocalDate(taskState.deadlineDate),
         }
 
         await ApiSingleton.tasksApi.apiTasksUpdatePut(addHomework)
@@ -138,7 +131,7 @@ const EditTask: FC = () => {
         }
         return (
             <Grid container justifyContent="center">
-                <Grid item xs={8}>
+                <Grid item xs={9}>
                     <Grid container style={{marginTop: '20px'}}>
                         <Grid item xs={11}>
                             <Link
@@ -225,12 +218,9 @@ const EditTask: FC = () => {
                                     }}
                                 />
                             </Grid>
-                            <Grid item style={{width: "90%"}}>
+                            <Grid item style={{width: "90%", marginBottom: '10px'}}>
                                 <TaskPublicationAndDeadlineDates
-                                homeworkPublicationDate={taskState.homeworkPublicationDate}
-                                homeworkHasDeadline={taskState.homeworkHasDeadline}
-                                homeworkDeadlineDate={taskState.homeworkDeadlineDate}
-                                homeworkIsDeadlineStrict={taskState.homeworkIsDeadlineStrict}
+                                homework={taskState.homework!}
                                 hasDeadline={taskState.hasDeadline}
                                 isDeadlineStrict={taskState.isDeadlineStrict}
                                 publicationDate={taskState.publicationDate}

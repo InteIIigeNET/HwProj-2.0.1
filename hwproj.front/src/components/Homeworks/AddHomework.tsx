@@ -56,9 +56,17 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
     const handleSubmit = async (e: any) => {
         e.preventDefault();
 
+        const tasks: CreateTaskViewModel[] = addHomeworkState.tasks.map(t => ({
+            ...t.task,
+            publicationDate: Utils.convertUTCDateToLocalDate(t.task.publicationDate),
+            deadlineDate: Utils.convertUTCDateToLocalDate(t.task.deadlineDate),
+        }));
+
         const addHomework: CreateHomeworkViewModel = {
             ...addHomeworkState,
-            tasks: addHomeworkState.tasks.map(t => t.task)
+            tasks: tasks,
+            publicationDate: Utils.convertUTCDateToLocalDate(addHomeworkState.publicationDate),
+            deadlineDate: Utils.convertUTCDateToLocalDate(addHomeworkState.deadlineDate),
         }
 
         await ApiSingleton.homeworksApi.apiHomeworksByCourseIdAddPost(props.id, addHomework)
@@ -143,10 +151,7 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                                         </Button>
                                     </Grid>
                                     <CreateTask
-                                        homeworkPublicationDate={Utils.convertLocalDateToUTCDate(addHomeworkState.publicationDate!)}
-                                        homeworkDeadlineDate={Utils.convertLocalDateToUTCDate(addHomeworkState.deadlineDate!)}
-                                        homeworkHasDeadline={addHomeworkState.hasDeadline}
-                                        homeworkIsDeadlineStrict={addHomeworkState.isDeadlineStrict}
+                                        homework={{...addHomeworkState, tasks: addHomeworkState.tasks.map(t => t.task)}}
                                         onChange={(state) => {
                                             addHomeworkState.tasks[index].task = state
                                             addHomeworkState.tasks[index].hasError = state.hasError

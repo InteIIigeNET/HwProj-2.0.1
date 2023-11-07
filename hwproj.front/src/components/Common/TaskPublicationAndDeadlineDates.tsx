@@ -4,12 +4,10 @@ import Utils from "../../services/Utils";
 import Checkbox from '@mui/material/Checkbox';
 import {Alert, Grid} from "@mui/material";
 import { Typography, Link, Tooltip } from '@material-ui/core';
+import { HomeworkViewModel } from 'api';
 
 interface IDateFieldsProps {
-    homeworkPublicationDate: Date;
-    homeworkHasDeadline: boolean;
-    homeworkDeadlineDate: Date | undefined;
-    homeworkIsDeadlineStrict: boolean;
+    homework: HomeworkViewModel;
     publicationDate: Date | undefined;
     hasDeadline: boolean | undefined;
     deadlineDate: Date | undefined;
@@ -27,7 +25,7 @@ interface IDateFieldsState {
 }
 
 const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
-    const homeworkPublicationDate = new Date(props.homeworkPublicationDate!)
+    const homeworkPublicationDate = new Date(props.homework.publicationDate!)
 
     const [state, setState] = useState<IDateFieldsState>({
         hasDeadline: props.hasDeadline,
@@ -46,7 +44,7 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
         const deadlineDate = new Date(publicationDate.getTime() + twoWeeks)
         deadlineDate.setHours(23, 59, 0, 0)
 
-        return Utils.toMoscowDate(deadlineDate)
+        return deadlineDate
     }
 
     const [isOpenDates, setIsOpenDates] = useState<boolean>(
@@ -58,9 +56,9 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
         return obj == undefined ? {fontSize: 13} : {textDecoration: "underline", fontSize: 13}
     }
 
-    const isDateSoonerThanHomework = (newDate: Date | string) => {
+    const isDateSoonerThanHomework = (newDate: Date) => {
         return newDate != undefined 
-            && (Utils.convertLocalDateToUTCDate(new Date(newDate)) < homeworkPublicationDate)
+            && newDate < homeworkPublicationDate
     }
 
     const isTaskSoonerThanHomework = isDateSoonerThanHomework(state.publicationDate!)
@@ -140,9 +138,9 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                             disabled={props.disabledPublicationDate}
                             error={isTaskSoonerThanHomework}
                             helperText={isTaskSoonerThanHomework ? 'Публикация задачи раньше ДЗ' : ' '}
-                            value={state.publicationDate?.toISOString().substring(0, 16)}
+                            value={Utils.convertUTCDateToLocalDate(state.publicationDate)?.toISOString().substring(0, 16)}
                             onChange={(e) => {
-                                const date = e.target.value === '' ? undefined : Utils.toMoscowDate(new Date(e.target.value))
+                                const date = e.target.value === '' ? undefined : new Date(e.target.value)
                                 const isErrorState = date != undefined && isDateSoonerThanHomework(date)
 
                                 setState(prevState => ({
@@ -159,14 +157,14 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                     <Grid item>
                         <Alert sx={{borderRadius: 3, fontSize: 11}} severity={isTaskSoonerThanHomework ? "error" : state.publicationDate == undefined ? "info" : "warning"}>
                             <Typography display="inline" style={getStyle(state.publicationDate)}>
-                                {new Date(props.homeworkPublicationDate).toLocaleString("ru-RU") + " "}
+                                {new Date(props.homework.publicationDate!).toLocaleString("ru-RU") + " "}
                             </Typography>
                         </Alert>
                     </Grid>
                     <Grid item>
                         <Alert sx={{borderRadius: 3, fontSize: 11}} severity={state.hasDeadline == undefined ? "info" : "warning"}>
                             <Typography display="inline" style={getStyle(state.hasDeadline)}>
-                                {props.homeworkHasDeadline ? "С дедлайном" : "Без дедлайна"}
+                                {props.homework.hasDeadline ? "С дедлайном" : "Без дедлайна"}
                             </Typography>
                         </Alert>
                     </Grid>
@@ -224,10 +222,10 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                                 type="datetime-local"
                                 variant="standard"
                                 required={state.hasDeadline}
-                                value={state.deadlineDate?.toISOString().substring(0, 16) ?? ''}
+                                value={Utils.convertUTCDateToLocalDate(state.deadlineDate)?.toISOString().substring(0, 16) ?? ''}
                                 disabled={!state.hasDeadline}
                                 onChange={(e) => {
-                                    const date = e.target.value === '' ? undefined : Utils.toMoscowDate(new Date(e.target.value))
+                                    const date = e.target.value === '' ? undefined : new Date(e.target.value)
                                     
                                     setState(prevState => ({
                                         ...prevState,
@@ -242,14 +240,16 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                         <Grid item>
                             <Alert sx={{borderRadius: 3}} severity={state.deadlineDate == undefined ? "info" : "warning"}>
                                 <Typography display="inline" style={getStyle(state.deadlineDate)}>
-                                    {new Date(props.homeworkPublicationDate).toLocaleString("ru-RU") + " "}
+                                    {props.homework.deadlineDate == undefined
+                                    ? "Без дедлайна"
+                                    : new Date(props.homework.deadlineDate).toLocaleString("ru-RU") + " "}
                                 </Typography>
                             </Alert>
                         </Grid>
                         <Grid item>
                             <Alert sx={{borderRadius: 3}} severity={state.isDeadlineStrict == undefined ? "info" : "warning"}>
                                 <Typography display="inline" style={getStyle(state.isDeadlineStrict)}>
-                                    {props.homeworkHasDeadline ? "Строгий" : "Нестрогий"}
+                                    {props.homework.isDeadlineStrict ? "Строгий" : "Нестрогий"}
                                 </Typography>
                             </Alert>
                         </Grid>

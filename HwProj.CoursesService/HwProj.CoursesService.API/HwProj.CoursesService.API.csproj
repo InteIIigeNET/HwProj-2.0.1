@@ -8,8 +8,7 @@
     <Nullable>$(NullableReferenceTypes)</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="Validators\" />
-    <Folder Include="wwwroot\" />
+	  <Folder Include="wwwroot\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />

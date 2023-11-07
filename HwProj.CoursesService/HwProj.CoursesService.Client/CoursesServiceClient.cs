@@ -239,14 +239,14 @@ namespace HwProj.CoursesService.Client
             return await response.DeserializeAsync<HomeworkTaskViewModel>();
         }
 
-        public async Task<HomeworkTaskViewModel> GetForEditingTask(long taskId)
+        public async Task<HomeworkTaskForEditingViewModel> GetForEditingTask(long taskId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
                 _coursesServiceUri + $"api/Tasks/getForEditing/{taskId}");
 
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<HomeworkTaskViewModel>();
+            return await response.DeserializeAsync<HomeworkTaskForEditingViewModel>();
         }
 
         public async Task<Result<long>> AddTask(CreateTaskViewModel taskViewModel)

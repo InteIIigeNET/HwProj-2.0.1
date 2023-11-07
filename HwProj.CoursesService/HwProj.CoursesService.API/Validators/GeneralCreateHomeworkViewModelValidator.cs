@@ -11,9 +11,11 @@ namespace HwProj.CoursesService.API.Validators
     {
         public GeneralCreateHomeworkViewModelValidator(Task<Homework>? previousHomeworkStatePromise = null)
         {
+            GeneralCreateTaskViewModelValidator? taskValidator = null;
+
             RuleForEach(homework => homework.Tasks)
                 .SetValidator(h
-                    => new GeneralCreateTaskViewModelValidator(Task.Run(h.ToHomework)));
+                    => taskValidator ??= new GeneralCreateTaskViewModelValidator(Task.FromResult(h.ToHomework())));
 
             RuleFor(homework => homework.PublicationDate)
                 .MustAsync(async (p, _) => (await previousHomeworkStatePromise!)?.Tasks.TrueForAll(t =>

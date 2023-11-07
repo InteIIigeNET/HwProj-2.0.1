@@ -27,14 +27,14 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
         const deadlineDate = new Date(publicationDate.getTime() + twoWeeks)
         deadlineDate.setHours(23, 59, 0, 0)
 
-        return Utils.toMoscowDate(deadlineDate)
+        return deadlineDate
     }
 
     const getInitialPublicationDate = () => {
         const publicationDate = new Date(Date.now())
         publicationDate.setHours(0, 0, 0, 0)
 
-        return Utils.toMoscowDate(publicationDate)
+        return publicationDate
     }
 
     const [state, setState] = useState<IDateFieldsState>(() => 
@@ -78,10 +78,10 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                         type="datetime-local"
                         variant='standard'
                         disabled={props.disabledPublicationDate}
-                        value={state.publicationDate?.toISOString().substring(0, 16)}
+                        value={Utils.convertUTCDateToLocalDate(state.publicationDate)?.toISOString().substring(0, 16)}
                         onChange={(e) => {
                             const date = e.target.value !== ''
-                                ? Utils.toMoscowDate(new Date(e.target.value))
+                                ? new Date(e.target.value)
                                 : getInitialPublicationDate();
 
                             setState(prevState => ({
@@ -132,13 +132,11 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                             label="Дедлайн задания"
                             type="datetime-local"
                             variant='standard'
-                            value={state.deadlineDate?.toISOString().substring(0, 16)}
+                            value={Utils.convertUTCDateToLocalDate(state.deadlineDate)?.toISOString().substring(0, 16)}
                             onChange={(e) => {
-                                let date = new Date(e.target.value)
-                                date = Utils.toMoscowDate(date)
                                 setState(prevState => ({
                                     ...prevState,
-                                    deadlineDate: date
+                                    deadlineDate: e.target.value === '' ? undefined : new Date(e.target.value)
                                 }))
                             }}
                             InputLabelProps={{

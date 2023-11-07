@@ -5,7 +5,6 @@ using HwProj.CoursesService.API.Domains;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Services;
-using HwProj.CoursesService.API.Validators;
 using HwProj.Models.CoursesService.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 

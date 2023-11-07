@@ -1,13 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using HwProj.CoursesService.API.Models;
+﻿using HwProj.CoursesService.API.Models;
 
 namespace HwProj.CoursesService.API.Domains
 {
     public static class CourseDomain
     {
-        public static void FillTasksInCourses(IEnumerable<Course> courses)
+        public static void FillTasksInCourses(params Course[] courses)
         {
             foreach (var course in courses)
             {

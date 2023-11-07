@@ -63,7 +63,7 @@ const EditHomework: FC = () => {
 
         const deadline = homework.deadlineDate == undefined
             ? undefined
-            : Utils.toMoscowDate(new Date(homework.deadlineDate))
+            : new Date(homework.deadlineDate)
 
         setEditHomework((prevState) => ({
             ...prevState,
@@ -75,7 +75,7 @@ const EditHomework: FC = () => {
             hasDeadline: homework.hasDeadline!,
             deadlineDate: deadline,
             isDeadlineStrict: homework.isDeadlineStrict!,
-            publicationDate: Utils.toMoscowDate(new Date(homework.publicationDate!)),
+            publicationDate: new Date(homework.publicationDate!),
             changedTaskPublicationDates: homework.tasks!
                 .filter(t => t.publicationDate != undefined)
                 .map(t => new Date(t.publicationDate!))
@@ -87,7 +87,9 @@ const EditHomework: FC = () => {
         
         const updateHomework: CreateHomeworkViewModel = {
             ...editHomework,
-            id: +homeworkId!
+            id: +homeworkId!,
+            publicationDate: Utils.convertUTCDateToLocalDate(editHomework.publicationDate),
+            deadlineDate: Utils.convertUTCDateToLocalDate(editHomework.deadlineDate)
         }
         
         await ApiSingleton.homeworksApi
@@ -120,7 +122,7 @@ const EditHomework: FC = () => {
         }
         return (
             <Grid container justifyContent="center">
-                <Grid item xs={8}>
+                <Grid item xs={9}>
                     <Grid container style={{marginTop: '20px'}}>
                         <Grid item xs={11}>
                             <Link

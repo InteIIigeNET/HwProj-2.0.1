@@ -1,4 +1,3 @@
-using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using FluentValidation;
@@ -60,7 +59,7 @@ namespace HwProj.CoursesService.API.Controllers
                 return NotFound();
             }
 
-            var task = taskFromDb.ToHomeworkTaskViewModel();
+            var task = taskFromDb.ToHomeworkTaskForEditingViewModel();
             return Ok(task);
         }
 

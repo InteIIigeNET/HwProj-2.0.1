@@ -171,7 +171,7 @@ namespace HwProj.CoursesService.API.Controllers
                 .ThenInclude(t => t.Tasks)
                 .ToListAsync();
 
-            CourseDomain.FillTasksInCourses(courses);
+            CourseDomain.FillTasksInCourses(courses.ToArray());
 
             var result = courses
                 .SelectMany(course => course.Homeworks

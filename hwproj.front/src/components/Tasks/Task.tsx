@@ -81,7 +81,7 @@ const Task: FC<ITaskProp> = (props) => {
                             <Typography style={{fontSize: '18px'}}>
                                 {task.title}
                             </Typography>
-                            {props.forMentor && task.isDeferred && <Chip label={"🕘 " + publicationDate}/>}
+                            {props.forMentor && <Chip label={"🕘 " + publicationDate}/>}
                             {task.hasDeadline && <Chip label={"⌛ " + deadlineDate}/>}
                             {props.forMentor && props.task.isDeadlineStrict &&
                             <Tooltip arrow title={"Нельзя публиковать решения после дедлайна"}>

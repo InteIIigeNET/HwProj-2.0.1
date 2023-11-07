@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using HwProj.CoursesService.Client;
 using HwProj.Models.CoursesService.ViewModels;
-using HwProj.Models.Result;
 using HwProj.Models.Roles;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -33,7 +32,7 @@ namespace HwProj.APIGateway.API.Controllers
 
         [HttpGet("getForEditing/{taskId}")]
         [Authorize(Roles = Roles.LecturerRole)]
-        [ProducesResponseType(typeof(HomeworkTaskViewModel), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(HomeworkTaskForEditingViewModel), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetForEditingTask(long taskId)
         {
             var result = await _coursesClient.GetForEditingTask(taskId);
