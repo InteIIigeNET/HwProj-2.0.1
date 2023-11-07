@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using FluentValidation;
@@ -6,6 +7,7 @@ using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.CoursesService.API.Services;
+using HwProj.Models;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,18 +19,16 @@ namespace HwProj.CoursesService.API.Controllers
     public class TasksController : Controller
     {
         private readonly ITasksService _tasksService;
-        private readonly IHomeworksService _homeworkService;
         private readonly IValidator<CreateTaskViewModel> _validator;
         private readonly IMapper _mapper;
         private readonly ICoursesService _coursesService;
-        private readonly IHomeworksRepository _homeworksRepository;
 
-        public TasksController(ITasksService tasksService, IMapper mapper, IHomeworksService homework, IValidator<CreateTaskViewModel> validator)
+        public TasksController(ITasksService tasksService, IMapper mapper, IValidator<CreateTaskViewModel> validator, ICoursesService coursesService, IHomeworksRepository homeworksRepository)
         {
             _tasksService = tasksService;
             _mapper = mapper;
-            _homeworkService = homework;
             _validator = validator;
+            _coursesService = coursesService;
         }
 
         [HttpGet("get/{taskId}")]
@@ -40,7 +40,7 @@ namespace HwProj.CoursesService.API.Controllers
             if (taskFromDb.PublicationDate > DateTimeUtils.GetMoscowNow())
             {
                 var userId = Request.GetUserIdFromHeader();
-                var homework = await _homeworksRepository.GetAsync(taskFromDb.HomeworkId);
+                var homework = taskFromDb.Homework;
                 var lecturers = await _coursesService.GetCourseLecturers(homework.CourseId);
                 if (!lecturers.Contains(userId)) return BadRequest();
             }
