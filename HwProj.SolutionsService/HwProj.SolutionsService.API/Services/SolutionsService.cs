@@ -79,12 +79,11 @@ namespace HwProj.SolutionsService.API.Services
             var currentSolution = allSolutionsForTask.FirstOrDefault(s => s.Id == solution.Id);
             var solutionModel = _mapper.Map<SolutionViewModel>(solution);
             var task = await _coursesServiceClient.GetTask(solution.TaskId);
-            var taskModel = _mapper.Map<HomeworkTaskViewModel>(task);
             var homework = await _coursesServiceClient.GetHomework(task.HomeworkId);
             var courses = await _coursesServiceClient.GetCourseById(homework.CourseId);
             var student = await _authServiceClient.GetAccountData(solutionModel.StudentId);
             var studentModel = _mapper.Map<AccountDataDto>(student);
-            _eventBus.Publish(new StudentPassTaskEvent(courses, solutionModel, studentModel, taskModel));
+            _eventBus.Publish(new StudentPassTaskEvent(courses, solutionModel, studentModel, task));
 
             if (currentSolution == null)
             {
@@ -131,8 +130,7 @@ namespace HwProj.SolutionsService.API.Services
                 var solutionModel = _mapper.Map<SolutionViewModel>(solution);
                 solutionModel.LecturerComment = lecturerComment;
                 solutionModel.Rating = newRating;
-                var taskModel = _mapper.Map<HomeworkTaskViewModel>(task);
-                _eventBus.Publish(new RateEvent(taskModel, solutionModel));
+                _eventBus.Publish(new RateEvent(task, solutionModel));
             }
         }
 
