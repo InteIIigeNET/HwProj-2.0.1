@@ -1,9 +1,9 @@
 import * as React from "react";
 import {FC, useEffect, useState} from "react";
-import {Grid, Checkbox, Button, TextField, Typography, Tooltip, Link} from "@material-ui/core";
+import {Grid, TextField} from "@material-ui/core";
 import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 import TaskPublicationAndDeadlineDates from "../Common/TaskPublicationAndDeadlineDates";
-import { HomeworkViewModel } from 'api';
+import {HomeworkViewModel} from 'api';
 
 interface ICreateTaskProps {
     homework: HomeworkViewModel;
@@ -18,7 +18,7 @@ interface ICreateTaskState {
     hasDeadline: boolean | undefined;
     deadlineDate: Date | undefined;
     isDeadlineStrict: boolean | undefined;
-    hasError: boolean;
+    hasErrors: boolean;
 }
 
 const CreateTask: FC<ICreateTaskProps> = (props) => {
@@ -30,12 +30,10 @@ const CreateTask: FC<ICreateTaskProps> = (props) => {
         hasDeadline: false,
         deadlineDate: undefined,
         isDeadlineStrict: false,
-        hasError: false,
+        hasErrors: false,
     })
 
     useEffect(() => props.onChange(createTaskState), [createTaskState])
-
-    const [isOpenDates, setIsOpenDates] = useState<boolean>(false)
 
     return (
         <Grid style={{width: "100%"}}>
@@ -51,9 +49,10 @@ const CreateTask: FC<ICreateTaskProps> = (props) => {
                         onChange={(e) => {
                             e.persist()
                             setCreateTaskState((prevState) => ({
-                            ...prevState,
-                            title: e.target.value,
-                        }))}}
+                                ...prevState,
+                                title: e.target.value,
+                            }))
+                        }}
                     />
                 </div>
                 <TextField
@@ -67,9 +66,10 @@ const CreateTask: FC<ICreateTaskProps> = (props) => {
                     onChange={(e) => {
                         e.persist()
                         setCreateTaskState((prevState) => ({
-                        ...prevState,
-                        maxRating: +e.target.value,
-                    }))}}
+                            ...prevState,
+                            maxRating: +e.target.value,
+                        }))
+                    }}
                 />
             </Grid>
             <TextFieldWithPreview
@@ -84,25 +84,27 @@ const CreateTask: FC<ICreateTaskProps> = (props) => {
                 onChange={(e) => {
                     e.persist()
                     setCreateTaskState((prevState) => ({
-                    ...prevState,
-                    description: e.target.value,
-                }))}}
+                        ...prevState,
+                        description: e.target.value,
+                    }))
+                }}
             />
-                    
+
             <TaskPublicationAndDeadlineDates
                 hasDeadline={undefined}
                 isDeadlineStrict={undefined}
                 publicationDate={undefined}
                 deadlineDate={undefined}
                 homework={props.homework}
-                onChange={(state) => setCreateTaskState((prevState) => ({
-                    ...prevState,
-                    hasDeadline: state.hasDeadline,
-                    isDeadlineStrict: state.isDeadlineStrict,
-                    publicationDate: state.publicationDate,
-                    deadlineDate: state.deadlineDate,
-                    hasError: state.hasError,
-                }))}
+                onChange={(data) =>
+                    setCreateTaskState((prevState) => ({
+                        ...prevState,
+                        hasDeadline: data.hasDeadline,
+                        isDeadlineStrict: data.isDeadlineStrict,
+                        publicationDate: data.publicationDate,
+                        deadlineDate: data.deadlineDate,
+                        hasErrors: data.hasErrors,
+                    }))}
             />
         </Grid>
     )

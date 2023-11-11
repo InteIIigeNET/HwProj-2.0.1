@@ -1,10 +1,10 @@
-import React, { useState, useEffect} from 'react';
+import React, {useState, useEffect} from 'react';
 import TextField from '@mui/material/TextField';
 import Utils from "../../services/Utils";
 import Checkbox from '@mui/material/Checkbox';
-import {Alert, Grid} from "@mui/material";
-import { Typography, Link, Tooltip } from '@material-ui/core';
-import { HomeworkViewModel } from 'api';
+import {Grid} from "@mui/material";
+import {Typography, Link, Tooltip} from '@material-ui/core';
+import {HomeworkViewModel} from 'api';
 
 interface IDateFieldsProps {
     homework: HomeworkViewModel;
@@ -13,7 +13,7 @@ interface IDateFieldsProps {
     deadlineDate: Date | undefined;
     isDeadlineStrict: boolean | undefined;
     disabledPublicationDate?: boolean;
-    onChange: (c: IDateFieldsState) => void;
+    onChange: (c: IDateFieldsState & { hasErrors: boolean }) => void;
 }
 
 interface IDateFieldsState {
@@ -21,132 +21,148 @@ interface IDateFieldsState {
     hasDeadline: boolean | undefined;
     deadlineDate: Date | undefined;
     isDeadlineStrict: boolean | undefined;
-    hasError: boolean;
 }
 
 const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
-    const homeworkPublicationDate = new Date(props.homework.publicationDate!)
+    const {homework} = props
+    const homeworkPublicationDate = new Date(homework.publicationDate!)
 
     const [state, setState] = useState<IDateFieldsState>({
         hasDeadline: props.hasDeadline,
-        publicationDate: props.publicationDate ,
+        publicationDate: props.publicationDate,
         deadlineDate: props.deadlineDate,
         isDeadlineStrict: props.isDeadlineStrict,
-        hasError: props.publicationDate != undefined && homeworkPublicationDate > props.publicationDate,
     });
 
-    const getInitialDeadlineDate = (publicationDate: Date | undefined) => {
-        if (publicationDate == undefined)
-            return undefined
-        
-        const twoWeeks = 2 * 7 * 24 * 60 * 60 * 1000
+    const [showDates, setShowDates] = useState<boolean>(
+        props.deadlineDate != undefined
+        || props.hasDeadline != undefined
+        || props.isDeadlineStrict != undefined
+        || props.publicationDate != undefined)
 
-        const deadlineDate = new Date(publicationDate.getTime() + twoWeeks)
-        deadlineDate.setHours(23, 59, 0, 0)
+    const {publicationDate, isDeadlineStrict, deadlineDate, hasDeadline} = state
 
-        return deadlineDate
-    }
+    const isTaskSoonerThanHomework = (taskPublicationDate: Date) =>
+        taskPublicationDate < homeworkPublicationDate
 
-    const [isOpenDates, setIsOpenDates] = useState<boolean>(
-            props.deadlineDate != undefined || props.hasDeadline != undefined
-            || props.isDeadlineStrict != undefined || props.publicationDate != undefined)
+    const isDeadlineSoonerThanPublication = (taskPublicationDate: Date | undefined, taskDeadlineDate: Date) =>
+        taskDeadlineDate != undefined && taskDeadlineDate < (taskPublicationDate || homeworkPublicationDate)
 
-    const getStyle = (obj: any) =>
-    {
-        return obj == undefined ? {fontSize: 13} : {textDecoration: "underline", fontSize: 13}
-    }
-
-    const isDateSoonerThanHomework = (newDate: Date) => {
-        return newDate != undefined 
-            && newDate < homeworkPublicationDate
-    }
-
-    const isTaskSoonerThanHomework = isDateSoonerThanHomework(state.publicationDate!)
+    const taskSoonerThanHomework = !!state.publicationDate && isTaskSoonerThanHomework(state.publicationDate)
+    const deadlineSoonerThanPublication = !!state.deadlineDate && isDeadlineSoonerThanPublication(state.publicationDate, state.deadlineDate)
+    const showDeadlineEdit = hasDeadline == undefined ? homework.hasDeadline : hasDeadline
 
     useEffect(() => {
-        props.onChange(state)
+        const validationResult =
+            !!state.publicationDate && isTaskSoonerThanHomework(state.publicationDate) ||
+            !!state.deadlineDate && isDeadlineSoonerThanPublication(state.publicationDate, state.deadlineDate)
+
+        props.onChange({...state, hasErrors: validationResult})
     }, [state])
 
     useEffect(() => {
-        if (isTaskSoonerThanHomework !== state.hasError) {
-            setState((prevState) => ({ ...prevState, hasError: isTaskSoonerThanHomework }));
-        }
-    }, [props])
+        setState(prevState => ({
+            hasDeadline: homework.hasDeadline === prevState.hasDeadline ? undefined : prevState.hasDeadline,
+            publicationDate: homework.publicationDate === prevState.publicationDate ? undefined : prevState.publicationDate,
+            deadlineDate: homework.deadlineDate === prevState.deadlineDate ? undefined : prevState.deadlineDate,
+            isDeadlineStrict: homework.isDeadlineStrict === prevState.isDeadlineStrict ? undefined : prevState.isDeadlineStrict
+        }));
+    }, [homework.publicationDate, homework.deadlineDate, homework.hasDeadline, homework.isDeadlineStrict])
 
-    return (
-        <div>
-            {!isOpenDates && 
-            <Grid item>
-                <Tooltip arrow title={"Позволяет установить даты для определенной задачи"}>
-                    <Typography variant={"caption"} style={{fontSize: "14px"}}>
-                        <Link onClick={() => {
-                                setState((prevState) => ({
-                                    ...prevState,
-                                    hasDeadline: undefined,
-                                    deadlineDate: undefined,
-                                    isDeadlineStrict: undefined,
-                                    publicationDate: undefined,
-                                    hasError: false,
-                                }))
+    return <div>
+        <Tooltip arrow title={"Позволяет переопределить даты для задачи"}>
+            <Typography variant={"caption"} style={{fontSize: "14px", cursor: "pointer"}}>
+                <Link onClick={() => {
+                    setState((prevState) => ({
+                        ...prevState,
+                        hasDeadline: undefined,
+                        deadlineDate: undefined,
+                        isDeadlineStrict: undefined,
+                        publicationDate: undefined,
+                    }))
 
-                                setIsOpenDates(true)
-                            }}>
-                            Нужны особые даты?
-                        </Link>
-                    </Typography>
-                </Tooltip>
-            </Grid>}
-                            
-            {isOpenDates &&
-            <Grid container>
+                    setShowDates(!showDates)
+                }}>
+                    {showDates ? "Оставить обычные даты" : "Нужны особые даты?"}
+                </Link>
+            </Typography>
+        </Tooltip>
+        {showDates && <Grid container direction={"column"} style={{marginTop: "10px"}}>
+            <Grid
+                item
+                container
+                direction="row"
+                spacing={2}
+                alignContent="center"
+            >
                 <Grid item>
-                    <Tooltip arrow title={"Позволяет выставить даты как у домашнего задания"}>
-                        <Typography variant={"caption"} style={{fontSize: "14px"}}>
-                            <Link onClick={() => {
-                                setState((prevState) => ({
-                                    ...prevState,
-                                    hasDeadline: undefined,
-                                    deadlineDate: undefined,
-                                    isDeadlineStrict: undefined,
-                                    publicationDate: undefined,
-                                    hasError: false,
-                                }))
-
-                                setIsOpenDates(false)
-                            }}>
-                                Оставить обычные даты
-                            </Link>
-                        </Typography>
-                    </Tooltip>
+                    <TextField
+                        size="small"
+                        id="datetime-local"
+                        label="Дата публикации"
+                        type="datetime-local"
+                        variant='standard'
+                        disabled={props.disabledPublicationDate}
+                        error={taskSoonerThanHomework}
+                        color={publicationDate && "warning"}
+                        helperText={taskSoonerThanHomework
+                            ? "Дата публикации задачи не может быть раньше домашней работы"
+                            : publicationDate !== undefined ? `Было ${new Date(props.homework.publicationDate!).toLocaleString("ru-RU")}` : ""}
+                        value={Utils.convertUTCDateToLocalDate(state.publicationDate || props.homework.publicationDate!)?.toISOString().substring(0, 16)}
+                        onChange={(e) => {
+                            const date = e.target.value === '' ? undefined : new Date(e.target.value)
+                            setState(prevState => ({
+                                ...prevState,
+                                publicationDate: date
+                            }))
+                        }}
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                    />
                 </Grid>
-
+                <Grid item>
+                    <label>
+                        <Checkbox
+                            color={hasDeadline === undefined ? "primary" : "warning"}
+                            checked={hasDeadline === undefined ? homework.hasDeadline : hasDeadline}
+                            onChange={(_) => {
+                                setState(prevState => ({
+                                    ...prevState,
+                                    hasDeadline: hasDeadline === undefined ? !homework.hasDeadline : undefined,
+                                }))
+                            }}
+                        />
+                        Дедлайн
+                    </label>
+                </Grid>
+            </Grid>
+            {showDeadlineEdit &&
                 <Grid
+                    item
                     container
                     direction="row"
+                    spacing={2}
                     alignItems="center"
-                    justifyContent="space-between"
-                    marginTop="10px"
                 >
                     <Grid item>
                         <TextField
                             size="small"
                             id="datetime-local"
-                            label="Дата публикации"
+                            label="Дедлайн задания"
                             type="datetime-local"
-                            variant='standard'
-                            style={{marginTop: "10px"}}
-                            disabled={props.disabledPublicationDate}
-                            error={isTaskSoonerThanHomework}
-                            helperText={isTaskSoonerThanHomework ? 'Публикация задачи раньше ДЗ' : ' '}
-                            value={Utils.convertUTCDateToLocalDate(state.publicationDate)?.toISOString().substring(0, 16)}
+                            variant="standard"
+                            color={deadlineDate !== undefined ? "warning" : undefined}
+                            error={deadlineSoonerThanPublication}
+                            helperText={deadlineSoonerThanPublication ? "Дедлайн задачи не может быть раньше даты публикации" :
+                                deadlineDate !== undefined ? `Было ${new Date(props.homework.publicationDate!).toLocaleString("ru-RU")}` : ""}
+                            required={!homework.deadlineDate && !deadlineDate}
+                            value={Utils.convertUTCDateToLocalDate(deadlineDate || homework.deadlineDate)?.toISOString().substring(0, 16) ?? ''}
                             onChange={(e) => {
                                 const date = e.target.value === '' ? undefined : new Date(e.target.value)
-                                const isErrorState = date != undefined && isDateSoonerThanHomework(date)
-
                                 setState(prevState => ({
                                     ...prevState,
-                                    publicationDate: date,
-                                    hasError: isErrorState,
+                                    deadlineDate: date
                                 }))
                             }}
                             InputLabelProps={{
@@ -155,139 +171,23 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                         />
                     </Grid>
                     <Grid item>
-                        <Alert sx={{borderRadius: 3, fontSize: 11}} severity={isTaskSoonerThanHomework ? "error" : state.publicationDate == undefined ? "info" : "warning"}>
-                            <Typography display="inline" style={getStyle(state.publicationDate)}>
-                                {new Date(props.homework.publicationDate!).toLocaleString("ru-RU") + " "}
-                            </Typography>
-                        </Alert>
-                    </Grid>
-                    <Grid item>
-                        <Alert sx={{borderRadius: 3, fontSize: 11}} severity={state.hasDeadline == undefined ? "info" : "warning"}>
-                            <Typography display="inline" style={getStyle(state.hasDeadline)}>
-                                {props.homework.hasDeadline ? "С дедлайном" : "Без дедлайна"}
-                            </Typography>
-                        </Alert>
-                    </Grid>
-                    <Grid item>
-                        <label style={{ margin: 0, padding: 0 }}>
+                        <label style={{margin: 0, padding: 0}}>
                             <Checkbox
-                                color="primary"
-                                checked={state.hasDeadline == undefined ? false : !state.hasDeadline}
-                                onChange={(e) => {
+                                color={isDeadlineStrict === undefined ? "primary" : "warning"}
+                                checked={isDeadlineStrict === undefined ? homework.isDeadlineStrict : isDeadlineStrict}
+                                onChange={(_) => {
                                     setState(prevState => ({
                                         ...prevState,
-                                        hasDeadline: e.target.checked ? false : undefined,
-                                        deadlineDate: undefined,
-                                        isDeadlineStrict: undefined,
+                                        isDeadlineStrict: isDeadlineStrict === undefined ? !homework.isDeadlineStrict : undefined,
                                     }))
                                 }}
                             />
-                            Без дедлайна
-                        </label>
-                    
-                        <label style={{ margin: 0, padding: 0 }}>
-                            <Checkbox
-                                color="primary"
-                                checked={state.hasDeadline ?? false}
-                                onChange={(e) => {
-                                    const date = e.target.checked && state.deadlineDate != undefined
-                                        ? getInitialDeadlineDate(state.publicationDate) 
-                                        : undefined
-                                    
-                                    setState(prevState => ({
-                                        ...prevState,
-                                        hasDeadline: e.target.checked ? true : undefined,
-                                        deadlineDate: date,
-                                    }))    
-                                }}
-                            />
-                            Добавить дедлайн
+                            Строгий
                         </label>
                     </Grid>
-                </Grid>
-                
-                {state.hasDeadline != false &&
-                    <Grid
-                        container
-                        direction="row"
-                        alignItems="center"
-                        justifyContent="space-between"
-                        style={{ marginTop: '16px' }}
-                    >
-                        <Grid item>
-                            <TextField
-                                size="small"
-                                id="datetime-local"
-                                label="Дедлайн задания"
-                                type="datetime-local"
-                                variant="standard"
-                                required={state.hasDeadline}
-                                value={Utils.convertUTCDateToLocalDate(state.deadlineDate)?.toISOString().substring(0, 16) ?? ''}
-                                disabled={!state.hasDeadline}
-                                onChange={(e) => {
-                                    const date = e.target.value === '' ? undefined : new Date(e.target.value)
-                                    
-                                    setState(prevState => ({
-                                        ...prevState,
-                                        deadlineDate: date
-                                    }))
-                                }}
-                                InputLabelProps={{
-                                    shrink: true,
-                                }}
-                            />
-                        </Grid>
-                        <Grid item>
-                            <Alert sx={{borderRadius: 3}} severity={state.deadlineDate == undefined ? "info" : "warning"}>
-                                <Typography display="inline" style={getStyle(state.deadlineDate)}>
-                                    {props.homework.deadlineDate == undefined
-                                    ? "Без дедлайна"
-                                    : new Date(props.homework.deadlineDate).toLocaleString("ru-RU") + " "}
-                                </Typography>
-                            </Alert>
-                        </Grid>
-                        <Grid item>
-                            <Alert sx={{borderRadius: 3}} severity={state.isDeadlineStrict == undefined ? "info" : "warning"}>
-                                <Typography display="inline" style={getStyle(state.isDeadlineStrict)}>
-                                    {props.homework.isDeadlineStrict ? "Строгий" : "Нестрогий"}
-                                </Typography>
-                            </Alert>
-                        </Grid>
-                        <Grid item>
-                            <label style={{ margin: 0, padding: 0 }}>
-                                <Checkbox
-                                    color="primary"
-                                    checked={state.isDeadlineStrict == undefined ? false : !state.isDeadlineStrict}
-                                    onChange={(e) => {
-                                        setState(prevState => ({
-                                        ...prevState,
-                                        isDeadlineStrict: e.target.checked ? false : undefined,
-                                    }))
-                                }}
-                                />
-                                Разрешить /
-                            </label>
-
-                            <label style={{ margin: 0, padding: 0 }}>
-                                <Checkbox
-                                    color="primary"
-                                    checked={state.isDeadlineStrict ?? false}
-                                    onChange={(e) => {
-                                        const isDeadlineStrict = e.target.checked ? true : undefined
-
-                                        setState(prevState => ({
-                                        ...prevState,
-                                        isDeadlineStrict: isDeadlineStrict,
-                                    }))
-                                }}
-                                />
-                                Запретить отправку решений после дедлайна
-                            </label>
-                        </Grid>
-                    </Grid>}
                 </Grid>}
-        </div>
-    );
+        </Grid>}
+    </div>;
 };
 
 export default TaskPublicationAndDeadlineDates;

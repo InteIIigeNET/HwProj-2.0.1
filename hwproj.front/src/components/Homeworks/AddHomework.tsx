@@ -27,7 +27,7 @@ interface IAddHomeworkState {
 
 interface IAddHomeworkTaskState {
     task : CreateTaskViewModel;
-    hasError: boolean;
+    hasErrors: boolean;
 }
 
 const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
@@ -44,7 +44,7 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                 deadlineDate: undefined,
                 isDeadlineStrict: false,
             },
-            hasError: false,
+            hasErrors: false,
         }],
         publicationDate: new Date(),
         hasDeadline: true,
@@ -154,7 +154,7 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                                         homework={{...addHomeworkState, tasks: addHomeworkState.tasks.map(t => t.task)}}
                                         onChange={(state) => {
                                             addHomeworkState.tasks[index].task = state
-                                            addHomeworkState.tasks[index].hasError = state.hasError
+                                            addHomeworkState.tasks[index].hasErrors = state.hasErrors
 
                                             setAddHomeworkState((prevState) => ({
                                                 ...prevState,
@@ -183,7 +183,7 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                                         deadlineDate: undefined,
                                         isDeadlineStrict: false,
                                     },
-                                    hasError: false,
+                                    hasErrors: false,
                                 }],
                             }))
                         }
@@ -197,7 +197,7 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                         variant="contained"
                         color="primary"
                         type="submit"
-                        disabled={addHomeworkState.tasks.some(t => t.hasError)}
+                        disabled={addHomeworkState.tasks.some(t => t.hasErrors)}
                     >
                         Добавить домашнее задание
                     </Button>

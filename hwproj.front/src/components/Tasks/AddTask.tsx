@@ -21,11 +21,10 @@ interface IAddTaskState {
     hasDeadline: boolean | undefined;
     deadlineDate: Date | undefined;
     isDeadlineStrict: boolean | undefined;
-    hasError: boolean;
+    hasErrors: boolean;
 }
 
 const AddTask: React.FC<IAddTaskProps> = (props) => {
-        
     const [state, setTaskState] = useState<IAddTaskState>({
         title: "",
         description: "",
@@ -34,7 +33,7 @@ const AddTask: React.FC<IAddTaskProps> = (props) => {
         hasDeadline: false,
         deadlineDate: undefined,
         isDeadlineStrict: false,
-        hasError: false,
+        hasErrors: false,
     })
 
     const handleSubmit = async (e: any) => {
@@ -72,7 +71,7 @@ const AddTask: React.FC<IAddTaskProps> = (props) => {
                             variant="contained"
                             color="primary"
                             type="submit"
-                            disabled={state.hasError}
+                            disabled={state.hasErrors}
                         >
                             Добавить задачу
                         </Button>

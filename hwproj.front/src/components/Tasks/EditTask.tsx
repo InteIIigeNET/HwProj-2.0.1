@@ -5,7 +5,7 @@ import {FC, useEffect, useState} from "react";
 import EditIcon from "@material-ui/icons/Edit";
 import {makeStyles} from "@material-ui/styles";
 import Utils from "../../services/Utils";
-import {Checkbox, Typography, Button, TextField, Grid, Tooltip, Link as LinkMUI} from "@material-ui/core";
+import {Typography, Button, TextField, Grid} from "@material-ui/core";
 import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 import TaskPublicationAndDeadlineDates from "../Common/TaskPublicationAndDeadlineDates";
 import {CreateTaskViewModel, HomeworkViewModel} from "../../api";
@@ -23,7 +23,7 @@ interface IEditTaskState {
     isDeadlineStrict: boolean | undefined;
     publicationDate: Date | undefined;
     homework: HomeworkViewModel | undefined;
-    hasError: boolean;
+    hasErrors: boolean;
     isTaskPublished: boolean;
     homeworkId: number;
 }
@@ -54,7 +54,7 @@ const EditTask: FC = () => {
         isDeadlineStrict: false,
         publicationDate: undefined,
         homework: undefined,
-        hasError: false,
+        hasErrors: false,
         isTaskPublished: false,
         homeworkId: 0,
 })
@@ -91,7 +91,7 @@ const EditTask: FC = () => {
             isDeadlineStrict: task.isDeadlineStrict!,
             publicationDate: publication,
             homework: homework,
-            hasError: false,
+            hasErrors: false,
             isTaskPublished: isTaskPublished,
             homeworkId: task.homeworkId!
         }))
@@ -232,7 +232,7 @@ const EditTask: FC = () => {
                                     isDeadlineStrict: state.isDeadlineStrict,
                                     publicationDate: state.publicationDate,
                                     deadlineDate: state.deadlineDate,
-                                    hasError: state.hasError
+                                    hasErrors: state.hasErrors
                                 }))}
                                 />
                             </Grid>
@@ -242,7 +242,7 @@ const EditTask: FC = () => {
                                     variant="contained"
                                     color="primary"
                                     type="submit"
-                                    disabled={taskState.hasError}
+                                    disabled={taskState.hasErrors}
                                 >
                                     Редактировать задачу
                                 </Button>
