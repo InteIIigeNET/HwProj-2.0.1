@@ -76,8 +76,6 @@ const EditTask: FC = () => {
             ? undefined
             : new Date(task.deadlineDate)
 
-        const isTaskPublished = new Date(task.publicationDate ?? homework.publicationDate!) <= new Date(Date.now())
-
         setTaskState((prevState) => ({
             ...prevState,
             isLoaded: true,
@@ -92,7 +90,7 @@ const EditTask: FC = () => {
             publicationDate: publication,
             homework: homework,
             hasErrors: false,
-            isTaskPublished: isTaskPublished,
+            isTaskPublished: !task.isDeferred,
             homeworkId: task.homeworkId!
         }))
     }

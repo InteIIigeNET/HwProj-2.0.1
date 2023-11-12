@@ -61,17 +61,17 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
         props.onChange(state)
     }, [state])
 
-    return (
-        <div>
+    return <div>
+        <Grid container direction="column" style={{marginTop: "10px"}}>
             <Grid
+                item
                 container
                 direction="row"
                 alignItems="center"
-                justifyContent="space-between"
+                spacing={2}
             >
                 <Grid item>
                     <TextField
-                        style={{marginTop: '16px'}}
                         size="small"
                         id="datetime-local"
                         label="Дата публикации"
@@ -94,8 +94,8 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                         }}
                     />
                 </Grid>
-                <Grid>
-                    <label style={{ margin: 0, padding: 0 }}>
+                <Grid item>
+                    <label>
                         <Checkbox
                             color="primary"
                             checked={state.hasDeadline}
@@ -113,17 +113,17 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                                 }))
                             }}
                         />
-                        Добавить дедлайн
+                        Дедлайн
                     </label>
                 </Grid>
             </Grid>
             {state.hasDeadline && (
                 <Grid
+                    item
                     container
                     direction="row"
                     alignItems="center"
-                    justifyContent="space-between"
-                    style={{ marginTop: '10px' }}
+                    spacing={2}
                 >
                     <Grid item>
                         <TextField
@@ -156,13 +156,13 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                                 }))
                             }}
                             />
-                            Запретить отправку решений после дедлайна
+                            Строгий
                         </label>
                     </Grid>
                 </Grid>
             )}
+        </Grid>
         </div>
-    );
 };
 
 export default PublicationAndDeadlineDates;

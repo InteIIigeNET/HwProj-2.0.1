@@ -39,6 +39,11 @@ namespace HwProj.CoursesService.API.Validators
                 .When(h => !h.HasDeadline)
                 .WithMessage("Deadline cannot to have value if homework doesn't have deadline.");
 
+            RuleFor(task => task.DeadlineDate)
+                .Must((h, d, _) => d! >= h.PublicationDate!)
+                .When(t => t.DeadlineDate != null)
+                .WithMessage("Deadline date cannot to be earlier than publication date.");
+
             RuleFor(homework => homework.HasDeadline)
                 .Equal(false)
                 .When(h => h.DeadlineDate == null)

@@ -30,6 +30,11 @@ namespace HwProj.CoursesService.API.Validators
             RuleFor(task => task.DeadlineDate).Null().When(task => !task.HasDeadline ?? true)
                 .WithMessage("DeadlineDate cannot to have a value if the task has no deadline or it is null.");
 
+            RuleFor(task => task.DeadlineDate)
+                .MustAsync(async (t, d, _) => d >= (await homeworkPromise).PublicationDate)
+                .When(t => t.DeadlineDate != null)
+                .WithMessage("Deadline date cannot to be earlier than publication date.");
+
             RuleFor(task => task.HasDeadline).Null()
                 .When(task => (task.HasDeadline ?? false) && task.DeadlineDate == null)
                 .WithMessage("Task HasDeadline cannot to be true if deadline undefined.");
