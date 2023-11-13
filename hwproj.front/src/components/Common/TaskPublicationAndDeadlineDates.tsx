@@ -60,8 +60,6 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
         props.onChange({...state, hasErrors: validationResult})
     }, [state])
 
-    console.log(props)
-
     useEffect(() => {
         setState(prevState => ({
             hasDeadline: homework.hasDeadline === prevState.hasDeadline ? undefined : prevState.hasDeadline,
@@ -72,7 +70,7 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
     }, [homework.publicationDate, homework.deadlineDate, homework.hasDeadline, homework.isDeadlineStrict])
 
     return <div>
-        <Tooltip arrow title={"Позволяет переопределить даты для задачи"}>
+        <Tooltip placement={"right"} arrow title={"Позволяет переопределить даты для задачи"}>
             <Typography variant={"caption"} style={{fontSize: "14px", cursor: "pointer"}}>
                 <Link onClick={() => {
                     setState((prevState) => ({
@@ -182,27 +180,29 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                             }}
                         />
                     </Grid>
-                    <Grid item>
-                        <FormControlLabel
-                            label="Строгий"
-                            control={<Checkbox
-                                checked={isDeadlineStrict === undefined ? homework.isDeadlineStrict : isDeadlineStrict}
-                                onChange={(_) => {
-                                    setState(prevState => ({
-                                        ...prevState,
-                                        isDeadlineStrict: isDeadlineStrict === undefined ? !homework.isDeadlineStrict : undefined,
-                                    }))
-                                }}
-                            />}
-                        />
-                        <FormHelperText style={{ marginTop: '-1px' }}>
-                            {isDeadlineStrict !== undefined
-                                ? isDeadlineStrict
-                                    ? 'Был нестрогий'
-                                    : 'Был строгий'
-                                : "\u200b"}
-                        </FormHelperText>
-                    </Grid>
+                    <Tooltip placement={"right"} arrow title={"Можно ли отправлять решения после дедлайна"}>
+                        <Grid item>
+                            <FormControlLabel
+                                label="Строгий"
+                                control={<Checkbox
+                                    checked={isDeadlineStrict === undefined ? homework.isDeadlineStrict : isDeadlineStrict}
+                                    onChange={(_) => {
+                                        setState(prevState => ({
+                                            ...prevState,
+                                            isDeadlineStrict: isDeadlineStrict === undefined ? !homework.isDeadlineStrict : undefined,
+                                        }))
+                                    }}
+                                />}
+                            />
+                            <FormHelperText style={{ marginTop: '-1px' }}>
+                                {isDeadlineStrict !== undefined
+                                    ? isDeadlineStrict
+                                        ? 'Был нестрогий'
+                                        : 'Был строгий'
+                                    : "\u200b"}
+                            </FormHelperText>
+                        </Grid>
+                    </Tooltip>
                 </Grid>}
         </Grid>}
     </div>;

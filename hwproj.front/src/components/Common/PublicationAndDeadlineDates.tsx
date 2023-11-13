@@ -1,8 +1,6 @@
 import React, { useState, useEffect} from 'react';
-import Grid from '@mui/material/Grid';
-import TextField from '@mui/material/TextField';
 import Utils from "../../services/Utils";
-import Checkbox from '@mui/material/Checkbox';
+import {Tooltip, Checkbox, TextField, Grid, FormControlLabel} from '@mui/material/'
 
 interface IDateFieldsProps {
     publicationDate: Date | undefined;
@@ -10,7 +8,7 @@ interface IDateFieldsProps {
     deadlineDate: Date | undefined;
     isDeadlineStrict: boolean;
     disabledPublicationDate?: boolean;
-    onChange: (c: IDateFieldsState) => void;
+    onChange: (c: IDateFieldsState & { hasErrors: boolean }) => void;
 }
 
 interface IDateFieldsState {
@@ -40,8 +38,8 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
     const [state, setState] = useState<IDateFieldsState>(() => 
     {
         const publicationDate = props.publicationDate == undefined
-        ? getInitialPublicationDate()
-        : props.publicationDate
+            ? getInitialPublicationDate()
+            : props.publicationDate
 
         return {
             hasDeadline: props.hasDeadline,
@@ -57,8 +55,15 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
         }
     });
 
+    const isDeadlineSoonerThanPublication = (publicationDate: Date, deadlineDate: Date | undefined) =>
+        deadlineDate != undefined && deadlineDate < publicationDate;
+
+    const deadlineSoonerThatHomework = isDeadlineSoonerThanPublication(state.publicationDate, state.deadlineDate)
+
     useEffect(() => {
-        props.onChange(state)
+        const validationResult = isDeadlineSoonerThanPublication(state.publicationDate, state.deadlineDate)
+
+        props.onChange({...state, hasErrors: validationResult})
     }, [state])
 
     return <div>
@@ -95,26 +100,28 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                     />
                 </Grid>
                 <Grid item>
-                    <label>
-                        <Checkbox
-                            color="primary"
-                            checked={state.hasDeadline}
-                            onChange={(e) => {
-                                const date = e.target.checked
-                                    ? props.deadlineDate == undefined 
-                                        ? getInitialDeadlineDate(state.publicationDate) 
-                                        : props.deadlineDate
-                                    : undefined
+                    <FormControlLabel
+                        label="Дедлайн"
+                        control={
+                            <Checkbox
+                                color="primary"
+                                checked={state.hasDeadline}
+                                onChange={(e) => {
+                                    const date = e.target.checked
+                                        ? props.deadlineDate == undefined 
+                                            ? getInitialDeadlineDate(state.publicationDate) 
+                                            : props.deadlineDate
+                                        : undefined
 
-                                setState(prevState => ({
-                                    ...prevState,
-                                    hasDeadline: e.target.checked,
-                                    deadlineDate: date,
-                                }))
-                            }}
-                        />
-                        Дедлайн
-                    </label>
+                                    setState(prevState => ({
+                                        ...prevState,
+                                        hasDeadline: e.target.checked,
+                                        deadlineDate: date,
+                                    }))
+                                }}
+                            />
+                        }
+                    />    
                 </Grid>
             </Grid>
             {state.hasDeadline && (
@@ -131,6 +138,8 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                             id="datetime-local"
                             label="Дедлайн задания"
                             type="datetime-local"
+                            error={deadlineSoonerThatHomework}
+                            helperText={deadlineSoonerThatHomework ? "Дедлайн задания не может быть раньше даты публикации" : ""}
                             variant='standard'
                             value={Utils.convertUTCDateToLocalDate(state.deadlineDate)?.toISOString().substring(0, 16)}
                             onChange={(e) => {
@@ -145,20 +154,24 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                             required
                         />
                     </Grid>
-                    <Grid item>
-                        <label style={{ margin: 0, padding: 0 }}>
-                            <Checkbox
-                                color="primary"
-                                onChange={(e) => {
-                                    setState(prevState => ({
-                                    ...prevState,
-                                    isDeadlineStrict: e.target.checked,
-                                }))
-                            }}
+                    <Tooltip placement={"right"} arrow title={"Можно ли отправлять решения после дедлайна"}>
+                        <Grid item>
+                            <FormControlLabel
+                                label="Строгий"
+                                control={
+                                    <Checkbox
+                                        color="primary"
+                                        onChange={(e) => {
+                                            setState(prevState => ({
+                                            ...prevState,
+                                            isDeadlineStrict: e.target.checked,
+                                            }))
+                                        }}
+                                    />
+                                }
                             />
-                            Строгий
-                        </label>
-                    </Grid>
+                        </Grid>
+                    </Tooltip>
                 </Grid>
             )}
         </Grid>

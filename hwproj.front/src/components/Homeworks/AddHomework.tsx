@@ -23,6 +23,7 @@ interface IAddHomeworkState {
     deadlineDate: Date | undefined;
     hasDeadline: boolean,
     isDeadlineStrict: boolean;
+    hasErrors: boolean;
 }
 
 interface IAddHomeworkTaskState {
@@ -51,6 +52,7 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
         deadlineDate: undefined,
         isDeadlineStrict: false,
         added: false,
+        hasErrors: false,
     })
 
     const handleSubmit = async (e: any) => {
@@ -76,6 +78,8 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
         }))
         props.onSubmit()
     }
+
+    console.log(addHomeworkState)
 
     return (
         <div>
@@ -120,7 +124,8 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                         hasDeadline: state.hasDeadline,
                         isDeadlineStrict: state.isDeadlineStrict,
                         publicationDate: state.publicationDate,
-                        deadlineDate: state.deadlineDate
+                        deadlineDate: state.deadlineDate,
+                        hasErrors: state.hasErrors,
                     }))}
                 />
                 <div>
@@ -197,7 +202,7 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                         variant="contained"
                         color="primary"
                         type="submit"
-                        disabled={addHomeworkState.tasks.some(t => t.hasErrors)}
+                        disabled={addHomeworkState.hasErrors || addHomeworkState.tasks.some(t => t.hasErrors)}
                     >
                         Добавить домашнее задание
                     </Button>
