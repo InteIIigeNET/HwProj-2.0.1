@@ -55,7 +55,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             var jobId = BackgroundJob.Schedule(() => AddNotificationsAsync(@event),
                 @event.PublicationDate.Subtract(TimeSpan.FromHours(3)));
 
-            await _scheduleWorksRepository.UpdateAsync(id, work => new ScheduleWork()
+            await _scheduleWorksRepository.UpdateAsync(id, work => new ScheduleJob()
             {
                 Id = id,
                 JobId = jobId

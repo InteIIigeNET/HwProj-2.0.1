@@ -8,7 +8,7 @@ namespace HwProj.NotificationsService.API.Models
     {
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<NotificationsSetting> Settings { get; set; }
-        public DbSet<ScheduleWork> ScheduleWorks { get; set; }
+        public DbSet<ScheduleJob> ScheduleJobs { get; set; }
 
         public NotificationsContext(DbContextOptions options)
             : base(options)

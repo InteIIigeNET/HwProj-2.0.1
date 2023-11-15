@@ -48,7 +48,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             var jobId = BackgroundJob.Schedule(() => AddNotificationsAsync(@event),
                 @event.PublicationDate.Subtract(TimeSpan.FromHours(3)));
 
-            var scheduleWork = new ScheduleWork
+            var scheduleWork = new ScheduleJob
             {
                 Id = id,
                 JobId = jobId

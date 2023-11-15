@@ -2,7 +2,7 @@
 
 namespace HwProj.Events.CourseEvents
 {
-    public class DeleteTaskEvent: Event
+    public class DeleteTaskEvent : Event
     {
         public long TaskId { get; set; }
 

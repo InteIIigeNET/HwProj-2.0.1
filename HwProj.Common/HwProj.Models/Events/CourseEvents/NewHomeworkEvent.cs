@@ -1,7 +1,7 @@
 using HwProj.EventBus.Client;
 using HwProj.Models.CoursesService.ViewModels;
 
-namespace  HwProj.Events.CourseEvents
+namespace HwProj.Events.CourseEvents
 {
     public class NewHomeworkEvent : Event
     {

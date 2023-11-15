@@ -6,7 +6,7 @@ using HwProj.Repositories;
 
 namespace HwProj.Models.NotificationsService
 {
-    public class ScheduleWork : IEntity<string>
+    public class ScheduleJob : IEntity<string>
     {
         [Key] public string Id { get; set; }
         public string JobId { get; set; }

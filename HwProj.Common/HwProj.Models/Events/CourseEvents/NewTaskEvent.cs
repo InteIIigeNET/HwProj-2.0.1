@@ -7,15 +7,15 @@ namespace HwProj.Events.CourseEvents
     public class NewTaskEvent : Event
     {
         public string TaskTitle { get; set; }
-        
+
         public long TaskId { get; set; }
-        
+
         public DateTime? Deadline { get; set; }
-        
+
         public DateTime PublicationDate { get; set; }
-        
+
         public CourseDTO Course { get; set; }
-        
+
 
         public NewTaskEvent(string taskTitle, long taskId, DateTime? deadline,
             DateTime publicationDate, CourseDTO course)

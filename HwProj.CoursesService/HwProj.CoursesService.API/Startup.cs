@@ -53,8 +53,6 @@ namespace HwProj.CoursesService.API
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, CourseContext context)
         {
             app.ConfigureHwProj(env, "Courses API", context);
-            app.UseHangfireDashboard();
-            BackgroundJob.Enqueue(() => Console.WriteLine("Hello world !"));
         }
     }
 }
