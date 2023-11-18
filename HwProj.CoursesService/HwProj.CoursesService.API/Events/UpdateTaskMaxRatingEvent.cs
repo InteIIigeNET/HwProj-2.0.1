@@ -1,5 +1,4 @@
 using HwProj.EventBus.Client;
-using HwProj.Models.CoursesService.ViewModels;
 
 namespace HwProj.CoursesService.API.Events
 {

@@ -1,9 +1,6 @@
 ﻿using AutoMapper;
 using HwProj.CoursesService.API.Models;
 using HwProj.Models.CoursesService.ViewModels;
-using System;
-using System.Linq;
-using HwProj.Models;
 
 namespace HwProj.CoursesService.API
 {

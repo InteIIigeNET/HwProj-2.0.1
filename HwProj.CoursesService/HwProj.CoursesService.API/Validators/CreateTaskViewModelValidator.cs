@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using HwProj.CoursesService.API.Services;
-using HwProj.Models;
 using HwProj.Models.CoursesService.ViewModels;
 
 namespace HwProj.CoursesService.API.Validators
