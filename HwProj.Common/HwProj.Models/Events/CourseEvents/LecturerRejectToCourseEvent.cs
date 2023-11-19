@@ -1,6 +1,6 @@
 using HwProj.EventBus.Client;
 
-namespace HwProj.Events.CourseEvents
+namespace HwProj.Models.Events.CourseEvents
 {
     public class LecturerRejectToCourseEvent : Event
     {

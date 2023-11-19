@@ -1,9 +1,8 @@
 ﻿using Hangfire;
 using HwProj.AuthService.API.Events;
 using HwProj.AuthService.Client;
-using HwProj.CoursesService.API.Events;
 using HwProj.EventBus.Client.Interfaces;
-using HwProj.Events.CourseEvents;
+using HwProj.Models.Events.CourseEvents;
 using HwProj.NotificationsService.API.EventHandlers;
 using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Repositories;
@@ -43,7 +42,7 @@ namespace HwProj.NotificationsService.API
             services.AddDbContext<NotificationsContext>(options => options.UseSqlServer(connectionString));
             services.AddScoped<INotificationsRepository, NotificationsRepository>();
             services.AddScoped<INotificationSettingsRepository, NotificationSettingsRepository>();
-            services.AddScoped<IScheduleWorksRepository, ScheduleWorksRepository>();
+            services.AddScoped<IScheduleJobsRepository, ScheduleJobsRepository>();
             services.AddEventBus(Configuration);
             services.AddTransient<IEventHandler<StudentRegisterEvent>, RegisterEventHandler>();
             services.AddTransient<IEventHandler<RateEvent>, RateEventHandler>();

@@ -2,31 +2,25 @@ using System;
 using HwProj.EventBus.Client;
 using HwProj.Models.CoursesService.ViewModels;
 
-namespace HwProj.Events.CourseEvents
+namespace HwProj.Models.Events.CourseEvents
 {
     public class UpdateTaskEvent : Event
     {
-        public CourseDTO Course { get; set; }
-        
-        public string TaskTitle { get; set; }
-        
         public long TaskId { get; set; }
         
-        //закладываюсь, что дату публикации не будут менять после публикации
-        public DateTime PreviousPublicationDate { get; set; }
+        public HomeworkTaskDTO PreviousEvent { get; set; }
         
-        public DateTime PublicationDate { get; set; }
+        public HomeworkTaskDTO NewEvent { get; set; }
         
-        public DateTime? Deadline { get; set; }
+        public CourseDTO Course { get; set; }
         
-        public UpdateTaskEvent(CourseDTO course, string taskTitle, long taskId, DateTime previousPublicationDate, DateTime publicationDate, DateTime? deadline)
+        
+        public UpdateTaskEvent(long taskId, HomeworkTaskDTO previousEvent, HomeworkTaskDTO newEvent, CourseDTO course)
         {
-            Course = course;
-            TaskTitle = taskTitle;
             TaskId = taskId;
-            PreviousPublicationDate = previousPublicationDate;
-            PublicationDate = publicationDate;
-            Deadline = deadline;
+            PreviousEvent = previousEvent;
+            NewEvent = newEvent;
+            Course = course;
         }
     }
 }

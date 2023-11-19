@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using AutoMapper;
-using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
-using HwProj.EventBus.Client;
 using HwProj.EventBus.Client.Interfaces;
-using HwProj.Models;
 using HwProj.Models.CoursesService.ViewModels;
-using static System.TimeSpan;
-using HwProj.Events.CourseEvents;
+using HwProj.Models.Events.CourseEvents;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -48,11 +41,10 @@ namespace HwProj.CoursesService.API.Services
             var homework = await _homeworksRepository.GetAsync(task.HomeworkId);
             var course = await _coursesRepository.GetWithCourseMatesAsync(homework.CourseId);
             var courseModel = _mapper.Map<CourseDTO>(course);
-
+            var taskModel = _mapper.Map<HomeworkTaskDTO>(task);
             var taskId = await _tasksRepository.AddAsync(task);
 
-            _eventBus.Publish(new NewTaskEvent(task.Title, taskId, task.DeadlineDate, task.PublicationDate,
-                courseModel));
+            _eventBus.Publish(new NewTaskEvent(taskId, taskModel, courseModel));
 
             return taskId;
         }
@@ -69,9 +61,10 @@ namespace HwProj.CoursesService.API.Services
             var homework = await _homeworksRepository.GetAsync(task.HomeworkId);
             var course = await _coursesRepository.GetWithCourseMatesAsync(homework.CourseId);
             var courseModel = _mapper.Map<CourseDTO>(course);
+            var previousTaskModel = _mapper.Map<HomeworkTaskDTO>(task);
+            var newTaskModel = _mapper.Map<HomeworkTaskDTO>(update);
 
-            _eventBus.Publish(new UpdateTaskEvent(courseModel, update.Title, taskId, task.PublicationDate,
-                update.PublicationDate, update.DeadlineDate));
+            _eventBus.Publish(new UpdateTaskEvent(taskId, previousTaskModel, newTaskModel, courseModel));
 
             await _tasksRepository.UpdateAsync(taskId, t => new HomeworkTask()
             {

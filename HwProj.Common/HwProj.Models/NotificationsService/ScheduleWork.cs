@@ -1,8 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using HwProj.EventBus.Client;
-using HwProj.Events.CourseEvents;
+using HwProj.Models.Events.CourseEvents;
 using HwProj.Repositories;
-
 
 namespace HwProj.Models.NotificationsService
 {
@@ -10,15 +10,51 @@ namespace HwProj.Models.NotificationsService
     {
         [Key] public string Id { get; set; }
         public string JobId { get; set; }
+
+        public ScheduleJob(ScheduleWorkId id, string jobId)
+        {
+            Id = id.ToString();
+            JobId = jobId;
+        }
+
+        public ScheduleJob()
+        {
+        }
     }
 
-    public static class ScheduleWorkIdBuilder
+    public class ScheduleWorkId
     {
-        public static string Build(Event @event, long id)
+        public string Category { get; set; }
+
+        public Type? EventType { get; set; }
+
+        public long CategoryId { get; set; }
+
+        public ScheduleWorkId(string category, Type? eventType, long categoryId)
         {
-            //TODO: fill
+            Category = category;
+            EventType = eventType;
+            CategoryId = categoryId;
+        }
+
+
+        public override string ToString()
+        {
+            return $"{Category}/{EventType}/{CategoryId}";
+        }
+    }
+
+    public static class ScheduleJobIdHelper
+    {
+        public static ScheduleWorkId BuildId(Event @event, long categoryId)
+        {
+            return new ScheduleWorkId(GetCategory(@event), @event.GetType(), categoryId);
+        }
+
+        public static string GetCategory(Event @event)
+        {
             var eventType = @event.GetType();
-            var category = eventType switch
+            return @event.GetType() switch
             {
                 _ when eventType == typeof(NewTaskEvent) || eventType == typeof(UpdateTaskEvent) ||
                        eventType == typeof(DeleteTaskEvent)
@@ -27,8 +63,13 @@ namespace HwProj.Models.NotificationsService
                     => "Homework",
                 _ => "Unknown"
             };
+        }
 
-            return $"{category}/{id}";
+        public static ScheduleWorkId ParseId(string id)
+        {
+            var parts = id.Split('/');
+
+            return new ScheduleWorkId(parts[0], Type.GetType(parts[1]), int.Parse(parts[2]));
         }
     }
 }

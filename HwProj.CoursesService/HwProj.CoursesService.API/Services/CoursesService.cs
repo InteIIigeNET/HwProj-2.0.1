@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.AuthService.Client;
-using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.CoursesService.API.Repositories.Groups;
@@ -12,7 +11,7 @@ using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
 using Microsoft.EntityFrameworkCore;
-using HwProj.Events.CourseEvents;
+using HwProj.Models.Events.CourseEvents;
 
 namespace HwProj.CoursesService.API.Services
 {

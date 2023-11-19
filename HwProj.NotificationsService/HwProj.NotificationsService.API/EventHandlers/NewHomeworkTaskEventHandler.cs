@@ -3,9 +3,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Hangfire;
 using HwProj.AuthService.Client;
+using HwProj.EventBus.Client;
 using HwProj.EventBus.Client.Interfaces;
-using HwProj.Events.CourseEvents;
 using HwProj.Models;
+using HwProj.Models.Events.CourseEvents;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
@@ -16,20 +17,20 @@ namespace HwProj.NotificationsService.API.EventHandlers
     public class NewHomeworkTaskEventHandler : EventHandlerBase<NewTaskEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
-        private readonly IScheduleWorksRepository _scheduleWorksRepository;
+        private readonly IScheduleJobsRepository _scheduleJobsRepository;
         private readonly IAuthServiceClient _authServiceClient;
         private readonly IConfigurationSection _configuration;
         private readonly IEmailService _emailService;
 
         public NewHomeworkTaskEventHandler(
             INotificationsRepository notificationRepository,
-            IScheduleWorksRepository scheduleWorksRepository,
+            IScheduleJobsRepository scheduleJobsRepository,
             IAuthServiceClient authServiceClient,
             IConfiguration configuration,
             IEmailService emailService)
         {
             _notificationRepository = notificationRepository;
-            _scheduleWorksRepository = scheduleWorksRepository;
+            _scheduleJobsRepository = scheduleJobsRepository;
             _authServiceClient = authServiceClient;
             _emailService = emailService;
             _configuration = configuration.GetSection("Notification");
@@ -37,23 +38,15 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
         public override async Task HandleAsync(NewTaskEvent @event)
         {
-            var id = ScheduleWorkIdBuilder.Build(@event, @event.TaskId);
-
-            if (@event.PublicationDate <= DateTimeUtils.GetMoscowNow())
+            if (@event.Task.PublicationDate <= DateTimeUtils.GetMoscowNow())
             {
                 await AddNotificationsAsync(@event);
                 return;
             }
 
-            var jobId = BackgroundJob.Schedule(() => AddNotificationsAsync(@event),
-                @event.PublicationDate.Subtract(TimeSpan.FromHours(3)));
-
-            var scheduleWork = new ScheduleJob
-            {
-                Id = id,
-                JobId = jobId
-            };
-            await _scheduleWorksRepository.AddAsync(scheduleWork);
+            await EventHandlerExtensions<NewTaskEvent>.AddScheduleJobAsync(@event, @event.TaskId,
+                @event.Task.PublicationDate,
+                () => AddNotificationsAsync(@event), _scheduleJobsRepository);
         }
 
 
@@ -70,8 +63,8 @@ namespace HwProj.NotificationsService.API.EventHandlers
                     Sender = "CourseService",
                     Body =
                         $"В курсе <a href='{url}/courses/{@event.Course.Id}'>{@event.Course.Name}</a>" +
-                        $" опубликована новая задача <a href='{url}/task/{@event.TaskId}'>{@event.TaskTitle}</a>." +
-                        (@event.Deadline is { } deadline ? $"\n\nДедлайн: {deadline:U}" : ""),
+                        $" опубликована новая задача <a href='{url}/task/{@event.TaskId}'>{@event.Task.Title}</a>." +
+                        (@event.Task.DeadlineDate is { } deadline ? $"\n\nДедлайн: {deadline:U}" : ""),
 
                     Category = CategoryState.Homeworks,
                     Date = DateTimeUtils.GetMoscowNow(),
@@ -83,6 +76,9 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
                 await Task.WhenAll(addNotificationTask, sendEmailTask);
             }
+
+            await EventHandlerExtensions<NewTaskEvent>.DeleteScheduleJobAsync(@event, @event.TaskId,
+                _scheduleJobsRepository);
         }
     }
 }
