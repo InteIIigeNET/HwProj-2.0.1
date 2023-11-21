@@ -92,7 +92,7 @@ namespace HwProj.CoursesService.API.Controllers
         public async Task<IActionResult> UpdateTask(long taskId, [FromBody] CreateTaskViewModel taskViewModel)
         {
             var previousState = await _tasksService.GetForEditingTaskAsync(taskId);
-            var validationResult = taskViewModel.Validate(await _homeworksService.GetHomeworkAsync(previousState.HomeworkId), previousState);
+            var validationResult = taskViewModel.Validate(await _homeworksService.GetForEditingHomeworkAsync(previousState.HomeworkId), previousState);
 
             if (validationResult.Count != 0)
             {

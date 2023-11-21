@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
 using HwProj.Models;
 using HwProj.Models.CoursesService.ViewModels;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.WindowsAzure.Storage.Blob.Protocol;
-using RabbitMQ.Client.Impl;
 
 namespace HwProj.CoursesService.API.Domains
 {
@@ -43,6 +38,11 @@ namespace HwProj.CoursesService.API.Domains
             if ((task.HasDeadline ?? false) && task.DeadlineDate == null)
             {
                 errors.Add("Task HasDeadline cannot to be true if deadline undefined.");
+            }
+
+            if (task is { HasDeadline: false, IsDeadlineStrict: true })
+            {
+                errors.Add("The deadline cannot be strict if there is no deadline in the task");
             }
 
             return errors;

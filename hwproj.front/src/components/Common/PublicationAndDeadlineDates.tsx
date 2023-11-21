@@ -108,15 +108,20 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                                 checked={state.hasDeadline}
                                 onChange={(e) => {
                                     const date = e.target.checked
-                                        ? props.deadlineDate == undefined 
+                                        ? props.deadlineDate === undefined 
                                             ? getInitialDeadlineDate(state.publicationDate) 
                                             : props.deadlineDate
                                         : undefined
+
+                                    const strict = e.target.checked && props.isDeadlineStrict !== undefined
+                                        ? props.isDeadlineStrict
+                                        : false
 
                                     setState(prevState => ({
                                         ...prevState,
                                         hasDeadline: e.target.checked,
                                         deadlineDate: date,
+                                        isDeadlineStrict: strict,
                                     }))
                                 }}
                             />
@@ -161,6 +166,7 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                                 control={
                                     <Checkbox
                                         color="primary"
+                                        checked={state.isDeadlineStrict}
                                         onChange={(e) => {
                                             setState(prevState => ({
                                             ...prevState,

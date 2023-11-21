@@ -130,6 +130,7 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                                 onChange={(_) => {
                                     setState(prevState => ({
                                         ...prevState,
+                                        deadlineDate: undefined,
                                         hasDeadline: hasDeadline === undefined ? !homework.hasDeadline : undefined,
                                     }))
                                 }}

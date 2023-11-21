@@ -176,7 +176,7 @@ namespace HwProj.CoursesService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             return response.IsSuccessStatusCode
                 ? Result<long>.Success(await response.DeserializeAsync<long>())
-                : Result<long>.Failed(response.ReasonPhrase);
+                : Result<long>.Failed(await response.DeserializeAsync<string[]>());
         }
 
         public async Task<HomeworkViewModel> GetHomework(long homeworkId)
@@ -194,6 +194,8 @@ namespace HwProj.CoursesService.Client
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
                 _coursesServiceUri + $"api/Homeworks/getForEditing/{homeworkId}");
+
+            httpRequest.TryAddUserId(_httpContextAccessor);
 
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<HomeworkViewModel>();
@@ -213,7 +215,7 @@ namespace HwProj.CoursesService.Client
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-            return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
+            return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(await response.DeserializeAsync<string[]>());
         }
 
         public async Task<Result> DeleteHomework(long homeworkId)
@@ -245,6 +247,8 @@ namespace HwProj.CoursesService.Client
                 HttpMethod.Get,
                 _coursesServiceUri + $"api/Tasks/getForEditing/{taskId}");
 
+            httpRequest.TryAddUserId(_httpContextAccessor);
+
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<HomeworkTaskForEditingViewModel>();
         }
@@ -265,7 +269,7 @@ namespace HwProj.CoursesService.Client
 
             var response = await _httpClient.SendAsync(httpRequest);
             var result = await response.DeserializeAsync<long>();
-            return Result<long>.Success(result);
+            return response.IsSuccessStatusCode ? Result<long>.Success(result) : Result<long>.Failed(await response.DeserializeAsync<string[]>());
         }
 
         public async Task<Result> DeleteTask(long taskId)
@@ -293,7 +297,7 @@ namespace HwProj.CoursesService.Client
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-            return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
+            return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(await response.DeserializeAsync<string[]>());
         }
 
         public async Task<GroupViewModel[]> GetAllCourseGroups(long courseId)

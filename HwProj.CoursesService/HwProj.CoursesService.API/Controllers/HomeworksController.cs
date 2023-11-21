@@ -66,11 +66,11 @@ namespace HwProj.CoursesService.API.Controllers
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> UpdateHomework(long homeworkId, [FromBody] CreateHomeworkViewModel homeworkViewModel)
         {
-            var validationResult = homeworkViewModel.Validate(await _homeworksService.GetHomeworkAsync(homeworkId));
+            var validationResult = homeworkViewModel.Validate(await _homeworksService.GetForEditingHomeworkAsync(homeworkId));
 
             if (validationResult.Count != 0)
             {
-                return BadRequest(string.Join(' ', validationResult));
+                return BadRequest(validationResult);
             }
 
             await _homeworksService.UpdateHomeworkAsync(homeworkId, new Homework
