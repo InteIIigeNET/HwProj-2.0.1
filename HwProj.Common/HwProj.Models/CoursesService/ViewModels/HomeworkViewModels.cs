@@ -21,8 +21,6 @@ namespace HwProj.Models.CoursesService.ViewModels
         public DateTime PublicationDate { get; set; }
 
         public List<CreateTaskViewModel> Tasks { get; set; } = new List<CreateTaskViewModel>();
-
-        public long Id { get; set; }
     }
 
     public class HomeworkViewModel

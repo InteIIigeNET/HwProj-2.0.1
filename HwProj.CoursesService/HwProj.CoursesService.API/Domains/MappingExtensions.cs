@@ -9,7 +9,7 @@ namespace HwProj.CoursesService.API.Domains
     public static class MappingExtensions
     {
         public static HomeworkViewModel ToHomeworkViewModel(this Homework homework)
-            => new()
+            => new HomeworkViewModel()
             {
                 Id = homework.Id,
                 Title = homework.Title,
@@ -24,7 +24,7 @@ namespace HwProj.CoursesService.API.Domains
             };
 
         public static HomeworkTaskViewModel ToHomeworkTaskViewModel(this HomeworkTask task)
-            => new()
+            => new HomeworkTaskViewModel()
             {
                 Id = task.Id,
                 Title = task.Title,
@@ -34,35 +34,25 @@ namespace HwProj.CoursesService.API.Domains
                 DeadlineDate = task.DeadlineDate,
                 IsDeadlineStrict = task.IsDeadlineStrict,
                 PublicationDate = task.PublicationDate,
-                HomeworkId = task.HomeworkId,
                 IsDeferred = DateTimeUtils.GetMoscowNow() < task.PublicationDate,
             };
 
         public static HomeworkTaskForEditingViewModel ToHomeworkTaskForEditingViewModel(this HomeworkTask task)
-            => new()
+            => new HomeworkTaskForEditingViewModel()
             {
-                Id = task.Id,
-                Title = task.Title,
-                Description = task.Description,
-                MaxRating = task.MaxRating,
-                HasDeadline = task.HasDeadline,
-                DeadlineDate = task.DeadlineDate,
-                IsDeadlineStrict = task.IsDeadlineStrict,
-                PublicationDate = task.PublicationDate,
-                HomeworkId = task.HomeworkId,
-                IsDeferred = DateTimeUtils.GetMoscowNow() < task.PublicationDate,
+                Task = task.ToHomeworkTaskViewModel(),
                 Homework = task.Homework.ToHomeworkViewModel(),
             };
 
         public static CourseMateViewModel ToCourseMateViewModel(this CourseMate courseMate)
-            => new()
+            => new CourseMateViewModel()
             {
                 StudentId = courseMate.StudentId,
                 IsAccepted = courseMate.IsAccepted,
             };
 
         public static CourseDTO ToCourseDto(this Course course)
-            => new()
+            => new CourseDTO()
             {
                 Id = course.Id,
                 Name = course.Name,
@@ -76,7 +66,7 @@ namespace HwProj.CoursesService.API.Domains
             };
 
         public static CoursePreview ToCoursePreview(this Course course)
-            => new()
+            => new CoursePreview()
             {
                 Id = course.Id,
                 Name = course.Name,
@@ -86,9 +76,8 @@ namespace HwProj.CoursesService.API.Domains
             };
 
         public static HomeworkTask ToHomeworkTask(this CreateTaskViewModel createTaskViewModel)
-            => new()
+            => new HomeworkTask()
             {
-                Id = createTaskViewModel.Id,
                 Title = createTaskViewModel.Title,
                 Description = createTaskViewModel.Description,
                 MaxRating = createTaskViewModel.MaxRating,
@@ -96,13 +85,11 @@ namespace HwProj.CoursesService.API.Domains
                 DeadlineDate = createTaskViewModel.DeadlineDate,
                 IsDeadlineStrict = createTaskViewModel.IsDeadlineStrict,
                 PublicationDate = createTaskViewModel.PublicationDate,
-                HomeworkId = createTaskViewModel.HomeworkId,
             };
 
         public static Homework ToHomework(this CreateHomeworkViewModel createHomeworkViewModel)
-            => new()
+            => new Homework()
             {
-                Id = createHomeworkViewModel.Id,
                 Title = createHomeworkViewModel.Title,
                 Description = createHomeworkViewModel.Description,
                 HasDeadline = createHomeworkViewModel.HasDeadline,

@@ -1,7 +1,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using FluentValidation;
 using HwProj.CoursesService.API.Domains;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
@@ -19,16 +18,16 @@ namespace HwProj.CoursesService.API.Controllers
     public class TasksController : Controller
     {
         private readonly ITasksService _tasksService;
-        private readonly IValidator<CreateTaskViewModel> _validator;
         private readonly IMapper _mapper;
+        private readonly IHomeworksService _homeworksService;
         private readonly ICoursesService _coursesService;
 
-        public TasksController(ITasksService tasksService, IMapper mapper, IValidator<CreateTaskViewModel> validator, ICoursesService coursesService, IHomeworksRepository homeworksRepository)
+        public TasksController(ITasksService tasksService, IMapper mapper, ICoursesService coursesService, IHomeworksService homeworksService)
         {
             _tasksService = tasksService;
             _mapper = mapper;
-            _validator = validator;
             _coursesService = coursesService;
+            _homeworksService = homeworksService;
         }
 
         [HttpGet("get/{taskId}")]
@@ -50,6 +49,7 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpGet("getForEditing/{taskId}")]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> GetForEditingTask(long taskId)
         {
             var taskFromDb = await _tasksService.GetForEditingTaskAsync(taskId);
@@ -63,19 +63,19 @@ namespace HwProj.CoursesService.API.Controllers
             return Ok(task);
         }
 
-        [HttpPost("add")]
+        [HttpPost("add/{homeworkId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        public async Task<IActionResult> AddTask([FromBody] CreateTaskViewModel taskViewModel)
+        public async Task<IActionResult> AddTask(long homeworkId, [FromBody] CreateTaskViewModel taskViewModel)
         {
-            var validationResult = await _validator.ValidateAsync(taskViewModel);
+            var validationResult = taskViewModel.Validate(await _homeworksService.GetHomeworkAsync(homeworkId));
 
-            if (!validationResult.IsValid)
+            if (validationResult.Count != 0)
             {
-                return BadRequest(validationResult.Errors);
+                return BadRequest(validationResult);
             }
 
             var task = _mapper.Map<HomeworkTask>(taskViewModel);
-            var taskId = await _tasksService.AddTaskAsync(taskViewModel.HomeworkId, task);
+            var taskId = await _tasksService.AddTaskAsync(homeworkId, task);
 
             return Ok(taskId);
         }
@@ -87,18 +87,19 @@ namespace HwProj.CoursesService.API.Controllers
             await _tasksService.DeleteTaskAsync(taskId);
         }
         
-        [HttpPut("update")]
+        [HttpPut("update/{taskId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        public async Task<IActionResult> UpdateTask([FromBody] CreateTaskViewModel taskViewModel)
+        public async Task<IActionResult> UpdateTask(long taskId, [FromBody] CreateTaskViewModel taskViewModel)
         {
-            var validationResult = await _validator.ValidateAsync(taskViewModel);
+            var previousState = await _tasksService.GetForEditingTaskAsync(taskId);
+            var validationResult = taskViewModel.Validate(await _homeworksService.GetHomeworkAsync(previousState.HomeworkId), previousState);
 
-            if (!validationResult.IsValid)
+            if (validationResult.Count != 0)
             {
-                return BadRequest(validationResult.Errors);
+                return BadRequest(validationResult);
             }
 
-            await _tasksService.UpdateTaskAsync(taskViewModel.Id, new HomeworkTask()
+            await _tasksService.UpdateTaskAsync(taskId, new HomeworkTask()
             {
                 Title = taskViewModel.Title,
                 Description = taskViewModel.Description,

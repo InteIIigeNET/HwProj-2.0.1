@@ -1,11 +1,9 @@
-﻿using FluentValidation;
-using HwProj.AuthService.Client;
+﻿using HwProj.AuthService.Client;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.CoursesService.API.Repositories.Groups;
 using HwProj.CoursesService.API.Services;
-using HwProj.CoursesService.API.Validators;
 using HwProj.Utils.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -43,9 +41,6 @@ namespace HwProj.CoursesService.API
             services.AddScoped<IHomeworksService, HomeworksService>();
             services.AddScoped<ITasksService, TasksService>();
             services.AddScoped<CourseMentorOnlyAttribute>();
-
-            services.AddScoped<IValidator<CreateTaskViewModel>, CreateTaskViewModelValidator>();
-            services.AddScoped<IValidator<CreateHomeworkViewModel>, CreateHomeworkViewModelValidator>();
 
             services.AddEventBus(Configuration);
 

@@ -76,10 +76,9 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
             ...prevState,
             added: true
         }))
+
         props.onSubmit()
     }
-
-    console.log(addHomeworkState)
 
     return (
         <div>

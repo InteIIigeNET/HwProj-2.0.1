@@ -41,12 +41,11 @@ const AddTask: React.FC<IAddTaskProps> = (props) => {
 
         const addHomework: CreateTaskViewModel = {
             ...state,
-            homeworkId: props.homework.id!,
             publicationDate: Utils.convertUTCDateToLocalDate(state.publicationDate),
             deadlineDate: Utils.convertUTCDateToLocalDate(state.deadlineDate),
         }
 
-        await ApiSingleton.tasksApi.apiTasksAddPost(addHomework);
+        await ApiSingleton.tasksApi.apiTasksAddByHomeworkIdPost(props.homework.id!, addHomework);
         props.onAdding()
     }
 

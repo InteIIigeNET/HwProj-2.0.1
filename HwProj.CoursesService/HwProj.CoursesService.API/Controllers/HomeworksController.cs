@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using AutoMapper;
-using FluentValidation;
 using HwProj.CoursesService.API.Domains;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
@@ -16,24 +15,22 @@ namespace HwProj.CoursesService.API.Controllers
     {
         private readonly IHomeworksService _homeworksService;
         private readonly IMapper _mapper;
-        private readonly IValidator<CreateHomeworkViewModel> _validator;
 
-        public HomeworksController(IHomeworksService homeworksService, IMapper mapper, IValidator<CreateHomeworkViewModel> validator)
+        public HomeworksController(IHomeworksService homeworksService, IMapper mapper)
         {
             _homeworksService = homeworksService;
             _mapper = mapper;
-            _validator = validator;
         }
 
         [HttpPost("{courseId}/add")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> AddHomework(long courseId, [FromBody] CreateHomeworkViewModel homeworkViewModel)
-        { 
-            var validationResult = await _validator.ValidateAsync(homeworkViewModel);
+        {
+            var validationResult = homeworkViewModel.Validate();
 
-            if (!validationResult.IsValid)
+            if (validationResult.Count != 0)
             {
-                return BadRequest(validationResult.Errors);
+                return BadRequest(validationResult);
             }
 
             var homework = _mapper.Map<Homework>(homeworkViewModel);
@@ -50,6 +47,7 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpGet("getForEditing/{homeworkId}")]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<HomeworkViewModel> GetForEditingHomework(long homeworkId)
         {
             var homeworkFromDb = await _homeworksService.GetForEditingHomeworkAsync(homeworkId);
@@ -64,18 +62,18 @@ namespace HwProj.CoursesService.API.Controllers
             await _homeworksService.DeleteHomeworkAsync(homeworkId);
         }
 
-        [HttpPut("update")]
+        [HttpPut("update/{homeworkId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        public async Task<IActionResult> UpdateHomework([FromBody] CreateHomeworkViewModel homeworkViewModel)
+        public async Task<IActionResult> UpdateHomework(long homeworkId, [FromBody] CreateHomeworkViewModel homeworkViewModel)
         {
-            var validationResult = await _validator.ValidateAsync(homeworkViewModel);
+            var validationResult = homeworkViewModel.Validate(await _homeworksService.GetHomeworkAsync(homeworkId));
 
-            if (!validationResult.IsValid)
+            if (validationResult.Count != 0)
             {
-                return BadRequest(validationResult.Errors);
+                return BadRequest(string.Join(' ', validationResult));
             }
 
-            await _homeworksService.UpdateHomeworkAsync(homeworkViewModel.Id, new Homework
+            await _homeworksService.UpdateHomeworkAsync(homeworkId, new Homework
             {
                 Title = homeworkViewModel.Title,
                 Description = homeworkViewModel.Description,

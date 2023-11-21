@@ -8,12 +8,11 @@
     <Nullable>$(NullableReferenceTypes)</Nullable>
   </PropertyGroup>
   <ItemGroup>
-	  <Folder Include="wwwroot\" />
+    <Folder Include="wwwroot\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
     <PackageReference Include="EntityFramework" Version="6.4.0" />
-    <PackageReference Include="FluentValidation.AspNetCore" Version="9.5.4" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.3" />

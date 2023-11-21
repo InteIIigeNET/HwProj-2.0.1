@@ -29,8 +29,10 @@ namespace HwProj.Models.CoursesService.ViewModels
         public bool IsDeferred { get; set; }
     }
 
-    public class HomeworkTaskForEditingViewModel : HomeworkTaskViewModel
+    public class HomeworkTaskForEditingViewModel
     {
+        public HomeworkTaskViewModel Task { get; set; }
+
         public HomeworkViewModel Homework { get; set; }
     }
 
@@ -51,9 +53,5 @@ namespace HwProj.Models.CoursesService.ViewModels
         public DateTime? PublicationDate { get; set; }
 
         [Required] public int MaxRating { get; set; }
-
-        public long Id { get; set; }
-
-        public long HomeworkId { get; set; }
     }
 }

@@ -41,12 +41,12 @@ namespace HwProj.APIGateway.API.Controllers
                 : Ok(result);
         }
 
-        [HttpPost("add")]
+        [HttpPost("add/{homeworkId}")]
         [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> AddTask(CreateTaskViewModel taskViewModel)
+        public async Task<IActionResult> AddTask(long homeworkId, CreateTaskViewModel taskViewModel)
         {
-            var result = await _coursesClient.AddTask(taskViewModel);
+            var result = await _coursesClient.AddTask(homeworkId, taskViewModel);
             return result.Succeeded
                 ? Ok(result.Value) as IActionResult
                 : BadRequest(result.Errors);
@@ -60,13 +60,11 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok();
         }
         
-        [HttpPut("update")]
+        [HttpPut("update/{taskId}")]
         [Authorize(Roles = Roles.LecturerRole)]
-        public async Task<IActionResult> UpdateTask(CreateTaskViewModel taskViewModel)
+        public async Task<IActionResult> UpdateTask(long taskId, CreateTaskViewModel taskViewModel)
         {
-            //taskViewModel.Id = taskId;
-
-            var result = await _coursesClient.UpdateTask(taskViewModel);
+            var result = await _coursesClient.UpdateTask(taskId, taskViewModel);
             return result.Succeeded
                 ? Ok() as IActionResult
                 : BadRequest(result.Errors);

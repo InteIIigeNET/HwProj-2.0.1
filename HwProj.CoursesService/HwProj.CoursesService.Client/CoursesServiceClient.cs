@@ -199,11 +199,11 @@ namespace HwProj.CoursesService.Client
             return await response.DeserializeAsync<HomeworkViewModel>();
         }
 
-        public async Task<Result> UpdateHomework(CreateHomeworkViewModel model)
+        public async Task<Result> UpdateHomework(long homeworkId, CreateHomeworkViewModel model)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Put,
-                _coursesServiceUri + $"api/Homeworks/update")
+                _coursesServiceUri + $"api/Homeworks/update/{homeworkId}")
             {
                 Content = new StringContent(
                     JsonConvert.SerializeObject(model),
@@ -249,11 +249,11 @@ namespace HwProj.CoursesService.Client
             return await response.DeserializeAsync<HomeworkTaskForEditingViewModel>();
         }
 
-        public async Task<Result<long>> AddTask(CreateTaskViewModel taskViewModel)
+        public async Task<Result<long>> AddTask(long homeworkId, CreateTaskViewModel taskViewModel)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _coursesServiceUri + $"api/Tasks/add")
+                _coursesServiceUri + $"api/Tasks/add/{homeworkId}")
             {
                 Content = new StringContent(
                     JsonConvert.SerializeObject(taskViewModel),
@@ -279,11 +279,11 @@ namespace HwProj.CoursesService.Client
             return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
         }
 
-        public async Task<Result> UpdateTask(CreateTaskViewModel taskViewModel)
+        public async Task<Result> UpdateTask(long taskId, CreateTaskViewModel taskViewModel)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Put,
-                _coursesServiceUri + $"api/Tasks/update")
+                _coursesServiceUri + $"api/Tasks/update/{taskId}")
             {
                 Content = new StringContent(
                     JsonConvert.SerializeObject(taskViewModel),

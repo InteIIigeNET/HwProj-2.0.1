@@ -67,7 +67,6 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost("create")]
-        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> AddCourse([FromBody] CreateCourseViewModel courseViewModel,
             [FromQuery] string mentorId)
         {
@@ -171,6 +170,7 @@ namespace HwProj.CoursesService.API.Controllers
                 .ThenInclude(t => t.Tasks)
                 .ToListAsync();
 
+            //TODO: Move to service
             CourseDomain.FillTasksInCourses(courses.ToArray());
 
             var result = courses

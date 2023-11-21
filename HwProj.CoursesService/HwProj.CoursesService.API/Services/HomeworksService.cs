@@ -58,7 +58,7 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task UpdateHomeworkAsync(long homeworkId, Homework update)
         {
-            var homework = await _homeworksRepository.GetWithTasksAsync(homeworkId);
+            var homework = await _homeworksRepository.GetAsync(homeworkId);
             var course = await _coursesRepository.GetWithCourseMatesAsync(homework.CourseId);
  
             var studentIds = course.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
@@ -76,7 +76,6 @@ namespace HwProj.CoursesService.API.Services
                 DeadlineDate = update.DeadlineDate,
                 PublicationDate = update.PublicationDate,
                 IsDeadlineStrict = update.IsDeadlineStrict,
-
             });
         }
     }

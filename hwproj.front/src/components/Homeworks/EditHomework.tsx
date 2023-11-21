@@ -87,13 +87,12 @@ const EditHomework: FC = () => {
         
         const updateHomework: CreateHomeworkViewModel = {
             ...editHomework,
-            id: +homeworkId!,
             publicationDate: Utils.convertUTCDateToLocalDate(editHomework.publicationDate),
             deadlineDate: Utils.convertUTCDateToLocalDate(editHomework.deadlineDate)
         }
         
         await ApiSingleton.homeworksApi
-            .apiHomeworksUpdatePut(updateHomework)
+            .apiHomeworksUpdateByHomeworkIdPut(+homeworkId!, updateHomework)
 
         setEditHomework((prevState) => ({
             ...prevState,

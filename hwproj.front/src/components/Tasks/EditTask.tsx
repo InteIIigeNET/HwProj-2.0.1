@@ -64,8 +64,9 @@ const EditTask: FC = () => {
     }, [])
 
     const getTask = async () => {
-        const task = await ApiSingleton.tasksApi.apiTasksGetForEditingByTaskIdGet(+taskId!)
-        const homework = task.homework!
+        const taskForEditing = await ApiSingleton.tasksApi.apiTasksGetForEditingByTaskIdGet(+taskId!)
+        const homework = taskForEditing.homework!
+        const task = taskForEditing.task!
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(homework.courseId!)
 
         const publication = task.publicationDate == undefined
@@ -83,15 +84,15 @@ const EditTask: FC = () => {
             description: task.description!,
             maxRating: task.maxRating!,
             courseId: homework.courseId!,
-            courseMentorIds: course.mentors!.map(x => x.userId!),
             hasDeadline: task.hasDeadline!,
             deadlineDate: deadline,
             isDeadlineStrict: task.isDeadlineStrict!,
             publicationDate: publication,
+            homeworkId: task.homeworkId!,
+            courseMentorIds: course.mentors!.map(x => x.userId!),
             homework: homework,
             hasErrors: false,
             isTaskPublished: !task.isDeferred,
-            homeworkId: task.homeworkId!
         }))
     }
 
@@ -100,12 +101,11 @@ const EditTask: FC = () => {
 
         const addHomework: CreateTaskViewModel = {
             ...taskState,
-            id: +taskId!,
             publicationDate: Utils.convertUTCDateToLocalDate(taskState.publicationDate),
             deadlineDate: Utils.convertUTCDateToLocalDate(taskState.deadlineDate),
         }
 
-        await ApiSingleton.tasksApi.apiTasksUpdatePut(addHomework)
+        await ApiSingleton.tasksApi.apiTasksUpdateByTaskIdPut(+taskId!, addHomework)
 
         setTaskState((prevState) => ({
             ...prevState,
@@ -123,7 +123,7 @@ const EditTask: FC = () => {
         if (!taskState.courseMentorIds.includes(ApiSingleton.authService.getUserId())) {
             return (
                 <Typography variant="h6" gutterBottom>
-                    Только преподаваталь может редактировать задачу
+                    Только преподаватель может редактировать задачу
                 </Typography>
             );
         }
