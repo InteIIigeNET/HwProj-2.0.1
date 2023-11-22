@@ -1,6 +1,7 @@
 ﻿using Hangfire;
 using HwProj.AuthService.API.Events;
 using HwProj.AuthService.Client;
+using HwProj.CoursesService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.Events.CourseEvents;
 using HwProj.NotificationsService.API.EventHandlers;
@@ -62,6 +63,7 @@ namespace HwProj.NotificationsService.API
 
             services.AddHttpClient();
             services.AddAuthServiceClient();
+            services.AddCoursesServiceClient();
             
             services.ConfigureHwProjServices("Notifications API");
         }

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Hangfire;
 using HwProj.AuthService.Client;
+using HwProj.CoursesService.Client;
 using HwProj.EventBus.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models;
@@ -16,6 +17,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
 {
     public class NewHomeworkTaskEventHandler : EventHandlerBase<NewTaskEvent>
     {
+        private readonly ICoursesServiceClient _coursesServiceClient;
         private readonly INotificationsRepository _notificationRepository;
         private readonly IScheduleJobsRepository _scheduleJobsRepository;
         private readonly IAuthServiceClient _authServiceClient;
@@ -23,12 +25,14 @@ namespace HwProj.NotificationsService.API.EventHandlers
         private readonly IEmailService _emailService;
 
         public NewHomeworkTaskEventHandler(
+            ICoursesServiceClient coursesServiceClient,
             INotificationsRepository notificationRepository,
             IScheduleJobsRepository scheduleJobsRepository,
             IAuthServiceClient authServiceClient,
             IConfiguration configuration,
             IEmailService emailService)
         {
+            _coursesServiceClient = coursesServiceClient;
             _notificationRepository = notificationRepository;
             _scheduleJobsRepository = scheduleJobsRepository;
             _authServiceClient = authServiceClient;
@@ -52,21 +56,24 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
         public async Task AddNotificationsAsync(NewTaskEvent @event)
         {
-            var studentIds = @event.Course.CourseMates.Select(t => t.StudentId).ToArray();
+            var course = await _coursesServiceClient.GetCourseById(@event.Course.Id);
+            if (course == null) return;
+            
+            var studentIds = course.CourseMates.Select(t => t.StudentId).ToArray();
             var accountsData = await _authServiceClient.GetAccountsData(studentIds);
+            
             var url = _configuration["Url"];
+            var message = $"В курсе <a href='{url}/courses/{course.Id}'>{course.Name}</a>" +
+                          $" опубликована новая задача <a href='{url}/task/{@event.TaskId}'>{@event.Task.Title}</a>." +
+                          (@event.Task.DeadlineDate is { } deadline ? $"\n\nДедлайн: {deadline:U}" : "");
 
             foreach (var student in accountsData)
             {
                 var notification = new Notification
                 {
                     Sender = "CourseService",
-                    Body =
-                        $"В курсе <a href='{url}/courses/{@event.Course.Id}'>{@event.Course.Name}</a>" +
-                        $" опубликована новая задача <a href='{url}/task/{@event.TaskId}'>{@event.Task.Title}</a>." +
-                        (@event.Task.DeadlineDate is { } deadline ? $"\n\nДедлайн: {deadline:U}" : ""),
-
-                    Category = CategoryState.Homeworks,
+                    Body = message,
+                    Category = CategoryState.Tasks,
                     Date = DateTimeUtils.GetMoscowNow(),
                     Owner = student!.UserId
                 };
