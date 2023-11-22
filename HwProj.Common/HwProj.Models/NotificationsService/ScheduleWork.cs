@@ -26,21 +26,21 @@ namespace HwProj.Models.NotificationsService
     {
         public string Category { get; set; }
 
-        public Type? EventType { get; set; }
+        public string EventTypeName { get; set; }
 
         public long CategoryId { get; set; }
 
-        public ScheduleWorkId(string category, Type? eventType, long categoryId)
+        public ScheduleWorkId(string category, string eventTypeName, long categoryId)
         {
             Category = category;
-            EventType = eventType;
+            EventTypeName = eventTypeName;
             CategoryId = categoryId;
         }
 
 
         public override string ToString()
         {
-            return $"{Category}/{EventType}/{CategoryId}";
+            return $"{Category}/{EventTypeName}/{CategoryId}";
         }
     }
 
@@ -48,7 +48,7 @@ namespace HwProj.Models.NotificationsService
     {
         public static ScheduleWorkId BuildId(Event @event, long categoryId)
         {
-            return new ScheduleWorkId(GetCategory(@event), @event.GetType(), categoryId);
+            return new ScheduleWorkId(GetCategory(@event), @event.GetType().Name, categoryId);
         }
 
         public static string GetCategory(Event @event)
@@ -69,7 +69,7 @@ namespace HwProj.Models.NotificationsService
         {
             var parts = id.Split('/');
 
-            return new ScheduleWorkId(parts[0], Type.GetType(parts[1]), int.Parse(parts[2]));
+            return new ScheduleWorkId(parts[0], parts[1], int.Parse(parts[2]));
         }
     }
 }
