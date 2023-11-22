@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using HwProj.APIGateway.API.Filters;
 using HwProj.APIGateway.API.Models;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
@@ -34,6 +35,7 @@ namespace HwProj.APIGateway.API.Controllers
             return result;
         }
 
+        [CourseDataFilter]
         [HttpGet("{courseId}")]
         [ProducesResponseType(typeof(CourseViewModel), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetCourseData(long courseId)
