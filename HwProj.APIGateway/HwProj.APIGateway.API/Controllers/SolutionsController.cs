@@ -122,7 +122,7 @@ namespace HwProj.APIGateway.API.Controllers
                 .Select(t => t.StudentId)
                 .ToArray();
 
-            var currentDateTime = DateTimeUtils.GetMoscowNow();
+            var currentDateTime = DateTime.UtcNow;
             var tasks = course.Homeworks
                 .SelectMany(t => t.Tasks)
                 .Where(t => t.PublicationDate <= currentDateTime)

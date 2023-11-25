@@ -26,7 +26,7 @@ namespace HwProj.CoursesService.API.Controllers
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> AddHomework(long courseId, [FromBody] CreateHomeworkViewModel homeworkViewModel)
         {
-            var validationResult = homeworkViewModel.Validate();
+            var validationResult = Validations.ValidateHomework(homeworkViewModel);
 
             if (validationResult.Count != 0)
             {
@@ -66,7 +66,7 @@ namespace HwProj.CoursesService.API.Controllers
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> UpdateHomework(long homeworkId, [FromBody] CreateHomeworkViewModel homeworkViewModel)
         {
-            var validationResult = homeworkViewModel.Validate(await _homeworksService.GetForEditingHomeworkAsync(homeworkId));
+            var validationResult = Validations.ValidateHomework(homeworkViewModel, await _homeworksService.GetForEditingHomeworkAsync(homeworkId));
 
             if (validationResult.Count != 0)
             {

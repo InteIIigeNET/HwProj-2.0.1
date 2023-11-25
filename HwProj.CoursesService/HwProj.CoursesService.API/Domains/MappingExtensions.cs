@@ -19,7 +19,7 @@ namespace HwProj.CoursesService.API.Domains
                 IsDeadlineStrict = homework.IsDeadlineStrict,
                 PublicationDate = homework.PublicationDate,
                 CourseId = homework.CourseId,
-                IsDeferred = DateTimeUtils.GetMoscowNow() < homework.PublicationDate,
+                IsDeferred = DateTime.UtcNow < homework.PublicationDate,
                 Tasks = homework.Tasks.Select(t => t.ToHomeworkTaskViewModel()).ToList(),
             };
 
@@ -34,7 +34,7 @@ namespace HwProj.CoursesService.API.Domains
                 DeadlineDate = task.DeadlineDate,
                 IsDeadlineStrict = task.IsDeadlineStrict,
                 PublicationDate = task.PublicationDate,
-                IsDeferred = DateTimeUtils.GetMoscowNow() < task.PublicationDate,
+                IsDeferred = DateTime.UtcNow < task.PublicationDate,
             };
 
         public static HomeworkTaskForEditingViewModel ToHomeworkTaskForEditingViewModel(this HomeworkTask task)

@@ -2,6 +2,7 @@ import React, { useState, useEffect} from 'react';
 import Utils from "../../services/Utils";
 import {Tooltip, Checkbox, TextField, Grid, FormControlLabel} from '@mui/material/'
 
+
 interface IDateFieldsProps {
     publicationDate: Date | undefined;
     hasDeadline: boolean;
@@ -25,29 +26,29 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
         const deadlineDate = new Date(publicationDate.getTime() + twoWeeks)
         deadlineDate.setHours(23, 59, 0, 0)
 
-        return deadlineDate
+        return Utils.convertLocalDateToUTCDate(deadlineDate)
     }
 
     const getInitialPublicationDate = () => {
         const publicationDate = new Date(Date.now())
         publicationDate.setHours(0, 0, 0, 0)
 
-        return publicationDate
+        return Utils.convertLocalDateToUTCDate(publicationDate)
     }
 
     const [state, setState] = useState<IDateFieldsState>(() => 
     {
-        const publicationDate = props.publicationDate == undefined
+        const publicationDate = props.publicationDate === undefined
             ? getInitialPublicationDate()
             : props.publicationDate
 
         return {
             hasDeadline: props.hasDeadline,
-            publicationDate: props.publicationDate == undefined
+            publicationDate: props.publicationDate === undefined
                 ? getInitialPublicationDate()
-                : props.publicationDate ,
+                : props.publicationDate,
             deadlineDate: props.hasDeadline
-                ? props.deadlineDate == undefined 
+                ? props.deadlineDate === undefined 
                     ? getInitialDeadlineDate(publicationDate) 
                     : props.deadlineDate
                 : undefined,
@@ -83,10 +84,10 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                         type="datetime-local"
                         variant='standard'
                         disabled={props.disabledPublicationDate}
-                        value={Utils.convertUTCDateToLocalDate(state.publicationDate)?.toISOString().substring(0, 16)}
+                        value={Utils.toLocalISOString(state.publicationDate)}
                         onChange={(e) => {
                             const date = e.target.value !== ''
-                                ? new Date(e.target.value)
+                                ? Utils.convertLocalDateToUTCDate(new Date(e.target.value))
                                 : getInitialPublicationDate();
 
                             setState(prevState => ({
@@ -146,11 +147,13 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                             error={deadlineSoonerThatHomework}
                             helperText={deadlineSoonerThatHomework ? "Дедлайн задания не может быть раньше даты публикации" : ""}
                             variant='standard'
-                            value={Utils.convertUTCDateToLocalDate(state.deadlineDate)?.toISOString().substring(0, 16)}
+                            value={Utils.toLocalISOString(state.deadlineDate)}
                             onChange={(e) => {
                                 setState(prevState => ({
                                     ...prevState,
-                                    deadlineDate: e.target.value === '' ? undefined : new Date(e.target.value)
+                                    deadlineDate: e.target.value === '' 
+                                        ? undefined 
+                                        : Utils.convertLocalDateToUTCDate(new Date(e.target.value))
                                 }))
                             }}
                             InputLabelProps={{

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using System.Web;
 using HwProj.AuthService.API.Events;
 using HwProj.EventBus.Client.Interfaces;
@@ -45,7 +46,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 Sender = "AuthService",
                 Body = $"{@event.Name} {@event.Surname}, был запрошен сброс вашего пароля.",
                 Category = CategoryState.Profile,
-                Date = DateTimeUtils.GetMoscowNow(),
+                Date = DateTime.UtcNow,
                 HasSeen = false,
                 Owner = @event.UserId
             };

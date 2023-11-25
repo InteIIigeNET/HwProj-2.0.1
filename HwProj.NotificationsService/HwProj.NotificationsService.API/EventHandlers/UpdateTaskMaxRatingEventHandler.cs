@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.AuthService.Client;
@@ -46,7 +47,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                     Body = $"Задача <a href='{_configuration["Url"]}/task/{@event.TaskId}'>{@event.TaskTitle}</a>" +
                            $" из курса <a href='{_configuration["Url"]}/courses/{@event.CourseId}'>{@event.CourseName}</a> обновлена.",
                     Category = CategoryState.Courses,
-                    Date = DateTimeUtils.GetMoscowNow(),
+                    Date = DateTime.UtcNow,
                     HasSeen = false,
                     Owner = student
                 };

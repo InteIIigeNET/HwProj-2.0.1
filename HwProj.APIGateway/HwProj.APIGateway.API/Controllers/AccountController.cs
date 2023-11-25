@@ -74,7 +74,7 @@ namespace HwProj.APIGateway.API.Controllers
                 });
             }
 
-            var currentTime = DateTimeUtils.GetMoscowNow();
+            var currentTime = DateTime.UtcNow;
             var taskDeadlines = await _coursesClient.GetTaskDeadlines();
             var taskIds = taskDeadlines.Select(t => t.TaskId).ToArray();
             var solutions = await _solutionsServiceClient.GetLastTaskSolutions(taskIds, UserId);

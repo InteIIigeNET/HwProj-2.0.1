@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
@@ -41,7 +42,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                     Body =
                         $"В курсе <a href='{_configuration["Url"]}/courses/{@event.CourseId}'>{@event.CourseName}</a> домашнее задание <i>{@event.HomeworkTitle}</i> обновлено.",
                     Category = CategoryState.Homeworks,
-                    Date = DateTimeUtils.GetMoscowNow(),
+                    Date = DateTime.UtcNow,
                     HasSeen = false,
                     Owner = student.UserId
                 };

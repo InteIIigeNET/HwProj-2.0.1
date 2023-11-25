@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
@@ -51,7 +52,7 @@ namespace HwProj.CoursesService.API.Services
             var deadlineDate = task.DeadlineDate ?? homework.DeadlineDate;
             var studentIds = course.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
 
-            if (task.PublicationDate <= DateTimeUtils.GetMoscowNow())
+            if (task.PublicationDate <= DateTime.UtcNow)
                 _eventBus.Publish(new NewHomeworkTaskEvent(task.Title, taskId, deadlineDate, course.Name, course.Id, studentIds));
 
             return taskId;

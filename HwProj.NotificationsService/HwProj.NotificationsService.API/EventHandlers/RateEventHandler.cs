@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
@@ -44,7 +45,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                     $"<b>{@event.Solution.Rating}/{@event.Task.MaxRating}</b>." +
                     $"{commentBody}",
                 Category = CategoryState.Homeworks,
-                Date = DateTimeUtils.GetMoscowNow(),
+                Date = DateTime.UtcNow,
                 HasSeen = false,
                 Owner = @event.Solution.StudentId
             };

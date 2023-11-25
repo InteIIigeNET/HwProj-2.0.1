@@ -13,6 +13,7 @@ import DeletionConfirmation from "../DeletionConfirmation";
 import {Chip, Accordion, AccordionSummary, Typography, IconButton, Button, AccordionDetails, Tooltip} from '@material-ui/core';
 import {Stack} from '@mui/material';
 import {ReactMarkdownWithCodeHighlighting} from "../Common/TextFieldWithPreview";
+import Utils from "../../services/Utils";
 
 interface IHomeworkProps {
     homework: HomeworkViewModel,
@@ -55,11 +56,11 @@ const Homework: FC<IHomeworkProps> = (props) => {
         props.onDeleteClick()
     }
 
-    const options: Intl.DateTimeFormatOptions = {hour: "2-digit", minute: "2-digit"}
-
     const classes = useStyles()
-    const homeworkPublicationDateString = new Date(props.homework.publicationDate!).toLocaleDateString("ru-RU", options);
-    const homeworkDeadlineDateString = new Date(props.homework.deadlineDate!).toLocaleDateString("ru-RU", options);
+
+    const homeworkPublicationDateString =  Utils.renderReadableDate(new Date(props.homework.publicationDate!))
+    const homeworkDeadlineDateString = Utils.renderReadableDate(new Date(props.homework.deadlineDate!))
+
     return (
         <div style={{width: '100%'}}>
             <Accordion defaultExpanded={props.isExpanded}>

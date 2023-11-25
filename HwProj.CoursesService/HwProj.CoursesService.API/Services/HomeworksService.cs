@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
@@ -28,7 +29,9 @@ namespace HwProj.CoursesService.API.Services
             var course = await _coursesRepository.GetWithCourseMatesAsync(courseId);
             var studentIds = course.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
 
-            if (DateTimeUtils.GetMoscowNow() >= homework.PublicationDate)
+            var temp = DateTime.UtcNow;
+
+            if (DateTime.UtcNow >= homework.PublicationDate)
             {
                 _eventBus.Publish(new NewHomeworkEvent(homework.Title, course.Name, course.Id, studentIds,
                     homework.DeadlineDate));
@@ -63,7 +66,7 @@ namespace HwProj.CoursesService.API.Services
  
             var studentIds = course.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
 
-            if (update.PublicationDate <= DateTimeUtils.GetMoscowNow())
+            if (update.PublicationDate <= DateTime.UtcNow)
             {
                 _eventBus.Publish(new UpdateHomeworkEvent(update.Title, course.Id, course.Name, studentIds));
             }

@@ -20,7 +20,7 @@ namespace HwProj.Models.CoursesService.ViewModels
 
         public bool? IsDeadlineStrict { get; set; }
 
-        [JsonProperty] public bool CanSendSolution => (!IsDeadlineStrict ?? false) || DateTimeUtils.GetMoscowNow() <= DeadlineDate;
+        [JsonProperty] public bool CanSendSolution => (!IsDeadlineStrict ?? false) || DateTime.UtcNow <= DeadlineDate;
 
         public DateTime? PublicationDate { get; set; }
 

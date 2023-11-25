@@ -22,6 +22,8 @@ interface IEditHomeworkState {
     deadlineDate: Date | undefined;
     isDeadlineStrict: boolean;
     publicationDate: Date;
+    isPublished: boolean;
+    hasErrors: boolean;
     changedTaskPublicationDates: Date[]
 }
 
@@ -50,6 +52,8 @@ const EditHomework: FC = () => {
         deadlineDate: undefined,
         isDeadlineStrict: false,
         publicationDate: new Date(),
+        isPublished: false,
+        hasErrors: false,
         changedTaskPublicationDates: []
     })
 
@@ -59,6 +63,7 @@ const EditHomework: FC = () => {
 
     const getHomework = async () => {
         const homework = await ApiSingleton.homeworksApi.apiHomeworksGetForEditingByHomeworkIdGet(+homeworkId!)
+
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(homework.courseId!)
 
         const deadline = homework.deadlineDate == undefined
@@ -76,6 +81,8 @@ const EditHomework: FC = () => {
             deadlineDate: deadline,
             isDeadlineStrict: homework.isDeadlineStrict!,
             publicationDate: new Date(homework.publicationDate!),
+            isPublished: !homework.isDeferred,
+            hasErrors: false,
             changedTaskPublicationDates: homework.tasks!
                 .filter(t => t.publicationDate != undefined)
                 .map(t => new Date(t.publicationDate!))
@@ -103,9 +110,7 @@ const EditHomework: FC = () => {
     const classes = useStyles()
 
     const isSomeTaskSoonerThanHomework = editHomework.changedTaskPublicationDates
-        .some(d => d < Utils.convertLocalDateToUTCDate(new Date(editHomework.publicationDate)))
-
-    const isHomeworkPublished = Utils.convertLocalDateToUTCDate(new Date(editHomework.publicationDate)) <= new Date(Date.now())
+        .some(d => d < editHomework.publicationDate)
 
     if (editHomework.edited) {
         return <Navigate to={"/courses/" + editHomework.courseId}/>;
@@ -195,13 +200,14 @@ const EditHomework: FC = () => {
                                 isDeadlineStrict={editHomework.isDeadlineStrict}
                                 publicationDate={editHomework.publicationDate}
                                 deadlineDate={editHomework.deadlineDate}
-                                disabledPublicationDate={isHomeworkPublished}
+                                disabledPublicationDate={editHomework.isPublished}
                                 onChange={(state) => setEditHomework(prevState => ({
                                     ...prevState,
                                     hasDeadline: state.hasDeadline,
                                     isDeadlineStrict: state.isDeadlineStrict,
                                     publicationDate: state.publicationDate,
-                                    deadlineDate: state.deadlineDate
+                                    deadlineDate: state.deadlineDate,
+                                    hasErrors: state.hasErrors
                                 }))}
                                 />
                             </Grid>
@@ -217,7 +223,7 @@ const EditHomework: FC = () => {
                                     variant="contained"
                                     color="primary"
                                     type="submit"
-                                    disabled={isSomeTaskSoonerThanHomework}
+                                    disabled={isSomeTaskSoonerThanHomework || editHomework.hasErrors}
                                 >
                                     Редактировать
                                 </Button>

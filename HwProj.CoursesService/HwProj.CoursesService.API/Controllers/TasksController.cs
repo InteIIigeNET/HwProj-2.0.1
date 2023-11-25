@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -36,7 +37,7 @@ namespace HwProj.CoursesService.API.Controllers
             var taskFromDb = await _tasksService.GetTaskAsync(taskId);
             if (taskFromDb == null) return NotFound();
 
-            if (taskFromDb.PublicationDate > DateTimeUtils.GetMoscowNow())
+            if (taskFromDb.PublicationDate > DateTime.UtcNow)
             {
                 var userId = Request.GetUserIdFromHeader();
                 var homework = taskFromDb.Homework;
@@ -67,7 +68,7 @@ namespace HwProj.CoursesService.API.Controllers
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> AddTask(long homeworkId, [FromBody] CreateTaskViewModel taskViewModel)
         {
-            var validationResult = taskViewModel.Validate(await _homeworksService.GetHomeworkAsync(homeworkId));
+            var validationResult = Validations.ValidateTask(taskViewModel, await _homeworksService.GetHomeworkAsync(homeworkId));
 
             if (validationResult.Count != 0)
             {
@@ -92,7 +93,7 @@ namespace HwProj.CoursesService.API.Controllers
         public async Task<IActionResult> UpdateTask(long taskId, [FromBody] CreateTaskViewModel taskViewModel)
         {
             var previousState = await _tasksService.GetForEditingTaskAsync(taskId);
-            var validationResult = taskViewModel.Validate(await _homeworksService.GetForEditingHomeworkAsync(previousState.HomeworkId), previousState);
+            var validationResult = Validations.ValidateTask(taskViewModel, await _homeworksService.GetForEditingHomeworkAsync(previousState.HomeworkId), previousState);
 
             if (validationResult.Count != 0)
             {

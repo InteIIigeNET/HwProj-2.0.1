@@ -57,14 +57,11 @@ const Task: FC<ITaskProp> = (props) => {
         props.onDeleteClick()
     }
 
-    const task = props.task
-    let deadlineDate
+    const { task } = props
 
-    if (task.hasDeadline) {
-        deadlineDate = Utils.renderReadableDate(task!.deadlineDate!)
-    }
+    const publicationDate = Utils.renderReadableDate(new Date(task.publicationDate!))
+    const deadlineDate = Utils.renderReadableDate(new Date(task.deadlineDate!))
 
-    const publicationDate = new Date(task.publicationDate!).toLocaleString("ru-RU")
     const classes = useStyles()
 
     return (

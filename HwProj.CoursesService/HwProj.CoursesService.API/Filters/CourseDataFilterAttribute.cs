@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HwProj.Models;
@@ -24,7 +25,7 @@ namespace HwProj.CoursesService.API.Filters
                 var result = context.Result as ObjectResult;
                 if (result?.Value is CourseDTO courseDto && !courseDto.MentorIds.Contains(userId))
                 {
-                    var currentDate = DateTimeUtils.GetMoscowNow();
+                    var currentDate = DateTime.UtcNow;
                     courseDto.Homeworks =
                         courseDto.Homeworks.Where(h => currentDate >= h.PublicationDate).ToArray();
 

@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using HwProj.CoursesService.API.Events;
 using HwProj.EventBus.Client.Interfaces;
@@ -33,7 +34,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 Body =
                     $"Вас пригласили в качестве преподавателя на курс <a href='{_configuration["Url"]}/courses/{@event.CourseId}'>{@event.CourseName}</a>.",
                 Category = CategoryState.Courses,
-                Date = DateTimeUtils.GetMoscowNow(),
+                Date = DateTime.UtcNow,
                 Owner = @event.MentorId
             };
 

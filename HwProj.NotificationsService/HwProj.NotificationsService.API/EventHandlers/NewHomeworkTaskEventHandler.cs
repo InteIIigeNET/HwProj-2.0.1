@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using HwProj.AuthService.Client;
@@ -46,7 +47,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                         (@event.DeadlineDate is { } deadline ? $"\n\nДедлайн: {deadline:U}" : ""),
 
                     Category = CategoryState.Homeworks,
-                    Date = DateTimeUtils.GetMoscowNow(),
+                    Date = DateTime.UtcNow,
                     Owner = student!.UserId
                 };
 

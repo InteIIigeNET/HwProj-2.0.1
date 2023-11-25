@@ -74,7 +74,7 @@ namespace HwProj.SolutionsService.API.Services
 
         public async Task<long> PostOrUpdateAsync(long taskId, Solution solution)
         {
-            solution.PublicationDate = DateTimeUtils.GetMoscowNow();
+            solution.PublicationDate = DateTime.UtcNow;
             var allSolutionsForTask = await GetTaskSolutionsFromStudentAsync(taskId, solution.StudentId);
             var currentSolution = allSolutionsForTask.FirstOrDefault(s => s.Id == solution.Id);
             var solutionModel = _mapper.Map<SolutionViewModel>(solution);
@@ -112,7 +112,7 @@ namespace HwProj.SolutionsService.API.Services
 
             if (hasSolution) throw new InvalidOperationException("У студента имеются решения");
 
-            solution.PublicationDate = DateTimeUtils.GetMoscowNow();
+            solution.PublicationDate = DateTime.UtcNow;
             solution.TaskId = taskId;
             var id = await _solutionsRepository.AddAsync(solution);
             await RateSolutionAsync(id, solution.Rating, solution.LecturerComment);

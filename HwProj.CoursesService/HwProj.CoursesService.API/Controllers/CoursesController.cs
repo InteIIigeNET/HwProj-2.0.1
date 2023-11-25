@@ -163,7 +163,7 @@ namespace HwProj.CoursesService.API.Controllers
                 .Select(t => t.CourseId)
                 .ToListAsync();
 
-            var currentDate = DateTimeUtils.GetMoscowNow();
+            var currentDate = DateTime.UtcNow;
             var courses = await _coursesRepository
                 .FindAll(t => courseIds.Contains(t.Id))
                 .Include(t => t.Homeworks)

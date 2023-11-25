@@ -1,6 +1,6 @@
 export default class Utils {
     static convertUTCDateToLocalDate(date: Date | undefined) {
-        if (date == undefined) return undefined
+        if (date === undefined) return undefined
 
         var newDate = new Date(new Date(date).getTime() - new Date(date).getTimezoneOffset() * 60 * 1000);
         return newDate;
@@ -15,7 +15,7 @@ export default class Utils {
         return new Date(date.setHours(date.getHours() + 3));
     }
 
-    static toIsoString(date: Date) {
+    static toISOString(date: Date) {
         const pad = (num: number) => (num < 10 ? '0' : '') + num
 
         return date.getFullYear() +
@@ -24,6 +24,12 @@ export default class Utils {
             'T' + pad(date.getHours()) +
             ':' + pad(date.getMinutes()) +
             ':' + pad(date.getSeconds())
+    }
+
+    static toLocalISOString(date: Date | undefined) {
+        if (date == undefined) return undefined
+
+        return this.toISOString(this.convertUTCDateToLocalDate(date)!)
     }
 
     static pluralizeDateTime(milliseconds: number) {
@@ -57,12 +63,12 @@ export default class Utils {
     }
 
     static renderReadableDate = (date: Date) => {
-        date = new Date(date)
+        date = this.convertUTCDateToLocalDate(new Date(date))!
         const options = {month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'}
         return date.toLocaleString("ru-RU", options)
     }
 
     static renderDateWithoutSeconds = (date: Date) => {
-        return new Date(date).toLocaleString("ru-RU", {year: 'numeric' ,month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'})
+        return this.convertUTCDateToLocalDate(new Date(date))!.toLocaleString("ru-RU", {year: 'numeric' ,month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'})
     }
 }

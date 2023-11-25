@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using HwProj.AuthService.Client;
@@ -44,7 +45,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                         $" опубликована новая домашняя работа <i>{@event.HomeworkTitle}</i>." +
                         (@event.DeadlineDate is { } deadline ? $"\n\nДедлайн: {deadline:U}" : ""),
                     Category = CategoryState.Homeworks,
-                    Date = DateTimeUtils.GetMoscowNow(),
+                    Date = DateTime.UtcNow,
                     HasSeen = false,
                     Owner = student!.UserId
                 };
