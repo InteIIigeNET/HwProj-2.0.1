@@ -26,8 +26,7 @@ namespace HwProj.CoursesService.API.Filters
                 if (result?.Value is CourseDTO courseDto && !courseDto.MentorIds.Contains(userId))
                 {
                     var currentDate = DateTime.UtcNow;
-                    courseDto.Homeworks =
-                        courseDto.Homeworks.Where(h => currentDate >= h.PublicationDate).ToArray();
+                    courseDto.Homeworks = courseDto.Homeworks.Where(h => currentDate >= h.PublicationDate).ToArray();
 
                     foreach (var homework in courseDto.Homeworks)
                     {

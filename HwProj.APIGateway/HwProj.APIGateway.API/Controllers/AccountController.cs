@@ -6,7 +6,6 @@ using HwProj.APIGateway.API.Models;
 using HwProj.APIGateway.API.Models.Tasks;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
-using HwProj.Models;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.Result;
@@ -61,7 +60,7 @@ namespace HwProj.APIGateway.API.Controllers
                         Name = t.Name,
                         GroupName = t.GroupName,
                         IsCompleted = t.IsCompleted,
-                        NewStudentsCount = t.CourseMates.Count(x => !x.IsAccepted)
+                        NewStudentsCount = t.NewStudents.Count()
                     })
                     .Where(t => t.NewStudentsCount > 0)
                     .ToArray();

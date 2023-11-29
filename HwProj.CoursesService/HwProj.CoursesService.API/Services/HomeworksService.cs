@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
@@ -6,7 +6,6 @@ using HwProj.CoursesService.API.Repositories;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.API.Domains;
-using HwProj.Models;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -15,22 +14,21 @@ namespace HwProj.CoursesService.API.Services
         private readonly IHomeworksRepository _homeworksRepository;
         private readonly IEventBus _eventBus;
         private readonly ICoursesRepository _coursesRepository;
-        public HomeworksService(IHomeworksRepository homeworksRepository, IEventBus eventBus, ICoursesRepository coursesRepository)
+
+        public HomeworksService(IHomeworksRepository homeworksRepository, IEventBus eventBus,
+            ICoursesRepository coursesRepository)
         {
             _homeworksRepository = homeworksRepository;
             _eventBus = eventBus;
             _coursesRepository = coursesRepository;
         }
-        
+
         public async Task<long> AddHomeworkAsync(long courseId, Homework homework)
         {
             homework.CourseId = courseId;
 
             var course = await _coursesRepository.GetWithCourseMatesAsync(courseId);
             var studentIds = course.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
-
-            var temp = DateTime.UtcNow;
-
             if (DateTime.UtcNow >= homework.PublicationDate)
             {
                 _eventBus.Publish(new NewHomeworkEvent(homework.Title, course.Name, course.Id, studentIds,
@@ -63,13 +61,11 @@ namespace HwProj.CoursesService.API.Services
         {
             var homework = await _homeworksRepository.GetAsync(homeworkId);
             var course = await _coursesRepository.GetWithCourseMatesAsync(homework.CourseId);
- 
+
             var studentIds = course.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
 
             if (update.PublicationDate <= DateTime.UtcNow)
-            {
                 _eventBus.Publish(new UpdateHomeworkEvent(update.Title, course.Id, course.Name, studentIds));
-            }
 
             await _homeworksRepository.UpdateAsync(homeworkId, hw => new Homework()
             {

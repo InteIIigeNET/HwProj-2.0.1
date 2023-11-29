@@ -37,6 +37,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                        $"Для изменения пароля перейдите по ссылке<br/><a href={recoveryLink}>Сменить пароль</a><br/><br/>" +
                        $"Если вы не запрашивали сброс пароля, проигнорируйте это письмо.",
                 Category = CategoryState.Profile,
+                //TODO: использовать UtcNow
                 Date = DateTimeUtils.GetMoscowNow(),
                 HasSeen = false,
                 Owner = @event.UserId

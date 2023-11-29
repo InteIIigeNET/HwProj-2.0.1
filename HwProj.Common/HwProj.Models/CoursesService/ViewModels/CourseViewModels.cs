@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using HwProj.Models.AuthService.DTO;
 
 namespace HwProj.Models.CoursesService.ViewModels
@@ -35,6 +37,8 @@ namespace HwProj.Models.CoursesService.ViewModels
         public CourseMateViewModel[] CourseMates { get; set; }
         public HomeworkViewModel[] Homeworks { get; set; }
         public GroupViewModel[] Groups { get; set; } = Array.Empty<GroupViewModel>();
+        public IEnumerable<CourseMateViewModel> AcceptedStudents => CourseMates.Where(t => t.IsAccepted);
+        public IEnumerable<CourseMateViewModel> NewStudents => CourseMates.Where(t => !t.IsAccepted);
     }
 
     public class CourseViewModel

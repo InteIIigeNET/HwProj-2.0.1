@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.API.Domains;
 using HwProj.CoursesService.API.Filters;
@@ -6,6 +6,7 @@ using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Services;
 using HwProj.Models.CoursesService.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 
 namespace HwProj.CoursesService.API.Controllers
 {
@@ -26,12 +27,8 @@ namespace HwProj.CoursesService.API.Controllers
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> AddHomework(long courseId, [FromBody] CreateHomeworkViewModel homeworkViewModel)
         {
-            var validationResult = Validations.ValidateHomework(homeworkViewModel);
-
-            if (validationResult.Count != 0)
-            {
-                return BadRequest(validationResult);
-            }
+            var validationResult = Validator.ValidateHomework(homeworkViewModel);
+            if (validationResult.Any()) return BadRequest(validationResult);
 
             var homework = _mapper.Map<Homework>(homeworkViewModel);
             var homeworkId = await _homeworksService.AddHomeworkAsync(courseId, homework);
@@ -66,23 +63,11 @@ namespace HwProj.CoursesService.API.Controllers
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> UpdateHomework(long homeworkId, [FromBody] CreateHomeworkViewModel homeworkViewModel)
         {
-            var validationResult = Validations.ValidateHomework(homeworkViewModel, await _homeworksService.GetForEditingHomeworkAsync(homeworkId));
+            var homework = await _homeworksService.GetForEditingHomeworkAsync(homeworkId);
+            var validationResult = Validator.ValidateHomework(homeworkViewModel, homework);
+            if (validationResult.Any()) return BadRequest(validationResult);
 
-            if (validationResult.Count != 0)
-            {
-                return BadRequest(validationResult);
-            }
-
-            await _homeworksService.UpdateHomeworkAsync(homeworkId, new Homework
-            {
-                Title = homeworkViewModel.Title,
-                Description = homeworkViewModel.Description,
-                HasDeadline = homeworkViewModel.HasDeadline,
-                DeadlineDate = homeworkViewModel.DeadlineDate,
-                PublicationDate = homeworkViewModel.PublicationDate,
-                IsDeadlineStrict = homeworkViewModel.IsDeadlineStrict,
-            });
-
+            await _homeworksService.UpdateHomeworkAsync(homeworkId, homeworkViewModel.ToHomework());
             return Ok();
         }
     }

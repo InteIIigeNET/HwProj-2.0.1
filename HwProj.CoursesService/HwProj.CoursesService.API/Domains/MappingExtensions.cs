@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using HwProj.CoursesService.API.Models;
-using HwProj.Models;
 using HwProj.Models.CoursesService.ViewModels;
 using System;
 
@@ -58,7 +57,7 @@ namespace HwProj.CoursesService.API.Domains
                 Name = course.Name,
                 GroupName = course.GroupName,
                 IsCompleted = course.IsCompleted,
-                MentorIds = course.MentorIds.Split("/", StringSplitOptions.None),
+                MentorIds = course.MentorIds.Split("/"),
                 IsOpen = course.IsOpen,
                 InviteCode = course.InviteCode,
                 CourseMates = course.CourseMates.Select(cm => cm.ToCourseMateViewModel()).ToArray(),
@@ -72,7 +71,7 @@ namespace HwProj.CoursesService.API.Domains
                 Name = course.Name,
                 GroupName = course.GroupName,
                 IsCompleted = course.IsCompleted,
-                MentorIds = course.MentorIds.Split("/", StringSplitOptions.None),
+                MentorIds = course.MentorIds.Split("/"),
             };
 
         public static HomeworkTask ToHomeworkTask(this CreateTaskViewModel createTaskViewModel)
@@ -95,6 +94,7 @@ namespace HwProj.CoursesService.API.Domains
                 HasDeadline = createHomeworkViewModel.HasDeadline,
                 DeadlineDate = createHomeworkViewModel.DeadlineDate,
                 IsDeadlineStrict = createHomeworkViewModel.IsDeadlineStrict,
+                PublicationDate = createHomeworkViewModel.PublicationDate,
                 Tasks = createHomeworkViewModel.Tasks.Select(t => t.ToHomeworkTask()).ToList()
             };
     }

@@ -1,18 +1,16 @@
 export default class Utils {
     static convertUTCDateToLocalDate(date: Date | undefined) {
         if (date === undefined) return undefined
-
-        var newDate = new Date(new Date(date).getTime() - new Date(date).getTimezoneOffset() * 60 * 1000);
-        return newDate;
+        return new Date(new Date(date).getTime() - new Date(date).getTimezoneOffset() * 60 * 1000)
     }
 
-    static convertLocalDateToUTCDate(date: Date) {
-        var newDate = new Date(new Date(date).getTime() + new Date(date).getTimezoneOffset() * 60 * 1000);
-        return newDate;
+    static convertLocalDateToUTCDate(d: Date) {
+        let date = new Date(d)
+        return new Date(date.getTime() + date.getTimezoneOffset() * 60 * 1000)
     }
 
     static toMoscowDate(date: Date) {
-        return new Date(date.setHours(date.getHours() + 3));
+        return new Date(date.setHours(date.getHours() + 3))
     }
 
     static toISOString(date: Date) {
@@ -28,7 +26,6 @@ export default class Utils {
 
     static toLocalISOString(date: Date | undefined) {
         if (date == undefined) return undefined
-
         return this.toISOString(this.convertUTCDateToLocalDate(date)!)
     }
 
@@ -63,12 +60,12 @@ export default class Utils {
     }
 
     static renderReadableDate = (date: Date) => {
-        date = this.convertUTCDateToLocalDate(new Date(date))!
-        const options = {month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'}
+        date = Utils.convertUTCDateToLocalDate(new Date(date))!
+        const options= {month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'}
         return date.toLocaleString("ru-RU", options)
     }
 
     static renderDateWithoutSeconds = (date: Date) => {
-        return this.convertUTCDateToLocalDate(new Date(date))!.toLocaleString("ru-RU", {year: 'numeric' ,month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'})
+        return Utils.convertUTCDateToLocalDate(new Date(date))!.toLocaleString("ru-RU", {year: 'numeric' ,month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'})
     }
 }

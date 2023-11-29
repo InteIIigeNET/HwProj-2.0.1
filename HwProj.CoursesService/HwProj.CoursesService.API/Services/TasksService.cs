@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.API.Models;
