@@ -11,7 +11,7 @@ namespace HwProj.SolutionsService.API.Domains
     {
         //TODO: rewrite
         public static StatisticsCourseMatesDto[] GetCourseStatistics(StatisticsAggregateModel model) =>
-            model.AcceptedStudents
+            model.CourseMates
                 .Select(m =>
                 {
                     var studentGroupIds = model.Groups
