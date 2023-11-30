@@ -26,14 +26,14 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
         const deadlineDate = new Date(publicationDate.getTime() + twoWeeks)
         deadlineDate.setHours(23, 59, 0, 0)
 
-        return Utils.convertLocalDateToUTCDate(deadlineDate)
+        return deadlineDate
     }
 
     const getInitialPublicationDate = () => {
         const publicationDate = new Date(Date.now())
         publicationDate.setHours(0, 0, 0, 0)
 
-        return Utils.convertLocalDateToUTCDate(publicationDate)
+        return publicationDate
     }
 
     const [state, setState] = useState<IDateFieldsState>(() => 
@@ -84,10 +84,10 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                         type="datetime-local"
                         variant='standard'
                         disabled={props.disabledPublicationDate}
-                        value={Utils.toLocalISOString(state.publicationDate)}
+                        value={Utils.toISOString(state.publicationDate)}
                         onChange={(e) => {
                             const date = e.target.value !== ''
-                                ? Utils.convertLocalDateToUTCDate(new Date(e.target.value))
+                                ? new Date(e.target.value)
                                 : getInitialPublicationDate();
 
                             setState(prevState => ({
@@ -147,13 +147,13 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                             error={deadlineSoonerThatHomework}
                             helperText={deadlineSoonerThatHomework ? "Дедлайн задания не может быть раньше даты публикации" : ""}
                             variant='standard'
-                            value={Utils.toLocalISOString(state.deadlineDate)}
+                            value={Utils.toISOString(state.deadlineDate) ?? ''}
                             onChange={(e) => {
                                 setState(prevState => ({
                                     ...prevState,
                                     deadlineDate: e.target.value === '' 
                                         ? undefined 
-                                        : Utils.convertLocalDateToUTCDate(new Date(e.target.value))
+                                        : new Date(e.target.value)
                                 }))
                             }}
                             InputLabelProps={{

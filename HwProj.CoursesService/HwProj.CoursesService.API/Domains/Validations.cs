@@ -26,37 +26,43 @@ namespace HwProj.CoursesService.API.Domains
                 errors.Add("Нельзя изменить дату публикации задачи, если она уже показана студентам");
             }
 
-            if (task.HasDeadline == null && !homework.HasDeadline && task.DeadlineDate != null)
+            if (task.HasDeadline is null && !homework.HasDeadline && task.DeadlineDate is not null)
             {
                 errors.Add(
                     "DeadlineDate не может принимать какое-либо значение, если задача не переопределяет HasDeadline и в домашнем задании нет дедлайна");
             }
 
-            if (task is { HasDeadline: false, DeadlineDate: not null })
+            if (task.HasDeadline == false && task.DeadlineDate is not null)
             {
                 errors.Add("DeadlineDate не может принимать какое-либо значение, если у задачи нет дедлайна");
             }
 
-            if (task is { HasDeadline: true, DeadlineDate: null } && !homework.HasDeadline)
+            if (task.HasDeadline == true && task.DeadlineDate is null && !homework.HasDeadline)
             {
                 errors.Add(
                     "HasDeadline не может принимать значение true, значение DeadlineDate не переопределено и при этом у домашнего задания нет дедлайна");
             }
 
-            if (task.DeadlineDate != null && task.DeadlineDate < homework.PublicationDate)
+            if (task.DeadlineDate is { } deadlineDate && deadlineDate < homework.PublicationDate)
             {
                 errors.Add("Дедлайн не может быть раньше даты публикации задачи");
             }
 
-            if (task is { HasDeadline: false, IsDeadlineStrict: true })
+            if (task.HasDeadline == false && task.IsDeadlineStrict == true)
             {
                 errors.Add("Дедлайн не может быть строгим, если нет дедлайна");
             }
 
-            if (task is { HasDeadline: null, IsDeadlineStrict: true } && homework.HasDeadline == false)
+            if (task.HasDeadline is null && task.IsDeadlineStrict == true && homework.HasDeadline == false)
             {
                 errors.Add(
                     "Дедлайн не может быть строгим, если задача не переопределяет HasDeadline и в домашнем задании нет дедлайна");
+            }
+
+            if (task.DeadlineDate is null && task.PublicationDate is { } publicationDate &&
+                publicationDate > homework.DeadlineDate)
+            {
+                errors.Add("Дедлайн задачи, который непереопределен от домашнего задания раньше чем дата публикации самой задачи");
             }
 
             return errors;
@@ -68,8 +74,7 @@ namespace HwProj.CoursesService.API.Domains
 
             homework.Tasks.ForEach(task => errors.AddRange(ValidateTask(task, homework.ToHomework())));
 
-            //TODO: rewrite in old C#-style
-            if (homework is { HasDeadline: false, DeadlineDate: not null })
+            if (homework.HasDeadline == false && homework.DeadlineDate is not null)
             {
                 errors.Add("DeadlineDate не может принимать значения, если у домашнего задания нет дедлайна");
             }
@@ -79,12 +84,12 @@ namespace HwProj.CoursesService.API.Domains
                 errors.Add("Дедлайн не может быть раньше даты публикации домашнего задания");
             }
 
-            if (homework is { HasDeadline: true, DeadlineDate: null })
+            if (homework.HasDeadline && homework.DeadlineDate is null)
             {
                 errors.Add("Если у домашнего задания есть дедлайн, то значение DeadlineDate не должно быть равно null");
             }
 
-            if (homework is { HasDeadline: false, IsDeadlineStrict: true })
+            if (!homework.HasDeadline && homework.IsDeadlineStrict)
             {
                 errors.Add("Дедлайн не может быть строгим, если нет дедлайна");
             }

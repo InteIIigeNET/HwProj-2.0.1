@@ -99,13 +99,7 @@ const EditTask: FC = () => {
     const handleSubmit = async (e: any) => {
         e.preventDefault();
 
-        const addHomework: CreateTaskViewModel = {
-            ...taskState,
-            publicationDate: Utils.convertUTCDateToLocalDate(taskState.publicationDate),
-            deadlineDate: Utils.convertUTCDateToLocalDate(taskState.deadlineDate),
-        }
-
-        await ApiSingleton.tasksApi.apiTasksUpdateByTaskIdPut(+taskId!, addHomework)
+        await ApiSingleton.tasksApi.apiTasksUpdateByTaskIdPut(+taskId!, taskState)
 
         setTaskState((prevState) => ({
             ...prevState,

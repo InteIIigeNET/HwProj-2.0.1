@@ -39,13 +39,7 @@ const AddTask: React.FC<IAddTaskProps> = (props) => {
     const handleSubmit = async (e: any) => {
         e.preventDefault();
 
-        const addHomework: CreateTaskViewModel = {
-            ...state,
-            publicationDate: Utils.convertUTCDateToLocalDate(state.publicationDate),
-            deadlineDate: Utils.convertUTCDateToLocalDate(state.deadlineDate),
-        }
-
-        await ApiSingleton.tasksApi.apiTasksAddByHomeworkIdPost(props.homework.id!, addHomework);
+        await ApiSingleton.tasksApi.apiTasksAddByHomeworkIdPost(props.homework.id!, state);
         props.onAdding()
     }
 
