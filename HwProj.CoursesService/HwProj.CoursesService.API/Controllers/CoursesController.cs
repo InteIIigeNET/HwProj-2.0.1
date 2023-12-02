@@ -43,8 +43,7 @@ namespace HwProj.CoursesService.API.Controllers
             var courses = _mapper.Map<CoursePreview[]>(coursesFromDb).ToArray();
             return courses;
         }
-
-        [CourseDataFilter]
+        
         [HttpGet("{courseId}")]
         public async Task<IActionResult> Get(long courseId)
         {
@@ -53,8 +52,7 @@ namespace HwProj.CoursesService.API.Controllers
 
             return Ok(course);
         }
-
-        [CourseDataFilter]
+        
         [HttpGet("getByTask/{taskId}")]
         public async Task<IActionResult> GetByTask(long taskId)
         {
@@ -122,8 +120,7 @@ namespace HwProj.CoursesService.API.Controllers
                 ? Ok() as IActionResult
                 : NotFound();
         }
-
-        [CourseDataFilter]
+        
         [HttpGet("userCourses")]
         public async Task<CourseDTO[]> GetUserCourses(string role)
         {
