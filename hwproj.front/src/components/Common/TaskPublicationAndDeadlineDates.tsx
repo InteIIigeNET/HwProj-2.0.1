@@ -74,10 +74,7 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
             isDeadlineStrict: homework.isDeadlineStrict === prevState.isDeadlineStrict ? undefined : prevState.isDeadlineStrict
         }));
     }, [homework.publicationDate, homework.deadlineDate, homework.hasDeadline, homework.isDeadlineStrict])
-    
-    console.log('--------------------')
-    console.log(state)
-    console.log('--------------------')
+
 
     return <div>
         <Tooltip placement={"right"} arrow title={"Позволяет переопределить даты для задачи"}>
@@ -123,7 +120,9 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                                     : "\u200b"}
                         value={Utils.toISOString(state.publicationDate || homeworkPublicationDate)}
                         onChange={(e) => {
-                            const date = e.target.value === '' ? undefined : new Date(e.target.value)
+                            const valueDate = new Date(e.target.value)
+
+                            const date = (e.target.value === '' || valueDate.valueOf() === homeworkPublicationDate?.valueOf()) ? undefined : valueDate
                             setState(prevState => ({
                                 ...prevState,
                                 publicationDate: date
@@ -183,7 +182,9 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                             required={!homework.deadlineDate && !deadlineDate}
                             value={Utils.toISOString((deadlineDate || homeworkDeadlineDate)) ?? ''}
                             onChange={(e) => {
-                                const date = e.target.value === '' ? undefined : new Date(e.target.value)
+                                const valueDate = new Date(e.target.value)
+
+                                const date = (e.target.value === '' || valueDate.valueOf() === homeworkDeadlineDate?.valueOf()) ? undefined : valueDate
                                 setState(prevState => ({
                                     ...prevState,
                                     deadlineDate: date
