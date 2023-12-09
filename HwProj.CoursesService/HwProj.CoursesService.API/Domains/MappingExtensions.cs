@@ -34,6 +34,7 @@ namespace HwProj.CoursesService.API.Domains
                 IsDeadlineStrict = task.IsDeadlineStrict,
                 PublicationDate = task.PublicationDate,
                 IsDeferred = DateTime.UtcNow < task.PublicationDate,
+                HomeworkId = task.HomeworkId,
             };
 
         public static HomeworkTaskForEditingViewModel ToHomeworkTaskForEditingViewModel(this HomeworkTask task)

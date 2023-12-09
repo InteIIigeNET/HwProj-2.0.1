@@ -268,8 +268,7 @@ namespace HwProj.CoursesService.Client
             httpRequest.TryAddUserId(_httpContextAccessor);
 
             var response = await _httpClient.SendAsync(httpRequest);
-            var result = await response.DeserializeAsync<long>();
-            return response.IsSuccessStatusCode ? Result<long>.Success(result) : Result<long>.Failed(await response.DeserializeAsync<string[]>());
+            return response.IsSuccessStatusCode ? Result<long>.Success(await response.DeserializeAsync<long>()) : Result<long>.Failed(await response.DeserializeAsync<string[]>());
         }
 
         public async Task<Result> DeleteTask(long taskId)
