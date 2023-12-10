@@ -30,7 +30,7 @@ namespace HwProj.CoursesService.API.Controllers
             var validationResult = Validator.ValidateHomework(homeworkViewModel);
             if (validationResult.Any()) return BadRequest(validationResult);
 
-            var homework = _mapper.Map<Homework>(homeworkViewModel);
+            var homework = homeworkViewModel.ToHomework();
             var homeworkId = await _homeworksService.AddHomeworkAsync(courseId, homework);
             return Ok(homeworkId);
         }

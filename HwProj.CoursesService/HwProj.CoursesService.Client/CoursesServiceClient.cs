@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
@@ -173,10 +174,15 @@ namespace HwProj.CoursesService.Client
 
             httpRequest.TryAddUserId(_httpContextAccessor);
 
+            // TODO: check version of switch expression appearing
             var response = await _httpClient.SendAsync(httpRequest);
-            return response.IsSuccessStatusCode
-                ? Result<long>.Success(await response.DeserializeAsync<long>())
-                : Result<long>.Failed(await response.DeserializeAsync<string[]>());
+            return response.StatusCode switch
+            {
+                HttpStatusCode.Forbidden => Result<long>.Failed(),
+                HttpStatusCode.OK => Result<long>.Success(await response.DeserializeAsync<long>()),
+                HttpStatusCode.BadRequest => Result<long>.Failed(await response.DeserializeAsync<string[]>()),
+                _ => Result<long>.Failed(),
+            };
         }
 
         public async Task<HomeworkViewModel> GetHomework(long homeworkId)
@@ -215,7 +221,13 @@ namespace HwProj.CoursesService.Client
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-            return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(await response.DeserializeAsync<string[]>());
+            return response.StatusCode switch
+            {
+                HttpStatusCode.Forbidden => Result.Failed(),
+                HttpStatusCode.OK => Result.Success(),
+                HttpStatusCode.BadRequest => Result.Failed(await response.DeserializeAsync<string[]>()),
+                _ => Result.Failed(),
+            };
         }
 
         public async Task<Result> DeleteHomework(long homeworkId)
@@ -268,7 +280,13 @@ namespace HwProj.CoursesService.Client
             httpRequest.TryAddUserId(_httpContextAccessor);
 
             var response = await _httpClient.SendAsync(httpRequest);
-            return response.IsSuccessStatusCode ? Result<long>.Success(await response.DeserializeAsync<long>()) : Result<long>.Failed(await response.DeserializeAsync<string[]>());
+            return response.StatusCode switch
+            {
+                HttpStatusCode.Forbidden => Result<long>.Failed(),
+                HttpStatusCode.OK => Result<long>.Success(await response.DeserializeAsync<long>()),
+                HttpStatusCode.BadRequest => Result<long>.Failed(await response.DeserializeAsync<string[]>()),
+                _ => Result<long>.Failed(),
+            };
         }
 
         public async Task<Result> DeleteTask(long taskId)
@@ -296,7 +314,13 @@ namespace HwProj.CoursesService.Client
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-            return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(await response.DeserializeAsync<string[]>());
+            return response.StatusCode switch
+            {
+                HttpStatusCode.Forbidden => Result.Failed(),
+                HttpStatusCode.OK => Result.Success(),
+                HttpStatusCode.BadRequest => Result.Failed(await response.DeserializeAsync<string[]>()),
+                _ => Result.Failed(),
+            };
         }
 
         public async Task<GroupViewModel[]> GetAllCourseGroups(long courseId)

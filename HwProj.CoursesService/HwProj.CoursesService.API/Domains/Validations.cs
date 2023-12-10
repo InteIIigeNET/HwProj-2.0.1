@@ -45,7 +45,11 @@ namespace HwProj.CoursesService.API.Domains
 
             if (task.DeadlineDate is { } deadlineDate && deadlineDate < homework.PublicationDate)
             {
-                errors.Add("Дедлайн не может быть раньше даты публикации задачи");
+                errors.Add("Дедлайн задачи не может быть раньше даты публикации домашнего задания");
+            }
+            else if (task.PublicationDate > task.DeadlineDate)
+            {
+                errors.Add("Дедлайн задачи не может быть раньше ее даты публикации");
             }
 
             if (task.HasDeadline == false && task.IsDeadlineStrict == true)

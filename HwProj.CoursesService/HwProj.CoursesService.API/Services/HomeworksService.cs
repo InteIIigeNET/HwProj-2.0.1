@@ -49,7 +49,8 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<Homework> GetForEditingHomeworkAsync(long homeworkId)
         {
-            return await _homeworksRepository.GetWithTasksAsync(homeworkId);
+            var result =  await _homeworksRepository.GetWithTasksAsync(homeworkId);
+            return result;
         }
 
         public async Task DeleteHomeworkAsync(long homeworkId)
