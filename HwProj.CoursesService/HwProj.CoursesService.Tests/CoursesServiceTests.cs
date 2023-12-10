@@ -371,12 +371,14 @@ namespace HwProj.CoursesService.Tests
 
             var addTaskResult = await foreignClient.AddTask(homeworkResult.Value, oldTask);
             var updateTaskResult = await client.UpdateTask(addTaskResult.Value, newTask);
-            var taskFromDb = await client.GetTask(addTaskResult.Value);
+            var taskFromDb = await foreignClient.GetForEditingTask(addTaskResult.Value);
             
             updateTaskResult.Succeeded.Should().BeFalse();
             taskFromDb.Should().BeEquivalentTo(oldTask,
                 options => options.ExcludingMissingMembers());
         }
+        
+        // TODO: тесты для GetForEditingTask/Homework
 
         public static IEnumerable<(DateTime publication, bool hasDeadline, DateTime? deadline, bool isStrict, List<CreateTaskViewModel>? tasks)> ValidCreateHomeworkData()
         {
