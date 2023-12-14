@@ -59,7 +59,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
     return (
         <div>
             <AppBar style={{position: "static", width: "100vw", maxWidth: "100%"}}>
-                <div className={"container"} style={{display: "flex"}}>
+                <div className={"container"} style={{display: "flex", alignItems: "center"}}>
                     <Grid container spacing={1} alignItems={"center"}>
                         <Grid item>
                             <Link to={"/"}>
