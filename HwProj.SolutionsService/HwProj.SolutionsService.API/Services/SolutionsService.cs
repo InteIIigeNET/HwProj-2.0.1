@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -83,7 +84,11 @@ namespace HwProj.SolutionsService.API.Services
             var courses = await _coursesServiceClient.GetCourseById(homework.CourseId);
             var student = await _authServiceClient.GetAccountData(solutionModel.StudentId);
             var studentModel = _mapper.Map<AccountDataDto>(student);
-            _eventBus.Publish(new StudentPassTaskEvent(courses, solutionModel, studentModel, task));
+            var mentorsForSending = courses.Assignments.FirstOrDefault(a => a.MentorId == null)?.StudentIds.Contains(student.UserId) ?? false
+                    ? courses.MentorIds.Except(courses.Assignments.Select(a => a.MentorId)).ToArray()!
+                    : courses.Assignments.Where(a => a.StudentIds.Contains(student.UserId)).Select(a => a.MentorId).ToArray();
+
+            _eventBus.Publish(new StudentPassTaskEvent(courses.Id, courses.Name, solutionModel, studentModel, taskModel, mentorsForSending));
 
             if (currentSolution == null)
             {

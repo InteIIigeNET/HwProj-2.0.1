@@ -14,6 +14,7 @@ using HwProj.Models.SolutionsService;
 using HwProj.SolutionsService.Client;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace HwProj.APIGateway.API.Controllers
 {
@@ -148,6 +149,7 @@ namespace HwProj.APIGateway.API.Controllers
             var result = new TaskSolutionStatisticsPageData()
             {
                 CourseId = course.Id,
+                Assignments = course.Assignments,
                 StudentsSolutions = studentIds.Select(studentId => new UserTaskSolutions
                     {
                         Solutions = statistics.TryGetValue(studentId, out var studentSolutions)
@@ -270,12 +272,34 @@ namespace HwProj.APIGateway.API.Controllers
         public async Task<UnratedSolutionPreviews> GetUnratedSolutions(long? taskId)
         {
             var mentorCourses = await _coursesServiceClient.GetAllUserCourses();
+            var mentorStudentIds = mentorCourses
+                .Select(course => course.Assignments
+                    .Where(assignment => assignment.MentorId == UserId)
+                    .Select(a => a.StudentIds))
+                .SelectMany(x => x.SelectMany(y => y));
+
+
+            foreach (var course in mentorCourses)
+            {
+                var mentorAssignment = course.Assignments.FirstOrDefault(assignment => assignment.MentorId == UserId);
+
+                if (mentorAssignment == default(AssignmentsViewModel) || mentorAssignment.StudentIds.Length == 0)
+                {
+                    var emptyAssignment = course.Assignments.FirstOrDefault(assignment => assignment.MentorId == null);
+                    if (emptyAssignment != null)
+                    {
+                        mentorStudentIds = mentorStudentIds.Union(emptyAssignment.StudentIds);
+                    }
+                }
+            }
+
             var tasks = FilterTasks(mentorCourses, taskId).ToDictionary(t => t.taskId, t => t.data);
-
             var taskIds = tasks.Select(t => t.Key).ToArray();
-            var solutions = await _solutionsClient.GetAllUnratedSolutionsForTasks(taskIds);
 
-            var studentIds = solutions.Select(t => t.StudentId).Distinct().ToArray();
+            var allSolutions = await _solutionsClient.GetAllUnratedSolutionsForTasks(taskIds);
+            var solutions = allSolutions.Where(solution => mentorStudentIds.Contains(solution.StudentId));
+
+            var studentIds = solutions?.Select(t => t.StudentId).Distinct().ToArray();
             var accountsData = await AuthServiceClient.GetAccountsData(studentIds);
 
             var unratedSolutions = solutions

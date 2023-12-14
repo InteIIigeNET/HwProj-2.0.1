@@ -424,5 +424,31 @@ namespace HwProj.CoursesService.Client
                 return false;
             }
         }
+
+        public async Task<Result> AssignStudentToMentor(long courseId, string mentorId, string studentId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Put,
+                _coursesServiceUri + $"api/Assignments/{courseId}/assignStudent?studentId={studentId}&mentorId={mentorId}"
+            );
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return response.IsSuccessStatusCode
+                ? Result.Success()
+                : Result.Failed();
+        }
+
+        public async Task<Result> DeassignStudentFromMentor(long courseId, string studentId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Delete,
+                _coursesServiceUri + $"api/Assignments/{courseId}/deassignStudent?studentId={studentId}"
+            );
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return response.IsSuccessStatusCode
+                ? Result.Success()
+                : Result.Failed(response.ReasonPhrase);
+        }
     }
 }

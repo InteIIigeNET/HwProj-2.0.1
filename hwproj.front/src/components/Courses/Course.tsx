@@ -1,13 +1,15 @@
 import * as React from "react";
 import {Link as RouterLink} from "react-router-dom";
-import {AccountDataDto, CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api";
+import {AccountDataDto, CourseViewModel, HomeworkViewModel, AssignmentsViewModel, StatisticsCourseMatesModel} from "../../api";
 import CourseHomework from "../Homeworks/CourseHomework";
 import AddHomework from "../Homeworks/AddHomework";
 import StudentStats from "./StudentStats";
+import Alert from '@mui/material/Alert';
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
 import {Button, Grid, Tab, Tabs, Typography, IconButton, Switch, CircularProgress} from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
+import StudentAssignment from "./StudentsAssignment";
 import {useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
@@ -17,10 +19,10 @@ import CourseExperimental from "./CourseExperimental";
 import {useParams, useNavigate} from 'react-router-dom';
 import MentorsList from "../Common/MentorsList";
 
-type TabValue = "homeworks" | "stats" | "applications"
+type TabValue = "homeworks" | "stats" | "applications" | "assignments"
 
 function isAcceptableTabValue(str: string): str is TabValue {
-    return str === "homeworks" || str === "stats" || str === "applications";
+    return str === "homeworks" || str === "stats" || str === "applications" || str === "assignments";
 }
 
 interface ICourseState {
@@ -29,6 +31,7 @@ interface ICourseState {
     courseHomework: HomeworkViewModel[];
     createHomework: boolean;
     mentors: AccountDataDto[];
+    assignments: AssignmentsViewModel[];
     acceptedStudents: AccountDataDto[];
     newStudents: AccountDataDto[];
     isReadingMode: boolean;
@@ -60,6 +63,7 @@ const Course: React.FC = () => {
         createHomework: false,
         mentors: [],
         acceptedStudents: [],
+        assignments: [],
         newStudents: [],
         isReadingMode: true,
         studentSolutions: []
@@ -77,6 +81,7 @@ const Course: React.FC = () => {
         newStudents,
         acceptedStudents,
         isReadingMode,
+        assignments,
         studentSolutions
     } = courseState;
 
@@ -87,17 +92,25 @@ const Course: React.FC = () => {
 
     const isSignedInCourse = newStudents!.some(cm => cm.userId === userId)
 
-    const isAcceptedStudent = acceptedStudents!.some(cm => cm.userId === userId)
+    const isMentorWithStudents =
+        isLogged && isMentor && assignments.map(a => a.mentorId).includes(userId)
+
+    const isSignedInCourse =
+        isLogged && newStudents!.some(cm => cm.userId === userId)
 
     const showExperimentalFeature = isCourseMentor ? courseState.showExperimentalFeature : true
 
     const showStatsTab = isCourseMentor || isAcceptedStudent
     const showApplicationsTab = isCourseMentor
+    const showAssignmentTab = isCourseMentor
+
+    const freeStudentsCount = assignments.find(a => a.mentorId == null)?.studentIds?.length ?? 0
 
     const changeTab = (newTab: string) => {
         if (isAcceptableTabValue(newTab) && newTab !== pageState.tabValue) {
             if (newTab === "stats" && !showStatsTab) return;
             if (newTab === "applications" && !showApplicationsTab) return;
+            if (newTab === "assignments" && !showAssignmentTab) return;
 
             setPageState(prevState => ({
                 ...prevState,
@@ -130,6 +143,7 @@ const Course: React.FC = () => {
             courseHomework: course.homeworks!,
             createHomework: false,
             mentors: course.mentors!,
+            assignments: course.assignments!,
             acceptedStudents: course.acceptedStudents!,
             newStudents: course.newStudents!,
             studentSolutions: solutions
@@ -139,7 +153,7 @@ const Course: React.FC = () => {
     useEffect(() => {
         setCurrentState()
     }, [])
-
+    
     useEffect(() => changeTab(tab || "homeworks"), [tab, courseId, isFound])
 
     const joinCourse = async () => {
@@ -230,14 +244,21 @@ const Course: React.FC = () => {
                             </Grid>
                         </Grid>
                     </Grid>
+                    <div>
+                       { isMentorWithStudents && tabValue !== "assignments" && freeStudentsCount != 0 &&
+                        <Alert variant="standard" severity="info">
+                            {`Кол-во незакреплённых студентов: ${freeStudentsCount}`}
+                        </Alert> }
+                    </div>
                     <Tabs
-                        value={tabValue == "homeworks" ? 0 : tabValue === "stats" ? 1 : 2}
+                        value={tabValue === "homeworks" ? 0 : tabValue === "stats" ? 1 : tabValue === "applications" ? 2 : 3}
                         style={{marginTop: 15}}
                         indicatorColor="primary"
                         onChange={(event, value) => {
                             if (value === 0) navigate(`/courses/${courseId}/homeworks`)
                             if (value === 1) navigate(`/courses/${courseId}/stats`)
                             if (value === 2) navigate(`/courses/${courseId}/applications`)
+                            if (value === 3) navigate(`/courses/${courseId}/assignments`)
                         }}
                     >
                         <Tab label="Домашние задания"/>
@@ -254,6 +275,10 @@ const Course: React.FC = () => {
                                 <Chip size={"small"} color={"default"}
                                       label={newStudents.length}/>
                             </Stack>}/>}
+                        {showAssignmentTab && <Tab label={
+                            <Stack direction="row" spacing={1}>
+                                <div>Закрепление</div>
+                            </Stack>} />}
                     </Tabs>
                     <br/>
                     {tabValue === "homeworks" && <div>
@@ -346,6 +371,17 @@ const Course: React.FC = () => {
                             students={courseState.newStudents}
                             courseId={courseId!}
                         />
+                    }
+                    {tabValue === "assignments" && showAssignmentTab &&
+                        <Grid item xs={10}>
+                            <StudentAssignment
+                                course={courseState.course}
+                                mentors={courseState.mentors}
+                                acceptedStudents={courseState.acceptedStudents}
+                                assignments={courseState.assignments}
+                                userId={userId!}
+                            />
+                        </Grid>
                     }
                 </Grid>
             </div>

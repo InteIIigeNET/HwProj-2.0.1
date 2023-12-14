@@ -12,6 +12,7 @@ using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
 using Microsoft.EntityFrameworkCore;
+using HwProj.CoursesService.API.Domains;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -24,6 +25,7 @@ namespace HwProj.CoursesService.API.Services
         private readonly IHomeworksRepository _homeworksRepository;
         private readonly ITasksRepository _tasksRepository;
         private readonly IGroupsRepository _groupsRepository;
+        private readonly IAssignmentsRepository _assignmentsRepository;
         private readonly IMapper _mapper;
 
         public CoursesService(ICoursesRepository coursesRepository,
@@ -33,6 +35,7 @@ namespace HwProj.CoursesService.API.Services
             ITasksRepository tasksRepository,
             IHomeworksRepository homeworksRepository,
             IGroupsRepository groupsRepository,
+            IAssignmentsRepository assignmentsRepository,
             IMapper mapper
         )
         {
@@ -43,6 +46,7 @@ namespace HwProj.CoursesService.API.Services
             _homeworksRepository = homeworksRepository;
             _tasksRepository = tasksRepository;
             _groupsRepository = groupsRepository;
+            _assignmentsRepository = assignmentsRepository;
             _mapper = mapper;
         }
 
@@ -68,6 +72,8 @@ namespace HwProj.CoursesService.API.Services
             if (course == null) return null;
 
             var groups = _groupsRepository.GetGroupsWithGroupMatesByCourse(course.Id).ToArray();
+            var assignments = await _assignmentsRepository.GetAllByCourseAsync(course.Id);
+
             var result = _mapper.Map<CourseDTO>(course);
             result.Groups = groups.Select(g =>
                 new GroupViewModel
@@ -75,6 +81,8 @@ namespace HwProj.CoursesService.API.Services
                     Id = g.Id,
                     StudentsIds = g.GroupMates.Select(t => t.StudentId).ToArray()
                 }).ToArray();
+            result.Assignments = CourseDomain.GetAssignments(result.CourseMates, assignments);
+
             return result;
         }
 
@@ -212,6 +220,7 @@ namespace HwProj.CoursesService.API.Services
                 .FindAll(c => c.MentorIds.Contains(userId))
                 .Include(c => c.CourseMates)
                 .Include(c => c.Homeworks).ThenInclude(t => t.Tasks)
+                .Include(c => c.CourseMates)
                 .ToArrayAsync();
 
             return await getMentorCoursesTask;

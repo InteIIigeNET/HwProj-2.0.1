@@ -1,8 +1,10 @@
 import React, {useEffect, useState} from "react";
 import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api/";
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
+
 import StudentStatsCell from "../Tasks/StudentStatsCell";
-import {Alert} from "@mui/material";
+import Checkbox from '@mui/material/Checkbox';
+import { useEffect, useState } from "react";
 
 interface IStudentStatsProps {
     course: CourseViewModel;
@@ -13,13 +15,19 @@ interface IStudentStatsProps {
 }
 
 interface IStudentStatsState {
-    searched: string
+    studentsFiltered: boolean
+    ableSolutions: StatisticsCourseMatesModel[]
 }
 
 const StudentStats: React.FC<IStudentStatsProps> = (props) => {
-    const [state, setSearched] = useState<IStudentStatsState>({
-        searched: ""
-    });
+
+    const isMentorWithStudents = props.isMentor && props.course.assignments!.some(a => a.mentorId === props.userId)
+    const mentorStudentsIds = isMentorWithStudents
+        ? props.course.assignments!.find(a => a.mentorId === props.userId)?.studentIds
+        : []
+    const mentorStudentSolutions =  isMentorWithStudents
+        ? props.solutions.filter(solution => mentorStudentsIds!.some(studentId => solution.id === studentId))
+        : []
 
     const {searched} = state
 
@@ -40,10 +48,8 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
         return () => document.removeEventListener('keydown', keyDownHandler);
     }, [searched]);
 
+
     const homeworks = props.homeworks.filter(h => h.tasks && h.tasks.length > 0)
-    const solutions = searched
-        ? props.solutions.filter(cm => (cm.surname + " " + cm.name).toLowerCase().includes(searched.toLowerCase()))
-        : props.solutions
     const fixedColumnStyles: React.CSSProperties = {
         position: "sticky",
         left: 0,
@@ -51,8 +57,31 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
         borderRight: "1px solid black"
     }
 
+    const [state, setState] = useState<IStudentStatsState>({
+        studentsFiltered: true,
+        ableSolutions: isMentorWithStudents ? mentorStudentSolutions : props.solutions
+    });
+    
+    const setStatsState = () => {
+        const filter = !state.studentsFiltered
+        setState(prevState => ({
+            ...prevState,
+            studentsFiltered: filter,
+            ableSolutions: filter ? mentorStudentSolutions : props.solutions
+        }))
+
+    }
+
+    const { ableSolutions } = state;
+
     return (
         <div>
+            {isMentorWithStudents &&
+                <Grid>
+                    <Checkbox defaultChecked onClick={() => setStatsState()} />
+                    Закреплённые студенты
+                </Grid>
+            }
             {searched &&
                 <Alert style={{marginBottom: 5}} severity="info"><b>Поиск: </b>
                     {searched.replaceAll(" ", "·")}
@@ -61,9 +90,9 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                 <Table stickyHeader aria-label="sticky table">
                     <TableHead>
                         <TableRow>
-                            <TableCell style={{...fixedColumnStyles, zIndex: -4, color: ""}} align="center"
-                                       padding="none"
-                                       component="td">
+                            <TableCell style={{ ...fixedColumnStyles, zIndex: -4, color: "" }} align="center"
+                                padding="none"
+                                component="td">
                             </TableCell>
                             {homeworks.map((homework) => (
                                 <TableCell
@@ -78,8 +107,8 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                             ))}
                         </TableRow>
                         <TableRow>
-                            <TableCell style={{...fixedColumnStyles, zIndex: 10}}
-                                       component="td"></TableCell>
+                            <TableCell style={{ ...fixedColumnStyles, zIndex: 10 }}
+                                component="td"></TableCell>
                             {homeworks.map((homework) =>
                                 homework.tasks!.map((task) => (
                                     <TableCell padding="checkbox" component="td" align="center">
@@ -90,8 +119,8 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {solutions.map((cm, index) => (
-                            <TableRow key={index} hover style={{height: 35}}>
+                        {ableSolutions.map((cm, index) => (
+                            <TableRow key={index} hover style={{ height: 35 }}>
                                 <TableCell
                                     style={fixedColumnStyles}
                                     align="center"
@@ -104,7 +133,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                 {homeworks.map((homework) =>
                                     homework.tasks!.map((task) => (
                                         <StudentStatsCell
-                                            solutions={solutions
+                                            solutions={ableSolutions
                                                 .find(s => s.id == cm.id)!.homeworks!
                                                 .find(h => h.id == homework.id)!.tasks!
                                                 .find(t => t.id == task.id)!.solution!}
@@ -123,5 +152,4 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
         </div>
     );
 }
-
 export default StudentStats;

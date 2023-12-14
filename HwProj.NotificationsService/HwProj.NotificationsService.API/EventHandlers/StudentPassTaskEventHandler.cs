@@ -45,10 +45,11 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 {
                     Sender = "SolutionService",
                     Body = body,
+
                     Category = CategoryState.Homeworks,
                     Date = @event.CreationData,
                     HasSeen = false,
-                    Owner = m
+                    Owner = mentor,
                 };
 
                 var subject = $"Новое решение задачи {@event.Task.Title}";

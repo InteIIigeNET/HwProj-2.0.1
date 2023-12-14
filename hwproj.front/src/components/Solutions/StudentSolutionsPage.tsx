@@ -1,6 +1,11 @@
 import * as React from "react";
+import {
+    AccountDataDto, GetSolutionModel,
+    AssignmentsViewModel,
+    HomeworkTaskViewModel,
+    Solution, TaskSolutionsStats
+} from "../../api/";
 import {FC, useEffect, useState} from "react";
-import {AccountDataDto, GetSolutionModel, HomeworkTaskViewModel, Solution, TaskSolutionsStats} from "../../api/";
 import Typography from "@material-ui/core/Typography";
 import Task from "../Tasks/Task";
 import TaskSolutions from "./TaskSolutions";
@@ -22,7 +27,9 @@ import {
     Select,
     SelectChangeEvent,
     Stack,
-    Tooltip
+    Alert,
+    Tooltip,
+    Checkbox
 } from "@mui/material";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 
@@ -37,8 +44,13 @@ interface IStudentSolutionsPageState {
     isLoaded: boolean
     allSolutionsRated: boolean,
     courseId: number,
+    assignments: AssignmentsViewModel[],
+    taskSolutionsStats: TaskSolutionsStats[],
+    studentSolutionsPreview: {
+
     allTaskSolutionsStats: TaskSolutionsStats[],
     allStudentSolutionsPreview: {
+
         student: AccountDataDto,
         solutions: GetSolutionModel[]
         lastSolution: GetSolutionModel,
@@ -73,6 +85,7 @@ const StudentSolutionsPage: FC = () => {
         task: {},
         isLoaded: false,
         courseId: -1,
+        assignments: [],
         allTaskSolutionsStats: [],
         allStudentSolutionsPreview: [],
     })
@@ -95,6 +108,14 @@ const StudentSolutionsPage: FC = () => {
         allStudentSolutionsPreview,
         allSolutionsRated,
         courseId,
+        assignments,
+        taskSolutionsStats
+    } = studentSolutionsState
+
+    const userId = ApiSingleton.authService.isLoggedIn()
+        ? ApiSingleton.authService.getUserId()
+        : undefined
+                                                                                     
         allTaskSolutionsStats
     } = studentSolutionsState
 
@@ -115,6 +136,7 @@ const StudentSolutionsPage: FC = () => {
         const {
             studentsSolutions,
             courseId,
+            assignments,
             statsForTasks
         } = await ApiSingleton.solutionsApi.apiSolutionsTasksByTaskIdGet(+taskId!, studentId)
 
@@ -132,13 +154,20 @@ const StudentSolutionsPage: FC = () => {
             allTaskSolutionsStats: statsForTasks!,
             allStudentSolutionsPreview: studentSolutionsPreview,
             courseId: courseId!,
+            assignments: assignments!,
             allSolutionsRated: studentSolutionsPreview.findIndex(x => x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0) === -1
         })
     }
 
+    const doesMentorHasStudent = assignments.map(a => a.mentorId).includes(userId)
+
+    const userStudents = assignments.find(a => a.mentorId === (doesMentorHasStudent ? userId : null))?.studentIds
+
     useEffect(() => {
         getTaskData(taskId!, studentId!)
     }, [taskId, studentId])
+
+    const [homeworkMentorFilter, setHomeworkMentorFilter] = useState<boolean>(true);
 
     const currentStudent = studentSolutionsPreview.find(x => x.student.userId === currentStudentId)
     const renderGoBackToCoursesStatsLink = () => {
@@ -187,6 +216,16 @@ const StudentSolutionsPage: FC = () => {
                         проверены!
                     </Alert>}
                 </Grid>
+                {doesMentorHasStudent && <Grid>
+                    <Checkbox defaultChecked onChange = {() => setHomeworkMentorFilter(state => !state)} />
+                    Закрепленные студенты 
+                </Grid>}
+                <Grid container spacing={3} style={{marginTop: '1px'}}>
+                    <Grid item xs={3}>
+                        <List>
+                        {studentSolutionsPreview!.filter(solution => homeworkMentorFilter ? userStudents?.includes(solution.student.userId!) : true).map(({
+                                                               color, solutionsDescription, lastRatedSolution, student: {
+//////////////////////////
                 <Grid container spacing={3} style={{marginTop: '1px'}} direction={"row"}>
                     <Grid item lg={3}>
                         <FormControl fullWidth>
@@ -241,7 +280,8 @@ const StudentSolutionsPage: FC = () => {
                         </List>
                         {renderGoBackToCoursesStatsLink()}
                     </Grid>
-                    <Grid item lg={9} spacing={2} justifyContent={"flex-start"}>
+                    {(!homeworkMentorFilter || userStudents!.includes(currentStudentId)) &&
+                    <Grid item xs={9} spacing={2} justifyContent={"flex-start"}>
                         <Task
                             task={studentSolutionsState.task}
                             forStudent={false}
@@ -263,6 +303,7 @@ const StudentSolutionsPage: FC = () => {
                             }}
                         />}
                     </Grid>
+                    }
                 </Grid>
             </div>
         )
@@ -275,5 +316,4 @@ const StudentSolutionsPage: FC = () => {
         </div>
     )
 }
-
 export default StudentSolutionsPage
