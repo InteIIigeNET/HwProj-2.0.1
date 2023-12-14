@@ -5,6 +5,7 @@
         None,
         Profile,
         Courses, 
-        Homeworks
+        Homeworks,
+        Tasks
     }
 }

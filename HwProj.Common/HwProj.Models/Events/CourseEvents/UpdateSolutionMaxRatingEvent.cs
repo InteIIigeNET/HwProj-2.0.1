@@ -1,6 +1,6 @@
 using HwProj.EventBus.Client;
 
-namespace HwProj.CoursesService.API.Events
+namespace HwProj.Models.Events.CourseEvents
 {
     public class UpdateSolutionMaxRatingEvent : Event
     {

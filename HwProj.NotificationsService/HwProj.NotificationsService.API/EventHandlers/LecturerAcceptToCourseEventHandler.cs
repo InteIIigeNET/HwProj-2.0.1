@@ -1,12 +1,12 @@
 using System.Threading.Tasks;
 using HwProj.AuthService.Client;
-using HwProj.CoursesService.API.Events;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
 using Microsoft.Extensions.Configuration;
+using HwProj.Models.Events.CourseEvents;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {

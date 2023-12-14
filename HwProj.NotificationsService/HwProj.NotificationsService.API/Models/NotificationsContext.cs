@@ -1,4 +1,5 @@
-﻿using HwProj.Models.NotificationsService;
+﻿using HwProj.EventBus.Client;
+using HwProj.Models.NotificationsService;
 using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.NotificationsService.API.Models
@@ -7,6 +8,7 @@ namespace HwProj.NotificationsService.API.Models
     {
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<NotificationsSetting> Settings { get; set; }
+        public DbSet<ScheduleJob> ScheduleJobs { get; set; }
 
         public NotificationsContext(DbContextOptions options)
             : base(options)

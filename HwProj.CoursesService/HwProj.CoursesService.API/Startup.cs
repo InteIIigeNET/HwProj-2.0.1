@@ -1,4 +1,6 @@
-﻿using HwProj.AuthService.Client;
+﻿using System;
+using System.Threading.Channels;
+using HwProj.AuthService.Client;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
@@ -25,6 +27,7 @@ namespace HwProj.CoursesService.API
         public void ConfigureServices(IServiceCollection services)
         {
             var connectionString = ConnectionString.GetConnectionString(Configuration);
+            
             services.AddDbContext<CourseContext>(options => options.UseSqlServer(connectionString));
             services.AddScoped<ICoursesRepository, CoursesRepository>();
             services.AddScoped<ICourseMatesRepository, CourseMatesRepository>();

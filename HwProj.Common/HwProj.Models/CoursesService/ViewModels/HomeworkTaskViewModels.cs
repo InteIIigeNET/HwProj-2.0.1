@@ -29,6 +29,18 @@ namespace HwProj.Models.CoursesService.ViewModels
         public bool IsDeferred { get; set; }
     }
 
+
+    public class HomeworkTaskDTO
+    {
+        public long Id { get; set; }
+
+        public string Title { get; set; }
+
+        public DateTime PublicationDate { get; set; }
+
+        public DateTime? DeadlineDate { get; set; }
+    }
+
     public class CreateTaskViewModel
     {
         [Required]

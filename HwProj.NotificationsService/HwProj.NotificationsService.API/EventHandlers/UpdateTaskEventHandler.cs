@@ -1,12 +1,13 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Hangfire;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
-using HwProj.EventBus.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models;
+using HwProj.Models.AuthService.DTO;
 using HwProj.Models.Events.CourseEvents;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
@@ -15,57 +16,63 @@ using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {
-    public class NewHomeworkTaskEventHandler : EventHandlerBase<NewTaskEvent>
+    public class UpdateTaskEventHandler : EventHandlerBase<UpdateTaskEvent>
     {
         private readonly ICoursesServiceClient _coursesServiceClient;
         private readonly INotificationsRepository _notificationRepository;
-        private readonly IScheduleJobsRepository _scheduleJobsRepository;
         private readonly IAuthServiceClient _authServiceClient;
+        private readonly IMapper _mapper;
         private readonly IConfigurationSection _configuration;
         private readonly IEmailService _emailService;
+        private readonly IScheduleJobsRepository _scheduleJobsRepository;
 
-        public NewHomeworkTaskEventHandler(
+        public UpdateTaskEventHandler(
             ICoursesServiceClient coursesServiceClient,
             INotificationsRepository notificationRepository,
-            IScheduleJobsRepository scheduleJobsRepository,
+            IMapper mapper,
             IAuthServiceClient authServiceClient,
             IConfiguration configuration,
-            IEmailService emailService)
+            IEmailService emailService,
+            IScheduleJobsRepository scheduleJobsRepository)
         {
             _coursesServiceClient = coursesServiceClient;
             _notificationRepository = notificationRepository;
-            _scheduleJobsRepository = scheduleJobsRepository;
+            _mapper = mapper;
             _authServiceClient = authServiceClient;
             _emailService = emailService;
             _configuration = configuration.GetSection("Notification");
+            _scheduleJobsRepository = scheduleJobsRepository;
         }
 
-        public override async Task HandleAsync(NewTaskEvent @event)
+        public override async Task HandleAsync(UpdateTaskEvent @event)
         {
-            if (@event.Task.PublicationDate <= DateTimeUtils.GetMoscowNow())
+            if (@event.PreviousEvent.PublicationDate <= DateTimeUtils.GetMoscowNow())
             {
                 await AddNotificationsAsync(@event);
                 return;
             }
 
-            await EventHandlerExtensions<NewTaskEvent>.AddScheduleJobAsync(@event, @event.TaskId,
-                @event.Task.PublicationDate,
+            await EventHandlerExtensions<UpdateTaskEvent>.UpdateScheduleJobAsync(@event, @event.TaskId,
+                @event.NewEvent.PublicationDate,
                 () => AddNotificationsAsync(@event), _scheduleJobsRepository);
         }
 
-
-        public async Task AddNotificationsAsync(NewTaskEvent @event)
+        public async Task AddNotificationsAsync(UpdateTaskEvent @event)
         {
             var course = await _coursesServiceClient.GetCourseById(@event.Course.Id);
             if (course == null) return;
-            
+
             var studentIds = course.CourseMates.Select(t => t.StudentId).ToArray();
             var accountsData = await _authServiceClient.GetAccountsData(studentIds);
-            
+
             var url = _configuration["Url"];
-            var message = $"В курсе <a href='{url}/courses/{course.Id}'>{course.Name}</a>" +
-                          $" опубликована новая задача <a href='{url}/task/{@event.TaskId}'>{@event.Task.Title}</a>." +
-                          (@event.Task.DeadlineDate is { } deadline ? $"\n\nДедлайн: {deadline:U}" : "");
+            var isTaskPublished = @event.PreviousEvent.PublicationDate < DateTimeUtils.GetMoscowNow();
+            var message = isTaskPublished
+                ? $"Задача <a href='{_configuration["Url"]}/task/{@event.TaskId}'>{@event.PreviousEvent.Title}</a>" +
+                  $" из курса <a href='{_configuration["Url"]}/courses/{course.Id}'>{course.Name}</a> обновлена."
+                : $"В курсе <a href='{url}/courses/{course.Id}'>{course.Name}</a>" +
+                  $" опубликована новая задача <a href='{url}/task/{@event.TaskId}'>{@event.NewEvent.Title}</a>." +
+                  (@event.NewEvent.DeadlineDate is { } deadline ? $"\n\nДедлайн: {deadline:U}" : "");
 
             foreach (var student in accountsData)
             {
@@ -84,7 +91,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 await Task.WhenAll(addNotificationTask, sendEmailTask);
             }
 
-            await EventHandlerExtensions<NewTaskEvent>.DeleteScheduleJobAsync(@event, @event.TaskId,
+            await EventHandlerExtensions<UpdateTaskEvent>.DeleteScheduleJobAsync(@event, @event.TaskId,
                 _scheduleJobsRepository);
         }
     }
