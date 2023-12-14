@@ -6,16 +6,18 @@ import {
     CardContent,
     Checkbox,
     CircularProgress,
-    FormControlLabel, FormGroup,
+    Divider,
+    FormControlLabel,
+    FormGroup,
     Grid,
-    Typography, Divider
+    Typography
 } from "@material-ui/core";
 import ApiSingleton from "api/ApiSingleton";
 import {CategorizedNotifications, NotificationViewModel} from "../api/";
 import "./Styles/Profile.css";
 import parse from 'html-react-parser';
-import {Navigate} from "react-router-dom";
 import {Button} from "@mui/material";
+import NotificationSettings from "./NotificationSettings";
 
 let CategoryEnum = CategorizedNotifications.CategoryEnum;
 const dateTimeOptions = {year: '2-digit', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'};
@@ -63,8 +65,9 @@ const Notifications: FC<IProfileProps> = (props) => {
         isLoaded: false,
         notifications: []
     })
-    
+
     const allNotSeen = getAllNotSeen(profileState.notifications)
+    const isLecturer = ApiSingleton.authService.isLecturer()
 
     const [filterState, setFilterState] = useState<IFilterState>({
         categoryFlag: new Map([
@@ -76,6 +79,8 @@ const Notifications: FC<IProfileProps> = (props) => {
         showOnlyUnread: true,
         showAll: true
     });
+
+    const [showSettings, setShowSettings] = useState<boolean>(false);
 
     useEffect(() => {
         getUserInfo()
@@ -179,10 +184,6 @@ const Notifications: FC<IProfileProps> = (props) => {
         )
     }
 
-    if (!ApiSingleton.authService.isLoggedIn()) {
-        return <Navigate to={"/login"}/>;
-    }
-
     if (profileState.isLoaded) {
         return <div className="container" style={{marginTop: 15}}>
             <Grid container spacing={2} direction={"row"}>
@@ -191,6 +192,7 @@ const Notifications: FC<IProfileProps> = (props) => {
                         <CardContent>
                             <FormControlLabel control={
                                 <Checkbox
+                                    color={"primary"}
                                     checked={filterState.showOnlyUnread}
                                     onChange={changeShowOnlyUnread}
                                     inputProps={{'aria-label': 'controlled'}}
@@ -201,6 +203,7 @@ const Notifications: FC<IProfileProps> = (props) => {
                                 <FormGroup>
                                     <FormControlLabel control={
                                         <Checkbox
+                                            color={"primary"}
                                             checked={filterState.showAll}
                                             onChange={changeCheckAll}
                                             value={filterState.showAll}
@@ -210,6 +213,7 @@ const Notifications: FC<IProfileProps> = (props) => {
                                     />
                                     <FormControlLabel control={
                                         <Checkbox
+                                            color={"primary"}
                                             checked={filterState.categoryFlag.get(CategoryEnum.NUMBER_1)}
                                             onChange={changeCategory}
                                             value={CategoryEnum.NUMBER_1}
@@ -219,6 +223,7 @@ const Notifications: FC<IProfileProps> = (props) => {
                                     />
                                     <FormControlLabel control={
                                         <Checkbox
+                                            color={"primary"}
                                             checked={filterState.categoryFlag.get(CategoryEnum.NUMBER_2)}
                                             onChange={changeCategory}
                                             value={CategoryEnum.NUMBER_2}
@@ -228,6 +233,7 @@ const Notifications: FC<IProfileProps> = (props) => {
                                     />
                                     <FormControlLabel control={
                                         <Checkbox
+                                            color={"primary"}
                                             checked={filterState.categoryFlag.get(CategoryEnum.NUMBER_3)}
                                             onChange={changeCategory}
                                             value={CategoryEnum.NUMBER_3}
@@ -235,7 +241,15 @@ const Notifications: FC<IProfileProps> = (props) => {
                                         />
                                     } label="Домашние задания"
                                     />
-                                    {allNotSeen.length != 0 && <Button fullWidth variant="contained" onClick={markAllNotificationsAsSeen}>Прочитать все</Button>}
+                                    {allNotSeen.length != 0 &&
+                                        <Button fullWidth variant="contained" onClick={markAllNotificationsAsSeen}>Прочитать
+                                            все</Button>}
+                                    {isLecturer &&
+                                        <Button style={{marginTop: 10}}
+                                                fullWidth variant="outlined"
+                                                onClick={() => setShowSettings(true)}>Настройки
+                                        </Button>}
+                                    {showSettings && <NotificationSettings onClose={() => setShowSettings(false)}/>}
                                 </FormGroup>
                             </div>
                         </CardContent>
@@ -248,12 +262,10 @@ const Notifications: FC<IProfileProps> = (props) => {
             </Grid>
         </div>
     }
-    return (
-        <Box sx={{minWidth: 150}}>
-            <p>Загрузка...</p>
-            <CircularProgress/>
-        </Box>
-    )
+    return <div className={"container"}>
+        <p>Загрузка...</p>
+        <CircularProgress/>
+    </div>
 }
 
 export default Notifications

@@ -9,6 +9,7 @@ import {Alert, Avatar, Rating, Stack, Tooltip} from "@mui/material";
 import AvatarUtils from "../Utils/AvatarUtils";
 import GitHubIcon from '@mui/icons-material/GitHub';
 import Utils from "../../services/Utils";
+import {RatingStorage} from "../Storages/RatingStorage";
 
 interface ISolutionProps {
     solution: GetSolutionModel | undefined,
@@ -28,22 +29,33 @@ interface ISolutionState {
 }
 
 const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
+    const storageKey = {taskId: props.task.id!, studentId: props.student.userId!, solutionId: props.solution?.id}
 
-    const [state, setState] = useState<ISolutionState>({
-        points: props.solution?.rating || 0,
-        lecturerComment: props.solution?.lecturerComment || "",
-        clickedForRate: false,
-        addBonusPoints: false
-    })
+    const getDefaultState = (): ISolutionState => {
+        const storageValue = RatingStorage.tryGet(storageKey)
+        return ({
+            points: storageValue?.points || props.solution?.rating || 0,
+            lecturerComment: storageValue?.comment || props.solution?.lecturerComment || "",
+            clickedForRate: storageValue !== null,
+            addBonusPoints: false
+        });
+    }
+
+    const [state, setState] = useState<ISolutionState>(getDefaultState)
 
     useEffect(() => {
-        setState({
-            points: props.solution?.rating || 0,
-            lecturerComment: props.solution?.lecturerComment || "",
-            clickedForRate: false,
-            addBonusPoints: false
-        })
-    }, [props.student.userId, props.solution?.id])
+        setState(getDefaultState())
+    }, [props.student.userId, props.task.id, props.solution?.id])
+
+    useEffect(() => {
+        if (!state.clickedForRate) return
+        RatingStorage.set(storageKey, {points: state.points, comment: state.lecturerComment})
+    }, [state.points, state.lecturerComment])
+
+    useEffect(() => {
+        if (state.clickedForRate) return
+        RatingStorage.clean(storageKey)
+    }, [state.clickedForRate]);
 
     const rateSolution = async () => {
         if (props.solution) {
@@ -76,7 +88,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     //TODO: enum instead of string
     const isRated = solution && solution.state !== Solution.StateEnum.NUMBER_0 // != Posted
     const {points, lecturerComment, addBonusPoints} = state
-    const postedSolutionTime = solution && new Date(solution.publicationDate!).toLocaleString("ru-RU")
+    const postedSolutionTime = solution && Utils.renderReadableDate(solution.publicationDate!)
     const students = (solution?.groupMates?.length || 0) > 0 ? solution!.groupMates! : [student]
 
     const getDatesDiff = (_date1: Date, _date2: Date) => {
@@ -98,7 +110,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                         max={maxRating}
                         value={points}
                         disabled={!props.forMentor}
-                        onChange={(event, newValue) => {
+                        onChange={(_, newValue) => {
                             setState((prevState) => ({
                                 ...prevState,
                                 points: newValue || 0,
@@ -113,9 +125,11 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 </Grid>
                 {!addBonusPoints && props.forMentor && <Grid item>
                     <Tooltip arrow title={"Позволяет поставить оценку выше максимальной"}>
-                        <Link onClick={() => setState(prevState => ({...prevState, addBonusPoints: true}))}>
-                            Нужна особая оценка?
-                        </Link>
+                        <Typography variant={"caption"}>
+                            <Link onClick={() => setState(prevState => ({...prevState, addBonusPoints: true}))}>
+                                Нужна особая оценка?
+                            </Link>
+                        </Typography>
                     </Tooltip>
                 </Grid>}
             </Grid>)
@@ -124,7 +138,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 <TextField
                     style={{width: 100}}
                     required
-                    label="Баллы за решение"
+                    label="Баллы"
                     variant="outlined"
                     margin="normal"
                     type="number"
@@ -137,10 +151,9 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                     maxRows={10}
                     onChange={(e) => {
                         e.persist()
-                        const value = +e.target.value
                         setState((prevState) => ({
                             ...prevState,
-                            points: value
+                            points: +e.target.value
                         }))
                     }}
                     onClick={() => setState((prevState) => ({
@@ -239,6 +252,9 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                 }))
                             }}
                         />
+                        {props.forMentor && state.clickedForRate && <Typography variant={"caption"}>
+                            Промежуточное оценивание будет сохранено локально
+                        </Typography>}
                     </Grid>
                 }
                 {props.forMentor && state.clickedForRate &&
@@ -258,10 +274,11 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                 size="small"
                                 variant="contained"
                                 color="primary"
-                                onClick={(e) => {
-                                    e.persist()
-                                    setState((prevState) => ({
+                                onClick={() => {
+                                    setState(prevState => ({
                                         ...prevState,
+                                        points: props.solution?.rating || 0,
+                                        lecturerComment: props.solution?.lecturerComment || "",
                                         clickedForRate: false
                                     }))
                                 }}

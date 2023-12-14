@@ -9,7 +9,6 @@ namespace HwProj.AuthService.API.Models
         public IdentityContext(DbContextOptions<IdentityContext> options)
             : base(options)
         {
-            Database.EnsureCreated();
         }
     }
 }

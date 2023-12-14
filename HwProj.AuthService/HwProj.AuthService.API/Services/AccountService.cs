@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
 using System.Linq;
 using AutoMapper;
-using Google.Apis.Auth;
 using HwProj.AuthService.API.Extensions;
 using HwProj.Models.Roles;
 using HwProj.AuthService.API.Events;
@@ -38,48 +37,45 @@ namespace HwProj.AuthService.API.Services
             _aspUserManager = aspUserManager;
         }
 
-        public async Task<AccountDataDto> GetAccountDataAsync(string userId)
+        private async Task<AccountDataDto> GetAccountDataAsync(User user)
         {
-            var user = await _userManager.FindByIdAsync(userId).ConfigureAwait(false);
-            if (user == null)
-            {
-                return null;
-            }
-
-            var userRoles = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
+            if (user == null) return null;
+            var userRoles = await _userManager.GetRolesAsync(user);
             var userRole = userRoles.FirstOrDefault() ?? Roles.StudentRole;
             return new AccountDataDto(user.Id, user.Name, user.Surname, user.Email, userRole, user.IsExternalAuth,
                 user.MiddleName);
         }
 
+        public async Task<AccountDataDto> GetAccountDataAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            return await GetAccountDataAsync(user);
+        }
+
+        public async Task<AccountDataDto> GetAccountDataByEmailAsync(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            return await GetAccountDataAsync(user);
+        }
+
         public async Task<Result> EditAccountAsync(string id, EditDataDTO model)
         {
-            var user = await _userManager.FindByIdAsync(id).ConfigureAwait(false);
+            var user = await _userManager.FindByIdAsync(id);
             if (user == null)
             {
                 return Result.Failed("Пользователь не найден");
-            }
-
-            if (!user.IsExternalAuth && !await _userManager.CheckPasswordAsync(user, model.CurrentPassword))
-            {
-                return Result.Failed("Неправильный логин или пароль");
             }
 
             var result = user.IsExternalAuth
                 ? await ChangeUserNameTask(user, model)
                 : await ChangeUserNameTask(user, model).Then(() => ChangePasswordAsync(user, model));
 
-            if (result.Succeeded)
-            {
-                return Result.Success();
-            }
-
-            return Result.Failed();
+            return result.Succeeded ? Result.Success() : Result.Failed();
         }
 
         public async Task<Result<TokenCredentials>> LoginUserAsync(LoginViewModel model)
         {
-            if (await _userManager.FindByEmailAsync(model.Email).ConfigureAwait(false)
+            if (await _userManager.FindByEmailAsync(model.Email)
                     is var user && user == null)
             {
                 return Result<TokenCredentials>.Failed("Пользователь не найден");
@@ -96,27 +92,15 @@ namespace HwProj.AuthService.API.Services
                 return Result<TokenCredentials>.Failed(result.TryGetIdentityError());
             }
 
-            var token = await _tokenService.GetTokenAsync(user).ConfigureAwait(false);
+            var token = await _tokenService.GetTokenAsync(user);
             return Result<TokenCredentials>.Success(token);
         }
 
-        public async Task<Result<TokenCredentials>> LoginUserByGoogleAsync(GoogleJsonWebSignature.Payload payload)
+        public async Task<Result<TokenCredentials>> RefreshToken(string userId)
         {
-            if (await _userManager.FindByEmailAsync(payload.Email).ConfigureAwait(false)
-                    is var user && user == null)
-            {
-                var userModel = new RegisterDataDTO()
-                {
-                    Email = payload.Email,
-                    Name = payload.GivenName,
-                    Surname = payload.FamilyName,
-                    IsExternalAuth = true
-                };
-
-                return await RegisterUserAsync(userModel);
-            }
-
-            return await GetToken(user);
+            return await _userManager.FindByIdAsync(userId) is var user && user == null
+                ? Result<TokenCredentials>.Failed("Пользователь не найден")
+                : await GetToken(user);
         }
 
         public async Task<Result<TokenCredentials>> RegisterUserAsync(RegisterDataDTO model)
@@ -131,18 +115,17 @@ namespace HwProj.AuthService.API.Services
                 return Result<TokenCredentials>.Failed("Пароль должен содержать не менее 6 символов");
             }
 
+            if (!model.IsExternalAuth && model.Password != model.PasswordConfirm)
+            {
+                return Result<TokenCredentials>.Failed("Пароли не совпадают");
+            }
+
             var user = _mapper.Map<User>(model);
-            user.UserName = user.Email.Split('@')[0];
+            user.UserName = user.Email;
 
             var createUserTask = model.IsExternalAuth
                 ? _userManager.CreateAsync(user)
                 : _userManager.CreateAsync(user, model.Password);
-
-            if (!model.IsExternalAuth && createUserTask.Result.Succeeded &&
-                !await _userManager.CheckPasswordAsync(user, model.PasswordConfirm))
-            {
-                return Result<TokenCredentials>.Failed("Пароли не совпадают");
-            }
 
             var result = await createUserTask
                 .Then(() => _userManager.AddToRoleAsync(user, Roles.StudentRole))

@@ -55,7 +55,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const EditCourse: FC = () => {
-    const { courseId } = useParams()
+    const {courseId} = useParams()
 
     const [courseState, setCourseState] = useState<IEditCourseState>({
         isLoaded: false,
@@ -130,10 +130,8 @@ const EditCourse: FC = () => {
             return <Navigate to='/'/>
         }
 
-        if (!ApiSingleton.authService.isLoggedIn() ||
-            !courseState.mentors.filter((mentor) =>
-                mentor.email === ApiSingleton.authService.getUserEmail()))
-        {
+        if (!courseState.mentors.filter((mentor) =>
+            mentor.email === ApiSingleton.authService.getUserEmail())) {
             return (
                 <Typography variant='h6' gutterBottom>
                     Только преподаватель может редактировать курс
@@ -144,7 +142,7 @@ const EditCourse: FC = () => {
         return (
             <div>
                 <Grid container justify="center" style={{marginTop: '20px'}}>
-                    <Grid container justifyContent="space-between" xs={11} >
+                    <Grid container justifyContent="space-between" xs={11}>
                         <Grid item>
                             <Link
                                 component="button"
@@ -211,7 +209,7 @@ const EditCourse: FC = () => {
                             <Grid container spacing={2} className={classes.item}>
                                 <Grid item xs={12} sm={6}>
                                     <FormControlLabel
-                                        style={{ margin: 0 }}
+                                        style={{margin: 0}}
                                         control={
                                             <Checkbox
                                                 defaultChecked
@@ -243,14 +241,14 @@ const EditCourse: FC = () => {
                         </form>
                     </div>
                 </Container>
-                <Grid container justify="center" style={{marginTop: '20px', marginBottom: '20px' }}>
-                    <Grid container xs={11} justifyContent="flex-end" >
+                <Grid container justify="center" style={{marginTop: '20px', marginBottom: '20px'}}>
+                    <Grid container xs={11} justifyContent="flex-end">
                         <Grid>
                             <Button
                                 onClick={openDialogDeleteCourse}
                                 fullWidth
                                 variant="contained"
-                                style={{ color: '#8d8686'}}
+                                style={{color: '#8d8686'}}
                                 startIcon={<DeleteIcon/>}
                             >
                                 Удалить курс

@@ -32,6 +32,16 @@ namespace HwProj.AuthService.Client
             return await response.DeserializeAsync<AccountDataDto>().ConfigureAwait(false);
         }
 
+        public async Task<AccountDataDto> GetAccountDataByEmail(string email)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _authServiceUri + $"api/account/getUserDataByEmail/{email}");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<AccountDataDto>();
+        }
+
         public async Task<AccountDataDto[]> GetAccountsData(string[] userIds)
         {
             using var httpRequest = new HttpRequestMessage(
@@ -80,6 +90,16 @@ namespace HwProj.AuthService.Client
             return await response.DeserializeAsync<Result<TokenCredentials>>();
         }
 
+        public async Task<Result<TokenCredentials>> RefreshToken(string userId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _authServiceUri + $"api/account/refreshToken?userId={userId}");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<Result<TokenCredentials>>();
+        }
+
         public async Task<Result> Edit(EditAccountViewModel model, string userId)
         {
             using var httpRequest = new HttpRequestMessage(
@@ -110,17 +130,6 @@ namespace HwProj.AuthService.Client
 
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Result>();
-        }
-
-        public async Task<Result<TokenCredentials>> LoginByGoogle(string tokenId)
-        {
-            using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Post,
-                _authServiceUri + $"api/account/google/{tokenId}");
-
-            var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<Result<TokenCredentials>>();
-            ;
         }
 
         public async Task<Result> EditExternal(EditExternalViewModel model, string userId)

@@ -31,6 +31,7 @@ namespace HwProj.NotificationsService.API
             var connectionString = ConnectionString.GetConnectionString(Configuration);
             services.AddDbContext<NotificationsContext>(options => options.UseSqlServer(connectionString));
             services.AddScoped<INotificationsRepository, NotificationsRepository>();
+            services.AddScoped<INotificationSettingsRepository, NotificationSettingsRepository>();
             services.AddEventBus(Configuration);
             services.AddTransient<IEventHandler<StudentRegisterEvent>, RegisterEventHandler>();
             services.AddTransient<IEventHandler<RateEvent>, RateEventHandler>();
@@ -53,7 +54,8 @@ namespace HwProj.NotificationsService.API
             services.ConfigureHwProjServices("Notifications API");
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IEventBus eventBus)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IEventBus eventBus,
+            NotificationsContext context)
         {
             using (var eventBustSubscriber = eventBus.CreateSubscriber())
             {
@@ -72,7 +74,7 @@ namespace HwProj.NotificationsService.API
                 eventBustSubscriber.Subscribe<PasswordRecoveryEvent, PasswordRecoveryEventHandler>();
             }
 
-            app.ConfigureHwProj(env, "Notifications API");
+            app.ConfigureHwProj(env, "Notifications API", context);
         }
     }
 }

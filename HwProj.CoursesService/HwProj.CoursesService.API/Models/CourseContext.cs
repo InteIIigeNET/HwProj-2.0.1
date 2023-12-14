@@ -15,7 +15,6 @@ namespace HwProj.CoursesService.API.Models
         public CourseContext(DbContextOptions options)
             : base(options)
         {
-            Database.EnsureCreated();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

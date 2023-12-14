@@ -80,7 +80,6 @@ namespace HwProj.SolutionsService.API.Services
             var currentSolution = allSolutionsForTask.FirstOrDefault(s => s.Id == solution.Id);
             var solutionModel = _mapper.Map<SolutionViewModel>(solution);
             var task = await _coursesServiceClient.GetTask(solution.TaskId);
-            var taskModel = _mapper.Map<HomeworkTaskViewModel>(task);
             var homework = await _coursesServiceClient.GetHomework(task.HomeworkId);
             var courses = await _coursesServiceClient.GetCourseById(homework.CourseId);
             var student = await _authServiceClient.GetAccountData(solutionModel.StudentId);
@@ -120,22 +119,23 @@ namespace HwProj.SolutionsService.API.Services
 
             solution.PublicationDate = DateTimeUtils.GetMoscowNow();
             solution.TaskId = taskId;
-            solution.Comment = "[Решение было сдано вне сервиса]";
             var id = await _solutionsRepository.AddAsync(solution);
             await RateSolutionAsync(id, solution.Rating, solution.LecturerComment);
         }
 
         public async Task RateSolutionAsync(long solutionId, int newRating, string lecturerComment)
         {
-            var solution = await _solutionsRepository.GetAsync(solutionId);
-            var task = await _coursesServiceClient.GetTask(solution.TaskId);
             if (0 <= newRating)
             {
-                var solutionModel = _mapper.Map<SolutionViewModel>(solution);
-                var taskModel = _mapper.Map<HomeworkTaskViewModel>(task);
-                _eventBus.Publish(new RateEvent(taskModel, solutionModel));
+                var solution = await _solutionsRepository.GetAsync(solutionId);
+                var task = await _coursesServiceClient.GetTask(solution.TaskId);
                 var state = newRating >= task.MaxRating ? SolutionState.Final : SolutionState.Rated;
                 await _solutionsRepository.RateSolutionAsync(solutionId, state, newRating, lecturerComment);
+
+                var solutionModel = _mapper.Map<SolutionViewModel>(solution);
+                solutionModel.LecturerComment = lecturerComment;
+                solutionModel.Rating = newRating;
+                _eventBus.Publish(new RateEvent(task, solutionModel));
             }
         }
 
@@ -165,6 +165,7 @@ namespace HwProj.SolutionsService.API.Services
                 .Select(t => new SolutionPreviewDto
                 {
                     StudentId = t.LastSolution!.StudentId,
+                    GroupId = t.LastSolution.GroupId,
                     TaskId = t.LastSolution.TaskId,
                     PublicationDate = t.LastSolution.PublicationDate,
                     IsFirstTry = t.IsFirstTry

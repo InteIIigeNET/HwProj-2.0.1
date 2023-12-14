@@ -11,8 +11,8 @@ interface ICoursesState {
     tabValue: number;
 }
 
-export default class Courses extends React.Component<{navigate: any}, ICoursesState> {
-    constructor(props: {navigate: any}) {
+export default class Courses extends React.Component<{ navigate: any }, ICoursesState> {
+    constructor(props: { navigate: any }) {
         super(props);
         this.state = {
             isLoaded: false,
@@ -23,7 +23,7 @@ export default class Courses extends React.Component<{navigate: any}, ICoursesSt
     }
 
     public render() {
-        const {isLoaded, allCourses, myCourses: courses, tabValue} = this.state;
+        const {isLoaded, allCourses, myCourses, tabValue} = this.state;
         const {navigate} = this.props
 
         if (!isLoaded) {
@@ -35,11 +35,15 @@ export default class Courses extends React.Component<{navigate: any}, ICoursesSt
             );
         }
 
-        let activeCourses = courses.filter((course) => !course.isCompleted);
-        let completedCourses = courses.filter((course) => course.isCompleted);
+        const activeCourses = myCourses.filter(course => !course.isCompleted)
+        const completedCourses = myCourses.filter(course => course.isCompleted)
 
-        let activeCoursesTab = activeCourses.length > 0 ? 0 : undefined;
-        let completedCoursesTab = completedCourses.length > 0 ? 2 : undefined;
+        let activeCoursesTab = activeCourses.length > 0 ? 0 : undefined
+        let allCoursesTab = activeCoursesTab === 0 ? 1 : 0
+        let completedCoursesTab = completedCourses.length > 0
+            ? activeCoursesTab === 0 ? 2 : 1
+            : undefined
+
         return (
             <div className="container">
                 <Tabs
@@ -54,17 +58,14 @@ export default class Courses extends React.Component<{navigate: any}, ICoursesSt
                     {completedCourses.length > 0 && <Tab label="Завершенные курсы"/>}
                 </Tabs>
                 <br/>
-                {tabValue === activeCoursesTab &&<CoursesList navigate={navigate} courses={activeCourses}/>}
-                {tabValue === 1 && <CoursesList navigate={navigate} courses={allCourses}/>}
+                {tabValue === activeCoursesTab && <CoursesList navigate={navigate} courses={activeCourses}/>}
+                {tabValue === allCoursesTab && <CoursesList navigate={navigate} courses={allCourses}/>}
                 {tabValue === completedCoursesTab && <CoursesList navigate={navigate} courses={completedCourses}/>}
             </div>
         );
     }
 
     async componentDidMount() {
-        if (!ApiSingleton.authService.isLoggedIn()) {
-            window.location.assign("/login");
-        }
         try {
             const courses = await ApiSingleton.coursesApi.apiCoursesUserCoursesGet()
             const allCourses = await ApiSingleton.coursesApi.apiCoursesGet();

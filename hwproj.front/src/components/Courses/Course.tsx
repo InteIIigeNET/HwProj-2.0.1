@@ -7,16 +7,17 @@ import StudentStats from "./StudentStats";
 import Alert from '@mui/material/Alert';
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
-import {Button, Grid, Tab, Tabs, Typography, IconButton, Switch} from "@material-ui/core";
+import {Button, Grid, Tab, Tabs, Typography, IconButton, Switch, CircularProgress} from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
 import StudentAssignment from "./StudentsAssignment";
 import {useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import VisibilityIcon from '@material-ui/icons/Visibility';
-import {Chip, Stack} from "@mui/material";
+import {Alert, AlertTitle, Chip, Stack} from "@mui/material";
 import CourseExperimental from "./CourseExperimental";
 import {useParams, useNavigate} from 'react-router-dom';
+import MentorsList from "../Common/MentorsList";
 
 type TabValue = "homeworks" | "stats" | "applications" | "assignments"
 
@@ -84,14 +85,12 @@ const Course: React.FC = () => {
         studentSolutions
     } = courseState;
 
-    const isLogged = ApiSingleton.authService.isLoggedIn()
+    const userId = ApiSingleton.authService.getUserId()
 
-    //TODO: move to authservice
-    const userId = isLogged
-        ? ApiSingleton.authService.getUserId()
-        : undefined
+    const isLecturer = ApiSingleton.authService.isLecturer()
+    const isCourseMentor = mentors.some(t => t.userId === userId)
 
-    const isMentor = isLogged && mentors.some(t => t.userId === userId)
+    const isSignedInCourse = newStudents!.some(cm => cm.userId === userId)
 
     const isMentorWithStudents =
         isLogged && isMentor && assignments.map(a => a.mentorId).includes(userId)
@@ -99,14 +98,11 @@ const Course: React.FC = () => {
     const isSignedInCourse =
         isLogged && newStudents!.some(cm => cm.userId === userId)
 
-    const isAcceptedStudent =
-        isLogged && acceptedStudents!.some(cm => cm.userId === userId)
+    const showExperimentalFeature = isCourseMentor ? courseState.showExperimentalFeature : true
 
-    const showExperimentalFeature = isMentor ? courseState.showExperimentalFeature : true
-
-    const showStatsTab = isMentor || isAcceptedStudent
-    const showApplicationsTab = isMentor
-    const showAssignmentTab = isMentor
+    const showStatsTab = isCourseMentor || isAcceptedStudent
+    const showApplicationsTab = isCourseMentor
+    const showAssignmentTab = isCourseMentor
 
     const freeStudentsCount = assignments.find(a => a.mentorId == null)?.studentIds?.length ?? 0
 
@@ -125,6 +121,19 @@ const Course: React.FC = () => {
 
     const setCurrentState = async () => {
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+courseId!)
+
+        // У пользователя изменилась роль (иначе он не может стать лектором в курсе), 
+        // однако он все ещё использует токен с прежней ролью
+        const shouldRefreshToken =
+            !ApiSingleton.authService.isLecturer() &&
+            course &&
+            course.mentors!.some(t => t.userId === userId)
+        if (shouldRefreshToken) {
+            const newToken = await ApiSingleton.accountApi.apiAccountRefreshTokenGet()
+            newToken.value && ApiSingleton.authService.refreshToken(newToken.value.accessToken!)
+            return
+        }
+
         const solutions = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdGet(+courseId!)
 
         setCourseState(prevState => ({
@@ -164,13 +173,23 @@ const Course: React.FC = () => {
     if (isFound) {
         return (
             <div className="container">
-                <Grid style={{marginBottom: '50px'}}>
-                    <Grid container style={{marginTop: "15px"}}>
-                        <Grid container xs={11} className={classes.info}>
+                <Grid style={{marginBottom: '50px', marginTop: "15px"}}>
+                    <Grid container direction={"column"} spacing={1}>
+                        {course.isCompleted && <Grid item>
+                            <Alert severity="warning">
+                                <AlertTitle>Курс завершен!</AlertTitle>
+                                {isAcceptedStudent
+                                    ? "Вы можете отправлять решения и получать уведомления об их проверке."
+                                    : isCourseMentor
+                                        ? "Вы продолжите получать уведомления о новых заявках на вступление и решениях."
+                                        : !isLecturer ? "Вы можете записаться на курс и отправлять решения." : ""}
+                            </Alert>
+                        </Grid>}
+                        <Grid item container xs={11} className={classes.info}>
                             <Grid item>
                                 <Typography style={{fontSize: '22px'}}>
                                     {`${course.name} / ${course.groupName}`} &nbsp;
-                                    {isMentor &&
+                                    {isCourseMentor &&
                                         <IconButton style={{marginLeft: -5}} onClick={() =>
                                             setCourseState(prevState => ({
                                                 ...prevState,
@@ -186,25 +205,23 @@ const Course: React.FC = () => {
                                                 />}
                                         </IconButton>
                                     }
-                                    {isMentor && !isReadingMode! && (
+                                    {isCourseMentor && !isReadingMode! && (
                                         <RouterLink to={`/courses/${courseId}/edit`}>
                                             <EditIcon fontSize="small"/>
                                         </RouterLink>
                                     )}
                                 </Typography>
-                                <Typography style={{fontSize: "18px", color: "GrayText"}}>
-                                    {mentors.map(t => `${t.name} ${t.surname}`).join(", ")}
-                                </Typography>
-                                {isMentor && <div><Switch value={showExperimentalFeature}
-                                                          onChange={(e, checked) => setCourseState(prevState => ({
-                                                              ...prevState,
-                                                              showExperimentalFeature: checked
-                                                          }))}/> Включить экспериментальный режим отображения
+                                <MentorsList mentors={mentors}/>
+                                {isCourseMentor && <div><Switch value={showExperimentalFeature}
+                                                                onChange={(e, checked) => setCourseState(prevState => ({
+                                                                    ...prevState,
+                                                                    showExperimentalFeature: checked
+                                                                }))}/> Включить экспериментальный режим отображения
                                 </div>}
                             </Grid>
                             <Grid item style={{width: '187px'}}>
                                 <Grid container alignItems="flex-end" direction="column" xs={12}>
-                                    {isLogged && !isSignedInCourse && !isMentor && !isAcceptedStudent && (
+                                    {!isSignedInCourse && !isLecturer && !isAcceptedStudent && (
                                         <Grid item style={{width: '100%', marginTop: '16px'}}>
                                             <Button
                                                 fullWidth
@@ -216,7 +233,7 @@ const Course: React.FC = () => {
                                             </Button>
                                         </Grid>
                                     )}
-                                    {isLogged && isSignedInCourse && !isAcceptedStudent &&
+                                    {isSignedInCourse && !isAcceptedStudent &&
                                         <Grid item style={{width: '100%', marginTop: '16px'}}>
                                             <Typography style={{fontSize: '15px'}}>
                                                 Ваша заявка рассматривается
@@ -267,7 +284,7 @@ const Course: React.FC = () => {
                     {tabValue === "homeworks" && <div>
                         {
                             showExperimentalFeature ?
-                                <CourseExperimental homeworks={courseState.courseHomework} isMentor={isMentor}
+                                <CourseExperimental homeworks={courseState.courseHomework} isMentor={isCourseMentor}
                                                     studentSolutions={studentSolutions}
                                                     isStudentAccepted={isAcceptedStudent}
                                                     userId={userId!}/> :
@@ -275,18 +292,18 @@ const Course: React.FC = () => {
                                     {createHomework && (
                                         <div>
                                             <Grid container>
-                                                <Grid item xs={11}>
+                                                <Grid item xs={12}>
                                                     <AddHomework
                                                         id={+courseId!}
                                                         onCancel={() => setCurrentState()}
                                                         onSubmit={() => setCurrentState()}
                                                     />
                                                 </Grid>
-                                                <Grid item xs={11}>
+                                                <Grid item xs={12}>
                                                     <CourseHomework
                                                         onDelete={() => setCurrentState()}
                                                         isStudent={isAcceptedStudent}
-                                                        isMentor={isMentor}
+                                                        isMentor={isCourseMentor}
                                                         isReadingMode={isReadingMode}
                                                         homework={courseState.courseHomework}
                                                     />
@@ -294,50 +311,43 @@ const Course: React.FC = () => {
                                             </Grid>
                                         </div>
                                     )}
-                                    {isMentor && !createHomework && (
+                                    {isCourseMentor && !createHomework && (
                                         <div>
                                             <Grid container>
                                                 {!isReadingMode! &&
-                                                    <Grid item xs={11} style={{marginBottom: 15}}>
-                                                        <Button
-                                                            size="small"
-                                                            variant="contained"
-                                                            color="primary"
-                                                            onClick={() => {
-                                                                setCourseState(prevState => ({
-                                                                    ...prevState,
-                                                                    createHomework: true
-                                                                }));
-                                                            }}
-                                                        >
-                                                            Добавить задание
-                                                        </Button>
-                                                    </Grid>
+                                                    <Button
+                                                        style={{marginBottom: 15}}
+                                                        size="small"
+                                                        variant="contained"
+                                                        color="primary"
+                                                        onClick={() => {
+                                                            setCourseState(prevState => ({
+                                                                ...prevState,
+                                                                createHomework: true
+                                                            }));
+                                                        }}
+                                                    >
+                                                        Добавить задание
+                                                    </Button>
                                                 }
-                                                <Grid item xs={11}>
-                                                    <CourseHomework
-                                                        onDelete={() => setCurrentState()}
-                                                        isStudent={isAcceptedStudent}
-                                                        isMentor={isMentor}
-                                                        isReadingMode={isReadingMode}
-                                                        homework={courseState.courseHomework}
-                                                    />
-                                                </Grid>
+                                                <CourseHomework
+                                                    onDelete={() => setCurrentState()}
+                                                    isStudent={isAcceptedStudent}
+                                                    isMentor={isCourseMentor}
+                                                    isReadingMode={isReadingMode}
+                                                    homework={courseState.courseHomework}
+                                                />
                                             </Grid>
                                         </div>
                                     )}
-                                    {!isMentor && (
-                                        <Grid container>
-                                            <Grid xs={11}>
-                                                <CourseHomework
-                                                    onDelete={() => setCurrentState()}
-                                                    homework={courseState.courseHomework}
-                                                    isStudent={isAcceptedStudent}
-                                                    isMentor={isMentor}
-                                                    isReadingMode={isReadingMode}
-                                                />
-                                            </Grid>
-                                        </Grid>
+                                    {!isCourseMentor && (
+                                        <CourseHomework
+                                            onDelete={() => setCurrentState()}
+                                            homework={courseState.courseHomework}
+                                            isStudent={isAcceptedStudent}
+                                            isMentor={isCourseMentor}
+                                            isReadingMode={isReadingMode}
+                                        />
                                     )}
                                 </div>
                         }
@@ -348,21 +358,19 @@ const Course: React.FC = () => {
                                 <StudentStats
                                     homeworks={courseState.courseHomework}
                                     userId={userId as string}
-                                    isMentor={isMentor}
+                                    isMentor={isCourseMentor}
                                     course={courseState.course}
                                     solutions={studentSolutions}
                                 />
                             </Grid>
                         </Grid>}
                     {tabValue === "applications" && showApplicationsTab &&
-                        <Grid item xs={11}>
-                            <NewCourseStudents
-                                onUpdate={() => setCurrentState()}
-                                course={courseState.course}
-                                students={courseState.newStudents}
-                                courseId={courseId!}
-                            />
-                        </Grid>
+                        <NewCourseStudents
+                            onUpdate={() => setCurrentState()}
+                            course={courseState.course}
+                            students={courseState.newStudents}
+                            courseId={courseId!}
+                        />
                     }
                     {tabValue === "assignments" && showAssignmentTab &&
                         <Grid item xs={10}>
@@ -379,10 +387,10 @@ const Course: React.FC = () => {
             </div>
         );
     }
-    return (
-        <Typography>
-        </Typography>
-    )
+    return <div className="container">
+        <p>Загрузка...</p>
+        <CircularProgress/>
+    </div>
 }
 
 export default Course

@@ -31,11 +31,18 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
         public override async Task HandleAsync(RateEvent @event)
         {
+            var commentBody = string.IsNullOrWhiteSpace(@event.Solution.LecturerComment)
+                ? ""
+                : "<br><br><b>Комментарий преподавателя:</b>" +
+                  $"<br><i>{@event.Solution.LecturerComment}</i>";
+
             var notification = new Notification
             {
                 Sender = "SolutionService",
                 Body =
-                    $"Задача <a href='{_configuration["Url"]}/task/{@event.Task.Id}' target='_blank'>{@event.Task.Title}</a> оценена.",
+                    $"Задача <a href='{_configuration["Url"]}/task/{@event.Task.Id}' target='_blank'>{@event.Task.Title}</a> оценена на " +
+                    $"<b>{@event.Solution.Rating}/{@event.Task.MaxRating}</b>." +
+                    $"{commentBody}",
                 Category = CategoryState.Homeworks,
                 Date = DateTimeUtils.GetMoscowNow(),
                 HasSeen = false,

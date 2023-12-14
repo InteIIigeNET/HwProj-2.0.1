@@ -19,13 +19,22 @@ export default class Utils {
             ':' + pad(date.getSeconds())
     }
 
-     static pluralizeDateTime(milliseconds: number) {
-         const diffHours = milliseconds/ (1000 * 60 * 60);
-         const diffDays = Math.trunc(diffHours / 24);
-         return diffDays === 0
-             ? Math.trunc(diffHours) + " " + this.pluralizeHelper(["час", "часа", "часов"], diffHours)
-             : diffDays + " " + this.pluralizeHelper(["день", "дня", "дней"], diffDays)
-     }
+    static pluralizeDateTime(milliseconds: number) {
+        const diffHours = milliseconds / (1000 * 60 * 60)
+        const diffHoursInt = Math.trunc(diffHours)
+
+        if (diffHoursInt === 0) {
+            const diffMinutes = Math.trunc(milliseconds / (1000 * 60))
+            return diffMinutes + " " + this.pluralizeHelper(["минуту", "минуты", "минут"], diffMinutes)
+        }
+
+        const diffDays = Math.trunc(diffHours / 24)
+        if (diffDays === 0) {
+            return diffHoursInt + " " + this.pluralizeHelper(["час", "часа", "часов"], diffHoursInt)
+        } else {
+            return diffDays + " " + this.pluralizeHelper(["день", "дня", "дней"], diffDays)
+        }
+    }
 
     static pluralizeHelper(forms: Array<string>, n: number) {
         let idx;
@@ -38,5 +47,11 @@ export default class Utils {
         }
         return forms[idx] || '';
 
+    }
+
+    static renderReadableDate = (date: Date) => {
+        date = new Date(date)
+        const options = {month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'}
+        return date.toLocaleString("ru-RU", options)
     }
 }

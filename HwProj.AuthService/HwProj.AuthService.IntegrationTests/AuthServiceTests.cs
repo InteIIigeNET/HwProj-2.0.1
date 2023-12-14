@@ -84,8 +84,6 @@ namespace HwProj.AuthService.IntegrationTests
                 Name = model.Name,
                 Surname = model.Surname,
                 MiddleName = model.MiddleName,
-                CurrentPassword = model.Password,
-                NewPassword = new Fixture().Create<string>()
             };
 
         private static EditAccountViewModel GenerateEditAccountViewModel(RegisterViewModel model)
@@ -94,8 +92,6 @@ namespace HwProj.AuthService.IntegrationTests
                 Name = new Fixture().Create<string>(),
                 Surname = new Fixture().Create<string>(),
                 MiddleName = new Fixture().Create<string>(),
-                CurrentPassword = model.Password,
-                NewPassword = model.Password
             };
 
         private static InviteLecturerViewModel GenerateInviteNewLecturerViewModel(RegisterViewModel model)
@@ -277,33 +273,7 @@ namespace HwProj.AuthService.IntegrationTests
             resultData.Should().BeEquivalentTo(editData, options =>
                 options.ExcludingMissingMembers());
         }
-
-        [Test]
-        public async Task TestEditPassword()
-        {
-            var userData = GenerateRegisterViewModel();
-            await _authServiceClient.Register(userData);
-
-            var editData = GenerateEditViewModel(userData);
-            var userId = await _authServiceClient.FindByEmailAsync(userData.Email);
-            var resultData = await _authServiceClient.Edit(editData, userId);
-
-            resultData.Succeeded.Should().BeTrue();
-            resultData.Errors.Should().BeNullOrEmpty();
-
-            var loginData = GenerateLoginViewModel(userData);
-            var failedResult = await _authServiceClient.Login(loginData);
-
-            failedResult.Succeeded.Should().BeFalse();
-            failedResult.Errors.Should()
-                .BeEquivalentTo("Неправильный логин или пароль");
-
-            loginData.Password = editData.NewPassword;
-            var result = await _authServiceClient.Login(loginData);
-
-            result.Succeeded.Should().BeTrue();
-            result.Errors.Should().BeNullOrEmpty();
-        }
+        
 
         [Test]
         public async Task EditAccountDataForUserThatDoesNotExistTest()
@@ -318,23 +288,7 @@ namespace HwProj.AuthService.IntegrationTests
             result.Errors.Should()
                 .BeEquivalentTo("Пользователь не найден");
         }
-
-        [Test]
-        public async Task EditAccountDataForUserWithWrongCurrentPasswordTest()
-        {
-            var userData = GenerateRegisterViewModel();
-            await _authServiceClient.Register(userData);
-            var editData = GenerateEditAccountViewModel(userData);
-            editData.CurrentPassword = new Fixture().Create<string>();
-            var userId = await _authServiceClient.FindByEmailAsync(userData.Email);
-
-            var result = await _authServiceClient.Edit(editData, userId);
-
-            result.Succeeded.Should().BeFalse();
-            result.Errors.Should()
-                .BeEquivalentTo("Неправильный логин или пароль");
-        }
-
+        
         [Test]
         public async Task TestInviteNewLecturer()
         {

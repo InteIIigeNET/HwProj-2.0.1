@@ -5,29 +5,37 @@ import {
     HomeworkTaskViewModel,
     Solution, TaskSolutionsStats
 } from "../../api/";
+import {FC, useEffect, useState} from "react";
 import Typography from "@material-ui/core/Typography";
 import Task from "../Tasks/Task";
 import TaskSolutions from "./TaskSolutions";
 import ApiSingleton from "../../api/ApiSingleton";
-import {FC, useEffect, useState} from "react";
-import {CircularProgress, Grid} from "@material-ui/core";
-import {useNavigate, useParams} from "react-router-dom";
+import {CircularProgress} from "@material-ui/core";
+import {Link, useNavigate, useParams} from "react-router-dom";
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
+import EditIcon from '@mui/icons-material/Edit';
 import {
+    Alert,
     Chip,
+    FormControl, Grid,
+    InputLabel,
     List,
     ListItemButton,
     ListItemText,
+    MenuItem,
+    OutlinedInput,
+    Select,
+    SelectChangeEvent,
     Stack,
     Alert,
     Tooltip,
     Checkbox
 } from "@mui/material";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
-import {Link} from 'react-router-dom';
 
 import Step from '@mui/material/Step';
 import StepButton from '@mui/material/StepButton';
+import {RatingStorage} from "../Storages/RatingStorage";
 
 interface IStudentSolutionsPageState {
     currentTaskId: string
@@ -39,14 +47,31 @@ interface IStudentSolutionsPageState {
     assignments: AssignmentsViewModel[],
     taskSolutionsStats: TaskSolutionsStats[],
     studentSolutionsPreview: {
+
+    allTaskSolutionsStats: TaskSolutionsStats[],
+    allStudentSolutionsPreview: {
+
         student: AccountDataDto,
         solutions: GetSolutionModel[]
-        lastSolution: Solution,
+        lastSolution: GetSolutionModel,
         lastRatedSolution: Solution,
         color: string,
         ratedSolutionsCount: number,
         solutionsDescription: string
     }[]
+}
+
+type Filter = "Только непроверенные"
+const FilterStorageKey = "StudentSolutionsPage"
+
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const FilterProps = {
+    PaperProps: {
+        style: {
+            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP
+        },
+    },
 }
 
 const StudentSolutionsPage: FC = () => {
@@ -61,15 +86,26 @@ const StudentSolutionsPage: FC = () => {
         isLoaded: false,
         courseId: -1,
         assignments: [],
-        taskSolutionsStats: [],
-        studentSolutionsPreview: [],
+        allTaskSolutionsStats: [],
+        allStudentSolutionsPreview: [],
     })
+    const [filterState, setFilterState] = React.useState<Filter[]>(
+        localStorage.getItem(FilterStorageKey)?.split(", ").filter(x => x != "").map(x => x as Filter) || ["Только непроверенные"]
+    )
+    const handleFilterChange = (event: SelectChangeEvent<typeof filterState>) => {
+        const {target: {value}} = event
+        const filters = filterState.length > 0 ? [] : ["Только непроверенные" as Filter]
+        localStorage.setItem(FilterStorageKey, filters.join(", "))
+        setFilterState(filters)
+    }
+
+    const showOnlyUnrated = filterState.some(x => x === "Только непроверенные")
 
     const {
         isLoaded,
         currentStudentId,
         currentTaskId,
-        studentSolutionsPreview,
+        allStudentSolutionsPreview,
         allSolutionsRated,
         courseId,
         assignments,
@@ -79,6 +115,17 @@ const StudentSolutionsPage: FC = () => {
     const userId = ApiSingleton.authService.isLoggedIn()
         ? ApiSingleton.authService.getUserId()
         : undefined
+                                                                                     
+        allTaskSolutionsStats
+    } = studentSolutionsState
+
+    const taskSolutionsStats = showOnlyUnrated
+        ? allTaskSolutionsStats.filter(x => x.countUnratedSolutions && x.countUnratedSolutions > 0)
+        : allTaskSolutionsStats
+
+    const studentSolutionsPreview = showOnlyUnrated
+        ? allStudentSolutionsPreview.filter(x => x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0)
+        : allStudentSolutionsPreview
 
     const getTaskData = async (taskId: string, studentId: string) => {
         const fullUpdate = currentTaskId !== taskId
@@ -104,8 +151,8 @@ const StudentSolutionsPage: FC = () => {
             isLoaded: true,
             currentStudentId: studentId,
             currentTaskId: taskId,
-            taskSolutionsStats: statsForTasks!,
-            studentSolutionsPreview: studentSolutionsPreview,
+            allTaskSolutionsStats: statsForTasks!,
+            allStudentSolutionsPreview: studentSolutionsPreview,
             courseId: courseId!,
             assignments: assignments!,
             allSolutionsRated: studentSolutionsPreview.findIndex(x => x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0) === -1
@@ -135,15 +182,6 @@ const StudentSolutionsPage: FC = () => {
     }
 
     if (isLoaded) {
-        if (
-            !ApiSingleton.authService.isLoggedIn()
-        ) {
-            return (
-                <Typography variant="h6">
-                    Страница не найдена
-                </Typography>
-            )
-        }
         return (
             <div className={"container"} style={{marginBottom: '50px', marginTop: '15px'}}>
                 <Grid direction={"column"} justifyContent="center" alignContent={"stretch"} spacing={2}>
@@ -173,7 +211,7 @@ const StudentSolutionsPage: FC = () => {
                             </Stack>;
                         })}
                     </Stack>
-                    {allSolutionsRated && <Alert severity="success" action={renderGoBackToCoursesStatsLink()}>
+                    {allSolutionsRated && <Alert severity="success">
                         Все решения на данный момент
                         проверены!
                     </Alert>}
@@ -187,27 +225,58 @@ const StudentSolutionsPage: FC = () => {
                         <List>
                         {studentSolutionsPreview!.filter(solution => homeworkMentorFilter ? userStudents?.includes(solution.student.userId!) : true).map(({
                                                                color, solutionsDescription, lastRatedSolution, student: {
+//////////////////////////
+                <Grid container spacing={3} style={{marginTop: '1px'}} direction={"row"}>
+                    <Grid item lg={3}>
+                        <FormControl fullWidth>
+                            <InputLabel>Фильтр</InputLabel>
+                            <Select
+                                size={"medium"}
+                                value={filterState}
+                                onChange={handleFilterChange}
+                                input={<OutlinedInput label="Фильтр"/>}
+                                MenuProps={FilterProps}
+                            >
+                                <MenuItem key="Только непроверенные" value={"Только непроверенные" as Filter}>
+                                    Только непроверенные
+                                </MenuItem>
+                            </Select>
+                        </FormControl>
+                        <List>
+                            {studentSolutionsPreview!.map(({
+                                                               lastSolution,
+                                                               color,
+                                                               solutionsDescription,
+                                                               lastRatedSolution, student: {
                                     name,
                                     surname,
                                     userId
                                 }
-                                                           }) =>
-                                <Link to={`/task/${currentTaskId}/${(userId)!}`}
-                                      style={{color: "black", textDecoration: "none"}}>
+                                                           }) => {
+                                const storageKey = {taskId: +currentTaskId, studentId: userId!, solutionId: lastSolution?.id}
+                                const ratingStorageValue = RatingStorage.tryGet(storageKey)
+                                return <Link to={`/task/${currentTaskId}/${(userId)!}`}
+                                             style={{color: "black", textDecoration: "none"}}>
                                     <ListItemButton disableGutters divider
                                                     disableTouchRipple={currentStudentId === userId}
-                                                    selected={currentStudentId === userId}>
+                                                    selected={currentStudentId === userId || currentStudent?.lastSolution?.groupMates?.some(x => x.userId === userId)}>
                                         <Stack direction={"row"} spacing={1} sx={{paddingLeft: 1}}>
-                                            <Tooltip arrow disableInteractive enterDelay={1000} title={<span
-                                                style={{whiteSpace: 'pre-line'}}>{solutionsDescription}</span>}>
-                                                <Chip style={{backgroundColor: color}}
-                                                      size={"small"}
-                                                      label={lastRatedSolution == undefined ? "?" : lastRatedSolution.rating}/>
-                                            </Tooltip>
+                                            {ratingStorageValue
+                                                ? <Tooltip arrow disableInteractive enterDelay={1000}
+                                                           title={"Решение частично проверено"}>
+                                                    <EditIcon fontSize={"small"} color={"primary"}/>
+                                                </Tooltip>
+                                                : <Tooltip arrow disableInteractive enterDelay={1000} title={<span
+                                                    style={{whiteSpace: 'pre-line'}}>{solutionsDescription}</span>}>
+                                                    <Chip style={{backgroundColor: color}}
+                                                          size={"small"}
+                                                          label={lastRatedSolution == undefined ? "?" : lastRatedSolution.rating}/>
+                                                </Tooltip>}
                                             <ListItemText primary={surname + " " + name}/>
                                         </Stack>
                                     </ListItemButton>
-                                </Link>)}
+                                </Link>;
+                            })}
                         </List>
                         {renderGoBackToCoursesStatsLink()}
                     </Grid>

@@ -49,9 +49,9 @@ namespace HwProj.CoursesService.API
             services.ConfigureHwProjServices("Courses API");
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, CourseContext context)
         {
-            app.ConfigureHwProj(env, "Courses API");
+            app.ConfigureHwProj(env, "Courses API", context);
         }
     }
 }

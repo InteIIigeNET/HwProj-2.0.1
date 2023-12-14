@@ -87,6 +87,7 @@ namespace HwProj.APIGateway.API.Controllers
                     var task = tasks[t.Id];
                     return new UserTaskSolutions2
                     {
+                        MaxRating = task.MaxRating,
                         Title = task.Title,
                         TaskId = task.Id.ToString(),
                         Solutions = t.Solution.Select(s => new GetSolutionModel(s,
@@ -211,14 +212,33 @@ namespace HwProj.APIGateway.API.Controllers
 
         [HttpPost("rateEmptySolution/{taskId}")]
         [Authorize(Roles = Roles.LecturerRole)]
-        public async Task<IActionResult> PostEmptySolutionWithRate(long taskId, SolutionViewModel model)
+        public async Task<IActionResult> PostEmptySolutionWithRate(long taskId, SolutionViewModel solution)
         {
             var course = await _coursesServiceClient.GetCourseByTask(taskId);
             if (course == null || !course.MentorIds.Contains(UserId)) return Forbid();
-            if (course.CourseMates.All(t => t.StudentId != model.StudentId))
-                return BadRequest($"Студента с id {model.StudentId} не существует");
+            if (course.CourseMates.All(t => t.StudentId != solution.StudentId))
+                return BadRequest($"Студент с id {solution.StudentId} не записан на курс");
 
-            await _solutionsClient.PostEmptySolutionWithRate(taskId, model);
+            solution.Comment = "[Решение было сдано вне сервиса]";
+            await _solutionsClient.PostEmptySolutionWithRate(taskId, solution);
+            return Ok();
+        }
+
+        [HttpPost("giveUp/{taskId}")]
+        [Authorize(Roles = Roles.StudentRole)]
+        public async Task<IActionResult> GiveUp(long taskId)
+        {
+            var course = await _coursesServiceClient.GetCourseByTask(taskId);
+            if (course == null) return NotFound();
+            if (course.CourseMates.All(t => t.StudentId != UserId))
+                return BadRequest($"Студент с id {UserId} не записан на курс");
+
+            await _solutionsClient.PostEmptySolutionWithRate(taskId, new SolutionViewModel()
+            {
+                StudentId = UserId,
+                Comment = "[Студент отказался от выполнения задачи]",
+                Rating = 0
+            });
             return Ok();
         }
 
@@ -296,8 +316,10 @@ namespace HwProj.APIGateway.API.Controllers
                         TaskId = task.Id,
                         PublicationDate = solution.PublicationDate,
                         IsFirstTry = solution.IsFirstTry,
+                        GroupId = solution.GroupId,
                         SentAfterDeadline = solution.IsFirstTry && task.DeadlineDate != null &&
-                                            solution.PublicationDate > task.DeadlineDate
+                                            solution.PublicationDate > task.DeadlineDate,
+                        IsCourseCompleted = course.IsCompleted
                     };
                 })
                 .ToArray();

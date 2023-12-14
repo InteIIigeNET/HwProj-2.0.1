@@ -1,6 +1,7 @@
-import React from "react";
-import { CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel } from "../../api/";
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid } from "@material-ui/core";
+import React, {useEffect, useState} from "react";
+import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api/";
+import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
+
 import StudentStatsCell from "../Tasks/StudentStatsCell";
 import Checkbox from '@mui/material/Checkbox';
 import { useEffect, useState } from "react";
@@ -27,6 +28,26 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
     const mentorStudentSolutions =  isMentorWithStudents
         ? props.solutions.filter(solution => mentorStudentsIds!.some(studentId => solution.id === studentId))
         : []
+
+    const {searched} = state
+
+    useEffect(() => {
+        const keyDownHandler = (event: KeyboardEvent) => {
+            if (event.ctrlKey || event.altKey) return
+            if (searched && event.key === "Escape") {
+                setSearched({searched: ""});
+            } else if (searched && event.key === "Backspace") {
+                setSearched({searched: searched.slice(0, -1)})
+            } else if (event.key.length === 1 && event.key.match(/[a-zA-Zа-яА-Я\s]/i)
+            ) {
+                setSearched({searched: searched + event.key})
+            }
+        };
+
+        document.addEventListener('keydown', keyDownHandler);
+        return () => document.removeEventListener('keydown', keyDownHandler);
+    }, [searched]);
+
 
     const homeworks = props.homeworks.filter(h => h.tasks && h.tasks.length > 0)
     const fixedColumnStyles: React.CSSProperties = {
@@ -61,7 +82,11 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                     Закреплённые студенты
                 </Grid>
             }
-            <TableContainer style={{ maxHeight: "100vh" }}>
+            {searched &&
+                <Alert style={{marginBottom: 5}} severity="info"><b>Поиск: </b>
+                    {searched.replaceAll(" ", "·")}
+                </Alert>}
+            <TableContainer style={{maxHeight: "100vh"}}>
                 <Table stickyHeader aria-label="sticky table">
                     <TableHead>
                         <TableRow>

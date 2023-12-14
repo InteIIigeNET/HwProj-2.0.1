@@ -7,7 +7,6 @@ using HwProj.AuthService.API.Services;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.Result;
-using Google.Apis.Auth;
 using HwProj.Models.Roles;
 using Microsoft.AspNetCore.Identity;
 
@@ -44,6 +43,14 @@ namespace HwProj.AuthService.API.Controllers
                 : NotFound();
         }
 
+        [HttpGet("getUserDataByEmail/{email}")]
+        [ProducesResponseType(typeof(AccountDataDto), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetUserDataByEmail(string email)
+        {
+            var accountData = await _accountService.GetAccountDataByEmailAsync(email);
+            return Ok(accountData);
+        }
+
         [HttpGet("getUsersData")]
         public async Task<AccountDataDto?[]> GetUsersData([FromBody] string[] userIds)
         {
@@ -58,7 +65,7 @@ namespace HwProj.AuthService.API.Controllers
         public async Task<IActionResult> Register([FromBody] RegisterViewModel model)
         {
             var newModel = _mapper.Map<RegisterDataDTO>(model);
-            var result = await _accountService.RegisterUserAsync(newModel).ConfigureAwait(false);
+            var result = await _accountService.RegisterUserAsync(newModel);
             return Ok(result);
         }
 
@@ -70,12 +77,20 @@ namespace HwProj.AuthService.API.Controllers
             return Ok(tokenMeta);
         }
 
+        [HttpGet("refreshToken")]
+        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> RefreshToken(string userId)
+        {
+            var tokenMeta = await _accountService.RefreshToken(userId);
+            return Ok(tokenMeta);
+        }
+
         [HttpPut("edit/{userId}")]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Edit([FromBody] EditAccountViewModel model, string userId)
         {
             var newModel = _mapper.Map<EditDataDTO>(model);
-            var result = await _accountService.EditAccountAsync(userId, newModel).ConfigureAwait(false);
+            var result = await _accountService.EditAccountAsync(userId, newModel);
             return Ok(result);
         }
 
@@ -87,16 +102,6 @@ namespace HwProj.AuthService.API.Controllers
             return Ok(result);
         }
 
-        [HttpPost("google/{tokenId}")]
-        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GoogleRegister(string tokenId)
-        {
-            var payload =
-                await GoogleJsonWebSignature.ValidateAsync(tokenId, new GoogleJsonWebSignature.ValidationSettings());
-            var result = await _accountService.LoginUserByGoogleAsync(payload).ConfigureAwait(false);
-            return Ok(result);
-        }
-
         [HttpPut("editExternal/{userId}")]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> EditExternal([FromBody] EditExternalViewModel model, string userId)
@@ -105,7 +110,6 @@ namespace HwProj.AuthService.API.Controllers
             var result = await _accountService.EditAccountAsync(userId, newModel).ConfigureAwait(false);
             return Ok(result);
         }
-
 
         [HttpGet("findByEmail/{email}")]
         [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]

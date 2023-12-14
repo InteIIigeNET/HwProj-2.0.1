@@ -73,7 +73,7 @@ namespace HwProj.CoursesService.API.Services
 
             var groups = _groupsRepository.GetGroupsWithGroupMatesByCourse(course.Id).ToArray();
             var assignments = await _assignmentsRepository.GetAllByCourseAsync(course.Id);
-            
+
             var result = _mapper.Map<CourseDTO>(course);
             result.Groups = groups.Select(g =>
                 new GroupViewModel
@@ -200,62 +200,55 @@ namespace HwProj.CoursesService.API.Services
                 MentorIds = course.MentorIds,
                 StudentId = studentId
             });
-
             return true;
         }
 
-        public async Task<Course[]> GetUserCoursesAsync(string userId)
+        public async Task<Course[]> GetUserCoursesAsync(string userId, string role)
         {
-            var studentCoursesIds = await _courseMatesRepository
-                .FindAll(cm => cm.StudentId == userId && cm.IsAccepted == true)
-                .Select(cm => cm.CourseId)
-                .ToArrayAsync()
-                .ConfigureAwait(false);
+            if (role == Roles.StudentRole)
+            {
+                var studentCoursesIds = await _courseMatesRepository
+                    .FindAll(cm => cm.StudentId == userId && cm.IsAccepted == true)
+                    .Select(cm => cm.CourseId)
+                    .ToArrayAsync();
 
-            var getStudentCoursesTasks = studentCoursesIds
-                .Select(id => _coursesRepository.GetAsync(id)) // TODO: optimize 
-                .ToArray();
+                return await _coursesRepository.FindAll(t => studentCoursesIds.Contains(t.Id)).ToArrayAsync();
+            }
 
-            var studentCourses = await Task.WhenAll(getStudentCoursesTasks).ConfigureAwait(false);
-
+            //TODO: refactor CourseMates & NewStudents
             var getMentorCoursesTask = _coursesRepository
                 .FindAll(c => c.MentorIds.Contains(userId))
+                .Include(c => c.CourseMates)
                 .Include(c => c.Homeworks).ThenInclude(t => t.Tasks)
                 .Include(c => c.CourseMates)
                 .ToArrayAsync();
 
-            var mentorCourses = await getMentorCoursesTask.ConfigureAwait(false);
-
-            return studentCourses.Union(mentorCourses).ToArray();
+            return await getMentorCoursesTask;
         }
 
-        public async Task AcceptLecturerAsync(long courseId, string lecturerEmail)
+        public async Task<bool> AcceptLecturerAsync(long courseId, string lecturerEmail, string lecturerId)
         {
-            var userId = await _authServiceClient.FindByEmailAsync(lecturerEmail);
-            if (!(userId is null))
+            var course = await _coursesRepository.GetAsync(courseId);
+            if (course == null) return false;
+            if (!course.MentorIds.Contains(lecturerId))
             {
-                var course = await _coursesRepository.GetAsync(courseId);
-                var user = await _authServiceClient.GetAccountData(userId);
-                if (user.Role == Roles.LecturerRole && !course.MentorIds.Contains(userId))
+                var newMentors = course.MentorIds + "/" + lecturerId;
+                await _coursesRepository.UpdateAsync(courseId, с => new Course
                 {
-                    string newMentors = course.MentorIds + "/" + userId;
-                    await _coursesRepository.UpdateAsync(courseId, с => new Course
-                    {
-                        MentorIds = newMentors,
-                    });
+                    MentorIds = newMentors,
+                });
 
-                    _eventBus.Publish(new LecturerInvitedToCourseEvent
-                    {
-                        CourseId = courseId,
-                        CourseName = course.Name,
-                        MentorId = userId,
-                        MentorEmail = lecturerEmail
-                    });
-
-                    //TODO: remove
-                    await RejectCourseMateAsync(courseId, userId);
-                }
+                _eventBus.Publish(new LecturerInvitedToCourseEvent
+                {
+                    CourseId = courseId,
+                    CourseName = course.Name,
+                    MentorId = lecturerId,
+                    MentorEmail = lecturerEmail
+                });
+                //TODO: remove
+                await RejectCourseMateAsync(courseId, lecturerId);
             }
+            return true;
         }
 
         public async Task<string[]> GetCourseLecturers(long courseId)

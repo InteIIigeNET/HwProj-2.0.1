@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Net;
 using HwProj.CoursesService.API.Repositories;
-using HwProj.CoursesService.API.Repositories.Groups;
 using HwProj.Models;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
@@ -133,10 +132,10 @@ namespace HwProj.CoursesService.API.Controllers
 
         [CourseDataFilter]
         [HttpGet("userCourses")]
-        public async Task<CourseDTO[]> GetUserCourses()
+        public async Task<CourseDTO[]> GetUserCourses(string role)
         {
             var userId = Request.GetUserIdFromHeader();
-            var coursesFromDb = await _coursesService.GetUserCoursesAsync(userId);
+            var coursesFromDb = await _coursesService.GetUserCoursesAsync(userId, role);
             var courses = _mapper.Map<CourseDTO[]>(coursesFromDb).ToArray();
             for (var i = 0; i < coursesFromDb.Length; ++i)
             {
@@ -149,9 +148,10 @@ namespace HwProj.CoursesService.API.Controllers
 
         [HttpGet("acceptLecturer/{courseId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        public async Task<IActionResult> AcceptLecturer(long courseId, [FromQuery] string lecturerEmail)
+        public async Task<IActionResult> AcceptLecturer(long courseId, [FromQuery] string lecturerEmail,
+            [FromQuery] string lecturerId)
         {
-            await _coursesService.AcceptLecturerAsync(courseId, lecturerEmail);
+            await _coursesService.AcceptLecturerAsync(courseId, lecturerEmail, lecturerId);
             return Ok();
         }
 
@@ -171,7 +171,8 @@ namespace HwProj.CoursesService.API.Controllers
         public async Task<TaskDeadlineDto[]> GetUserDeadlines()
         {
             var userId = Request.GetUserIdFromHeader();
-            var courseIds = await _courseMatesRepository.FindAll(t => t.StudentId == userId).Select(t => t.CourseId)
+            var courseIds = await _courseMatesRepository.FindAll(t => t.StudentId == userId && t.IsAccepted)
+                .Select(t => t.CourseId)
                 .ToListAsync();
 
             var currentDate = DateTimeUtils.GetMoscowNow();
@@ -184,7 +185,10 @@ namespace HwProj.CoursesService.API.Controllers
             var result = courses
                 .SelectMany(course => course.Homeworks
                     .SelectMany(x => x.Tasks)
-                    .Where(t => t.HasDeadline && t.PublicationDate <= currentDate && t.DeadlineDate > currentDate)
+                    .Where(t =>
+                        t.HasDeadline
+                        && t.PublicationDate <= currentDate
+                        && (t.DeadlineDate >= currentDate || !t.IsDeadlineStrict))
                     .Select(task => new TaskDeadlineDto
                     {
                         TaskId = task.Id,

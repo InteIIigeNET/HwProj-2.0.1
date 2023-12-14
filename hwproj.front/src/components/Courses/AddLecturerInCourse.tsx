@@ -56,6 +56,7 @@ const AddLecturerInCourse: FC<AddLecturerInCourseProps> = (props) => {
             setLecturerState((prevState) => ({
                 ...prevState,
                 info: ['Преподаватель добавлен'],
+                errors: [],
                 data: data
             }))
             props.update()
@@ -177,7 +178,7 @@ const AddLecturerInCourse: FC<AddLecturerInCourseProps> = (props) => {
                                 >
                                     <Grid item>
                                         <Button
-                                            onClick={props.onClose}
+                                            onClick={closeDialogIcon}
                                             color="primary"
                                             variant="contained"
                                             style={{marginRight: '10px'}}

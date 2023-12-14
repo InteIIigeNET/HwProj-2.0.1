@@ -194,6 +194,44 @@ export namespace CategorizedNotifications {
 /**
  * 
  * @export
+ * @interface CourseEvents
+ */
+export interface CourseEvents {
+    /**
+     * 
+     * @type {number}
+     * @memberof CourseEvents
+     */
+    id?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof CourseEvents
+     */
+    name?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CourseEvents
+     */
+    groupName?: string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof CourseEvents
+     */
+    isCompleted?: boolean;
+    /**
+     * 
+     * @type {number}
+     * @memberof CourseEvents
+     */
+    newStudentsCount?: number;
+}
+
+/**
+ * 
+ * @export
  * @interface CoursePreviewView
  */
 export interface CoursePreviewView {
@@ -449,18 +487,6 @@ export interface EditAccountViewModel {
      * @memberof EditAccountViewModel
      */
     middleName?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof EditAccountViewModel
-     */
-    currentPassword: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof EditAccountViewModel
-     */
-    newPassword: string;
 }
 
 /**
@@ -835,6 +861,26 @@ export namespace NotificationViewModel {
 /**
  * 
  * @export
+ * @interface NotificationsSettingDto
+ */
+export interface NotificationsSettingDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof NotificationsSettingDto
+     */
+    category?: string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof NotificationsSettingDto
+     */
+    isEnabled?: boolean;
+}
+
+/**
+ * 
+ * @export
  * @interface RateSolutionModel
  */
 export interface RateSolutionModel {
@@ -1122,6 +1168,12 @@ export interface SolutionPreviewView {
     publicationDate?: Date;
     /**
      * 
+     * @type {number}
+     * @memberof SolutionPreviewView
+     */
+    groupId?: number;
+    /**
+     * 
      * @type {boolean}
      * @memberof SolutionPreviewView
      */
@@ -1132,6 +1184,12 @@ export interface SolutionPreviewView {
      * @memberof SolutionPreviewView
      */
     sentAfterDeadline?: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof SolutionPreviewView
+     */
+    isCourseCompleted?: boolean;
 }
 
 /**
@@ -1388,10 +1446,10 @@ export interface TaskDeadlineView {
     rating?: number;
     /**
      * 
-     * @type {number}
+     * @type {boolean}
      * @memberof TaskDeadlineView
      */
-    maxRating?: number;
+    deadlinePast?: boolean;
 }
 
 /**
@@ -1568,10 +1626,10 @@ export interface UserDataDto {
     userData?: AccountDataDto;
     /**
      * 
-     * @type {Array<CoursePreviewView>}
+     * @type {Array<CourseEvents>}
      * @memberof UserDataDto
      */
-    courses?: Array<CoursePreviewView>;
+    courseEvents?: Array<CourseEvents>;
     /**
      * 
      * @type {Array<TaskDeadlineView>}
@@ -1606,6 +1664,12 @@ export interface UserTaskSolutions {
  * @interface UserTaskSolutions2
  */
 export interface UserTaskSolutions2 {
+    /**
+     * 
+     * @type {number}
+     * @memberof UserTaskSolutions2
+     */
+    maxRating?: number;
     /**
      * 
      * @type {string}
@@ -1833,41 +1897,6 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
         },
         /**
          * 
-         * @param {string} [tokenId] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiAccountGooglePost(tokenId?: string, options: any = {}): FetchArgs {
-            const localVarPath = `/api/Account/google`;
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication Bearer required
-            if (configuration && configuration.apiKey) {
-                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-					? configuration.apiKey("Authorization")
-					: configuration.apiKey;
-                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
-            }
-
-            if (tokenId !== undefined) {
-                localVarQueryParameter['tokenId'] = tokenId;
-            }
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
          * @param {InviteLecturerViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -1930,6 +1959,36 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"LoginViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountRefreshTokenGet(options: any = {}): FetchArgs {
+            const localVarPath = `/api/Account/refreshToken`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
 
             return {
                 url: url.format(localVarUrlObj),
@@ -2140,24 +2199,6 @@ export const AccountApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @param {string} [tokenId] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiAccountGooglePost(tokenId?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ResultTokenCredentials> {
-            const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountGooglePost(tokenId, options);
-            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         * 
          * @param {InviteLecturerViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -2182,6 +2223,23 @@ export const AccountApiFp = function(configuration?: Configuration) {
          */
         apiAccountLoginPost(model?: LoginViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ResultTokenCredentials> {
             const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountLoginPost(model, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountRefreshTokenGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<ResultTokenCredentials> {
+            const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountRefreshTokenGet(options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -2300,15 +2358,6 @@ export const AccountApiFactory = function (configuration?: Configuration, fetch?
         },
         /**
          * 
-         * @param {string} [tokenId] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        apiAccountGooglePost(tokenId?: string, options?: any) {
-            return AccountApiFp(configuration).apiAccountGooglePost(tokenId, options)(fetch, basePath);
-        },
-        /**
-         * 
          * @param {InviteLecturerViewModel} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -2324,6 +2373,14 @@ export const AccountApiFactory = function (configuration?: Configuration, fetch?
          */
         apiAccountLoginPost(model?: LoginViewModel, options?: any) {
             return AccountApiFp(configuration).apiAccountLoginPost(model, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountRefreshTokenGet(options?: any) {
+            return AccountApiFp(configuration).apiAccountRefreshTokenGet(options)(fetch, basePath);
         },
         /**
          * 
@@ -2417,17 +2474,6 @@ export class AccountApi extends BaseAPI {
 
     /**
      * 
-     * @param {string} [tokenId] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof AccountApi
-     */
-    public apiAccountGooglePost(tokenId?: string, options?: any) {
-        return AccountApiFp(this.configuration).apiAccountGooglePost(tokenId, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     * 
      * @param {InviteLecturerViewModel} [model] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -2446,6 +2492,16 @@ export class AccountApi extends BaseAPI {
      */
     public apiAccountLoginPost(model?: LoginViewModel, options?: any) {
         return AccountApiFp(this.configuration).apiAccountLoginPost(model, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AccountApi
+     */
+    public apiAccountRefreshTokenGet(options?: any) {
+        return AccountApiFp(this.configuration).apiAccountRefreshTokenGet(options)(this.fetch, this.basePath);
     }
 
     /**
@@ -4740,6 +4796,71 @@ export const NotificationsApiFetchParamCreator = function (configuration?: Confi
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiNotificationsSettingsGet(options: any = {}): FetchArgs {
+            const localVarPath = `/api/Notifications/settings`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {NotificationsSettingDto} [newSetting] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiNotificationsSettingsPut(newSetting?: NotificationsSettingDto, options: any = {}): FetchArgs {
+            const localVarPath = `/api/Notifications/settings`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"NotificationsSettingDto" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(newSetting || {}) : (newSetting || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -4801,6 +4922,41 @@ export const NotificationsApiFp = function(configuration?: Configuration) {
                 });
             };
         },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiNotificationsSettingsGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<NotificationsSettingDto>> {
+            const localVarFetchArgs = NotificationsApiFetchParamCreator(configuration).apiNotificationsSettingsGet(options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {NotificationsSettingDto} [newSetting] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiNotificationsSettingsPut(newSetting?: NotificationsSettingDto, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = NotificationsApiFetchParamCreator(configuration).apiNotificationsSettingsPut(newSetting, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
     }
 };
 
@@ -4834,6 +4990,23 @@ export const NotificationsApiFactory = function (configuration?: Configuration, 
          */
         apiNotificationsMarkAsSeenPut(notificationIds?: Array<number>, options?: any) {
             return NotificationsApiFp(configuration).apiNotificationsMarkAsSeenPut(notificationIds, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiNotificationsSettingsGet(options?: any) {
+            return NotificationsApiFp(configuration).apiNotificationsSettingsGet(options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {NotificationsSettingDto} [newSetting] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiNotificationsSettingsPut(newSetting?: NotificationsSettingDto, options?: any) {
+            return NotificationsApiFp(configuration).apiNotificationsSettingsPut(newSetting, options)(fetch, basePath);
         },
     };
 };
@@ -4874,6 +5047,27 @@ export class NotificationsApi extends BaseAPI {
      */
     public apiNotificationsMarkAsSeenPut(notificationIds?: Array<number>, options?: any) {
         return NotificationsApiFp(this.configuration).apiNotificationsMarkAsSeenPut(notificationIds, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof NotificationsApi
+     */
+    public apiNotificationsSettingsGet(options?: any) {
+        return NotificationsApiFp(this.configuration).apiNotificationsSettingsGet(options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {NotificationsSettingDto} [newSetting] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof NotificationsApi
+     */
+    public apiNotificationsSettingsPut(newSetting?: NotificationsSettingDto, options?: any) {
+        return NotificationsApiFp(this.configuration).apiNotificationsSettingsPut(newSetting, options)(this.fetch, this.basePath);
     }
 
 }
@@ -4999,6 +5193,42 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
         },
         /**
          * 
+         * @param {number} taskId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsGiveUpByTaskIdPost(taskId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'taskId' is not null or undefined
+            if (taskId === null || taskId === undefined) {
+                throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling apiSolutionsGiveUpByTaskIdPost.');
+            }
+            const localVarPath = `/api/Solutions/giveUp/{taskId}`
+                .replace(`{${"taskId"}}`, encodeURIComponent(String(taskId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {number} solutionId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5036,11 +5266,11 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
         /**
          * 
          * @param {number} taskId 
-         * @param {SolutionViewModel} [model] 
+         * @param {SolutionViewModel} [solution] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSolutionsRateEmptySolutionByTaskIdPost(taskId: number, model?: SolutionViewModel, options: any = {}): FetchArgs {
+        apiSolutionsRateEmptySolutionByTaskIdPost(taskId: number, solution?: SolutionViewModel, options: any = {}): FetchArgs {
             // verify required parameter 'taskId' is not null or undefined
             if (taskId === null || taskId === undefined) {
                 throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling apiSolutionsRateEmptySolutionByTaskIdPost.');
@@ -5067,7 +5297,7 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             delete localVarUrlObj.search;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"SolutionViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(solution || {}) : (solution || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -5296,6 +5526,24 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {number} taskId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsGiveUpByTaskIdPost(taskId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsGiveUpByTaskIdPost(taskId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
          * @param {number} solutionId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5315,12 +5563,12 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @param {number} taskId 
-         * @param {SolutionViewModel} [model] 
+         * @param {SolutionViewModel} [solution] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSolutionsRateEmptySolutionByTaskIdPost(taskId: number, model?: SolutionViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsRateEmptySolutionByTaskIdPost(taskId, model, options);
+        apiSolutionsRateEmptySolutionByTaskIdPost(taskId: number, solution?: SolutionViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsRateEmptySolutionByTaskIdPost(taskId, solution, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -5446,6 +5694,15 @@ export const SolutionsApiFactory = function (configuration?: Configuration, fetc
         },
         /**
          * 
+         * @param {number} taskId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsGiveUpByTaskIdPost(taskId: number, options?: any) {
+            return SolutionsApiFp(configuration).apiSolutionsGiveUpByTaskIdPost(taskId, options)(fetch, basePath);
+        },
+        /**
+         * 
          * @param {number} solutionId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5456,12 +5713,12 @@ export const SolutionsApiFactory = function (configuration?: Configuration, fetc
         /**
          * 
          * @param {number} taskId 
-         * @param {SolutionViewModel} [model] 
+         * @param {SolutionViewModel} [solution] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiSolutionsRateEmptySolutionByTaskIdPost(taskId: number, model?: SolutionViewModel, options?: any) {
-            return SolutionsApiFp(configuration).apiSolutionsRateEmptySolutionByTaskIdPost(taskId, model, options)(fetch, basePath);
+        apiSolutionsRateEmptySolutionByTaskIdPost(taskId: number, solution?: SolutionViewModel, options?: any) {
+            return SolutionsApiFp(configuration).apiSolutionsRateEmptySolutionByTaskIdPost(taskId, solution, options)(fetch, basePath);
         },
         /**
          * 
@@ -5549,6 +5806,17 @@ export class SolutionsApi extends BaseAPI {
 
     /**
      * 
+     * @param {number} taskId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SolutionsApi
+     */
+    public apiSolutionsGiveUpByTaskIdPost(taskId: number, options?: any) {
+        return SolutionsApiFp(this.configuration).apiSolutionsGiveUpByTaskIdPost(taskId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
      * @param {number} solutionId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -5561,13 +5829,13 @@ export class SolutionsApi extends BaseAPI {
     /**
      * 
      * @param {number} taskId 
-     * @param {SolutionViewModel} [model] 
+     * @param {SolutionViewModel} [solution] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof SolutionsApi
      */
-    public apiSolutionsRateEmptySolutionByTaskIdPost(taskId: number, model?: SolutionViewModel, options?: any) {
-        return SolutionsApiFp(this.configuration).apiSolutionsRateEmptySolutionByTaskIdPost(taskId, model, options)(this.fetch, this.basePath);
+    public apiSolutionsRateEmptySolutionByTaskIdPost(taskId: number, solution?: SolutionViewModel, options?: any) {
+        return SolutionsApiFp(this.configuration).apiSolutionsRateEmptySolutionByTaskIdPost(taskId, solution, options)(this.fetch, this.basePath);
     }
 
     /**

@@ -1,10 +1,7 @@
 import * as React from 'react';
-import {Accordion, AccordionDetails, AccordionSummary, Button, IconButton, Typography} from '@material-ui/core'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import DeleteIcon from '@material-ui/icons/Delete'
 import EditIcon from '@material-ui/icons/Edit'
-import HourglassEmpty from '@material-ui/icons/HourglassEmpty';
-import ReactMarkdown from 'react-markdown';
 import {HomeworkViewModel} from "../../api";
 import AddTask from '../Tasks/AddTask'
 import HomeworkTasks from '../Tasks/HomeworkTasks'
@@ -13,8 +10,9 @@ import ApiSingleton from '../../api/ApiSingleton';
 import {FC, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
 import DeletionConfirmation from "../DeletionConfirmation";
-import Utils from "../../services/Utils";
-import {Chip, Stack} from '@mui/material';
+import {Chip, Accordion, AccordionSummary, Typography, IconButton, Button, AccordionDetails} from '@material-ui/core';
+import {Stack} from '@mui/material';
+import {ReactMarkdownWithCodeHighlighting} from "../Common/TextFieldWithPreview";
 
 interface IHomeworkProps {
     homework: HomeworkViewModel,
@@ -25,7 +23,7 @@ interface IHomeworkProps {
     onDeleteClick: () => void
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(_ => ({
     tools: {
         display: "flex",
         flexDirection: 'row',
@@ -96,7 +94,7 @@ const Homework: FC<IHomeworkProps> = (props) => {
                 </AccordionSummary>
                 <AccordionDetails>
                     <div style={{width: '100%'}}>
-                        <ReactMarkdown children={props.homework.description!}/>
+                        <ReactMarkdownWithCodeHighlighting value={props.homework.description!}/>
                         {(props.forMentor && homeworkState.createTask) &&
                             <div style={{width: '100%'}}>
                                 <HomeworkTasks
@@ -107,7 +105,7 @@ const Homework: FC<IHomeworkProps> = (props) => {
                                     isReadingMode={props.isReadingMode}
                                 />
                                 <AddTask
-                                    id={props.homework.id!}
+                                    homeworkId={props.homework.id!}
                                     onAdding={() => window.location.reload()}
                                     onCancel={() => setHomeworkState({
                                         createTask: false

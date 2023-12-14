@@ -8,7 +8,17 @@ import {AccountDataDto, HomeworkTaskViewModel, UserTaskSolutions2} from "../../a
 import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useEffect, useState} from "react";
 import {Grid} from "@material-ui/core";
-import {Chip, Divider, Stack, Tooltip} from "@mui/material";
+import {
+    Chip,
+    FormControl,
+    InputLabel,
+    MenuItem,
+    OutlinedInput,
+    Select,
+    SelectChangeEvent,
+    Stack,
+    Tooltip
+} from "@mui/material";
 import {useParams, Link} from "react-router-dom";
 import Step from "@mui/material/Step";
 import StepButton from "@mui/material/StepButton";
@@ -19,8 +29,21 @@ interface ITaskSolutionsState {
     task: HomeworkTaskViewModel
     addSolution: boolean
     courseId: number
-    taskSolutions: UserTaskSolutions2[]
+    allTaskSolutions: UserTaskSolutions2[]
     courseMates: AccountDataDto[]
+}
+
+type Filter = "Только нерешенные"
+const FilterStorageKey = "TaskSolutionsPage"
+
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const FilterProps = {
+    PaperProps: {
+        style: {
+            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP
+        },
+    },
 }
 
 const TaskSolutionsPage: FC = () => {
@@ -32,9 +55,21 @@ const TaskSolutionsPage: FC = () => {
         task: {},
         courseId: 0,
         addSolution: false,
-        taskSolutions: [],
+        allTaskSolutions: [],
         courseMates: []
     })
+
+    const [filterState, setFilterState] = React.useState<Filter[]>(
+        localStorage.getItem(FilterStorageKey)?.split(", ").filter(x => x != "").map(x => x as Filter) || []
+    )
+    const handleFilterChange = (event: SelectChangeEvent<typeof filterState>) => {
+        const {target: {value}} = event
+        const filters = filterState.length > 0 ? [] : ["Только нерешенные" as Filter]
+        localStorage.setItem(FilterStorageKey, filters.join(", "))
+        setFilterState(filters)
+    }
+
+    const showOnlyNotSolved = filterState.some(x => x === "Только нерешенные")
 
     useEffect(() => {
         getTask()
@@ -47,15 +82,18 @@ const TaskSolutionsPage: FC = () => {
             addSolution: false,
             courseId: pageData.courseId!,
             task: pageData.task!,
-            taskSolutions: pageData.taskSolutions!,
+            allTaskSolutions: pageData.taskSolutions!,
             courseMates: pageData.courseMates!,
         })
     }
 
-    const {taskSolutions, courseId, task, courseMates} = taskSolutionPage
+    const {allTaskSolutions, courseId, task, courseMates} = taskSolutionPage
     const student = courseMates.find(x => x.userId === userId)!
-    const currentTaskSolutions = taskSolutions.find(x => x.taskId === taskId)?.solutions || []
+    const currentTaskSolutions = allTaskSolutions.find(x => x.taskId === taskId)?.solutions || []
     const lastSolution = currentTaskSolutions[currentTaskSolutions.length - 1]
+    const taskSolutions = showOnlyNotSolved
+        ? allTaskSolutions.filter(x => x.solutions?.length == 0)
+        : allTaskSolutions
 
     const onCancelAddSolution = () => {
         setTaskSolutionPage((prevState) => ({
@@ -64,108 +102,76 @@ const TaskSolutionsPage: FC = () => {
         }))
     }
 
-    if (taskSolutionPage.isLoaded) {
-        if (ApiSingleton.authService.isLoggedIn()) {
-            return (
-                <div className={"container"} style={{marginBottom: '50px'}}>
-                    <Grid container justify="center" style={{marginTop: '20px'}}>
-                        <Grid container xs={12}>
-                            <Grid item xs={12}>
-                                <Stack direction={"row"} spacing={1}
-                                       style={{overflowY: "hidden", overflowX: "auto", minHeight: 80}}>
-                                    {taskSolutions.map((t, index) => {
-                                        const isCurrent = taskId === String(t.taskId)
-                                        const {
-                                            color,
-                                            lastRatedSolution,
-                                            solutionsDescription
-                                        } = StudentStatsUtils.calculateLastRatedSolutionInfo(t.solutions!, task.maxRating!)
-                                        return <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                                            {index > 0 && <hr style={{width: 100}}/>}
-                                            <Step active={isCurrent}>
-                                                <Link to={`/task/${t.taskId}`}
-                                                      style={{color: "black", textDecoration: "none"}}>
-                                                    <StepButton
-                                                        ref={ref => {
-                                                            if (isCurrent) ref?.scrollIntoView({inline: "nearest"})
-                                                        }}
-                                                        color={color}
-                                                        icon={<Tooltip arrow disableInteractive enterDelay={1000} title={<span
-                                                            style={{whiteSpace: 'pre-line'}}>{solutionsDescription}</span>}>
-                                                            <Chip style={{backgroundColor: color}}
-                                                                  size={"small"}
-                                                                  label={lastRatedSolution == undefined ? "?" : lastRatedSolution.rating}/>
-                                                        </Tooltip>}>
-                                                        {t.title}
-                                                    </StepButton>
-                                                </Link>
-                                            </Step>
-                                        </Stack>
-                                    })}
-                                </Stack>
-                            </Grid>
-                            <Grid item xs={12}>
-                                <Task
-                                    task={taskSolutionPage.task}
-                                    forStudent={true}
-                                    forMentor={false}
-                                    isReadingMode={true}
-                                    onDeleteClick={() => 3}
-                                    isExpanded={true}
-                                    showForCourse={false}
-                                />
-                            </Grid>
-                            {!taskSolutionPage.addSolution && (
-                                <Grid item xs={6}>
-                                    <TaskSolutions
-                                        task={task}
-                                        forMentor={false}
-                                        student={student}
-                                        solutions={currentTaskSolutions}/>
-                                </Grid>
-                            )}
-                            {(!taskSolutionPage.addSolution && task.canSendSolution) && (
-                                <Grid item xs={12} style={{marginTop: "10px"}}>
-                                    <Divider style={{marginBottom: 15}}/>
-                                    <Button
-                                        size="small"
-                                        variant="contained"
-                                        color="primary"
-                                        onClick={(e) => {
-                                            e.persist()
-                                            setTaskSolutionPage((prevState) => ({
-                                                ...prevState,
-                                                addSolution: true,
-                                            }))
-                                        }}
-                                    >
-                                        Добавить решение
-                                    </Button>
-                                </Grid>
-                            )}
-                            {taskSolutionPage.addSolution && (
-                                <Grid item xs={6}>
-                                    <div>
-                                        <TaskSolutions
-                                            task={task}
-                                            forMentor={false}
-                                            student={student!}
-                                            solutions={currentTaskSolutions}/>
-                                    </div>
-                                    <div style={{marginTop: "10px"}}>
-                                        <Divider style={{marginBottom: 15}}/>
-                                        <AddSolution
-                                            userId={userId}
-                                            taskId={+taskId!}
-                                            onAdd={getTask}
-                                            onCancel={onCancelAddSolution}
-                                            lastSolutionUrl={lastSolution?.githubUrl}
-                                            students={courseMates}
-                                            lastGroup={lastSolution?.groupMates?.map(s => s.userId!) || []}/>
-                                    </div>
-                                </Grid>
-                            )}
+    return taskSolutionPage.isLoaded ? <div className={"container"} style={{marginBottom: '50px'}}>
+        <Grid container justify="center" style={{marginTop: '20px'}}>
+            <Grid container spacing={2} xs={12}>
+                <Grid item xs={12}>
+                    <Stack direction={"row"} spacing={1}
+                           style={{overflowY: "hidden", overflowX: "auto", minHeight: 80}}>
+                        {taskSolutions.map((t, index) => {
+                            const isCurrent = taskId === String(t.taskId)
+                            const {
+                                color,
+                                lastRatedSolution,
+                                solutionsDescription
+                            } = StudentStatsUtils.calculateLastRatedSolutionInfo(t.solutions!, t.maxRating!)
+                            return <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                {index > 0 && <hr style={{width: 100}}/>}
+                                <Step active={isCurrent}>
+                                    <Link to={`/task/${t.taskId}`}
+                                          style={{color: "black", textDecoration: "none"}}>
+                                        <StepButton
+                                            ref={ref => {
+                                                if (isCurrent) ref?.scrollIntoView({inline: "nearest"})
+                                            }}
+                                            color={color}
+                                            icon={<Tooltip arrow disableInteractive enterDelay={1000} title={<span
+                                                style={{whiteSpace: 'pre-line'}}>{solutionsDescription}</span>}>
+                                                <Chip style={{backgroundColor: color}}
+                                                      size={"small"}
+                                                      label={lastRatedSolution == undefined ? "?" : lastRatedSolution.rating}/>
+                                            </Tooltip>}>
+                                            {t.title}
+                                        </StepButton>
+                                    </Link>
+                                </Step>
+                            </Stack>
+                        })}
+                    </Stack>
+                </Grid>
+                <Grid container item direction={"row"} spacing={2}>
+                    <Grid container item lg={3} spacing={1} direction={"column"}>
+                        <Grid item>
+                            <FormControl fullWidth>
+                                <InputLabel>Фильтр</InputLabel>
+                                <Select
+                                    size={"medium"}
+                                    value={filterState}
+                                    onChange={handleFilterChange}
+                                    input={<OutlinedInput label="Фильтр"/>}
+                                    MenuProps={FilterProps}
+                                >
+                                    <MenuItem key="Только нерешенные" value={"Только нерешенные" as Filter}>
+                                        Только нерешенные
+                                    </MenuItem>
+                                </Select>
+                            </FormControl>
                         </Grid>
+                        {task.canSendSolution && <Grid item><Button
+                            fullWidth
+                            size="large"
+                            variant="contained"
+                            color="primary"
+                            onClick={(e) => {
+                                e.persist()
+                                setTaskSolutionPage((prevState) => ({
+                                    ...prevState,
+                                    addSolution: true,
+                                }))
+                            }}
+                        >
+                            Добавить решение
+                        </Button></Grid>}
                         <Grid item>
                             <Link
                                 style={{color: '#212529'}}
@@ -177,21 +183,44 @@ const TaskSolutionsPage: FC = () => {
                             </Link>
                         </Grid>
                     </Grid>
-                </div>
-            )
-        } else {
-            return (
-                <Typography variant="h6">
-                    Страница не найдена
-                </Typography>
-            )
-        }
-    }
-    return (
+                    <Grid container item lg={9}>
+                        <Grid item xs={12}>
+                            <Task
+                                task={taskSolutionPage.task}
+                                forStudent={true}
+                                forMentor={false}
+                                isReadingMode={true}
+                                onDeleteClick={() => 3}
+                                isExpanded={true}
+                                showForCourse={false}
+                            />
+                        </Grid>
+                        {!taskSolutionPage.addSolution && (
+                            <Grid item xs={12}>
+                                <TaskSolutions
+                                    task={task}
+                                    forMentor={false}
+                                    student={student}
+                                    solutions={currentTaskSolutions}/>
+                            </Grid>
+                        )}
+                    </Grid>
+                </Grid>
+            </Grid>
+            {taskSolutionPage.addSolution && <AddSolution
+                userId={userId}
+                taskId={+taskId!}
+                onAdd={getTask}
+                onCancel={onCancelAddSolution}
+                lastSolutionUrl={lastSolution?.githubUrl}
+                students={courseMates}
+                lastGroup={lastSolution?.groupMates?.map(s => s.userId!) || []}/>}
+        </Grid>
+    </div> : (
         <div>
 
         </div>
-    )
+    );
 }
 
 export default TaskSolutionsPage

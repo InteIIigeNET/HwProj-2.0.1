@@ -71,8 +71,6 @@ namespace HwProj.SolutionsService.API.Controllers
         public async Task<IActionResult> PostSolution(long taskId, [FromBody] PostSolutionModel solutionModel)
         {
             var task = await _coursesClient.GetTask(taskId);
-            var course = await _coursesClient.GetCourseByTask(taskId);
-
             if (!task.CanSendSolution) return BadRequest();
 
             var solution = _mapper.Map<Solution>(solutionModel);

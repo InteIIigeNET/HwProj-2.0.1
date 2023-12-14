@@ -41,7 +41,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 {
                     Sender = "CourseService",
                     Body =
-                        $"Пользователь <a href='{url}/profile/{@event.StudentId}'>{user.Name} {user.Surname}</a>" +
+                        $"Студент <a href='{url}/profile/{@event.StudentId}'>{user.Name} {user.Surname}</a>" +
                         $" подал заявку на вступление в курс <a href='{url}/courses/{@event.CourseId}'>{@event.CourseName}</a>.",
                     Category = CategoryState.Courses,
                     Date = DateTimeUtils.GetMoscowNow(),
@@ -49,10 +49,11 @@ namespace HwProj.NotificationsService.API.EventHandlers
                     Owner = m
                 };
 
+                var subject = $"Новая заявка в курс {@event.CourseName}";
                 var mentor = await _authServiceClient.GetAccountData(notification.Owner);
 
                 var addNotificationTask = _notificationRepository.AddAsync(notification);
-                var sendEmailTask = _emailService.SendEmailAsync(notification, mentor.Email, "HwProj");
+                var sendEmailTask = _emailService.SendEmailAsync(notification, mentor.Email, subject);
 
                 await Task.WhenAll(addNotificationTask, sendEmailTask);
             }

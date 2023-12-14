@@ -17,10 +17,10 @@ import TimelineContent from '@mui/lab/TimelineContent';
 import TimelineDot from '@mui/lab/TimelineDot';
 import TimelineOppositeContent from '@mui/lab/TimelineOppositeContent';
 import {Box, Card, CardActions, CardContent, Chip, Divider, Tooltip} from "@mui/material";
-import ReactMarkdown from "react-markdown";
 import {Link} from "react-router-dom";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import Utils from "../../services/Utils";
+import {ReactMarkdownWithCodeHighlighting} from "../Common/TextFieldWithPreview";
 
 interface ICourseExperimentalProps {
     homeworks: HomeworkViewModel[]
@@ -87,7 +87,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             </Grid>
             <Divider style={{marginTop: 15, marginBottom: 15}}/>
             <Typography style={{color: "#454545"}} gutterBottom variant="body1">
-                <ReactMarkdown children={homework.description!}/>
+                <ReactMarkdownWithCodeHighlighting value={homework.description!}/>
             </Typography>
         </CardContent>
     }
@@ -106,7 +106,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             </Grid>
             <Divider style={{marginTop: 15, marginBottom: 15}}/>
             <Typography style={{color: "#454545"}} gutterBottom variant="body1">
-                <ReactMarkdown children={task.description!}/>
+                <ReactMarkdownWithCodeHighlighting value={task.description!}/>
             </Typography>
         </CardContent>
     }
@@ -170,7 +170,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     }
 
     return <Grid container direction={"row"} spacing={1}>
-        <Grid item xs={4}>
+        <Grid item lg={4}>
             <Timeline style={{maxHeight: 500, overflow: 'auto'}}
                       sx={{'&::-webkit-scrollbar': {display: "none"}}}>
                 {homeworks.map(x => <div>
@@ -228,7 +228,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             </Timeline>
         </Grid>
 
-        <Grid item xs={8}>
+        <Grid item lg={8}>
             {renderSelectedItem()}
         </Grid>
     </Grid>

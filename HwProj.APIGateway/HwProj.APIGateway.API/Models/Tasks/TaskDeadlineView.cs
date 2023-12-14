@@ -8,6 +8,6 @@ namespace HwProj.APIGateway.API.Models.Tasks
         public TaskDeadlineDto Deadline { get; set; }
         public SolutionState? SolutionState { get; set; }
         public long? Rating { get; set; }
-        public long MaxRating { get; set; }
+        public bool DeadlinePast { get; set; }
     }
 }

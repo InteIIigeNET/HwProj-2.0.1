@@ -6,6 +6,7 @@ using HwProj.APIGateway.API.Models;
 using HwProj.APIGateway.API.Models.Tasks;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
+using HwProj.Models;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.Result;
@@ -48,38 +49,49 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(UserDataDto), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetUserData()
         {
-            var getAccountDataTask = AuthServiceClient.GetAccountData(UserId);
-            var getCoursesTask = _coursesClient.GetAllUserCourses();
-
-            await Task.WhenAll(getAccountDataTask, getCoursesTask);
-
-            var courses = GetCoursePreviews(getCoursesTask.Result);
+            var accountData = await AuthServiceClient.GetAccountData(UserId);
 
             if (User.IsInRole(Roles.LecturerRole))
             {
+                var courses = await _coursesClient.GetAllUserCourses();
+                var courseEvents = courses
+                    .Select(t => new CourseEvents
+                    {
+                        Id = t.Id,
+                        Name = t.Name,
+                        GroupName = t.GroupName,
+                        IsCompleted = t.IsCompleted,
+                        NewStudentsCount = t.CourseMates.Count(x => !x.IsAccepted)
+                    })
+                    .Where(t => t.NewStudentsCount > 0)
+                    .ToArray();
+
                 return Ok(new UserDataDto
                 {
-                    UserData = getAccountDataTask.Result,
-                    Courses = await courses,
+                    UserData = accountData,
+                    CourseEvents = courseEvents,
                     TaskDeadlines = Array.Empty<TaskDeadlineView>()
                 });
             }
 
+            var currentTime = DateTimeUtils.GetMoscowNow();
             var taskDeadlines = await _coursesClient.GetTaskDeadlines();
             var taskIds = taskDeadlines.Select(t => t.TaskId).ToArray();
             var solutions = await _solutionsServiceClient.GetLastTaskSolutions(taskIds, UserId);
-            var taskDeadlinesInfo = taskDeadlines.Select((d, i) => new TaskDeadlineView
-            {
-                Deadline = d,
-                SolutionState = solutions[i]?.State,
-                Rating = solutions[i]?.Rating,
-                MaxRating = taskDeadlines[i].MaxRating
-            }).ToArray();
+            var taskDeadlinesInfo = taskDeadlines
+                .Zip(solutions, (deadline, solution) => (deadline, solution))
+                .Where(t => currentTime <= t.deadline.DeadlineDate || t.solution == null)
+                .Select(t => new TaskDeadlineView
+                {
+                    Deadline = t.deadline,
+                    SolutionState = t.solution?.State,
+                    Rating = t.solution?.Rating,
+                    DeadlinePast = currentTime > t.deadline.DeadlineDate
+                }).ToArray();
 
             var aggregatedResult = new UserDataDto
             {
-                UserData = getAccountDataTask.Result,
-                Courses = await courses,
+                UserData = accountData,
                 TaskDeadlines = taskDeadlinesInfo
             };
             return Ok(aggregatedResult);
@@ -101,6 +113,15 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok(tokenMeta);
         }
 
+        [Authorize]
+        [HttpGet("refreshToken")]
+        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> RefreshToken()
+        {
+            var tokenMeta = await AuthServiceClient.RefreshToken(UserId!);
+            return Ok(tokenMeta);
+        }
+
         [HttpPut("edit")]
         [Authorize]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
@@ -117,14 +138,6 @@ namespace HwProj.APIGateway.API.Controllers
         {
             var result = await AuthServiceClient.InviteNewLecturer(model).ConfigureAwait(false);
             return Ok(result);
-        }
-
-        [HttpPost("google")]
-        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> LoginByGoogle(string tokenId)
-        {
-            var tokenMeta = await AuthServiceClient.LoginByGoogle(tokenId).ConfigureAwait(false);
-            return Ok(tokenMeta);
         }
 
         [HttpPut("editExternal")]

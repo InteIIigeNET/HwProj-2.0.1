@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Http;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using HwProj.HttpUtils;
@@ -136,9 +137,10 @@ namespace HwProj.CoursesService.Client
 
         public async Task<CourseDTO[]> GetAllUserCourses()
         {
+            var role = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Role).Value;
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
-                _coursesServiceUri + "api/Courses/userCourses");
+                _coursesServiceUri + $"api/Courses/userCourses?role={role}");
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
@@ -219,7 +221,9 @@ namespace HwProj.CoursesService.Client
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
                 _coursesServiceUri + $"api/Tasks/get/{taskId}");
-
+            
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<HomeworkTaskViewModel>();
         }
@@ -380,15 +384,18 @@ namespace HwProj.CoursesService.Client
             return await response.DeserializeAsync<long[]>();
         }
 
-        public async Task<Result> AcceptLecturer(long courseId, string lecturerEmail)
+        public async Task<Result> AcceptLecturer(long courseId, string lecturerEmail, string lecturerId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
-                _coursesServiceUri + $"api/Courses/acceptLecturer/{courseId}?lecturerEmail={lecturerEmail}");
+                _coursesServiceUri +
+                $"api/Courses/acceptLecturer/{courseId}?lecturerEmail={lecturerEmail}&lecturerId={lecturerId}");
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-            return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
+            return response.IsSuccessStatusCode
+                ? Result.Success()
+                : Result.Failed(response.ReasonPhrase);
         }
 
         public async Task<Result<AccountDataDto[]>> GetLecturersAvailableForCourse(long courseId)

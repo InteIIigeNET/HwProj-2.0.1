@@ -13,6 +13,7 @@ namespace HwProj.APIGateway.API.Models.Solutions
 
     public class UserTaskSolutions2
     {
+        public int MaxRating { get; set; }
         public string Title { get; set; }
         public string TaskId { get; set; }
         public GetSolutionModel[] Solutions { get; set; }

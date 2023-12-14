@@ -1,16 +1,16 @@
 ﻿import * as React from "react";
-import {Typography, CircularProgress, Box, Grid, Tabs, Tab} from "@material-ui/core";
+import {Typography, CircularProgress, Grid, Tabs, Tab} from "@material-ui/core";
 import ApiSingleton from "api/ApiSingleton";
 import {UnratedSolutionPreviews, UserDataDto} from "../api/";
 import "./Styles/Profile.css";
 import {FC, useEffect, useState} from "react";
-import {Link as RouterLink, Navigate, useNavigate, useParams} from "react-router-dom";
+import {Link as RouterLink, useParams} from "react-router-dom";
 import {makeStyles} from "@material-ui/styles";
-import {CoursesList} from "./Courses/CoursesList";
 import EditIcon from "@material-ui/icons/Edit";
 import {TaskDeadlines} from "./Tasks/TaskDeadlines";
 import UnratedSolutions from "./Solutions/UnratedSolutions";
 import {Chip, Stack} from "@mui/material";
+import NewCourseEvents from "./Courses/NewCourseEvents";
 
 interface IWorkspaceState {
     isLoaded: boolean;
@@ -24,15 +24,16 @@ const useStyles = makeStyles(() => ({
 }))
 
 const Workspace: FC = () => {
-    const { id } = useParams()
-    const navigate = useNavigate()
+    const {id} = useParams()
 
     const [profileState, setProfileState] = useState<IWorkspaceState>({
         isLoaded: false,
         tabValue: 0
     })
 
-    const [accountState, setAccountState] = useState<UserDataDto & { unratedSolutionPreviews: UnratedSolutionPreviews | undefined }>({
+    const [accountState, setAccountState] = useState<UserDataDto & {
+        unratedSolutionPreviews: UnratedSolutionPreviews | undefined
+    }>({
         userData: undefined,
         unratedSolutionPreviews: undefined
     })
@@ -47,7 +48,7 @@ const Workspace: FC = () => {
     const getUserInfo = async () => {
         if (id) {
             const data = await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(id)
-            setAccountState({userData: data, taskDeadlines: [], courses: [], unratedSolutionPreviews: undefined})
+            setAccountState({userData: data, taskDeadlines: [], courseEvents: [], unratedSolutionPreviews: undefined})
             setProfileState(prevState => ({
                 ...prevState,
                 isLoaded: true
@@ -61,16 +62,20 @@ const Workspace: FC = () => {
         setAccountState({...data, unratedSolutionPreviews: unratedSolutions})
         setProfileState(prevState => ({
             ...prevState,
+            tabValue: taskDeadlines?.some(x => x.deadlinePast) ? prevState.tabValue : 0,
             isLoaded: true
         }))
     }
 
-    const {userData, courses, taskDeadlines, unratedSolutionPreviews} = accountState
+    const onGiveUpClick = () => {
+        getUserInfo()
+    }
+
+    const {userData, courseEvents, taskDeadlines, unratedSolutionPreviews} = accountState
     const {tabValue} = profileState
 
-    if (!ApiSingleton.authService.isLoggedIn()) {
-        return <Navigate to={"/login"}/>;
-    }
+    const nearestTaskDeadlines = taskDeadlines?.filter(x => !x.deadlinePast) || []
+    const pastTaskDeadlines = taskDeadlines?.filter(x => x.deadlinePast) || []
 
     if (profileState.isLoaded) {
         const isUserProfile = userData!.userId === ApiSingleton.authService.getUserId()
@@ -113,40 +118,57 @@ const Workspace: FC = () => {
                                 }));
                             }}
                         >
-                            {isLecturer
-                                ? <Tab
-                                    label={
-                                        <Stack direction="row" spacing={1}>
-                                            <div>Ожидают проверки</div>
-                                            <Chip size={"small"} color={"default"}
-                                                  label={(unratedSolutionPreviews!.unratedSolutions!.length)}/>
-                                        </Stack>}/>
-                                : <Tab label={
-                                    <Stack direction="row" spacing={1}>
-                                        <div>Дедлайны</div>
-                                        <Chip size={"small"} color={"default"}
-                                              label={(taskDeadlines!.length)}/>
-                                    </Stack>}/>}
-                            <Tab label="Курсы"/>
+                            {isLecturer && <Tab label={
+                                <Stack direction="row" spacing={1}>
+                                    <div>Ожидают проверки</div>
+                                    <Chip size={"small"} color={"default"}
+                                          label={(unratedSolutionPreviews!.unratedSolutions!.length)}/>
+                                </Stack>}/>}
+                            {isLecturer && courseEvents!.length > 0 && <Tab label={<Stack direction="row" spacing={1}>
+                                <div>Курсы</div>
+                                <Chip size={"small"} color={"primary"}
+                                      label={(courseEvents!.length)}/>
+                            </Stack>}/>}
+
+                            {!isLecturer && <Tab label={
+                                <Stack direction="row" spacing={1}>
+                                    <div>Дедлайны</div>
+                                    <Chip size={"small"} color={"default"}
+                                          label={(nearestTaskDeadlines!.length)}/>
+                                </Stack>}/>}
+                            {!isLecturer && pastTaskDeadlines.length > 0 &&
+                                <Tab style={{minWidth: "fit-content"}}
+                                     label={
+                                         <Stack direction="row" spacing={1}>
+                                             <div>Пропущенные дедлайны</div>
+                                             <Chip size={"small"}
+                                                   color={"error"}
+                                                   label={pastTaskDeadlines.length}/>
+                                         </Stack>}
+                                />}
                         </Tabs>
-                        {tabValue === 0 &&
-                            (isLecturer
-                                ? <div style={{marginTop: 15}}><UnratedSolutions
-                                    unratedSolutionsPreviews={unratedSolutionPreviews!}/>
-                                </div>
-                                : <div style={{marginTop: 15}}><TaskDeadlines taskDeadlines={taskDeadlines!}/></div>)}
-                        {tabValue === 1 && courses &&
-                            <div style={{marginTop: 15}}><CoursesList navigate={navigate} courses={courses!}/></div>}
+                        <div style={{marginTop: 15}}>
+                            {tabValue === 0 &&
+                                (isLecturer
+                                    ? <UnratedSolutions unratedSolutionsPreviews={unratedSolutionPreviews!}/>
+                                    : <TaskDeadlines taskDeadlines={nearestTaskDeadlines}
+                                                     onGiveUpClick={onGiveUpClick}/>)}
+                            {tabValue === 1 &&
+                                (isLecturer
+                                    ? <NewCourseEvents courseEvents={courseEvents!}/>
+                                    : <TaskDeadlines taskDeadlines={pastTaskDeadlines}
+                                                     onGiveUpClick={onGiveUpClick}/>)}
+                        </div>
                     </Grid>}
                 </Grid>
             </div>
         )
     }
     return (
-        <Box m={2}>
+        <div className="container">
             <p>Загрузка...</p>
             <CircularProgress/>
-        </Box>
+        </div>
     )
 }
 

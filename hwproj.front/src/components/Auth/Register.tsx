@@ -56,8 +56,16 @@ const Register: FC<LoginProps> = (props) => {
         loggedIn: ApiSingleton.authService.isLoggedIn(),
         error: [],
     })
+    const [passwordError, setPasswordError] = useState<string>(""); // Состояние для ошибки паролей
+    const [isRegisterButtonDisabled, setIsRegisterButtonDisabled] = useState<boolean>(false); // Состояние для блокировки кнопки
 
     const handleSubmit = async (e: any) => {
+        e.preventDefault();
+       if (registerState.password !== registerState.passwordConfirm) {
+            setPasswordError("Пароли не совпадают");
+            setIsRegisterButtonDisabled(true);
+            return;
+        }
         e.preventDefault()
         try {
             const result = await ApiSingleton.authService.register(registerState)
@@ -201,7 +209,11 @@ const Register: FC<LoginProps> = (props) => {
                                         ...prevState,
                                         passwordConfirm: e.target.value
                                     }))
+                                    setPasswordError("");
+                                    setIsRegisterButtonDisabled(false);
                                 }}
+                                error={passwordError !== ""}
+                                helperText={passwordError}
                             />
                         </Grid>
                     </Grid>
@@ -211,6 +223,7 @@ const Register: FC<LoginProps> = (props) => {
                         variant="contained"
                         color="primary"
                         type="submit"
+                        disabled={isRegisterButtonDisabled}
                     >
                         Зарегистрироваться
                     </Button>
