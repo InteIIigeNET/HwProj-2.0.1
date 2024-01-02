@@ -112,9 +112,9 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                         disabled={props.disabledPublicationDate}
                         error={taskSoonerThanHomework || (deadlineSoonerThanPublication && hasDeadline === false)}
                         helperText={taskSoonerThanHomework
-                            ? "Дата публикации задачи не может быть раньше домашней работы"
+                            ? `Публикация задачи раньше домашнего задания: ${Utils.renderDateWithoutSeconds(homeworkPublicationDate)}`
                             : (deadlineSoonerThanPublication && hasDeadline === false)
-                                ? "Дата публикации задачи не может быть позже дедлайна"
+                                ? `Публикация задачи позже ее дедлайна: ${Utils.renderDateWithoutSeconds(homeworkDeadlineDate!)}`
                                 : publicationDate !== undefined 
                                     ? `Было ${Utils.renderDateWithoutSeconds(homeworkPublicationDate)}` 
                                     : "\u200b"}
@@ -152,7 +152,7 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                         {hasDeadline != undefined 
                             ? hasDeadline
                                 ? 'Было без дедлайна'
-                                : 'Был с дедлайном'
+                                : 'Был c дедлайном'
                             : "\u200b"}
                     </FormHelperText>
                 </Grid>
@@ -173,7 +173,7 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                             type="datetime-local"
                             variant="standard"
                             error={deadlineSoonerThanPublication}
-                            helperText={deadlineSoonerThanPublication ? "Дедлайн задачи не может быть раньше даты публикации" :
+                            helperText={deadlineSoonerThanPublication ? `Дедлайн задачи раньше ее публикации: ${Utils.renderDateWithoutSeconds(state.publicationDate!)}` :
                                 deadlineDate != undefined 
                                     ? props.homework.hasDeadline
                                         ? `Было ${Utils.renderDateWithoutSeconds(props.homework.deadlineDate!)}`
