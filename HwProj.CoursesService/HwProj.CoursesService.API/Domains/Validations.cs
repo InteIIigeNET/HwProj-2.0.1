@@ -26,13 +26,12 @@ namespace HwProj.CoursesService.API.Domains
                 errors.Add("Нельзя изменить дату публикации задачи, если она уже показана студентам");
             }
 
-            if (task.HasDeadline is null && !homework.HasDeadline && task.DeadlineDate is not null)
+            if (task.HasDeadline is null && !homework.HasDeadline && task.DeadlineDate != null)
             {
-                errors.Add(
-                    "DeadlineDate не может принимать какое-либо значение, если задача не переопределяет HasDeadline и в домашнем задании нет дедлайна");
+                errors.Add("DeadlineDate не может принимать какое-либо значение, если задача не переопределяет HasDeadline и в домашнем задании нет дедлайна");
             }
 
-            if (task.HasDeadline == false && task.DeadlineDate is not null)
+            if (task.HasDeadline == false && task.DeadlineDate != null)
             {
                 errors.Add("DeadlineDate не может принимать какое-либо значение, если у задачи нет дедлайна");
             }
@@ -78,7 +77,7 @@ namespace HwProj.CoursesService.API.Domains
 
             homework.Tasks.ForEach(task => errors.AddRange(ValidateTask(task, homework.ToHomework())));
 
-            if (homework.HasDeadline == false && homework.DeadlineDate is not null)
+            if (homework.HasDeadline == false && homework.DeadlineDate != null)
             {
                 errors.Add("DeadlineDate не может принимать значения, если у домашнего задания нет дедлайна");
             }

@@ -25,7 +25,8 @@ namespace HwProj.CoursesService.API.Domains
 
         public static void FillTask(Homework homework, HomeworkTask task)
         {
-            var hasDeadline = task.HasDeadline ??= homework.HasDeadline;
+            var hasDeadline = task.HasDeadline ?? homework.HasDeadline;
+            task.HasDeadline = hasDeadline;
             task.IsDeadlineStrict ??= homework.IsDeadlineStrict;
             task.DeadlineDate ??= hasDeadline ? homework.DeadlineDate : null;
             task.PublicationDate ??= homework.PublicationDate;
