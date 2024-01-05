@@ -200,30 +200,18 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<CourseDTO[]> GetUserCoursesAsync(string userId, string role)
         {
-            Course[] courses;
-
-            if (role == Roles.StudentRole)
-            {
-                var studentCoursesIds = await _courseMatesRepository
-                    .FindAll(cm => cm.StudentId == userId && cm.IsAccepted == true)
-                    .Select(cm => cm.CourseId)
-                    .ToArrayAsync();
-
-                courses =  await _coursesRepository.FindAll(t => studentCoursesIds.Contains(t.Id)).ToArrayAsync();
-            }
-            else
-            {
-                //TODO: refactor CourseMates & NewStudents
-                courses = await _coursesRepository
-                    .FindAll(c => c.MentorIds.Contains(userId))
+            var courses = role == Roles.LecturerRole
+                ? _coursesRepository.FindAll(c => c.MentorIds.Contains(userId))
+                : _coursesRepository.FindAll(c => c.CourseMates.Any(cm => cm.IsAccepted && cm.StudentId == userId));
+            
+            var result = await courses
                     .Include(c => c.CourseMates)
                     .Include(c => c.Homeworks).ThenInclude(t => t.Tasks)
                     .ToArrayAsync();
 
-                CourseDomain.FillTasksInCourses(courses);
-            }
+            CourseDomain.FillTasksInCourses(result);
 
-            return courses.Select(c => c.ToCourseDto()).ToArray();
+            return result.Select(c => c.ToCourseDto()).ToArray();
         }
 
         public async Task<bool> AcceptLecturerAsync(long courseId, string lecturerEmail, string lecturerId)

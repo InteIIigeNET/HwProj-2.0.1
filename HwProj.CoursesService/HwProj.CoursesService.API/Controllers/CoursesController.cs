@@ -15,6 +15,7 @@ using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
 using Microsoft.EntityFrameworkCore;
 using HwProj.CoursesService.API.Domains;
+using HwProj.Models.Roles;
 
 namespace HwProj.CoursesService.API.Controllers
 {
@@ -159,19 +160,12 @@ namespace HwProj.CoursesService.API.Controllers
         public async Task<TaskDeadlineDto[]> GetUserDeadlines()
         {
             var userId = Request.GetUserIdFromHeader();
-            var courseIds = await _courseMatesRepository.FindAll(t => t.StudentId == userId && t.IsAccepted)
-                .Select(t => t.CourseId)
-                .ToListAsync();
+
+            var courses = await _coursesService.GetUserCoursesAsync(userId, Roles.StudentRole);
 
             var currentDate = DateTime.UtcNow;
-            var courses = await _coursesRepository
-                .FindAll(t => courseIds.Contains(t.Id))
-                .Include(t => t.Homeworks)
-                .ThenInclude(t => t.Tasks)
-                .ToListAsync();
-
+            
             //TODO: Move to service
-            CourseDomain.FillTasksInCourses(courses.ToArray());
 
             var result = courses
                 .SelectMany(course => course.Homeworks
