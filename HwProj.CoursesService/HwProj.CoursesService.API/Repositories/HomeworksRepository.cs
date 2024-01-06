@@ -15,19 +15,19 @@ namespace HwProj.CoursesService.API.Repositories
 
         public async Task<Homework[]> GetAllWithTasksAsync()
         {
-            return await Context.Set<Homework>().Include(h => h.Tasks).ToArrayAsync();
+            return await Context.Set<Homework>().AsNoTracking().Include(h => h.Tasks).ToArrayAsync();
         }
 
         public async Task<Homework[]> GetAllWithTasksByCourseAsync(long courseId)
         {
-            return await Context.Set<Homework>().Include(h => h.Tasks)
+            return await Context.Set<Homework>().AsNoTracking().Include(h => h.Tasks)
                 .Where(h => h.CourseId == courseId)
                 .ToArrayAsync();
         }
 
         public async Task<Homework> GetWithTasksAsync(long id)
         {
-            return await Context.Set<Homework>().Include(h => h.Tasks)
+            return await Context.Set<Homework>().AsNoTracking().Include(h => h.Tasks)
                 .FirstOrDefaultAsync(h => h.Id == id);
         }
     }

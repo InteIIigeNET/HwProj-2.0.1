@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
@@ -31,22 +32,23 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
         public override async Task HandleAsync(UpdateHomeworkEvent @event)
         {
-            foreach (var student in @event.Course.CourseMates)
+            var accountsData = await _authServiceClient.GetAccountsData(@event.StudentIds);
+
+            foreach (var student in accountsData)
             {
-                var studentModel = await _authServiceClient.GetAccountData(student.StudentId);
                 var notification = new Notification
                 {
                     Sender = "CourseService",
                     Body =
-                        $"В курсе <a href='{_configuration["Url"]}/courses/{@event.Course.Id}'>{@event.Course.Name}</a> домашнее задание <i>{@event.Homework.Title}</i> обновлено.",
+                        $"В курсе <a href='{_configuration["Url"]}/courses/{@event.CourseId}'>{@event.CourseName}</a> домашнее задание <i>{@event.HomeworkTitle}</i> обновлено.",
                     Category = CategoryState.Homeworks,
-                    Date = DateTimeUtils.GetMoscowNow(),
+                    Date = DateTime.UtcNow,
                     HasSeen = false,
-                    Owner = student.StudentId
+                    Owner = student.UserId
                 };
 
                 var addNotificationTask = _notificationRepository.AddAsync(notification);
-                var sendEmailTask = _emailService.SendEmailAsync(notification, studentModel.Email, "Домашняя работа");
+                var sendEmailTask = _emailService.SendEmailAsync(notification, student.Email, "Домашняя работа");
 
                 await Task.WhenAll(addNotificationTask, sendEmailTask);
             }

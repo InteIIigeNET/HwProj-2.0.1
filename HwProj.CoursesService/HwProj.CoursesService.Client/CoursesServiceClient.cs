@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
@@ -9,6 +10,7 @@ using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Result;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
@@ -172,10 +174,15 @@ namespace HwProj.CoursesService.Client
 
             httpRequest.TryAddUserId(_httpContextAccessor);
 
+            // TODO: check version of switch expression appearing
             var response = await _httpClient.SendAsync(httpRequest);
-            return response.IsSuccessStatusCode
-                ? Result<long>.Success(await response.DeserializeAsync<long>())
-                : Result<long>.Failed(response.ReasonPhrase);
+            return response.StatusCode switch
+            {
+                HttpStatusCode.Forbidden => Result<long>.Failed(),
+                HttpStatusCode.OK => Result<long>.Success(await response.DeserializeAsync<long>()),
+                HttpStatusCode.BadRequest => Result<long>.Failed(await response.DeserializeAsync<string[]>()),
+                _ => Result<long>.Failed(),
+            };
         }
 
         public async Task<HomeworkViewModel> GetHomework(long homeworkId)
@@ -188,7 +195,19 @@ namespace HwProj.CoursesService.Client
             return await response.DeserializeAsync<HomeworkViewModel>();
         }
 
-        public async Task<Result> UpdateHomework(CreateHomeworkViewModel model, long homeworkId)
+        public async Task<HomeworkViewModel> GetForEditingHomework(long homeworkId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + $"api/Homeworks/getForEditing/{homeworkId}");
+
+            httpRequest.TryAddUserId(_httpContextAccessor);
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<HomeworkViewModel>();
+        }
+
+        public async Task<Result> UpdateHomework(long homeworkId, CreateHomeworkViewModel model)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Put,
@@ -202,7 +221,13 @@ namespace HwProj.CoursesService.Client
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-            return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
+            return response.StatusCode switch
+            {
+                HttpStatusCode.Forbidden => Result.Failed(),
+                HttpStatusCode.OK => Result.Success(),
+                HttpStatusCode.BadRequest => Result.Failed(await response.DeserializeAsync<string[]>()),
+                _ => Result.Failed(),
+            };
         }
 
         public async Task<Result> DeleteHomework(long homeworkId)
@@ -228,11 +253,23 @@ namespace HwProj.CoursesService.Client
             return await response.DeserializeAsync<HomeworkTaskViewModel>();
         }
 
-        public async Task<Result<long>> AddTask(CreateTaskViewModel taskViewModel, long homeworkId)
+        public async Task<HomeworkTaskForEditingViewModel> GetForEditingTask(long taskId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + $"api/Tasks/getForEditing/{taskId}");
+
+            httpRequest.TryAddUserId(_httpContextAccessor);
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<HomeworkTaskForEditingViewModel>();
+        }
+
+        public async Task<Result<long>> AddTask(long homeworkId, CreateTaskViewModel taskViewModel)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _coursesServiceUri + $"api/Tasks/{homeworkId}/add")
+                _coursesServiceUri + $"api/Tasks/add/{homeworkId}")
             {
                 Content = new StringContent(
                     JsonConvert.SerializeObject(taskViewModel),
@@ -243,9 +280,13 @@ namespace HwProj.CoursesService.Client
             httpRequest.TryAddUserId(_httpContextAccessor);
 
             var response = await _httpClient.SendAsync(httpRequest);
-            return response.IsSuccessStatusCode
-                ? Result<long>.Success(await response.DeserializeAsync<long>())
-                : Result<long>.Failed(response.ReasonPhrase);
+            return response.StatusCode switch
+            {
+                HttpStatusCode.Forbidden => Result<long>.Failed(),
+                HttpStatusCode.OK => Result<long>.Success(await response.DeserializeAsync<long>()),
+                HttpStatusCode.BadRequest => Result<long>.Failed(await response.DeserializeAsync<string[]>()),
+                _ => Result<long>.Failed(),
+            };
         }
 
         public async Task<Result> DeleteTask(long taskId)
@@ -259,7 +300,7 @@ namespace HwProj.CoursesService.Client
             return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
         }
 
-        public async Task<Result> UpdateTask(CreateTaskViewModel taskViewModel, long taskId)
+        public async Task<Result> UpdateTask(long taskId, CreateTaskViewModel taskViewModel)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Put,
@@ -273,7 +314,13 @@ namespace HwProj.CoursesService.Client
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-            return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
+            return response.StatusCode switch
+            {
+                HttpStatusCode.Forbidden => Result.Failed(),
+                HttpStatusCode.OK => Result.Success(),
+                HttpStatusCode.BadRequest => Result.Failed(await response.DeserializeAsync<string[]>()),
+                _ => Result.Failed(),
+            };
         }
 
         public async Task<GroupViewModel[]> GetAllCourseGroups(long courseId)

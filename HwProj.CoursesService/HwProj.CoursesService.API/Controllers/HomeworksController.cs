@@ -1,10 +1,12 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using AutoMapper;
+using HwProj.CoursesService.API.Domains;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Services;
 using HwProj.Models.CoursesService.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 
 namespace HwProj.CoursesService.API.Controllers
 {
@@ -23,19 +25,30 @@ namespace HwProj.CoursesService.API.Controllers
 
         [HttpPost("{courseId}/add")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        public async Task<long> AddHomework(long courseId, [FromBody] CreateHomeworkViewModel homeworkViewModel)
+        public async Task<IActionResult> AddHomework(long courseId, [FromBody] CreateHomeworkViewModel homeworkViewModel)
         {
-            homeworkViewModel.Tasks.ForEach(task => task.InitializeDeadline());
-            var homework = _mapper.Map<Homework>(homeworkViewModel);
+            var validationResult = Validator.ValidateHomework(homeworkViewModel);
+            if (validationResult.Any()) return BadRequest(validationResult);
+
+            var homework = homeworkViewModel.ToHomework();
             var homeworkId = await _homeworksService.AddHomeworkAsync(courseId, homework);
-            return homeworkId;
+            return Ok(homeworkId);
         }
 
         [HttpGet("get/{homeworkId}")]
         public async Task<HomeworkViewModel> GetHomework(long homeworkId)
         {
             var homeworkFromDb = await _homeworksService.GetHomeworkAsync(homeworkId);
-            var homework = _mapper.Map<HomeworkViewModel>(homeworkFromDb);
+            var homework = homeworkFromDb.ToHomeworkViewModel();
+            return homework;
+        }
+
+        [HttpGet("getForEditing/{homeworkId}")]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        public async Task<HomeworkViewModel> GetForEditingHomework(long homeworkId)
+        {
+            var homeworkFromDb = await _homeworksService.GetForEditingHomeworkAsync(homeworkId);
+            var homework = homeworkFromDb.ToHomeworkViewModel();
             return homework;
         }
 
@@ -48,14 +61,14 @@ namespace HwProj.CoursesService.API.Controllers
 
         [HttpPut("update/{homeworkId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        public async Task UpdateHomework(long homeworkId, [FromBody] CreateHomeworkViewModel homeworkViewModel)
+        public async Task<IActionResult> UpdateHomework(long homeworkId, [FromBody] CreateHomeworkViewModel homeworkViewModel)
         {
-            homeworkViewModel.Tasks.ForEach(task => task.InitializeDeadline());
-            await _homeworksService.UpdateHomeworkAsync(homeworkId, new Homework
-            {
-                Title = homeworkViewModel.Title,
-                Description = homeworkViewModel.Description
-            });
+            var homework = await _homeworksService.GetForEditingHomeworkAsync(homeworkId);
+            var validationResult = Validator.ValidateHomework(homeworkViewModel, homework);
+            if (validationResult.Any()) return BadRequest(validationResult);
+
+            await _homeworksService.UpdateHomeworkAsync(homeworkId, homeworkViewModel.ToHomework());
+            return Ok();
         }
     }
 }

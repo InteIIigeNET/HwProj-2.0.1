@@ -30,13 +30,26 @@ namespace HwProj.APIGateway.API.Controllers
                 : Ok(result);
         }
 
+        [HttpGet("getForEditing/{taskId}")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        [ProducesResponseType(typeof(HomeworkTaskForEditingViewModel), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetForEditingTask(long taskId)
+        {
+            var result = await _coursesClient.GetForEditingTask(taskId);
+            return result == null
+                ? NotFound() as IActionResult
+                : Ok(result);
+        }
+
         [HttpPost("add/{homeworkId}")]
         [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> AddTask(CreateTaskViewModel taskViewModel, long homeworkId)
+        public async Task<IActionResult> AddTask(long homeworkId, CreateTaskViewModel taskViewModel)
         {
-            var result = await _coursesClient.AddTask(taskViewModel, homeworkId);
-            return Ok(result.Value);
+            var result = await _coursesClient.AddTask(homeworkId, taskViewModel);
+            return result.Succeeded
+                ? Ok(result.Value) as IActionResult
+                : BadRequest(result.Errors);
         }
 
         [HttpDelete("delete/{taskId}")]
@@ -46,13 +59,15 @@ namespace HwProj.APIGateway.API.Controllers
             await _coursesClient.DeleteTask(taskId);
             return Ok();
         }
-
+        
         [HttpPut("update/{taskId}")]
         [Authorize(Roles = Roles.LecturerRole)]
-        public async Task<IActionResult> UpdateTask(CreateTaskViewModel taskViewModel, long taskId)
+        public async Task<IActionResult> UpdateTask(long taskId, CreateTaskViewModel taskViewModel)
         {
-            await _coursesClient.UpdateTask(taskViewModel, taskId);
-            return Ok();
+            var result = await _coursesClient.UpdateTask(taskId, taskViewModel);
+            return result.Succeeded
+                ? Ok() as IActionResult
+                : BadRequest(result.Errors);
         }
     }
 }

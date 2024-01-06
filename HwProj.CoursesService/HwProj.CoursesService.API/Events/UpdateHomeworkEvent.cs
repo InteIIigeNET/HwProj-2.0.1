@@ -1,17 +1,20 @@
 using HwProj.EventBus.Client;
-using HwProj.Models.CoursesService.ViewModels;
 
 namespace HwProj.CoursesService.API.Events
 {
     public class UpdateHomeworkEvent : Event
     {
-        public HomeworkViewModel Homework { get; set; }
-        public CourseDTO Course { get; set; }
-
-        public UpdateHomeworkEvent(HomeworkViewModel homework, CourseDTO course)
+        public UpdateHomeworkEvent(string homeworkTitle, long courseId, string courseName, string[] studentIds)
         {
-            Homework = homework;
-            Course = course;
+            CourseId = courseId;
+            HomeworkTitle = homeworkTitle;
+            StudentIds = studentIds;
+            CourseName = courseName;
         }
+
+        public string HomeworkTitle { get; set; }
+        public string[] StudentIds { get; set; }
+        public long CourseId { get; set; }
+        public string CourseName { get; set; }
     }
 }

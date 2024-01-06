@@ -51,16 +51,14 @@ namespace HwProj.APIGateway.API.Controllers
             var course = await _coursesServiceClient.GetCourseByTask(taskId);
             if (course == null) return NotFound();
 
-            var courseMate = course.CourseMates.FirstOrDefault(t => t.StudentId == studentId);
-            if (courseMate == null || !courseMate.IsAccepted)
-                return NotFound();
+            var courseMate = course.AcceptedStudents.FirstOrDefault(t => t.StudentId == studentId);
+            if (courseMate == null) return NotFound();
 
             var studentSolutions = (await _solutionsClient.GetCourseStatistics(course.Id, UserId)).Single();
             var tasks = course.Homeworks.SelectMany(t => t.Tasks).ToDictionary(t => t.Id);
 
             // Получаем группы только для выбранной задачи
-            var studentsOnCourse = course.CourseMates
-                .Where(model => model.IsAccepted)
+            var studentsOnCourse = course.AcceptedStudents
                 .Select(t => t.StudentId)
                 .ToArray();
 
@@ -117,12 +115,11 @@ namespace HwProj.APIGateway.API.Controllers
             //TODO: CourseMentorOnlyAttribute
             if (course == null || !course.MentorIds.Contains(UserId)) return Forbid();
 
-            var studentIds = course.CourseMates
-                .Where(t => t.IsAccepted)
+            var studentIds = course.AcceptedStudents
                 .Select(t => t.StudentId)
                 .ToArray();
 
-            var currentDateTime = DateTimeUtils.GetMoscowNow();
+            var currentDateTime = DateTime.UtcNow;
             var tasks = course.Homeworks
                 .SelectMany(t => t.Tasks)
                 .Where(t => t.PublicationDate <= currentDateTime)
@@ -178,9 +175,8 @@ namespace HwProj.APIGateway.API.Controllers
             var course = await _coursesServiceClient.GetCourseByTask(taskId);
             if (course is null) return BadRequest();
 
-            var courseMate = course.CourseMates.FirstOrDefault(t => t.StudentId == solutionModel.StudentId);
-            if (courseMate == null || !courseMate.IsAccepted)
-                return BadRequest($"Студента с id {solutionModel.StudentId} не существует");
+            var courseMate = course.AcceptedStudents.FirstOrDefault(t => t.StudentId == solutionModel.StudentId);
+            if (courseMate == null) return BadRequest($"Студента с id {solutionModel.StudentId} не существует");
 
             if (model.GroupMateIds == null || model.GroupMateIds.Length == 0)
             {

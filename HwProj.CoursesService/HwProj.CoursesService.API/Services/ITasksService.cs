@@ -6,6 +6,7 @@ namespace HwProj.CoursesService.API.Services
     public interface ITasksService
     {
         Task<HomeworkTask> GetTaskAsync(long taskId);
+        Task<HomeworkTask> GetForEditingTaskAsync(long taskId);
         Task<long> AddTaskAsync(long homeworkId, HomeworkTask task);
         Task DeleteTaskAsync(long taskId);
         Task UpdateTaskAsync(long taskId, HomeworkTask update);

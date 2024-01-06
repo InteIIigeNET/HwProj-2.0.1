@@ -189,6 +189,10 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                         <Typography variant="subtitle1" align={"center"}>
                             <b>{x.title}</b>
                         </Typography>
+                        {x.isDeferred &&
+                        <Typography style={{fontSize: "14px"}} align={"center"}>
+                            {"🕘 " + renderDate(x.publicationDate!) + " " + renderTime(x.publicationDate!)}
+                        </Typography>}
                         {x.tasks?.length === 0 &&
                             <TimelineItem style={{minHeight: 30, marginBottom: -5}}>
                                 <TimelineOppositeContent></TimelineOppositeContent>

@@ -149,7 +149,7 @@ namespace HwProj.SolutionsService.API.Controllers
             var userId = Request.GetUserIdFromHeader();
             var solutions = await _solutionsRepository.FindAll(t => taskIds.Contains(t.TaskId)).ToListAsync();
             var courseMates = course.MentorIds.Contains(userId)
-                ? course.CourseMates.Where(t => t.IsAccepted)
+                ? course.AcceptedStudents
                 : course.CourseMates.Where(t => t.StudentId == userId);
             var courseGroups = course.Groups;
 

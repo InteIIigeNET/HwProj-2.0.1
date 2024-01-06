@@ -1,19 +1,22 @@
 using HwProj.EventBus.Client;
-using HwProj.Models.CoursesService.ViewModels;
 
 namespace HwProj.CoursesService.API.Events
 {
     public class UpdateTaskMaxRatingEvent : Event
     {
-        public CourseDTO Course { get; set; }
-        public HomeworkTaskViewModel Task { get; set; }
-        public int MaxRating { get; set; }
-
-        public UpdateTaskMaxRatingEvent(CourseDTO course, HomeworkTaskViewModel task, int rating)
+        public UpdateTaskMaxRatingEvent(string courseName, long courseId, string taskTitle, long taskId, string[] studentIds)
         {
-            Course = course;
-            Task = task;
-            MaxRating = rating;
+            CourseName = courseName;
+            CourseId = courseId;
+            TaskTitle = taskTitle;
+            TaskId = taskId;
+            StudentIds = studentIds;
         }
+
+        public string CourseName { get; set; }
+        public long CourseId {get; set; }
+        public string TaskTitle { get; set; }
+        public long TaskId { get; set; }
+        public string[] StudentIds { get; set; }
     }
 }

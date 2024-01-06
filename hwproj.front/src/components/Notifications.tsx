@@ -18,6 +18,7 @@ import "./Styles/Profile.css";
 import parse from 'html-react-parser';
 import {Button} from "@mui/material";
 import NotificationSettings from "./NotificationSettings";
+import Utils from "../services/Utils";
 
 let CategoryEnum = CategorizedNotifications.CategoryEnum;
 const dateTimeOptions = {year: '2-digit', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'};
@@ -174,7 +175,7 @@ const Notifications: FC<IProfileProps> = (props) => {
                                     {parse(n.body!)}
                                 </Typography>
                                 <Typography variant="body1">
-                                    {parse(new Date(n.date!).toLocaleString("ru-RU", dateTimeOptions))}
+                                    {parse(Utils.renderReadableDate(new Date(n.date!)))}
                                 </Typography>
                             </CardContent>
                         </Card>

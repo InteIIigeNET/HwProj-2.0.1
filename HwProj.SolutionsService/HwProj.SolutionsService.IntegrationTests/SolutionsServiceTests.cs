@@ -53,16 +53,34 @@ namespace HwProj.SolutionsService.IntegrationTests
 
         private CreateHomeworkViewModel GenerateCreateHomeworkViewModel()
         {
-            var fixture = new Fixture().Build<CreateHomeworkViewModel>()
+            const int daysDifference = 5;
+            const int hoursDifference = 10;
+            const int addYears = 1;
+            
+            var fixture = new Fixture();
+            fixture.Customizations.Add(new RandomDateTimeSequenceGenerator(DateTime.UtcNow, DateTime.UtcNow.AddYears(addYears)));
+
+            var result = fixture.Build<CreateHomeworkViewModel>()
                 .With(hvm => hvm.Tasks, new List<CreateTaskViewModel>())
-                .With(hvm => hvm.Tasks, new List<CreateTaskViewModel>());
-            return fixture.Create();
+                .With(hvm => hvm.PublicationDate, DateTime.UtcNow)
+                .Without(hvm => hvm.DeadlineDate)
+                .Without(hvm => hvm.PublicationDate)
+                .Do(hvm =>
+                {
+                    hvm.PublicationDate = fixture.Create<DateTime>();
+                    hvm.DeadlineDate = hvm.PublicationDate.AddDays(daysDifference).AddHours(hoursDifference);
+                });
+            
+            return result.Create();
         }
 
         private CreateTaskViewModel GenerateCreateTaskViewModelWithoutDeadLine()
         {
             return new Fixture().Build<CreateTaskViewModel>()
                 .With(t => t.HasDeadline, false)
+                .Without(t => t.IsDeadlineStrict)
+                .Without(t => t.PublicationDate)
+                .Without(t => t.DeadlineDate)
                 .Create();
         }
 
@@ -71,7 +89,8 @@ namespace HwProj.SolutionsService.IntegrationTests
             return new Fixture().Build<CreateTaskViewModel>()
                 .With(t => t.HasDeadline, true)
                 .With(t => t.IsDeadlineStrict, true)
-                .With(t => t.DeadlineDate, DateTime.MinValue)
+                .With(t => t.PublicationDate, DateTime.UtcNow)
+                .With(t => t.DeadlineDate, DateTime.UtcNow)
                 .Create();
         }
 
@@ -174,7 +193,7 @@ namespace HwProj.SolutionsService.IntegrationTests
             var newHomeworkViewModel = GenerateCreateHomeworkViewModel();
             var newTaskViewModel = GenerateCreateTaskViewModelWithoutDeadLine();
             var homeworkId = await lectureCourseClient.AddHomeworkToCourse(newHomeworkViewModel, courseId);
-            var taskId = await lectureCourseClient.AddTask(newTaskViewModel, homeworkId.Value);
+            var taskId = await lectureCourseClient.AddTask(homeworkId.Value, newTaskViewModel);
             return (courseId, homeworkId.Value, taskId.Value);
         }
 
@@ -388,7 +407,7 @@ namespace HwProj.SolutionsService.IntegrationTests
             var homeworkId = await lectureCourseClient.AddHomeworkToCourse(homeworkViewModel, courseId);
             var taskViewModel = GenerateCreateTaskViewModelWithStrictDeadLine();
             taskViewModel.IsDeadlineStrict = false;
-            var taskId = await lectureCourseClient.AddTask(taskViewModel, homeworkId.Value);
+            var taskId = await lectureCourseClient.AddTask(homeworkId.Value, taskViewModel);
             await SignStudentInCourse(studentCourseClient, lectureCourseClient, courseId, studentId);
             var solutionsClient = CreateSolutionsServiceClient(studentId);
 
@@ -412,7 +431,7 @@ namespace HwProj.SolutionsService.IntegrationTests
             var homeworkViewModel = GenerateCreateHomeworkViewModel();
             var homeworkId = await lectureCourseClient.AddHomeworkToCourse(homeworkViewModel, courseId);
             var taskViewModel = GenerateCreateTaskViewModelWithStrictDeadLine();
-            var taskId = await lectureCourseClient.AddTask(taskViewModel, homeworkId.Value);
+            var taskId = await lectureCourseClient.AddTask(homeworkId.Value, taskViewModel);
             await SignStudentInCourse(studentCourseClient, lectureCourseClient, courseId, studentId);
             var solutionsClient = CreateSolutionsServiceClient(studentId);
 

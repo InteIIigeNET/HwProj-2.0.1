@@ -381,6 +381,30 @@ export interface CreateHomeworkViewModel {
     description?: string;
     /**
      * 
+     * @type {boolean}
+     * @memberof CreateHomeworkViewModel
+     */
+    hasDeadline?: boolean;
+    /**
+     * 
+     * @type {Date}
+     * @memberof CreateHomeworkViewModel
+     */
+    deadlineDate?: Date;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof CreateHomeworkViewModel
+     */
+    isDeadlineStrict?: boolean;
+    /**
+     * 
+     * @type {Date}
+     * @memberof CreateHomeworkViewModel
+     */
+    publicationDate?: Date;
+    /**
+     * 
      * @type {Array<CreateTaskViewModel>}
      * @memberof CreateHomeworkViewModel
      */
@@ -610,6 +634,26 @@ export interface GroupViewModel {
 /**
  * 
  * @export
+ * @interface HomeworkTaskForEditingViewModel
+ */
+export interface HomeworkTaskForEditingViewModel {
+    /**
+     * 
+     * @type {HomeworkTaskViewModel}
+     * @memberof HomeworkTaskForEditingViewModel
+     */
+    task?: HomeworkTaskViewModel;
+    /**
+     * 
+     * @type {HomeworkViewModel}
+     * @memberof HomeworkTaskForEditingViewModel
+     */
+    homework?: HomeworkViewModel;
+}
+
+/**
+ * 
+ * @export
  * @interface HomeworkTaskViewModel
  */
 export interface HomeworkTaskViewModel {
@@ -707,16 +751,40 @@ export interface HomeworkViewModel {
     description?: string;
     /**
      * 
+     * @type {boolean}
+     * @memberof HomeworkViewModel
+     */
+    hasDeadline?: boolean;
+    /**
+     * 
      * @type {Date}
      * @memberof HomeworkViewModel
      */
-    date?: Date;
+    deadlineDate?: Date;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof HomeworkViewModel
+     */
+    isDeadlineStrict?: boolean;
+    /**
+     * 
+     * @type {Date}
+     * @memberof HomeworkViewModel
+     */
+    publicationDate?: Date;
     /**
      * 
      * @type {number}
      * @memberof HomeworkViewModel
      */
     courseId?: number;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof HomeworkViewModel
+     */
+    isDeferred?: boolean;
     /**
      * 
      * @type {Array<HomeworkTaskViewModel>}
@@ -4223,6 +4291,42 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
         /**
          * 
          * @param {number} homeworkId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiHomeworksGetForEditingByHomeworkIdGet(homeworkId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'homeworkId' is not null or undefined
+            if (homeworkId === null || homeworkId === undefined) {
+                throw new RequiredError('homeworkId','Required parameter homeworkId was null or undefined when calling apiHomeworksGetForEditingByHomeworkIdGet.');
+            }
+            const localVarPath = `/api/Homeworks/getForEditing/{homeworkId}`
+                .replace(`{${"homeworkId"}}`, encodeURIComponent(String(homeworkId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} homeworkId 
          * @param {CreateHomeworkViewModel} [homeworkViewModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -4328,6 +4432,24 @@ export const HomeworksApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @param {number} homeworkId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiHomeworksGetForEditingByHomeworkIdGet(homeworkId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<HomeworkViewModel> {
+            const localVarFetchArgs = HomeworksApiFetchParamCreator(configuration).apiHomeworksGetForEditingByHomeworkIdGet(homeworkId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} homeworkId 
          * @param {CreateHomeworkViewModel} [homeworkViewModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -4384,6 +4506,15 @@ export const HomeworksApiFactory = function (configuration?: Configuration, fetc
         /**
          * 
          * @param {number} homeworkId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiHomeworksGetForEditingByHomeworkIdGet(homeworkId: number, options?: any) {
+            return HomeworksApiFp(configuration).apiHomeworksGetForEditingByHomeworkIdGet(homeworkId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} homeworkId 
          * @param {CreateHomeworkViewModel} [homeworkViewModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -4433,6 +4564,17 @@ export class HomeworksApi extends BaseAPI {
      */
     public apiHomeworksGetByHomeworkIdGet(homeworkId: number, options?: any) {
         return HomeworksApiFp(this.configuration).apiHomeworksGetByHomeworkIdGet(homeworkId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} homeworkId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof HomeworksApi
+     */
+    public apiHomeworksGetForEditingByHomeworkIdGet(homeworkId: number, options?: any) {
+        return HomeworksApiFp(this.configuration).apiHomeworksGetForEditingByHomeworkIdGet(homeworkId, options)(this.fetch, this.basePath);
     }
 
     /**
@@ -5967,6 +6109,42 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
         /**
          * 
          * @param {number} taskId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiTasksGetForEditingByTaskIdGet(taskId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'taskId' is not null or undefined
+            if (taskId === null || taskId === undefined) {
+                throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling apiTasksGetForEditingByTaskIdGet.');
+            }
+            const localVarPath = `/api/Tasks/getForEditing/{taskId}`
+                .replace(`{${"taskId"}}`, encodeURIComponent(String(taskId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} taskId 
          * @param {CreateTaskViewModel} [taskViewModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6072,6 +6250,24 @@ export const TasksApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @param {number} taskId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiTasksGetForEditingByTaskIdGet(taskId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<HomeworkTaskForEditingViewModel> {
+            const localVarFetchArgs = TasksApiFetchParamCreator(configuration).apiTasksGetForEditingByTaskIdGet(taskId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} taskId 
          * @param {CreateTaskViewModel} [taskViewModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6128,6 +6324,15 @@ export const TasksApiFactory = function (configuration?: Configuration, fetch?: 
         /**
          * 
          * @param {number} taskId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiTasksGetForEditingByTaskIdGet(taskId: number, options?: any) {
+            return TasksApiFp(configuration).apiTasksGetForEditingByTaskIdGet(taskId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} taskId 
          * @param {CreateTaskViewModel} [taskViewModel] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6177,6 +6382,17 @@ export class TasksApi extends BaseAPI {
      */
     public apiTasksGetByTaskIdGet(taskId: number, options?: any) {
         return TasksApiFp(this.configuration).apiTasksGetByTaskIdGet(taskId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} taskId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof TasksApi
+     */
+    public apiTasksGetForEditingByTaskIdGet(taskId: number, options?: any) {
+        return TasksApiFp(this.configuration).apiTasksGetForEditingByTaskIdGet(taskId, options)(this.fetch, this.basePath);
     }
 
     /**

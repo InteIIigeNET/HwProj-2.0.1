@@ -1,11 +1,11 @@
-﻿using System.Threading.Tasks;
-using AutoMapper;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.CoursesService.API.Events;
-using HwProj.Models;
-using HwProj.Models.CoursesService.ViewModels;
+using HwProj.CoursesService.API.Domains;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -13,31 +13,44 @@ namespace HwProj.CoursesService.API.Services
     {
         private readonly IHomeworksRepository _homeworksRepository;
         private readonly IEventBus _eventBus;
-        private readonly IMapper _mapper;
         private readonly ICoursesRepository _coursesRepository;
-        public HomeworksService(IHomeworksRepository homeworksRepository, IEventBus eventBus, IMapper mapper, ICoursesRepository coursesRepository)
+
+        public HomeworksService(IHomeworksRepository homeworksRepository, IEventBus eventBus,
+            ICoursesRepository coursesRepository)
         {
             _homeworksRepository = homeworksRepository;
             _eventBus = eventBus;
-            _mapper = mapper;
             _coursesRepository = coursesRepository;
         }
-        
+
         public async Task<long> AddHomeworkAsync(long courseId, Homework homework)
         {
             homework.CourseId = courseId;
-            homework.Date = DateTimeUtils.GetMoscowNow();
 
             var course = await _coursesRepository.GetWithCourseMatesAsync(courseId);
-            var courseModel = _mapper.Map<CourseDTO>(course);
-            _eventBus.Publish(new NewHomeworkEvent(homework.Title, courseModel));
+            var studentIds = course.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
+            if (DateTime.UtcNow >= homework.PublicationDate)
+            {
+                _eventBus.Publish(new NewHomeworkEvent(homework.Title, course.Name, course.Id, studentIds,
+                    homework.DeadlineDate));
+            }
 
             return await _homeworksRepository.AddAsync(homework);
         }
 
         public async Task<Homework> GetHomeworkAsync(long homeworkId)
         {
-            return await _homeworksRepository.GetWithTasksAsync(homeworkId);
+            var homework = await _homeworksRepository.GetWithTasksAsync(homeworkId);
+
+            CourseDomain.FillTasksInHomework(homework);
+
+            return homework;
+        }
+
+        public async Task<Homework> GetForEditingHomeworkAsync(long homeworkId)
+        {
+            var result =  await _homeworksRepository.GetWithTasksAsync(homeworkId);
+            return result;
         }
 
         public async Task DeleteHomeworkAsync(long homeworkId)
@@ -49,14 +62,20 @@ namespace HwProj.CoursesService.API.Services
         {
             var homework = await _homeworksRepository.GetAsync(homeworkId);
             var course = await _coursesRepository.GetWithCourseMatesAsync(homework.CourseId);
-            var courseModel = _mapper.Map<CourseDTO>(course);
-            var homeworkModel = _mapper.Map<HomeworkViewModel>(homework);
-            _eventBus.Publish(new UpdateHomeworkEvent(homeworkModel, courseModel));
+
+            var studentIds = course.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
+
+            if (update.PublicationDate <= DateTime.UtcNow)
+                _eventBus.Publish(new UpdateHomeworkEvent(update.Title, course.Id, course.Name, studentIds));
 
             await _homeworksRepository.UpdateAsync(homeworkId, hw => new Homework()
             {
                 Title = update.Title,
-                Description = update.Description
+                Description = update.Description,
+                HasDeadline = update.HasDeadline,
+                DeadlineDate = update.DeadlineDate,
+                PublicationDate = update.PublicationDate,
+                IsDeadlineStrict = update.IsDeadlineStrict,
             });
         }
     }

@@ -14,19 +14,26 @@ namespace HwProj.Models.CoursesService.ViewModels
 
         public int MaxRating { get; set; }
 
-        public bool HasDeadline { get; set; }
+        public bool? HasDeadline { get; set; }
 
         public DateTime? DeadlineDate { get; set; }
 
-        public bool IsDeadlineStrict { get; set; }
+        public bool? IsDeadlineStrict { get; set; }
 
-        [JsonProperty] public bool CanSendSolution => !IsDeadlineStrict || DateTimeUtils.GetMoscowNow() <= DeadlineDate;
+        [JsonProperty] public bool CanSendSolution => (!IsDeadlineStrict ?? false) || DateTime.UtcNow <= DeadlineDate;
 
-        public DateTime PublicationDate { get; set; }
+        public DateTime? PublicationDate { get; set; }
 
         public long HomeworkId { get; set; }
 
         public bool IsDeferred { get; set; }
+    }
+
+    public class HomeworkTaskForEditingViewModel
+    {
+        public HomeworkTaskViewModel Task { get; set; }
+
+        public HomeworkViewModel Homework { get; set; }
     }
 
     public class CreateTaskViewModel
@@ -37,24 +44,14 @@ namespace HwProj.Models.CoursesService.ViewModels
 
         public string Description { get; set; }
 
-        public bool HasDeadline { get; set; }
+        public bool? HasDeadline { get; set; }
 
         public DateTime? DeadlineDate { get; set; }
 
-        public bool IsDeadlineStrict { get; set; }
+        public bool? IsDeadlineStrict { get; set; }
 
-        public DateTime PublicationDate { get; set; }
+        public DateTime? PublicationDate { get; set; }
 
         [Required] public int MaxRating { get; set; }
-
-        public void InitializeDeadline()
-        {
-            if (!HasDeadline || DeadlineDate == null)
-            {
-                IsDeadlineStrict = false;
-                HasDeadline = false;
-                DeadlineDate = null;
-            }
-        }
     }
 }

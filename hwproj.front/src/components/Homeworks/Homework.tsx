@@ -10,9 +10,10 @@ import ApiSingleton from '../../api/ApiSingleton';
 import {FC, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
 import DeletionConfirmation from "../DeletionConfirmation";
-import {Chip, Accordion, AccordionSummary, Typography, IconButton, Button, AccordionDetails} from '@material-ui/core';
+import {Chip, Accordion, AccordionSummary, Typography, IconButton, Button, AccordionDetails, Tooltip} from '@material-ui/core';
 import {Stack} from '@mui/material';
 import {ReactMarkdownWithCodeHighlighting} from "../Common/TextFieldWithPreview";
+import Utils from "../../services/Utils";
 
 interface IHomeworkProps {
     homework: HomeworkViewModel,
@@ -56,8 +57,10 @@ const Homework: FC<IHomeworkProps> = (props) => {
     }
 
     const classes = useStyles()
-    const homeworkDateString = new Date(props.homework.date!).toLocaleDateString("ru-RU");
-    const deferredHomeworks = props.homework.tasks!.filter(t => t.isDeferred!);
+
+    const homeworkPublicationDateString =  Utils.renderReadableDate(new Date(props.homework.publicationDate!))
+    const homeworkDeadlineDateString = Utils.renderReadableDate(new Date(props.homework.deadlineDate!))
+
     return (
         <div style={{width: '100%'}}>
             <Accordion defaultExpanded={props.isExpanded}>
@@ -65,18 +68,23 @@ const Homework: FC<IHomeworkProps> = (props) => {
                     expandIcon={<ExpandMoreIcon/>}
                     aria-controls="panel1a-content"
                     id="panel1a-header"
-                    style={{backgroundColor: "#c6cceb"}}
+                    style={{backgroundColor: props.homework.isDeferred ? "#d3d5db" : "#c6cceb"}}
                 >
                     <div className={classes.tools}>
                         <Stack direction={"row"} spacing={1} alignItems={"center"}>
                             <Typography style={{fontSize: '18px'}}>
                                 {props.homework.title}
                             </Typography>
-                            <Typography>
-                                {homeworkDateString}
-                            </Typography>
-                            {props.forMentor && deferredHomeworks!.length > 0 &&
-                                <Chip label={"🕘 " + deferredHomeworks!.length}/>
+                            {props.forMentor &&
+                            <Chip label={"🕘 " + homeworkPublicationDateString}/>
+                            }
+                            {props.homework.hasDeadline && 
+                            <Chip label={"⌛ " + homeworkDeadlineDateString}/>
+                            }
+                            {props.forMentor && props.homework.isDeadlineStrict &&
+                            <Tooltip arrow title={"Нельзя публиковать решения после дедлайна"}>
+                                <Chip label={"⛔"}/>
+                            </Tooltip>
                             }
                             <Chip label={props.homework.tasks!.length + " заданий"}/>
                             {props.forMentor && !props.isReadingMode && <div>
@@ -105,7 +113,7 @@ const Homework: FC<IHomeworkProps> = (props) => {
                                     isReadingMode={props.isReadingMode}
                                 />
                                 <AddTask
-                                    homeworkId={props.homework.id!}
+                                    homework={props.homework}
                                     onAdding={() => window.location.reload()}
                                     onCancel={() => setHomeworkState({
                                         createTask: false

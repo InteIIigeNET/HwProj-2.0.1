@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using HwProj.AuthService.Client;
@@ -32,8 +33,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
         public override async Task HandleAsync(NewHomeworkEvent @event)
         {
-            var studentIds = @event.Course.CourseMates.Select(t => t.StudentId).ToArray();
-            var accountsData = await _authServiceClient.GetAccountsData(studentIds);
+            var accountsData = await _authServiceClient.GetAccountsData(@event.StudentIds);
 
             foreach (var student in accountsData)
             {
@@ -41,10 +41,11 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 {
                     Sender = "CourseService",
                     Body =
-                        $"В курсе <a href='{_configuration["Url"]}/courses/{@event.Course.Id}'>{@event.Course.Name}</a>" +
-                        $" опубликована новая домашняя работа <i>{@event.Homework}</i>.",
+                        $"В курсе <a href='{_configuration["Url"]}/courses/{@event.CourseId}'>{@event.CourseName}</a>" +
+                        $" опубликована новая домашняя работа <i>{@event.HomeworkTitle}</i>." +
+                        (@event.DeadlineDate is { } deadline ? $"\n\nДедлайн: {deadline:U}" : ""),
                     Category = CategoryState.Homeworks,
-                    Date = DateTimeUtils.GetMoscowNow(),
+                    Date = DateTime.UtcNow,
                     HasSeen = false,
                     Owner = student!.UserId
                 };

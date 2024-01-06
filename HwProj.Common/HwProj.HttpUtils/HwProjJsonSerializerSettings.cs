@@ -12,6 +12,7 @@ namespace HwProj.HttpUtils
             {
                 ContractResolver = new CamelCasePropertyNamesContractResolver(),
                 NullValueHandling = NullValueHandling.Ignore,
+                DateTimeZoneHandling = DateTimeZoneHandling.Utc,
                 Converters = new JsonConverter[]
                 {
                     new StringEnumConverter(new CamelCaseNamingStrategy()),

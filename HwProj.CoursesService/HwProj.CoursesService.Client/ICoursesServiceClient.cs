@@ -21,12 +21,14 @@ namespace HwProj.CoursesService.Client
         Task<TaskDeadlineDto[]> GetTaskDeadlines();
         Task<Result<long>> AddHomeworkToCourse(CreateHomeworkViewModel model, long courseId);
         Task<HomeworkViewModel> GetHomework(long homeworkId);
-        Task<Result> UpdateHomework(CreateHomeworkViewModel model, long homeworkId);
+        Task<HomeworkViewModel> GetForEditingHomework(long homeworkId);
+        Task<Result> UpdateHomework(long homeworkId, CreateHomeworkViewModel model);
         Task<Result> DeleteHomework(long homeworkId);
         Task<HomeworkTaskViewModel> GetTask(long taskId);
-        Task<Result<long>> AddTask(CreateTaskViewModel taskViewModel, long homeworkId);
+        Task<HomeworkTaskForEditingViewModel> GetForEditingTask(long taskId);
+        Task<Result<long>> AddTask(long homeworkId, CreateTaskViewModel taskViewModel);
         Task<Result> DeleteTask(long taskId);
-        Task<Result> UpdateTask(CreateTaskViewModel taskViewModel, long taskId);
+        Task<Result> UpdateTask(long taskId, CreateTaskViewModel taskViewModel);
         Task<GroupViewModel[]> GetAllCourseGroups(long courseId);
         Task<long> CreateCourseGroup(CreateGroupViewModel model, long courseId);
         Task DeleteCourseGroup(long courseId, long groupId);

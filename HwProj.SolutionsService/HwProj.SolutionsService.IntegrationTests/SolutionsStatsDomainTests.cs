@@ -69,7 +69,10 @@ namespace HwProj.SolutionsService.IntegrationTests
             Id = id,
             Title = "Test",
             Description = "Test description",
-            Date = DateTime.Now,
+            DeadlineDate = null,
+            HasDeadline = false,
+            IsDeadlineStrict = false,
+            IsDeferred = false,
             CourseId = courseId,
             Tasks = GenerateHomeworkTaskViewModels(taskAmount, id)
         };

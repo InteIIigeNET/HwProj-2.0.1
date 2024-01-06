@@ -1,8 +1,12 @@
 import * as React from "react";
 import ApiSingleton from "../../api/ApiSingleton";
-import {Grid, TextField, Button, Checkbox, Typography} from "@material-ui/core";
+import {FC, useEffect, useState} from "react";
+import {Grid, TextField, Button, Checkbox, Typography, Tooltip, Link} from "@material-ui/core";
 import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
-import {CreateTaskViewModel} from "../../api";
+import {CreateHomeworkViewModel, CreateTaskViewModel} from "../../api";
+import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
+import CreateTask from "../Tasks/CreateTask"
+import Utils from "../../services/Utils";
 
 interface IAddHomeworkProps {
     id: number;
@@ -13,248 +17,199 @@ interface IAddHomeworkProps {
 interface IAddHomeworkState {
     title: string;
     description: string;
-    tasks: CreateTaskViewModel[];
+    tasks: IAddHomeworkTaskState[];
     added: boolean;
+    publicationDate: Date;
+    deadlineDate: Date | undefined;
+    hasDeadline: boolean,
+    isDeadlineStrict: boolean;
+    hasErrors: boolean;
 }
 
-export default class AddHomework extends React.Component<IAddHomeworkProps,
-    IAddHomeworkState> {
-    constructor(props: IAddHomeworkProps) {
-        super(props);
-        this.state = {
-            title: "",
-            description: "",
-            tasks: [{
+interface IAddHomeworkTaskState {
+    task : CreateTaskViewModel;
+    hasErrors: boolean;
+}
+
+const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
+    const [addHomeworkState, setAddHomeworkState] = useState<IAddHomeworkState>({
+        title: "",
+        description: "",
+        tasks: [{
+            task: {
                 title: "",
                 description: "",
                 maxRating: 10,
-                publicationDate: new Date(),
+                publicationDate: undefined,
                 hasDeadline: false,
                 deadlineDate: undefined,
                 isDeadlineStrict: false,
-            }],
-            added: false,
-        };
+            },
+            hasErrors: false,
+        }],
+        publicationDate: new Date(),
+        hasDeadline: true,
+        deadlineDate: undefined,
+        isDeadlineStrict: false,
+        added: false,
+        hasErrors: false,
+    })
+
+    const handleSubmit = async (e: any) => {
+        e.preventDefault();
+
+        const addHomework: CreateHomeworkViewModel = {
+            ...addHomeworkState,
+            tasks: addHomeworkState.tasks.map(t => t.task)
+        }
+
+        await ApiSingleton.homeworksApi.apiHomeworksByCourseIdAddPost(props.id, addHomework)
+        setAddHomeworkState((prevState) => ({
+            ...prevState,
+            added: true
+        }))
+
+        props.onSubmit()
     }
 
-    render() {
-        return (
-            <div>
-                <form onSubmit={(e) => this.handleSubmit(e)} style={{maxWidth: "100%"}}>
-                    <TextField
-                        size="small"
-                        required
-                        label="Название"
-                        variant="outlined"
-                        margin="normal"
-                        name={this.state.title}
-                        onChange={(e) => this.setState({title: e.target.value})}
-                    />
-                    <TextFieldWithPreview
-                        multiline
-                        fullWidth
-                        minRows={4}
-                        maxRows="20"
-                        label="Описание"
-                        variant="outlined"
-                        margin="normal"
-                        value={this.state.description}
-                        onChange={(e) => this.setState({description: e.target.value})}
-                    />
-                    <div>
-                        <ol>
-                            {this.state.tasks.map((task, index) => (
-                                <Grid container style={{marginTop: "15px"}} xs={12}>
-                                    <li key={index} style={{width: "100vw"}}>
-                                        <Typography variant="subtitle2" style={{fontSize: "1rem"}}>
-                                            Задача
-                                        </Typography>
-                                        <Grid item>
-                                            <Button
-                                                style={{marginTop: "10px"}}
-                                                size="small"
-                                                variant="contained"
-                                                color="primary"
-                                                onClick={() =>
-                                                    this.setState({
-                                                        tasks: this.state.tasks.slice(
-                                                            0,
-                                                            this.state.tasks.length - 1
-                                                        ),
-                                                    })
-                                                }
-                                            >
-                                                Убрать задачу
-                                            </Button>
-                                        </Grid>
-                                        <Grid container>
-                                            <div style={{marginRight: '10px'}}>
-                                                <TextField
-                                                    size="small"
-                                                    required
-                                                    label="Название задачи"
-                                                    variant="outlined"
-                                                    margin="normal"
-                                                    name={task.title}
-                                                    onChange={(e) => (task.title = e.target.value)}
-                                                />
-                                            </div>
-                                            <TextField
-                                                size="small"
-                                                required
-                                                label="Баллы"
-                                                variant="outlined"
-                                                type="number"
-                                                margin="normal"
-                                                defaultValue={task.maxRating}
-                                                onChange={(e) => (task.maxRating = +e.target.value)}
-                                            />
-                                        </Grid>
-                                        <TextFieldWithPreview
-                                            multiline
-                                            fullWidth
-                                            minRows={7}
-                                            maxRows="20"
-                                            label="Условие задачи"
-                                            variant="outlined"
-                                            margin="normal"
-                                            value={task.description}
-                                            onChange={(e) => {
-                                                task.description = e.target.value;
-                                                this.setState(prevState => prevState)
-                                            }}
-                                        />
-                                        <Grid
-                                            style={{marginTop: "16px"}}
-                                            container
-                                            direction="row"
-                                            alignItems="center"
-                                            justifyContent="space-between"
+    return (
+        <div>
+            <form onSubmit={(e) => handleSubmit(e)} style={{maxWidth: "100%"}}>
+                <TextField
+                    size="small"
+                    required
+                    label="Название"
+                    variant="outlined"
+                    margin="normal"
+                    name={addHomeworkState.title}
+                    onChange={(e) => {
+                        e.persist()
+                        setAddHomeworkState((prevState) => ({
+                        ...prevState,
+                        title: e.target.value}))}
+                    }
+                />
+                <TextFieldWithPreview
+                    multiline
+                    fullWidth
+                    minRows={4}
+                    maxRows="20"
+                    label="Описание"
+                    variant="outlined"
+                    margin="normal"
+                    value={addHomeworkState.description}
+                    onChange={(e) => {
+                        e.persist()
+                        setAddHomeworkState((prevState) => ({
+                        ...prevState,
+                        description: e.target.value}))}
+                    }
+                />
+                <PublicationAndDeadlineDates 
+                    hasDeadline={false}
+                    isDeadlineStrict={false}
+                    publicationDate={undefined}
+                    deadlineDate={undefined}
+                    onChange={(state) => setAddHomeworkState((prevState) => ({
+                        ...prevState,
+                        hasDeadline: state.hasDeadline,
+                        isDeadlineStrict: state.isDeadlineStrict,
+                        publicationDate: state.publicationDate,
+                        deadlineDate: state.deadlineDate,
+                        hasErrors: state.hasErrors,
+                    }))}
+                />
+                <div>
+                    <ol>
+                        {addHomeworkState.tasks.map((task, index) => (
+                            <Grid container style={{marginTop: "15px"}} xs={12}>
+                                <li key={index} style={{width: "100vw"}}>
+                                    <Typography variant="subtitle2" style={{fontSize: "1rem"}}>
+                                        Задача
+                                    </Typography>
+                                    <Grid item>
+                                        <Button
+                                            style={{marginTop: "10px"}}
+                                            size="small"
+                                            variant="contained"
+                                            color="primary"
+                                            onClick={() =>
+                                                setAddHomeworkState((prevState) => ({
+                                                    ...prevState,
+                                                    tasks: addHomeworkState.tasks.slice(
+                                                        0,
+                                                        addHomeworkState.tasks.length - 1
+                                                    ),
+                                                }))
+                                            }
                                         >
-                                            <Grid item>
-                                                <TextField
-                                                    size="small"
-                                                    id="datetime-local"
-                                                    label="Дата публикации"
-                                                    type="datetime-local"
-                                                    defaultValue={task.publicationDate?.toLocaleString("ru-RU")}
-                                                    onChange={(e) => task.publicationDate = new Date(e.target.value)}
-                                                    InputLabelProps={{
-                                                        shrink: true,
-                                                    }}
-                                                />
-                                            </Grid>
-                                            <Grid>
-                                                <label style={{margin: 0, padding: 0}}>
-                                                    <Checkbox
-                                                        color="primary"
-                                                        onChange={(e) => {
-                                                            task.hasDeadline = e.target.checked;
-                                                            task.deadlineDate = undefined;
-                                                            task.isDeadlineStrict = false;
-                                                            this.setState({added: false});
-                                                        }}
-                                                    />
-                                                    Добавить дедлайн
-                                                </label>
-                                            </Grid>
-                                        </Grid>
-                                        {task.hasDeadline && (
-                                            <Grid
-                                                container
-                                                direction="row"
-                                                alignItems="center"
-                                                justifyContent="space-between"
-                                                style={{marginTop: '10px'}}
-                                            >
-                                                <Grid item>
-                                                    <TextField
-                                                        size="small"
-                                                        id="datetime-local"
-                                                        label="Дедлайн задачи"
-                                                        type="datetime-local"
-                                                        defaultValue={task.deadlineDate?.toLocaleString("ru-RU")}
-                                                        onChange={(e) => {
-                                                            task.deadlineDate = new Date(e.target.value)
-                                                        }}
-                                                        InputLabelProps={{
-                                                            shrink: true,
-                                                        }}
-                                                        required
-                                                    />
-                                                </Grid>
-                                                <Grid item>
-                                                    <label style={{margin: 0, padding: 0}}>
-                                                        <Checkbox
-                                                            color="primary"
-                                                            onChange={(e) => {
-                                                                task.isDeadlineStrict = e.target.checked
-                                                            }}
-                                                        />
-                                                        Запретить отправку решений после дедлайна
-                                                    </label>
-                                                </Grid>
-                                            </Grid>
-                                        )}
-                                    </li>
-                                </Grid>
-                            ))}
-                        </ol>
-                        <Button
-                            size="small"
-                            variant="contained"
-                            color="primary"
-                            onClick={() =>
-                                this.setState({
-                                    tasks: [...this.state.tasks, {
+                                            Убрать задачу
+                                        </Button>
+                                    </Grid>
+                                    <CreateTask
+                                        homework={{...addHomeworkState, tasks: addHomeworkState.tasks.map(t => t.task)}}
+                                        onChange={(state) => {
+                                            addHomeworkState.tasks[index].task = state
+                                            addHomeworkState.tasks[index].hasErrors = state.hasErrors
+
+                                            setAddHomeworkState((prevState) => ({
+                                                ...prevState,
+
+                                            }))
+                                        }}
+                                     />
+                                </li>
+                            </Grid>
+                        ))}
+                    </ol>
+                    <Button
+                        size="small"
+                        variant="contained"
+                        color="primary"
+                        onClick={() =>
+                            setAddHomeworkState((prevState) => ({
+                                ...prevState,
+                                tasks: [...addHomeworkState.tasks, {
+                                    task: {
                                         title: "",
                                         description: "",
                                         maxRating: 10,
-                                        publicationDate: new Date(),
+                                        publicationDate: undefined,
                                         hasDeadline: false,
                                         deadlineDate: undefined,
                                         isDeadlineStrict: false,
-                                    }],
-                                })
-                            }
-                        >
-                            Ещё задачу
-                        </Button>
-                    </div>
-                    <Grid container style={{marginTop: "15px", marginBottom: 15}}>
-                        <Button
-                            size="small"
-                            variant="contained"
-                            color="primary"
-                            type="submit"
-                        >
-                            Добавить домашнее задание
-                        </Button>
-                        &nbsp;
-                        <Button
-                            onClick={() => this.props.onCancel()}
-                            size="small"
-                            variant="contained"
-                            color="primary"
-                        >
-                            Отменить
-                        </Button>
-                    </Grid>
-                </form>
-            </div>
-        );
-    }
-
-    async handleSubmit(e: any) {
-        e.preventDefault();
-
-        const homework = {
-            title: this.state.title,
-            description: this.state.description,
-            tasks: this.state.tasks,
-        }
-        await ApiSingleton.homeworksApi.apiHomeworksByCourseIdAddPost(this.props.id, homework)
-        this.setState({added: true})
-        this.props.onSubmit()
-    }
+                                    },
+                                    hasErrors: false,
+                                }],
+                            }))
+                        }
+                    >
+                        Ещё задачу
+                    </Button>
+                </div>
+                <Grid container style={{marginTop: "15px", marginBottom: 15}}>
+                    <Button
+                        size="small"
+                        variant="contained"
+                        color="primary"
+                        type="submit"
+                        disabled={addHomeworkState.hasErrors || addHomeworkState.tasks.some(t => t.hasErrors)}
+                    >
+                        Добавить домашнее задание
+                    </Button>
+                    &nbsp;
+                    <Button
+                        onClick={() => props.onCancel()}
+                        size="small"
+                        variant="contained"
+                        color="primary"
+                    >
+                        Отменить
+                    </Button>
+                </Grid>
+            </form>
+        </div>
+    );
 }
+
+export default AddHomework
