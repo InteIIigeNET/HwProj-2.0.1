@@ -1,6 +1,4 @@
-﻿using Hangfire;
-using Hangfire.SqlServer;
-using HwProj.AuthService.Client;
+﻿using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.NotificationsService.Client;
 using HwProj.SolutionsService.Client;
@@ -27,15 +25,8 @@ namespace HwProj.APIGateway.API
         {
             services.ConfigureHwProjServices("API Gateway");
 
-            services.AddHangfire(configuration => configuration
-                .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
-                .UseSimpleAssemblyNameTypeSerializer()
-                .UseRecommendedSerializerSettings()
-                .UseSqlServerStorage(Configuration.GetConnectionString("HangfireConnection")));
-            
-            
             const string authenticationProviderKey = "GatewayKey";
-
+            
             services.AddAuthentication()
                 .AddJwtBearer(authenticationProviderKey, x =>
                 {
@@ -63,11 +54,6 @@ namespace HwProj.APIGateway.API
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             app.ConfigureHwProj(env, "API Gateway");
-            
-            if (env.IsDevelopment())
-            {
-                app.UseHangfireDashboard("/jobs");
-            }
         }
     }
 }

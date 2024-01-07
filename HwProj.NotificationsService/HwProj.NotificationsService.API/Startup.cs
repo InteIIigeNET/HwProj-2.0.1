@@ -31,6 +31,7 @@ namespace HwProj.NotificationsService.API
         {
             var connectionString = ConnectionString.GetConnectionString(Configuration);
             
+            // Add Hangfire services.
             services.AddHangfire(configuration => configuration
                 .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
                 .UseSimpleAssemblyNameTypeSerializer()
@@ -88,6 +89,7 @@ namespace HwProj.NotificationsService.API
                 eventBustSubscriber.Subscribe<PasswordRecoveryEvent, PasswordRecoveryEventHandler>();
             }
             
+            app.UseHangfireDashboard();
             app.ConfigureHwProj(env, "Notifications API", context);
         }
     }
