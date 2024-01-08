@@ -11,6 +11,7 @@ namespace HwProj.CoursesService.API.Models
         public DbSet<TaskModel> TasksModels { get; set; }
         public DbSet<Homework> Homeworks { get; set; }
         public DbSet<HomeworkTask> Tasks { get; set; }
+        public DbSet<Assignment> Assignments { get; set; }
 
         public CourseContext(DbContextOptions options)
             : base(options)
@@ -20,6 +21,7 @@ namespace HwProj.CoursesService.API.Models
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<GroupMate>().HasAlternateKey(u => new { u.GroupId, u.StudentId });
+            modelBuilder.Entity<Assignment>().HasIndex(a => a.CourseId);
         }
     }
 }
