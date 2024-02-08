@@ -104,7 +104,7 @@ class App extends Component<{ navigate: any }, AppState> {
                         <Route path="task/:taskId/:studentId" element={<StudentSolutionsPage/>}/>
                         <Route path="task/:taskId/" element={<TaskSolutionsPage/>}/>
                     </Route>
-                    <Route path="system" element={<SystemInfoComponent/>}/>
+                    <Route path="status" element={<SystemInfoComponent/>}/>
                     <Route path="login" element={<Login onLogin={this.login}/>}/>
                     <Route path="register" element={<Register onLogin={this.login}/>}/>
                     <Route path="recovery" element={<PasswordRecovery/>}/>
