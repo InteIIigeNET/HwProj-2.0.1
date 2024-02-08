@@ -411,14 +411,20 @@ namespace HwProj.CoursesService.Client
             await _httpClient.SendAsync(httpRequest);
         }
 
-        public async Task<GroupViewModel> GetGroupById(long groupId)
+        public async Task<GroupViewModel[]> GetGroupsById(params long[] groupIds)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
-                _coursesServiceUri + $"api/CourseGroups/get/{groupId}");
+                _coursesServiceUri + "api/CourseGroups")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(groupIds),
+                    Encoding.UTF8,
+                    "application/json")
+            };
 
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<GroupViewModel>();
+            return await response.DeserializeAsync<GroupViewModel[]>();
         }
 
         public async Task<long[]> GetGroupTasks(long groupId)

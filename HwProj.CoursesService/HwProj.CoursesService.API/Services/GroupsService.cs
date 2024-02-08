@@ -31,13 +31,13 @@ namespace HwProj.CoursesService.API.Services
             return await _groupsRepository.GetGroupsWithGroupMatesByCourse(courseId).ToArrayAsync().ConfigureAwait(false);
         }
 
-        public async Task<Group> GetGroupAsync(long groupId)
+        public async Task<Group[]> GetGroupsAsync(params long[] groupIds)
         {
-            return await _groupsRepository.GetGroupWithGroupMatesAsync(groupId).ConfigureAwait(false);
+            return await _groupsRepository.GetGroupsWithGroupMatesAsync(groupIds).ConfigureAwait(false);
         }
 
         public async Task<long> AddGroupAsync(Group group)
-        { 
+        {
             return await _groupsRepository.AddAsync(group).ConfigureAwait(false);
         }
 
@@ -114,12 +114,6 @@ namespace HwProj.CoursesService.API.Services
             var studentGroups = await Task.WhenAll(getStudentGroupsTask).ConfigureAwait(false);
 
             return studentGroups.Select(c => _mapper.Map<UserGroupDescription>(c)).ToArray();
-        }
-
-        public async Task<long[]> GetTasksIds(long groupId)
-        {
-            var group = await GetGroupAsync(groupId);
-            return group.Tasks.Select(cm => cm.TaskId).ToArray();
         }
     }
 }

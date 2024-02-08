@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using HwProj.CoursesService.Client;
 using HwProj.Models.CoursesService.ViewModels;
@@ -85,7 +86,7 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(GroupViewModel), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetGroup(long groupId)
         {
-            var result = await _coursesClient.GetGroupById(groupId);
+            var result = (await _coursesClient.GetGroupsById(groupId)).FirstOrDefault();
             return result == null
                 ? NotFound() as IActionResult
                 : Ok(result);

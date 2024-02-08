@@ -13,14 +13,12 @@ namespace HwProj.CoursesService.API.Repositories.Groups
         {
         }
 
-        public async Task<Group> GetGroupWithGroupMatesAsync(long id)
+        public async Task<Group[]> GetGroupsWithGroupMatesAsync(long[] ids)
         {
             return await Context.Set<Group>().Include(c => c.GroupMates)
+                .Where(c => ids.Contains(c.Id))
                 .AsNoTracking()
-                .Include(c => c.Tasks)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(c => c.Id == id)
-                .ConfigureAwait(false);
+                .ToArrayAsync();
         }
 
         public IQueryable<Group> GetGroupsWithGroupMatesByCourse(long courseId)

@@ -26,7 +26,7 @@ namespace HwProj.CoursesService.API.Controllers
         public async Task<GroupViewModel[]> GetAll(long courseId)
         {
             var groups = await _groupsService.GetAllAsync(courseId);
-            
+
             var result = groups.Select(t => new GroupViewModel
             {
                 Id = t.Id,
@@ -89,21 +89,16 @@ namespace HwProj.CoursesService.API.Controllers
                 : NotFound() as IActionResult;
         }
 
-        [HttpGet("get/{groupId}")]
-        public async Task<IActionResult> Get(long groupId)
+        [HttpGet]
+        public async Task<IActionResult> Get([FromBody] long[] groupIds)
         {
-            var group = await _groupsService.GetGroupAsync(groupId);
-            return group == null
-                ? NotFound()
-                : Ok(_mapper.Map<GroupViewModel>(group)) as IActionResult;
-        }
-
-
-        [HttpGet("getTasks/{groupId}")]
-        public async Task<IActionResult> GetGroupTasks(long groupId)
-        {
-            var ids = await _groupsService.GetTasksIds(groupId);
-            return Ok(ids);
+            var groups = await _groupsService.GetGroupsAsync(groupIds);
+            var result = groups.Select(group => new GroupViewModel
+            {
+                Id = group.Id,
+                StudentsIds = group.GroupMates.Select(g => g.StudentId).ToArray()
+            }).ToArray();
+            return Ok(result) as IActionResult;
         }
     }
 }

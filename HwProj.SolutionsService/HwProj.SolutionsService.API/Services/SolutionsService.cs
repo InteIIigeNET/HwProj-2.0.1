@@ -5,11 +5,10 @@ using AutoMapper;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.EventBus.Client.Interfaces;
-using HwProj.Models;
 using HwProj.Models.AuthService.DTO;
-using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.SolutionsService;
 using HwProj.Models.StatisticsService;
+using HwProj.SolutionsService.API.Domains;
 using HwProj.SolutionsService.API.Events;
 using HwProj.SolutionsService.API.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -146,9 +145,43 @@ namespace HwProj.SolutionsService.API.Services
 
         public async Task<SolutionPreviewDto[]> GetAllUnratedSolutions(long[] taskIds)
         {
-            var solutions = await _solutionsRepository
-                .FindAll(t => taskIds.Contains(t.TaskId))
-                .GroupBy(t => new { t.TaskId, t.StudentId })
+            var getSolutionsQuery = _solutionsRepository.FindAll(t => taskIds.Contains(t.TaskId));
+
+            var groupIds = getSolutionsQuery
+                .Where(t => t.GroupId != null)
+                .Select(s => s.GroupId!.Value)
+                .Distinct()
+                .ToArray();
+
+            if (groupIds.Any())
+            {
+                var groups = await _coursesServiceClient.GetGroupsById(groupIds);
+
+                return (await getSolutionsQuery.ToListAsync())
+                    .GroupBy(t => t.TaskId)
+                    .Select(t =>
+                        (t.Key, TaskSolutions: SolutionsStatsDomain.GetCourseTaskStatistics(t.ToList(), groups)))
+                    .SelectMany(grouped => grouped.TaskSolutions.Select(studentSolutions =>
+                    {
+                        var lastSolution = studentSolutions.Solutions.Last();
+                        return lastSolution.State == SolutionState.Posted
+                            ? new SolutionPreviewDto
+                            {
+                                StudentId = studentSolutions.StudentId,
+                                TaskId = grouped.Key,
+                                SolutionId = lastSolution.Id,
+                                GroupId = lastSolution.GroupId,
+                                PublicationDate = lastSolution.PublicationDate,
+                                IsFirstTry = studentSolutions.Solutions.All(s => s.State == SolutionState.Posted)
+                            }
+                            : null;
+                    }))
+                    .Where(t => t != null)
+                    .OrderBy(t => t!.PublicationDate)
+                    .ToArray();
+            }
+
+            return await getSolutionsQuery.GroupBy(t => new { t.TaskId, t.StudentId })
                 .Select(t => t.OrderByDescending(x => x.PublicationDate))
                 .Select(t => new
                 {
@@ -166,8 +199,6 @@ namespace HwProj.SolutionsService.API.Services
                     IsFirstTry = t.IsFirstTry
                 })
                 .ToArrayAsync();
-
-            return solutions;
         }
 
         public async Task<TaskSolutionsStats[]> GetTaskSolutionsStats(long[] taskIds)
