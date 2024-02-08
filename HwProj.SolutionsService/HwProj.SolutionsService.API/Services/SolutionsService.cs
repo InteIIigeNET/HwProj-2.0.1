@@ -203,22 +203,14 @@ namespace HwProj.SolutionsService.API.Services
 
         public async Task<TaskSolutionsStats[]> GetTaskSolutionsStats(long[] taskIds)
         {
-            var statsSolutions = await _solutionsRepository
-                .FindAll(t => taskIds.Contains(t.TaskId))
-                .GroupBy(t => new { t.TaskId, t.StudentId })
-                .Select(t => t.OrderByDescending(x => x.PublicationDate))
-                .Select(t => new
+            var unratedSolutions = await GetAllUnratedSolutions(taskIds);
+            var statsSolutions = unratedSolutions
+                .GroupBy(s => s.TaskId)
+                .Select(s => new TaskSolutionsStats
                 {
-                    LastSolution = t.FirstOrDefault()
-                })
-                .Where(t => t.LastSolution != null && t.LastSolution.State == SolutionState.Posted)
-                .GroupBy(t => t.LastSolution!.TaskId)
-                .Select(t => new TaskSolutionsStats()
-                {
-                    TaskId = t.Key,
-                    CountUnratedSolutions = t.Count()
-                })
-                .ToDictionaryAsync(t => t.TaskId);
+                    TaskId = s.Key,
+                    CountUnratedSolutions = s.Count()
+                }).ToDictionary(t => t.TaskId);
 
             return taskIds.Select(t => statsSolutions.TryGetValue(t, out var value)
                 ? value
