@@ -26,6 +26,8 @@ namespace HwProj.Models.CoursesService.ViewModels
 
         public long HomeworkId { get; set; }
 
+        public bool IsGroupWork { get; set; }
+
         public bool IsDeferred { get; set; }
     }
 

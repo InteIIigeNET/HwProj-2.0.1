@@ -57,7 +57,7 @@ const Task: FC<ITaskProp> = (props) => {
         props.onDeleteClick()
     }
 
-    const { task } = props
+    const {task} = props
 
     const publicationDate = Utils.renderReadableDate(new Date(task.publicationDate!))
     const deadlineDate = Utils.renderReadableDate(new Date(task.deadlineDate!))
@@ -74,16 +74,17 @@ const Task: FC<ITaskProp> = (props) => {
                     style={{backgroundColor: task.isDeferred! ? "#d3d5db" : "#eceef8"}}
                 >
                     <div className={classes.tools}>
-                        <Stack direction={"row"} spacing={2} alignItems={"center"}>
-                            <Typography style={{fontSize: '18px'}}>
+                        <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                            <Typography style={{fontSize: '18px', marginRight: 1}}>
                                 {task.title}
                             </Typography>
+                            {task.isGroupWork && <Chip color={"info"} label="Комадное"/>}
                             {props.forMentor && <Chip label={"🕘 " + publicationDate}/>}
                             {task.hasDeadline && <Chip label={"⌛ " + deadlineDate}/>}
                             {props.forMentor && props.task.isDeadlineStrict &&
-                            <Tooltip arrow title={"Нельзя публиковать решения после дедлайна"}>
-                                <Chip label={"⛔"}/>
-                            </Tooltip>
+                                <Tooltip arrow title={"Нельзя публиковать решения после дедлайна"}>
+                                    <Chip label={"⛔"}/>
+                                </Tooltip>
                             }
                             {!task.hasDeadline && <Chip label={"без дедлайна"}/>}
                             <Chip label={"⭐ " + task.maxRating}/>

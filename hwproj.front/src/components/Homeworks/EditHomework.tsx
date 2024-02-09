@@ -4,12 +4,10 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
 import EditIcon from '@material-ui/icons/Edit';
-import {Grid, Typography, Button, TextField, Checkbox} from "@material-ui/core";
+import {Grid, Typography, Button, TextField} from "@material-ui/core";
 import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
-import Utils from "../../services/Utils";
 import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
-import { Alert } from "@mui/material";
-import {CreateHomeworkViewModel, CreateTaskViewModel} from "../../api";
+import {Alert, Checkbox, FormControlLabel} from "@mui/material";
 
 interface IEditHomeworkState {
     isLoaded: boolean;
@@ -23,6 +21,7 @@ interface IEditHomeworkState {
     isDeadlineStrict: boolean;
     publicationDate: Date;
     isPublished: boolean;
+    isGroupWork: boolean;
     hasErrors: boolean;
     changedTaskPublicationDates: Date[]
 }
@@ -42,6 +41,7 @@ const EditHomework: FC = () => {
     const {homeworkId} = useParams()
 
     const [editHomework, setEditHomework] = useState<IEditHomeworkState>({
+        isGroupWork: false,
         isLoaded: false,
         title: "",
         description: "",
@@ -73,6 +73,7 @@ const EditHomework: FC = () => {
         setEditHomework((prevState) => ({
             ...prevState,
             isLoaded: true,
+            isGroupWork: homework.isGroupWork!,
             title: homework.title!,
             description: homework.description!,
             courseId: homework.courseId!,
@@ -91,7 +92,7 @@ const EditHomework: FC = () => {
 
     const handleSubmit = async (e: any) => {
         e.preventDefault()
-        
+
         await ApiSingleton.homeworksApi
             .apiHomeworksUpdateByHomeworkIdPut(+homeworkId!, editHomework)
 
@@ -189,28 +190,43 @@ const EditHomework: FC = () => {
                                 />
                             </Grid>
                             <Grid style={{width: "90%", marginBottom: 15}}>
+                                <FormControlLabel
+                                    label="Командное"
+                                    control={
+                                        <Checkbox
+                                            color="primary"
+                                            checked={editHomework.isGroupWork}
+                                            onChange={(e) => {
+                                                setEditHomework(prevState => ({
+                                                    ...prevState,
+                                                    isGroupWork: e.target.checked,
+                                                }))
+                                            }}
+                                        />
+                                    }
+                                />
                                 <PublicationAndDeadlineDates
-                                hasDeadline={editHomework.hasDeadline}
-                                isDeadlineStrict={editHomework.isDeadlineStrict}
-                                publicationDate={editHomework.publicationDate}
-                                deadlineDate={editHomework.deadlineDate}
-                                disabledPublicationDate={editHomework.isPublished}
-                                onChange={(state) => setEditHomework(prevState => ({
-                                    ...prevState,
-                                    hasDeadline: state.hasDeadline,
-                                    isDeadlineStrict: state.isDeadlineStrict,
-                                    publicationDate: state.publicationDate,
-                                    deadlineDate: state.deadlineDate,
-                                    hasErrors: state.hasErrors
-                                }))}
+                                    hasDeadline={editHomework.hasDeadline}
+                                    isDeadlineStrict={editHomework.isDeadlineStrict}
+                                    publicationDate={editHomework.publicationDate}
+                                    deadlineDate={editHomework.deadlineDate}
+                                    disabledPublicationDate={editHomework.isPublished}
+                                    onChange={(state) => setEditHomework(prevState => ({
+                                        ...prevState,
+                                        hasDeadline: state.hasDeadline,
+                                        isDeadlineStrict: state.isDeadlineStrict,
+                                        publicationDate: state.publicationDate,
+                                        deadlineDate: state.deadlineDate,
+                                        hasErrors: state.hasErrors
+                                    }))}
                                 />
                             </Grid>
                             {isSomeTaskSoonerThanHomework &&
-                            <Grid item xs={11}>
-                                <Alert severity="error">
-                                    Дата публикации домашнего задания позже даты публикации задачи
-                                </Alert>
-                            </Grid>}
+                                <Grid item xs={11}>
+                                    <Alert severity="error">
+                                        Дата публикации домашнего задания позже даты публикации задачи
+                                    </Alert>
+                                </Grid>}
                             <Grid item xs={11}>
                                 <Button
                                     fullWidth

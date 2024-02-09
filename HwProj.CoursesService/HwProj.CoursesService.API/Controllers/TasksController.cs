@@ -4,10 +4,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.API.Domains;
 using HwProj.CoursesService.API.Filters;
-using HwProj.CoursesService.API.Models;
-using HwProj.CoursesService.API.Repositories;
 using HwProj.CoursesService.API.Services;
-using HwProj.Models;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,15 +16,13 @@ namespace HwProj.CoursesService.API.Controllers
     public class TasksController : Controller
     {
         private readonly ITasksService _tasksService;
-        private readonly IMapper _mapper;
         private readonly IHomeworksService _homeworksService;
         private readonly ICoursesService _coursesService;
 
-        public TasksController(ITasksService tasksService, IMapper mapper, ICoursesService coursesService,
+        public TasksController(ITasksService tasksService, ICoursesService coursesService,
             IHomeworksService homeworksService)
         {
             _tasksService = tasksService;
-            _mapper = mapper;
             _coursesService = coursesService;
             _homeworksService = homeworksService;
         }

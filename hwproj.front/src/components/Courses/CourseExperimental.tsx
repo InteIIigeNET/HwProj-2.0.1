@@ -94,12 +94,15 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
 
     const renderTask = (task: HomeworkTaskViewModel) => {
         return <CardContent>
-            <Grid container spacing={2} alignItems={"center"}>
-                <Grid item>
+            <Grid container spacing={1} alignItems={"center"}>
+                <Grid item style={{marginRight: 1}}>
                     <Typography variant="h6" component="div">
                         {task.title}
                     </Typography>
                 </Grid>
+                {task.isGroupWork && <Grid item>
+                    <Chip color={"info"} label="Комадное"/>
+                </Grid>}
                 <Grid item>
                     <Typography>{"⭐ " + task.maxRating}</Typography>
                 </Grid>
@@ -190,9 +193,9 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                             <b>{x.title}</b>
                         </Typography>
                         {x.isDeferred &&
-                        <Typography style={{fontSize: "14px"}} align={"center"}>
-                            {"🕘 " + renderDate(x.publicationDate!) + " " + renderTime(x.publicationDate!)}
-                        </Typography>}
+                            <Typography style={{fontSize: "14px"}} align={"center"}>
+                                {"🕘 " + renderDate(x.publicationDate!) + " " + renderTime(x.publicationDate!)}
+                            </Typography>}
                         {x.tasks?.length === 0 &&
                             <TimelineItem style={{minHeight: 30, marginBottom: -5}}>
                                 <TimelineOppositeContent></TimelineOppositeContent>

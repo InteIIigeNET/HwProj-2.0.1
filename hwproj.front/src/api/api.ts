@@ -405,6 +405,12 @@ export interface CreateHomeworkViewModel {
     publicationDate?: Date;
     /**
      * 
+     * @type {boolean}
+     * @memberof CreateHomeworkViewModel
+     */
+    isGroupWork?: boolean;
+    /**
+     * 
      * @type {Array<CreateTaskViewModel>}
      * @memberof CreateHomeworkViewModel
      */
@@ -728,6 +734,12 @@ export interface HomeworkTaskViewModel {
      * @type {boolean}
      * @memberof HomeworkTaskViewModel
      */
+    isGroupWork?: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof HomeworkTaskViewModel
+     */
     isDeferred?: boolean;
 }
 
@@ -791,6 +803,12 @@ export interface HomeworkViewModel {
      * @memberof HomeworkViewModel
      */
     isDeferred?: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof HomeworkViewModel
+     */
+    isGroupWork?: boolean;
     /**
      * 
      * @type {Array<HomeworkTaskViewModel>}

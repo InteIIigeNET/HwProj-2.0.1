@@ -1,12 +1,12 @@
 import * as React from "react";
 import ApiSingleton from "../../api/ApiSingleton";
-import {FC, useEffect, useState} from "react";
-import {Grid, TextField, Button, Checkbox, Typography, Tooltip, Link} from "@material-ui/core";
+import {useState} from "react";
+import {Grid, TextField, Button, Typography} from "@material-ui/core";
 import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 import {CreateHomeworkViewModel, CreateTaskViewModel} from "../../api";
 import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
 import CreateTask from "../Tasks/CreateTask"
-import Utils from "../../services/Utils";
+import {Checkbox, FormControlLabel} from "@mui/material";
 
 interface IAddHomeworkProps {
     id: number;
@@ -23,11 +23,12 @@ interface IAddHomeworkState {
     deadlineDate: Date | undefined;
     hasDeadline: boolean,
     isDeadlineStrict: boolean;
+    isGroupWork: boolean;
     hasErrors: boolean;
 }
 
 interface IAddHomeworkTaskState {
-    task : CreateTaskViewModel;
+    task: CreateTaskViewModel;
     hasErrors: boolean;
 }
 
@@ -47,12 +48,13 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
             },
             hasErrors: false,
         }],
+        isGroupWork: false,
         publicationDate: new Date(),
         hasDeadline: true,
         deadlineDate: undefined,
         isDeadlineStrict: false,
         added: false,
-        hasErrors: false,
+        hasErrors: false
     })
 
     const handleSubmit = async (e: any) => {
@@ -85,8 +87,10 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                     onChange={(e) => {
                         e.persist()
                         setAddHomeworkState((prevState) => ({
-                        ...prevState,
-                        title: e.target.value}))}
+                            ...prevState,
+                            title: e.target.value
+                        }))
+                    }
                     }
                 />
                 <TextFieldWithPreview
@@ -101,11 +105,28 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                     onChange={(e) => {
                         e.persist()
                         setAddHomeworkState((prevState) => ({
-                        ...prevState,
-                        description: e.target.value}))}
+                            ...prevState,
+                            description: e.target.value
+                        }))
+                    }
                     }
                 />
-                <PublicationAndDeadlineDates 
+                <FormControlLabel
+                    label="Командное"
+                    control={
+                        <Checkbox
+                            color="primary"
+                            checked={addHomeworkState.isGroupWork}
+                            onChange={(e) => {
+                                setAddHomeworkState(prevState => ({
+                                    ...prevState,
+                                    isGroupWork: e.target.checked,
+                                }))
+                            }}
+                        />
+                    }
+                />
+                <PublicationAndDeadlineDates
                     hasDeadline={false}
                     isDeadlineStrict={false}
                     publicationDate={undefined}
@@ -157,7 +178,7 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
 
                                             }))
                                         }}
-                                     />
+                                    />
                                 </li>
                             </Grid>
                         ))}

@@ -7,9 +7,9 @@ namespace HwProj.CoursesService.API.Models
     public class Homework : IEntity<long>
     {
         public long Id { get; set; }
-        
+
         public string Title { get; set; }
-        
+
         public string Description { get; set; }
 
         public bool HasDeadline { get; set; }
@@ -20,8 +20,10 @@ namespace HwProj.CoursesService.API.Models
 
         public DateTime PublicationDate { get; set; }
 
+        public bool IsGroupWork { get; set; }
+
         public long CourseId { get; set; }
-        
+
         public List<HomeworkTask> Tasks { get; set; }
     }
 }
