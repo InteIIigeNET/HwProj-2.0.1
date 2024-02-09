@@ -1,6 +1,4 @@
 ﻿using HwProj.Repositories;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using System;
 
 namespace HwProj.Models.SolutionsService
@@ -18,6 +16,8 @@ namespace HwProj.Models.SolutionsService
         public int Rating { get; set; }
 
         public string StudentId { get; set; }
+
+        public string? LecturerId { get; set; }
 
         public long? GroupId { get; set; }
 

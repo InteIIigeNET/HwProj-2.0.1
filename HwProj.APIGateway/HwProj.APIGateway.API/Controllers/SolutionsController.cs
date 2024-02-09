@@ -62,7 +62,7 @@ namespace HwProj.APIGateway.API.Controllers
                 .Select(t => t.StudentId)
                 .ToArray();
 
-            var accounts = await AuthServiceClient.GetAccountsData(studentsOnCourse);
+            var accounts = await AuthServiceClient.GetAccountsData(studentsOnCourse.Union(course.MentorIds).ToArray());
 
             var solutionsGroupsIds = studentSolutions.Homeworks
                 .SelectMany(t => t.Tasks)
@@ -92,7 +92,8 @@ namespace HwProj.APIGateway.API.Controllers
                                 ? solutionsGroups[groupId].StudentsIds
                                     .Select(x => accountsCache[x])
                                     .ToArray()
-                                : null)).ToArray()
+                                : null,
+                            s.LecturerId == null ? null : accountsCache[s.LecturerId])).ToArray()
                     };
                 })
                 .ToArray();
@@ -127,13 +128,13 @@ namespace HwProj.APIGateway.API.Controllers
 
             var taskIds = tasks.Select(t => t.Id).ToArray();
 
-            var getStudentsDataTask = AuthServiceClient.GetAccountsData(studentIds);
+            var getUsersDataTask = AuthServiceClient.GetAccountsData(studentIds.Union(course.MentorIds).ToArray());
             var getStatisticsTask = _solutionsClient.GetTaskSolutionStatistics(course.Id, taskId);
             var getStatsForTasks = _solutionsClient.GetTaskSolutionsStats(taskIds);
 
-            await Task.WhenAll(getStudentsDataTask, getStatisticsTask, getStatsForTasks);
+            await Task.WhenAll(getUsersDataTask, getStatisticsTask, getStatsForTasks);
 
-            var usersData = getStudentsDataTask.Result.ToDictionary(t => t.UserId);
+            var usersData = getUsersDataTask.Result.ToDictionary(t => t.UserId);
             var statistics = getStatisticsTask.Result.ToDictionary(t => t.StudentId);
             var statsForTasks = getStatsForTasks.Result;
             var groups = course.Groups.ToDictionary(
@@ -149,7 +150,8 @@ namespace HwProj.APIGateway.API.Controllers
                     {
                         Solutions = statistics.TryGetValue(studentId, out var studentSolutions)
                             ? studentSolutions.Solutions.Select(t => new GetSolutionModel(t,
-                                t.GroupId is { } groupId ? groups[groupId] : null)).ToArray()
+                                t.GroupId is { } groupId ? groups[groupId] : null,
+                                t.LecturerId == null ? null : usersData[t.LecturerId])).ToArray()
                             : Array.Empty<GetSolutionModel>(),
                         User = usersData[studentId]
                     })

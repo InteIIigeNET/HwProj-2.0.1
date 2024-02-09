@@ -6,7 +6,7 @@ namespace HwProj.Models.SolutionsService
 {
     public class GetSolutionModel
     {
-        public GetSolutionModel(Solution model, AccountDataDto[]? groupMates)
+        public GetSolutionModel(Solution model, AccountDataDto[]? groupMates, AccountDataDto? lecturer)
         {
             Id = model.Id;
             GithubUrl = model.GithubUrl;
@@ -23,6 +23,7 @@ namespace HwProj.Models.SolutionsService
             StudentId = model.StudentId;
             TaskId = model.TaskId;
             State = model.State;
+            Lecturer = lecturer;
         }
 
         public long Id { get; set; }
@@ -44,5 +45,6 @@ namespace HwProj.Models.SolutionsService
         public string LecturerComment { get; set; }
 
         public AccountDataDto[] GroupMates { get; set; }
+        public AccountDataDto? Lecturer { get; set; }
     }
 }

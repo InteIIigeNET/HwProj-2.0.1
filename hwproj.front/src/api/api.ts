@@ -579,6 +579,12 @@ export interface GetSolutionModel {
      * @memberof GetSolutionModel
      */
     groupMates?: Array<AccountDataDto>;
+    /**
+     * 
+     * @type {AccountDataDto}
+     * @memberof GetSolutionModel
+     */
+    lecturer?: AccountDataDto;
 }
 
 /**
@@ -1118,6 +1124,12 @@ export interface Solution {
      * @memberof Solution
      */
     studentId?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Solution
+     */
+    lecturerId?: string;
     /**
      * 
      * @type {number}

@@ -88,10 +88,10 @@ namespace HwProj.SolutionsService.API.Controllers
             var homework = await _coursesClient.GetHomework(task.HomeworkId);
             var course = await _coursesClient.GetCourseById(homework.CourseId);
 
-            if (course != null && course.MentorIds.Contains(Request.GetUserIdFromHeader()))
+            var lecturerId = Request.GetUserIdFromHeader();
+            if (course != null && lecturerId != null && course.MentorIds.Contains(lecturerId))
             {
-                await _solutionsService.RateSolutionAsync(solutionId,
-                    rateSolutionModel.Rating, rateSolutionModel.LecturerComment);
+                await _solutionsService.RateSolutionAsync(solutionId, lecturerId, rateSolutionModel.Rating, rateSolutionModel.LecturerComment);
                 return Ok();
             }
 
@@ -103,6 +103,7 @@ namespace HwProj.SolutionsService.API.Controllers
             [FromBody] SolutionViewModel solutionViewModel)
         {
             var solution = _mapper.Map<Solution>(solutionViewModel);
+            solution.LecturerId = Request.GetUserIdFromHeader()!;
             await _solutionsService.PostEmptySolutionWithRateAsync(taskId, solution);
             return Ok();
         }

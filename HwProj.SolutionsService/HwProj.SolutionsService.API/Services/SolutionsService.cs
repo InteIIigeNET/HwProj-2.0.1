@@ -114,17 +114,17 @@ namespace HwProj.SolutionsService.API.Services
             solution.PublicationDate = DateTime.UtcNow;
             solution.TaskId = taskId;
             var id = await _solutionsRepository.AddAsync(solution);
-            await RateSolutionAsync(id, solution.Rating, solution.LecturerComment);
+            await RateSolutionAsync(id, solution.LecturerId!, solution.Rating, solution.LecturerComment);
         }
 
-        public async Task RateSolutionAsync(long solutionId, int newRating, string lecturerComment)
+        public async Task RateSolutionAsync(long solutionId, string lecturerId, int newRating, string lecturerComment)
         {
             if (0 <= newRating)
             {
                 var solution = await _solutionsRepository.GetAsync(solutionId);
                 var task = await _coursesServiceClient.GetTask(solution.TaskId);
                 var state = newRating >= task.MaxRating ? SolutionState.Final : SolutionState.Rated;
-                await _solutionsRepository.RateSolutionAsync(solutionId, state, newRating, lecturerComment);
+                await _solutionsRepository.RateSolutionAsync(solutionId, state, lecturerId, newRating, lecturerComment);
 
                 var solutionModel = _mapper.Map<SolutionViewModel>(solution);
                 solutionModel.LecturerComment = lecturerComment;

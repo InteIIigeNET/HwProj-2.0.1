@@ -10,6 +10,7 @@ import AvatarUtils from "../Utils/AvatarUtils";
 import GitHubIcon from '@mui/icons-material/GitHub';
 import Utils from "../../services/Utils";
 import {RatingStorage} from "../Storages/RatingStorage";
+import {Assignment, Edit} from "@mui/icons-material";
 
 interface ISolutionProps {
     solution: GetSolutionModel | undefined,
@@ -90,6 +91,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     const {points, lecturerComment, addBonusPoints} = state
     const postedSolutionTime = solution && Utils.renderReadableDate(solution.publicationDate!)
     const students = (solution?.groupMates?.length || 0) > 0 ? solution!.groupMates! : [student]
+    const lecturerName = solution?.lecturer && (solution.lecturer.surname + " " + solution.lecturer.name)
 
     const getDatesDiff = (_date1: Date, _date2: Date) => {
         const date1 = new Date(_date1).getTime()
@@ -217,6 +219,13 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 </Grid>}
                 {(props.forMentor || isRated) &&
                     <Grid item container direction={"column"}>
+                        {lecturerName && isRated &&
+                            <Stack direction={"row"} alignItems={"center"} spacing={1} style={{marginTop: 5}}>
+                                <Avatar>
+                                    {state.clickedForRate ? <Edit/> : <Assignment/>}
+                                </Avatar>
+                                <Typography variant={"body1"}>{state.clickedForRate ? "..." : lecturerName}</Typography>
+                            </Stack>}
                         {renderRateInput()}
                         {lastRating !== undefined &&
                             <Typography style={{color: "GrayText", fontSize: "medium", marginBottom: 5}}>
