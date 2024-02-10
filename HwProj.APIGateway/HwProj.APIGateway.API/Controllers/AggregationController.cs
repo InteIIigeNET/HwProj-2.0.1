@@ -23,21 +23,20 @@ namespace HwProj.APIGateway.API.Controllers
 
         protected async Task<CoursePreviewView[]> GetCoursePreviews(CoursePreview[] courses)
         {
-            var getMentorsTasks = courses.Select(t => AuthServiceClient.GetAccountsData(t.MentorIds)).ToList();
-            await Task.WhenAll(getMentorsTasks);
-            var mentorDTOs = getMentorsTasks.Select(t => t.Result);
-
-            var result = courses.Zip(mentorDTOs, (course, mentors) =>
-                new CoursePreviewView
-                {
-                    Id = course.Id,
-                    Name = course.Name,
-                    GroupName = course.GroupName,
-                    IsCompleted = course.IsCompleted,
-                    Mentors = mentors.Where(t => t != null).ToArray()
-                }).ToArray();
-
-            return result;
+            var mentorIds = courses.SelectMany(t => t.MentorIds).Distinct().ToArray();
+            var mentors = await AuthServiceClient.GetAccountsData(mentorIds);
+            var mentorsDict = mentors.Where(x => x != null).ToDictionary(x => x.UserId);
+            return courses.Select(course => new CoursePreviewView
+            {
+                Id = course.Id,
+                Name = course.Name,
+                GroupName = course.GroupName,
+                IsCompleted = course.IsCompleted,
+                Mentors = course.MentorIds
+                    .Select(x => mentorsDict.TryGetValue(x, out var mentor) ? mentor : null)
+                    .Where(x => x != null)
+                    .ToArray()!
+            }).ToArray();
         }
     }
 }

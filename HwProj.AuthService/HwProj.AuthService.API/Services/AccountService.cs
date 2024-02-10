@@ -10,6 +10,7 @@ using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.Result;
+using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.AuthService.API.Services
 {
@@ -50,6 +51,26 @@ namespace HwProj.AuthService.API.Services
         {
             var user = await _userManager.FindByIdAsync(userId);
             return await GetAccountDataAsync(user);
+        }
+
+        public async Task<AccountDataDto[]> GetAccountsDataAsync(string[] userIds)
+        {
+            var users = await _aspUserManager.Users
+                .Where(user => userIds.Contains(user.Id))
+                .ToDictionaryAsync(t => t.Id);
+
+            var accounts = new AccountDataDto[userIds.Length];
+
+            for (var i = 0; i < userIds.Length; i++)
+            {
+                var userId = userIds[i];
+                if (!users.TryGetValue(userId, out var user)) continue;
+                var roles = await _aspUserManager.GetRolesAsync(user);
+                accounts[i] = new AccountDataDto(userId, user.Name, user.Surname, user.Email,
+                    roles.FirstOrDefault() ?? Roles.StudentRole, user.IsExternalAuth, user.MiddleName);
+            }
+
+            return accounts;
         }
 
         public async Task<AccountDataDto> GetAccountDataByEmailAsync(string email)

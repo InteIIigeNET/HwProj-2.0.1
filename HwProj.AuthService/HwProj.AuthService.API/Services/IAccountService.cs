@@ -10,6 +10,7 @@ namespace HwProj.AuthService.API.Services
     public interface IAccountService
     {
         Task<AccountDataDto> GetAccountDataAsync(string userId);
+        Task<AccountDataDto[]> GetAccountsDataAsync(string[] userIds);
         Task<AccountDataDto> GetAccountDataByEmailAsync(string email);
         Task<Result<TokenCredentials>> RegisterUserAsync(RegisterDataDTO model);
         Task<Result> EditAccountAsync(string accountId, EditDataDTO model);

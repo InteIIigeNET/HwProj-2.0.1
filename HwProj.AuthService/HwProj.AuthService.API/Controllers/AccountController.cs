@@ -54,10 +54,7 @@ namespace HwProj.AuthService.API.Controllers
         [HttpGet("getUsersData")]
         public async Task<AccountDataDto?[]> GetUsersData([FromBody] string[] userIds)
         {
-            var getAccountsDataTasks = userIds.Select(_accountService.GetAccountDataAsync).ToList();
-            await Task.WhenAll(getAccountsDataTasks);
-
-            return getAccountsDataTasks.Select(t => t.Result).ToArray();
+            return await _accountService.GetAccountsDataAsync(userIds);
         }
 
         [HttpPost("register")]
