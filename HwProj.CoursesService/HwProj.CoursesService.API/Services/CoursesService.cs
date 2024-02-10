@@ -106,16 +106,11 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<bool> AddStudentAsync(long courseId, string studentId)
         {
-            var getCourseTask = _coursesRepository.GetAsync(courseId);
-            var getCourseMateTask =
-                _courseMatesRepository.FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
-            await Task.WhenAll(getCourseTask, getCourseMateTask);
+            var course = await _coursesRepository.GetAsync(courseId);
+            var cm = await _courseMatesRepository.FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
 
-            var course = getCourseTask.Result;
-            if (course == null || getCourseMateTask.Result != null)
-            {
+            if (course == null || cm != null)
                 return false;
-            }
 
             var courseMate = new CourseMate
             {
@@ -139,28 +134,13 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<bool> AcceptCourseMateAsync(long courseId, string studentId)
         {
-            var getCourseTask = _coursesRepository.GetAsync(courseId);
-            var getCourseMateTask =
-                _courseMatesRepository.FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
-            await Task.WhenAll(getCourseTask, getCourseMateTask);
+            var course = await _coursesRepository.GetAsync(courseId);
+            var cm = await _courseMatesRepository.FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
 
-            if (getCourseTask.Result == null || getCourseMateTask.Result == null)
-            {
+            if (course == null || cm == null)
                 return false;
-            }
 
-            await _courseMatesRepository.UpdateAsync(
-                getCourseMateTask.Result.Id,
-                cm => new CourseMate { IsAccepted = true }
-            );
-
-            var course = getCourseTask.Result;
-            var courseMate = new CourseMate
-            {
-                CourseId = courseId,
-                StudentId = studentId,
-                IsAccepted = false
-            };
+            await _courseMatesRepository.UpdateAsync(cm.Id, cm => new CourseMate { IsAccepted = true });
 
             _eventBus.Publish(new LecturerAcceptToCourseEvent
             {
@@ -175,19 +155,14 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<bool> RejectCourseMateAsync(long courseId, string studentId)
         {
-            var getCourseTask = _coursesRepository.GetAsync(courseId);
-            var getCourseMateTask =
-                _courseMatesRepository.FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
-            await Task.WhenAll(getCourseTask, getCourseMateTask);
+            var course = await _coursesRepository.GetAsync(courseId);
+            var cm = await _courseMatesRepository.FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
 
-            if (getCourseTask.Result == null || getCourseMateTask.Result == null)
-            {
+            if (course == null || cm == null)
                 return false;
-            }
 
-            await _courseMatesRepository.DeleteAsync(getCourseMateTask.Result.Id);
+            await _courseMatesRepository.DeleteAsync(cm.Id);
 
-            var course = getCourseTask.Result;
             _eventBus.Publish(new LecturerRejectToCourseEvent
             {
                 CourseId = courseId,
@@ -203,11 +178,11 @@ namespace HwProj.CoursesService.API.Services
             var courses = role == Roles.LecturerRole
                 ? _coursesRepository.FindAll(c => c.MentorIds.Contains(userId))
                 : _coursesRepository.FindAll(c => c.CourseMates.Any(cm => cm.IsAccepted && cm.StudentId == userId));
-            
+
             var result = await courses
-                    .Include(c => c.CourseMates)
-                    .Include(c => c.Homeworks).ThenInclude(t => t.Tasks)
-                    .ToArrayAsync();
+                .Include(c => c.CourseMates)
+                .Include(c => c.Homeworks).ThenInclude(t => t.Tasks)
+                .ToArrayAsync();
 
             CourseDomain.FillTasksInCourses(result);
 
@@ -236,6 +211,7 @@ namespace HwProj.CoursesService.API.Services
                 //TODO: remove
                 await RejectCourseMateAsync(courseId, lecturerId);
             }
+
             return true;
         }
 
