@@ -57,6 +57,7 @@ namespace HwProj.AuthService.API.Services
         {
             var users = await _aspUserManager.Users
                 .Where(user => userIds.Contains(user.Id))
+                .AsNoTracking()
                 .ToDictionaryAsync(t => t.Id);
 
             var accounts = new AccountDataDto[userIds.Length];
