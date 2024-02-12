@@ -10,7 +10,16 @@ import ApiSingleton from '../../api/ApiSingleton';
 import {FC, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
 import DeletionConfirmation from "../DeletionConfirmation";
-import {Chip, Accordion, AccordionSummary, Typography, IconButton, Button, AccordionDetails, Tooltip} from '@material-ui/core';
+import {
+    Chip,
+    Accordion,
+    AccordionSummary,
+    Typography,
+    IconButton,
+    Button,
+    AccordionDetails,
+    Tooltip
+} from '@material-ui/core';
 import {Stack} from '@mui/material';
 import {ReactMarkdownWithCodeHighlighting} from "../Common/TextFieldWithPreview";
 import Utils from "../../services/Utils";
@@ -58,8 +67,9 @@ const Homework: FC<IHomeworkProps> = (props) => {
 
     const classes = useStyles()
 
-    const homeworkPublicationDateString =  Utils.renderReadableDate(new Date(props.homework.publicationDate!))
+    const homeworkPublicationDateString = Utils.renderReadableDate(new Date(props.homework.publicationDate!))
     const homeworkDeadlineDateString = Utils.renderReadableDate(new Date(props.homework.deadlineDate!))
+    const tasksCount = props.homework.tasks!.length
 
     return (
         <div style={{width: '100%'}}>
@@ -76,17 +86,17 @@ const Homework: FC<IHomeworkProps> = (props) => {
                                 {props.homework.title}
                             </Typography>
                             {props.forMentor &&
-                            <Chip label={"🕘 " + homeworkPublicationDateString}/>
+                                <Chip label={"🕘 " + homeworkPublicationDateString}/>
                             }
-                            {props.homework.hasDeadline && 
-                            <Chip label={"⌛ " + homeworkDeadlineDateString}/>
+                            {props.homework.hasDeadline &&
+                                <Chip label={"⌛ " + homeworkDeadlineDateString}/>
                             }
                             {props.forMentor && props.homework.isDeadlineStrict &&
-                            <Tooltip arrow title={"Нельзя публиковать решения после дедлайна"}>
-                                <Chip label={"⛔"}/>
-                            </Tooltip>
+                                <Tooltip arrow title={"Нельзя публиковать решения после дедлайна"}>
+                                    <Chip label={"⛔"}/>
+                                </Tooltip>
                             }
-                            <Chip label={props.homework.tasks!.length + " заданий"}/>
+                            {tasksCount > 0 && <Chip label={tasksCount + " заданий"}/>}
                             {props.forMentor && !props.isReadingMode && <div>
                                 <IconButton aria-label="Delete" onClick={openDialogDeleteHomework}>
                                     <DeleteIcon fontSize="small"/>

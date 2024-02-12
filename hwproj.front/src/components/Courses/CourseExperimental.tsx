@@ -71,7 +71,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
 
     const renderHomework = (homework: HomeworkViewModel) => {
         const deferredHomeworks = homework.tasks!.filter(t => t.isDeferred!)
-        const homeworkCount = homework.tasks!.length
+        const tasksCount = homework.tasks!.length
         return <CardContent>
             <Grid container spacing={2}>
                 <Grid item>
@@ -82,8 +82,10 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 {props.isMentor && deferredHomeworks!.length > 0 &&
                     <Grid item><Chip label={"🕘 " + deferredHomeworks!.length}/></Grid>
                 }
-                <Grid item><Chip
-                    label={homeworkCount + " " + Utils.pluralizeHelper(["Задание", "Задания", "Заданий"], homeworkCount)}/></Grid>
+                {tasksCount > 0 && <Grid item>
+                    <Chip
+                        label={tasksCount + " " + Utils.pluralizeHelper(["Задание", "Задания", "Заданий"], tasksCount)}/>
+                </Grid>}
             </Grid>
             <Divider style={{marginTop: 15, marginBottom: 15}}/>
             <Typography style={{color: "#454545"}} gutterBottom variant="body1">
