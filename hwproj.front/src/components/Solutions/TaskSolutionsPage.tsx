@@ -214,7 +214,8 @@ const TaskSolutionsPage: FC = () => {
                 onCancel={onCancelAddSolution}
                 lastSolutionUrl={lastSolution?.githubUrl}
                 students={courseMates}
-                lastGroup={lastSolution?.groupMates?.map(s => s.userId!) || []}/>}
+                lastGroup={lastSolution?.groupMates?.map(s => s.userId!) || []}
+                supportsGroup={task.isGroupWork!}/>}
         </Grid>
     </div> : (
         <div>

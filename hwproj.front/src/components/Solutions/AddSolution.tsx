@@ -11,6 +11,7 @@ interface IAddSolutionProps {
     lastSolutionUrl: string | undefined,
     lastGroup: string[],
     taskId: number,
+    supportsGroup: boolean,
     students: AccountDataDto[]
     onAdd: () => void,
     onCancel: () => void,
@@ -60,7 +61,7 @@ const AddSolution: FC<IAddSolutionProps> = (props) => {
                                 взята из предыдущего
                                 решения</Alert>}
                     </Grid>
-                    <Grid item xs={12} style={{marginTop: '16px'}}>
+                    {props.supportsGroup && <Grid item xs={12} style={{marginTop: '16px'}}>
                         <Autocomplete
                             multiple
                             id="tags-outlined"
@@ -87,7 +88,7 @@ const AddSolution: FC<IAddSolutionProps> = (props) => {
                             <Alert sx={{paddingTop: 0, paddingBottom: 0, marginTop: 0.2}} severity="info">Команда
                                 взята из предыдущего
                                 решения</Alert>}
-                    </Grid>
+                    </Grid>}
                     <Grid item xs={12} style={{marginTop: '16px'}}>
                         <TextField
                             multiline
