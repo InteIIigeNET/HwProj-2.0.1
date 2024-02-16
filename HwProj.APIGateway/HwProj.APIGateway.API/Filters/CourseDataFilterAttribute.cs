@@ -14,9 +14,7 @@ namespace HwProj.APIGateway.API.Filters
     {
         public override async Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next)
         {
-            var userId = context.HttpContext.User.Claims
-                .FirstOrDefault(claim => claim.Type.ToString() == "_id")
-                ?.Value;;
+            var userId = context.HttpContext.User.FindFirst("_id").Value;
 
             if (userId == null)
             {

@@ -1,49 +1,69 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
+using HwProj.EventBus.Client;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Models;
-using HwProj.Repositories;
+using Microsoft.EntityFrameworkCore;
 using Z.EntityFramework.Plus;
 
 namespace HwProj.NotificationsService.API.Repositories
 {
-    public interface IScheduleJobsRepository : ICrudRepository<ScheduleJob, string>
+    public interface IScheduleJobsRepository
     {
-        public Task DeleteAllByCategoryAsync(string category, long categoryId);
+        public Task AddAsync(ScheduleJob scheduleJob);
 
-        public IQueryable<ScheduleJob> GetAllByCategoryAsync(string category, long categoryId);
+        public Task DeleteAsync(Event @event, long itemId);
+
+        public Task DeleteAllInCategoryByItemIdAsync(Event @event, long itemId);
+
+        public IEnumerable<ScheduleJob> FindAll(Expression<Func<ScheduleJob, bool>> predicate);
     }
 
 
-    public class ScheduleJobsRepository : CrudRepository<ScheduleJob, string>, IScheduleJobsRepository
+    public class ScheduleJobsRepository : IScheduleJobsRepository
     {
-        public ScheduleJobsRepository(NotificationsContext context) : base(context)
+        private readonly NotificationsContext _context;
+
+        public ScheduleJobsRepository(NotificationsContext context)
         {
+            _context = context;
         }
 
-        public async Task DeleteAllByCategoryAsync(string category, long categoryId)
+        public async Task AddAsync(ScheduleJob scheduleJob)
         {
-            var predicate = (ScheduleJob scheduleJob) =>
-            {
-                var id = ScheduleJobIdHelper.ParseId(scheduleJob.Id);
-                return id.CategoryId == categoryId && id.Category.Equals(category);
-            };
+            await _context.AddAsync(scheduleJob).ConfigureAwait(false);
+            await _context.SaveChangesAsync().ConfigureAwait(false);
+        }
 
-            await Context.Set<ScheduleJob>()
-                .Where(scheduleJob => predicate(scheduleJob))
+        public async Task DeleteAsync(Event @event, long itemId)
+        {
+            var category = ScheduleJobIdHelper.GetCategory(@event);
+            var eventName = ScheduleJobIdHelper.GetEventName(@event);
+            
+            await _context.Set<ScheduleJob>()
+                .Where(scheduleJob =>
+                    scheduleJob.Category.Equals(category) && scheduleJob.EventName.Equals(eventName) &&
+                    scheduleJob.ItemId == itemId)
+                .DeleteAsync()
+                .ConfigureAwait(false);
+        }
+
+        public async Task DeleteAllInCategoryByItemIdAsync(Event @event, long itemId)
+        {
+            var category = ScheduleJobIdHelper.GetCategory(@event);
+            
+            await _context.Set<ScheduleJob>()
+                .Where(scheduleJob => scheduleJob.Category.Equals(category)  && scheduleJob.ItemId == itemId)
                 .DeleteAsync()
                 .ConfigureAwait(true);
         }
 
-        public IQueryable<ScheduleJob> GetAllByCategoryAsync(string category, long categoryId)
+        public IEnumerable<ScheduleJob> FindAll(Expression<Func<ScheduleJob, bool>> predicate)
         {
-            var predicate = (ScheduleJob scheduleJob) =>
-            {
-                var id = ScheduleJobIdHelper.ParseId(scheduleJob.Id);
-                return id.CategoryId == categoryId && id.Category.Equals(category);
-            };
-            
-            return FindAll(scheduleJob => predicate(scheduleJob));
+            return _context.Set<ScheduleJob>().AsNoTracking().Where(predicate);
         }
     }
 }

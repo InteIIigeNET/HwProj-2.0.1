@@ -1,56 +1,33 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
 using HwProj.EventBus.Client;
 using HwProj.Models.Events.CourseEvents;
-using HwProj.Repositories;
 
 namespace HwProj.Models.NotificationsService
 {
-    public class ScheduleJob : IEntity<string>
-    {
-        [Key] public string Id { get; set; }
-        public string JobId { get; set; }
-
-        public ScheduleJob(ScheduleWorkId id, string jobId)
-        {
-            Id = id.ToString();
-            JobId = jobId;
-        }
-
-        public ScheduleJob()
-        {
-        }
-    }
-
-    public class ScheduleWorkId
+    public class ScheduleJob
     {
         public string Category { get; set; }
 
-        public string EventTypeName { get; set; }
+        public string EventName { get; set; }
 
-        public long CategoryId { get; set; }
+        public long ItemId { get; set; }
 
-        public ScheduleWorkId(string category, string eventTypeName, long categoryId)
+        public string JobId { get; set; }
+
+        public ScheduleJob(Event @event, long itemId, string jobId)
         {
-            Category = category;
-            EventTypeName = eventTypeName;
-            CategoryId = categoryId;
+            Category = ScheduleJobIdHelper.GetCategory(@event);
+            EventName = ScheduleJobIdHelper.GetEventName(@event);
+            ItemId = itemId;
+            JobId = jobId;
         }
 
-
-        public override string ToString()
-        {
-            return $"{Category}/{EventTypeName}/{CategoryId}";
-        }
+        public ScheduleJob(){}
     }
+
 
     public static class ScheduleJobIdHelper
     {
-        public static ScheduleWorkId BuildId(Event @event, long categoryId)
-        {
-            return new ScheduleWorkId(GetCategory(@event), @event.GetType().Name, categoryId);
-        }
-
         public static string GetCategory(Event @event)
         {
             var eventType = @event.GetType();
@@ -65,11 +42,7 @@ namespace HwProj.Models.NotificationsService
             };
         }
 
-        public static ScheduleWorkId ParseId(string id)
-        {
-            var parts = id.Split('/');
-
-            return new ScheduleWorkId(parts[0], parts[1], int.Parse(parts[2]));
-        }
+        public static string GetEventName(Event @event)
+            => @event.ToString();
     }
 }

@@ -19,6 +19,7 @@ namespace HwProj.NotificationsService.API.Models
         {
             modelBuilder.Entity<NotificationsSetting>().HasIndex(n => n.UserId);
             modelBuilder.Entity<NotificationsSetting>().HasKey(n => new { n.UserId, n.Category });
+            modelBuilder.Entity<ScheduleJob>().HasKey(s =>  new {s.Category, s.EventName, s.ItemId});
         }
     }
 }

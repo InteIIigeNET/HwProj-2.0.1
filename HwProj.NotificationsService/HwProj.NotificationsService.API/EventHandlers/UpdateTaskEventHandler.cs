@@ -80,7 +80,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 {
                     Sender = "CourseService",
                     Body = message,
-                    Category = CategoryState.Tasks,
+                    Category = CategoryState.Homeworks,
                     Date = DateTimeUtils.GetMoscowNow(),
                     Owner = student!.UserId
                 };
@@ -90,9 +90,6 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
                 await Task.WhenAll(addNotificationTask, sendEmailTask);
             }
-
-            await EventHandlerExtensions<UpdateTaskEvent>.DeleteScheduleJobAsync(@event, @event.TaskId,
-                _scheduleJobsRepository);
         }
     }
 }
