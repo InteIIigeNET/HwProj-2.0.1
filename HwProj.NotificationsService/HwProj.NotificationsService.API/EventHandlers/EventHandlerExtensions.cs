@@ -16,7 +16,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             var jobId = BackgroundJob.Schedule(jobFunc, publicationDate);
             var scheduleJob = new ScheduleJob(@event, itemId, jobId);
 
-            BackgroundJob.Schedule(() => jobsRepository.DeleteAsync(@event, itemId), publicationDate);
+            BackgroundJob.ContinueJobWith(jobId, () => jobsRepository.DeleteAsync(@event, itemId), JobContinuationOptions.OnAnyFinishedState);
 
             await jobsRepository.AddAsync(scheduleJob);
         }
