@@ -191,9 +191,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                  }
                              }))
                          }}>
-                        <Typography variant="subtitle1" align={"center"}>
-                            <b>{x.title}</b>
-                        </Typography>
+                        <Typography variant="h6" style={{fontSize: 18}} align={"center"}>{x.title}</Typography>
                         {x.isDeferred &&
                             <Typography style={{fontSize: "14px"}} align={"center"}>
                                 {"🕘 " + renderDate(x.publicationDate!) + " " + renderTime(x.publicationDate!)}
