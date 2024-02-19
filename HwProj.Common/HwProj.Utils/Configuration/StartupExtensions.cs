@@ -153,6 +153,12 @@ namespace HwProj.Utils.Configuration
 
             if (context != null)
             {
+                if (env.IsDevelopment())
+                {
+                    context.Database.EnsureCreated();
+                    return app;
+                }
+                
                 var logger = app.ApplicationServices
                     .GetService<ILoggerFactory>()
                     .CreateLogger(typeof(StartupExtensions));
@@ -167,7 +173,6 @@ namespace HwProj.Utils.Configuration
                 }
 
                 if (tries > maxTries) throw new Exception("Can't connect to database");
-                context.Database.EnsureCreated();
                 context.Database.Migrate();
             }
 
