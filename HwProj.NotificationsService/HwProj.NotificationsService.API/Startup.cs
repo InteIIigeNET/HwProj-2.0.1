@@ -1,5 +1,5 @@
 ﻿using Hangfire;
-using HwProj.AuthService.API.Events;
+using HwProj.Models.Events.AuthEvents;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.EventBus.Client.Interfaces;
@@ -8,7 +8,7 @@ using HwProj.NotificationsService.API.EventHandlers;
 using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
-using HwProj.SolutionsService.API.Events;
+using HwProj.Models.Events.SolutionEvents;
 using HwProj.Utils.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

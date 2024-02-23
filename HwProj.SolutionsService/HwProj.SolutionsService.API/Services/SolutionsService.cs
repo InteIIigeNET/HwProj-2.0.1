@@ -10,7 +10,7 @@ using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.SolutionsService;
 using HwProj.Models.StatisticsService;
-using HwProj.SolutionsService.API.Events;
+using HwProj.Models.Events.SolutionEvents;
 using HwProj.SolutionsService.API.Repositories;
 using Microsoft.EntityFrameworkCore;
 

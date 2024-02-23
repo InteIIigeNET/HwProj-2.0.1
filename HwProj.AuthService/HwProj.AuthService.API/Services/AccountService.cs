@@ -5,7 +5,7 @@ using System.Linq;
 using AutoMapper;
 using HwProj.AuthService.API.Extensions;
 using HwProj.Models.Roles;
-using HwProj.AuthService.API.Events;
+using HwProj.Models.Events.AuthEvents;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;

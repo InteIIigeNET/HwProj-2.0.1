@@ -1,4 +1,4 @@
-﻿namespace HwProj.AuthService.API.Events
+﻿namespace HwProj.Models.Events.AuthEvents
 {
     public class AdminRegisterEvent : RegisterEvent
     {

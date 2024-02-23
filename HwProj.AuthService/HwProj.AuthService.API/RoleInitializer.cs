@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
-using HwProj.AuthService.API.Events;
+using HwProj.Models.Events.AuthEvents;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.Roles;
 using HwProj.Models.AuthService.ViewModels;

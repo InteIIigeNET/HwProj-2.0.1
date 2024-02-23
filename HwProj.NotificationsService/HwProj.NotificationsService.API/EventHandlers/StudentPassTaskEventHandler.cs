@@ -5,7 +5,7 @@ using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
-using HwProj.SolutionsService.API.Events;
+using HwProj.Models.Events.SolutionEvents;
 using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.API.EventHandlers
