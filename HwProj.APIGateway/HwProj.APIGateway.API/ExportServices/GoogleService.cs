@@ -41,11 +41,24 @@ namespace HwProj.APIGateway.API.ExportServices
             Result result;
             try
             {
-                var sheetId = await GetSheetId(spreadsheetId, sheetName);
-                if (sheetId == null) return Result.Failed("Лист с таким названием не найден");
+                var sheetProperties = await GetSheetProperties(spreadsheetId, sheetName);
+                if (sheetProperties?.SheetId == null || sheetProperties.GridProperties.RowCount == null ||
+                    sheetProperties.GridProperties.ColumnCount == null)
+                    return Result.Failed("Лист с таким названием не найден");
 
                 var (valueRange, range, updateStyleRequestBody) = Generate(
-                    statistics.ToList(), course, sheetName, (int)sheetId);
+                    statistics.ToList(), course, sheetName, (int)sheetProperties.SheetId);
+
+                var rowDifference = valueRange.Values.Count - (int)sheetProperties.GridProperties.RowCount;
+                var columnDifference = valueRange.Values.First().Count -
+                                       (int)sheetProperties.GridProperties.ColumnCount;
+                if (rowDifference > 0 || columnDifference > 0)
+                {
+                    var appendDimensionRequest = _internalGoogleSheetsService.Spreadsheets.
+                        BatchUpdate(GetAppendDimensionBatchRequest(rowDifference, columnDifference),
+                            spreadsheetId);
+                    await appendDimensionRequest.ExecuteAsync();
+                }
 
                 var clearRequest = _internalGoogleSheetsService.Spreadsheets.Values.Clear(new ClearValuesRequest(), spreadsheetId, range);
                 await clearRequest.ExecuteAsync();
@@ -86,6 +99,35 @@ namespace HwProj.APIGateway.API.ExportServices
             var match = Regex.Match(sheetUrl, "https://docs\\.google\\.com/spreadsheets/d/(?<id>.+)/");
             return match.Success ? Result<string>.Success(match.Groups["id"].Value)
                 : Result<string>.Failed("Некорректная ссылка на страницу Google Docs");
+        }
+
+        private static BatchUpdateSpreadsheetRequest GetAppendDimensionBatchRequest(int rowDifference, int columnDifference)
+        {
+            var batchUpdateRequest = new BatchUpdateSpreadsheetRequest();
+            batchUpdateRequest.Requests = new List<Request>();
+
+            if (rowDifference > 0)
+            {
+                var appendRowsRequest = new AppendDimensionRequest();
+                appendRowsRequest.Dimension = "ROWS";
+                appendRowsRequest.Length = rowDifference;
+                var request = new Request();
+                request.AppendDimension = appendRowsRequest;
+                batchUpdateRequest.Requests.Add(request);
+            }
+
+            if (columnDifference > 0)
+            {
+                var appendColumnsRequest = new AppendDimensionRequest();
+                appendColumnsRequest.Dimension = "COLUMNS";
+                appendColumnsRequest.Length = columnDifference;
+                var request = new Request();
+                request.AppendDimension = appendColumnsRequest;
+                batchUpdateRequest.Requests.Add(request);
+
+            }
+
+            return batchUpdateRequest;
         }
 
         /// <summary>
@@ -360,15 +402,14 @@ namespace HwProj.APIGateway.API.ExportServices
             }
         }
 
-        private async Task<int?> GetSheetId(string spreadsheetId, string sheetName)
+        private async Task<SheetProperties?> GetSheetProperties(string spreadsheetId, string sheetName)
         {
             var spreadsheetGetRequest = _internalGoogleSheetsService.Spreadsheets.Get(spreadsheetId);
             spreadsheetGetRequest.IncludeGridData = true;
             try
             {
                 var spreadsheetResponse = await spreadsheetGetRequest.ExecuteAsync();
-                var sheetId = spreadsheetResponse.Sheets.First(sheet => sheet.Properties.Title == sheetName).Properties.SheetId;
-                return sheetId;
+                return spreadsheetResponse.Sheets.First(sheet => sheet.Properties.Title == sheetName).Properties;
             }
             catch (Exception)
             {
