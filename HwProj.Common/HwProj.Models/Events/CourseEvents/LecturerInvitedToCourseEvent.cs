@@ -8,5 +8,8 @@ namespace HwProj.Models.Events.CourseEvents
         public string CourseName { get; set; }
         public string MentorId { get; set; }
         public string MentorEmail { get; set; }
+
+        public override string EventName => "LecturerInvitedToCourseEvent";
+        public override EventCategory Category => EventCategory.Courses;
     }
 }

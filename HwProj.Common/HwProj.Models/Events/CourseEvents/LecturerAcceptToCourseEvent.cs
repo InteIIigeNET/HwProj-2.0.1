@@ -8,5 +8,8 @@ namespace HwProj.Models.Events.CourseEvents
         public string CourseName { get; set; }
         public string MentorIds { get; set; }
         public string StudentId { get; set; }
+
+        public override string EventName => "AcceptToCourseEvent";
+        public override EventCategory Category => EventCategory.Courses;
     }
 }

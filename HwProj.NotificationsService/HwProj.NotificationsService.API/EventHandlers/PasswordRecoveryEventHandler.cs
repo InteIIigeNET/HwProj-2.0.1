@@ -1,8 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using System.Web;
 using HwProj.Models.Events.AuthEvents;
 using HwProj.EventBus.Client.Interfaces;
-using HwProj.Models;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
@@ -36,7 +36,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                        $"Для изменения пароля перейдите по ссылке<br/><a href={recoveryLink}>Сменить пароль</a><br/><br/>" +
                        $"Если вы не запрашивали сброс пароля, проигнорируйте это письмо.",
                 Category = CategoryState.Profile,
-                Date = DateTimeUtils.GetMoscowNow(),
+                Date = DateTime.UtcNow,
                 HasSeen = false,
                 Owner = @event.UserId
             };
@@ -45,7 +45,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 Sender = "AuthService",
                 Body = $"{@event.Name} {@event.Surname}, был запрошен сброс вашего пароля.",
                 Category = CategoryState.Profile,
-                Date = DateTimeUtils.GetMoscowNow(),
+                Date = DateTime.UtcNow,
                 HasSeen = false,
                 Owner = @event.UserId
             };

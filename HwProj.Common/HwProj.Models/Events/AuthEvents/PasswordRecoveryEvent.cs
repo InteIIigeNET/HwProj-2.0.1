@@ -9,5 +9,7 @@ namespace HwProj.Models.Events.AuthEvents
         public string Surname { get; set; }
         public string Email { get; set; }
         public string Token { get; set; }
+        public override string EventName => "PasswordRecoveryEvent";
+        public override EventCategory Category => EventCategory.Users;
     }
 }

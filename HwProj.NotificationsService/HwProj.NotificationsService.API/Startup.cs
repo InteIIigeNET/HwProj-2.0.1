@@ -43,8 +43,8 @@ namespace HwProj.NotificationsService.API
             services.AddDbContext<NotificationsContext>(options => options.UseSqlServer(connectionString));
             services.AddScoped<INotificationsRepository, NotificationsRepository>();
             services.AddScoped<INotificationSettingsRepository, NotificationSettingsRepository>();
-            services.AddScoped<IScheduleJobsRepository, ScheduleJobsRepository>();
             services.AddEventBus(Configuration);
+            services.AddTransient<IScheduleJobsRepository, ScheduleJobsRepository>();
             services.AddTransient<IEventHandler<StudentRegisterEvent>, RegisterEventHandler>();
             services.AddTransient<IEventHandler<RateEvent>, RateEventHandler>();
             services.AddTransient<IEventHandler<StudentPassTaskEvent>, StudentPassTaskEventHandler>();

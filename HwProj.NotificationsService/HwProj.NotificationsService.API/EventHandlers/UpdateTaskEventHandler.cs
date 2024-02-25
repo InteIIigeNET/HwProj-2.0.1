@@ -2,14 +2,12 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using Hangfire;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.EventBus.Client.Interfaces;
-using HwProj.Models;
-using HwProj.Models.AuthService.DTO;
 using HwProj.Models.Events.CourseEvents;
 using HwProj.Models.NotificationsService;
+using HwProj.NotificationsService.API.Jobs;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
 using Microsoft.Extensions.Configuration;
@@ -46,7 +44,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
         public override async Task HandleAsync(UpdateTaskEvent @event)
         {
-            if (@event.PreviousEvent.PublicationDate <= DateTimeUtils.GetMoscowNow())
+            if (@event.PreviousEvent.PublicationDate <= DateTime.UtcNow)
             {
                 await AddNotificationsAsync(@event);
                 return;
@@ -66,7 +64,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             var accountsData = await _authServiceClient.GetAccountsData(studentIds);
 
             var url = _configuration["Url"];
-            var isTaskPublished = @event.PreviousEvent.PublicationDate < DateTimeUtils.GetMoscowNow();
+            var isTaskPublished = @event.PreviousEvent.PublicationDate < DateTime.UtcNow;
             var message = isTaskPublished
                 ? $"Задача <a href='{_configuration["Url"]}/task/{@event.TaskId}'>{@event.PreviousEvent.Title}</a>" +
                   $" из курса <a href='{_configuration["Url"]}/courses/{course.Id}'>{course.Name}</a> обновлена."
@@ -81,7 +79,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                     Sender = "CourseService",
                     Body = message,
                     Category = CategoryState.Homeworks,
-                    Date = DateTimeUtils.GetMoscowNow(),
+                    Date = DateTime.UtcNow,
                     Owner = student!.UserId
                 };
 

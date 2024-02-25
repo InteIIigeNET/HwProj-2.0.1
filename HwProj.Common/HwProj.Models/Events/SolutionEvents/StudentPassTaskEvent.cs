@@ -12,11 +12,15 @@ namespace HwProj.Models.Events.SolutionEvents
         public AccountDataDto Student { get; set; }
         public HomeworkTaskViewModel Task { get; set; }
 
-        public StudentPassTaskEvent(CourseDTO course, SolutionViewModel solution, AccountDataDto student, HomeworkTaskViewModel task)
+        public override string EventName => "StudentPassTaskEvent";
+        public override EventCategory Category => EventCategory.Solutions;
+
+        public StudentPassTaskEvent(CourseDTO course, SolutionViewModel solution, AccountDataDto student,
+            HomeworkTaskViewModel task)
         {
             Course = course;
             Solution = solution;
-            Student= student;
+            Student = student;
             Task = task;
         }
     }

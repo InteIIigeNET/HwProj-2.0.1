@@ -9,5 +9,8 @@ namespace HwProj.Models.Events.CourseEvents
         public string MentorIds { get; set; }
         public string StudentId { get; set; }
         public bool IsAccepted { get; set; }
+
+        public override string EventName => "NewCourseMateEvent";
+        public override EventCategory Category => EventCategory.Courses;
     }
 }

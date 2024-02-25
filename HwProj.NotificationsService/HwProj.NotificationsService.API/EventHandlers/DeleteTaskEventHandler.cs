@@ -1,9 +1,8 @@
 ﻿using System.Threading.Tasks;
-using Hangfire;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.Events.CourseEvents;
+using HwProj.NotificationsService.API.Jobs;
 using HwProj.NotificationsService.API.Repositories;
-using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {

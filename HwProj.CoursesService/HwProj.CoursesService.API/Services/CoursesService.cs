@@ -189,7 +189,6 @@ namespace HwProj.CoursesService.API.Services
             {
                 CourseId = courseId,
                 CourseName = course.Name,
-                MentorIds = course.MentorIds,
                 StudentId = studentId
             });
             return true;

@@ -3,10 +3,9 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Hangfire;
 using HwProj.EventBus.Client;
-using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
 
-namespace HwProj.NotificationsService.API.EventHandlers
+namespace HwProj.NotificationsService.API.Jobs
 {
     public static class EventHandlerExtensions<TEvent> where TEvent : Event
     {
@@ -14,35 +13,40 @@ namespace HwProj.NotificationsService.API.EventHandlers
             Expression<Func<Task>> jobFunc, IScheduleJobsRepository jobsRepository)
         {
             var jobId = BackgroundJob.Schedule(jobFunc, publicationDate);
+
+            if (jobId == null)
+                throw new InvalidOperationException($"Невозможно создать отложенное событие для {@event.EventName}");
+
             var scheduleJob = new ScheduleJob(@event, itemId, jobId);
-
-            BackgroundJob.ContinueJobWith(jobId, () => jobsRepository.DeleteAsync(@event, itemId), JobContinuationOptions.OnAnyFinishedState);
-
             await jobsRepository.AddAsync(scheduleJob);
-        }
 
+            BackgroundJob.ContinueJobWith(
+                jobId,
+                () => jobsRepository.DeleteAsync(new[] { scheduleJob }),
+                JobContinuationOptions.OnAnyFinishedState
+            );
+        }
 
         public static async Task UpdateScheduleJobAsync(TEvent @event, long itemId, DateTime publicationDate,
             Expression<Func<Task>> jobFunc, IScheduleJobsRepository jobsRepository)
         {
-            await DeleteScheduleJobsAsync(@event, itemId, jobsRepository);
+            var scheduleJob = await jobsRepository.GetAsync(@event.Category, @event.EventName, itemId);
+            if (scheduleJob == null) return;
+
+            BackgroundJob.Delete(scheduleJob.JobId);
+            await jobsRepository.DeleteAsync(new[] { scheduleJob });
+
             await AddScheduleJobAsync(@event, itemId, publicationDate, jobFunc, jobsRepository);
         }
 
-        
         public static async Task DeleteScheduleJobsAsync(TEvent @event, long itemId,
             IScheduleJobsRepository jobsRepository)
         {
-            var category = ScheduleJobIdHelper.GetCategory(@event);
-            var scheduleJobs = jobsRepository.FindAll(scheduleJob =>
-                scheduleJob.Category.Equals(category) && scheduleJob.ItemId == itemId);
-            
-            foreach (var scheduleJob in scheduleJobs)
-            {
-                BackgroundJob.Delete(scheduleJob.JobId);
-            }
+            var scheduleJobs = await jobsRepository.FindAllInCategoryAsync(@event.Category, itemId);
 
-            await jobsRepository.DeleteAllInCategoryByItemIdAsync(@event, itemId);
+            foreach (var scheduleJob in scheduleJobs) BackgroundJob.Delete(scheduleJob.JobId);
+
+            await jobsRepository.DeleteAsync(scheduleJobs);
         }
     }
 }

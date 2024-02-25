@@ -1,7 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using HwProj.Models.Events.AuthEvents;
 using HwProj.EventBus.Client.Interfaces;
-using HwProj.Models;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
@@ -26,7 +26,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 Sender = "AuthService",
                 Body = $"{@event.Name} {@event.Surname}, Добро Пожаловать в HwProj2.",
                 Category = CategoryState.Profile,
-                Date = DateTimeUtils.GetMoscowNow(),
+                Date = DateTime.UtcNow,
                 HasSeen = false,
                 Owner = @event.UserId
             };

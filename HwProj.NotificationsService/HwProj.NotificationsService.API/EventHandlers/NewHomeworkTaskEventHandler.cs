@@ -1,14 +1,12 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Hangfire;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
-using HwProj.EventBus.Client;
 using HwProj.EventBus.Client.Interfaces;
-using HwProj.Models;
 using HwProj.Models.Events.CourseEvents;
 using HwProj.Models.NotificationsService;
+using HwProj.NotificationsService.API.Jobs;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
 using Microsoft.Extensions.Configuration;
@@ -42,26 +40,30 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
         public override async Task HandleAsync(NewTaskEvent @event)
         {
-            if (@event.Task.PublicationDate <= DateTimeUtils.GetMoscowNow())
+            if (@event.Task.PublicationDate <= DateTime.Now)
             {
                 await AddNotificationsAsync(@event);
                 return;
             }
 
-            await EventHandlerExtensions<NewTaskEvent>.AddScheduleJobAsync(@event, @event.TaskId,
+            await EventHandlerExtensions<NewTaskEvent>.AddScheduleJobAsync(
+                @event,
+                @event.TaskId,
                 @event.Task.PublicationDate,
-                () => AddNotificationsAsync(@event), _scheduleJobsRepository);
+                () => AddNotificationsAsync(@event),
+                _scheduleJobsRepository
+            );
         }
 
-
+        // ReSharper disable once MemberCanBePrivate.Global
         public async Task AddNotificationsAsync(NewTaskEvent @event)
         {
             var course = await _coursesServiceClient.GetCourseById(@event.Course.Id);
             if (course == null) return;
-            
+
             var studentIds = course.CourseMates.Select(t => t.StudentId).ToArray();
             var accountsData = await _authServiceClient.GetAccountsData(studentIds);
-            
+
             var url = _configuration["Url"];
             var message = $"В курсе <a href='{url}/courses/{course.Id}'>{course.Name}</a>" +
                           $" опубликована новая задача <a href='{url}/task/{@event.TaskId}'>{@event.Task.Title}</a>." +
@@ -74,8 +76,8 @@ namespace HwProj.NotificationsService.API.EventHandlers
                     Sender = "CourseService",
                     Body = message,
                     Category = CategoryState.Homeworks,
-                    Date = DateTimeUtils.GetMoscowNow(),
-                    Owner = student!.UserId
+                    Date = DateTime.UtcNow,
+                    Owner = student.UserId
                 };
 
                 var addNotificationTask = _notificationRepository.AddAsync(notification);

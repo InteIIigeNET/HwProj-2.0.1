@@ -1,6 +1,6 @@
 <Project>
     <PropertyGroup>
-        <CSharpLanguageVersion>preview</CSharpLanguageVersion>
+        <CSharpLanguageVersion>8</CSharpLanguageVersion>
     </PropertyGroup>
     
     <PropertyGroup>

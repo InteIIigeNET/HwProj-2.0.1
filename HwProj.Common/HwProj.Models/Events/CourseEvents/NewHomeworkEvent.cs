@@ -8,6 +8,9 @@ namespace HwProj.Models.Events.CourseEvents
         public string Homework { get; set; }
         public CourseDTO Course { get; set; }
 
+        public override string EventName => "NewHomeworkEvent";
+        public override EventCategory Category => EventCategory.Homeworks;
+
         public NewHomeworkEvent(string homework, CourseDTO course)
         {
             Homework = homework;
