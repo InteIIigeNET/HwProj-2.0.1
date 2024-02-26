@@ -66,7 +66,6 @@ namespace HwProj.APIGateway.API.TableGenerators
             var rowsNumber = 3 + courseMatesModels.Count;
             var position = new Position(1, 1);
 
-            worksheet.Cells[position.Row, position.Column].Value = "ิศฮ";
             worksheet.Cells[position.Row, position.Column, position.Row + 2, position.Column].Merge = true;
             ++position.Column;
 
@@ -115,7 +114,7 @@ namespace HwProj.APIGateway.API.TableGenerators
             {
                 var numberCellsToMerge = course.Homeworks[i].Tasks.Count * 3;
                 worksheet.Cells[position.Row, position.Column].Value
-                    = $"ไ/็ {homeworkNumber.ToString()}: {course.Homeworks[i].Title}, {course.Homeworks[i].Date.ToString("dd.MM")}";
+                    = $"h/w {homeworkNumber.ToString()}: {course.Homeworks[i].Title}, {course.Homeworks[i].Date.ToString("dd.MM")}";
                 worksheet.Cells[position.Row, position.Column, position.Row, position.Column + numberCellsToMerge - 1]
                     .Merge = true;
                 position.Column += numberCellsToMerge;
@@ -210,7 +209,8 @@ namespace HwProj.APIGateway.API.TableGenerators
                         var solutions = allSolutions
                             .Where(solution =>
                                 solution.State == SolutionState.Rated || solution.State == SolutionState.Final);
-                        var min = solutions.Max(solution => solution.Rating) ?? 0;
+                        var min = solutions
+                            .Where(solution => solution.State == SolutionState.Final);
                         var cnt = solutions.Count();
                         worksheet.Cells[position.Row, position.Column].Value = min;
                         worksheet.Cells[position.Row, position.Column + 2].Value = cnt;
