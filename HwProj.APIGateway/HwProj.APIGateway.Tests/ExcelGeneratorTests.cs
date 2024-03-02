@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using OfficeOpenXml;
 using System.IO;
 using System;
+using HwProj.Models.SolutionsService;
 using NUnit.Framework.Interfaces;
 
 namespace HwProj.APIGateway.Tests
@@ -35,7 +36,7 @@ namespace HwProj.APIGateway.Tests
             new HomeworkViewModel()
             {
                 Title = "TestHomework1",
-                Date = new DateTime(2023, 6, 4),
+                PublicationDate = new DateTime(2023, 6, 4),
                 Tasks = new List<HomeworkTaskViewModel>()
                 {
                     new HomeworkTaskViewModel()
@@ -55,7 +56,7 @@ namespace HwProj.APIGateway.Tests
             new HomeworkViewModel()
             {
                 Title = "TestHomework2",
-                Date = new System.DateTime(2023, 6, 5),
+                PublicationDate = new System.DateTime(2023, 6, 5),
                 Tasks = new List<HomeworkTaskViewModel>
                 {
                     new HomeworkTaskViewModel()
@@ -93,20 +94,17 @@ namespace HwProj.APIGateway.Tests
                         {
                             new StatisticsCourseTasksModel()
                             {
-                                Solution = new List<StatisticsCourseSolutionsModel>
+                                Solution = new List<Solution>
                                 {
-                                    new StatisticsCourseSolutionsModel
-                                    (new Models.SolutionsService.Solution() { State = Models.SolutionsService.SolutionState.Rated, Rating = 4 } ),
-                                    new StatisticsCourseSolutionsModel
-                                    (new Models.SolutionsService.Solution() { State = Models.SolutionsService.SolutionState.Posted } ),
+                                    new Solution { State = SolutionState.Rated, Rating = 4 },
+                                    new Solution() { State = SolutionState.Posted }
                                 }
                             },
                             new StatisticsCourseTasksModel()
                             {
-                                Solution = new List<StatisticsCourseSolutionsModel>
+                                Solution = new List<Solution>
                                 {
-                                    new StatisticsCourseSolutionsModel
-                                    (new Models.SolutionsService.Solution() { State = Models.SolutionsService.SolutionState.Posted } ),
+                                    new Solution() { State = SolutionState.Posted }
                                 }
                             }
                         }
@@ -117,11 +115,11 @@ namespace HwProj.APIGateway.Tests
                         {
                             new StatisticsCourseTasksModel()
                             {
-                                Solution = new List<StatisticsCourseSolutionsModel>()
+                                Solution = new List<Solution>()
                             },
                             new StatisticsCourseTasksModel()
                             {
-                                Solution = new List<StatisticsCourseSolutionsModel>()
+                                Solution = new List<Solution>()
                             }
                         }
                     }
@@ -138,16 +136,14 @@ namespace HwProj.APIGateway.Tests
                         {
                             new StatisticsCourseTasksModel()
                             {
-                                Solution = new List<StatisticsCourseSolutionsModel>()
+                                Solution = new List<Solution>()
                             },
                             new StatisticsCourseTasksModel()
                             {
-                                Solution = new List<StatisticsCourseSolutionsModel>
+                                Solution = new List<Solution>
                                 {
-                                    new StatisticsCourseSolutionsModel
-                                    (new Models.SolutionsService.Solution() { State = Models.SolutionsService.SolutionState.Rated, Rating = 5 } ),
-                                    new StatisticsCourseSolutionsModel
-                                    (new Models.SolutionsService.Solution() { State = Models.SolutionsService.SolutionState.Rated, Rating = 7 } ),
+                                    new Solution() { State = SolutionState.Rated, Rating = 5 },
+                                    new Solution() { State = SolutionState.Rated, Rating = 7 }
                                 }
                             }
                         }
@@ -158,11 +154,11 @@ namespace HwProj.APIGateway.Tests
                         {
                             new StatisticsCourseTasksModel()
                             {
-                                Solution = new List<StatisticsCourseSolutionsModel>()
+                                Solution = new List<Solution>()
                             },
                             new StatisticsCourseTasksModel()
                             {
-                                Solution = new List<StatisticsCourseSolutionsModel>()
+                                Solution = new List<Solution>()
                             }
                         }
                     }
