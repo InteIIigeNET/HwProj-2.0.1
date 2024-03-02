@@ -114,7 +114,7 @@ namespace HwProj.APIGateway.API.TableGenerators
             {
                 var numberCellsToMerge = course.Homeworks[i].Tasks.Count * 3;
                 worksheet.Cells[position.Row, position.Column].Value
-                    = $"h/w {homeworkNumber.ToString()}: {course.Homeworks[i].Title}, {course.Homeworks[i].Date.ToString("dd.MM")}";
+                    = $"h/w {homeworkNumber.ToString()}: {course.Homeworks[i].Title}, {course.Homeworks[i].PublicationDate.ToString("dd.MM")}";
                 worksheet.Cells[position.Row, position.Column, position.Row, position.Column + numberCellsToMerge - 1]
                     .Merge = true;
                 position.Column += numberCellsToMerge;
