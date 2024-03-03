@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using HwProj.Models.StatisticsService;
 
-namespace HwProj.APIGateway.API.Models
+namespace HwProj.APIGateway.API.Models.Statistics
 {
     public class StatisticsCourseMatesModel
     {
