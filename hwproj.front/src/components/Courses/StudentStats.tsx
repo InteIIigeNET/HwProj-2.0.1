@@ -16,31 +16,34 @@ interface IStudentStatsProps {
 
 interface IStudentStatsState {
     searched: string
+    isSaveStatsActionOpened: boolean
 }
 
 const StudentStats:  React.FC<IStudentStatsProps> = (props) => {
     const [state, setSearched] = useState<IStudentStatsState>({
-        searched: ""
+        searched: "",
+        isSaveStatsActionOpened: false
     });
 
-    const {searched} = state
+    const {searched, isSaveStatsActionOpened} = state
 
     useEffect(() => {
         const keyDownHandler = (event: KeyboardEvent) => {
+            if (isSaveStatsActionOpened) return
             if (event.ctrlKey || event.altKey) return
             if (searched && event.key === "Escape") {
-                setSearched({searched: ""});
+                setSearched({...state, searched: ""});
             } else if (searched && event.key === "Backspace") {
-                setSearched({searched: searched.slice(0, -1)})
+                setSearched({...state, searched: searched.slice(0, -1)})
             } else if (event.key.length === 1 && event.key.match(/[a-zA-Zа-яА-Я\s]/i)
             ) {
-                setSearched({searched: searched + event.key})
+                setSearched({...state, searched: searched + event.key})
             }
         };
 
         document.addEventListener('keydown', keyDownHandler);
         return () => document.removeEventListener('keydown', keyDownHandler);
-    }, [searched]);
+    }, [searched, isSaveStatsActionOpened]);
 
     const homeworks = props.homeworks.filter(h => h.tasks && h.tasks.length > 0)
     const solutions = searched
@@ -127,6 +130,8 @@ const StudentStats:  React.FC<IStudentStatsProps> = (props) => {
                     courseId={props.course.id}
                     userId={props.userId}
                     yandexCode={props.yandexCode}
+                    onActionOpening={() => setSearched({searched, isSaveStatsActionOpened: true})}
+                    onActionClosing={() => setSearched({searched, isSaveStatsActionOpened: false})}
                 />
             </div>
         </div>
