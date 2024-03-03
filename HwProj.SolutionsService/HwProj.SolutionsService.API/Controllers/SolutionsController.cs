@@ -157,7 +157,7 @@ namespace HwProj.SolutionsService.API.Controllers
 
                 return new StatisticsLecturerDTO
                 {
-                    lectorurerId = lecturerId ?? "",
+                    lecturerId = lecturerId ?? "",
                     numberOfCheckedSolutions = numberOfSolutions
                 };
             }).ToArray();

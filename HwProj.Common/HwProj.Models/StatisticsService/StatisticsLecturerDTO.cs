@@ -7,7 +7,7 @@ namespace HwProj.Models.StatisticsService
 {
     public class StatisticsLecturerDTO
     {
-        public string? lectorurerId { get; set; }
+        public string? lecturerId { get; set; }
         public int numberOfCheckedSolutions { get; set; }
     }
 }

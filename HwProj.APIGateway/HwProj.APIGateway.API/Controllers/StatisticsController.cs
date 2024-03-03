@@ -30,7 +30,7 @@ namespace HwProj.APIGateway.API.Controllers
 
             var result = statistics.Select(dto => new StatisticsLecturersModel
             {
-                lecturerId = dto.lectorurerId,
+                lecturerId = dto.lecturerId,
                 numberOfCheckedSolutions = dto.numberOfCheckedSolutions
             }).ToArray();
 
