@@ -139,7 +139,7 @@ namespace HwProj.APIGateway.API.TableGenerators
                     }
 
                     worksheet.Cells[position.Row, position.Column].Value
-                        = $"{taskNumber.ToString()} {course.Homeworks[i].Tasks[j].Title}";
+                        = $"{taskNumber.ToString()}. {course.Homeworks[i].Tasks[j].Title}";
                     worksheet.Cells[position.Row, position.Column, position.Row, position.Column + 2].Merge = true;
                     position.Column += 3;
                     ++taskNumber;
@@ -209,8 +209,7 @@ namespace HwProj.APIGateway.API.TableGenerators
                         var solutions = allSolutions
                             .Where(solution =>
                                 solution.State == SolutionState.Rated || solution.State == SolutionState.Final);
-                        var min = solutions
-                            .Where(solution => solution.State == SolutionState.Final);
+                        var min = solutions.Any() ? solutions.Last().Rating : 0;
                         var cnt = solutions.Count();
                         worksheet.Cells[position.Row, position.Column].Value = min;
                         worksheet.Cells[position.Row, position.Column + 2].Value = cnt;

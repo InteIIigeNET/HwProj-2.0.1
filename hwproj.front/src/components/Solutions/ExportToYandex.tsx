@@ -1,7 +1,6 @@
 ﻿import React, { FC, useState } from "react";
 import { useEffect } from 'react';
 import { ResultString } from "../../api";
-import { ResultExternalService } from "../../api";
 import { Alert, Box, Button, CircularProgress, Grid, Link, MenuItem, Select, TextField } from "@mui/material";
 import apiSingleton from "../../api/ApiSingleton";
 import { green, red } from "@material-ui/core/colors";
