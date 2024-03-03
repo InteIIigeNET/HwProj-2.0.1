@@ -1,4 +1,4 @@
-﻿import {Solution} from "../api";
+import {Solution} from "../api";
 import {colorBetween} from "./JsUtils";
 import Utils from "./Utils";
 
