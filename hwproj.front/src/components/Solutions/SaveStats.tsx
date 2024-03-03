@@ -1,4 +1,4 @@
-import React, {FC, useState} from "react";
+import React, {FC, useState, useEffect} from "react";
 import {Alert, Box, Button, CircularProgress, Grid, MenuItem, Select, TextField} from "@mui/material";
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import GetAppIcon from '@material-ui/icons/GetApp';
@@ -19,61 +19,62 @@ interface SaveStatsProps {
     courseId : number | undefined;
     userId : string;
     yandexCode: string | null;
+    onActionOpening: () => void;
+    onActionClosing: () => void;
+
 }
 
-enum SpeedDialActions {
-    None,
+enum SpeedDialView {
+    Collapsed,
+    Expanded,
     Download,
     ShareWithGoogle,
     ShareWithYandex
 }
 
-enum SpeedDialView {
-    Opened,
-    Expanded
-}
-
 interface SaveStatsState {
-    selectedAction: SpeedDialActions;
-    speedDialView : SpeedDialView;
+    selectedView : SpeedDialView;
 }
 
 const SaveStats: FC<SaveStatsProps> = (props : SaveStatsProps) => {
-    const [state, setState] = useState<SaveStatsState>({
-        selectedAction: props.yandexCode === null ? SpeedDialActions.None : SpeedDialActions.ShareWithYandex,
-        speedDialView: SpeedDialView.Opened
+    const [state, setSelectedView] = useState<SaveStatsState>({
+        selectedView: props.yandexCode === null ? SpeedDialView.Collapsed : SpeedDialView.ShareWithYandex,
     })
 
-    const {selectedAction, speedDialView} = state
+    const {selectedView} = state
 
-    const handleCancellation = () => {
-        setState(prevState => ({...prevState, speedDialView: SpeedDialView.Opened, selectedAction: SpeedDialActions.None}));
-    }
+    useEffect(() => {
+        if (selectedView === SpeedDialView.Download ||
+            selectedView === SpeedDialView.ShareWithGoogle ||
+            selectedView === SpeedDialView.ShareWithYandex) {
+            props.onActionOpening()
+            return
+        }
+        props.onActionClosing()
+    }, [selectedView]);
 
     const handleSpeedDialItemClick = (operation : string) => {
         switch ( operation ) {
             case 'download':
-                setState(prevState =>
-                    ({...prevState, selectedAction: SpeedDialActions.Download}));
+                setSelectedView({selectedView: SpeedDialView.Download});
                 break;
             case 'shareWithGoogle':
-                setState(prevState =>
-                    ({...prevState, selectedAction: SpeedDialActions.ShareWithGoogle}));
+                setSelectedView({selectedView: SpeedDialView.ShareWithGoogle});
                 break;
             case 'shareWithYandex':
-                setState(prevState =>
-                    ({...prevState, selectedAction: SpeedDialActions.ShareWithYandex}));
+                setSelectedView({selectedView: SpeedDialView.ShareWithYandex});
                 break;
             default:
                 break;
         }
     }
 
-    const handleChangeSpeedDialView = () =>
-        setState(prevState => ({
-        ...prevState,
-        speedDialView: speedDialView === SpeedDialView.Opened ? SpeedDialView.Expanded : SpeedDialView.Opened
-        }))
+    const handleCancellation = () => setSelectedView({selectedView: SpeedDialView.Collapsed});
+
+    const handleChangingView = () =>
+        setSelectedView({selectedView: selectedView === SpeedDialView.Collapsed ?
+                SpeedDialView.Expanded : SpeedDialView.Collapsed
+        })
 
     const actions = [
         { icon: <SaveIcon sx={{ fontSize: 30 }} />, name: 'Сохранить', operation: 'download' },
@@ -84,15 +85,15 @@ const SaveStats: FC<SaveStatsProps> = (props : SaveStatsProps) => {
 
     return (
         <div>
-        {selectedAction === SpeedDialActions.None &&
+        {(selectedView === SpeedDialView.Collapsed || selectedView === SpeedDialView.Expanded) &&
             <Box sx={{ fontSize: 100 }}>
                 <SpeedDial
                     ariaLabel="SpeedDial basic example"
                     icon={<GetAppIcon/>}
                     direction="right"
-                    onClick={handleChangeSpeedDialView}
+                    onClickCapture={handleChangingView}
                     sx={{ '& .MuiFab-primary': { width: 45, height: 45 } }}
-                    open={speedDialView === SpeedDialView.Expanded}
+                    open={selectedView !== SpeedDialView.Collapsed}
                 >
                     {actions.map((action) => (
                         <SpeedDialAction
@@ -107,21 +108,21 @@ const SaveStats: FC<SaveStatsProps> = (props : SaveStatsProps) => {
                 </SpeedDial>
             </Box>
         }
-        {selectedAction === SpeedDialActions.Download &&
+        {selectedView === SpeedDialView.Download &&
             <DownloadStats
                 courseId={props.courseId}
                 userId={props.userId}
                 onCancellation={() => handleCancellation()}
             />
         }
-        {selectedAction === SpeedDialActions.ShareWithGoogle &&
+        {selectedView === SpeedDialView.ShareWithGoogle &&
             <ExportToGoogle
                 courseId={props.courseId}
                 userId={props.userId}
                 onCancellation={() => handleCancellation()}
             />
         }
-        {selectedAction === SpeedDialActions.ShareWithYandex &&
+        {selectedView === SpeedDialView.ShareWithYandex &&
             <ExportToYandex
                 courseId={props.courseId}
                 userId={props.userId}
