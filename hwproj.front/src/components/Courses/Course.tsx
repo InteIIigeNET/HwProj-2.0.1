@@ -65,11 +65,11 @@ const updatedLastViewedCourseId = (courseId : string) =>
 }
 
 const Course: React.FC = () => {
-    const {initialCourseId, tab} = useParams()
+    const {courseId, tab} = useParams()
     const [searchParams] = useSearchParams()
 
-    const isFromYandex = initialCourseId === undefined
-    const courseId = isFromYandex ? getLastViewedCourseId() : initialCourseId
+    const isFromYandex = courseId === undefined
+    const validatedCourseId = isFromYandex ? getLastViewedCourseId() : courseId
 
 
     const navigate = useNavigate()
@@ -116,20 +116,22 @@ const Course: React.FC = () => {
     const showApplicationsTab = isCourseMentor
 
     const changeTab = (newTab: string) => {
-        if (isAcceptableTabValue(newTab) && newTab !== pageState.tabValue) {
-            if (newTab === "stats" && !showStatsTab) return;
-            if (newTab === "applications" && !showApplicationsTab) return;
+        if (!isFromYandex) {
+            if (isAcceptableTabValue(newTab) && newTab !== pageState.tabValue) {
+                if (newTab === "stats" && !showStatsTab) return;
+                if (newTab === "applications" && !showApplicationsTab) return;
 
-            setPageState(prevState => ({
-                ...prevState,
-                tabValue: newTab
-            }));
+                setPageState(prevState => ({
+                    ...prevState,
+                    tabValue: newTab
+                }));
+            }
         }
     }
 
     const setCurrentState = async () => {
-        updatedLastViewedCourseId(courseId)
-        const course = await ApiSingleton.coursesApi.coursesGetCourseData(+courseId!)
+        updatedLastViewedCourseId(validatedCourseId)
+        const course = await ApiSingleton.coursesApi.coursesGetCourseData(+validatedCourseId!)
 
         // У пользователя изменилась роль (иначе он не может стать лектором в курсе),
         // однако он все ещё использует токен с прежней ролью
@@ -142,6 +144,8 @@ const Course: React.FC = () => {
             newToken.value && ApiSingleton.authService.refreshToken(newToken.value.accessToken!)
             return
         }
+
+        const solutions = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdGet(+validatedCourseId!)
 
         setCourseState(prevState => ({
             ...prevState,
@@ -156,9 +160,8 @@ const Course: React.FC = () => {
             studentSolutions: solutions,
             tabValue: isFromYandex ? "stats" : "homeworks"
         }))
-        if (isFromYandex)
-        {
-            window.history.replaceState(null, "", `/courses/${courseId}`)
+        if (isFromYandex) {
+            window.history.replaceState(null, "", `/courses/${validatedCourseId}/stats`)
         }
     }
 
@@ -188,12 +191,21 @@ const Course: React.FC = () => {
         getCourseFilesInfo()
     }, [courseId])
 
-    useEffect(() => changeTab(tab || "homeworks"), [tab, courseId, isFound])
+    useEffect(() => {
+        ApiSingleton.statisticsApi.statisticsGetCourseStatistics(+courseId!)
+            .then(res => setStudentSolutions(res))
+    }, [courseId])
+
+    useEffect(() => {
+        getCourseFilesInfo()
+    }, [courseId])
+
+    useEffect(() => changeTab(tab || "homeworks"), [tab, validatedCourseId, isFound])
 
     const yandexCode = new URLSearchParams(window.location.search).get("code")
 
     const joinCourse = async () => {
-        await ApiSingleton.coursesApi.coursesSignInCourse(+courseId!)
+        await ApiSingleton.coursesApi.coursesSignInCourse(+validatedCourseId!)
             .then(() => setCurrentState());
     }
 
@@ -343,9 +355,9 @@ const Course: React.FC = () => {
                         value={tabValue === "homeworks" ? 0 : tabValue === "stats" ? 1 : 2}
                         indicatorColor="primary"
                         onChange={(event, value) => {
-                            if (value === 0 && !isExpert) navigate(`/courses/${courseId}/homeworks`)
-                            if (value === 1) navigate(`/courses/${courseId}/stats`)
-                            if (value === 2 && !isExpert) navigate(`/courses/${courseId}/applications`)
+                            if (value === 0 && !isExpert) navigate(`/courses/${validatedCourseId}/homeworks`)
+                            if (value === 1) navigate(`/courses/${validatedCourseId}/stats`)
+                            if (value === 2 && !isExpert) navigate(`/courses/${validatedCourseId}/applications`)
                         }}
                     >
                         {!isExpert &&
@@ -431,7 +443,7 @@ const Course: React.FC = () => {
                             onUpdate={() => setCurrentState()}
                             course={courseState.course}
                             students={courseState.newStudents}
-                            courseId={courseId!}
+                            courseId={validatedCourseId!}
                         />
                     }
                 </Grid>
