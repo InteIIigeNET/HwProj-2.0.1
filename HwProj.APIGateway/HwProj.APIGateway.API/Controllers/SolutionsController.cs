@@ -282,6 +282,7 @@ namespace HwProj.APIGateway.API.Controllers
                     var (course, homeworkTitle, task) = tasks[solution.TaskId];
                     return new SolutionPreviewView
                     {
+                        SolutionId = solution.SolutionId,
                         Student = account,
                         CourseTitle = $"{course.Name} / {course.GroupName}",
                         CourseId = course.Id,

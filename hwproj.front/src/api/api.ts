@@ -1198,6 +1198,12 @@ export namespace Solution {
 export interface SolutionPreviewView {
     /**
      * 
+     * @type {number}
+     * @memberof SolutionPreviewView
+     */
+    solutionId?: number;
+    /**
+     * 
      * @type {AccountDataDto}
      * @memberof SolutionPreviewView
      */

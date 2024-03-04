@@ -1,4 +1,4 @@
-import {AccountDataDto, UnratedSolutionPreviews} from "../../api";
+import {AccountDataDto, SolutionPreviewView, UnratedSolutionPreviews} from "../../api";
 import * as React from "react";
 import {NavLink} from "react-router-dom";
 import {
@@ -10,10 +10,11 @@ import {
     ListItem,
     MenuItem,
     Typography,
-    Chip
+    Chip, Card, CardContent
 } from "@mui/material";
 import {FC, useState} from "react";
 import Utils from "../../services/Utils";
+import {RatingStorage} from "../Storages/RatingStorage";
 
 interface IUnratedSolutionsProps {
     unratedSolutionsPreviews: UnratedSolutionPreviews
@@ -36,6 +37,11 @@ type FilterTitleName = "coursesFilter" | "homeworksFilter" | "tasksFilter" | "st
 
 const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
     const unratedSolutions = props.unratedSolutionsPreviews.unratedSolutions!
+    const semiRatedSolutions = unratedSolutions.filter(x => RatingStorage.tryGet({
+        solutionId: x.solutionId,
+        taskId: x.taskId!,
+        studentId: x.student!.userId!
+    }) != null)
     const renderStudent = (s: AccountDataDto) => `${s.surname} ${s.name}`
     const prepareStrings = (arr: string[]) => [...new Set(arr)].sort()
     const courses = new Set(unratedSolutions.map(s => s.courseTitle!))
@@ -170,48 +176,64 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
         </div>
     }
 
+    const renderSolutions = (solutions: SolutionPreviewView[]) => {
+        return solutions.map((solution, i) => (
+            <Grid item>
+                <ListItem
+                    key={i}
+                    style={{padding: 0}}
+                >
+                    <NavLink
+                        to={`/task/${solution.taskId}/${solution.student!.userId}`}
+                        style={{color: "#212529"}}
+                    >
+                        <Typography style={{fontSize: "20px"}}>
+                            {solution.student!.surname} {solution.student!.name} {" • "} {solution.taskTitle}
+                        </Typography>
+                    </NavLink>
+                    {solution.isFirstTry && solution.sentAfterDeadline &&
+                        <Chip color="error" label="Дедлайн" size={"small"} style={{marginLeft: 10}}/>}
+                    {!solution.isFirstTry &&
+                        <Chip color="secondary" label="Повторно" size={"small"}
+                              style={{marginLeft: 10}}/>}
+                    {solution.groupId &&
+                        <Chip color="primary" label="Командное" size={"small"}
+                              style={{marginLeft: 10}}/>}
+                    {solution.isCourseCompleted &&
+                        <Chip style={{color: "GrayText", marginLeft: 10}} label="Курс завершен"
+                              size={"small"}/>}
+                </ListItem>
+                <Typography style={{fontSize: "18px", color: "GrayText"}}>
+                    {solution.courseTitle + " • " + solution.homeworkTitle}
+                </Typography>
+                {Utils.renderReadableDate(solution.publicationDate!)}
+                {i < solutions.length - 1 ?
+                    <Divider style={{marginTop: 10, marginBottom: 10}}/> : null}
+            </Grid>
+        ))
+    }
+
     return (
         <div className="container">
+            {semiRatedSolutions.length > 0 &&
+                <Card variant={"outlined"} style={{marginBottom: 30, borderColor: "#3f51b5"}}>
+                    <CardContent>
+                        <div style={{marginBottom: 10}}>
+                            <Typography variant={"caption"} color={"#3f51b5"} style={{marginBottom: 10}}>
+                                {`${semiRatedSolutions.length} ${Utils.pluralizeHelper(solutionPlurals, semiRatedSolutions.length)} с незаконченной проверкой`}
+                            </Typography>
+                        </div>
+                        <div>{renderSolutions(semiRatedSolutions)}</div>
+                    </CardContent>
+                </Card>
+            }
             {renderFilter()}
             {unratedSolutions.length == 0 ?
                 <div>
                     <Typography variant={"body1"} color={"GrayText"}>Все решения проверены.</Typography>
                 </div> :
                 <div>
-                    {filteredUnratedSolutions.map((solution, i) => (
-                        <Grid item>
-                            <ListItem
-                                key={i}
-                                style={{padding: 0}}
-                            >
-                                <NavLink
-                                    to={`/task/${solution.taskId}/${solution.student!.userId}`}
-                                    style={{color: "#212529"}}
-                                >
-                                    <Typography style={{fontSize: "20px"}}>
-                                        {solution.student!.surname} {solution.student!.name} {" • "} {solution.taskTitle}
-                                    </Typography>
-                                </NavLink>
-                                {solution.isFirstTry && solution.sentAfterDeadline &&
-                                    <Chip color="error" label="Дедлайн" size={"small"} style={{marginLeft: 10}}/>}
-                                {!solution.isFirstTry &&
-                                    <Chip color="secondary" label="Повторно" size={"small"}
-                                          style={{marginLeft: 10}}/>}
-                                {solution.groupId &&
-                                    <Chip color="primary" label="Командное" size={"small"}
-                                          style={{marginLeft: 10}}/>}
-                                {solution.isCourseCompleted &&
-                                    <Chip style={{color: "GrayText", marginLeft: 10}} label="Курс завершен"
-                                          size={"small"}/>}
-                            </ListItem>
-                            <Typography style={{fontSize: "18px", color: "GrayText"}}>
-                                {solution.courseTitle + " • " + solution.homeworkTitle}
-                            </Typography>
-                            {Utils.renderReadableDate(solution.publicationDate!)}
-                            {i < filteredUnratedSolutions.length - 1 ?
-                                <Divider style={{marginTop: 10, marginBottom: 10}}/> : null}
-                        </Grid>
-                    ))}
+                    {renderSolutions(filteredUnratedSolutions)}
                 </div>
             }
         </div>

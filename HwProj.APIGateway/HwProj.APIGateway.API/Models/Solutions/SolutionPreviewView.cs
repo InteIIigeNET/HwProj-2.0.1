@@ -5,6 +5,7 @@ namespace HwProj.APIGateway.API.Models.Solutions
 {
     public class SolutionPreviewView
     {
+        public long SolutionId { get; set; }
         public AccountDataDto Student { get; set; }
         public string CourseTitle { get; set; }
         public long CourseId { get; set; }
