@@ -136,7 +136,6 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpGet("getLecturersStat/{courseId}")]
-        //TODO: [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         [ProducesResponseType(typeof(StatisticsLecturerDTO[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetLecturersStat(long courseId)
         {
