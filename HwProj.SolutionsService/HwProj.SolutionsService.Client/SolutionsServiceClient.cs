@@ -180,7 +180,6 @@ namespace HwProj.SolutionsService.Client
             return await response.DeserializeAsync<Solution[]>();
         }
 
-
         public async Task<StatisticsLecturerDTO[]> GetLecturersStatistics(long courseId)
         {
             using var httpRequest = new HttpRequestMessage(
@@ -191,7 +190,6 @@ namespace HwProj.SolutionsService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<StatisticsLecturerDTO[]>();
         }
-
 
         public async Task<StatisticsCourseMatesDto[]> GetCourseStatistics(long courseId, string userId)
         {

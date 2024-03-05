@@ -30,11 +30,13 @@ namespace HwProj.APIGateway.API.Controllers
             var statistics = await _solutionClient.GetLecturersStatistics(courseId);
             if (statistics == null)
                 return NotFound();
-            
-            var result = statistics.Select(async dto => new StatisticsLecturersModel
+
+            var lecturers = await AuthServiceClient.GetAccountsData(statistics.Select(s => s.LecturerId).ToArray());
+
+            var result = statistics.Zip(lecturers, (stat, lecturer) => new StatisticsLecturersModel
             {
-                Lecturer = await AuthServiceClient.GetAccountData(dto.LecturerId),
-                NumberOfCheckedSolutions = dto.NumberOfCheckedSolutions
+                Lecturer = lecturer,
+                NumberOfCheckedSolutions = stat.NumberOfCheckedSolutions
             }).ToArray();
 
             return Ok(result);
