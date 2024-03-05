@@ -136,11 +136,17 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpGet("getLecturersStat/{courseId}")]
+        //TODO: [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         [ProducesResponseType(typeof(StatisticsLecturerDTO[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetLecturersStat(long courseId)
         {
             var course = await _coursesClient.GetCourseById(courseId);
             if (course == null) return NotFound();
+
+            var userId = Request.GetUserIdFromHeader();
+
+            if (!course.MentorIds.Contains(userId))
+                return Forbid();
 
             var taskIds = course.Homeworks
                 .SelectMany(t => t.Tasks)
@@ -149,6 +155,7 @@ namespace HwProj.SolutionsService.API.Controllers
 
             var solutions = await _solutionsRepository.FindAll(t => taskIds.Contains(t.TaskId)).ToListAsync();
             var lecturerStat = solutions
+                .Where(s => !string.IsNullOrEmpty(s.LecturerId))
                 .GroupBy(s => s.LecturerId)
                 .Select(group =>
             {
@@ -157,11 +164,11 @@ namespace HwProj.SolutionsService.API.Controllers
 
                 return new StatisticsLecturerDTO
                 {
-                    LecturerId = lecturerId ?? "",
+                    LecturerId = lecturerId,
                     NumberOfCheckedSolutions = numberOfSolutions
                 };
             }).ToArray();
-
+            
 
             return Ok(lecturerStat);
         }

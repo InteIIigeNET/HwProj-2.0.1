@@ -1,8 +1,10 @@
-﻿namespace HwProj.APIGateway.API.Models.Statistics
+﻿using HwProj.Models.AuthService.DTO;
+
+namespace HwProj.APIGateway.API.Models.Statistics
 {
     public class StatisticsLecturersModel
     {
-        public string? LecturerId { get; set; }
+        public AccountDataDto Lecturer { get; set; }
         public int NumberOfCheckedSolutions { get; set; }
     }
 }
