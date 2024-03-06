@@ -1,6 +1,8 @@
 using System;
+using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.EventBus.Client.Interfaces;
@@ -13,61 +15,71 @@ using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {
-    public class NewHomeworkTaskEventHandler : EventHandlerBase<NewTaskEvent>
+    public class AddOrUpdateTaskEventHandler : EventHandlerBase<AddOrUpdateTaskEvent>
     {
         private readonly ICoursesServiceClient _coursesServiceClient;
         private readonly INotificationsRepository _notificationRepository;
-        private readonly IScheduleJobsRepository _scheduleJobsRepository;
         private readonly IAuthServiceClient _authServiceClient;
+        private readonly IMapper _mapper;
         private readonly IConfigurationSection _configuration;
         private readonly IEmailService _emailService;
+        private readonly IScheduleJobsRepository _scheduleJobsRepository;
 
-        public NewHomeworkTaskEventHandler(
+        public AddOrUpdateTaskEventHandler(
             ICoursesServiceClient coursesServiceClient,
             INotificationsRepository notificationRepository,
-            IScheduleJobsRepository scheduleJobsRepository,
+            IMapper mapper,
             IAuthServiceClient authServiceClient,
             IConfiguration configuration,
-            IEmailService emailService)
+            IEmailService emailService,
+            IScheduleJobsRepository scheduleJobsRepository)
         {
             _coursesServiceClient = coursesServiceClient;
             _notificationRepository = notificationRepository;
-            _scheduleJobsRepository = scheduleJobsRepository;
+            _mapper = mapper;
             _authServiceClient = authServiceClient;
             _emailService = emailService;
             _configuration = configuration.GetSection("Notification");
+            _scheduleJobsRepository = scheduleJobsRepository;
         }
 
-        public override async Task HandleAsync(NewTaskEvent @event)
+        public override async Task HandleAsync(AddOrUpdateTaskEvent @event)
         {
-            if (@event.Task.PublicationDate <= DateTime.Now)
+            //TODO : ленивость не работает
+            var task = await _coursesServiceClient.GetTask(@event.TaskId);
+            
+            if (task.PublicationDate <= DateTime.UtcNow)
             {
                 await AddNotificationsAsync(@event);
-                return;
             }
-
-            await EventHandlerExtensions<NewTaskEvent>.AddScheduleJobAsync(
-                @event,
-                @event.TaskId,
-                @event.Task.PublicationDate,
-                () => AddNotificationsAsync(@event),
-                _scheduleJobsRepository
-            );
+            else if (@event.IsUpdate)
+            {
+                await EventHandlerExtensions<AddOrUpdateTaskEvent>.UpdateScheduleJobAsync(@event, @event.TaskId,
+                    task.PublicationDate, () => AddNotificationsAsync(@event), _scheduleJobsRepository);
+            }
+            else
+            {
+                await EventHandlerExtensions<AddOrUpdateTaskEvent>.AddScheduleJobAsync(@event, @event.TaskId,
+                    task.PublicationDate, () => AddNotificationsAsync(@event), _scheduleJobsRepository);
+            }
         }
 
-        // ReSharper disable once MemberCanBePrivate.Global
-        public async Task AddNotificationsAsync(NewTaskEvent @event)
+        public async Task AddNotificationsAsync(AddOrUpdateTaskEvent @event)
         {
-            var course = await _coursesServiceClient.GetCourseById(@event.Course.Id);
+            var course = await _coursesServiceClient.GetCourseByTask(@event.TaskId);
+            var task = await _coursesServiceClient.GetTask(@event.TaskId);
             if (course == null) return;
 
             var studentIds = course.CourseMates.Select(t => t.StudentId).ToArray();
             var accountsData = await _authServiceClient.GetAccountsData(studentIds);
 
             var url = _configuration["Url"];
-            var message = $"В курсе <a href='{url}/courses/{course.Id}'>{course.Name}</a>" +
-                          $" опубликована новая задача <a href='{url}/task/{@event.TaskId}'>{@event.Task.Title}</a>." +
-                          (@event.Task.DeadlineDate is { } deadline ? $"\n\nДедлайн: {deadline:U}" : "");
+            var message = task.PublicationDate < DateTime.UtcNow
+                ? $"Задача <a href='{url}/task/{@event.TaskId}'>{task.Title}</a>" +
+                  $" из курса <a href='{url}/courses/{course.Id}'>{course.Name}</a> обновлена."
+                : $"В курсе <a href='{url}/courses/{course.Id}'>{course.Name}</a>" +
+                  $" опубликована новая задача <a href='{url}/task/{@event.TaskId}'>{task.Title}</a>." +
+                  (task.DeadlineDate is { } deadline ? $"\n\nДедлайн: {deadline:U}" : "");
 
             foreach (var student in accountsData)
             {

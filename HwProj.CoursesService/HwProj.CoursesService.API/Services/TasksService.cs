@@ -44,7 +44,7 @@ namespace HwProj.CoursesService.API.Services
             var taskModel = _mapper.Map<HomeworkTaskDTO>(task);
             var taskId = await _tasksRepository.AddAsync(task);
 
-            _eventBus.Publish(new NewTaskEvent(taskId, taskModel, courseModel));
+            _eventBus.Publish(new AddOrUpdateTaskEvent(taskId, false));
 
             return taskId;
         }
@@ -64,7 +64,7 @@ namespace HwProj.CoursesService.API.Services
             var previousTaskModel = _mapper.Map<HomeworkTaskDTO>(task);
             var newTaskModel = _mapper.Map<HomeworkTaskDTO>(update);
 
-            _eventBus.Publish(new UpdateTaskEvent(taskId, previousTaskModel, newTaskModel, courseModel));
+            _eventBus.Publish(new AddOrUpdateTaskEvent(taskId, true));
 
             await _tasksRepository.UpdateAsync(taskId, t => new HomeworkTask()
             {
