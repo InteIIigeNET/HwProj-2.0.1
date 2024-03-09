@@ -158,7 +158,6 @@ namespace HwProj.SolutionsService.API.Controllers
             var solutions = await _solutionsRepository.FindAll(t => taskIds.Contains(t.TaskId)).ToListAsync();
             var lecturerStat = solutions
                 .Where(s => !string.IsNullOrEmpty(s.LecturerId))
-                .Where(s => s.LecturerId != s.StudentId)
                 .GroupBy(s => s.LecturerId)
                 .Select(group =>
             {
