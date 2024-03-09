@@ -257,9 +257,9 @@ const StudentSolutionsPage: FC = () => {
                             solutions={currentStudent!.solutions}
                             student={currentStudent!.student}
                             onSolutionRateClick={async () => {
-                                const nextStudentIndex = studentSolutionsPreview.findIndex(x => x.student.userId !== currentStudentId && x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0)
-                                if (nextStudentIndex === -1) await getTaskData(currentTaskId, currentStudentId)
-                                else navigate(`/task/${currentTaskId}/${studentSolutionsPreview[nextStudentIndex].student.userId}`)
+                                //const nextStudentIndex = studentSolutionsPreview.findIndex(x => x.student.userId !== currentStudentId && x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0)
+                                await getTaskData(currentTaskId, currentStudentId)
+                                //else navigate(`/task/${currentTaskId}/${studentSolutionsPreview[nextStudentIndex].student.userId}`)
                             }}
                         />}
                     </Grid>
