@@ -1,9 +1,11 @@
 ﻿using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using HwProj.APIGateway.API.Models;
+using HwProj.APIGateway.API.Models.Statistics;
 using HwProj.AuthService.Client;
+using HwProj.Models.Roles;
 using HwProj.SolutionsService.Client;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.APIGateway.API.Controllers
@@ -18,6 +20,26 @@ namespace HwProj.APIGateway.API.Controllers
             base(authServiceClient)
         {
             _solutionClient = solutionClient;
+        }
+
+        [HttpGet("{courseId}/lecturers")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        [ProducesResponseType(typeof(StatisticsLecturersModel[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetLecturersStatistics(long courseId)
+        {
+            var statistics = await _solutionClient.GetLecturersStatistics(courseId);
+            if (statistics == null)
+                return NotFound();
+
+            var lecturers = await AuthServiceClient.GetAccountsData(statistics.Select(s => s.LecturerId).ToArray());
+
+            var result = statistics.Zip(lecturers, (stat, lecturer) => new StatisticsLecturersModel
+            {
+                Lecturer = lecturer,
+                NumberOfCheckedSolutions = stat.NumberOfCheckedSolutions
+            }).ToArray();
+
+            return Ok(result);
         }
 
         [HttpGet("{courseId}")]

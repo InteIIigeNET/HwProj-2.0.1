@@ -135,6 +135,43 @@ namespace HwProj.SolutionsService.API.Controllers
             return await _solutionsService.GetTaskSolutionsFromGroupAsync(taskId, groupId);
         }
 
+        [HttpGet("getLecturersStat/{courseId}")]
+        [ProducesResponseType(typeof(StatisticsLecturerDTO[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetLecturersStat(long courseId)
+        {
+            var course = await _coursesClient.GetCourseById(courseId);
+            if (course == null) return NotFound();
+
+            var userId = Request.GetUserIdFromHeader();
+
+            if (!course.MentorIds.Contains(userId))
+                return Forbid();
+
+            var taskIds = course.Homeworks
+                .SelectMany(t => t.Tasks)
+                .Select(t => t.Id)
+                .ToArray();
+
+            var solutions = await _solutionsRepository.FindAll(t => taskIds.Contains(t.TaskId)).ToListAsync();
+            var lecturerStat = solutions
+                .Where(s => !string.IsNullOrEmpty(s.LecturerId))
+                .GroupBy(s => s.LecturerId)
+                .Select(group =>
+            {
+                var lecturerId = group.Key;
+                var numberOfSolutions = group.Count();
+
+                return new StatisticsLecturerDTO
+                {
+                    LecturerId = lecturerId,
+                    NumberOfCheckedSolutions = numberOfSolutions
+                };
+            }).ToArray();
+            
+
+            return Ok(lecturerStat);
+        }
+
         [HttpGet("getCourseStat/{courseId}")]
         [ProducesResponseType(typeof(StatisticsCourseMatesDto[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetCourseStat(long courseId)

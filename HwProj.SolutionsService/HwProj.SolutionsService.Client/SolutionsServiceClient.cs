@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using HwProj.Exceptions;
 using HwProj.HttpUtils;
+using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.SolutionsService;
 using HwProj.Models.StatisticsService;
 using Microsoft.AspNetCore.Http;
@@ -177,6 +178,17 @@ namespace HwProj.SolutionsService.Client
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Solution[]>();
+        }
+
+        public async Task<StatisticsLecturerDTO[]> GetLecturersStatistics(long courseId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _solutionServiceUri + $"api/Solutions/getLecturersStat/{courseId}");
+
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<StatisticsLecturerDTO[]>();
         }
 
         public async Task<StatisticsCourseMatesDto[]> GetCourseStatistics(long courseId, string userId)
