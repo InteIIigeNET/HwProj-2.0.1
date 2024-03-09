@@ -104,6 +104,8 @@ namespace HwProj.SolutionsService.API.Controllers
         {
             var solution = _mapper.Map<Solution>(solutionViewModel);
             solution.LecturerId = Request.GetUserIdFromHeader()!;
+            if (solution.LecturerId == solution.StudentId)
+                solution.LecturerId = null;
             await _solutionsService.PostEmptySolutionWithRateAsync(taskId, solution);
             return Ok();
         }
