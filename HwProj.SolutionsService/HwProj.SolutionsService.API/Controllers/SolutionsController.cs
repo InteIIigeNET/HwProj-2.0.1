@@ -6,6 +6,7 @@ using HwProj.CoursesService.Client;
 using HwProj.Models.SolutionsService;
 using HwProj.Models.StatisticsService;
 using HwProj.SolutionsService.API.Domains;
+using HwProj.SolutionsService.API.Migrations;
 using HwProj.SolutionsService.API.Models;
 using HwProj.SolutionsService.API.Repositories;
 using HwProj.SolutionsService.API.Services;
@@ -103,7 +104,9 @@ namespace HwProj.SolutionsService.API.Controllers
             [FromBody] SolutionViewModel solutionViewModel)
         {
             var solution = _mapper.Map<Solution>(solutionViewModel);
-            solution.LecturerId = null;
+            solution.LecturerId = Request.GetUserIdFromHeader()!;
+            if (solution.LecturerId == solution.StudentId)
+                solution.LecturerId = null;
             await _solutionsService.PostEmptySolutionWithRateAsync(taskId, solution);
             return Ok();
         }
