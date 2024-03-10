@@ -1,11 +1,14 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, SetStateAction} from "react";
 import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api/";
-import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
+import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid, FormControl, Select, MenuItem, InputLabel} from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
 import {Alert, Chip} from "@mui/material";
 import {grey} from "@material-ui/core/colors";
 import HomeworkTags from "../Common/HomeworkTags";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
+import StudentStatsTable from "./StudentStatsTable";
+import StudentCheckboxList from "./StudentCheckboxList";
+import StudentStatsChart from "./StudentStatsChart";
 
 interface IStudentStatsProps {
     course: CourseViewModel;
@@ -22,22 +25,19 @@ interface IStudentStatsState {
 const greyBorder = grey[300]
 
 const StudentStats: React.FC<IStudentStatsProps> = (props) => {
-    const [state, setSearched] = useState<IStudentStatsState>({
-        searched: ""
-    });
+    const [format, setFormat] = useState<'table' | 'chart'>('table');
+    const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
+    
+    const handleFormatChange = (event : React.ChangeEvent<{ value : unknown}>) => {
+        setFormat(event.target.value as SetStateAction<"table" | "chart">);
+    }
 
-    const {searched} = state
-
-    useEffect(() => {
-        const keyDownHandler = (event: KeyboardEvent) => {
-            if (event.ctrlKey || event.altKey) return
-            if (searched && event.key === "Escape") {
-                setSearched({searched: ""});
-            } else if (searched && event.key === "Backspace") {
-                setSearched({searched: searched.slice(0, -1)})
-            } else if (event.key.length === 1 && event.key.match(/[a-zA-Zа-яА-Я\s]/i)
-            ) {
-                setSearched({searched: searched + event.key})
+    const handleStudentSelection = (studentId : string) => {
+        setSelectedStudents((prevSelectedStudents) => {
+            if (prevSelectedStudents.includes(studentId)) {
+                return (prevSelectedStudents.filter(id => id !== studentId))
+            } else {
+                return [...prevSelectedStudents, studentId];
             }
         };
 
