@@ -22,7 +22,7 @@ interface ITaskChartView {
 
 interface IChartPoint {
     id? : string;
-    date : Date; // скорее всего в string
+    date : string; // represents {day}.{month}
     totalRatingValue : number | null;
     tasks : ITaskChartView[];
 }
@@ -34,35 +34,35 @@ const StudentStatsChart : React.FC<IStudentStatsChartProps> = (props) => {
     const solutions = props.solutions.filter(solution => 
         props.selectedStudents.includes(solution.id!))
     
-    const deadlinePoints = new Map<Date, IChartPoint>();
+    const deadlinePoints = new Map<string, IChartPoint>();
     let totalRating = 0;
     
     tasks.forEach(task => {
-        const deadlineDate = task.deadlineDate!;
-        //deadlineDate.setHours(0, 0, 0, 0);
+        const deadlineDateToString = Utils.renderDateWithoutHours(task.deadlineDate!);
         totalRating += task.maxRating!;
-        if (!deadlinePoints.has(deadlineDate)) {
-            deadlinePoints.set(deadlineDate, 
-                {date : deadlineDate, totalRatingValue : totalRating, tasks : []})
+        if (!deadlinePoints.has(deadlineDateToString)) {
+            deadlinePoints.set(deadlineDateToString, 
+                {date : deadlineDateToString, totalRatingValue : totalRating, tasks : []})
         }
-        const updatedTasks = [...deadlinePoints.get(deadlineDate)!.tasks, {title: task.title!, maxRating : task.maxRating!}];
-        deadlinePoints.set(deadlineDate, {date : deadlineDate, totalRatingValue : totalRating, tasks : updatedTasks})
+        const updatedTasks = [...deadlinePoints.get(deadlineDateToString)!.tasks, {title: task.title!, maxRating : task.maxRating!}];
+        deadlinePoints.set(deadlineDateToString, {date : deadlineDateToString, totalRatingValue : totalRating, tasks : updatedTasks})
     })
     
     const solutionPoints = new Map<string, IChartPoint[]>();
-    const customDatesEqual = (firstDate : Date, secondDate : Date) => (
-        firstDate.getMonth() === secondDate.getMonth() && firstDate.getDay() === secondDate.getDay()
-    )
-
-    const customDateCompare = (x : Date, y : Date) => {
-        if (x.getMonth() === y.getMonth()) {
-            return x.getDay() - y.getDay();
-        } else {
-            return y.getMonth() - x.getMonth();
+    
+    const compareStringFormatDates = (x : string, y : string) => {
+        const [xDay, xMonth] = x.split('.').map(s => Number.parseInt(s));
+        const [yDay, yMonth] = y.split('.').map(s => Number.parseInt(s));
+        
+        if (xMonth === yMonth) {
+            return xDay - yDay;
+        }
+        else {
+            return xMonth - yMonth;
         }
     }
     
-    const solutionDatesForALlMates = new Set<Date>();
+    const solutionDatesForALlMates = new Set<string>();
     
     solutions.forEach(cm => {
         const studentId = cm.surname! + " " + cm.name!;
@@ -70,41 +70,35 @@ const StudentStatsChart : React.FC<IStudentStatsChartProps> = (props) => {
             hw.tasks!.forEach(task => {
                 if (task.solution && task.solution.length > 0) {
                     const lastSolution = task.solution!.slice(-1)[0];
-                    const currentDate = new Date(lastSolution.publicationDate!);
-                    currentDate.setHours(0, 0, 0, 0);
-                    solutionDatesForALlMates.add(currentDate);
+                    const currentDateToString = Utils.renderDateWithoutHours(lastSolution.publicationDate!);
+                    solutionDatesForALlMates.add(currentDateToString);
                     
                     if (!solutionPoints.has(studentId)) {
-                        solutionPoints.set(studentId, [{date : currentDate, totalRatingValue : 0, tasks : [], id : studentId}])
+                        solutionPoints.set(studentId, [{date : currentDateToString, totalRatingValue : 0, tasks : [], id : studentId}])
                     }
                     const studentSolutionPoints = solutionPoints.get(studentId)!
                     const taskView = tasks.find(t => t.id === task.id)!
                     const myTask = {title : taskView.title!, maxRating : lastSolution.rating!};
                     
                     const updateStudentSolutionPoints = studentSolutionPoints.map(point => {
-                        const solutionDate = new Date(point.date);
-                        //solutionDate.setHours(0, 0, 0, 0);
                         
-                        if (customDatesEqual(solutionDate, currentDate)) {
+                        if (point.date === currentDateToString) {
                             const updatedRaiting = point.totalRatingValue! + lastSolution.rating!;
-                            return {date : currentDate, totalRatingValue : updatedRaiting, id : studentId, 
+                            return {date : currentDateToString, totalRatingValue : updatedRaiting, id : studentId, 
                                 tasks : [...point.tasks, myTask]}
                         } else {
                             return point;
                         }
                     })
                     
-                    if (!studentSolutionPoints.find(point => {
-                        const date = new Date(point.date);
-                        return customDatesEqual(date, currentDate)
-                    })) {
-                        const totalRating = studentSolutionPoints.filter(p => p.date < currentDate)
+                    if (!studentSolutionPoints.find(point => (point.date === currentDateToString))) {
+                        const totalRating = studentSolutionPoints.filter(p => 
+                            compareStringFormatDates(p.date, currentDateToString) < 0)
                             .reduce((sum, p) => sum + p.totalRatingValue!, 0)
-                        updateStudentSolutionPoints.push({date: currentDate, 
+                        updateStudentSolutionPoints.push({date: currentDateToString, 
                                 totalRatingValue: totalRating + lastSolution.rating!, tasks : [myTask], id: studentId})
                     }
-
-                    updateStudentSolutionPoints.sort((x, y) => customDateCompare(x.date, y.date)).reverse();
+                    
                     solutionPoints.set(studentId, updateStudentSolutionPoints);
                 }
             })
@@ -117,13 +111,12 @@ const StudentStatsChart : React.FC<IStudentStatsChartProps> = (props) => {
     
     const startCourseDate = homeworks[0].publicationDate!.valueOf();
     const currentCourseDate = Date.now();
-    const mockLineForConsideringAllDares = Array.from(solutionDatesForALlMates).map(d => ({date: d, tasks: []}))
     
     solutionPoints.forEach((line, _) => {
         const dates = line.map(point => point.date);
-        const diff = Array.from(solutionDatesForALlMates).filter(d => dates.every(x => !customDatesEqual(d, x)))
+        const diff = Array.from(solutionDatesForALlMates).filter(d => dates.every(x => x != d))
         diff.forEach(date => line.push({date : date, id: line[0].id, tasks: [], totalRatingValue: null}))
-        line = line.sort((x, y) => customDateCompare(x.date, y.date)).reverse()
+        line = line.sort((x, y) => compareStringFormatDates(x.date, y.date))
     })
     
     return (
@@ -132,16 +125,17 @@ const StudentStatsChart : React.FC<IStudentStatsChartProps> = (props) => {
                 <YAxis dataKey="totalRatingValue"/>
                 <XAxis dataKey="date" 
                        allowDuplicatedCategory={false}
-                       tickFormatter={(date : Date, _) => (Utils.renderDateWithoutHours(date))}
                 />
                 <Tooltip />
                 <Legend />
-                
-                <Line dataKey="totalRatingValue" legendType="none" data={mockLineForConsideringAllDares.sort
-                ((x, y) => customDateCompare(x.date, y.date)).reverse()}/>
 
-                 {Array.from(solutionPoints.entries()).map(([_, p]) => {
-                    return <Line dataKey="totalRatingValue" data={p} stroke={getRandomColor()} connectNulls/>
+                 {Array.from(solutionPoints.entries()).map(([studentName, line]) => {
+                    return <Line 
+                        name={studentName}
+                        dataKey="totalRatingValue" 
+                        data={line} 
+                        stroke={getRandomColor()} 
+                        connectNulls/>
                 }) }
                 
             </ComposedChart>
@@ -149,23 +143,4 @@ const StudentStatsChart : React.FC<IStudentStatsChartProps> = (props) => {
     )
 }
 
-// 
 export default StudentStatsChart;
-
-/*
-const data1 = [
-        {id:"adsf", tasks:[], totalRatingValue: 14, date: new Date(2024, 2, 4, 0, 0)},
-        {id:"adsf", tasks:[], totalRatingValue: 24, date: new Date(2024, 2, 18, 0, 0)},
-        {id:"adsff", tasks:[], totalRatingValue: null, date: new Date(2024, 3, 1, 0, 0)},
-        {id:"adsff", tasks:[], totalRatingValue: null, date: new Date(2024, 3, 10, 0, 0)},
-        {id:"adsf", tasks:[], totalRatingValue: 48, date: new Date(2024, 3, 15, 0, 0)},
-    ]
-
-    const data2 = [
-        {id:"adsff", tasks:[], totalRatingValue: 5, date: new Date(2024, 2, 4, 0, 0)},
-        {id:"adsff", tasks:[], totalRatingValue: 20, date: new Date(2024, 2, 18, 0, 0)},
-        {id:"adsff", tasks:[], totalRatingValue: 39, date: new Date(2024, 3, 1, 0, 0)},
-        {id:"adsff", tasks:[], totalRatingValue: 45, date: new Date(2024, 3, 10, 0, 0)},
-        {id:"adsff", tasks:[], totalRatingValue: 50, date: new Date(2024, 3, 17, 0, 0)},
-    ]
- */
