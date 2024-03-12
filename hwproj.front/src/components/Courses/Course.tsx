@@ -33,7 +33,8 @@ interface ICourseState {
     newStudents: AccountDataDto[];
     isReadingMode: boolean;
     studentSolutions: StatisticsCourseMatesModel[];
-    showExperimentalFeature: boolean
+    showExperimentalFeature: boolean;
+    isStudentViewMode: boolean;
 }
 
 interface IPageState {
@@ -62,7 +63,8 @@ const Course: React.FC = () => {
         acceptedStudents: [],
         newStudents: [],
         isReadingMode: true,
-        studentSolutions: []
+        studentSolutions: [],
+        isStudentViewMode: false
     })
 
     const [pageState, setPageState] = useState<IPageState>({
@@ -77,7 +79,7 @@ const Course: React.FC = () => {
         newStudents,
         acceptedStudents,
         isReadingMode,
-        studentSolutions
+        studentSolutions,
     } = courseState;
 
     const userId = ApiSingleton.authService.getUserId()
@@ -89,7 +91,7 @@ const Course: React.FC = () => {
 
     const isAcceptedStudent = acceptedStudents!.some(cm => cm.userId === userId)
 
-    const showExperimentalFeature = isCourseMentor ? courseState.showExperimentalFeature : true
+    const isStudentViewMode = isCourseMentor ? courseState.isStudentViewMode : true
 
     const showStatsTab = isCourseMentor || isAcceptedStudent
     const showApplicationsTab = isCourseMentor
@@ -198,11 +200,12 @@ const Course: React.FC = () => {
                                     )}
                                 </Typography>
                                 <MentorsList mentors={mentors}/>
-                                {isCourseMentor && <div><Switch value={showExperimentalFeature}
+                                {isCourseMentor && <div><Switch value={isStudentViewMode}
                                                                 onChange={(e, checked) => setCourseState(prevState => ({
                                                                     ...prevState,
-                                                                    showExperimentalFeature: checked
-                                                                }))}/> Включить экспериментальный режим отображения
+                                                                    isStudentViewMode: checked
+                                                                }))}/> 
+                                <Typography display="inline">Студенческий режим отображения</Typography>
                                 </div>}
                             </Grid>
                             <Grid item style={{width: '187px'}}>
@@ -258,11 +261,14 @@ const Course: React.FC = () => {
                     <br/>
                     {tabValue === "homeworks" && <div>
                         {
-                            showExperimentalFeature ?
-                                <CourseExperimental homeworks={courseState.courseHomework} isMentor={isCourseMentor}
+                            isStudentViewMode
+                            ?
+                                <CourseExperimental homeworks={courseState.courseHomework} 
+                                                    isMentor={isCourseMentor && !isStudentViewMode}
                                                     studentSolutions={studentSolutions}
                                                     isStudentAccepted={isAcceptedStudent}
-                                                    userId={userId!}/> :
+                                                    userId={userId!}/> 
+                            :
                                 <div>
                                     {createHomework && (
                                         <div>
