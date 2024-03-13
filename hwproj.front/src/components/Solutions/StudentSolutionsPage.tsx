@@ -22,8 +22,7 @@ import {
     Select,
     SelectChangeEvent,
     Stack,
-    Tooltip,
-    Box
+    Tooltip
 } from "@mui/material";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 
@@ -190,13 +189,6 @@ const StudentSolutionsPage: FC = () => {
                 </Grid>
                 <Grid container spacing={3} style={{marginTop: '1px'}} direction={"row"}>
                     <Grid item lg={3}> 
-                    <Box 
-                        style={{width: '100%', height: '60px'}}
-                        display="flex" 
-                        alignItems="center"
-                        justifyContent="center">
-                            {renderGoBackToCoursesStatsLink()}
-                    </Box>
                         <FormControl fullWidth>
                             <InputLabel>Фильтр</InputLabel>
                             <Select
@@ -247,6 +239,7 @@ const StudentSolutionsPage: FC = () => {
                                 </Link>;
                             })}
                         </List>
+                        {renderGoBackToCoursesStatsLink()}
                     </Grid>
                     <Grid item lg={9} spacing={2} justifyContent={"flex-start"}>
                         <Task
