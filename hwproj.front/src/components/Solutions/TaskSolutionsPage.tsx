@@ -17,7 +17,8 @@ import {
     Select,
     SelectChangeEvent,
     Stack,
-    Tooltip
+    Tooltip,
+    Box
 } from "@mui/material";
 import {useParams, Link} from "react-router-dom";
 import Step from "@mui/material/Step";
@@ -102,6 +103,17 @@ const TaskSolutionsPage: FC = () => {
         }))
     }
 
+    const renderGoBackToCoursesStatsLink = () => {
+        return <Link
+            to={`/courses/${courseId}`}
+            style={{color: '#212529'}}
+        >
+            <Typography>
+                Назад к курсу
+            </Typography>
+        </Link>
+    }
+
     return taskSolutionPage.isLoaded ? <div className={"container"} style={{marginBottom: '50px'}}>
         <Grid container justify="center" style={{marginTop: '20px'}}>
             <Grid container spacing={2} xs={12}>
@@ -141,6 +153,13 @@ const TaskSolutionsPage: FC = () => {
                 </Grid>
                 <Grid container item direction={"row"} spacing={2}>
                     <Grid container item lg={3} spacing={1} direction={"column"}>
+                        <Box 
+                            style={{width: '100%', height: '60px', marginTop: '10px'}}
+                            display="flex" 
+                            alignItems="center"
+                            justifyContent="center">
+                                {renderGoBackToCoursesStatsLink()}
+                        </Box>
                         <Grid item>
                             <FormControl fullWidth>
                                 <InputLabel>Фильтр</InputLabel>
@@ -172,16 +191,6 @@ const TaskSolutionsPage: FC = () => {
                         >
                             Добавить решение
                         </Button></Grid>}
-                        <Grid item>
-                            <Link
-                                style={{color: '#212529'}}
-                                to={`/courses/${courseId}`}
-                            >
-                                <Typography>
-                                    Назад к курсу
-                                </Typography>
-                            </Link>
-                        </Grid>
                     </Grid>
                     <Grid container item lg={9}>
                         <Grid item xs={12}>
