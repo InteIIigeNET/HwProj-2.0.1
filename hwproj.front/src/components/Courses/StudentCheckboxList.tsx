@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {List, ListItem, ListItemText, Checkbox} from '@material-ui/core';
+import {styled, ListItem, ListItemText, Checkbox, List} from '@material-ui/core';
 
 
 export interface StudentItem {
@@ -12,6 +12,15 @@ interface StudentStatsListProps {
     mates : StudentItem[];
     onStudentSelection : (studentId : string) => void;
 }
+
+const ScrollableList = styled(List) ({
+        border: '2px solid #4054b4', // primary ??
+        borderRadius: '4px',
+        maxHeight: '350px',
+        overflow: 'auto',
+        padding: '5px'
+    }
+)
 
 const StudentCheckboxList : React.FC<StudentStatsListProps> = (props) => {
     const [checked, setChecked] = useState(new Array<string>())
@@ -32,10 +41,11 @@ const StudentCheckboxList : React.FC<StudentStatsListProps> = (props) => {
     }
     
     return (
-        <List>
+        <ScrollableList>
             {props.mates.map(({id, name, surname}) => (
                 <ListItem disableGutters>
                     <Checkbox
+                        color="primary"
                         edge="start" tabIndex={-1}
                         checked={checked.indexOf(id) !== -1}
                         onClick={() => handleCheckboxChange(id)}/>
@@ -43,7 +53,7 @@ const StudentCheckboxList : React.FC<StudentStatsListProps> = (props) => {
                 </ListItem>
                 )
             )}
-        </List>
+        </ScrollableList>
     )
 }
 
