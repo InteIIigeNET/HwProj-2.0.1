@@ -188,7 +188,7 @@ const StudentSolutionsPage: FC = () => {
                     </Alert>}
                 </Grid>
                 <Grid container spacing={3} style={{marginTop: '1px'}} direction={"row"}>
-                    <Grid item lg={3}> 
+                    <Grid item lg={3}>
                         <FormControl fullWidth>
                             <InputLabel>Фильтр</InputLabel>
                             <Select

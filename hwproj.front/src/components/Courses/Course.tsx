@@ -82,16 +82,26 @@ const Course: React.FC = () => {
         studentSolutions,
     } = courseState;
 
+    const getPostedHomeworks = (homeworks: HomeworkViewModel[]) => 
+        homeworks.filter(h => !h.isDeferred).map(h => ({
+            ...h,
+            tasks: h.tasks?.filter(t => !t.isDeferred)
+        }))
+
     const userId = ApiSingleton.authService.getUserId()
 
     const isLecturer = ApiSingleton.authService.isLecturer()
     const isCourseMentor = mentors.some(t => t.userId === userId)
 
+    const isStudentViewMode = isCourseMentor ? courseState.isStudentViewMode : true
+
+    const courseHomeworks = (isCourseMentor && isStudentViewMode)
+        ? getPostedHomeworks(courseState.courseHomework)
+        : courseState.courseHomework
+
     const isSignedInCourse = newStudents!.some(cm => cm.userId === userId)
 
     const isAcceptedStudent = acceptedStudents!.some(cm => cm.userId === userId)
-
-    const isStudentViewMode = isCourseMentor ? courseState.isStudentViewMode : true
 
     const showStatsTab = isCourseMentor || isAcceptedStudent
     const showApplicationsTab = isCourseMentor
@@ -263,8 +273,8 @@ const Course: React.FC = () => {
                         {
                             isStudentViewMode
                             ?
-                                <CourseExperimental homeworks={courseState.courseHomework} 
-                                                    isMentor={isCourseMentor && !isStudentViewMode}
+                                <CourseExperimental homeworks={courseHomeworks} 
+                                                    isMentor={isCourseMentor}
                                                     studentSolutions={studentSolutions}
                                                     isStudentAccepted={isAcceptedStudent}
                                                     userId={userId!}/> 
@@ -286,7 +296,7 @@ const Course: React.FC = () => {
                                                         isStudent={isAcceptedStudent}
                                                         isMentor={isCourseMentor}
                                                         isReadingMode={isReadingMode}
-                                                        homework={courseState.courseHomework}
+                                                        homework={courseHomeworks}
                                                     />
                                                 </Grid>
                                             </Grid>
@@ -316,7 +326,7 @@ const Course: React.FC = () => {
                                                     isStudent={isAcceptedStudent}
                                                     isMentor={isCourseMentor}
                                                     isReadingMode={isReadingMode}
-                                                    homework={courseState.courseHomework}
+                                                    homework={courseHomeworks}
                                                 />
                                             </Grid>
                                         </div>
@@ -324,7 +334,7 @@ const Course: React.FC = () => {
                                     {!isCourseMentor && (
                                         <CourseHomework
                                             onDelete={() => setCurrentState()}
-                                            homework={courseState.courseHomework}
+                                            homework={courseHomeworks}
                                             isStudent={isAcceptedStudent}
                                             isMentor={isCourseMentor}
                                             isReadingMode={isReadingMode}
@@ -337,7 +347,7 @@ const Course: React.FC = () => {
                         <Grid container style={{marginBottom: "15px"}}>
                             <Grid item xs={12}>
                                 <StudentStats
-                                    homeworks={courseState.courseHomework}
+                                    homeworks={courseHomeworks}
                                     userId={userId as string}
                                     isMentor={isCourseMentor}
                                     course={courseState.course}

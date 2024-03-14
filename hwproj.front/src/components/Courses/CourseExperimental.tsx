@@ -178,7 +178,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         <Grid item lg={4}>
             <Timeline style={{maxHeight: 500, overflow: 'auto'}}
                       sx={{'&::-webkit-scrollbar': {display: "none"}}}>
-                {homeworks.filter(x => !x.isDeferred || props.isMentor).map(x => <div>
+                {homeworks.map(x => <div>
                     <Box sx={{":hover": hoveredItemStyle}}
                          style={{...getStyle(true, x.id!), marginTop: 10, marginBottom: 10}}
                          onClick={() => {
@@ -203,7 +203,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                 <TimelineContent></TimelineContent>
                             </TimelineItem>}
                     </Box>
-                    {x.tasks!.filter(t => !t.isDeferred || props.isMentor).map(t => <TimelineItem
+                    {x.tasks!.map(t => <TimelineItem
                         onClick={() => {
                             setState(prevState => ({
                                 ...prevState,
