@@ -16,6 +16,7 @@ import {Alert, AlertTitle, Chip, Stack} from "@mui/material";
 import CourseExperimental from "./CourseExperimental";
 import {useParams, useNavigate} from 'react-router-dom';
 import MentorsList from "../Common/MentorsList";
+import SettingsDrawer from "./SettingsDrawer";
 
 type TabValue = "homeworks" | "stats" | "applications"
 
@@ -185,6 +186,9 @@ const Course: React.FC = () => {
                             <Grid item>
                                 <Typography style={{fontSize: '22px'}}>
                                     {`${course.name} / ${course.groupName}`} &nbsp;
+                                    {isCourseMentor &&
+                                        <SettingsDrawer/>
+                                    }
                                     {isCourseMentor &&
                                         <IconButton style={{marginLeft: -5}} onClick={() =>
                                             setCourseState(prevState => ({
