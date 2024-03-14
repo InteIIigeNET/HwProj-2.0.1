@@ -33,7 +33,6 @@ interface ICourseState {
     newStudents: AccountDataDto[];
     isReadingMode: boolean;
     studentSolutions: StatisticsCourseMatesModel[];
-    showExperimentalFeature: boolean;
     isStudentViewMode: boolean;
 }
 
@@ -54,7 +53,6 @@ const Course: React.FC = () => {
     const classes = styles()
 
     const [courseState, setCourseState] = useState<ICourseState>({
-        showExperimentalFeature: false,
         isFound: false,
         course: {},
         courseHomework: [],
