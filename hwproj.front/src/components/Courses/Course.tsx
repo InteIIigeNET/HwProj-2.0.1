@@ -49,6 +49,152 @@ const styles = makeStyles(() => ({
     },
 }))
 
+const tasks1 : HomeworkTaskViewModel[] = [
+    {id: 1, title: "Тестовая задача", maxRating: 10, deadlineDate: new Date(2024, 2, 14)},
+    {id: 2, title: "Сортировка пузырьком", maxRating: 10, deadlineDate: new Date(2024, 2, 14)},
+    {id: 3, title: "Сложная задача", maxRating: 20, deadlineDate: new Date(2024, 2, 21)},
+]
+const tasks2 : HomeworkTaskViewModel[] = [
+    {id: 4, title: "Сделай что-нибудь", maxRating: 10, deadlineDate: new Date(2024, 2, 28)},
+    {id: 5, title: "Учимся писать комментарии", maxRating: 10, deadlineDate: new Date(2024, 2, 28)},
+    {id: 6, title: "Наибольшая возрастающая последовательность", maxRating: 10, deadlineDate: new Date(2024, 2, 28)},
+]
+const tasks3 : HomeworkTaskViewModel[] = [
+    {id: 7, title: "Алгоритм Дейкстры", maxRating: 5, deadlineDate: new Date(2024, 3, 15)},
+    {id: 8, title: "Консольная апа", maxRating: 5, deadlineDate: new Date(2024, 3, 16)},
+    {id: 9, title: "Еще сложная задача", maxRating: 20, deadlineDate: new Date(2024, 3, 17)},
+]
+const tasks4 : HomeworkTaskViewModel[] = [
+    {id: 10, title: "BFS/DFS", maxRating: 10, deadlineDate: new Date(2024, 3, 25)},
+    {id: 11, title: "Сжатие данных", maxRating: 10, deadlineDate: new Date(2024, 3, 25)},
+    {id: 12, title: "Раскраска графа", maxRating: 20, deadlineDate: new Date(2024, 3, 25)},
+]
+const tasks5 : HomeworkTaskViewModel[] = [
+    {id: 13, title: "Дубликаты", maxRating: 10, deadlineDate: new Date(2024, 4, 7)},
+    {id: 14, title: "Динамическое программирование", maxRating: 10, deadlineDate: new Date(2024, 4, 7)},
+    {id: 15, title: "Последняя задача курса", maxRating: 20, deadlineDate: new Date(2024, 4, 14)},
+]
+
+const homeworks : HomeworkViewModel[] = [
+    {title: "First homework", tasks: tasks1, publicationDate: new Date(2024, 2, 4)},
+    {title: "Second homework", tasks: tasks2, publicationDate: new Date(2024, 2, 5)},
+    {title: "Third homework", tasks: tasks3, publicationDate: new Date(2024, 2, 6)},
+    {title: "Fourth homework", tasks: tasks4, publicationDate: new Date(2024, 2, 7)},
+    {title: "Fifth homework", tasks: tasks5, publicationDate: new Date(2023, 2, 8)},
+]
+
+
+const solutions : StatisticsCourseMatesModel[] = [
+    {id: "1", name: "Вася", surname: "Пупкин", homeworks: [
+        {tasks: [
+            {id: 1, solution: [{rating: 8, taskId: 1, publicationDate: new Date(2024, 2, 12)}]},
+            {id: 2, solution: [{rating: 7, taskId: 2, publicationDate: new Date(2024, 2, 13)}]},
+            {id: 3, solution: [{rating: 10, taskId: 3, publicationDate: new Date(2024, 2, 19)}]}
+            ]
+        },
+        {tasks: [
+            {id: 4, solution: [{rating: 6, taskId: 4, publicationDate: new Date(2024, 2, 28)}]},
+            {id: 5, solution: [{rating: 9, taskId: 5, publicationDate: new Date(2024, 2, 28)}]},
+            {id: 6, solution: [{rating: 7, taskId: 6, publicationDate: new Date(2024, 2, 29)}]} // просрочил
+            ]
+        },
+        {tasks: [
+            {id: 7, solution: [{rating: 5, taskId: 7, publicationDate: new Date(2024, 3, 15)}]},
+            {id: 8, solution: [{rating: 5, taskId: 8, publicationDate: new Date(2024, 3, 15)}]},
+            {id: 9, solution: [{rating: 15, taskId: 9, publicationDate: new Date(2024, 3, 15)}]}
+            ]
+        },
+        {tasks: [
+            {id: 10, solution: [{rating: 9, taskId: 10, publicationDate: new Date(2024, 3, 21)}]},
+            {id: 11, solution: [{rating: 8, taskId: 11, publicationDate: new Date(2024, 3, 21)}]},
+            {id: 12, solution: [{rating: 20, taskId: 12, publicationDate: new Date(2024, 3, 26)}]} // просрочил
+            ]
+        },
+        {tasks: [
+            {id: 13, solution: [{rating: 10, taskId: 13, publicationDate: new Date(2024, 4, 6)}]},
+            {id: 14, solution: [{rating: 10, taskId: 14, publicationDate: new Date(2024, 4, 7)}]},
+            {id: 15, solution: []} // решил не делать
+            ]
+        }
+        ]
+    },
+    {id: "2", name: "Лионель", surname: "Месси", homeworks: [
+            {tasks: [
+                    {id: 1, solution: [{rating: 5, taskId: 1, publicationDate: new Date(2024, 2, 12)}]},
+                    {id: 2, solution: [{rating: 5, taskId: 2, publicationDate: new Date(2024, 2, 13)}]},
+                    {id: 3, solution: [{rating: 10, taskId: 3, publicationDate: new Date(2024, 2, 19)}]}
+                ]
+            },
+            {tasks: [
+                    {id: 4, solution: [{rating: 6, taskId: 4, publicationDate: new Date(2024, 3, 5)}]},
+                    {id: 5, solution: [{rating: 4, taskId: 5, publicationDate: new Date(2024, 3, 8)}]},
+                    {id: 6, solution: [{rating: 5, taskId: 6, publicationDate: new Date(2024, 3, 8)}]} // просрочил
+                ]
+            },
+            {tasks: [
+                    {id: 7, solution: [{rating: 4, taskId: 7, publicationDate: new Date(2024, 3, 21)}]},
+                    {id: 8, solution: [{rating: 3, taskId: 8, publicationDate: new Date(2024, 3, 21)}]},
+                    {id: 9, solution: [{rating: 12, taskId: 9, publicationDate: new Date(2024, 3, 21)}]}
+                ]
+            },
+            {tasks: [
+                    {id: 10, solution: [{rating: 10, taskId: 10, publicationDate: new Date(2024, 3, 28)}]},
+                    {id: 11, solution: [{rating: 10, taskId: 11, publicationDate: new Date(2024, 4, 1)}]},
+                    {id: 12, solution: [{rating: 20, taskId: 12, publicationDate: new Date(2024, 4, 6)}]} // просрочил
+                ]
+            },
+            {tasks: [
+                    {id: 13, solution: [{rating: 10, taskId: 13, publicationDate: new Date(2024, 4, 8)}]},
+                    {id: 14, solution: [{rating: 10, taskId: 14, publicationDate: new Date(2024, 4, 10)}]},
+                    {id: 15, solution: [{rating: 19, taskId: 15, publicationDate: new Date(2024, 4, 14)}]} // решил не делать
+                ]
+            }
+        ]
+    },
+    {id: "3", name: "Патрик", surname: "Мелроуз", homeworks: [
+            {tasks: [
+                    {id: 1, solution: [{rating: 10, taskId: 1, publicationDate: new Date(2024, 2, 10)}]},
+                    {id: 2, solution: [{rating: 10, taskId: 2, publicationDate: new Date(2024, 2, 10)}]},
+                    {id: 3, solution: [{rating: 20, taskId: 3, publicationDate: new Date(2024, 2, 18)}]}
+                ]
+            },
+            {tasks: [
+                    {id: 4, solution: [{rating: 10, taskId: 4, publicationDate: new Date(2024, 2, 22)}]},
+                    {id: 5, solution: [{rating: 10, taskId: 5, publicationDate: new Date(2024, 2, 22)}]},
+                    {id: 6, solution: [{rating: 10, taskId: 6, publicationDate: new Date(2024, 2, 23)}]} // просрочил
+                ]
+            },
+            {tasks: [
+                    {id: 7, solution: [{rating: 8, taskId: 7, publicationDate: new Date(2024, 3, 12)}]},
+                    {id: 8, solution: [{rating: 6, taskId: 8, publicationDate: new Date(2024, 3, 12)}]},
+                    {id: 9, solution: [{rating: 10, taskId: 9, publicationDate: new Date(2024, 3, 15)}]}
+                ]
+            },
+            {tasks: [
+                    {id: 10, solution: [{rating: 6, taskId: 10, publicationDate: new Date(2024, 3, 24)}]},
+                    {id: 11, solution: [{rating: 4, taskId: 11, publicationDate: new Date(2024, 3, 24)}]},
+                    {id: 12, solution: [/*{rating: 20, taskId: 12, publicationDate: new Date(2024, 3, 26)}*/]} // просрочил
+                ]
+            },
+            {tasks: [
+                    {id: 13, solution: [/*{rating: 10, taskId: 13, publicationDate: new Date(2024, 4, 6)}*/]},
+                    {id: 14, solution: [/*{rating: 10, taskId: 14, publicationDate: new Date(2024, 4, 7)}*/]},
+                    {id: 15, solution: []} // решил не делать
+                ]
+            }
+        ]
+    },
+    {id: "4", name: "Райан", surname: "Гослинг", homeworks: []},
+    {id: "5", name: "Эмма", surname: "Стоун", homeworks: []},
+    {id: "6", name: "Питер", surname: "Паркер", homeworks: []},
+    {id: "7", name: "Райан", surname: "Гослинг", homeworks: []},
+    {id: "8", name: "Эмма", surname: "Стоун", homeworks: []},
+    {id: "9", name: "Питер", surname: "Паркер", homeworks: []},
+    {id: "10", name: "Райан", surname: "Гослинг", homeworks: []},
+    {id: "11", name: "Эмма", surname: "Стоун", homeworks: []},
+    {id: "12", name: "Питер", surname: "Паркер", homeworks: []},
+]
+
 const Course: React.FC = () => {
     const {courseId, tab} = useParams()
     const [searchParams, setSearchParams] = useSearchParams()
@@ -373,7 +519,8 @@ const Course: React.FC = () => {
                                     userId={userId as string}
                                     isMentor={isCourseMentor}
                                     course={courseState.course}
-                                    solutions={studentSolutions}
+                                    //solutions={studentSolutions}
+                                    solutions={solutions}
                                 />
                             </Grid>
                         </Grid>}

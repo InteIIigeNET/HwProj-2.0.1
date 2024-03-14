@@ -29,6 +29,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
     const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
     
     const handleFormatChange = (event : React.ChangeEvent<{ value : unknown}>) => {
+        setSelectedStudents([]);
         setFormat(event.target.value as SetStateAction<"table" | "chart">);
     }
 
