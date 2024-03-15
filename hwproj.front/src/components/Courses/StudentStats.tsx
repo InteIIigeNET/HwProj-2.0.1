@@ -1,6 +1,6 @@
 import React, {useEffect, useState, SetStateAction} from "react";
 import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api/";
-import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid, FormControl, Select, MenuItem, InputLabel} from "@material-ui/core";
+import { Grid, Box, Typography } from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
 import {Alert, Chip} from "@mui/material";
 import {grey} from "@material-ui/core/colors";
@@ -28,9 +28,9 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
     const [format, setFormat] = useState<'table' | 'chart'>('table');
     const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
     
-    const handleFormatChange = (event : React.ChangeEvent<{ value : unknown}>) => {
+    const handleFormatChange = (event : React.ChangeEvent<HTMLInputElement>) => {
         setSelectedStudents([]);
-        setFormat(event.target.value as SetStateAction<"table" | "chart">);
+        setFormat(event.target.checked ? "chart" : "table");
     }
 
     const handleStudentSelection = (studentId : string) => {

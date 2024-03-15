@@ -1,5 +1,7 @@
 import React, {useState} from 'react';
-import {styled, ListItem, ListItemText, Checkbox, List} from '@material-ui/core';
+import {styled, ListItem, ListItemText, Checkbox, List} from '@mui/material';
+import {FormControl, InputLabel, MenuItem, Select} from '@mui/material';
+import {OutlinedInput} from "@mui/material";
 
 
 export interface StudentItem {
@@ -7,20 +9,13 @@ export interface StudentItem {
     name : string;
     surname : string;
 }
-
 interface StudentStatsListProps {
     mates : StudentItem[];
     onStudentSelection : (studentId : string) => void;
 }
 
-const ScrollableList = styled(List) ({
-        border: '2px solid #4054b4', // primary ??
-        borderRadius: '4px',
-        maxHeight: '350px',
-        overflow: 'auto',
-        padding: '5px'
-    }
-)
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
 
 const StudentCheckboxList : React.FC<StudentStatsListProps> = (props) => {
     const [checked, setChecked] = useState(new Array<string>())
@@ -41,19 +36,42 @@ const StudentCheckboxList : React.FC<StudentStatsListProps> = (props) => {
     }
     
     return (
-        <ScrollableList>
-            {props.mates.map(({id, name, surname}) => (
-                <ListItem disableGutters>
-                    <Checkbox
-                        color="primary"
-                        edge="start" tabIndex={-1}
-                        checked={checked.indexOf(id) !== -1}
-                        onClick={() => handleCheckboxChange(id)}/>
-                    <ListItemText>{name + ' ' + surname}</ListItemText>
-                </ListItem>
-                )
-            )}
-        </ScrollableList>
+        <FormControl fullWidth>
+            <InputLabel>Выбрать студентов</InputLabel>
+            <Select
+                multiple
+                size={"medium"}
+                value={checked.map(id => props.mates.find(student => student.id === id)!)}
+                renderValue={selected => {
+                    console.log(selected);
+                    if (selected.length === 0) {
+                        return <em>Выбрать студентов</em>;
+                    }
+                    
+                    return selected.map(student => student.name + ' ' + student.surname).join(', ');
+                }}
+                input={<OutlinedInput label="Выбрать студентов"/>}
+                MenuProps={{
+                    PaperProps: {
+                        style: {
+                            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+                        },
+                    },
+                }}
+            >
+                {props.mates.map(({id, name, surname}) => (
+                    <MenuItem key={id} value={name + ' ' + surname}>
+                        <Checkbox
+                            color="primary"
+                            edge="start" tabIndex={-1}
+                            checked={checked.indexOf(id) !== -1}
+                            onClick={() => handleCheckboxChange(id)}
+                        />
+                        <ListItemText>{name + ' ' + surname}</ListItemText>
+                    </MenuItem>
+                ))}
+            </Select>
+        </FormControl>
     )
 }
 
