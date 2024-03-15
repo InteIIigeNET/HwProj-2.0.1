@@ -212,19 +212,8 @@ const StudentStatsChart : React.FC<IStudentStatsChartProps> = (props) => {
                             border: "solid 1px #9E9E9E", boxShadow: "1px 3px 1px #9E9E9E"}}
                 />
                 <Legend />
-                
-                {Array.from(deadlinePoints.entries()).map(([_, point]) => {
-                    return (
-                        <>
-                            <ReferenceLine x={point.date} stroke="red" strokeDasharray="3 3" alwaysShow/>
-                            <ReferenceDot x={point.date} y={point.totalRatingValue!} r={5}
-                                          alwaysShow ifOverflow="extendDomain"/>
-                        </>
-                    ) 
-                })}
 
                  {Array.from(solutionPoints.entries()).map(([studentName, line]) => {
-                     console.log(`        ${line[0].id!}`)
                      return <Line
                          activeDot={{
                              onMouseOver: () => {
@@ -237,7 +226,7 @@ const StudentStatsChart : React.FC<IStudentStatsChartProps> = (props) => {
                          name={studentName}
                          dataKey="totalRatingValue"
                          data={line}
-                         //stroke={getRandomColorWithMinBrightness(0.3)}
+                         isAnimationActive={false}
                          stroke={lineColors.get(studentName)}
                          connectNulls/>
                 }) }
