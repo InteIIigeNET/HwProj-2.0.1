@@ -43,7 +43,6 @@ const StudentCheckboxList : React.FC<StudentStatsListProps> = (props) => {
                 size={"medium"}
                 value={checked.map(id => props.mates.find(student => student.id === id)!)}
                 renderValue={selected => {
-                    console.log(selected);
                     if (selected.length === 0) {
                         return <em>Выбрать студентов</em>;
                     }

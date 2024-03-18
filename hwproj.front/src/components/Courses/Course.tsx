@@ -50,68 +50,75 @@ const styles = makeStyles(() => ({
 }))
 
 const tasks1 : HomeworkTaskViewModel[] = [
-    {id: 1, title: "Тестовая задача", maxRating: 10, deadlineDate: new Date(2024, 2, 14)},
-    {id: 2, title: "Сортировка пузырьком", maxRating: 10, deadlineDate: new Date(2024, 2, 14)},
-    {id: 3, title: "Сложная задача", maxRating: 20, deadlineDate: new Date(2024, 2, 21)},
+    {id: 1, title: "Тестовая задача", maxRating: 10, deadlineDate: new Date(2024, 2, 14), publicationDate: new Date(2024, 2, 7)},
+    {id: 2, title: "Сортировка пузырьком", maxRating: 10, deadlineDate: new Date(2024, 2, 14), publicationDate: new Date(2024, 2, 7)},
+    {id: 3, title: "Сложная задача", maxRating: 20, deadlineDate: new Date(2024, 2, 21), publicationDate: new Date(2024, 2, 7)},
 ]
 const tasks2 : HomeworkTaskViewModel[] = [
-    {id: 4, title: "Сделай что-нибудь", maxRating: 10, deadlineDate: new Date(2024, 2, 28)},
-    {id: 5, title: "Учимся писать комментарии", maxRating: 10, deadlineDate: new Date(2024, 2, 28)},
-    {id: 6, title: "Наибольшая возрастающая последовательность", maxRating: 10, deadlineDate: new Date(2024, 2, 28)},
+    {id: 4, title: "Сделай что-нибудь", maxRating: 10, deadlineDate: new Date(2024, 2, 28), publicationDate: new Date(2024, 2, 21)},
+    {id: 5, title: "Учимся писать комментарии", maxRating: 10, deadlineDate: new Date(2024, 2, 28), publicationDate: new Date(2024, 2, 21)},
+    {id: 6, title: "Наибольшая возрастающая последовательность", maxRating: 10, deadlineDate: new Date(2024, 2, 28), publicationDate: new Date(2024, 2, 21)},
 ]
 const tasks3 : HomeworkTaskViewModel[] = [
-    {id: 7, title: "Алгоритм Дейкстры", maxRating: 5, deadlineDate: new Date(2024, 3, 15)},
-    {id: 8, title: "Консольная апа", maxRating: 5, deadlineDate: new Date(2024, 3, 16)},
-    {id: 9, title: "Еще сложная задача", maxRating: 20, deadlineDate: new Date(2024, 3, 17)},
+    {id: 7, title: "Алгоритм Дейкстры", maxRating: 5, deadlineDate: new Date(2024, 3, 15), publicationDate: new Date(2024, 3, 5)},
+    {id: 8, title: "Консольная апа", maxRating: 5, deadlineDate: new Date(2024, 3, 16), publicationDate: new Date(2024, 3, 5)},
+    {id: 9, title: "Еще сложная задача", maxRating: 20, deadlineDate: new Date(2024, 3, 17), publicationDate: new Date(2024, 3, 5)},
 ]
 const tasks4 : HomeworkTaskViewModel[] = [
-    {id: 10, title: "BFS/DFS", maxRating: 10, deadlineDate: new Date(2024, 3, 25)},
-    {id: 11, title: "Сжатие данных", maxRating: 10, deadlineDate: new Date(2024, 3, 25)},
-    {id: 12, title: "Раскраска графа", maxRating: 20, deadlineDate: new Date(2024, 3, 25)},
+    {id: 10, title: "BFS/DFS", maxRating: 10, deadlineDate: new Date(2024, 3, 25), publicationDate: new Date(2024, 3, 18)},
+    {id: 11, title: "Сжатие данных", maxRating: 10, deadlineDate: new Date(2024, 3, 25), publicationDate: new Date(2024, 3, 18)},
+    {id: 12, title: "Раскраска графа", maxRating: 20, deadlineDate: new Date(2024, 3, 25), publicationDate: new Date(2024, 3, 18)},
 ]
 const tasks5 : HomeworkTaskViewModel[] = [
-    {id: 13, title: "Дубликаты", maxRating: 10, deadlineDate: new Date(2024, 4, 7)},
-    {id: 14, title: "Динамическое программирование", maxRating: 10, deadlineDate: new Date(2024, 4, 7)},
-    {id: 15, title: "Последняя задача курса", maxRating: 20, deadlineDate: new Date(2024, 4, 14)},
+    {id: 13, title: "Дубликаты", maxRating: 10, deadlineDate: new Date(2024, 4, 7), publicationDate: new Date(2024, 3, 30)},
+    {id: 14, title: "Динамическое программирование", maxRating: 10, deadlineDate: new Date(2024, 4, 7), publicationDate: new Date(2024, 3, 30)},
+    {id: 15, title: "Последняя задача курса", maxRating: 20, deadlineDate: new Date(2024, 4, 14), publicationDate: new Date(2024, 3, 30)},
 ]
 
 const homeworks : HomeworkViewModel[] = [
-    {title: "First homework", tasks: tasks1, publicationDate: new Date(2024, 2, 4)},
-    {title: "Second homework", tasks: tasks2, publicationDate: new Date(2024, 2, 5)},
-    {title: "Third homework", tasks: tasks3, publicationDate: new Date(2024, 2, 6)},
-    {title: "Fourth homework", tasks: tasks4, publicationDate: new Date(2024, 2, 7)},
-    {title: "Fifth homework", tasks: tasks5, publicationDate: new Date(2023, 2, 8)},
+    {title: "First homework", tasks: tasks1, publicationDate: new Date(2024, 2, 7)},
+    {title: "Second homework", tasks: tasks2, publicationDate: new Date(2024, 2, 21)},
+    {title: "Third homework", tasks: tasks3, publicationDate: new Date(2024, 3, 5)},
+    {title: "Fourth homework", tasks: tasks4, publicationDate: new Date(2024, 3, 18)},
+    {title: "Fifth homework", tasks: tasks5, publicationDate: new Date(2024, 3, 30)},
 ]
 
 
 const solutions : StatisticsCourseMatesModel[] = [
     {id: "1", name: "Вася", surname: "Пупкин", homeworks: [
         {tasks: [
-            {id: 1, solution: [{rating: 8, taskId: 1, publicationDate: new Date(2024, 2, 12)}]},
+            {id: 1, solution: [{rating: 8, taskId: 1, publicationDate: new Date(2024, 2, 9)},
+                    {rating: 9, taskId: 1, publicationDate: new Date(2024, 2, 12)}]},
             {id: 2, solution: [{rating: 7, taskId: 2, publicationDate: new Date(2024, 2, 13)}]},
-            {id: 3, solution: [{rating: 10, taskId: 3, publicationDate: new Date(2024, 2, 19)}]}
+            {id: 3, solution: [{rating: 7, taskId: 3, publicationDate: new Date(2024, 2, 19)},
+                    {rating: 9, taskId: 3, publicationDate: new Date(2024, 2, 20, 20, 54)},
+                    {rating: 10, taskId: 3, publicationDate: new Date(2024, 2, 25)}]}
             ]
         },
         {tasks: [
-            {id: 4, solution: [{rating: 6, taskId: 4, publicationDate: new Date(2024, 2, 28)}]},
-            {id: 5, solution: [{rating: 9, taskId: 5, publicationDate: new Date(2024, 2, 28)}]},
+            {id: 4, solution: [{rating: 1, taskId: 4, publicationDate: new Date(2024, 2, 27, 19, 11)},
+                    {rating: 8, taskId: 4, publicationDate: new Date(2024, 2, 31, 19, 11)}]},
+            {id: 5, solution: [{rating: 9, taskId: 5, publicationDate: new Date(2024, 2, 28, 5, 22)}]},
             {id: 6, solution: [{rating: 7, taskId: 6, publicationDate: new Date(2024, 2, 29)}]} // просрочил
             ]
         },
         {tasks: [
-            {id: 7, solution: [{rating: 5, taskId: 7, publicationDate: new Date(2024, 3, 15)}]},
+            {id: 7, solution: [{rating: 3, taskId: 7, publicationDate: new Date(2024, 3, 10)},
+                    {rating: 5, taskId: 7, publicationDate: new Date(2024, 3, 14)}]},
             {id: 8, solution: [{rating: 5, taskId: 8, publicationDate: new Date(2024, 3, 15)}]},
             {id: 9, solution: [{rating: 15, taskId: 9, publicationDate: new Date(2024, 3, 15)}]}
             ]
         },
         {tasks: [
-            {id: 10, solution: [{rating: 9, taskId: 10, publicationDate: new Date(2024, 3, 21)}]},
+            {id: 10, solution: [{rating: 6, taskId: 10, publicationDate: new Date(2024, 3, 21)},
+                    {rating: 9, taskId: 10, publicationDate: new Date(2024, 3, 24)}]},
             {id: 11, solution: [{rating: 8, taskId: 11, publicationDate: new Date(2024, 3, 21)}]},
             {id: 12, solution: [{rating: 20, taskId: 12, publicationDate: new Date(2024, 3, 26)}]} // просрочил
             ]
         },
         {tasks: [
-            {id: 13, solution: [{rating: 10, taskId: 13, publicationDate: new Date(2024, 4, 6)}]},
+            {id: 13, solution: [{rating: 8, taskId: 13, publicationDate: new Date(2024, 4, 4)},
+                    {rating: 10, taskId: 13, publicationDate: new Date(2024, 4, 7)}]},
             {id: 14, solution: [{rating: 10, taskId: 14, publicationDate: new Date(2024, 4, 7)}]},
             {id: 15, solution: []} // решил не делать
             ]
