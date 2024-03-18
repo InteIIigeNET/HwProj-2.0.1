@@ -9,6 +9,7 @@ import StudentStatsUtils from "../../services/StudentStatsUtils";
 import StudentStatsTable from "./StudentStatsTable";
 import StudentCheckboxList from "./StudentCheckboxList";
 import StudentStatsChart from "./StudentStatsChart";
+import StudentPunctualityChart from './StudentPunctualityChart';
 
 interface IStudentStatsProps {
     course: CourseViewModel;

@@ -18,7 +18,7 @@ interface IDummyInterface {
     payload? : Payload<ValueType, string | number>[] | undefined
     activeId: string
 }
-// TooltipProps<ValueType, NameType>
+
 const StudentStatsTooltip : React.FC<IDummyInterface> = (props) => {
     if (props.active! && props.payload && props.payload.length) {
         return (

@@ -21,12 +21,6 @@ interface IStudentStatsChartProps {
     solutions: StatisticsCourseMatesModel[];
 }
 
-interface IDummyInterface {
-    active? : boolean,
-    payload? : Payload<ValueType, string | number>[] | undefined
-    activeId: string
-}
-
 interface ITaskChartView {
     title : string;
     receiveRating?: number;
@@ -42,15 +36,62 @@ interface IChartPoint {
 
 const StudentStatsChart : React.FC<IStudentStatsChartProps> = (props) => {
     const [mouseHoverState, setMouseHoverState] = useState("");
+
+    const compareStringFormatDates = (x : string, y : string) => {
+        const [xDay, xMonth] = x.split('.').map(s => Number.parseInt(s));
+        const [yDay, yMonth] = y.split('.').map(s => Number.parseInt(s));
+
+        if (xMonth === yMonth) {
+            return xDay - yDay;
+        }
+        else {
+            return xMonth - yMonth;
+        }
+    }
     
     const homeworks = props.homeworks.filter(hw => hw.tasks && hw.tasks.length > 0);
     const tasks = [...new Set(homeworks.map(hw => hw.tasks!).flat())]
-    
     const solutions = props.solutions.filter(solution => 
         props.selectedStudents.includes(solution.id!))
+
+    const straightAStudent : IChartPoint[] = [];
+    var straightAStudentTotalValue = 0;
     
+    // предварительно сортируем по дню публикации
+    tasks.sort((x, y) => {
+        const xDateString = Utils.renderDateWithoutHours(x.publicationDate!);
+        const yDateString = Utils.renderDateWithoutHours(y.publicationDate!);
+        return compareStringFormatDates(xDateString, yDateString);
+    }).forEach(task => {
+        straightAStudentTotalValue += task.maxRating!;
+        const renderTaskDate = Utils.renderDateWithoutHours(task.publicationDate!);
+        const indexTasksWithSameDate =  straightAStudent.findIndex(p => p.date === renderTaskDate);
+        const taskView = {title: task.title!, maxRating: task.maxRating!, receiveRating: task.maxRating!};
+        if (indexTasksWithSameDate === -1) {
+            straightAStudent.push({id: "Круглый отличник", totalRatingValue: straightAStudentTotalValue, 
+                date: renderTaskDate, tasks: [taskView]})
+        } else {
+            const currentPoint = straightAStudent[indexTasksWithSameDate];
+            straightAStudent[indexTasksWithSameDate] = {id: currentPoint.id, date: currentPoint.date, 
+                totalRatingValue: straightAStudentTotalValue, tasks: [...currentPoint.tasks, taskView]}
+        }
+    })
+    
+    const hashCode = (string: string) => {
+        let hash = 0;
+        for (var i = 0; i < string.length; ++i) {
+            hash = string.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        
+        return hash;
+    }
+
+    const getRandomColorWithMinBrightness = (minBrightness: number, string : string) => {
+        return `hsl(${hashCode(string) % 360}, 100%, 70%)`;
+    }
+
+    var totalRating = 0;
     const deadlinePoints = new Map<string, IChartPoint>();
-    let totalRating = 0;
     
     tasks.forEach(task => {
         const deadlineDateToString = Utils.renderDateWithoutHours(task.deadlineDate!);
@@ -62,63 +103,22 @@ const StudentStatsChart : React.FC<IStudentStatsChartProps> = (props) => {
         const updatedTasks = [...deadlinePoints.get(deadlineDateToString)!.tasks, {title: task.title!, maxRating : task.maxRating!}];
         deadlinePoints.set(deadlineDateToString, {date : deadlineDateToString, totalRatingValue : totalRating, tasks : updatedTasks})
     })
+    const deadlinePointsArray = Array.from(deadlinePoints.entries()).map(([_, p]) => p)
     
-    const solutionPoints = new Map<string, IChartPoint[]>();
-    
-    const compareStringFormatDates = (x : string, y : string) => {
-        const [xDay, xMonth] = x.split('.').map(s => Number.parseInt(s));
-        const [yDay, yMonth] = y.split('.').map(s => Number.parseInt(s));
-        
-        if (xMonth === yMonth) {
-            return xDay - yDay;
-        }
-        else {
-            return xMonth - yMonth;
-        }
-    }
-    const getRandomColor = () => {
-        return "#" + ((Math.random() * 0xffffff) << 0).toString(16).padStart(6, "0");
-    }
-    
-    const getRelativeLuminance = (hexColor : string) => {
-        const rgb = parseInt(hexColor.slice(1), 16);
-        const r = (rgb >> 16) & 0xff;
-        const g = (rgb >> 8) & 0xff;
-        const b = rgb & 0xff;
-        
-        const cRGB = [r / 255, g / 255, b / 255];
-        
-        const luminance = cRGB.map(v => {
-            const vScaled = v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
-            return vScaled;
-        })
-        
-        const lum = luminance.reduce((a, b) => a + b, 0) / luminance.length;
-        return lum;
-    }
-    
-    const getRandomColorWithMinBrightness = (minBrightness: number) => {
-        let color = getRandomColor();
-        let relativeLuminance = getRelativeLuminance(color);
-        
-        while(relativeLuminance < minBrightness) {
-            color = getRandomColor();
-            relativeLuminance = getRelativeLuminance(color);
-        }
-        
-        return color;
-    }
-    
-    const solutionDatesForALlMates = new Set<string>();
-    
+    const characteristicDates = new Set<string>();
+    deadlinePoints.forEach(point => characteristicDates.add(point.date))
+    straightAStudent.forEach(point => characteristicDates.add(point.date))
+
+    const solutionPoints = new Map<string, IChartPoint[]>([['Круглый отличник', straightAStudent]]);
+
     solutions.forEach(cm => {
-        const studentId = cm.surname! + " " + cm.name!;
+        const studentId = cm.name! + ' ' + cm.surname!;
         cm.homeworks!.forEach(hw => {
             hw.tasks!.forEach(task => {
                 if (task.solution && task.solution.length > 0) {
                     const lastSolution = task.solution!.slice(-1)[0];
                     const currentDateToString = Utils.renderDateWithoutHours(lastSolution.publicationDate!);
-                    solutionDatesForALlMates.add(currentDateToString);
+                    characteristicDates.add(currentDateToString);
                     
                     if (!solutionPoints.has(studentId)) {
                         solutionPoints.set(studentId, [{date : currentDateToString, totalRatingValue : 0, tasks : [], id : studentId}])
@@ -152,57 +152,51 @@ const StudentStatsChart : React.FC<IStudentStatsChartProps> = (props) => {
             })
         })
     })
-    deadlinePoints.forEach(point => solutionDatesForALlMates.add(point.date))
-
-    // сделать стартовую дату для курса (пока что дата публикации саммой ранней дз (как связаны даты дз и даты таск)?) и финальную - наибольшая дата по всем дедайнам/публикациям
     
     const startCourseDate = homeworks.map(hw => Utils.renderDateWithoutHours(hw.publicationDate!))
-        .sort((x, y) => compareStringFormatDates(x, y))[0];
-
-    const finishCourseDate = Array.from(solutionDatesForALlMates).sort((x, y) => 
-        compareStringFormatDates(x, y)).slice(-1)[0];
-    solutionDatesForALlMates.add(startCourseDate);
-    solutionPoints.forEach(point => {
+        .sort(compareStringFormatDates)[0];
+    characteristicDates.add(startCourseDate);
+    
+    const finishCourseDate = Array.from(characteristicDates).sort(compareStringFormatDates).slice(-1)[0];
+    var maximumExpectedRating = Math.max(...deadlinePointsArray.map(p => p.totalRatingValue!));
+    
+    solutionPoints.forEach(line => {
         // добавляем начальные и конечные даты
-        const dates = point.map(p => p.date)
+        const dates = line.map(p => p.date)
+        
         if (!dates.includes(startCourseDate)) {
-            point.push({id: point[0].id, date: startCourseDate, totalRatingValue: 0, tasks: []});
+            line.push({id: line[0].id, date: startCourseDate, totalRatingValue: 0, tasks: []});
         }
 
         if (!dates.includes(finishCourseDate)) {
-            console.log(finishCourseDate);
-            const lastRating = point.map(p => p.totalRatingValue!).sort((x, y) => x > y ? 1 : (x < y ? -1 : 0)).slice(-1)[0];
-            point.push({id: point[0].id, date: finishCourseDate, totalRatingValue: lastRating, tasks: []})
+            const lastRating = line.map(p => p.totalRatingValue!).sort((x, y) => x - y).slice(-1)[0];
+            line.push({id: line[0].id, date: finishCourseDate, totalRatingValue: lastRating, tasks: []})
         }
-    })
-    
-    solutionPoints.forEach((line, _) => {
-        const dates = line.map(point => point.date);
-        const diff = Array.from(solutionDatesForALlMates).filter(d => dates.every(x => x != d))
+        const diff = Array.from(characteristicDates).filter(d => dates.every(x => x !== d))
         diff.forEach(date => line.push({date : date, id: line[0].id, tasks: [], totalRatingValue: null}))
         line = line.sort((x, y) => compareStringFormatDates(x.date, y.date))
+        maximumExpectedRating = Math.max(maximumExpectedRating, line.slice(-1)[0].totalRatingValue!);
     })
-
-    const maximumExpectedRating = Math.max(...Array.from(deadlinePoints.entries())
-        .map(([_, p]) => p.totalRatingValue!));
     
-    const lineColors = useMemo(()=> new Map<string, string>(Array.from(solutionPoints.entries()).map(([student, _]) =>
+    const lineColors = useMemo(() => new Map<string, string>
+        (Array.from(solutionPoints.entries()).map(([student, _]) =>
     {
-        const color = getRandomColorWithMinBrightness(0.3);
-        console.log(color);
+        const color = student === 'Круглый отличник' ? '#2cba00' : getRandomColorWithMinBrightness(0.3, student);
         return [student, color];
     })), [props]);
     
     return (
-        <ResponsiveContainer height={350} width={'99%'} >
+        <ResponsiveContainer height={350} width='99%' >
             <ComposedChart margin={{right:15, top: 5}}>
-                <YAxis dataKey="totalRatingValue" 
-                       domain={[0, maximumExpectedRating+10]}
-                        stroke='#4054b4'/>
+                <YAxis dataKey="totalRatingValue"
+                       domain={[0, maximumExpectedRating+(50 - maximumExpectedRating % 50)]}
+                       stroke='#4054b4'/>
                 <XAxis dataKey="date"
                        allowDuplicatedCategory={false}
-                       domain={Array.from(solutionDatesForALlMates).sort((x, y) => compareStringFormatDates(x, y))}
+                       domain={Array.from(characteristicDates).sort(compareStringFormatDates)}
                        stroke='#4054b4'
+                       ticks={[...deadlinePointsArray.map(p => p.date), startCourseDate, finishCourseDate]
+                           .sort(compareStringFormatDates)}
                 />
                 <Tooltip
                     active={mouseHoverState !== ""}
@@ -211,7 +205,7 @@ const StudentStatsChart : React.FC<IStudentStatsChartProps> = (props) => {
                         {background: "white", color: "#333", borderRadius: 9,
                             border: "solid 1px #9E9E9E", boxShadow: "1px 3px 1px #9E9E9E"}}
                 />
-                <Legend />
+                <Legend/>
 
                  {Array.from(solutionPoints.entries()).map(([studentName, line]) => {
                      return <Line
@@ -223,11 +217,13 @@ const StudentStatsChart : React.FC<IStudentStatsChartProps> = (props) => {
                                  setMouseHoverState("");
                              }
                          }}
+                         strokeDasharray={studentName === 'Круглый отличник' ? '4' : '0'}
                          name={studentName}
                          dataKey="totalRatingValue"
                          data={line}
                          isAnimationActive={false}
                          stroke={lineColors.get(studentName)}
+                         legendType={studentName === 'Круглый отличник' ? 'diamond' : 'line'}
                          connectNulls/>
                 }) }
                 

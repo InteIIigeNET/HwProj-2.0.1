@@ -44,7 +44,7 @@
     "react-scripts": "^4.0.3",
     "react-social-login-buttons": "^3.5.1",
     "react-syntax-highlighter": "^15.5.0",
-    "recharts": "^2.12.2"
+    "recharts": "^2.12.3"
   },
   "scripts": {
     "start": "react-scripts start",
