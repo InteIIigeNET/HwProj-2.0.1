@@ -6,6 +6,7 @@ using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.AuthService.DTO;
+using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.SolutionsService;
 using HwProj.Models.StatisticsService;
 using HwProj.SolutionsService.API.Domains;
@@ -62,12 +63,32 @@ namespace HwProj.SolutionsService.API.Services
 
         public async Task<Solution?[]> GetLastTaskSolutions(long[] taskIds, string studentId)
         {
-            var solutions = await _solutionsRepository
-                .FindAll(s => s.StudentId == studentId && taskIds.Contains(s.TaskId))
-                .GroupBy(t => t.TaskId)
-                .Select(t => t.OrderByDescending(s => s.PublicationDate).FirstOrDefault())
+            var potentialSolution = await _solutionsRepository
+                .FindAll(s => taskIds.Contains(s.TaskId))
+                .Where(s => s.StudentId == studentId || s.GroupId != null)
                 .ToArrayAsync();
 
+            var groupIds = potentialSolution
+                .Where(s => s != null && s.GroupId != null)
+                .Select(s => s!.GroupId!.Value)
+                .Distinct()
+                .ToArray();
+
+            var groups = groupIds.Length > 0
+                ? await _coursesServiceClient.GetGroupsById(groupIds)
+                : Array.Empty<GroupViewModel>();
+
+            var studentsGroups = groups.Where(s 
+                    => s.StudentsIds.Contains(studentId))
+                .Select(t => t.Id).ToArray();
+
+            var solutions = potentialSolution
+                .Where(s => s.GroupId == null || 
+                            studentsGroups.Contains(s.GroupId.Value))
+                .GroupBy(t => t.TaskId)
+                .Select(t => t.OrderByDescending(x 
+                    => x.PublicationDate).FirstOrDefault())
+                .ToArray();
             return taskIds.Select(t => solutions.FirstOrDefault(s => s?.TaskId == t)).ToArray();
         }
 
