@@ -3,6 +3,7 @@ import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "..
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
 import {Alert} from "@mui/material";
+import {grey} from "@material-ui/core/colors";
 
 interface IStudentStatsProps {
     course: CourseViewModel;
@@ -15,6 +16,8 @@ interface IStudentStatsProps {
 interface IStudentStatsState {
     searched: string
 }
+
+const greyBorder = grey[300]
 
 const StudentStats: React.FC<IStudentStatsProps> = (props) => {
     const [state, setSearched] = useState<IStudentStatsState>({
@@ -44,12 +47,8 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
     const solutions = searched
         ? props.solutions.filter(cm => (cm.surname + " " + cm.name).toLowerCase().includes(searched.toLowerCase()))
         : props.solutions
-    const fixedColumnStyles: React.CSSProperties = {
-        position: "sticky",
-        left: 0,
-        background: "white",
-        borderRight: "1px solid black"
-    }
+
+    const borderStyle = `1px solid ${greyBorder}`
 
     return (
         <div>
@@ -61,7 +60,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                 <Table stickyHeader aria-label="sticky table">
                     <TableHead>
                         <TableRow>
-                            <TableCell style={{...fixedColumnStyles, zIndex: -4, color: ""}} align="center"
+                            <TableCell style={{zIndex: -4, color: ""}} align="center"
                                        padding="none"
                                        component="td">
                             </TableCell>
@@ -70,7 +69,10 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                     padding="checkbox"
                                     component="td"
                                     align="center"
-                                    style={{zIndex: -5}}
+                                    style={{
+                                        zIndex: -5,
+                                        borderLeft: borderStyle
+                                    }}
                                     colSpan={homework.tasks!.length}
                                 >
                                     {homework.title}
@@ -78,11 +80,18 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                             ))}
                         </TableRow>
                         <TableRow>
-                            <TableCell style={{...fixedColumnStyles, zIndex: 10}}
+                            <TableCell style={{zIndex: 10}}
                                        component="td"></TableCell>
                             {homeworks.map((homework) =>
-                                homework.tasks!.map((task) => (
-                                    <TableCell padding="checkbox" component="td" align="center">
+                                homework.tasks!.map((task, i) => (
+                                    <TableCell padding="checkbox" component="td" align="center"
+                                               style={{
+                                                   minWidth: "75px",
+                                                   paddingLeft: 10,
+                                                   paddingRight: 10,
+                                                   borderLeft: i === 0 ? borderStyle : ""
+                                               }}
+                                               key={task.id}>
                                         {task.title}
                                     </TableCell>
                                 ))
@@ -91,13 +100,14 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                     </TableHead>
                     <TableBody>
                         {solutions.map((cm, index) => (
-                            <TableRow key={index} hover style={{height: 35}}>
+                            <TableRow key={index} hover style={{height: 50}}>
                                 <TableCell
-                                    style={fixedColumnStyles}
-                                    align="center"
+                                    align="left"
                                     padding="checkbox"
+                                    style={{paddingRight: 15}}
                                     component="td"
                                     scope="row"
+                                    variant={"head"}
                                 >
                                     {cm.surname} {cm.name}
                                 </TableCell>

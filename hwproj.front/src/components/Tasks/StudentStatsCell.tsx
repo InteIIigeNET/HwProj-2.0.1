@@ -6,6 +6,7 @@ import {Solution} from "api";
 import {Chip, Stack, Tooltip} from "@mui/material";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import Utils from "../../services/Utils";
+import {grey} from "@material-ui/core/colors";
 
 interface ITaskStudentCellProps {
     studentId: string;
@@ -49,9 +50,14 @@ const StudentStatsCell: FC<ITaskStudentCellProps> = (props) => {
                     : navigate(`/task/${props.taskId}`)}
                 component="td"
                 padding="none"
+                variant={"body"}
                 scope="row"
                 align="center"
-                style={{backgroundColor: cellState.color, borderStyle: "none none ridge ridge", cursor: "pointer"}}>
+                style={{
+                    backgroundColor: cellState.color,
+                    borderLeft: `1px solid ${grey[300]}`,
+                    cursor: "pointer"
+                }}>
                 {result}
             </TableCell>
         </Tooltip>
