@@ -313,7 +313,8 @@ namespace HwProj.APIGateway.API.Controllers
             var course = await _coursesServiceClient.GetCourseByTask(taskId);
             if (course is null) return BadRequest();
 
-            if (!course.MentorIds.Contains(UserId) &&
+            var isMentor = course.MentorIds.Contains(UserId);
+            if (!isMentor &&
                 course.AcceptedStudents.FirstOrDefault(t => t.StudentId == UserId) == null)
                 return BadRequest($"Студента или преподавателя с id {UserId} не существует");
 
@@ -323,11 +324,12 @@ namespace HwProj.APIGateway.API.Controllers
                 .Where(t => t != null)
                 .ToArray();
 
+            var solution = lastRatedSolutions.FirstOrDefault(t => t!.Id == solutionId &&
+                (isMentor || t.StudentId == UserId));
+            if (solution == null) return NotFound();
+
             if (lastRatedSolutions.Any(x => x!.GroupId != null))
                 lastRatedSolutions = lastRatedSolutions.DistinctBy(t => t!.Id).ToArray();
-
-            var solution = lastRatedSolutions.FirstOrDefault(t => t!.Id == solutionId);
-            if (solution == null) return NotFound();
 
             var betterThanCount = lastRatedSolutions.Count(t => solution.Rating > t!.Rating);
             if (betterThanCount == 0) return Ok(lastRatedSolutions.Length == 1 ? 100 : 0);
