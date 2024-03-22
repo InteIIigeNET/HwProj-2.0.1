@@ -82,7 +82,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                        component="td"></TableCell>
                             {homeworks.map((homework) =>
                                 homework.tasks!.map((task) => (
-                                    <TableCell padding="checkbox" component="td" align="center" style={{minWidth: "0px"}}>
+                                    <TableCell padding="checkbox" component="td" align="center" style={{minWidth: "75px"}}>
                                         {task.title}
                                     </TableCell>
                                 ))
