@@ -227,7 +227,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                     </Alert>
                 </Grid>}
                 {achievement !== undefined && <Grid item>
-                    <Alert variant="outlined" severity={achievement > 80 ? "success" : "info"}>
+                    <Alert variant="outlined" severity={achievement >= 80 ? "success" : "info"}>
                         Лучше {achievement}% других решений по задаче.
                     </Alert>
                 </Grid>}
