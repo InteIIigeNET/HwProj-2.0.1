@@ -70,7 +70,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                     padding="checkbox"
                                     component="td"
                                     align="center"
-                                    style={{zIndex: -5, minWidth: "100px"}}
+                                    style={{zIndex: -5}}
                                     colSpan={homework.tasks!.length}
                                 >
                                     {homework.title}
