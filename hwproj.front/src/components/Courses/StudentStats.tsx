@@ -70,7 +70,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                     padding="checkbox"
                                     component="td"
                                     align="center"
-                                    style={{zIndex: -5}}
+                                    style={{zIndex: -5, minWidth: "100px"}}
                                     colSpan={homework.tasks!.length}
                                 >
                                     {homework.title}
@@ -82,7 +82,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                        component="td"></TableCell>
                             {homeworks.map((homework) =>
                                 homework.tasks!.map((task) => (
-                                    <TableCell padding="checkbox" component="td" align="center">
+                                    <TableCell padding="checkbox" component="td" align="center" style={{minWidth: "0px"}}>
                                         {task.title}
                                     </TableCell>
                                 ))
