@@ -191,7 +191,7 @@ const TaskSolutionsPage: FC = () => {
                                 forMentor={false}
                                 isReadingMode={true}
                                 onDeleteClick={() => 3}
-                                isExpanded={true}
+                                isExpanded={false}
                                 showForCourse={false}
                             />
                         </Grid>

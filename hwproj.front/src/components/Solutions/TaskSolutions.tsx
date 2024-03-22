@@ -138,9 +138,9 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                     forMentor={forMentor}
                     solution={lastSolution!}
                     student={student!}
-                    isExpanded={true}
                     lastRating={lastRating}
                     onRateSolutionClick={onSolutionRateClick}
+                    isLastSolution={true}
                 />
                 : "Студент не отправил ни одного решения."}
         </Grid>}
@@ -152,8 +152,8 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                         forMentor={false}
                         solution={x}
                         student={student!}
-                        isExpanded={true}
                         onRateSolutionClick={onSolutionRateClick}
+                        isLastSolution={false}
                     />
                     {i < arrayOfRatedSolutions.length - 1 ?
                         <Divider style={{marginTop: 10, marginBottom: 4}}/> : null}

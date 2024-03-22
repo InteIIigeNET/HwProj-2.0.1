@@ -17,9 +17,9 @@ interface ISolutionProps {
     student: AccountDataDto,
     task: HomeworkTaskViewModel,
     forMentor: boolean,
-    isExpanded: boolean,
     lastRating?: number,
-    onRateSolutionClick?: () => void
+    onRateSolutionClick?: () => void,
+    isLastSolution: boolean,
 }
 
 interface ISolutionState {
@@ -43,10 +43,12 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     }
 
     const [state, setState] = useState<ISolutionState>(getDefaultState)
+    const [achievement, setAchievementState] = useState<number | undefined>(undefined)
 
     useEffect(() => {
         setState(getDefaultState())
-    }, [props.student.userId, props.task.id, props.solution?.id])
+        getAchievementState()
+    }, [props.student.userId, props.task.id, props.solution?.id, props.solution?.rating])
 
     useEffect(() => {
         if (!state.clickedForRate) return
@@ -57,6 +59,13 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         if (state.clickedForRate) return
         RatingStorage.clean(storageKey)
     }, [state.clickedForRate]);
+
+    const getAchievementState = async () => {
+        if (props.solution && props.isLastSolution && props.solution.rating) {
+            const achievement = await ApiSingleton.solutionsApi.apiSolutionsSolutionAchievementGet(task.id, props.solution.id)
+            setAchievementState(achievement)
+        } else setAchievementState(undefined)
+    }
 
     const rateSolution = async () => {
         if (props.solution) {
@@ -215,6 +224,11 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 {points > maxRating && <Grid item>
                     <Alert variant="standard" severity="info">
                         Решение оценено выше максимального балла.
+                    </Alert>
+                </Grid>}
+                {achievement !== undefined && <Grid item>
+                    <Alert variant="outlined" severity={achievement > 80 ? "success" : "info"}>
+                        Лучше {achievement}% других решений по задаче.
                     </Alert>
                 </Grid>}
                 {(props.forMentor || isRated) &&

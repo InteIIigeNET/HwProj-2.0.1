@@ -55,7 +55,7 @@ export interface FetchArgs {
  * @class BaseAPI
  */
 export class BaseAPI {
-    protected configuration: Configuration;
+    protected configuration?: Configuration;
 
     constructor(configuration?: Configuration, protected basePath: string = BASE_PATH, protected fetch: FetchAPI = portableFetch) {
         if (configuration) {
@@ -72,7 +72,7 @@ export class BaseAPI {
  * @extends {Error}
  */
 export class RequiredError extends Error {
-    name: "RequiredError"
+    name = "RequiredError"
     constructor(public field: string, msg?: string) {
         super(msg);
     }
@@ -1390,6 +1390,26 @@ export interface StatisticsCourseTasksModel {
      * @memberof StatisticsCourseTasksModel
      */
     solution?: Array<Solution>;
+}
+
+/**
+ * 
+ * @export
+ * @interface StatisticsLecturersModel
+ */
+export interface StatisticsLecturersModel {
+    /**
+     * 
+     * @type {AccountDataDto}
+     * @memberof StatisticsLecturersModel
+     */
+    lecturer?: AccountDataDto;
+    /**
+     * 
+     * @type {number}
+     * @memberof StatisticsLecturersModel
+     */
+    numberOfCheckedSolutions?: number;
 }
 
 /**
@@ -5279,6 +5299,46 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
         },
         /**
          * 
+         * @param {number} [taskId] 
+         * @param {number} [solutionId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsSolutionAchievementGet(taskId?: number, solutionId?: number, options: any = {}): FetchArgs {
+            const localVarPath = `/api/Solutions/solutionAchievement`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            if (taskId !== undefined) {
+                localVarQueryParameter['taskId'] = taskId;
+            }
+
+            if (solutionId !== undefined) {
+                localVarQueryParameter['solutionId'] = solutionId;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {number} taskId 
          * @param {string} studentId 
          * @param {*} [options] Override http request option.
@@ -5530,6 +5590,25 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {number} [taskId] 
+         * @param {number} [solutionId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsSolutionAchievementGet(taskId?: number, solutionId?: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
+            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsSolutionAchievementGet(taskId, solutionId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
          * @param {number} taskId 
          * @param {string} studentId 
          * @param {*} [options] Override http request option.
@@ -5660,6 +5739,16 @@ export const SolutionsApiFactory = function (configuration?: Configuration, fetc
         },
         /**
          * 
+         * @param {number} [taskId] 
+         * @param {number} [solutionId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsSolutionAchievementGet(taskId?: number, solutionId?: number, options?: any) {
+            return SolutionsApiFp(configuration).apiSolutionsSolutionAchievementGet(taskId, solutionId, options)(fetch, basePath);
+        },
+        /**
+         * 
          * @param {number} taskId 
          * @param {string} studentId 
          * @param {*} [options] Override http request option.
@@ -5778,6 +5867,18 @@ export class SolutionsApi extends BaseAPI {
 
     /**
      * 
+     * @param {number} [taskId] 
+     * @param {number} [solutionId] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SolutionsApi
+     */
+    public apiSolutionsSolutionAchievementGet(taskId?: number, solutionId?: number, options?: any) {
+        return SolutionsApiFp(this.configuration).apiSolutionsSolutionAchievementGet(taskId, solutionId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
      * @param {number} taskId 
      * @param {string} studentId 
      * @param {*} [options] Override http request option.
@@ -5854,6 +5955,42 @@ export const StatisticsApiFetchParamCreator = function (configuration?: Configur
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiStatisticsByCourseIdLecturersGet(courseId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'courseId' is not null or undefined
+            if (courseId === null || courseId === undefined) {
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiStatisticsByCourseIdLecturersGet.');
+            }
+            const localVarPath = `/api/Statistics/{courseId}/lecturers`
+                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -5871,6 +6008,24 @@ export const StatisticsApiFp = function(configuration?: Configuration) {
          */
         apiStatisticsByCourseIdGet(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<StatisticsCourseMatesModel>> {
             const localVarFetchArgs = StatisticsApiFetchParamCreator(configuration).apiStatisticsByCourseIdGet(courseId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiStatisticsByCourseIdLecturersGet(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<StatisticsLecturersModel>> {
+            const localVarFetchArgs = StatisticsApiFetchParamCreator(configuration).apiStatisticsByCourseIdLecturersGet(courseId, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -5899,6 +6054,15 @@ export const StatisticsApiFactory = function (configuration?: Configuration, fet
         apiStatisticsByCourseIdGet(courseId: number, options?: any) {
             return StatisticsApiFp(configuration).apiStatisticsByCourseIdGet(courseId, options)(fetch, basePath);
         },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiStatisticsByCourseIdLecturersGet(courseId: number, options?: any) {
+            return StatisticsApiFp(configuration).apiStatisticsByCourseIdLecturersGet(courseId, options)(fetch, basePath);
+        },
     };
 };
 
@@ -5918,6 +6082,17 @@ export class StatisticsApi extends BaseAPI {
      */
     public apiStatisticsByCourseIdGet(courseId: number, options?: any) {
         return StatisticsApiFp(this.configuration).apiStatisticsByCourseIdGet(courseId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} courseId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StatisticsApi
+     */
+    public apiStatisticsByCourseIdLecturersGet(courseId: number, options?: any) {
+        return StatisticsApiFp(this.configuration).apiStatisticsByCourseIdLecturersGet(courseId, options)(this.fetch, this.basePath);
     }
 
 }

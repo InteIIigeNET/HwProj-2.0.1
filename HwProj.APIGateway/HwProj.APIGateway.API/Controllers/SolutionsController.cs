@@ -4,10 +4,10 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using HwProj.APIGateway.API.ExceptionFilters;
+using HwProj.APIGateway.API.Extensions;
 using HwProj.APIGateway.API.Models.Solutions;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
-using HwProj.Models;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
 using HwProj.Models.SolutionsService;
@@ -303,6 +303,35 @@ namespace HwProj.APIGateway.API.Controllers
             {
                 UnratedSolutions = unratedSolutions,
             };
+        }
+
+        [Authorize]
+        [HttpGet("solutionAchievement")]
+        [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetSolutionAchievement(long taskId, long solutionId)
+        {
+            var course = await _coursesServiceClient.GetCourseByTask(taskId);
+            if (course is null) return BadRequest();
+
+            if (!course.MentorIds.Contains(UserId) &&
+                course.AcceptedStudents.FirstOrDefault(t => t.StudentId == UserId) == null)
+                return BadRequest($"Студента или преподавателя с id {UserId} не существует");
+
+            var solutions = await _solutionsClient.GetTaskSolutionStatistics(course.Id, taskId);
+            var lastRatedSolutions = solutions
+                .Select(t => t.Solutions.LastOrDefault(x => x.State != SolutionState.Posted))
+                .Where(t => t != null)
+                .ToArray();
+
+            if (lastRatedSolutions.Any(x => x!.GroupId != null))
+                lastRatedSolutions = lastRatedSolutions.DistinctBy(t => t!.Id).ToArray();
+
+            var solution = lastRatedSolutions.FirstOrDefault(t => t!.Id == solutionId);
+            if (solution == null) return NotFound();
+
+            var betterThanCount = lastRatedSolutions.Count(t => solution.Rating > t!.Rating);
+            if (betterThanCount == 0) return Ok(lastRatedSolutions.Length == 1 ? 100 : 0);
+            return Ok(betterThanCount * 100 / (lastRatedSolutions.Length - 1));
         }
 
         private static IEnumerable<(long taskId,
