@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29001.49
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34714.143
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HwProj.Repositories", "HwProj.Common\HwProj.Repositories\HwProj.Repositories.csproj", "{4E5191DC-EC8B-44C8-BD85-198D2C0C16F7}"
 EndProject
@@ -58,9 +58,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HwProj.SolutionsService.Cli
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HwProj.Exceptions", "HwProj.Common\HwProj.Exceptions\HwProj.Exceptions.csproj", "{51463655-7668-4C7D-9FDE-D4D7CDAA82B8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.SolutionsService.IntegrationTests", "HwProj.SolutionsService\HwProj.SolutionsService.IntegrationTests\HwProj.SolutionsService.IntegrationTests.csproj", "{9751B4E3-50A6-4678-A3AF-BE5CD828B151}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HwProj.SolutionsService.IntegrationTests", "HwProj.SolutionsService\HwProj.SolutionsService.IntegrationTests\HwProj.SolutionsService.IntegrationTests.csproj", "{9751B4E3-50A6-4678-A3AF-BE5CD828B151}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.AuthService.IntegrationTests", "HwProj.AuthService\HwProj.AuthService.IntegrationTests\HwProj.AuthService.IntegrationTests.csproj", "{EA822D2F-88C2-4B82-AA20-DD07FF0A9A1E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HwProj.AuthService.IntegrationTests", "HwProj.AuthService\HwProj.AuthService.IntegrationTests\HwProj.AuthService.IntegrationTests.csproj", "{EA822D2F-88C2-4B82-AA20-DD07FF0A9A1E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

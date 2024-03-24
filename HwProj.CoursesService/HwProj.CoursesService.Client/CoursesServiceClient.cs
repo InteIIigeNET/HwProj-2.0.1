@@ -30,6 +30,16 @@ namespace HwProj.CoursesService.Client
             _coursesServiceUri = new Uri(configuration.GetSection("Services")["Courses"]);
         }
 
+        public async Task<Result<TokenCredentials>> GetToken()
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + "api/Courses/token");
+            
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<Result<TokenCredentials>>();
+        }
+
         public async Task<CoursePreview[]> GetAllCourses()
         {
             using var httpRequest = new HttpRequestMessage(
