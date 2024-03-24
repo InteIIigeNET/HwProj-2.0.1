@@ -8,7 +8,7 @@ namespace HwProj.CoursesService.Client
 {
     public interface ICoursesServiceClient
     {
-        Task<Result<TokenCredentials>> GetToken();
+        Task<Result<TokenCredentials>> GetToken(long courseId);
         Task<CoursePreview[]> GetAllCourses();
         Task<CourseDTO?> GetCourseById(long courseId);
         Task<CourseDTO?> GetCourseByTask(long taskId);

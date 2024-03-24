@@ -40,10 +40,11 @@ namespace HwProj.CoursesService.API.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet("token")]
-        public IActionResult GetToken()
+        [HttpGet("getToken/{courseId}")]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        public IActionResult GetToken(long courseId)
         {
-            var token = _courseTokenService.GetToken();
+            var token = _courseTokenService.GetToken(courseId);
             return Ok(token);
         }
         
