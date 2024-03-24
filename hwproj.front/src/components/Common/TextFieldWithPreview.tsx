@@ -19,15 +19,19 @@ const CodeBlock: FC<CodeBlockProps> = ({language, value}: CodeBlockProps) =>
 const ReactMarkdownWithCodeHighlighting: FC<{ value: string }> = (props) =>
     <ReactMarkdown renderers={{code: CodeBlock}}>{props.value}</ReactMarkdown>
 
-const TextFieldWithPreview: FC<TextFieldProps> = (props) => {
+const TextFieldWithPreview: FC<TextFieldProps & {
+    isEditable?: boolean,
+    previewStyle?: React.CSSProperties
+}> = (props) => {
+    const isEditable = props.isEditable === undefined ? true : props.isEditable;
     const [state, setState] = useState<{ isPreview: boolean }>({
-        isPreview: false
+        isPreview: !isEditable
     })
 
     const {isPreview} = state
 
     return <>
-        <Tabs
+        {isEditable && <Tabs
             indicatorColor={"primary"}
             value={isPreview ? 1 : 0}
             onChange={(_, newValue) => setState(prevState => ({
@@ -37,10 +41,11 @@ const TextFieldWithPreview: FC<TextFieldProps> = (props) => {
         >
             <Tab label="Редактировать" id="simple-tab-0" aria-controls="simple-tabpanel-0"/>
             <Tab label="Превью" id="simple-tab-1" aria-controls="simple-tabpanel-1"/>
-        </Tabs>
+        </Tabs>}
 
         {isPreview
-            ? <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
+            ? <Card variant={props.previewStyle ? "outlined" : "elevation"}
+                    style={props.previewStyle || {backgroundColor: "ghostwhite"}}>
                 <CardContent>
                     <ReactMarkdownWithCodeHighlighting value={props.value as string}/>
                 </CardContent>

@@ -11,6 +11,7 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 import Utils from "../../services/Utils";
 import {RatingStorage} from "../Storages/RatingStorage";
 import {Assignment, Edit} from "@mui/icons-material";
+import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 
 interface ISolutionProps {
     solution: GetSolutionModel | undefined,
@@ -248,7 +249,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                     </Grid>}
                 {((isRated && lecturerComment) || state.clickedForRate) &&
                     <Grid item style={{marginTop: -15, marginBottom: -15}}>
-                        <TextField
+                        <TextFieldWithPreview
                             multiline
                             fullWidth
                             InputProps={{
@@ -259,7 +260,9 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                             label="Комментарий преподавателя"
                             variant="outlined"
                             margin="normal"
+                            isEditable={props.forMentor}
                             value={state.lecturerComment}
+                            previewStyle={{borderColor: "GrayText"}}
                             onClick={() => {
                                 if (!state.clickedForRate)
                                     setState((prevState) => ({
