@@ -27,12 +27,12 @@ namespace HwProj.APIGateway.API.Controllers
             _coursesClient = coursesClient;
         }
 
-        [HttpGet("token")]
+        [HttpGet("getToken/{courseId}")]
         [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetToken()
+        public async Task<IActionResult> GetToken(long courseId)
         {
-            var token = await _coursesClient.GetToken();
+            var token = await _coursesClient.GetToken(courseId);
             return Ok(token);
         }
         
