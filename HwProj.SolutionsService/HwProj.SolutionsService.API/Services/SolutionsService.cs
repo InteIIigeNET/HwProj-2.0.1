@@ -62,11 +62,28 @@ namespace HwProj.SolutionsService.API.Services
 
         public async Task<Solution?[]> GetLastTaskSolutions(long[] taskIds, string studentId)
         {
-            var solutions = await _solutionsRepository
-                .FindAll(s => s.StudentId == studentId && taskIds.Contains(s.TaskId))
+            var potentialSolutions = await _solutionsRepository
+                .FindAll(s => taskIds.Contains(s.TaskId))
+                .Where(s => s.StudentId == studentId || s.GroupId != null)
+                .ToArrayAsync();
+
+            var groupIds = potentialSolutions
+                .Where(s => s is { GroupId: { } })
+                .Select(s => s!.GroupId!.Value)
+                .Distinct()
+                .ToArray();
+
+            var groups = await _coursesServiceClient.GetGroupsById(groupIds);
+            var studentGroups = groups
+                .Where(x => x.StudentsIds.Contains(studentId))
+                .Select(t => t.Id)
+                .ToList();
+
+            var solutions = potentialSolutions
+                .Where(t => t.GroupId == null || studentGroups.Contains(t.GroupId.Value))
                 .GroupBy(t => t.TaskId)
                 .Select(t => t.OrderByDescending(s => s.PublicationDate).FirstOrDefault())
-                .ToArrayAsync();
+                .ToList();
 
             return taskIds.Select(t => solutions.FirstOrDefault(s => s?.TaskId == t)).ToArray();
         }

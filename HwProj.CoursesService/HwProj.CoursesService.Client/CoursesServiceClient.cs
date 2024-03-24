@@ -413,6 +413,8 @@ namespace HwProj.CoursesService.Client
 
         public async Task<GroupViewModel[]> GetGroupsById(params long[] groupIds)
         {
+            if (groupIds.Length == 0) return Array.Empty<GroupViewModel>();
+
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
                 _coursesServiceUri + "api/CourseGroups")
