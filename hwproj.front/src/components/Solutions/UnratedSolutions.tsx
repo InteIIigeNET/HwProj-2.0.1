@@ -183,25 +183,32 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
                     key={i}
                     style={{padding: 0}}
                 >
-                    <NavLink
-                        to={`/task/${solution.taskId}/${solution.student!.userId}`}
-                        style={{color: "#212529"}}
-                    >
-                        <Typography style={{fontSize: "20px"}}>
-                            {solution.student!.surname} {solution.student!.name} {" • "} {solution.taskTitle}
-                        </Typography>
-                    </NavLink>
-                    {solution.isFirstTry && solution.sentAfterDeadline &&
-                        <Chip color="error" label="Дедлайн" size={"small"} style={{marginLeft: 10}}/>}
-                    {!solution.isFirstTry &&
-                        <Chip color="secondary" label="Повторно" size={"small"}
-                              style={{marginLeft: 10}}/>}
-                    {solution.groupId &&
-                        <Chip color="primary" label="Командное" size={"small"}
-                              style={{marginLeft: 10}}/>}
-                    {solution.isCourseCompleted &&
-                        <Chip style={{color: "GrayText", marginLeft: 10}} label="Курс завершен"
-                              size={"small"}/>}
+                    <Grid container alignItems={"center"} spacing={1}>
+                        <Grid item style={{marginRight: 2}}>
+                            <NavLink
+                                to={`/task/${solution.taskId}/${solution.student!.userId}`}
+                                style={{color: "#212529"}}
+                            >
+                                <Typography style={{fontSize: "20px"}}>
+                                    {solution.student!.surname} {solution.student!.name} {" • "} {solution.taskTitle}
+                                </Typography>
+                            </NavLink>
+                        </Grid>
+                        {solution.isFirstTry && solution.sentAfterDeadline &&
+                            <Grid item>
+                                <Chip color="error" label="Дедлайн" size={"small"}/></Grid>}
+                        {!solution.isFirstTry &&
+                            <Grid item>
+                                <Chip color="secondary" label="Повторно" size={"small"}/></Grid>}
+                        {solution.groupId &&
+                            <Grid item>
+                                <Chip color="primary" label="Командное" size={"small"}/></Grid>}
+                        {solution.isCourseCompleted &&
+                            <Grid item>
+                                <Chip style={{color: "GrayText"}} label="Курс завершен"
+                                      size={"small"}/>
+                            </Grid>}
+                    </Grid>
                 </ListItem>
                 <Typography style={{fontSize: "18px", color: "GrayText"}}>
                     {solution.courseTitle + " • " + solution.homeworkTitle}
@@ -214,7 +221,7 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
     }
 
     return (
-        <div className="container">
+        <div>
             {semiRatedSolutions.length > 0 &&
                 <Card variant={"outlined"} style={{marginBottom: 30, borderColor: "#3f51b5"}}>
                     <CardContent>
