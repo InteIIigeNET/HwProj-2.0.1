@@ -5,14 +5,14 @@ import Typography from "@material-ui/core/Typography";
 import Task from "../Tasks/Task";
 import TaskSolutions from "./TaskSolutions";
 import ApiSingleton from "../../api/ApiSingleton";
-import {CircularProgress} from "@material-ui/core";
+import {CircularProgress, Grid} from "@material-ui/core";
 import {Link, useNavigate, useParams} from "react-router-dom";
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import EditIcon from '@mui/icons-material/Edit';
 import {
     Alert,
     Chip,
-    FormControl, Grid,
+    FormControl,
     InputLabel,
     List,
     ListItemButton,
@@ -241,7 +241,7 @@ const StudentSolutionsPage: FC = () => {
                         </List>
                         {renderGoBackToCoursesStatsLink()}
                     </Grid>
-                    <Grid item lg={9} spacing={2} justifyContent={"flex-start"}>
+                    <Grid item lg={9} spacing={2}>
                         <Task
                             task={studentSolutionsState.task}
                             forStudent={false}

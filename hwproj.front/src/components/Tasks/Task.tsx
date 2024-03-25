@@ -11,7 +11,7 @@ import {Accordion, AccordionDetails, AccordionSummary, Button, Grid, Tooltip} fr
 import {FC, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
 import DeletionConfirmation from "../DeletionConfirmation";
-import {Chip, Stack} from "@mui/material";
+import {Chip} from "@mui/material";
 import {ReactMarkdownWithCodeHighlighting} from "../Common/TextFieldWithPreview";
 import Utils from "../../services/Utils";
 
@@ -74,34 +74,40 @@ const Task: FC<ITaskProp> = (props) => {
                     style={{backgroundColor: task.isDeferred! ? "#d3d5db" : "#eceef8"}}
                 >
                     <div className={classes.tools}>
-                        <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                            <Typography style={{fontSize: '18px', marginRight: 1}}>
-                                {task.title}
-                            </Typography>
-                            {task.isGroupWork && <Chip color={"info"} label="Комадное"/>}
-                            {props.forMentor && <Chip label={"🕘 " + publicationDate}/>}
-                            {task.hasDeadline && <Chip label={"⌛ " + deadlineDate}/>}
+                        <Grid container direction={"row"} spacing={1} alignItems={"center"}>
+                            <Grid item>
+                                <Typography style={{fontSize: '18px', marginRight: 1}}>
+                                    {task.title}
+                                </Typography>
+                            </Grid>
+                            {task.isGroupWork && <Grid item><Chip color={"info"} label="Комадное"/></Grid>}
+                            {props.forMentor && <Grid item><Chip label={"🕘 " + publicationDate}/></Grid>}
+                            {task.hasDeadline && <Grid item><Chip label={"⌛ " + deadlineDate}/></Grid>}
                             {props.forMentor && props.task.isDeadlineStrict &&
                                 <Tooltip arrow title={"Нельзя публиковать решения после дедлайна"}>
-                                    <Chip label={"⛔"}/>
+                                    <Grid item>
+                                        <Chip label={"⛔"}/>
+                                    </Grid>
                                 </Tooltip>
                             }
-                            {!task.hasDeadline && <Chip label={"без дедлайна"}/>}
-                            <Chip label={"⭐ " + task.maxRating}/>
-                            {props.forMentor && !props.isReadingMode && <div>
-                                <IconButton aria-label="Delete" onClick={openDialogDeleteTask}>
-                                    <DeleteIcon fontSize="small"/>
-                                </IconButton>
-                                <RouterLink to={'/task/' + task.id!.toString() + '/edit'}>
-                                    <EditIcon fontSize="small"/>
-                                </RouterLink>
-                            </div>
+                            {!task.hasDeadline && <Grid item><Chip label={"без дедлайна"}/></Grid>}
+                            <Grid item><Chip label={"⭐ " + task.maxRating}/></Grid>
+                            {props.forMentor && !props.isReadingMode && <Grid item>
+                                <div>
+                                    <IconButton aria-label="Delete" onClick={openDialogDeleteTask}>
+                                        <DeleteIcon fontSize="small"/>
+                                    </IconButton>
+                                    <RouterLink to={'/task/' + task.id!.toString() + '/edit'}>
+                                        <EditIcon fontSize="small"/>
+                                    </RouterLink>
+                                </div>
+                            </Grid>
                             }
-                        </Stack>
+                        </Grid>
                     </div>
                 </AccordionSummary>
                 <AccordionDetails>
-                    <Grid xs={12}>
+                    <Grid>
                         <Typography variant="body1">
                             <ReactMarkdownWithCodeHighlighting value={task.description!}/>
                         </Typography>
