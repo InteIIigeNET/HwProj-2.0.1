@@ -1,6 +1,7 @@
-namespace HwProj.Models.AuthService.DTO;
-
-public class GithubCredentials
+namespace HwProj.Models.AuthService.DTO
 {
-    public string Login { get; set; }
+    public class GithubCredentials
+    {
+        public string Login { get; set; }
+    }
 }

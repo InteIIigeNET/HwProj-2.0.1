@@ -177,13 +177,14 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok(result);
         }
 
-        [HttpPost("github/authorize")]
+        [HttpPost("github/authorize/{userId}")]
         [ProducesResponseType(typeof(GithubCredentials), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> AuthorizeGithub(
+            string userId,
             [FromQuery] string code,
             [FromQuery] string source = "HwProj.front")
         {
-            var result = await AuthServiceClient.AuthorizeGithub(code, source);
+            var result = await AuthServiceClient.AuthorizeGithub(code, source, userId);
 
             return Ok(result);
         }

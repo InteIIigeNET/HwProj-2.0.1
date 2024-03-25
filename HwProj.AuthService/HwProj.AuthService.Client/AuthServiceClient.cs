@@ -246,11 +246,11 @@ namespace HwProj.AuthService.Client
             return result.Value;
         }
 
-        public async Task<GithubCredentials> AuthorizeGithub(string code, string source)
+        public async Task<GithubCredentials> AuthorizeGithub(string code, string source, string userId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _authServiceUri + $"api/account/github/authorize?code={code}&source={source}");
+                _authServiceUri + $"api/account/github/authorize/{userId}?code={code}&source={source}");
             
             var response = await _httpClient.SendAsync(httpRequest);
 

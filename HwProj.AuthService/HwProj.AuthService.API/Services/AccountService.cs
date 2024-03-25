@@ -267,7 +267,7 @@ namespace HwProj.AuthService.API.Services
                 : Result.Failed(string.Join(", ", removeTokenResult.Errors.Select(t => t.Description)));
         }
 
-        public async Task<GithubCredentials> AuthorizeGithub(string code, string source)
+        public async Task<GithubCredentials> AuthorizeGithub(string code, string source, string userId)
         {
             var sourceSettings = _configuration.GetSection(source);
             
@@ -294,6 +294,11 @@ namespace HwProj.AuthService.API.Services
             githubClient.Credentials = tokenAuth;
 
             var user = await githubClient.User.Current();
+
+            var userFromDb = await _userManager.FindByIdAsync(userId);
+            userFromDb.GithubLogin = user.Login;
+            await _userManager.UpdateAsync(userFromDb);
+            
             var githubCredentials = new GithubCredentials
             {
                 Login = user.Login

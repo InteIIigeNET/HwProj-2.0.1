@@ -194,13 +194,14 @@ namespace HwProj.AuthService.API.Controllers
             return Task.FromResult<IActionResult>(Ok(Result<string>.Success(result)));
         }
 
-        [HttpPost("github/authorize")]
+        [HttpPost("github/authorize/{userId}")]
         [ProducesResponseType(typeof(GithubCredentials), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GithubAuthorize(
+            string userId,
             [FromQuery] string code,
             [FromQuery] string source = "HwProj.front")
         {
-            var result = await _accountService.AuthorizeGithub(code, source);
+            var result = await _accountService.AuthorizeGithub(code, source, userId);
 
             return Ok(result);
         }

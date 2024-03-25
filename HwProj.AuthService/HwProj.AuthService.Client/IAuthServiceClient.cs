@@ -23,6 +23,6 @@ namespace HwProj.AuthService.Client
         Task<Result> RequestPasswordRecovery(RequestPasswordRecoveryViewModel model);
         Task<Result> ResetPassword(ResetPasswordViewModel model);
         Task<string> GetGithubLoginUrl(string source);
-        Task<GithubCredentials> AuthorizeGithub(string code, string source);
+        Task<GithubCredentials> AuthorizeGithub(string code, string source, string userId);
     }
 }
