@@ -67,7 +67,7 @@ export class TaskDeadlines extends React.Component<ITaskDeadlinesProps, {
     public render() {
         const {taskDeadlines} = this.props
         const {hoveredElement, showGiveUpModalForTaskId} = this.state
-        return <div className={"container"}>
+        return <div>
             {taskDeadlines.map(({deadline: deadline, rating, deadlinePast, solutionState}, i) =>
                 <Grid onMouseEnter={() => this.setState({hoveredElement: i})}
                       onMouseLeave={() => this.setState({hoveredElement: undefined})}>
@@ -76,8 +76,7 @@ export class TaskDeadlines extends React.Component<ITaskDeadlinesProps, {
                             key={deadline!.taskId}
                             style={{padding: 0, color: "#212529"}}
                         >
-                            <Grid container direction={"row"} spacing={1}
-                                  style={{justifyContent: "space-between"}}>
+                            <Grid container direction={"row"} spacing={1} justifyContent={"space-between"}>
                                 <Grid item>
                                     <NavLink
                                         to={`/task/${deadline!.taskId}`}
