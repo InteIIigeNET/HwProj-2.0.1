@@ -13,6 +13,8 @@ namespace HwProj.Models.AuthService.ViewModels
         public string MiddleName { get; set; }
         
         public bool IsExternalAuth { get; set; }
+        
+        public string? GithubLogin { get; set; }
 
         public User()
         {

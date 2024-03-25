@@ -1,6 +1,9 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
+using System.Web;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using HwProj.AuthService.API.Services;
@@ -9,6 +12,9 @@ using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.Result;
 using HwProj.Models.Roles;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
+using Octokit;
+using User = HwProj.Models.AuthService.ViewModels.User;
 
 namespace HwProj.AuthService.API.Controllers
 {
@@ -19,17 +25,22 @@ namespace HwProj.AuthService.API.Controllers
         private readonly IAccountService _accountService;
         private readonly IUserManager _userManager;
         private readonly UserManager<User> _aspUserManager;
+        private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
+        private readonly HttpClient _client;
 
         public AccountController(
             IAccountService accountService,
             IUserManager userManager,
-            UserManager<User> aspUserManager, IMapper mapper)
+            UserManager<User> aspUserManager,
+            IMapper mapper,
+            IHttpClientFactory clientFactory)
         {
             _accountService = accountService;
             _userManager = userManager;
             _aspUserManager = aspUserManager;
             _mapper = mapper;
+            _client = clientFactory.CreateClient();
         }
 
         [HttpGet("getUserData/{userId}")]
@@ -158,6 +169,40 @@ namespace HwProj.AuthService.API.Controllers
         public async Task<Result> ResetPassword(ResetPasswordViewModel model)
         {
             return await _accountService.ResetPassword(model);
+        }
+
+        [HttpGet("github/url")]
+        [ProducesResponseType(typeof(Result<string>), (int)HttpStatusCode.OK)]
+        public Task<IActionResult> GetGithubLoginUrl(
+            [FromServices] IConfiguration configuration,
+            [FromQuery] string source = "HwProj.front")
+        {
+            var sourceSection = configuration.GetSection(source);
+
+            if (sourceSection is null)
+            {
+                return Task.FromResult<IActionResult>(BadRequest("source doesn't exist"));
+            }
+            
+            var clientId = sourceSection["ClientIdGitHub"];
+            var scope = sourceSection["ScopeGitHub"];
+            var redirectUrl = sourceSection["RedirectUri"];
+                
+            var result =
+                $"https://github.com/login/oauth/authorize?client_id={clientId}&redirect_uri={redirectUrl}&scope={scope}";
+            
+            return Task.FromResult<IActionResult>(Ok(Result<string>.Success(result)));
+        }
+
+        [HttpPost("github/authorize")]
+        [ProducesResponseType(typeof(GithubCredentials), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GithubAuthorize(
+            [FromQuery] string code,
+            [FromQuery] string source = "HwProj.front")
+        {
+            var result = await _accountService.AuthorizeGithub(code, source);
+
+            return Ok(result);
         }
     }
 }
