@@ -10,10 +10,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Net;
 using HwProj.CoursesService.API.Repositories;
-using HwProj.Models;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
-using Microsoft.EntityFrameworkCore;
 using HwProj.CoursesService.API.Domains;
 using HwProj.Models.Roles;
 
@@ -26,19 +24,31 @@ namespace HwProj.CoursesService.API.Controllers
         private readonly ICoursesService _coursesService;
         private readonly ICoursesRepository _coursesRepository;
         private readonly ICourseMatesRepository _courseMatesRepository;
+        private readonly ICourseTokenService _courseTokenService;
         private readonly IMapper _mapper;
 
         public CoursesController(ICoursesService coursesService,
             ICoursesRepository coursesRepository,
             ICourseMatesRepository courseMatesRepository,
+            ICourseTokenService courseTokenService,
             IMapper mapper)
         {
             _coursesService = coursesService;
             _coursesRepository = coursesRepository;
             _courseMatesRepository = courseMatesRepository;
+            _courseTokenService = courseTokenService;
             _mapper = mapper;
         }
 
+        [HttpGet("getToken/{courseId}")]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        public IActionResult GetToken(long courseId)
+        {
+            var token = _courseTokenService.GetToken(courseId);
+            return Ok(token);
+        }
+        
+        
         [HttpGet]
         public async Task<CoursePreview[]> GetAll()
         {
