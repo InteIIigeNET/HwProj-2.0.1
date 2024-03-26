@@ -55,8 +55,15 @@ namespace HwProj.AuthService.API.Services
             if (user == null) return null;
             var userRoles = await _userManager.GetRolesAsync(user);
             var userRole = userRoles.FirstOrDefault() ?? Roles.StudentRole;
-            return new AccountDataDto(user.Id, user.Name, user.Surname, user.Email, userRole, user.IsExternalAuth,
-                user.MiddleName);
+            return new AccountDataDto(
+                user.Id,
+                user.Name,
+                user.Surname,
+                user.Email,
+                userRole,
+                user.IsExternalAuth,
+                user.MiddleName,
+                user.GithubLogin);
         }
 
         public async Task<AccountDataDto> GetAccountDataAsync(string userId)
@@ -294,11 +301,17 @@ namespace HwProj.AuthService.API.Services
             githubClient.Credentials = tokenAuth;
 
             var user = await githubClient.User.Current();
+            var login = user.Login;
 
             var userFromDb = await _userManager.FindByIdAsync(userId);
-            userFromDb.GithubLogin = user.Login;
-            await _userManager.UpdateAsync(userFromDb);
-            
+
+            if (!(login is null))
+            {
+                userFromDb.GithubLogin = user.Login;
+
+                await _userManager.UpdateAsync(userFromDb);
+            }
+
             var githubCredentials = new GithubCredentials
             {
                 Login = user.Login
