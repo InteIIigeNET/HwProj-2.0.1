@@ -9,23 +9,56 @@ const LecturerStatistics: FC<{
 }> = (props) => {
 
   const [statistics, setStatistics] = useState<StatisticsLecturersModel[]>([])
+
   const getStatistics = async () => {
-    const statistics = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdLecturersGet(1)
+    const statistics : StatisticsLecturersModel[] = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdLecturersGet(1)
     setStatistics(statistics)
   }
-
   useEffect(() => {
     getStatistics()
   }, []);
 
-  return <Dialog open={true} onClose={() => props.onClose()} aria-labelledby="form-dialog-title">
-    <DialogTitle id="form-dialog-title">
+  const totalNumberOfCheckedSolutions = statistics.reduce(
+      (total, stat) => total + stat.numberOfCheckedSolutions, 0);
+
+  return <Dialog open={true} onClose={() => props.onClose()}>
+    <DialogTitle style = {{width: '500px'}}>
        Статистика лекторов
     </DialogTitle>
     <DialogContent>
-        {statistics.map(s =>
-            <p>{s.lecturer?.name} {s.numberOfCheckedSolutions}</p>)
-        }
+      <div className="horizontal-bar">
+        {statistics.map((s, index) => (
+            <div key={index} style={{marginBottom: 15}}>
+              <b>{s.lecturer?.surname} {s.lecturer?.name} {s.lecturer?.middleName}</b>
+              <div>
+                <div
+                    style={{
+                      display: 'flex',
+                      height: 20,
+                      border: '1px solid black',
+                    }}
+                >
+                  <div
+                      style={{
+                        width: `${(s.numberOfCheckedSolutions / totalNumberOfCheckedSolutions) * 100}%`,
+                        backgroundColor: '#3f51b5',
+                      }}
+                  ></div>
+                  <div
+                      style={{
+                        flex: '1',
+                        backgroundColor: 'white',
+                      }}
+                  ></div>
+                </div>
+
+              </div>
+              <div style={{textAlign: 'left'}}>
+                Проверил решений: {s.numberOfCheckedSolutions}
+              </div>
+            </div>
+        ))}
+      </div>
     </DialogContent>
   </Dialog>
 }
