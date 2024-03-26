@@ -14,9 +14,6 @@ namespace HwProj.AuthService.API.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "GithubLogin",
-                table: "AspNetUsers");
         }
     }
 }
