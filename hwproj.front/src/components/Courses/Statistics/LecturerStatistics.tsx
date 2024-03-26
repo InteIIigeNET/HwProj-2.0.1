@@ -5,13 +5,14 @@ import {Dialog, DialogContent, DialogTitle} from "@mui/material";
 import * as React from "react";
 
 const LecturerStatistics: FC<{
+  courseId: number
   onClose: () => void
 }> = (props) => {
 
   const [statistics, setStatistics] = useState<StatisticsLecturersModel[]>([])
 
   const getStatistics = async () => {
-    const statistics : StatisticsLecturersModel[] = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdLecturersGet(1)
+    const statistics : StatisticsLecturersModel[] = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdLecturersGet(props.courseId)
     setStatistics(statistics)
   }
   useEffect(() => {

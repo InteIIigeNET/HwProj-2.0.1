@@ -218,7 +218,7 @@ const Course: React.FC = () => {
                                         </IconButton>
                                     }
                                     {isDialogOpen &&
-                                        <LecturerStatistics onClose = {() => setIsDialogOpen(false)}/>
+                                        <LecturerStatistics courseId = {+courseId!} onClose = {() => setIsDialogOpen(false)}/>
                                     }
                                 </Typography>
                                 <MentorsList mentors={mentors}/>
