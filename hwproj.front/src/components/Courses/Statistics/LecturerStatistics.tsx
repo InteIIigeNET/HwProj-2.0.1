@@ -27,8 +27,13 @@ const LecturerStatistics: FC<{
       width: '100%',
     },
   }}>
-    <DialogTitle>
-       Статистика лекторов
+    <DialogTitle
+        style={{
+          textAlign: 'center',
+          marginBottom: 10
+        }}
+    >
+       Статистика проверенных решений
     </DialogTitle>
     <DialogContent>
       <div className="horizontal-bar">
