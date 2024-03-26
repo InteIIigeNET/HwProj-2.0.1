@@ -1,9 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Web;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using HwProj.AuthService.API.Services;
@@ -13,7 +11,6 @@ using HwProj.Models.Result;
 using HwProj.Models.Roles;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
-using Octokit;
 using User = HwProj.Models.AuthService.ViewModels.User;
 
 namespace HwProj.AuthService.API.Controllers
