@@ -22,20 +22,26 @@ const LecturerStatistics: FC<{
   const totalNumberOfCheckedSolutions = statistics.reduce(
       (total, stat) => total + stat.numberOfCheckedSolutions, 0);
 
-  return <Dialog open={true} onClose={() => props.onClose()}>
-    <DialogTitle style = {{width: '500px'}}>
+  return <Dialog open={true} onClose={() => props.onClose()} PaperProps={{
+    sx: {
+      width: '100%',
+    },
+  }}>
+    <DialogTitle>
        Статистика лекторов
     </DialogTitle>
     <DialogContent>
       <div className="horizontal-bar">
         {statistics.map((s, index) => (
-            <div key={index} style={{marginBottom: 15}}>
-              <b>{s.lecturer?.surname} {s.lecturer?.name} {s.lecturer?.middleName}</b>
-              <div>
+            <div key={index} style={{paddingBottom: 20}}>
+              <div style={{
+                display: 'flex',
+                height: 20,
+              }}>
                 <div
                     style={{
                       display: 'flex',
-                      height: 20,
+                      width: '100%',
                       border: '1px solid black',
                     }}
                 >
@@ -52,11 +58,16 @@ const LecturerStatistics: FC<{
                       }}
                   ></div>
                 </div>
-
+                <div style={{
+                  flex: '1',
+                  marginLeft: 10,
+                  textAlign: 'left',
+                  whiteSpace: 'nowrap',
+                }}>
+                  {((s.numberOfCheckedSolutions / totalNumberOfCheckedSolutions) * 100).toFixed(1)}% / {s.numberOfCheckedSolutions}
+                </div>
               </div>
-              <div style={{textAlign: 'left'}}>
-                Проверил решений: {s.numberOfCheckedSolutions}
-              </div>
+              <b>{s.lecturer?.surname} {s.lecturer?.name} {s.lecturer?.middleName}</b>
             </div>
         ))}
       </div>
