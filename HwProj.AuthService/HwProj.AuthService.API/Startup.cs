@@ -49,6 +49,8 @@ namespace HwProj.AuthService.API
                     };
                 });
 
+            services.AddHttpClient();
+            
             var connectionString = ConnectionString.GetConnectionString(Configuration);
             services.AddDbContext<IdentityContext>(options =>
                 options.UseSqlServer(connectionString));

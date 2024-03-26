@@ -9,10 +9,17 @@
         public string Email { get; }
         public string Role { get; }
         public bool IsExternalAuth { get; }
+        public string? GithubLogin { get; }
 
-        public AccountDataDto(string userId, string name, string surname, string email, string role,
+        public AccountDataDto(
+            string userId,
+            string name,
+            string surname,
+            string email,
+            string role,
             bool isExternalAuth,
-            string middleName = "")
+            string middleName = "",
+            string? githubLogin = null)
         {
             UserId = userId;
             Name = name;
@@ -21,6 +28,7 @@
             Email = email;
             Role = role;
             IsExternalAuth = isExternalAuth;
+            GithubLogin = githubLogin;
         }
     }
 }

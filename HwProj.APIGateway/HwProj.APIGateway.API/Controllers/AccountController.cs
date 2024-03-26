@@ -168,5 +168,26 @@ namespace HwProj.APIGateway.API.Controllers
         {
             return await AuthServiceClient.ResetPassword(model);
         }
+        
+        [Authorize]
+        [HttpGet("github/url")]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetGithubLoginUrl([FromQuery] string source = "HwProj.front")
+        {
+            var result = await AuthServiceClient.GetGithubLoginUrl(source);
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpPost("github/authorize")]
+        [ProducesResponseType(typeof(GithubCredentials), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> AuthorizeGithub(
+            [FromQuery] string code,
+            [FromQuery] string source = "HwProj.front")
+        {
+            var result = await AuthServiceClient.AuthorizeGithub(code, source, UserId);
+
+            return Ok(result);
+        }
     }
 }
