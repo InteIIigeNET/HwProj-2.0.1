@@ -169,6 +169,7 @@ namespace HwProj.APIGateway.API.Controllers
             return await AuthServiceClient.ResetPassword(model);
         }
         
+        [Authorize]
         [HttpGet("github/url")]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetGithubLoginUrl([FromQuery] string source = "HwProj.front")
@@ -177,14 +178,14 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok(result);
         }
 
-        [HttpPost("github/authorize/{userId}")]
+        [Authorize]
+        [HttpPost("github/authorize")]
         [ProducesResponseType(typeof(GithubCredentials), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> AuthorizeGithub(
-            string userId,
             [FromQuery] string code,
             [FromQuery] string source = "HwProj.front")
         {
-            var result = await AuthServiceClient.AuthorizeGithub(code, source, userId);
+            var result = await AuthServiceClient.AuthorizeGithub(code, source, UserId);
 
             return Ok(result);
         }
