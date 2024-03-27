@@ -48,6 +48,8 @@ namespace HwProj.Models.CoursesService.ViewModels
         public bool IsDeferred { get; set; }
 
         public bool IsGroupWork { get; set; }
+        
+        public string? Tag { get; set;  }
 
         public List<HomeworkTaskViewModel> Tasks { get; set; } = new List<HomeworkTaskViewModel>();
     }
