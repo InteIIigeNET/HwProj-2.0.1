@@ -21,6 +21,8 @@ namespace HwProj.Models.CoursesService.ViewModels
         public DateTime PublicationDate { get; set; }
 
         public bool IsGroupWork { get; set; }
+        
+        public string? Tag { get; set;  }
 
         public List<CreateTaskViewModel> Tasks { get; set; } = new List<CreateTaskViewModel>();
     }
