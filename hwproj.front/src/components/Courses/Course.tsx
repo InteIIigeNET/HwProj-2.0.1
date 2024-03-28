@@ -229,7 +229,7 @@ const Course: React.FC = () => {
                                                             onClose={() => setLecturerStatsState(false)}/>
                                     }
                                 </Grid>
-                                {isCourseMentor && <div><Switch value={showExperimentalFeature}
+                                {isCourseMentor && <div><Switch value={isStudentViewMode}
                                                                 onChange={(e, checked) => setCourseState(prevState => ({
                                                                     ...prevState,
                                                                     isStudentViewMode: checked
