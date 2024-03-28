@@ -31,7 +31,7 @@ const LecturerStatistics: FC<{
         </DialogTitle>
         <DialogContent>
             <div className="horizontal-bar">
-                {statistics.map((s, index) => (
+                {statistics.sort((a, b) => b.numberOfCheckedSolutions! - a.numberOfCheckedSolutions!).map((s, index) => (
                     <div key={index} style={{paddingBottom: 20}}>
                         <div style={{
                             display: 'flex',
