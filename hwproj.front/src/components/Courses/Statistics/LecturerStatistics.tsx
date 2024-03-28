@@ -1,7 +1,7 @@
 import {FC, useEffect, useState} from "react";
 import {StatisticsLecturersModel} from "../../../api";
 import ApiSingleton from "../../../api/ApiSingleton";
-import {Dialog, DialogContent, DialogTitle, Typography} from "@mui/material";
+import {Dialog, DialogContent, DialogTitle, Typography, Grid} from "@mui/material";
 import * as React from "react";
 
 const LecturerStatistics: FC<{
@@ -25,14 +25,13 @@ const LecturerStatistics: FC<{
     return <Dialog open={true} onClose={() => props.onClose()} PaperProps={{
         sx: {width: '100%'},
     }}>
-        <DialogTitle style={{textAlign: 'center',}}
-        >
+        <DialogTitle style={{textAlign: 'center',}}>
             Статистика проверенных решений
         </DialogTitle>
         <DialogContent>
-            <div className="horizontal-bar">
-                {statistics.map((s, index) => (
-                    <div key={index} style={{paddingBottom: 20}}>
+            <Grid container spacing={2}>
+                {statistics.sort((a, b) => b.numberOfCheckedSolutions! - a.numberOfCheckedSolutions!).map((s, index) => (
+                    <Grid item xs={12} key={index}>
                         <div style={{
                             display: 'flex',
                             height: 20,
@@ -40,7 +39,7 @@ const LecturerStatistics: FC<{
                             <div
                                 style={{
                                     display: 'flex',
-                                    width: '100%',
+                                    width: '90%',
                                     border: '1px solid black',
                                 }}
                             >
@@ -57,7 +56,7 @@ const LecturerStatistics: FC<{
                                     }}></div>
                             </div>
                             <div style={{
-                                flex: '1',
+                                width: '10%',
                                 marginLeft: 10,
                                 textAlign: 'left',
                                 whiteSpace: 'nowrap',
@@ -69,9 +68,9 @@ const LecturerStatistics: FC<{
                         <Typography>
                             {s.lecturer!.surname} {s.lecturer!.name} {s.lecturer!.middleName}
                         </Typography>
-                    </div>
+                    </Grid>
                 ))}
-            </div>
+            </Grid>
         </DialogContent>
     </Dialog>
 }
