@@ -168,7 +168,7 @@ const Course: React.FC = () => {
         .filter(t => t!.solution!.slice(-1)[0]?.state === 0) //last solution
         .length
 
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [lecturerStatsState, setLecturerStatsState] = useState(false);
 
     if (isFound) {
         return (
@@ -210,19 +210,26 @@ const Course: React.FC = () => {
                                             <EditIcon fontSize="small"/>
                                         </RouterLink>
                                     )}
-                                    {isCourseMentor && !isReadingMode! &&
-                                        <IconButton onClick={() => setIsDialogOpen(true)}>
-                                            <AssessmentIcon>
-                                                Статистика лекторов по курсу
-                                            </AssessmentIcon>
-                                        </IconButton>
-                                    }
-                                    {isDialogOpen &&
-                                        <LecturerStatistics courseId = {+courseId!} onClose = {() => setIsDialogOpen(false)}/>
-                                    }
                                 </Typography>
-                                <MentorsList mentors={mentors}/>
-                                {isCourseMentor && <div><Switch value={isStudentViewMode}
+                                <Grid container alignItems={"center"}>
+                                    <Grid item>
+                                        <MentorsList mentors={mentors}/>
+                                    </Grid>
+                                    {isCourseMentor && isReadingMode &&
+                                        <Grid item>
+                                            <IconButton onClick={() => setLecturerStatsState(true)}>
+                                                <AssessmentIcon>
+                                                    Статистика лекторов по курсу
+                                                </AssessmentIcon>
+                                            </IconButton>
+                                        </Grid>
+                                    }
+                                    {lecturerStatsState &&
+                                        <LecturerStatistics courseId={+courseId!}
+                                                            onClose={() => setLecturerStatsState(false)}/>
+                                    }
+                                </Grid>
+                                {isCourseMentor && <div><Switch value={showExperimentalFeature}
                                                                 onChange={(e, checked) => setCourseState(prevState => ({
                                                                     ...prevState,
                                                                     isStudentViewMode: checked
