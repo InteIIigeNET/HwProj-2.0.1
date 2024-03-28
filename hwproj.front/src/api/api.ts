@@ -1409,7 +1409,7 @@ export interface StatisticsLecturersModel {
      * @type {number}
      * @memberof StatisticsLecturersModel
      */
-    numberOfCheckedSolutions: number;
+    numberOfCheckedSolutions?: number;
 }
 
 /**

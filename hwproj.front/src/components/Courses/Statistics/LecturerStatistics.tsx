@@ -20,7 +20,7 @@ const LecturerStatistics: FC<{
     }, []);
 
     const totalNumberOfCheckedSolutions = statistics.reduce(
-        (total, stat) => total + stat.numberOfCheckedSolutions, 0);
+        (total, stat) => total + stat.numberOfCheckedSolutions!, 0);
 
     return <Dialog open={true} onClose={() => props.onClose()} PaperProps={{
         sx: {width: '100%'},
@@ -46,7 +46,7 @@ const LecturerStatistics: FC<{
                             >
                                 <div
                                     style={{
-                                        width: `${(s.numberOfCheckedSolutions / totalNumberOfCheckedSolutions) * 100}%`,
+                                        width: `${(s.numberOfCheckedSolutions! / totalNumberOfCheckedSolutions) * 100}%`,
                                         backgroundColor: '#3f51b5',
                                     }}
                                 ></div>
@@ -62,7 +62,7 @@ const LecturerStatistics: FC<{
                                 textAlign: 'left',
                                 whiteSpace: 'nowrap',
                             }}>
-                                {((s.numberOfCheckedSolutions / totalNumberOfCheckedSolutions) * 100).toFixed(1)}%
+                                {((s.numberOfCheckedSolutions! / totalNumberOfCheckedSolutions) * 100).toFixed(1)}%
                                 / {s.numberOfCheckedSolutions}
                             </div>
                         </div>
