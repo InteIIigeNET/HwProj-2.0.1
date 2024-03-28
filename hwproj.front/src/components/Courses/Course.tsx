@@ -16,6 +16,8 @@ import {Alert, AlertTitle, Chip, Stack} from "@mui/material";
 import CourseExperimental from "./CourseExperimental";
 import {useParams, useNavigate} from 'react-router-dom';
 import MentorsList from "../Common/MentorsList";
+import LecturerStatistics from "./Statistics/LecturerStatistics";
+import AssessmentIcon from '@mui/icons-material/Assessment';
 
 type TabValue = "homeworks" | "stats" | "applications"
 
@@ -166,6 +168,8 @@ const Course: React.FC = () => {
         .filter(t => t!.solution!.slice(-1)[0]?.state === 0) //last solution
         .length
 
+    const [lecturerStatsState, setLecturerStatsState] = useState(false);
+
     if (isFound) {
         return (
             <div className="container">
@@ -207,8 +211,25 @@ const Course: React.FC = () => {
                                         </RouterLink>
                                     )}
                                 </Typography>
-                                <MentorsList mentors={mentors}/>
-                                {isCourseMentor && <div><Switch value={isStudentViewMode}
+                                <Grid container alignItems={"center"}>
+                                    <Grid item>
+                                        <MentorsList mentors={mentors}/>
+                                    </Grid>
+                                    {isCourseMentor && isReadingMode &&
+                                        <Grid item>
+                                            <IconButton onClick={() => setLecturerStatsState(true)}>
+                                                <AssessmentIcon>
+                                                    Статистика лекторов по курсу
+                                                </AssessmentIcon>
+                                            </IconButton>
+                                        </Grid>
+                                    }
+                                    {lecturerStatsState &&
+                                        <LecturerStatistics courseId={+courseId!}
+                                                            onClose={() => setLecturerStatsState(false)}/>
+                                    }
+                                </Grid>
+                                {isCourseMentor && <div><Switch value={showExperimentalFeature}
                                                                 onChange={(e, checked) => setCourseState(prevState => ({
                                                                     ...prevState,
                                                                     isStudentViewMode: checked
