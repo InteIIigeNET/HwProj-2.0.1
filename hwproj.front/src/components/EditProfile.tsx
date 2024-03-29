@@ -18,7 +18,7 @@ interface IEditProfileState {
     surname: string;
     middleName?: string;
     isExternalAuth?: boolean;
-    githubLogin: string | undefined;
+    githubId: string | undefined;
     githubLoginUrl?: string
 }
 
@@ -50,7 +50,7 @@ const EditProfile: FC = () => {
         surname: "",
         middleName: "",
         isExternalAuth: false,
-        githubLogin: "",
+        githubId: "",
         githubLoginUrl: "",
     })
     
@@ -105,7 +105,7 @@ const EditProfile: FC = () => {
 
         if (code) {
             try {
-                githubLogin = await (await ApiSingleton.accountApi.apiAccountGithubAuthorizePost(code, source)).login
+                githubLogin = await (await ApiSingleton.accountApi.apiAccountGithubAuthorizePost(code, source)).githubId
             } catch (e) {
                 setProfile((prevState) => ({
                     ...prevState,
@@ -118,7 +118,7 @@ const EditProfile: FC = () => {
         try {
             const githubLoginUrl = (await ApiSingleton.accountApi.apiAccountGithubUrlGet(source)).githubUrl
             const currentUser = await (await ApiSingleton.accountApi.apiAccountGetUserDataGet()).userData!
-            githubLogin = githubLogin ? currentUser.githubLogin : githubLogin
+            githubLogin = githubLogin ? currentUser.githubId : githubLogin
             setProfile((prevState) => ({
                 ...prevState,
                 isLoaded: true,
@@ -126,7 +126,7 @@ const EditProfile: FC = () => {
                 surname: currentUser.surname!,
                 middleName: currentUser.middleName!,
                 isExternalAuth:currentUser.isExternalAuth,
-                githubLogin: currentUser.githubLogin,
+                githubId: currentUser.githubId,
                 githubLoginUrl: githubLoginUrl!
             }))
         } catch (e) {
@@ -216,13 +216,13 @@ const EditProfile: FC = () => {
                                         fullWidth
                                         label="Логин GitHub"
                                         variant="outlined"
-                                        value={profile.githubLogin}
+                                        value={profile.githubId}
                                         disabled
                                     />
                                 </Grid>
                                 <Grid item xs={6} sm={6}>
                                 <IconButton color="primary" href={profile.githubLoginUrl ?? ''}>
-                                    {profile.githubLogin ? <RefreshIcon style={{ fontSize: 30}}/> : <GitHubIcon style={{ fontSize: 30 }}/>}
+                                    {profile.githubId ? <RefreshIcon style={{ fontSize: 30}}/> : <GitHubIcon style={{ fontSize: 30 }}/>}
                                 </IconButton>
                                 </Grid>
                             </Grid>

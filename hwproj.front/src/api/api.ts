@@ -131,7 +131,7 @@ export interface AccountDataDto {
      * @type {string}
      * @memberof AccountDataDto
      */
-    githubLogin?: string;
+    githubId?: string;
 }
 
 /**
@@ -626,7 +626,7 @@ export interface GithubCredentials {
      * @type {string}
      * @memberof GithubCredentials
      */
-    login?: string;
+    githubId?: string;
 }
 
 /**
