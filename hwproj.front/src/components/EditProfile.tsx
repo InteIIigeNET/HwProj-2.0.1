@@ -42,8 +42,6 @@ const EditProfile: FC = () => {
     const [searchParams] = useSearchParams()
     const code = searchParams.get('code')
 
-    console.log(code)
-
     const [profile, setProfile] = useState<IEditProfileState>({
         isLoaded: false,
         edited: false,
@@ -104,8 +102,6 @@ const EditProfile: FC = () => {
 
     const getUserInfo = async () => {
         let githubLogin: string | undefined
-
-        console.log("ewkere")
 
         if (code) {
             try {
@@ -229,7 +225,6 @@ const EditProfile: FC = () => {
                                     {profile.githubLogin ? <RefreshIcon style={{ fontSize: 30}}/> : <GitHubIcon style={{ fontSize: 30 }}/>}
                                 </IconButton>
                                 </Grid>
-
                             </Grid>
                             <Button
                                 style={{marginTop: '15px'}}
