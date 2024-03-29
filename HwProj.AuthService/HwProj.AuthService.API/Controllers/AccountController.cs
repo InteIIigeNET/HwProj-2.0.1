@@ -172,23 +172,23 @@ namespace HwProj.AuthService.API.Controllers
         [ProducesResponseType(typeof(Result<string>), (int)HttpStatusCode.OK)]
         public Task<IActionResult> GetGithubLoginUrl(
             [FromServices] IConfiguration configuration,
-            [FromQuery] string source = "HwProj.front")
+            [FromQuery] string source)
         {
             var sourceSection = configuration.GetSection(source);
-
-            if (sourceSection is null)
-            {
-                return Task.FromResult<IActionResult>(BadRequest("source doesn't exist"));
-            }
             
             var clientId = sourceSection["ClientIdGitHub"];
             var scope = sourceSection["ScopeGitHub"];
             var redirectUrl = sourceSection["RedirectUri"];
                 
-            var result =
+            var resultUrl =
                 $"https://github.com/login/oauth/authorize?client_id={clientId}&redirect_uri={redirectUrl}&scope={scope}";
+
+            var result = new GithubUrlDto()
+            {
+                GithubUrl = resultUrl
+            };
             
-            return Task.FromResult<IActionResult>(Ok(Result<string>.Success(result)));
+            return Task.FromResult<IActionResult>(Ok(result));
         }
 
         [HttpPost("github/authorize/{userId}")]
@@ -196,7 +196,7 @@ namespace HwProj.AuthService.API.Controllers
         public async Task<GithubCredentials> GithubAuthorize(
             string userId,
             [FromQuery] string code,
-            [FromQuery] string source = "HwProj.front")
+            [FromQuery] string source)
         {
             var result = await _accountService.AuthorizeGithub(code, source, userId);
 

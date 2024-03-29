@@ -22,7 +22,7 @@ namespace HwProj.AuthService.Client
         Task<bool> Ping();
         Task<Result> RequestPasswordRecovery(RequestPasswordRecoveryViewModel model);
         Task<Result> ResetPassword(ResetPasswordViewModel model);
-        Task<string> GetGithubLoginUrl(string source);
+        Task<GithubUrlDto> GetGithubLoginUrl(string source);
         Task<GithubCredentials> AuthorizeGithub(string code, string source, string userId);
     }
 }

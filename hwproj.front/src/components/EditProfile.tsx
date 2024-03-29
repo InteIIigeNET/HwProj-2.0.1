@@ -2,11 +2,13 @@ import * as React from "react";
 import {FC, FormEvent, useEffect, useState} from "react";
 import {Navigate} from "react-router-dom";
 import Avatar from '@material-ui/core/Avatar';
-
-import {Button, Container, Grid, TextField, Typography} from "@material-ui/core";
-
+import GitHubIcon from '@mui/icons-material/GitHub';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import {Button, Container, Grid, TextField, Typography, IconButton} from "@material-ui/core";
 import ApiSingleton from "../api/ApiSingleton";
+import {useSearchParams} from 'react-router-dom';
 import makeStyles from "@material-ui/styles/makeStyles";
+import { Api } from "@mui/icons-material";
 
 interface IEditProfileState {
     isLoaded: boolean;
@@ -16,6 +18,8 @@ interface IEditProfileState {
     surname: string;
     middleName?: string;
     isExternalAuth?: boolean;
+    githubLogin: string | undefined;
+    githubLoginUrl?: string
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -35,6 +39,10 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const EditProfile: FC = () => {
+    const [searchParams] = useSearchParams()
+    const code = searchParams.get('code')
+
+    console.log(code)
 
     const [profile, setProfile] = useState<IEditProfileState>({
         isLoaded: false,
@@ -44,7 +52,11 @@ const EditProfile: FC = () => {
         surname: "",
         middleName: "",
         isExternalAuth: false,
+        githubLogin: "",
+        githubLoginUrl: "",
     })
+    
+    const source = "HwProj.front:Attachment"
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -91,15 +103,35 @@ const EditProfile: FC = () => {
     }, [])
 
     const getUserInfo = async () => {
+        let githubLogin: string | undefined
+
+        console.log("ewkere")
+
+        if (code) {
+            try {
+                githubLogin = await (await ApiSingleton.accountApi.apiAccountGithubAuthorizePost(code, source)).login
+            } catch (e) {
+                setProfile((prevState) => ({
+                    ...prevState,
+                    isLoaded: true,
+                    errors: ['Ошибка при авторизации в GitHub']
+                }))
+            }
+        }
+
         try {
+            const githubLoginUrl = (await ApiSingleton.accountApi.apiAccountGithubUrlGet(source)).githubUrl
             const currentUser = await (await ApiSingleton.accountApi.apiAccountGetUserDataGet()).userData!
+            githubLogin = githubLogin ? currentUser.githubLogin : githubLogin
             setProfile((prevState) => ({
                 ...prevState,
                 isLoaded: true,
                 name: currentUser.name!,
                 surname: currentUser.surname!,
                 middleName: currentUser.middleName!,
-                isExternalAuth: currentUser.isExternalAuth,
+                isExternalAuth:currentUser.isExternalAuth,
+                githubLogin: currentUser.githubLogin,
+                githubLoginUrl: githubLoginUrl!
             }))
         } catch (e) {
             setProfile((prevState) => ({
@@ -183,6 +215,21 @@ const EditProfile: FC = () => {
                                         }}
                                     />
                                 </Grid>
+                                <Grid item xs={12} sm={6}>
+                                    <TextField
+                                        fullWidth
+                                        label="Логин GitHub"
+                                        variant="outlined"
+                                        value={profile.githubLogin}
+                                        disabled
+                                    />
+                                </Grid>
+                                <Grid item xs={6} sm={6}>
+                                <IconButton color="primary" href={profile.githubLoginUrl ?? ''}>
+                                    {profile.githubLogin ? <RefreshIcon style={{ fontSize: 30}}/> : <GitHubIcon style={{ fontSize: 30 }}/>}
+                                </IconButton>
+                                </Grid>
+
                             </Grid>
                             <Button
                                 style={{marginTop: '15px'}}

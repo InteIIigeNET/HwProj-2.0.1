@@ -171,8 +171,8 @@ namespace HwProj.APIGateway.API.Controllers
         
         [Authorize]
         [HttpGet("github/url")]
-        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetGithubLoginUrl([FromQuery] string source = "HwProj.front")
+        [ProducesResponseType(typeof(GithubUrlDto), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetGithubLoginUrl([FromQuery] string source)
         {
             var result = await AuthServiceClient.GetGithubLoginUrl(source);
             return Ok(result);
@@ -183,7 +183,7 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(GithubCredentials), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> AuthorizeGithub(
             [FromQuery] string code,
-            [FromQuery] string source = "HwProj.front")
+            [FromQuery] string source)
         {
             var result = await AuthServiceClient.AuthorizeGithub(code, source, UserId);
 
