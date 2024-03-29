@@ -168,37 +168,36 @@ namespace HwProj.AuthService.API.Controllers
             return await _accountService.ResetPassword(model);
         }
 
-        [HttpGet("github/url")]
-        [ProducesResponseType(typeof(Result<string>), (int)HttpStatusCode.OK)]
+        [HttpPost("github/url")]
+        [ProducesResponseType(typeof(Result<UrlDto>), (int)HttpStatusCode.OK)]
         public Task<IActionResult> GetGithubLoginUrl(
             [FromServices] IConfiguration configuration,
-            [FromQuery] string source)
+            [FromBody] UrlDto urlDto)
         {
-            var sourceSection = configuration.GetSection(source);
+            var sourceSection = configuration.GetSection("Github");
             
             var clientId = sourceSection["ClientIdGitHub"];
             var scope = sourceSection["ScopeGitHub"];
-            var redirectUrl = sourceSection["RedirectUri"];
+            var redirectUrl = urlDto.Url;
                 
             var resultUrl =
                 $"https://github.com/login/oauth/authorize?client_id={clientId}&redirect_uri={redirectUrl}&scope={scope}";
 
-            var result = new GithubUrlDto()
+            var resultUrlDto = new UrlDto
             {
-                GithubUrl = resultUrl
+                Url = resultUrl
             };
             
-            return Task.FromResult<IActionResult>(Ok(result));
+            return Task.FromResult<IActionResult>(Ok(resultUrlDto));
         }
 
         [HttpPost("github/authorize/{userId}")]
         [ProducesResponseType(typeof(GithubCredentials), (int)HttpStatusCode.OK)]
         public async Task<GithubCredentials> GithubAuthorize(
             string userId,
-            [FromQuery] string code,
-            [FromQuery] string source)
+            [FromQuery] string code)
         {
-            var result = await _accountService.AuthorizeGithub(code, source, userId);
+            var result = await _accountService.AuthorizeGithub(code, userId);
 
             return result;
         }

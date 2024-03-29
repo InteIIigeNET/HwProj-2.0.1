@@ -28,7 +28,7 @@
             Email = email;
             Role = role;
             IsExternalAuth = isExternalAuth;
-            githubId = null;
+            GithubId = githubId;
         }
     }
 }

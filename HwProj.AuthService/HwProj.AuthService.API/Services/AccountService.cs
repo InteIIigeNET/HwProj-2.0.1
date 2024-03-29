@@ -274,16 +274,15 @@ namespace HwProj.AuthService.API.Services
                 : Result.Failed(string.Join(", ", removeTokenResult.Errors.Select(t => t.Description)));
         }
 
-        public async Task<GithubCredentials> AuthorizeGithub(string code, string source, string userId)
+        public async Task<GithubCredentials> AuthorizeGithub(string code, string userId)
         {
-            var sourceSettings = _configuration.GetSection(source);
+            var sourceSettings = _configuration.GetSection("Github");
             
             var parameters = new Dictionary<string, string>
             {
-                { "client_id", sourceSettings["ClientIdGitHub"] },
-                { "client_secret", sourceSettings["ClientSecretGitHub"] },
+                { "client_id", sourceSettings["ClientIdGithub"] },
+                { "client_secret", sourceSettings["ClientSecretGithub"] },
                 { "code", code },
-                { "redirect_uri", sourceSettings["RedirectUri"] },
             };
 
             var content = new FormUrlEncodedContent(parameters);

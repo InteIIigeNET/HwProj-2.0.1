@@ -632,20 +632,6 @@ export interface GithubCredentials {
 /**
  * 
  * @export
- * @interface GithubUrlDto
- */
-export interface GithubUrlDto {
-    /**
-     * 
-     * @type {string}
-     * @memberof GithubUrlDto
-     */
-    githubUrl?: string;
-}
-
-/**
- * 
- * @export
  * @interface GroupMateViewModel
  */
 export interface GroupMateViewModel {
@@ -1699,6 +1685,20 @@ export interface UpdateGroupViewModel {
 /**
  * 
  * @export
+ * @interface UrlDto
+ */
+export interface UrlDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof UrlDto
+     */
+    url?: string;
+}
+
+/**
+ * 
+ * @export
  * @interface UserDataDto
  */
 export interface UserDataDto {
@@ -1982,11 +1982,10 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
         /**
          * 
          * @param {string} [code] 
-         * @param {string} [source] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAccountGithubAuthorizePost(code?: string, source?: string, options: any = {}): FetchArgs {
+        apiAccountGithubAuthorizePost(code?: string, options: any = {}): FetchArgs {
             const localVarPath = `/api/Account/github/authorize`;
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
@@ -2005,10 +2004,6 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
                 localVarQueryParameter['code'] = code;
             }
 
-            if (source !== undefined) {
-                localVarQueryParameter['source'] = source;
-            }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
@@ -2021,14 +2016,14 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
         },
         /**
          * 
-         * @param {string} [source] 
+         * @param {UrlDto} [urlDto] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAccountGithubUrlGet(source?: string, options: any = {}): FetchArgs {
+        apiAccountGithubUrlPost(urlDto?: UrlDto, options: any = {}): FetchArgs {
             const localVarPath = `/api/Account/github/url`;
             const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
@@ -2040,14 +2035,14 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
-            if (source !== undefined) {
-                localVarQueryParameter['source'] = source;
-            }
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"UrlDto" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(urlDto || {}) : (urlDto || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -2359,12 +2354,11 @@ export const AccountApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @param {string} [code] 
-         * @param {string} [source] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAccountGithubAuthorizePost(code?: string, source?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<GithubCredentials> {
-            const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountGithubAuthorizePost(code, source, options);
+        apiAccountGithubAuthorizePost(code?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<GithubCredentials> {
+            const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountGithubAuthorizePost(code, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -2377,12 +2371,12 @@ export const AccountApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @param {string} [source] 
+         * @param {UrlDto} [urlDto] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAccountGithubUrlGet(source?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<GithubUrlDto> {
-            const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountGithubUrlGet(source, options);
+        apiAccountGithubUrlPost(urlDto?: UrlDto, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<UrlDto> {
+            const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountGithubUrlPost(urlDto, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -2555,21 +2549,20 @@ export const AccountApiFactory = function (configuration?: Configuration, fetch?
         /**
          * 
          * @param {string} [code] 
-         * @param {string} [source] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAccountGithubAuthorizePost(code?: string, source?: string, options?: any) {
-            return AccountApiFp(configuration).apiAccountGithubAuthorizePost(code, source, options)(fetch, basePath);
+        apiAccountGithubAuthorizePost(code?: string, options?: any) {
+            return AccountApiFp(configuration).apiAccountGithubAuthorizePost(code, options)(fetch, basePath);
         },
         /**
          * 
-         * @param {string} [source] 
+         * @param {UrlDto} [urlDto] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiAccountGithubUrlGet(source?: string, options?: any) {
-            return AccountApiFp(configuration).apiAccountGithubUrlGet(source, options)(fetch, basePath);
+        apiAccountGithubUrlPost(urlDto?: UrlDto, options?: any) {
+            return AccountApiFp(configuration).apiAccountGithubUrlPost(urlDto, options)(fetch, basePath);
         },
         /**
          * 
@@ -2690,24 +2683,23 @@ export class AccountApi extends BaseAPI {
     /**
      * 
      * @param {string} [code] 
-     * @param {string} [source] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AccountApi
      */
-    public apiAccountGithubAuthorizePost(code?: string, source?: string, options?: any) {
-        return AccountApiFp(this.configuration).apiAccountGithubAuthorizePost(code, source, options)(this.fetch, this.basePath);
+    public apiAccountGithubAuthorizePost(code?: string, options?: any) {
+        return AccountApiFp(this.configuration).apiAccountGithubAuthorizePost(code, options)(this.fetch, this.basePath);
     }
 
     /**
      * 
-     * @param {string} [source] 
+     * @param {UrlDto} [urlDto] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AccountApi
      */
-    public apiAccountGithubUrlGet(source?: string, options?: any) {
-        return AccountApiFp(this.configuration).apiAccountGithubUrlGet(source, options)(this.fetch, this.basePath);
+    public apiAccountGithubUrlPost(urlDto?: UrlDto, options?: any) {
+        return AccountApiFp(this.configuration).apiAccountGithubUrlPost(urlDto, options)(this.fetch, this.basePath);
     }
 
     /**

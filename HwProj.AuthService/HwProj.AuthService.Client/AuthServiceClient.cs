@@ -233,24 +233,30 @@ namespace HwProj.AuthService.Client
                 : Result.Failed(response.ReasonPhrase);
         }
 
-        public async Task<GithubUrlDto> GetGithubLoginUrl(string source)
+        public async Task<UrlDto> GetGithubLoginUrl(UrlDto urlDto)
         {
             using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Get,
-                _authServiceUri + $"api/account/github/url?source={source}");
+                HttpMethod.Post,
+                _authServiceUri + "api/account/github/url")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(urlDto),
+                    Encoding.UTF8,
+                    "application/json")
+            };
             
             var response = await _httpClient.SendAsync(httpRequest);
 
-            var result = await response.DeserializeAsync<GithubUrlDto>();
+            var result = await response.DeserializeAsync<UrlDto>();
 
             return result;
         }
 
-        public async Task<GithubCredentials> AuthorizeGithub(string code, string source, string userId)
+        public async Task<GithubCredentials> AuthorizeGithub(string code, string userId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _authServiceUri + $"api/account/github/authorize/{userId}?code={code}&source={source}");
+                _authServiceUri + $"api/account/github/authorize/{userId}?code={code}");
             
             var response = await _httpClient.SendAsync(httpRequest);
 

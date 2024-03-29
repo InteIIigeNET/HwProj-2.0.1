@@ -39,8 +39,12 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const EditProfile: FC = () => {
-    const [searchParams] = useSearchParams()
-    const code = searchParams.get('code')
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    const removeGithubCodeParam = () => {
+        searchParams.delete('code');
+        setSearchParams(searchParams);
+    }
 
     const [profile, setProfile] = useState<IEditProfileState>({
         isLoaded: false,
@@ -101,24 +105,29 @@ const EditProfile: FC = () => {
     }, [])
 
     const getUserInfo = async () => {
-        let githubLogin: string | undefined
+        let githubId: string | undefined
+
+        const code = searchParams.get('code')
 
         if (code) {
             try {
-                githubLogin = await (await ApiSingleton.accountApi.apiAccountGithubAuthorizePost(code, source)).githubId
+                githubId = await (await ApiSingleton.accountApi.apiAccountGithubAuthorizePost(code, source)).githubId
             } catch (e) {
                 setProfile((prevState) => ({
                     ...prevState,
                     isLoaded: true,
                     errors: ['Ошибка при авторизации в GitHub']
                 }))
+            } finally {
+                removeGithubCodeParam()
             }
         }
 
         try {
-            const githubLoginUrl = (await ApiSingleton.accountApi.apiAccountGithubUrlGet(source)).githubUrl
+            const githubLoginUrl = (await ApiSingleton.accountApi.apiAccountGithubUrlPost({ url: "http://localhost:3000/user/edit"})).url
             const currentUser = await (await ApiSingleton.accountApi.apiAccountGetUserDataGet()).userData!
-            githubLogin = githubLogin ? currentUser.githubId : githubLogin
+            githubId = githubId ? githubId : currentUser.githubId
+
             setProfile((prevState) => ({
                 ...prevState,
                 isLoaded: true,
@@ -126,7 +135,7 @@ const EditProfile: FC = () => {
                 surname: currentUser.surname!,
                 middleName: currentUser.middleName!,
                 isExternalAuth:currentUser.isExternalAuth,
-                githubId: currentUser.githubId,
+                githubId: githubId,
                 githubLoginUrl: githubLoginUrl!
             }))
         } catch (e) {
