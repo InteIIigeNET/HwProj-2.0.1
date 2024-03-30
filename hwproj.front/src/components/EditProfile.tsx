@@ -121,7 +121,7 @@ const EditProfile: FC = () => {
         }
 
         try {
-            const githubLoginUrl = (await ApiSingleton.accountApi.apiAccountGithubUrlPost({ url: "http://localhost:3000/user/edit"})).url
+            const githubLoginUrl = (await ApiSingleton.accountApi.apiAccountGithubUrlPost({ url: window.location.href })).url
             const currentUser = await (await ApiSingleton.accountApi.apiAccountGetUserDataGet()).userData!
             githubId = githubId ? githubId : currentUser.githubId
 
