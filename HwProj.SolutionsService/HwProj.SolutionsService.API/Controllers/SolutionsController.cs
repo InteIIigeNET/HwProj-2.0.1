@@ -162,11 +162,17 @@ namespace HwProj.SolutionsService.API.Controllers
             {
                 var lecturerId = group.Key;
                 var numberOfSolutions = group.Count();
-
+                
+                var numberOfUniqueSolutions = group
+                    .Select(s => new { s.TaskId, s.StudentId }) 
+                    .Distinct() 
+                    .Count(); 
+                
                 return new StatisticsLecturerDTO
                 {
-                    LecturerId = lecturerId,
-                    NumberOfCheckedSolutions = numberOfSolutions
+                    LecturerId = lecturerId!,
+                    NumberOfCheckedSolutions = numberOfSolutions,
+                    NumberOfCheckedUniqueSolutions = numberOfUniqueSolutions
                 };
             }).ToArray();
             
