@@ -36,7 +36,8 @@ namespace HwProj.APIGateway.API.Controllers
             var result = statistics.Zip(lecturers, (stat, lecturer) => new StatisticsLecturersModel
             {
                 Lecturer = lecturer,
-                NumberOfCheckedSolutions = stat.NumberOfCheckedSolutions
+                NumberOfCheckedSolutions = stat.NumberOfCheckedSolutions,
+                NumberOfCheckedUniqueSolutions = stat.NumberOfCheckedUniqueSolutions
             }).ToArray();
 
             return Ok(result);
