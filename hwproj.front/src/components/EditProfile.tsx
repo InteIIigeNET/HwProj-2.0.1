@@ -218,7 +218,7 @@ const EditProfile: FC = () => {
                                     />
                                 </Grid>
                             </Grid>
-                            <Grid container direction="row" spacing={1} alignItems="center" justifyContent="center">
+                            <Grid container direction="row" spacing={2} alignItems="center" justifyContent="center">
                                 <Grid item>
                                      <GitHubIcon/>
                                 </Grid>
@@ -236,7 +236,7 @@ const EditProfile: FC = () => {
                                 {profile.githubId 
                                 ? <Grid item>
                                     <Link href={profile.githubLoginUrl ?? ''} underline="hover">
-                                        <EditIcon style={{ fontSize: 15}} />
+                                        <EditIcon style={{ fontSize: 17}} />
                                     </Link>
                                 </Grid>
                                 : false
