@@ -3,12 +3,11 @@ import {FC, FormEvent, useEffect, useState} from "react";
 import {Navigate} from "react-router-dom";
 import Avatar from '@material-ui/core/Avatar';
 import GitHubIcon from '@mui/icons-material/GitHub';
-import RefreshIcon from '@mui/icons-material/Refresh';
-import {Button, Container, Grid, TextField, Typography, IconButton} from "@material-ui/core";
+import {Button, Container, Grid, TextField, Typography, IconButton, Link} from "@material-ui/core";
 import ApiSingleton from "../api/ApiSingleton";
 import {useSearchParams} from 'react-router-dom';
+import EditIcon from "@material-ui/icons/Edit";
 import makeStyles from "@material-ui/styles/makeStyles";
-import { Api } from "@mui/icons-material";
 
 interface IEditProfileState {
     isLoaded: boolean;
@@ -57,8 +56,6 @@ const EditProfile: FC = () => {
         githubId: "",
         githubLoginUrl: "",
     })
-    
-    const source = "HwProj.front:Attachment"
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -111,7 +108,7 @@ const EditProfile: FC = () => {
 
         if (code) {
             try {
-                githubId = await (await ApiSingleton.accountApi.apiAccountGithubAuthorizePost(code, source)).githubId
+                githubId = await (await ApiSingleton.accountApi.apiAccountGithubAuthorizePost(code)).githubId
             } catch (e) {
                 setProfile((prevState) => ({
                     ...prevState,
@@ -220,20 +217,30 @@ const EditProfile: FC = () => {
                                         }}
                                     />
                                 </Grid>
-                                <Grid item xs={12} sm={6}>
-                                    <TextField
-                                        fullWidth
-                                        label="Логин GitHub"
-                                        variant="outlined"
-                                        value={profile.githubId}
-                                        disabled
-                                    />
+                            </Grid>
+                            <Grid container direction="row" spacing={1} alignItems="center" justifyContent="center">
+                                <Grid item>
+                                     <GitHubIcon/>
                                 </Grid>
-                                <Grid item xs={6} sm={6}>
-                                <IconButton color="primary" href={profile.githubLoginUrl ?? ''}>
-                                    {profile.githubId ? <RefreshIcon style={{ fontSize: 30}}/> : <GitHubIcon style={{ fontSize: 30 }}/>}
-                                </IconButton>
+                                <Grid item>
+                                    { profile.githubId 
+                                    ? <Link href={`https://github.com/${profile.githubId}`} underline="hover">
+                                        <Typography display="inline" style={{fontSize: 15}}>{profile.githubId}</Typography>
+                                      </Link>
+                                    : <Link href={profile.githubLoginUrl ?? ''} underline="hover">
+                                        <Typography display="inline" style={{fontSize: 15}}>Добавить логин GitHub</Typography>
+                                      </Link>
+                                    }
                                 </Grid>
+
+                                {profile.githubId 
+                                ? <Grid item>
+                                    <Link href={profile.githubLoginUrl ?? ''} underline="hover">
+                                        <EditIcon style={{ fontSize: 15}} />
+                                    </Link>
+                                </Grid>
+                                : false
+                                }
                             </Grid>
                             <Button
                                 style={{marginTop: '15px'}}
