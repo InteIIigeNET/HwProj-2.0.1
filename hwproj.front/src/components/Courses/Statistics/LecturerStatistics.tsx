@@ -22,9 +22,7 @@ const LecturerStatistics: FC<{
     const totalNumberOfCheckedSolutions = statistics.reduce(
         (total, stat) => total + stat.numberOfCheckedSolutions!, 0);
 
-    return <Dialog open={true} onClose={() => props.onClose()} PaperProps={{
-        sx: {width: '100%'},
-    }}>
+    return <Dialog open={true} fullWidth maxWidth="md" onClose={() => props.onClose()}>
         <DialogTitle style={{textAlign: 'center',}}>
             Статистика проверенных решений
         </DialogTitle>
@@ -34,21 +32,30 @@ const LecturerStatistics: FC<{
                     <Grid item xs={12} key={index}>
                         <div style={{
                             display: 'flex',
-                            height: 20,
                         }}>
                             <div
                                 style={{
                                     display: 'flex',
-                                    width: '90%',
+                                    width: '85%',
                                     border: '1px solid black',
+                                    height: 25,
                                 }}
                             >
                                 <div
                                     style={{
                                         width: `${(s.numberOfCheckedSolutions! / totalNumberOfCheckedSolutions) * 100}%`,
-                                        backgroundColor: '#3f51b5',
+                                        backgroundColor: '#96d7ff',
+                                        height: '100%',
                                     }}
-                                ></div>
+                                >
+                                    <div
+                                        style={{
+                                            width: `${(s.numberOfCheckedUniqueSolutions! / s.numberOfCheckedSolutions!) * 100}%`,
+                                            backgroundColor: '#3f51b5',
+                                            height: '100%',
+                                        }}
+                                    ></div>
+                                </div>
                                 <div
                                     style={{
                                         flex: '1',
@@ -57,12 +64,11 @@ const LecturerStatistics: FC<{
                             </div>
                             <div style={{
                                 width: '10%',
-                                marginLeft: 10,
-                                textAlign: 'left',
+                                paddingLeft: 10,
                                 whiteSpace: 'nowrap',
                             }}>
                                 {((s.numberOfCheckedSolutions! / totalNumberOfCheckedSolutions) * 100).toFixed(1)}%
-                                / {s.numberOfCheckedSolutions}
+                                / {s.numberOfCheckedSolutions} / {s.numberOfCheckedUniqueSolutions}
                             </div>
                         </div>
                         <Typography>
