@@ -67,8 +67,10 @@ const LecturerStatistics: FC<{
                                 paddingLeft: 10,
                                 whiteSpace: 'nowrap',
                             }}>
+                                <Typography style={{ wordSpacing: '0.2em' }}>
                                 {((s.numberOfCheckedSolutions! / totalNumberOfCheckedSolutions) * 100).toFixed(1)}%
-                                / {s.numberOfCheckedSolutions} / {s.numberOfCheckedUniqueSolutions}
+                                    | <b>{s.numberOfCheckedSolutions}</b> | <b>{s.numberOfCheckedUniqueSolutions}</b> |
+                                </Typography>
                             </div>
                         </div>
                         <Typography>
