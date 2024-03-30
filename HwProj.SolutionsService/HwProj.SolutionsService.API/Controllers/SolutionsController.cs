@@ -164,7 +164,7 @@ namespace HwProj.SolutionsService.API.Controllers
                 var numberOfSolutions = group.Count();
 
                 var numberOfUniqueSolutions = group
-                    .GroupBy(s => new {s.TaskId, AuthorId = s.GroupId?.ToString() ?? s.StudentId})
+                    .GroupBy(s => (s.TaskId, s.GroupId?.ToString() ?? s.StudentId))
                     .Count();
 
                 return new StatisticsLecturerDTO
