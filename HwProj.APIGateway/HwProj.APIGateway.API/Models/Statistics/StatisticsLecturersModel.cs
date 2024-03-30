@@ -6,5 +6,6 @@ namespace HwProj.APIGateway.API.Models.Statistics
     {
         public AccountDataDto Lecturer { get; set; }
         public int NumberOfCheckedSolutions { get; set; }
+        public int NumberOfCheckedUniqueSolutions { get; set; }
     }
 }
