@@ -1410,6 +1410,12 @@ export interface StatisticsLecturersModel {
      * @memberof StatisticsLecturersModel
      */
     numberOfCheckedSolutions?: number;
+    /**
+     *
+     * @type {number}
+     * @memberof StatisticsLecturersModel
+     */
+    numberOfCheckedUniqueSolutions?: number;
 }
 
 /**
