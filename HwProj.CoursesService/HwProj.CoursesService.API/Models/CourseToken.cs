@@ -10,6 +10,9 @@ namespace HwProj.CoursesService.API.Models
         public long Id { get; set; }
 
         [Required]
+        public long CourseId { get; set; }
+
+        [Required]
         public string Token { get; set; }
 
         [Required]

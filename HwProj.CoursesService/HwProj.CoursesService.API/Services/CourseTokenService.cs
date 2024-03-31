@@ -39,6 +39,8 @@ public class CourseTokenService : ICourseTokenService
             return Result<TokenCredentials>.Success(new TokenCredentials() { AccessToken = courseToken.Token });
         }
 
+        await _courseTokenRepository.DeleteAsync(courseId);
+
         var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["SecurityKey"]));
         var expires = DateTime.Now.AddMinutes(int.Parse(_configuration["ExpiresIn"]));
 
@@ -58,7 +60,7 @@ public class CourseTokenService : ICourseTokenService
             AccessToken = new JwtSecurityTokenHandler().WriteToken(token)
         };
 
-        await _courseTokenRepository.UpdateAsync(courseId, _ => new CourseToken() { Id = courseId, Token = tokenCredentials.AccessToken, Expires = expires });
+        await _courseTokenRepository.AddAsync(new CourseToken() { CourseId = courseId, Token = tokenCredentials.AccessToken, Expires = expires });
 
         return Result<TokenCredentials>.Success(tokenCredentials);
     }
