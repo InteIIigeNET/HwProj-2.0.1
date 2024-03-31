@@ -194,19 +194,9 @@ namespace HwProj.AuthService.API.Controllers
 
         [HttpGet("github/getUserId")]
         [ProducesResponseType(typeof(AccountDataDto), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetAccountDataByGithubIdAsync([FromBody] string urlDto)
+        public async Task<IActionResult> GetAccountDataByGithubIdAsync([FromBody] string githubId)
         {
-            var pattern = @"^https?:\/\/github\.com\/([^\/?#]+)";
-
-            Match match = Regex.Match(urlDto, pattern);
-
-            if (match.Success)
-            {
-                var githubLogin = match.Groups[1].Value;
-                return Ok(await _accountService.GetaAccountDataByGithubIdAsync(githubLogin));
-            }
-
-            return NotFound();
+            return Ok(await _accountService.GetAccountDataByGithubIdAsync(githubId));
         }
     }
 }

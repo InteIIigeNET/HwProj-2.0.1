@@ -316,7 +316,7 @@ namespace HwProj.AuthService.API.Services
             return githubCredentials;
         }
 
-        public async Task<AccountDataDto> GetaAccountDataByGithubIdAsync(string githubId)
+        public async Task<AccountDataDto> GetAccountDataByGithuIdAsync(string githubId)
         {
             var user = _userManager.GetUserByGithubId(githubId);
             return await GetAccountDataAsync(user);

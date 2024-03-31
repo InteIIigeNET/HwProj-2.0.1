@@ -356,13 +356,13 @@ namespace HwProj.APIGateway.API.Controllers
             }
         }
 
-        [HttpPost("automatic/{taskId}")]
+        [HttpPost("automatic/{githubId}/{taskId}")]
         [Authorize(AuthenticationSchemes = "Automatic", Roles = Roles.AutomaticRole)]
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> AutomaticPostSolution(AutomaticSolutionViewModel model, long taskId)
+        public async Task<IActionResult> AutomaticPostSolution(string githubId, long taskId, [FromBody] string solutionUrl)
         {
             var course = await _coursesServiceClient.GetCourseByTask(taskId);
-            var accountData = await AuthServiceClient.GetAccountDataByGithubUrl(model.StudentGithubUrl);
+            var accountData = await AuthServiceClient.GetAccountDataByGithubId(githubId);
 
             if (course == null || !int.TryParse(User.FindFirst("_course_Id").Value, out var requestCourseId)
                 || requestCourseId != course.Id || accountData == null)
@@ -376,7 +376,7 @@ namespace HwProj.APIGateway.API.Controllers
             var solutionModel = new PostSolutionModel()
             {
                 IsAutomatic = true,
-                GithubUrl = model.SolutionGithubUrl,
+                GithubUrl = solutionUrl,
                 StudentId = accountData.UserId,
                 PublicationDate = DateTime.UtcNow
             };
