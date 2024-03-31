@@ -63,7 +63,7 @@ namespace HwProj.AuthService.API.Services
                 userRole,
                 user.IsExternalAuth,
                 user.MiddleName,
-                user.GithubId);
+                user.GitHubId);
         }
 
         public async Task<AccountDataDto> GetAccountDataAsync(string userId)
@@ -306,7 +306,7 @@ namespace HwProj.AuthService.API.Services
 
             if (!(login is null))
             {
-                userFromDb.GithubId = user.Login;
+                userFromDb.GitHubId = user.Login;
 
                 await _userManager.UpdateAsync(userFromDb);
             }

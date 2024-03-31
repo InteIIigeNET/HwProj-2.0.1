@@ -4,7 +4,7 @@ namespace HwProj.Models.AuthService.ViewModels
 {
     public class User : IdentityUser
     {
-        public string GithubId { get; set; }
+        public string GitHubId { get; set; }
 
         public string Name { get; set; }
 
