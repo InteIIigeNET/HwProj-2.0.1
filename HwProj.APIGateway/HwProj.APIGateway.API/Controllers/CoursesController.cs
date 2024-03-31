@@ -7,6 +7,7 @@ using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
+using HwProj.Models.Result;
 using HwProj.Models.Roles;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -153,6 +154,15 @@ namespace HwProj.APIGateway.API.Controllers
         {
             var result = await _coursesClient.GetLecturersAvailableForCourse(courseId);
             return Ok(result.Value);
+        }
+
+        [HttpGet("getToken/{courseId}")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetToken(long courseId)
+        {
+            var token = await _coursesClient.GetToken(courseId);
+            return Ok(token);
         }
     }
 }
