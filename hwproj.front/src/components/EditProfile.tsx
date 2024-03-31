@@ -3,7 +3,7 @@ import {FC, FormEvent, useEffect, useState} from "react";
 import {Navigate} from "react-router-dom";
 import Avatar from '@material-ui/core/Avatar';
 import GitHubIcon from '@mui/icons-material/GitHub';
-import {Button, Container, Grid, TextField, Typography, IconButton, Link} from "@material-ui/core";
+import {Button, Container, Grid, TextField, Typography, Link} from "@material-ui/core";
 import ApiSingleton from "../api/ApiSingleton";
 import {useSearchParams} from 'react-router-dom';
 import EditIcon from "@material-ui/icons/Edit";
@@ -108,7 +108,7 @@ const EditProfile: FC = () => {
 
         if (code) {
             try {
-                githubId = await (await ApiSingleton.accountApi.apiAccountGithubAuthorizePost(code)).githubId
+                githubId = (await ApiSingleton.accountApi.apiAccountGithubAuthorizePost(code)).githubId
             } catch (e) {
                 setProfile((prevState) => ({
                     ...prevState,
@@ -121,8 +121,8 @@ const EditProfile: FC = () => {
         }
 
         try {
-            const githubLoginUrl = (await ApiSingleton.accountApi.apiAccountGithubUrlPost({ url: window.location.href })).url
-            const currentUser = await (await ApiSingleton.accountApi.apiAccountGetUserDataGet()).userData!
+            const githubLoginUrl = (await ApiSingleton.accountApi.apiAccountGithubUrlPost({url: window.location.href})).url
+            const currentUser = (await ApiSingleton.accountApi.apiAccountGetUserDataGet()).userData!
             githubId = githubId ? githubId : currentUser.githubId
 
             setProfile((prevState) => ({
@@ -131,7 +131,7 @@ const EditProfile: FC = () => {
                 name: currentUser.name!,
                 surname: currentUser.surname!,
                 middleName: currentUser.middleName!,
-                isExternalAuth:currentUser.isExternalAuth,
+                isExternalAuth: currentUser.isExternalAuth,
                 githubId: githubId,
                 githubLoginUrl: githubLoginUrl!
             }))
@@ -218,28 +218,29 @@ const EditProfile: FC = () => {
                                     />
                                 </Grid>
                             </Grid>
-                            <Grid container direction="row" spacing={2} alignItems="center" justifyContent="center">
+                            <Grid container direction="row" spacing={1} alignItems="center" justifyContent="center">
                                 <Grid item>
-                                     <GitHubIcon/>
+                                    <GitHubIcon/>
                                 </Grid>
                                 <Grid item>
-                                    { profile.githubId 
-                                    ? <Link href={`https://github.com/${profile.githubId}`} underline="hover">
-                                        <Typography display="inline" style={{fontSize: 15}}>{profile.githubId}</Typography>
-                                      </Link>
-                                    : <Link href={profile.githubLoginUrl ?? ''} underline="hover">
-                                        <Typography display="inline" style={{fontSize: 15}}>Добавить логин GitHub</Typography>
-                                      </Link>
+                                    {profile.githubId
+                                        ? <Link href={`https://github.com/${profile.githubId}`} underline="hover">
+                                            <Typography display="inline"
+                                                        style={{fontSize: 15}}>{profile.githubId}</Typography>
+                                        </Link>
+                                        : <Link href={profile.githubLoginUrl ?? ''} underline="hover">
+                                            <Typography display="inline" style={{fontSize: 15}}>Добавить логин
+                                                GitHub</Typography>
+                                        </Link>
                                     }
                                 </Grid>
 
-                                {profile.githubId 
-                                ? <Grid item>
-                                    <Link href={profile.githubLoginUrl ?? ''} underline="hover">
-                                        <EditIcon style={{ fontSize: 17}} />
-                                    </Link>
-                                </Grid>
-                                : false
+                                {profile.githubId &&
+                                    <Grid item>
+                                        <Link href={profile.githubLoginUrl ?? ''} underline="hover">
+                                            <EditIcon style={{fontSize: 17}}/>
+                                        </Link>
+                                    </Grid>
                                 }
                             </Grid>
                             <Button
