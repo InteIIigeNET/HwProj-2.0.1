@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -64,6 +65,14 @@ namespace HwProj.AuthService.API.Controllers
         {
             var newModel = _mapper.Map<RegisterDataDTO>(model);
             var result = await _accountService.RegisterUserAsync(newModel);
+            return Ok(result);
+        }
+
+        [HttpPost("registerExpert")]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> RegisterExpert([FromBody] RegisterExpertViewModel model)
+        {
+            var result = await _accountService.RegisterExpertAsync(model);
             return Ok(result);
         }
 

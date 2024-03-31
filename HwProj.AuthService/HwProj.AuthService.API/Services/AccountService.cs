@@ -187,6 +187,30 @@ namespace HwProj.AuthService.API.Services
             return Result<TokenCredentials>.Failed(result.Errors.Select(errors => errors.Description).ToArray());
         }
 
+        public async Task<Result<TokenCredentials>> RegisterExpertAsync(RegisterExpertViewModel model)
+        {
+            var user = _mapper.Map<User>(model);
+            user.UserName = user.Email;
+
+            var createUserTask = _userManager.CreateAsync(user);
+
+            var result = await createUserTask
+                .Then(() => _userManager.AddToRoleAsync(user, Roles.ExpertRole))
+                .Then(() =>
+                {
+                    user.EmailConfirmed = true;
+                    return _userManager.UpdateAsync(user);
+                });
+
+            if (result.Succeeded)
+            {
+                var proxyCourseId = 0; // todo: get real proxyCourseId
+                return GetTokenForExpert(user, model.TokenExpirationTime, proxyCourseId);
+            }
+
+            return Result<TokenCredentials>.Failed(result.Errors.Select(errors => errors.Description).ToArray());
+        }
+
         public async Task<Result> InviteNewLecturer(string emailOfInvitedUser)
         {
             var invitedUser = await _userManager.FindByEmailAsync(emailOfInvitedUser).ConfigureAwait(false);
@@ -351,7 +375,15 @@ namespace HwProj.AuthService.API.Services
 
         private async Task<Result<TokenCredentials>> GetToken(User user)
         {
-            return Result<TokenCredentials>.Success(await _tokenService.GetTokenAsync(user).ConfigureAwait(false));
+            return Result<TokenCredentials>.Success(
+                await _tokenService.GetTokenAsync(user).ConfigureAwait(false));
+        }
+
+        private Result<TokenCredentials> GetTokenForExpert(
+            User user, DateTime tokenExpirationTime, int proxyCourseId)
+        {
+            return Result<TokenCredentials>.Success(
+                _tokenService.GetTokenForExpert(user, tokenExpirationTime, proxyCourseId));
         }
     }
 }

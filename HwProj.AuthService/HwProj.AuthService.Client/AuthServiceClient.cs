@@ -74,6 +74,22 @@ namespace HwProj.AuthService.Client
             return await response.DeserializeAsync<Result<TokenCredentials>>();
         }
 
+        public async Task<Result<TokenCredentials>> RegisterExpert(RegisterExpertViewModel model)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _authServiceUri + "api/account/registerExpert")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(model),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<Result<TokenCredentials>>();
+        }
+
         public async Task<Result<TokenCredentials>> Login(LoginViewModel model)
         {
             using var httpRequest = new HttpRequestMessage(

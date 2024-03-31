@@ -11,8 +11,10 @@ namespace HwProj.Models.AuthService.ViewModels
         public string Surname { get; set; }
 
         public string MiddleName { get; set; }
-        
+
         public bool IsExternalAuth { get; set; }
+
+        public string Bio { get; set; }
 
         public User()
         {
