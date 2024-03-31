@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using HwProj.APIGateway.API.ExceptionFilters;
 using HwProj.APIGateway.API.Extensions;
@@ -353,6 +354,42 @@ namespace HwProj.APIGateway.API.Controllers
                 if (!taskId.HasValue)
                     yield return (task.Id, (course, homework.Title, task));
             }
+        }
+
+        [HttpPost("automatic/{taskId}")]
+        [Authorize(AuthenticationSchemes = "Automatic", Roles = Roles.AutomaticRole)]
+        [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> AutomaticPostSolution(AutomaticSolutionViewModel model, long taskId)
+        {
+            var course = await _coursesServiceClient.GetCourseByTask(taskId);
+            var accountData = await AuthServiceClient.GetAccountDataByGithubUrl(model.StudentGithubUrl);
+
+            if (course == null || !int.TryParse(User.FindFirst("_course_Id").Value, out var requestCourseId)
+                || requestCourseId != course.Id || accountData == null)
+            {
+                return BadRequest();
+            }
+
+            var courseMate = course.AcceptedStudents.FirstOrDefault(t => t.StudentId == accountData.UserId);
+            if (courseMate == null) return BadRequest($"Студента с id {accountData.UserId} не существует");
+
+            var solutionModel = new PostSolutionModel()
+            {
+                IsAutomatic = true,
+                GithubUrl = model.SolutionGithubUrl,
+                StudentId = accountData.UserId,
+                PublicationDate = DateTime.UtcNow
+            };
+
+            var claims = new List<Claim>()
+            {
+                new Claim ("_id", accountData.UserId)
+            };
+            var identity = new ClaimsIdentity(claims);
+            HttpContext.User.AddIdentity(identity);
+
+            var result = await _solutionsClient.PostSolution(taskId, solutionModel);
+            return Ok(result);
         }
     }
 }

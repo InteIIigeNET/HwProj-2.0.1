@@ -19,5 +19,7 @@ namespace HwProj.AuthService.API.Services
         Task<bool> CheckPasswordAsync(User user, string password);
         Task<IdentityResult> ChangePasswordAsync(User user, string currentPassword, string newPassword);
         Task<IList<User>> GetUsersInRoleAsync(string role);
+
+        User GetUserByGithubId(string githubId);
     }
 }

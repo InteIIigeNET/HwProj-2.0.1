@@ -324,6 +324,12 @@ namespace HwProj.AuthService.API.Services
             return githubCredentials;
         }
 
+        public async Task<AccountDataDto> GetaAccountDataByGithubIdAsync(string githubId)
+        {
+            var user = _userManager.GetUserByGithubId(githubId);
+            return await GetAccountDataAsync(user);
+        }
+
         private Task<IdentityResult> ChangeUserNameTask(User user, EditDataDTO model)
         {
             if (!string.IsNullOrWhiteSpace(model.Name))

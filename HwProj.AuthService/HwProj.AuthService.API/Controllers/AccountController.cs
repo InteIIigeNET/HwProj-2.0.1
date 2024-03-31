@@ -10,6 +10,7 @@ using HwProj.Models.Result;
 using HwProj.Models.Roles;
 using Microsoft.Extensions.Configuration;
 using User = HwProj.Models.AuthService.ViewModels.User;
+using System.Text.RegularExpressions;
 
 namespace HwProj.AuthService.API.Controllers
 {
@@ -190,6 +191,23 @@ namespace HwProj.AuthService.API.Controllers
         {
             var result = await _accountService.AuthorizeGithub(code, userId);
             return result;
+        }
+
+        [HttpGet("github/getUserId")]
+        [ProducesResponseType(typeof(AccountDataDto), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetAccountDataByGithubIdAsync([FromBody] string urlDto)
+        {
+            var pattern = @"^https?:\/\/github\.com\/([^\/?#]+)";
+
+            Match match = Regex.Match(urlDto, pattern);
+
+            if (match.Success)
+            {
+                var githubLogin = match.Groups[1].Value;
+                return Ok(await _accountService.GetaAccountDataByGithubIdAsync(githubLogin));
+            }
+
+            return NotFound();
         }
     }
 }
