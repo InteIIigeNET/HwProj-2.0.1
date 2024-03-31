@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +8,6 @@ using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.Result;
 using HwProj.Models.Roles;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using User = HwProj.Models.AuthService.ViewModels.User;
 
@@ -21,23 +19,17 @@ namespace HwProj.AuthService.API.Controllers
     {
         private readonly IAccountService _accountService;
         private readonly IUserManager _userManager;
-        private readonly UserManager<User> _aspUserManager;
         private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
-        private readonly HttpClient _client;
 
         public AccountController(
             IAccountService accountService,
             IUserManager userManager,
-            UserManager<User> aspUserManager,
-            IMapper mapper,
-            IHttpClientFactory clientFactory)
+            IMapper mapper)
         {
             _accountService = accountService;
             _userManager = userManager;
-            _aspUserManager = aspUserManager;
             _mapper = mapper;
-            _client = clientFactory.CreateClient();
         }
 
         [HttpGet("getUserData/{userId}")]
@@ -194,11 +186,9 @@ namespace HwProj.AuthService.API.Controllers
         [HttpPost("github/authorize/{userId}")]
         [ProducesResponseType(typeof(GithubCredentials), (int)HttpStatusCode.OK)]
         public async Task<GithubCredentials> GithubAuthorize(
-            string userId,
-            [FromQuery] string code)
+            string userId, [FromQuery] string code)
         {
             var result = await _accountService.AuthorizeGithub(code, userId);
-
             return result;
         }
     }
