@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
 using System.Linq;
@@ -292,6 +293,10 @@ namespace HwProj.AuthService.API.Services
 
             var values = HttpUtility.ParseQueryString(responseContent);
             var accessToken = values["access_token"];
+            if (accessToken is null)
+            {
+                throw new InvalidOperationException("Ошибка при попытке авторизации");
+            }
 
             var organizationName = sourceSettings["OrganizationNameGithub"];
             var githubClient = new GitHubClient(new ProductHeaderValue(organizationName));
