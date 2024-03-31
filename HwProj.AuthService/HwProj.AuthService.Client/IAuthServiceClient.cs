@@ -24,6 +24,6 @@ namespace HwProj.AuthService.Client
         Task<Result> ResetPassword(ResetPasswordViewModel model);
         Task<UrlDto> GetGithubLoginUrl(UrlDto redirectUrl);
         Task<GithubCredentials> AuthorizeGithub(string code, string userId);
-        Task<AccountDataDto> GetAccountDataByGithubUrl(string githubUrl);
+        Task<AccountDataDto> GetAccountDataByGithubId(string githubUrl);
     }
 }

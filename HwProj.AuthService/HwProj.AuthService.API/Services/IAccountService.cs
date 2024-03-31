@@ -21,6 +21,6 @@ namespace HwProj.AuthService.API.Services
         Task<Result> RequestPasswordRecovery(RequestPasswordRecoveryViewModel model);
         Task<Result> ResetPassword(ResetPasswordViewModel model);
         Task<GithubCredentials> AuthorizeGithub(string code, string userId);
-        Task<AccountDataDto> GetaAccountDataByGithubIdAsync(string githubId);
+        Task<AccountDataDto> GetAccountDataByGithubIdAsync(string githubId);
     }
 }

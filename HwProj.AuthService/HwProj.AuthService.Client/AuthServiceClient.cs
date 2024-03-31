@@ -263,7 +263,7 @@ namespace HwProj.AuthService.Client
             return await response.DeserializeAsync<GithubCredentials>();
         }
 
-        public async Task<AccountDataDto> GetAccountDataByGithubUrl(string githubUrl)
+        public async Task<AccountDataDto> GetAccountDataByGithubId(string githubUrl)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
