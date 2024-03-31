@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using HwProj.Models.AuthService.ViewModels;
 using Microsoft.AspNetCore.Identity;
@@ -72,6 +73,11 @@ namespace HwProj.AuthService.API.Services
         public Task<IList<User>> GetUsersInRoleAsync(string role)
         {
             return _aspUserManager.GetUsersInRoleAsync(role);
+        }
+
+        public User GetUserByGithubId(string githubId)
+        {
+            return _aspUserManager.Users.FirstOrDefault(u => u.GitHubId == githubId);
         }
     }
 }
