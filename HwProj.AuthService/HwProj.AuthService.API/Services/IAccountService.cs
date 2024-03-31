@@ -20,5 +20,6 @@ namespace HwProj.AuthService.API.Services
         Task<IList<User>> GetUsersInRole(string role);
         Task<Result> RequestPasswordRecovery(RequestPasswordRecoveryViewModel model);
         Task<Result> ResetPassword(ResetPasswordViewModel model);
+        Task<GithubCredentials> AuthorizeGithub(string code, string userId);
     }
 }

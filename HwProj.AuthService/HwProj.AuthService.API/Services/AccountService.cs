@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Net.Http;
+using System.Web;
 using AutoMapper;
 using HwProj.AuthService.API.Extensions;
 using HwProj.Models.Roles;
@@ -11,6 +14,10 @@ using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.Result;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Octokit;
+using User = HwProj.Models.AuthService.ViewModels.User;
+
 
 namespace HwProj.AuthService.API.Services
 {
@@ -22,13 +29,17 @@ namespace HwProj.AuthService.API.Services
         private readonly IAuthTokenService _tokenService;
         private readonly IEventBus _eventBus;
         private readonly IMapper _mapper;
+        private readonly IConfiguration _configuration;
+        private readonly HttpClient _client;
 
         public AccountService(IUserManager userManager,
             SignInManager<User> signInManager,
             IAuthTokenService authTokenService,
             IEventBus eventBus,
             IMapper mapper,
-            UserManager<User> aspUserManager)
+            UserManager<User> aspUserManager,
+            IConfiguration configuration,
+            IHttpClientFactory clientFactory)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -36,6 +47,8 @@ namespace HwProj.AuthService.API.Services
             _eventBus = eventBus;
             _mapper = mapper;
             _aspUserManager = aspUserManager;
+            _configuration = configuration;
+            _client = clientFactory.CreateClient();
         }
 
         private async Task<AccountDataDto> GetAccountDataAsync(User user)
@@ -43,8 +56,15 @@ namespace HwProj.AuthService.API.Services
             if (user == null) return null;
             var userRoles = await _userManager.GetRolesAsync(user);
             var userRole = userRoles.FirstOrDefault() ?? Roles.StudentRole;
-            return new AccountDataDto(user.Id, user.Name, user.Surname, user.Email, userRole, user.IsExternalAuth,
-                user.MiddleName);
+            return new AccountDataDto(
+                user.Id,
+                user.Name,
+                user.Surname,
+                user.Email,
+                userRole,
+                user.IsExternalAuth,
+                user.MiddleName,
+                user.GitHubId);
         }
 
         public async Task<AccountDataDto> GetAccountDataAsync(string userId)
@@ -253,6 +273,55 @@ namespace HwProj.AuthService.API.Services
             return removeTokenResult.Succeeded
                 ? Result.Success()
                 : Result.Failed(string.Join(", ", removeTokenResult.Errors.Select(t => t.Description)));
+        }
+
+        public async Task<GithubCredentials> AuthorizeGithub(string code, string userId)
+        {
+            var sourceSettings = _configuration.GetSection("Github");
+            
+            var parameters = new Dictionary<string, string>
+            {
+                { "client_id", sourceSettings["ClientIdGithub"] },
+                { "client_secret", sourceSettings["ClientSecretGithub"] },
+                { "code", code },
+            };
+
+            var content = new FormUrlEncodedContent(parameters);
+
+            var response = await _client.PostAsync("https://github.com/login/oauth/access_token", content);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            var values = HttpUtility.ParseQueryString(responseContent);
+            var accessToken = values["access_token"];
+            if (accessToken is null)
+            {
+                throw new InvalidOperationException("Ошибка при попытке авторизации");
+            }
+
+            var organizationName = sourceSettings["OrganizationNameGithub"];
+            var githubClient = new GitHubClient(new ProductHeaderValue(organizationName));
+
+            var tokenAuth = new Credentials(accessToken);
+            githubClient.Credentials = tokenAuth;
+
+            var user = await githubClient.User.Current();
+            var login = user.Login;
+
+            var userFromDb = await _userManager.FindByIdAsync(userId);
+
+            if (!(login is null))
+            {
+                userFromDb.GitHubId = user.Login;
+
+                await _userManager.UpdateAsync(userFromDb);
+            }
+
+            var githubCredentials = new GithubCredentials
+            {
+                GithubId = user.Login
+            };
+
+            return githubCredentials;
         }
 
         private Task<IdentityResult> ChangeUserNameTask(User user, EditDataDTO model)

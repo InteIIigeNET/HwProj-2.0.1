@@ -2,10 +2,11 @@ import * as React from "react";
 import {FC, FormEvent, useEffect, useState} from "react";
 import {Navigate} from "react-router-dom";
 import Avatar from '@material-ui/core/Avatar';
-
-import {Button, Container, Grid, TextField, Typography} from "@material-ui/core";
-
+import GitHubIcon from '@mui/icons-material/GitHub';
+import {Button, Container, Grid, TextField, Typography, Link} from "@material-ui/core";
 import ApiSingleton from "../api/ApiSingleton";
+import {useSearchParams} from 'react-router-dom';
+import EditIcon from "@material-ui/icons/Edit";
 import makeStyles from "@material-ui/styles/makeStyles";
 
 interface IEditProfileState {
@@ -16,6 +17,8 @@ interface IEditProfileState {
     surname: string;
     middleName?: string;
     isExternalAuth?: boolean;
+    githubId: string | undefined;
+    githubLoginUrl?: string
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -35,6 +38,12 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const EditProfile: FC = () => {
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    const removeGithubCodeParam = () => {
+        searchParams.delete('code');
+        setSearchParams(searchParams);
+    }
 
     const [profile, setProfile] = useState<IEditProfileState>({
         isLoaded: false,
@@ -44,6 +53,8 @@ const EditProfile: FC = () => {
         surname: "",
         middleName: "",
         isExternalAuth: false,
+        githubId: "",
+        githubLoginUrl: "",
     })
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -91,8 +102,29 @@ const EditProfile: FC = () => {
     }, [])
 
     const getUserInfo = async () => {
+        let githubId: string | undefined
+
+        const code = searchParams.get('code')
+
+        if (code) {
+            try {
+                githubId = (await ApiSingleton.accountApi.apiAccountGithubAuthorizePost(code)).githubId
+            } catch (e) {
+                setProfile((prevState) => ({
+                    ...prevState,
+                    isLoaded: true,
+                    errors: ['Ошибка при авторизации в GitHub']
+                }))
+            } finally {
+                removeGithubCodeParam()
+            }
+        }
+
         try {
-            const currentUser = await (await ApiSingleton.accountApi.apiAccountGetUserDataGet()).userData!
+            const githubLoginUrl = (await ApiSingleton.accountApi.apiAccountGithubUrlPost({url: window.location.href})).url
+            const currentUser = (await ApiSingleton.accountApi.apiAccountGetUserDataGet()).userData!
+            githubId = githubId ? githubId : currentUser.githubId
+
             setProfile((prevState) => ({
                 ...prevState,
                 isLoaded: true,
@@ -100,6 +132,8 @@ const EditProfile: FC = () => {
                 surname: currentUser.surname!,
                 middleName: currentUser.middleName!,
                 isExternalAuth: currentUser.isExternalAuth,
+                githubId: githubId,
+                githubLoginUrl: githubLoginUrl!
             }))
         } catch (e) {
             setProfile((prevState) => ({
@@ -183,6 +217,31 @@ const EditProfile: FC = () => {
                                         }}
                                     />
                                 </Grid>
+                            </Grid>
+                            <Grid container direction="row" spacing={1} alignItems="center" justifyContent="center">
+                                <Grid item>
+                                    <GitHubIcon/>
+                                </Grid>
+                                <Grid item>
+                                    {profile.githubId
+                                        ? <Link href={`https://github.com/${profile.githubId}`} underline="hover">
+                                            <Typography display="inline"
+                                                        style={{fontSize: 15}}>{profile.githubId}</Typography>
+                                        </Link>
+                                        : <Link href={profile.githubLoginUrl ?? ''} underline="hover">
+                                            <Typography display="inline" style={{fontSize: 15}}>Добавить логин
+                                                GitHub</Typography>
+                                        </Link>
+                                    }
+                                </Grid>
+
+                                {profile.githubId &&
+                                    <Grid item>
+                                        <Link href={profile.githubLoginUrl ?? ''} underline="hover">
+                                            <EditIcon style={{fontSize: 17}}/>
+                                        </Link>
+                                    </Grid>
+                                }
                             </Grid>
                             <Button
                                 style={{marginTop: '15px'}}
