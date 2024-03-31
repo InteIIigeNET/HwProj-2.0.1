@@ -41,6 +41,7 @@ namespace HwProj.CoursesService.Client
         Task<Result> AcceptLecturer(long courseId, string lecturerEmail, string lecturerId);
         Task<Result<AccountDataDto[]>> GetLecturersAvailableForCourse(long courseId);
         Task<Result<string[]>> GetAllTagsForCourse(long courseId);
+        Task<Result<TokenCredentials>> GetToken(long courseId);
         Task<bool> Ping();
     }
 }

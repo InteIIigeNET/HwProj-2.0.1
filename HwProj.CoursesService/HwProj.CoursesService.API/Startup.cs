@@ -26,6 +26,7 @@ namespace HwProj.CoursesService.API
         {
             var connectionString = ConnectionString.GetConnectionString(Configuration);
             services.AddDbContext<CourseContext>(options => options.UseSqlServer(connectionString));
+            services.AddScoped<ICourseTokenRepository, CourseTokenRepository>();
             services.AddScoped<ICoursesRepository, CoursesRepository>();
             services.AddScoped<ICourseMatesRepository, CourseMatesRepository>();
             services.AddScoped<IGroupsRepository, GroupsRepository>();
@@ -37,6 +38,7 @@ namespace HwProj.CoursesService.API
             services.AddScoped<IGroupsService, GroupsService>();
             services.AddScoped<IHomeworksService, HomeworksService>();
             services.AddScoped<ITasksService, TasksService>();
+            services.AddScoped<ICourseTokenService, CourseTokenService>();
             services.AddScoped<CourseMentorOnlyAttribute>();
 
             services.AddEventBus(Configuration);

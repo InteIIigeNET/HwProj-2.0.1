@@ -480,6 +480,17 @@ namespace HwProj.CoursesService.Client
                 : Result<string[]>.Failed();
         }
 
+        public async Task<Result<TokenCredentials>> GetToken(long courseId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + $"api/Courses/getToken/{courseId}");
+
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<Result<TokenCredentials>>();
+        }
+
         public async Task<bool> Ping()
         {
             try

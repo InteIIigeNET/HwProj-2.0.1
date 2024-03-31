@@ -23,14 +23,22 @@ namespace HwProj.CoursesService.API.Controllers
     public class CoursesController : Controller
     {
         private readonly ICoursesService _coursesService;
+        private readonly ICourseTokenService _courseTokenService;
+        private readonly ICoursesRepository _coursesRepository;
+        private readonly ICourseMatesRepository _courseMatesRepository;
         private readonly IHomeworksRepository _homeworksRepository;
         private readonly IMapper _mapper;
 
         public CoursesController(ICoursesService coursesService,
-            IHomeworksRepository homeworksRepository,
+            ICourseTokenService courseTokenService,
+            ICoursesRepository coursesRepository,
+            ICourseMatesRepository courseMatesRepository,
             IMapper mapper)
         {
             _coursesService = coursesService;
+            _courseTokenService = courseTokenService;
+            _coursesRepository = coursesRepository;
+            _courseMatesRepository = courseMatesRepository;
             _homeworksRepository = homeworksRepository;
             _mapper = mapper;
         }
@@ -202,6 +210,13 @@ namespace HwProj.CoursesService.API.Controllers
             result = result.Concat(defaultTags).Distinct().ToArray();
 
             return Ok(result);
+
+        [HttpGet("getToken/{courseId}")]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        public async Task<IActionResult> GetToken(long courseId)
+        {
+            var token = await _courseTokenService.GetTokenAsync(courseId);
+            return Ok(token);
         }
     }
 }
