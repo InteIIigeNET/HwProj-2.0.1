@@ -51,7 +51,7 @@ namespace HwProj.CoursesService.API.Services
                 claims: new[]
                 {
                 new Claim("_course_Id", courseId.ToString()),
-                new Claim(ClaimTypes.Role, Roles.WorkflowRole)
+                new Claim(ClaimTypes.Role, Roles.AutomaticRole)
                 },
                 signingCredentials: new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256));
 

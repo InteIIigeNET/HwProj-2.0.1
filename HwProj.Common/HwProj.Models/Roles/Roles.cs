@@ -9,6 +9,6 @@ namespace HwProj.Models.Roles
         public static IdentityRole Automatic = new IdentityRole("Automatic");
         public const string LecturerRole = "Lecturer";
         public const string StudentRole = "Student";
-        public const string WorkflowRole = "Automatic";
+        public const string AutomaticRole = "Automatic";
     }
 }
