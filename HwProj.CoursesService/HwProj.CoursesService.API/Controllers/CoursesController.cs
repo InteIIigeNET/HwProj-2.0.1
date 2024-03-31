@@ -60,7 +60,7 @@ namespace HwProj.CoursesService.API.Controllers
             return Ok(course);
         }
 
-        [CourseDataFilter]
+        //[CourseDataFilter] TODO : Transfer
         [HttpGet("getByTask/{taskId}")]
         public async Task<IActionResult> GetByTask(long taskId)
         {
