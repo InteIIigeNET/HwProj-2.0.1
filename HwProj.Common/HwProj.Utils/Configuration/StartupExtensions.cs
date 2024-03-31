@@ -77,6 +77,19 @@ namespace HwProj.Utils.Configuration
                             IssuerSigningKey = AuthorizationKey.SecurityKey,
                             ValidateIssuerSigningKey = true
                         };
+                    })
+                    .AddJwtBearer("Automatic", x =>
+                    {
+                        x.RequireHttpsMetadata = false; //TODO: dev env setting
+                        x.TokenValidationParameters = new TokenValidationParameters
+                        {
+                            ValidIssuer = "CourseService",
+                            ValidateIssuer = true,
+                            ValidateAudience = false,
+                            ValidateLifetime = true,
+                            IssuerSigningKey = AuthorizationKey.SecurityKey,
+                            ValidateIssuerSigningKey = true
+                        };
                     });
             }
 
