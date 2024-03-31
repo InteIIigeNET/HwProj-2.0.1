@@ -105,6 +105,14 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok(result);
         }
 
+        [HttpPost("registerExpert")]
+        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> RegisterExpert(RegisterExpertViewModel model)
+        {
+            var result = await AuthServiceClient.RegisterExpert(model);
+            return Ok(result);
+        }
+
         [HttpPost("login")]
         [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Login(LoginViewModel model)
