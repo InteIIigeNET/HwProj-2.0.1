@@ -24,7 +24,6 @@ namespace HwProj.AuthService.API.Controllers
         private readonly UserManager<User> _aspUserManager;
         private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
-        private readonly HttpClient _client;
 
         public AccountController(
             IAccountService accountService,
@@ -37,7 +36,6 @@ namespace HwProj.AuthService.API.Controllers
             _userManager = userManager;
             _aspUserManager = aspUserManager;
             _mapper = mapper;
-            _client = clientFactory.CreateClient();
         }
 
         [HttpGet("getUserData/{userId}")]
