@@ -1,5 +1,6 @@
 ﻿using HwProj.Models.AuthService.DTO;
 using HwProj.Models.Result;
+using HwProj.Models.Roles;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -35,7 +36,8 @@ public class CourseTokenService : ICourseTokenService
             expires: timeNow.AddMinutes(int.Parse(_configuration["ExpiresIn"])),
             claims: new[]
             {
-                new Claim("_course_Id", courseId.ToString())
+                new Claim("_course_Id", courseId.ToString()),
+                new Claim(ClaimTypes.Role, Roles.WorkflowRole)
             },
             signingCredentials: new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256));
 
