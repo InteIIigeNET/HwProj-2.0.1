@@ -13,6 +13,8 @@ namespace HwProj.CoursesService.API.Models
         public DbSet<HomeworkTask> Tasks { get; set; }
         public DbSet<Assignment> Assignments { get; set; }
 
+        public DbSet<CourseToken> CourseTokens { get; set; }
+
         public CourseContext(DbContextOptions options)
             : base(options)
         {

@@ -26,6 +26,7 @@ namespace HwProj.CoursesService.API
         {
             var connectionString = ConnectionString.GetConnectionString(Configuration);
             services.AddDbContext<CourseContext>(options => options.UseSqlServer(connectionString));
+            services.AddScoped<ICourseTokenRepository, CourseTokenRepository>();
             services.AddScoped<ICoursesRepository, CoursesRepository>();
             services.AddScoped<ICourseMatesRepository, CourseMatesRepository>();
             services.AddScoped<IGroupsRepository, GroupsRepository>();

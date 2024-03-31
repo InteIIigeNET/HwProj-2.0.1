@@ -42,9 +42,9 @@ namespace HwProj.CoursesService.API.Controllers
 
         [HttpGet("getToken/{courseId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        public IActionResult GetToken(long courseId)
+        public async Task<IActionResult> GetToken(long courseId)
         {
-            var token = _courseTokenService.GetToken(courseId);
+            var token = await _courseTokenService.GetTokenAsync(courseId);
             return Ok(token);
         }
         
