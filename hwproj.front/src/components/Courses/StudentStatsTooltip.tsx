@@ -1,11 +1,10 @@
 import * as React from 'react';
-import {TooltipProps} from 'recharts';
-// for recharts v2.1 and above
 import {
     ValueType,
-    NameType,
     Payload,
 } from 'recharts/types/component/DefaultTooltipContent';
+import {List, ListItem} from '@mui/material';
+import Utils from "../../services/Utils";
 
 interface ITaskChartView {
     title : string;
@@ -22,18 +21,30 @@ interface IDummyInterface {
 const StudentStatsTooltip : React.FC<IDummyInterface> = (props) => {
     if (props.active! && props.payload && props.payload.length) {
         return (
-            <div>
+            <div style={{fontSize: 11, color: '#666', backgroundColor: 'rgba(255, 255, 255, 0.9)'}}>
                 {
                     props.payload.map(item => {
                         if (item.payload.id! == props.activeId) {
+                            const dateNumber = Date.parse(item.payload.date.split('.').reverse().join('/'));
                             return (
-                                <div>
-                                    <p>{`Общий рейтинг: ${item.value}`}</p>
-                                    <p>{'Сданные в этот день задачи:'}</p>
-                                    {item.payload.tasks.map((task : ITaskChartView) => {
-                                        return <p style={{paddingLeft:"2"}}>{`${task.title}  ${task.receiveRating!}/${task.maxRating}`}</p>
-                                    })}
-                                </div>
+                                <>
+                                    <p style={{fontWeight: 'bold', textAlign: 'center', padding: 3, marginBottom: 0, backgroundColor: 'rgba(232, 232, 232, 0.8)'}}>
+                                        {Utils.renderReadableDateWithoutTime(new Date(dateNumber))}
+                                    </p>
+                                    
+                                    <p style={{margin: '3px 5px 2px 5px'}}>Баллов на текущий момент: <b>{item.value}</b></p>
+                                    <p style={{margin: '3px 5px 0px 5px'}}>Сданные в этот день задачи</p>
+                                    
+                                    <List sx={{listStyleType: 'disc', pl: 3, pt: 0}}>
+                                        {item.payload.tasks.map((task : ITaskChartView) => (
+                                            <ListItem sx={{display: 'list-item', padding: 0}}>
+                                                <p style={{marginTop: 2, marginBottom: 2, marginRight: 5}}>
+                                                    {task.title} <b>{task.receiveRating!}/{task.maxRating}</b>
+                                                </p>
+                                            </ListItem>
+                                        ))}
+                                    </List>
+                                </>
                             )
                         }
                     })
@@ -41,6 +52,7 @@ const StudentStatsTooltip : React.FC<IDummyInterface> = (props) => {
             </div>
         )
     }
+    
     return null;
 }
 

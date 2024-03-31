@@ -1,5 +1,4 @@
 import React, {useEffect, useState, SetStateAction} from "react";
-import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api/";
 import { Grid, Box, Typography } from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
 import {Alert, Chip} from "@mui/material";

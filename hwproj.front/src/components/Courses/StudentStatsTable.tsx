@@ -102,8 +102,13 @@ const StudentStatsTable: React.FC<IStudentStatsProps> = (props) => {
                                     {cm.surname} {cm.name}
                                 </TableCell>
                                 {homeworks.map((homework) =>
-                                    homework.tasks!.map((task) => (
-                                        <StudentStatsCell
+                                    homework.tasks!.map((task) => {
+                                        console.log(cm.id);
+                                        console.log(homework.id);
+                                        console.log(solutions
+                                            .find(s => s.id == cm.id)!.homeworks!
+                                            .find(h => h.id == homework.id)!.tasks!);
+                                        return <StudentStatsCell
                                             solutions={solutions
                                                 .find(s => s.id == cm.id)!.homeworks!
                                                 .find(h => h.id == homework.id)!.tasks!
@@ -113,7 +118,7 @@ const StudentStatsTable: React.FC<IStudentStatsProps> = (props) => {
                                             studentId={String(cm.id)}
                                             taskId={task.id!}
                                             taskMaxRating={task.maxRating!}/>
-                                    ))
+                        })
                                 )}
                             </TableRow>
                         ))}
