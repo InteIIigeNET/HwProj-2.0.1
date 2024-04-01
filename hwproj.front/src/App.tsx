@@ -4,6 +4,7 @@ import "./App.css";
 import "./components/Courses/Course";
 import Course from "./components/Courses/Course";
 import Courses from "./components/Courses/Courses";
+import StudentStats from "./components/Courses/StudentStats";
 import CreateCourse from "./components/Courses/CreateCourse";
 import Notifications from "./components/Notifications";
 import Workspace from "./components/Workspace";
@@ -98,6 +99,7 @@ class App extends Component<{ navigate: any }, AppState> {
                         <Route path="create_course" element={<CreateCourse/>}/>
                         <Route path="courses/:courseId" element={<Course/>}/>
                         <Route path="courses/:courseId/:tab" element={<Course/>}/>
+                        <Route path="courses/:courseId/stats/charts" element={<StudentStats/>}/>
                         <Route path="courses/:courseId/edit" element={<EditCourse/>}/>
                         <Route path="homework/:homeworkId/edit" element={<EditHomework/>}/>
                         <Route path="task/:taskId/edit" element={<EditTask/>}/>

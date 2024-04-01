@@ -33,6 +33,12 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
         setFormat(event.target.checked ? "chart" : "table");
     }
 
+const StudentStats: React.FC = () => {
+    const classes = styles();
+    const location = useLocation();
+    const props: IStudentStatsProps = location.state;
+    
+    const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
     const handleStudentSelection = (studentId : string) => {
         setSelectedStudents((prevSelectedStudents) => {
             if (prevSelectedStudents.includes(studentId)) {

@@ -4,6 +4,8 @@ import {AccountDataDto, CourseViewModel, HomeworkViewModel, StatisticsCourseMate
 import CourseHomework from "../Homeworks/CourseHomework";
 import AddHomework from "../Homeworks/AddHomework";
 import StudentStats from "./StudentStats";
+import {Solution} from "../../api";
+import StudentStatsTable from "./StudentStatsTable";
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
 import {Button, Grid, Tab, Tabs, Typography, IconButton, Switch, CircularProgress} from "@material-ui/core";
@@ -119,7 +121,7 @@ const solutions : StatisticsCourseMatesModel[] = [
         {id: 5, tasks: [
             {id: 13, solution: [{rating: 8, taskId: 13, publicationDate: new Date(2024, 4, 4)}, // 
                     {rating: 10, taskId: 13, publicationDate: new Date(2024, 4, 7)}]},
-            {id: 14, solution: [{rating: 10, taskId: 14, publicationDate: new Date(2024, 4, 7)}]},
+            {id: 14, solution: [ {state:  Solution.StateEnum.NUMBER_0, taskId: 14, publicationDate: new Date(2024, 4, 6)}] },
             {id: 15, solution: []} // решил не делать
             ]
         }

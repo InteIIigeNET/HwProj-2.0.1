@@ -170,7 +170,7 @@ const StudentStatsChart : React.FC<IStudentStatsChartProps> = (props) => {
                 const date = Utils.renderDateWithoutHours(tasks[0].solution!.slice(-1)[0].publicationDate!);
                 const tasksChartView : ITaskChartView[] = tasks.map(task => {
                     const lastSolution = task.solution!.slice(-1)[0];
-                    totalStudentRating += lastSolution.rating!;
+                    totalStudentRating += lastSolution.rating ? lastSolution.rating : 0;
                     const taskView = courseTasks.find(t => t.id === task.id)!;
                     
                     return {title: taskView.title!, receiveRating: lastSolution.rating!, maxRating: taskView.maxRating!}
@@ -198,13 +198,13 @@ const StudentStatsChart : React.FC<IStudentStatsChartProps> = (props) => {
         const lastSolution = task.solution!.slice(-1)[0];
         const taskView = courseTasks.find(t => t.id === task.id)!;
         const title = taskView.title!;
-        const dateToMs = lastSolution.publicationDate!.getTime();
+        const dateToMs = new Date(lastSolution.publicationDate!).getTime();
         if (!averageByTask.has(title)) {
             averageByTask.set(title, {taskMaxRating: taskView.maxRating!,averageRating: 0, date: 0, numberOfStudents: 0})
         }
         const averagePoint = averageByTask.get(title)!;
         const numberOfStudents = averagePoint.numberOfStudents;
-        const averageRating = averagePoint.averageRating + lastSolution.rating! / allSolutions.length;
+        const averageRating = averagePoint.averageRating + (lastSolution.rating ? lastSolution.rating :  0) / allSolutions.length;
         averageByTask.set(title, {
             taskMaxRating: taskView.maxRating!,
             averageRating: +averageRating.toFixed(2),
