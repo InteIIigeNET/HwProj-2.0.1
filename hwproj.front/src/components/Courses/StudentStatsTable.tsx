@@ -1,9 +1,10 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, createContext, useContext} from "react";
 import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api/";
+import { useNavigate } from 'react-router-dom';
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
-import {Alert} from "@mui/material";
-
+import {Alert, Button} from "@mui/material";
+import ShowChartIcon from "@mui/icons-material/ShowChart";
 export interface IStudentStatsProps {
     course: CourseViewModel;
     homeworks: HomeworkViewModel[];
@@ -16,10 +17,22 @@ interface IStudentStatsState {
     searched: string
 }
 
+export const MyDataContext = createContext(null);
+
 const StudentStatsTable: React.FC<IStudentStatsProps> = (props) => {
     const [state, setSearched] = useState<IStudentStatsState>({
         searched: ""
     });
+    const navigate = useNavigate();
+    
+    const handleClick = () => {
+        navigate('./charts', { state: { course: props.course, 
+                homeworks: props.homeworks,
+                isMentor: props.isMentor,
+                solutions: props.solutions
+        }}
+        )
+    }
 
     const {searched} = state
 
@@ -79,7 +92,11 @@ const StudentStatsTable: React.FC<IStudentStatsProps> = (props) => {
                         </TableRow>
                         <TableRow>
                             <TableCell style={{...fixedColumnStyles, zIndex: 10}}
-                                       component="td"></TableCell>
+                                       component="td">
+                                <Button startIcon={<ShowChartIcon/>} color="primary" size='small' onClick={handleClick}>
+                                    Графики
+                                </Button>
+                            </TableCell>
                             {homeworks.map((homework) =>
                                 homework.tasks!.map((task) => (
                                     <TableCell padding="checkbox" component="td" align="center">
@@ -102,13 +119,8 @@ const StudentStatsTable: React.FC<IStudentStatsProps> = (props) => {
                                     {cm.surname} {cm.name}
                                 </TableCell>
                                 {homeworks.map((homework) =>
-                                    homework.tasks!.map((task) => {
-                                        console.log(cm.id);
-                                        console.log(homework.id);
-                                        console.log(solutions
-                                            .find(s => s.id == cm.id)!.homeworks!
-                                            .find(h => h.id == homework.id)!.tasks!);
-                                        return <StudentStatsCell
+                                    homework.tasks!.map((task) => (
+                                        <StudentStatsCell
                                             solutions={solutions
                                                 .find(s => s.id == cm.id)!.homeworks!
                                                 .find(h => h.id == homework.id)!.tasks!
@@ -118,7 +130,7 @@ const StudentStatsTable: React.FC<IStudentStatsProps> = (props) => {
                                             studentId={String(cm.id)}
                                             taskId={task.id!}
                                             taskMaxRating={task.maxRating!}/>
-                        })
+                                    ))
                                 )}
                             </TableRow>
                         ))}

@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import { Autocomplete, TextField } from '@mui/material';
 import {styled, ListItem, ListItemText, Checkbox, List} from '@mui/material';
 import {FormControl, InputLabel, MenuItem, Select} from '@mui/material';
 import {OutlinedInput} from "@mui/material";
@@ -14,63 +15,31 @@ interface StudentStatsListProps {
     onStudentSelection : (studentId : string) => void;
 }
 
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
-
 const StudentCheckboxList : React.FC<StudentStatsListProps> = (props) => {
     const [checked, setChecked] = useState(new Array<string>())
-
-    const handleCheckboxChange = (studentId : string) => {
-        props.onStudentSelection(studentId);
-
-        const currentIndex = checked.indexOf(studentId);
-        const newChecked = [...checked];
-
-        if (currentIndex === -1) {
-            newChecked.push(studentId);
-        } else {
-            newChecked.splice(currentIndex, 1);
-        }
-
-        setChecked(newChecked);
-    }
     
     return (
-        <FormControl fullWidth>
-            <InputLabel>Выбрать студентов</InputLabel>
-            <Select
-                multiple
-                size={"medium"}
-                value={checked.map(id => props.mates.find(student => student.id === id)!)}
-                renderValue={selected => {
-                    if (selected.length === 0) {
-                        return <em>Выбрать студентов</em>;
-                    }
-                    
-                    return selected.map(student => student.name + ' ' + student.surname).join(', ');
-                }}
-                input={<OutlinedInput label="Выбрать студентов"/>}
-                MenuProps={{
-                    PaperProps: {
-                        style: {
-                            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-                        },
-                    },
-                }}
-            >
-                {props.mates.map(({id, name, surname}) => (
-                    <MenuItem key={id} value={name + ' ' + surname}>
-                        <Checkbox
-                            color="primary"
-                            edge="start" tabIndex={-1}
-                            checked={checked.indexOf(id) !== -1}
-                            onClick={() => handleCheckboxChange(id)}
-                        />
-                        <ListItemText>{name + ' ' + surname}</ListItemText>
-                    </MenuItem>
-                ))}
-            </Select>
-        </FormControl>
+        <Autocomplete
+            multiple
+            options={props.mates}
+            getOptionLabel = {(option) => option.name + ' ' + option.surname}
+            filterSelectedOptions
+            renderInput={(params) => (
+                <TextField
+                    {...params}
+                    label='Выбрать студентов'
+                />
+            )}
+            value={props.mates.filter(m => checked.includes(m.id))}
+            onChange={(_, values) => {
+                const selectedStudentsId = values.map(v => v.id);
+                const newSelectChangedStudents = selectedStudentsId.length > checked.length 
+                    ? selectedStudentsId.filter(s => !checked.includes(s))
+                    : checked.filter(c => !selectedStudentsId.includes(c));
+                newSelectChangedStudents.forEach(s => props.onStudentSelection(s));
+                setChecked(selectedStudentsId)
+            }}
+        />
     )
 }
 

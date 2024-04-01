@@ -47,7 +47,7 @@ const CustomYAxisTick = (props : any) => {
     return (
         <g>
             
-            <text x={x+13} y={y} dy="0.355em" textAnchor='start' fill={chartColors.axisLabel}>
+            <text x={x+13} y={y} dy="0.355em" textAnchor='start' fill={chartColors.axis}>
                 {Math.abs(parseInt(payload.value))}
             </text>
         </g>
@@ -111,8 +111,9 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
     
     const getDatesDiff = (solutionPublicationDate: Date, deadlineDate : Date) => {
         const msecInDay = 1000 * 3600 * 24;
-        const differenceInDays = (deadlineDate.getTime() - solutionPublicationDate.getTime()) / msecInDay;
+        const differenceInDays = (new Date(deadlineDate).getTime() - new Date(solutionPublicationDate).getTime()) / msecInDay;
         
+        //return differenceInDays;
         return ( Math.abs(differenceInDays) > MAXIMUM_DEVIATION
             ? MAXIMUM_DEVIATION * Math.sign(differenceInDays) : differenceInDays);
     }
@@ -126,7 +127,7 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
     
     props.solutions.homeworks!.forEach(hw => {
         hw.tasks!.forEach(task => {
-            const deadlineDate = tasks.find(t => t.id === task.id)!.deadlineDate!;
+            const deadlineDate = tasks.find(t => t.id === task.id)!.deadlineDate!; // заменить ??
             const maxRating = tasks.find(t => t.id === task.id)!.maxRating!;
             const title = tasks.find(t => t.id === task.id)!.title!;
             const x1 = count;
@@ -136,6 +137,11 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
                 const deviation = getDatesDiff(solution.publicationDate!, deadlineDate);
                 const color = 
                     StudentStatsUtils.calculateLastRatedSolutionInfo([solution], maxRating).color;
+                
+                if (!solution.rating) {
+                    console.log("хуй");
+                    console.log(color);
+                }
 
                 if (deviation < 0 && !isDeadlinePassed) {
                     deadlinesRepresentation.set(count, Utils.renderDateWithoutHours(deadlineDate));
