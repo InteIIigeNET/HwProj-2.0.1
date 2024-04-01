@@ -112,6 +112,13 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                             open={Boolean(anchorEl)}
                             onClose={handleClose}
                         >
+                            <Link
+                                style={{textDecoration: "none", color: "black"}}
+                                to={"/user/edit"}>
+                                <MenuItem>
+                                    Редактировать профиль
+                                </MenuItem>
+                            </Link>
                             <MenuItem onClick={openInviteLecturer}>
                                 Пригласить преподавателя
                             </MenuItem>
@@ -144,6 +151,13 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                             open={Boolean(anchorEl)}
                             onClose={handleClose}
                         >
+                            <Link
+                                style={{textDecoration: "none", color: "black"}}
+                                to={"/user/edit"}>
+                                <MenuItem>
+                                    Редактировать профиль
+                                </MenuItem>
+                            </Link>
                             <MenuItem onClick={props.onLogout}>
                                 Выйти
                             </MenuItem>

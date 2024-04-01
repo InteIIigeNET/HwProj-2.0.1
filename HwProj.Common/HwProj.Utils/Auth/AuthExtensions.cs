@@ -1,4 +1,6 @@
 ﻿using System.Linq;
+using HwProj.Models.AuthService.DTO;
+using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.Roles;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
@@ -9,6 +11,19 @@ namespace HwProj.Utils.Authorization
     {
         public static string? GetUserIdFromHeader(this HttpRequest request) =>
             request.Headers.TryGetValue("UserId", out var id) ? id.FirstOrDefault() : null;
+
+        public static AccountDataDto toAccountDataDto(this User user, string role)
+        {
+            return new AccountDataDto(
+                user.Id,
+                user.Name,
+                user.Surname,
+                user.Email,
+                role,
+                user.IsExternalAuth,
+                user.MiddleName,
+                user.GitHubId);
+        }
 
         public static string GetUserName(this HttpRequest request)
         {

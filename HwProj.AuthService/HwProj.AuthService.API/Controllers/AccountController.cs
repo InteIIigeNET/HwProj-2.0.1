@@ -8,6 +8,7 @@ using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.Result;
 using HwProj.Models.Roles;
+using HwProj.Utils.Authorization;
 using Microsoft.Extensions.Configuration;
 using User = HwProj.Models.AuthService.ViewModels.User;
 
@@ -130,9 +131,7 @@ namespace HwProj.AuthService.API.Controllers
         {
             var allStudents = await _accountService.GetUsersInRole(Roles.StudentRole);
             var result = allStudents
-                .Select(u =>
-                    new AccountDataDto(u.Id, u.Name, u.Surname, u.Email, Roles.StudentRole, u.IsExternalAuth,
-                        u.MiddleName))
+                .Select(u => u.toAccountDataDto(Roles.StudentRole))
                 .ToArray();
 
             return Ok(result);
