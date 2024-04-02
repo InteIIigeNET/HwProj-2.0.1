@@ -12,7 +12,7 @@ namespace HwProj.Utils.Authorization
         public static string? GetUserIdFromHeader(this HttpRequest request) =>
             request.Headers.TryGetValue("UserId", out var id) ? id.FirstOrDefault() : null;
 
-        public static AccountDataDto toAccountDataDto(this User user, string role)
+        public static AccountDataDto ToAccountDataDto(this User user, string role)
         {
             return new AccountDataDto(
                 user.Id,

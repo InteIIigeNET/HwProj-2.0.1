@@ -232,7 +232,7 @@ namespace HwProj.CoursesService.API.Services
             var availableLecturers = lecturers.Where(u => !mentorIds.Contains(u.Id));
 
             return availableLecturers
-                .Select(u => u.toAccountDataDto(Roles.LecturerRole))
+                .Select(u => u.ToAccountDataDto(Roles.LecturerRole))
                 .ToArray();
         }
     }

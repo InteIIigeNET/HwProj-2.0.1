@@ -131,7 +131,7 @@ namespace HwProj.AuthService.API.Controllers
         {
             var allStudents = await _accountService.GetUsersInRole(Roles.StudentRole);
             var result = allStudents
-                .Select(u => u.toAccountDataDto(Roles.StudentRole))
+                .Select(u => u.ToAccountDataDto(Roles.StudentRole))
                 .ToArray();
 
             return Ok(result);

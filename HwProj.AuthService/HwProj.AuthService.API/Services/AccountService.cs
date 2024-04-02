@@ -57,7 +57,7 @@ namespace HwProj.AuthService.API.Services
             if (user == null) return null;
             var userRoles = await _userManager.GetRolesAsync(user);
             var userRole = userRoles.FirstOrDefault() ?? Roles.StudentRole;
-            return user.toAccountDataDto(userRole);
+            return user.ToAccountDataDto(userRole);
         }
 
         public async Task<AccountDataDto> GetAccountDataAsync(string userId)
@@ -80,7 +80,7 @@ namespace HwProj.AuthService.API.Services
                 var userId = userIds[i];
                 if (!users.TryGetValue(userId, out var user)) continue;
                 var roles = await _aspUserManager.GetRolesAsync(user);
-                accounts[i] = user.toAccountDataDto(roles.FirstOrDefault() ?? Roles.StudentRole);
+                accounts[i] = user.ToAccountDataDto(roles.FirstOrDefault() ?? Roles.StudentRole);
             }
 
             return accounts;
