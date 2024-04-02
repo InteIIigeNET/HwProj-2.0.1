@@ -13,6 +13,7 @@ using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.Result;
+using HwProj.Utils.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Octokit;
@@ -56,15 +57,7 @@ namespace HwProj.AuthService.API.Services
             if (user == null) return null;
             var userRoles = await _userManager.GetRolesAsync(user);
             var userRole = userRoles.FirstOrDefault() ?? Roles.StudentRole;
-            return new AccountDataDto(
-                user.Id,
-                user.Name,
-                user.Surname,
-                user.Email,
-                userRole,
-                user.IsExternalAuth,
-                user.MiddleName,
-                user.GitHubId);
+            return user.ToAccountDataDto(userRole);
         }
 
         public async Task<AccountDataDto> GetAccountDataAsync(string userId)
@@ -87,8 +80,7 @@ namespace HwProj.AuthService.API.Services
                 var userId = userIds[i];
                 if (!users.TryGetValue(userId, out var user)) continue;
                 var roles = await _aspUserManager.GetRolesAsync(user);
-                accounts[i] = new AccountDataDto(userId, user.Name, user.Surname, user.Email,
-                    roles.FirstOrDefault() ?? Roles.StudentRole, user.IsExternalAuth, user.MiddleName);
+                accounts[i] = user.ToAccountDataDto(roles.FirstOrDefault() ?? Roles.StudentRole);
             }
 
             return accounts;
