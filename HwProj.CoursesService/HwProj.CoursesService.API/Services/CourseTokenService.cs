@@ -60,7 +60,12 @@ namespace HwProj.CoursesService.API.Services
                 AccessToken = new JwtSecurityTokenHandler().WriteToken(token)
             };
 
-            await _courseTokenRepository.AddAsync(new CourseToken() { CourseId = courseId, Token = tokenCredentials.AccessToken, Expires = expires });
+            await _courseTokenRepository.AddAsync(new CourseToken()
+                {
+                    CourseId = courseId,
+                    Token = tokenCredentials.AccessToken,
+                    Expires = expires
+                });
 
             return Result<TokenCredentials>.Success(tokenCredentials);
         }
