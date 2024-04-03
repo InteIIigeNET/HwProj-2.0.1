@@ -158,11 +158,11 @@ namespace HwProj.APIGateway.API.Controllers
 
         [HttpGet("getToken/{courseId}")]
         [Authorize(Roles = Roles.LecturerRole)]
-        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(TokenCredentials), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetToken(long courseId)
         {
             var token = await _coursesClient.GetToken(courseId);
-            return Ok(token);
+            return Ok(token.Value);
         }
     }
 }
