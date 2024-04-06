@@ -99,7 +99,7 @@ namespace HwProj.CoursesService.API.Domains
                 IsDeadlineStrict = createHomeworkViewModel.IsDeadlineStrict,
                 PublicationDate = createHomeworkViewModel.PublicationDate,
                 IsGroupWork = createHomeworkViewModel.IsGroupWork,
-                Tag = createHomeworkViewModel.Tag,
+                Tags = createHomeworkViewModel.Tags,
                 Tasks = createHomeworkViewModel.Tasks.Select(t => t.ToHomeworkTask()).ToList()
             };
     }
