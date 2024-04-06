@@ -23,7 +23,7 @@ namespace HwProj.CoursesService.API.Models
 
         public bool IsGroupWork { get; set; }
         
-        public List<string> Tags { get; set; }
+        public List<Tag> Tags { get; set; }
 
         public long CourseId { get; set; }
 
