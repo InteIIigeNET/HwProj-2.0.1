@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using HwProj.Repositories;
 
 namespace HwProj.CoursesService.API.Models
@@ -22,7 +23,7 @@ namespace HwProj.CoursesService.API.Models
 
         public bool IsGroupWork { get; set; }
         
-        public string[]? Tags { get; set; }
+        public List<string> Tags { get; set; }
 
         public long CourseId { get; set; }
 

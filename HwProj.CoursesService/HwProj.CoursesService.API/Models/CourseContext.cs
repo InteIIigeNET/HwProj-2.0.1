@@ -12,7 +12,9 @@ namespace HwProj.CoursesService.API.Models
         public DbSet<Homework> Homeworks { get; set; }
         public DbSet<HomeworkTask> Tasks { get; set; }
         public DbSet<Assignment> Assignments { get; set; }
-
+        public DbSet<Tag> Tags { get; set; }
+        public DbSet<TagMate> TagMates { get; set; }
+        
         public CourseContext(DbContextOptions options)
             : base(options)
         {
