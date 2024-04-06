@@ -133,8 +133,6 @@ namespace HwProj.CoursesService.API.Migrations
 
                     b.Property<DateTime>("PublicationDate");
 
-                    b.Property<string>("Tag");
-
                     b.Property<string>("Title");
 
                     b.HasKey("Id");
