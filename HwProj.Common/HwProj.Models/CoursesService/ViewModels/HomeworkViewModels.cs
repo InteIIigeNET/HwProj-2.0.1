@@ -22,7 +22,7 @@ namespace HwProj.Models.CoursesService.ViewModels
 
         public bool IsGroupWork { get; set; }
         
-        public List<string> Tags { get; set; } = new List<string>();
+        public List<CreateTagViewModel> Tags { get; set; } = new List<CreateTagViewModel>();
 
         public List<CreateTaskViewModel> Tasks { get; set; } = new List<CreateTaskViewModel>();
     }
@@ -49,7 +49,7 @@ namespace HwProj.Models.CoursesService.ViewModels
 
         public bool IsGroupWork { get; set; }
         
-        public List<string> Tags { get; set; } = new List<string>();
+        public List<TagViewModel> Tags { get; set; } = new List<TagViewModel>();
         
         public List<HomeworkTaskViewModel> Tasks { get; set; } = new List<HomeworkTaskViewModel>();
     }
