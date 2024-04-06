@@ -10,8 +10,9 @@ import AvatarUtils from "../Utils/AvatarUtils";
 import GitHubIcon from '@mui/icons-material/GitHub';
 import Utils from "../../services/Utils";
 import {RatingStorage} from "../Storages/RatingStorage";
-import {Assignment, Edit} from "@mui/icons-material";
+import {Assignment, Edit, GradingTwoTone} from "@mui/icons-material";
 import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
+import {LoadingButton} from "@mui/lab";
 
 interface ISolutionProps {
     solution: GetSolutionModel | undefined,
@@ -45,10 +46,13 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
 
     const [state, setState] = useState<ISolutionState>(getDefaultState)
     const [achievement, setAchievementState] = useState<number | undefined>(undefined)
+    const [rateInProgress, setRateInProgressState] = useState<boolean | undefined>(false)
 
     useEffect(() => {
         setState(getDefaultState())
         getAchievementState()
+        setRateInProgressState(false)
+        
     }, [props.student.userId, props.task.id, props.solution?.id, props.solution?.rating])
 
     useEffect(() => {
@@ -69,6 +73,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     }
 
     const rateSolution = async () => {
+        setRateInProgressState(true)
         if (props.solution) {
             await ApiSingleton.solutionsApi
                 .apiSolutionsRateSolutionBySolutionIdPost(
@@ -286,16 +291,20 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 {props.forMentor && state.clickedForRate &&
                     <Grid container item spacing={1} style={{marginTop: '10px'}}>
                         <Grid item>
-                            <Button
+                            <LoadingButton
+                                loading={rateInProgress}
+                                endIcon={<GradingTwoTone />}
+                                loadingPosition="end"
                                 size="small"
                                 variant="contained"
-                                color="primary"
+                                style={rateInProgress ? undefined : {backgroundColor: "#3f51b5"}} 
                                 onClick={rateSolution}
                             >
                                 {isRated ? "Изменить оценку" : "Оценить решение"}
-                            </Button>
+                            </LoadingButton>
                         </Grid>
                         <Grid item>
+                            { !rateInProgress &&
                             <Button
                                 size="small"
                                 variant="contained"
@@ -310,7 +319,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                 }}
                             >
                                 Отмена
-                            </Button>
+                            </Button>}
                         </Grid>
                     </Grid>
                 }
