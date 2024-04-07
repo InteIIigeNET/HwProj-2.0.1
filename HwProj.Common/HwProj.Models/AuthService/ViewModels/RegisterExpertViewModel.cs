@@ -19,6 +19,8 @@ namespace HwProj.Models.AuthService.ViewModels
         public string Email { get; set; }
 
         public string Bio { get; set; }
+        
+        public string CompanyName { get; set; }
 
         [Required]
         public int CourseId { get; set; }

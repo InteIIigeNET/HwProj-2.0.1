@@ -15,6 +15,7 @@ import EditCourse from "./components/Courses/EditCourse";
 import EditTask from "./components/Tasks/EditTask";
 import EditHomework from "./components/Homeworks/EditHomework";
 import Register from "./components/Auth/Register";
+import RegisterExpert from "./components/Auth/RegisterExpert";
 import StudentSolutionsPage from "./components/Solutions/StudentSolutionsPage";
 import EditProfile from "./components/EditProfile";
 import ApiSingleton from "./api/ApiSingleton";
@@ -109,6 +110,7 @@ class App extends Component<{ navigate: any }, AppState> {
                     <Route path="status" element={<SystemInfoComponent/>}/>
                     <Route path="login" element={<Login onLogin={this.login}/>}/>
                     <Route path="register" element={<Register onLogin={this.login}/>}/>
+                    <Route path="registerExpert" element={<RegisterExpert onLogin={this.login}/>}/>
                     <Route path="recovery" element={<PasswordRecovery/>}/>
                     <Route path="resetPassword" element={<ResetPassword/>}/>
                     <Route path={"*"} element={<WrongPath/>}/>
