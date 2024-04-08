@@ -2,6 +2,7 @@
 using HwProj.CoursesService.API.Models;
 using HwProj.Models.CoursesService.ViewModels;
 using System;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace HwProj.CoursesService.API.Domains
 {
@@ -21,6 +22,7 @@ namespace HwProj.CoursesService.API.Domains
                 IsGroupWork = homework.IsGroupWork,
                 IsDeferred = DateTime.UtcNow < homework.PublicationDate,
                 Tasks = homework.Tasks.Select(t => t.ToHomeworkTaskViewModel()).ToList(),
+                Tags = homework.Tags.Split(';').ToList(),
             };
 
         public static HomeworkTaskViewModel ToHomeworkTaskViewModel(this HomeworkTask task)
@@ -99,7 +101,8 @@ namespace HwProj.CoursesService.API.Domains
                 IsDeadlineStrict = createHomeworkViewModel.IsDeadlineStrict,
                 PublicationDate = createHomeworkViewModel.PublicationDate,
                 IsGroupWork = createHomeworkViewModel.IsGroupWork,
-                Tasks = createHomeworkViewModel.Tasks.Select(t => t.ToHomeworkTask()).ToList()
+                Tasks = createHomeworkViewModel.Tasks.Select(t => t.ToHomeworkTask()).ToList(),
+                Tags = createHomeworkViewModel.Tags.Join(";"),
             };
     }
 }
