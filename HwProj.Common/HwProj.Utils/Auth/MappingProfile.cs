@@ -7,7 +7,6 @@ namespace HwProj.Utils.Auth
     {
         public MappingProfile()
         {
-
             CreateMap<RegisterExpertViewModel, User>()
                 .ForMember(destination => destination.Name,
                     options => options.MapFrom(model => model.Name))
@@ -18,7 +17,10 @@ namespace HwProj.Utils.Auth
                 .ForMember(destination => destination.Email,
                     options => options.MapFrom(model => model.Email))
                 .ForMember(destination => destination.Bio,
-                    options => options.MapFrom(model => model.Bio));
+                    options => options.MapFrom(model => model.Bio))
+                .ForMember(destination => destination.CompanyName,
+                options => options.MapFrom(model => model.CompanyName));
+
         }
     }
 }
