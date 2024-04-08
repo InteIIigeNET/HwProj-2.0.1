@@ -24,7 +24,7 @@ namespace HwProj.AuthService.API.Services
             _configuration = configuration.GetSection("AppSettings");
         }
 
-        public async Task<TokenCredentials> GetTokenAsync(User user)
+        public async Task<TokenCredentials> GetTokenAsync(User user, DateTime? tokenExpirationTime = null)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["SecurityKey"]));
             var timeNow = DateTime.UtcNow;
@@ -34,41 +34,13 @@ namespace HwProj.AuthService.API.Services
             var token = new JwtSecurityToken(
                 issuer: _configuration["ApiName"],
                 notBefore: timeNow,
-                expires: timeNow.AddMinutes(int.Parse(_configuration["ExpiresIn"])),
+                expires: tokenExpirationTime ?? timeNow.AddMinutes(int.Parse(_configuration["ExpiresIn"])),
                 claims: new[]
                 {
                     new Claim("_userName", user.UserName),
                     new Claim("_id", user.Id),
                     new Claim(ClaimTypes.Email, user.Email),
                     new Claim(ClaimTypes.Role, userRoles.FirstOrDefault() ?? Roles.StudentRole)
-                },
-                signingCredentials: new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256));
-
-            var tokenCredentials = new TokenCredentials
-            {
-                AccessToken = new JwtSecurityTokenHandler().WriteToken(token)
-            };
-
-            return tokenCredentials;
-        }
-
-        public TokenCredentials GetTokenForExpert(
-            User user, DateTime tokenExpirationTime, int proxyCourseId)
-        {
-            var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["SecurityKey"]));
-            var timeNow = DateTime.UtcNow;
-
-            var token = new JwtSecurityToken(
-                issuer: _configuration["ApiName"],
-                notBefore: timeNow,
-                expires: tokenExpirationTime,
-                claims: new[]
-                {
-                    new Claim("_userName", user.UserName),
-                    new Claim("_id", user.Id),
-                    new Claim(ClaimTypes.Email, user.Email),
-                    new Claim(ClaimTypes.Role, Roles.ExpertRole),
-                    new Claim("_proxyCourseId", proxyCourseId.ToString())
                 },
                 signingCredentials: new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256));
 

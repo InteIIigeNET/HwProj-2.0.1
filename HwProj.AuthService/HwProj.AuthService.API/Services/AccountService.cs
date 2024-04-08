@@ -129,7 +129,7 @@ namespace HwProj.AuthService.API.Services
             var token = await _tokenService.GetTokenAsync(user);
             return Result<TokenCredentials>.Success(token);
         }
-
+        
         public async Task<Result<TokenCredentials>> RefreshToken(string userId)
         {
             return await _userManager.FindByIdAsync(userId) is var user && user == null
@@ -204,8 +204,8 @@ namespace HwProj.AuthService.API.Services
 
             if (result.Succeeded)
             {
-                var proxyCourseId = 0; // todo: get real proxyCourseId
-                return GetTokenForExpert(user, model.TokenExpirationTime, proxyCourseId);
+                // todo: now create and save in database proxy course for expert, based on model properties
+                return await GetToken(user, model.TokenExpirationTime);
             }
 
             return Result<TokenCredentials>.Failed(result.Errors.Select(errors => errors.Description).ToArray());
@@ -373,17 +373,10 @@ namespace HwProj.AuthService.API.Services
                 .ConfigureAwait(false);
         }
 
-        private async Task<Result<TokenCredentials>> GetToken(User user)
+        private async Task<Result<TokenCredentials>> GetToken(User user, DateTime? tokenExpirationTime = null)
         {
             return Result<TokenCredentials>.Success(
-                await _tokenService.GetTokenAsync(user).ConfigureAwait(false));
-        }
-
-        private Result<TokenCredentials> GetTokenForExpert(
-            User user, DateTime tokenExpirationTime, int proxyCourseId)
-        {
-            return Result<TokenCredentials>.Success(
-                _tokenService.GetTokenForExpert(user, tokenExpirationTime, proxyCourseId));
+                await _tokenService.GetTokenAsync(user, tokenExpirationTime).ConfigureAwait(false));
         }
     }
 }
