@@ -417,6 +417,12 @@ export interface CreateHomeworkViewModel {
     isGroupWork?: boolean;
     /**
      * 
+     * @type {Array<string>}
+     * @memberof CreateHomeworkViewModel
+     */
+    tags?: Array<string>;
+    /**
+     * 
      * @type {Array<CreateTaskViewModel>}
      * @memberof CreateHomeworkViewModel
      */
@@ -829,6 +835,12 @@ export interface HomeworkViewModel {
      * @memberof HomeworkViewModel
      */
     isGroupWork?: boolean;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof HomeworkViewModel
+     */
+    tags?: Array<string>;
     /**
      * 
      * @type {Array<HomeworkTaskViewModel>}
@@ -1431,7 +1443,7 @@ export interface StatisticsLecturersModel {
      */
     numberOfCheckedSolutions?: number;
     /**
-     *
+     * 
      * @type {number}
      * @memberof StatisticsLecturersModel
      */
