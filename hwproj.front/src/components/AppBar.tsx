@@ -124,6 +124,14 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                             </MenuItem>
                             <Link
                                 color={"initial"}
+                                style={{textDecoration: "none", color: "black"}}
+                                to={"/registerExpert"}>
+                                <MenuItem>
+                                    Зарегистрировать эксперта
+                                </MenuItem>
+                            </Link>
+                            <Link
+                                color={"initial"}
                                 style={{textDecoration: "none"}}
                                 to={"/create_course"}>
                                 <MenuItem>

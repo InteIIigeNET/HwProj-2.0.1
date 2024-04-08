@@ -1,4 +1,4 @@
-import {LoginViewModel, AccountApi, RegisterViewModel} from './../api/';
+import {LoginViewModel, AccountApi, RegisterViewModel, RegisterExpertViewModel} from './../api/';
 import ApiSingleton from "../api/ApiSingleton";
 import decode from "jwt-decode";
 
@@ -50,6 +50,26 @@ export default class AuthService {
         }
     }
 
+    async registerExpert(expert: RegisterExpertViewModel) {
+        const token = await ApiSingleton.accountApi.apiAccountRegisterExpertPost(expert)
+        if (!token.succeeded) {
+            return {
+                loggedIn: false,
+                error: token.errors,
+                token: undefined
+            }
+        }
+        return {
+            loggedIn: true,
+            error: [],
+            token: token.value?.accessToken!
+        }
+    }
+    
+    buildInvitationLink(token : string) {
+        return `https://hwproj.ru/join/${token}`;
+    }
+
     isLoggedIn() {
         const token = this.getToken();
         return !!token && !this.isTokenExpired(token);
@@ -61,6 +81,23 @@ export default class AuthService {
             return decoded.exp < Date.now() / 1000;
         } catch (err) {
 
+            return false;
+        }
+    }
+
+    async isTokenValid(token: any) {
+        try {
+            let decoded = decode<TokenPayload>(token);
+            if (decoded.exp < Date.now() / 1000) {
+                return false;
+            }
+            let userData = await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(decoded._id);
+            if (userData.email !== decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"]) {
+                return false;
+            }
+            
+            return true;
+        } catch (err) {
             return false;
         }
     }
