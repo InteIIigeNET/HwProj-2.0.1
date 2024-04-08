@@ -24,6 +24,7 @@ import WrongPath from "./components/WrongPath";
 import ResetPassword from "components/Auth/ResetPassword";
 import PasswordRecovery from "components/Auth/PasswordRecovery";
 import AuthLayout from "./AuthLayout";
+import ExpertAuthLayout from "./ExpertAuthLayout";
 
 // TODO: add flux
 
@@ -97,6 +98,7 @@ class App extends Component<{ navigate: any }, AppState> {
                                element={<Notifications onMarkAsSeen={this.updatedNewNotificationsCount}/>}/>
                         <Route path="courses" element={<Courses navigate={this.props.navigate}/>}/>
                         <Route path="profile/:id" element={<Workspace/>}/>
+                        <Route path="register_expert" element={<RegisterExpert/>}/>
                         <Route path="create_course" element={<CreateCourse/>}/>
                         <Route path="courses/:courseId" element={<Course/>}/>
                         <Route path="courses/:courseId/:tab" element={<Course/>}/>
@@ -110,9 +112,9 @@ class App extends Component<{ navigate: any }, AppState> {
                     <Route path="status" element={<SystemInfoComponent/>}/>
                     <Route path="login" element={<Login onLogin={this.login}/>}/>
                     <Route path="register" element={<Register onLogin={this.login}/>}/>
-                    <Route path="registerExpert" element={<RegisterExpert onLogin={this.login}/>}/>
                     <Route path="recovery" element={<PasswordRecovery/>}/>
                     <Route path="resetPassword" element={<ResetPassword/>}/>
+                    <Route path="join/:token" element={<ExpertAuthLayout/>}/>
                     <Route path={"*"} element={<WrongPath/>}/>
                 </Routes>
                 <div style={{marginBottom: 10}}/>
