@@ -202,6 +202,10 @@ namespace HwProj.CoursesService.API.Controllers
                 .SelectMany(hw => hw.Tags.Split(';'))
                 .Where(t => !string.IsNullOrEmpty(t))
                 .ToArray();
+
+            var defaultTags = new [] { "Контрольная работа", "Доп. баллы" };
+            result = result.Concat(defaultTags).Distinct().ToArray();
+            
             return Ok(result);
         }
     }
