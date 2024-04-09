@@ -1,8 +1,5 @@
 import React, {useState} from 'react';
 import { Autocomplete, TextField } from '@mui/material';
-import {styled, ListItem, ListItemText, Checkbox, List} from '@mui/material';
-import {FormControl, InputLabel, MenuItem, Select} from '@mui/material';
-import {OutlinedInput} from "@mui/material";
 
 
 export interface StudentItem {

@@ -6,7 +6,7 @@ import {
 import { HomeworkViewModel, StatisticsCourseMatesModel } from '../../api';
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import Utils from "../../services/Utils";
-import {Payload, ValueType, NameType} from "recharts/types/component/DefaultTooltipContent";
+import {Payload, ValueType} from "recharts/types/component/DefaultTooltipContent";
 interface IStudentPunctualityChartProps {
     index: number; // для получения yAxis через className
     homeworks: HomeworkViewModel[];
@@ -18,13 +18,6 @@ interface IStudentAttempt {
     xAxisPosition: number;
     yAxisPosition: number | null; // нужно выбрать диапазон, допустим [-14, 14]
     yAxisPositionDeadline?: number
-}
-
-interface ISectorTitleProps {
-    sectorTitle: string;
-    x1: number;
-    x2: number;
-    numberOfItems: number;
 }
 
 interface ICustomTooltipProps {
@@ -42,11 +35,10 @@ const chartColors = {
 }
 
 const CustomYAxisTick = (props : any) => {
-    const { index, x, y, payload } = props;
+    const { x, y, payload } = props;
     
     return (
         <g>
-            
             <text x={x+13} y={y} dy="0.355em" textAnchor='start' fill={chartColors.axis}>
                 {Math.abs(parseInt(payload.value))}
             </text>
@@ -55,13 +47,25 @@ const CustomYAxisTick = (props : any) => {
 }
 
 const CustomXAxisTick = (props : any) => {
-    const { index, x, y, payload, title} = props;
+    const { x, y, payload, title, barsAmount} = props;
+    
+    const maxWordSize = 10 + 4 * barsAmount.get(payload.value);
+    
+    const customTitle = title.get(payload.value).split(' ').map((word : string) => 
+        {
+            if (word.length > maxWordSize) {
+            return word.slice(0, maxWordSize-2) + '..'
+            }
+            return word;
+        }).join(' ');
+    
+    
     return (
-        <g transform={`translate(${x},${y})`} style={{margin: 5}}>
-            <Text x={0} y={3} width={20} textAnchor='middle' 
-                  fill={chartColors.axisLabel} verticalAnchor='middle' fontSize={10.5}
+        <g transform={`translate(${x},${y})`}>
+            <Text x={0} y={3} width={20} textAnchor='middle' fill={chartColors.axisLabel}
+                  verticalAnchor='middle' fontSize={11.5}
             >
-                {title.get(payload.value)}
+                {customTitle}
             </Text>
         </g>
     )
@@ -113,7 +117,6 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
         const msecInDay = 1000 * 3600 * 24;
         const differenceInDays = (new Date(deadlineDate).getTime() - new Date(solutionPublicationDate).getTime()) / msecInDay;
         
-        //return differenceInDays;
         return ( Math.abs(differenceInDays) > MAXIMUM_DEVIATION
             ? MAXIMUM_DEVIATION * Math.sign(differenceInDays) : differenceInDays);
     }
@@ -122,7 +125,7 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
     const referenceLinesXAxis : number[] = [];
     const deadlinesRepresentation = new Map<number, string>();
     const titleRepresentation = new Map<number, string>();
-    const sectors : ISectorTitleProps[] = [];
+    const SectorBarsAmount = new Map<number, number>();
     let count = 0;
     
     props.solutions.homeworks!.forEach(hw => {
@@ -130,18 +133,14 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
             const deadlineDate = tasks.find(t => t.id === task.id)!.deadlineDate!; // заменить ??
             const maxRating = tasks.find(t => t.id === task.id)!.maxRating!;
             const title = tasks.find(t => t.id === task.id)!.title!;
-            const x1 = count;
             let isDeadlinePassed = false;
             count += 1;
+            titleRepresentation.set(count, title);
+            SectorBarsAmount.set(count, task.solution!.length);
             task.solution!.forEach(solution => {
                 const deviation = getDatesDiff(solution.publicationDate!, deadlineDate);
                 const color = 
                     StudentStatsUtils.calculateLastRatedSolutionInfo([solution], maxRating).color;
-                
-                if (!solution.rating) {
-                    console.log("хуй");
-                    console.log(color);
-                }
 
                 if (deviation < 0 && !isDeadlinePassed) {
                     deadlinesRepresentation.set(count, Utils.renderDateWithoutHours(deadlineDate));
@@ -159,15 +158,12 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
                 solveAttempts.push({xAxisPosition: count, yAxisPosition: null, yAxisPositionDeadline: 0})
                 count += 1;
             }
-
-            const averageSectorPosition = x1 + (count - x1) / 2;
-            titleRepresentation.set(Math.round(averageSectorPosition), title);
-            
-            sectors.push({x1, x2: count, sectorTitle: title, numberOfItems: 0})
             referenceLinesXAxis.push(count);
             solveAttempts.push({xAxisPosition: count, yAxisPosition: null})
         })
     })
+    
+    const [ barSize, barGap] = [ 20, 10];
 
     return (
         <div style={{height: '300', width: '100%', overflowX: 'auto', overflowY: "hidden", paddingBottom: 7}}
@@ -177,17 +173,20 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
              }}>
             
             <ComposedChart data={solveAttempts.sort((x, y) => x.xAxisPosition - y.xAxisPosition)}
-                           height={300} width={1400}
-                           margin={{top: 5, right: 5, bottom: 5, left: 0}}
+                           height={300}
+                           width={count * (barSize + barGap)}
+                           margin={{top: 5, right: 5, bottom: 10, left: 0}}
                            style={{color: 'red'}}
+                           barGap={barGap}
             >
                 <XAxis dataKey="xAxisPosition"
                        tickMargin={10}
                        ticks={Array.from(titleRepresentation.keys())}
-                       tick={<CustomXAxisTick title={titleRepresentation}/>}
+                       tick={<CustomXAxisTick title={titleRepresentation} barsAmount={SectorBarsAmount}/>}
                        padding={{left: 20}}
                        strokeWidth={0.5}
                        stroke={chartColors.axis}
+                       tickLine={false}
                 />
                 <ZAxis range={[30, 31]}/>
                 
@@ -204,7 +203,7 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
 
                 <Scatter dataKey="yAxisPositionDeadline" shape="circle" fill={chartColors.scatter} name='scatter' />
 
-                <Bar dataKey="yAxisPosition" barSize={30}/>
+                <Bar dataKey="yAxisPosition"/>
 
                 <YAxis domain={[-MAXIMUM_DEVIATION, MAXIMUM_DEVIATION]}
                        style={{transform: "translate(0, 0)", backgroundColor: 'white'}}

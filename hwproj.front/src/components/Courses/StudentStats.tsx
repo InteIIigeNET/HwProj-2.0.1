@@ -1,7 +1,9 @@
-import React, {useEffect, useState, SetStateAction} from "react";
-import { Grid, Box, Typography } from "@material-ui/core";
+import React, {useEffect, useState, createContext} from "react";
+import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api/";
+import { useNavigate } from 'react-router-dom';
+import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
-import {Alert, Chip} from "@mui/material";
+import {Alert, Chip, Button} from "@mui/material";
 import {grey} from "@material-ui/core/colors";
 import HomeworkTags from "../Common/HomeworkTags";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
@@ -9,8 +11,9 @@ import StudentStatsTable from "./StudentStatsTable";
 import StudentCheckboxList from "./StudentCheckboxList";
 import StudentStatsChart from "./StudentStatsChart";
 import StudentPunctualityChart from './StudentPunctualityChart';
+import ShowChartIcon from "@mui/icons-material/ShowChart";
 
-interface IStudentStatsProps {
+export interface IStudentStatsProps {
     course: CourseViewModel;
     homeworks: HomeworkViewModel[];
     isMentor: boolean;
@@ -24,27 +27,37 @@ interface IStudentStatsState {
 
 const greyBorder = grey[300]
 
+export const MyDataContext = createContext(null);
+
 const StudentStats: React.FC<IStudentStatsProps> = (props) => {
-    const [format, setFormat] = useState<'table' | 'chart'>('table');
-    const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
+    const [state, setSearched] = useState<IStudentStatsState>({
+        searched: ""
+    });
+    const navigate = useNavigate();
     
-    const handleFormatChange = (event : React.ChangeEvent<HTMLInputElement>) => {
-        setSelectedStudents([]);
-        setFormat(event.target.checked ? "chart" : "table");
+    const handleClick = () => {
+        navigate('./charts', { state: 
+                { course: props.course, 
+                homeworks: props.homeworks,
+                isMentor: props.isMentor,
+                solutions: props.solutions,
+                userId: props.userId
+        }}
+        )
     }
 
-const StudentStats: React.FC = () => {
-    const classes = styles();
-    const location = useLocation();
-    const props: IStudentStatsProps = location.state;
-    
-    const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
-    const handleStudentSelection = (studentId : string) => {
-        setSelectedStudents((prevSelectedStudents) => {
-            if (prevSelectedStudents.includes(studentId)) {
-                return (prevSelectedStudents.filter(id => id !== studentId))
-            } else {
-                return [...prevSelectedStudents, studentId];
+    const {searched} = state
+
+    useEffect(() => {
+        const keyDownHandler = (event: KeyboardEvent) => {
+            if (event.ctrlKey || event.altKey) return
+            if (searched && event.key === "Escape") {
+                setSearched({searched: ""});
+            } else if (searched && event.key === "Backspace") {
+                setSearched({searched: searched.slice(0, -1)})
+            } else if (event.key.length === 1 && event.key.match(/[a-zA-Zа-яА-Я\s]/i)
+            ) {
+                setSearched({searched: searched + event.key})
             }
         };
 
@@ -132,7 +145,11 @@ const StudentStats: React.FC = () => {
                         </TableRow>
                         <TableRow>
                             <TableCell style={{zIndex: 10}}
-                                       component="td"></TableCell>
+                                       component="td">
+                                <Button startIcon={<ShowChartIcon/>} color="primary" size='small' onClick={handleClick}>
+                                    Графики
+                                </Button>
+                            </TableCell>
                             {hasHomeworks && <TableCell padding="checkbox" component="td" align="center"
                                                         style={{
                                                             minWidth: 70,
