@@ -16,6 +16,7 @@ using HwProj.Models.CoursesService.DTO;
 using Microsoft.EntityFrameworkCore;
 using HwProj.CoursesService.API.Domains;
 using HwProj.Models.Roles;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace HwProj.CoursesService.API.Controllers
 {
@@ -187,6 +188,21 @@ namespace HwProj.CoursesService.API.Controllers
                 .ToArray();
 
             return result;
+        }
+
+        [HttpGet("getAllTagsForCourse/{courseId}")]
+        [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetAllTagsForCourse(long courseId)
+        {
+            var course = await _coursesRepository.GetWithCourseMatesAsync(courseId);
+            if (course == null)
+                return NotFound();
+
+            var result = course.Homeworks
+                .SelectMany(hw => hw.Tags.Split(';'))
+                .Where(t => !string.IsNullOrEmpty(t))
+                .ToArray();
+            return Ok(result);
         }
     }
 }
