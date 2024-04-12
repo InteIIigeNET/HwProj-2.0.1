@@ -162,7 +162,7 @@ namespace HwProj.APIGateway.API.Controllers
         {
             var result = await _coursesClient.GetAllTagsForCourse(courseId);
             return result.Succeeded
-                ? Ok(result) as IActionResult
+                ? Ok(result.Value) as IActionResult
                 : BadRequest(result.Errors);
         }
     }
