@@ -12,8 +12,8 @@ interface TagsProps {
     onTagsChange: (tags: string[]) => void;
 }
 
-export default function Tags({ editFlag, tags, courseId, onTagsChange} : TagsProps) {
-    const [allTags, setAllTags] = useState<string[]>([]); // Указываем тип string[]
+export default function Tags({editFlag, tags, courseId, onTagsChange}: TagsProps) {
+    const [allTags, setAllTags] = useState<string[]>([]);
 
     useEffect(() => {
         if (editFlag) {
@@ -34,19 +34,19 @@ export default function Tags({ editFlag, tags, courseId, onTagsChange} : TagsPro
         setValue(newValue);
         onTagsChange(newValue);
     };
-    if (allTags.length > 0) return (
+    return (
         <Autocomplete
             multiple
             id="tags-filled"
             options={allTags}
-            value = {value}
+            value={value}
             defaultValue={[]}
             onChange={handleOptionSelect}
             readOnly={!editFlag}
             freeSolo
             renderTags={(value, getTagProps) =>
                 value.map((option: string, index: number) => (
-                    <Chip variant="filled" label={option} {...getTagProps({ index })} />
+                    <Chip variant="filled" label={option} {...getTagProps({index})} />
 
                 ))
             }
@@ -54,11 +54,9 @@ export default function Tags({ editFlag, tags, courseId, onTagsChange} : TagsPro
                 <TextField
                     {...params}
                     label="Тэги"
-                    placeholder= {editFlag == true ? "Добавить тэг" : ""}
+                    placeholder={editFlag ? "Добавить тэг" : ""}
                 />
             )}
         />
     )
-    else return(<></>)
 }
-

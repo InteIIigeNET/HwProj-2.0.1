@@ -10,13 +10,11 @@ using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Net;
 using HwProj.CoursesService.API.Repositories;
-using HwProj.Models;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
 using Microsoft.EntityFrameworkCore;
 using HwProj.CoursesService.API.Domains;
 using HwProj.Models.Roles;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace HwProj.CoursesService.API.Controllers
 {
@@ -25,18 +23,15 @@ namespace HwProj.CoursesService.API.Controllers
     public class CoursesController : Controller
     {
         private readonly ICoursesService _coursesService;
-        private readonly ICoursesRepository _coursesRepository;
-        private readonly ICourseMatesRepository _courseMatesRepository;
+        private readonly IHomeworksRepository _homeworksRepository;
         private readonly IMapper _mapper;
 
         public CoursesController(ICoursesService coursesService,
-            ICoursesRepository coursesRepository,
-            ICourseMatesRepository courseMatesRepository,
+            IHomeworksRepository homeworksRepository,
             IMapper mapper)
         {
             _coursesService = coursesService;
-            _coursesRepository = coursesRepository;
-            _courseMatesRepository = courseMatesRepository;
+            _homeworksRepository = homeworksRepository;
             _mapper = mapper;
         }
 
@@ -194,18 +189,18 @@ namespace HwProj.CoursesService.API.Controllers
         [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetAllTagsForCourse(long courseId)
         {
-            var course = await _coursesRepository.GetWithCourseMatesAsync(courseId);
-            if (course == null)
-                return NotFound();
+            var homeworks = await _homeworksRepository
+                .FindAll(t => t.CourseId == courseId)
+                .ToListAsync();
 
-            var result = course.Homeworks
-                .SelectMany(hw => hw.Tags.Split(';'))
+            var result = homeworks
+                .SelectMany(hw => hw.Tags?.Split(';') ?? Array.Empty<string>())
                 .Where(t => !string.IsNullOrEmpty(t))
                 .ToArray();
 
             var defaultTags = new [] { "Контрольная работа", "Доп. баллы", "Командная работа" };
             result = result.Concat(defaultTags).Distinct().ToArray();
-            
+
             return Ok(result);
         }
     }

@@ -6,8 +6,8 @@ namespace HwProj.CoursesService.API.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.Sql("UPDATE Homeworks SET Tags = Tags + ';Командная работа' WHERE IsGroupWork = 1 AND Tags != ''");
-            migrationBuilder.Sql("UPDATE Homeworks SET Tags = 'Командная работа' WHERE IsGroupWork = 1 AND Tags = ''");
+            migrationBuilder.Sql("UPDATE Homeworks SET Tags = Tags + ';Командная работа' WHERE IsGroupWork = 1 AND Tags != null");
+            migrationBuilder.Sql("UPDATE Homeworks SET Tags = 'Командная работа' WHERE IsGroupWork = 1 AND Tags = null");
             
             migrationBuilder.DropColumn(
                 name: "IsGroupWork",
