@@ -42,6 +42,7 @@ export default function Tags({editFlag, tags, courseId, onTagsChange}: TagsProps
             value={value}
             defaultValue={[]}
             onChange={handleOptionSelect}
+            filterSelectedOptions
             readOnly={!editFlag}
             freeSolo
             renderTags={(value, getTagProps) =>
