@@ -154,5 +154,16 @@ namespace HwProj.APIGateway.API.Controllers
             var result = await _coursesClient.GetLecturersAvailableForCourse(courseId);
             return Ok(result.Value);
         }
+
+        [HttpGet("tags/{courseId}")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetAllTagsForCourse(long courseId)
+        {
+            var result = await _coursesClient.GetAllTagsForCourse(courseId);
+            return result.Succeeded
+                ? Ok(result.Value) as IActionResult
+                : BadRequest(result.Errors);
+        }
     }
 }

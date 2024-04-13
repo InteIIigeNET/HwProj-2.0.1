@@ -2,13 +2,17 @@
 using HwProj.CoursesService.API.Models;
 using HwProj.Models.CoursesService.ViewModels;
 using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace HwProj.CoursesService.API.Domains
 {
     public static class MappingExtensions
     {
         public static HomeworkViewModel ToHomeworkViewModel(this Homework homework)
-            => new HomeworkViewModel()
+        {
+            var tags = homework.Tags?.Split(';') ?? Array.Empty<string>();
+            return new HomeworkViewModel()
             {
                 Id = homework.Id,
                 Title = homework.Title,
@@ -18,13 +22,17 @@ namespace HwProj.CoursesService.API.Domains
                 IsDeadlineStrict = homework.IsDeadlineStrict,
                 PublicationDate = homework.PublicationDate,
                 CourseId = homework.CourseId,
-                IsGroupWork = homework.IsGroupWork,
+                IsGroupWork = tags.Contains("Командная работа"),
                 IsDeferred = DateTime.UtcNow < homework.PublicationDate,
                 Tasks = homework.Tasks.Select(t => t.ToHomeworkTaskViewModel()).ToList(),
+                Tags = tags.ToList(),
             };
+        }
 
         public static HomeworkTaskViewModel ToHomeworkTaskViewModel(this HomeworkTask task)
-            => new HomeworkTaskViewModel()
+        {
+            var tags = task.Homework.Tags?.Split(';') ?? Array.Empty<string>();
+            return new HomeworkTaskViewModel()
             {
                 Id = task.Id,
                 Title = task.Title,
@@ -35,9 +43,10 @@ namespace HwProj.CoursesService.API.Domains
                 IsDeadlineStrict = task.IsDeadlineStrict,
                 PublicationDate = task.PublicationDate,
                 IsDeferred = DateTime.UtcNow < task.PublicationDate,
-                IsGroupWork = task.Homework.IsGroupWork,
+                IsGroupWork = tags.Contains("Командная работа"),
                 HomeworkId = task.HomeworkId,
             };
+        }
 
         public static HomeworkTaskForEditingViewModel ToHomeworkTaskForEditingViewModel(this HomeworkTask task)
             => new HomeworkTaskForEditingViewModel()
@@ -98,8 +107,8 @@ namespace HwProj.CoursesService.API.Domains
                 DeadlineDate = createHomeworkViewModel.DeadlineDate,
                 IsDeadlineStrict = createHomeworkViewModel.IsDeadlineStrict,
                 PublicationDate = createHomeworkViewModel.PublicationDate,
-                IsGroupWork = createHomeworkViewModel.IsGroupWork,
-                Tasks = createHomeworkViewModel.Tasks.Select(t => t.ToHomeworkTask()).ToList()
+                Tasks = createHomeworkViewModel.Tasks.Select(t => t.ToHomeworkTask()).ToList(),
+                Tags = createHomeworkViewModel.Tags.Join(";"),
             };
     }
 }

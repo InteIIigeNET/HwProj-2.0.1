@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Net;
 using HwProj.CoursesService.API.Repositories;
-using HwProj.Models;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
 using Microsoft.EntityFrameworkCore;
@@ -24,18 +23,15 @@ namespace HwProj.CoursesService.API.Controllers
     public class CoursesController : Controller
     {
         private readonly ICoursesService _coursesService;
-        private readonly ICoursesRepository _coursesRepository;
-        private readonly ICourseMatesRepository _courseMatesRepository;
+        private readonly IHomeworksRepository _homeworksRepository;
         private readonly IMapper _mapper;
 
         public CoursesController(ICoursesService coursesService,
-            ICoursesRepository coursesRepository,
-            ICourseMatesRepository courseMatesRepository,
+            IHomeworksRepository homeworksRepository,
             IMapper mapper)
         {
             _coursesService = coursesService;
-            _coursesRepository = coursesRepository;
-            _courseMatesRepository = courseMatesRepository;
+            _homeworksRepository = homeworksRepository;
             _mapper = mapper;
         }
 
@@ -187,6 +183,25 @@ namespace HwProj.CoursesService.API.Controllers
                 .ToArray();
 
             return result;
+        }
+
+        [HttpGet("getAllTagsForCourse/{courseId}")]
+        [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetAllTagsForCourse(long courseId)
+        {
+            var homeworks = await _homeworksRepository
+                .FindAll(t => t.CourseId == courseId)
+                .ToListAsync();
+
+            var result = homeworks
+                .SelectMany(hw => hw.Tags?.Split(';') ?? Array.Empty<string>())
+                .Where(t => !string.IsNullOrEmpty(t))
+                .ToArray();
+
+            var defaultTags = new [] { "Контрольная работа", "Доп. баллы", "Командная работа" };
+            result = result.Concat(defaultTags).Distinct().ToArray();
+
+            return Ok(result);
         }
     }
 }

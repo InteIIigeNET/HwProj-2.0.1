@@ -86,6 +86,11 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                     <Chip
                         label={tasksCount + " " + Utils.pluralizeHelper(["Задание", "Задания", "Заданий"], tasksCount)}/>
                 </Grid>}
+                {homework.tags?.filter(t => t != '').map((tag, index) => (
+                    <Grid item>
+                        <Chip key={index} label={tag} />
+                    </Grid>
+                ))}
             </Grid>
             <Divider style={{marginTop: 15, marginBottom: 15}}/>
             <Typography style={{color: "#454545"}} gutterBottom variant="body1">

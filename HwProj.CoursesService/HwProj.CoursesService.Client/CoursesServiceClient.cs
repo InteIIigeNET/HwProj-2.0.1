@@ -467,6 +467,19 @@ namespace HwProj.CoursesService.Client
                 : Result<AccountDataDto[]>.Failed(response.ReasonPhrase);
         }
 
+        public async Task<Result<string[]>> GetAllTagsForCourse(long courseId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + $"api/Courses/getAllTagsForCourse/{courseId}");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+
+            return response.IsSuccessStatusCode
+                ? Result<string[]>.Success(await response.DeserializeAsync<string[]>())
+                : Result<string[]>.Failed();
+        }
+
         public async Task<bool> Ping()
         {
             try
