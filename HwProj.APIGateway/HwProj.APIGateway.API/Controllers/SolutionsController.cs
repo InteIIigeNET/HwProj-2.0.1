@@ -365,7 +365,7 @@ namespace HwProj.APIGateway.API.Controllers
             var accountData = await AuthServiceClient.GetAccountDataByGithubId(model.GithubId);
 
             if (course == null || !int.TryParse(User.FindFirst("_course_Id").Value, out var requestCourseId)
-                || requestCourseId != course.Id || accountData == null)
+                || requestCourseId != course.Id || accountData is null)
             {
                 return BadRequest();
             }

@@ -1,18 +1,12 @@
 import * as React from 'react';
-import TextField from '@material-ui/core/TextField';
-import Checkbox from '@material-ui/core/Checkbox'
-import Button from '@material-ui/core/Button'
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Typography from '@material-ui/core/Typography'
 import {Navigate, useParams} from 'react-router-dom';
 import ApiSingleton from "../../api/ApiSingleton";
-import {Grid, Box, Divider} from '@mui/material';
+import Button from '@material-ui/core/Button'
+import {Grid, Box, Divider, Checkbox, TextField, FormControlLabel, Container, Link, Typography} from '@mui/material';
 import {FC, useEffect, useState} from "react";
-import Container from "@material-ui/core/Container";
 import makeStyles from "@material-ui/styles/makeStyles";
 import EditIcon from "@material-ui/icons/Edit";
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
-import Link from "@material-ui/core/Link";
 import Lecturers from "./Lecturers";
 import {AccountDataDto} from "../../api";
 import CalculateIcon from '@mui/icons-material/Calculate';
@@ -58,11 +52,6 @@ const useStyles = makeStyles((theme) => ({
     item: {
         marginTop: theme.spacing(2),
     },
-    button: {
-        fontSize: '0.9rem',
-        borderRadius: '0.5rem',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
-    }
 }))
 
 const EditCourse: FC = () => {
@@ -83,47 +72,6 @@ const EditCourse: FC = () => {
         isOpen: false,
         token: '',
     })
-
-    const [isOpenYamlCode, setIsOpenYamlCode] = useState<boolean>(false)
-
-    const yamlTemplate = 
-        `name: Send solution to hwproj.ru
-
-    on:
-        workflow_run:
-            workflows: [<Worflows>] # Список workflow, которые должны пройти успешно
-            types:
-            - completed
-
-    jobs:
-
-        send_request:
-            runs-on: ubuntu-latest
-            env:
-                TOKEN: <Token> # Подставить токен
-                GITHUB_LOGIN: <GithubLogin> # Подставить ГитХаб-логин студента
-                TASKID: <TaskId> # Подставить ID задачи
-                SOLUTION_URL: <SolutionUrl> # Подставить ссылку на репозиторий
-            steps:
-            - name: Send Request        
-            - run: |
-                response=$(curl -o /dev/null -s -w "%{http_code}" -X POST \\
-                https://hwproj.ru/automatic \\
-                -H 'Content-Type: application/json' \\
-                -H "Authorization: Bearer $TOKEN" \\
-                -d '{
-                    "GithubId": $GITHUB_LOGIN,
-                    "SolutionUrl": $SOLUTION_URL,
-                    "TaskId": $TASKID
-                    }')
-                if [[ "$response" =~ ^2 ]]; then
-                    echo "Request successful"
-                else
-                    echo "Request failed with status $response"
-                    cat response.txt
-                    exit 1
-                fi`
-
 
     useEffect(() => {
         getCourse()
@@ -156,14 +104,6 @@ const EditCourse: FC = () => {
             ...prevState,
             edited: true,
         }))
-    }
-
-    const onOpenYamlCode = () => {
-        setIsOpenYamlCode(true)
-    }
-
-    const onCloseYamlCode = () => {
-        setIsOpenYamlCode(false)
     }
 
     const onOpenToken = async () => {
@@ -278,9 +218,11 @@ const EditCourse: FC = () => {
                                 <Button
                                     color="primary"
                                     variant="contained"
-                                    style={{textTransform: 'none'}}
                                     startIcon={<EditIcon />}
-                                    className={classes.button}
+                                    style={{
+                                        textTransform: 'none',
+                                        fontSize: '0.9rem',
+                                        borderRadius: '0.5rem'}}
                                     type="submit">
                                     Редактировать курс
                                 </Button>
@@ -290,23 +232,15 @@ const EditCourse: FC = () => {
                                 </Divider>
 
                                 <Button
-                                    className={classes.button}
-                                    style={{textTransform: 'none'}}
+                                    style={{
+                                        textTransform: 'none',
+                                        fontSize: '0.9rem',
+                                        borderRadius: '0.5rem'}}
                                     color="primary"
                                     startIcon={<ConfirmationNumberIcon />}
                                     onClick={onOpenToken}
                                     >
                                     Получить токен для отправки решений
-                                </Button>
-                                
-                                <Button
-                                    className={classes.button}
-                                    style={{textTransform: 'none', marginTop: '0.7rem'}}
-                                    color="primary"
-                                    startIcon={<CalculateIcon />}
-                                    onClick={onOpenYamlCode}
-                                    >
-                                    Сгенерировать yaml код для отправки решений
                                 </Button>
                             </Grid>
                         </form>
@@ -321,16 +255,11 @@ const EditCourse: FC = () => {
                     </Grid>
 
                 </Grid>
-                <CodeWindow
-                    onClose={onCloseYamlCode}
-                    open={isOpenYamlCode}
-                    code={yamlTemplate}
-                    language="yaml"/>
                 <CodeWindow 
                     onClose={onCloseToken}
                     open={tokenState.isOpen}
                     code={tokenState.token}
-                    language="yaml"
+                    language="bash"
                     title="Secret Token"
                 />
             </Container>
