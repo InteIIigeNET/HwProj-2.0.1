@@ -129,8 +129,6 @@ namespace HwProj.CoursesService.API.Migrations
 
                     b.Property<bool>("IsDeadlineStrict");
 
-                    b.Property<bool>("IsGroupWork");
-
                     b.Property<DateTime>("PublicationDate");
 
                     b.Property<string>("Tags");

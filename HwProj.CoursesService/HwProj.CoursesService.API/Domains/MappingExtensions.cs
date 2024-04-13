@@ -19,7 +19,6 @@ namespace HwProj.CoursesService.API.Domains
                 IsDeadlineStrict = homework.IsDeadlineStrict,
                 PublicationDate = homework.PublicationDate,
                 CourseId = homework.CourseId,
-                IsGroupWork = homework.IsGroupWork,
                 IsDeferred = DateTime.UtcNow < homework.PublicationDate,
                 Tasks = homework.Tasks.Select(t => t.ToHomeworkTaskViewModel()).ToList(),
                 Tags = homework.Tags.Split(';').ToList(),
@@ -37,7 +36,6 @@ namespace HwProj.CoursesService.API.Domains
                 IsDeadlineStrict = task.IsDeadlineStrict,
                 PublicationDate = task.PublicationDate,
                 IsDeferred = DateTime.UtcNow < task.PublicationDate,
-                IsGroupWork = task.Homework.IsGroupWork,
                 HomeworkId = task.HomeworkId,
             };
 
@@ -100,7 +98,6 @@ namespace HwProj.CoursesService.API.Domains
                 DeadlineDate = createHomeworkViewModel.DeadlineDate,
                 IsDeadlineStrict = createHomeworkViewModel.IsDeadlineStrict,
                 PublicationDate = createHomeworkViewModel.PublicationDate,
-                IsGroupWork = createHomeworkViewModel.IsGroupWork,
                 Tasks = createHomeworkViewModel.Tasks.Select(t => t.ToHomeworkTask()).ToList(),
                 Tags = createHomeworkViewModel.Tags.Join(";"),
             };

@@ -19,9 +19,7 @@ namespace HwProj.Models.CoursesService.ViewModels
         public bool IsDeadlineStrict { get; set; }
 
         public DateTime PublicationDate { get; set; }
-
-        public bool IsGroupWork { get; set; }
-
+        
         public List<string> Tags { get; set; } = new List<string>();
 
         public List<CreateTaskViewModel> Tasks { get; set; } = new List<CreateTaskViewModel>();
@@ -46,9 +44,7 @@ namespace HwProj.Models.CoursesService.ViewModels
         public long CourseId { get; set; }
 
         public bool IsDeferred { get; set; }
-
-        public bool IsGroupWork { get; set; }
-
+        
         public List<string> Tags { get; set; } = new List<string>();
 
         public List<HomeworkTaskViewModel> Tasks { get; set; } = new List<HomeworkTaskViewModel>();
