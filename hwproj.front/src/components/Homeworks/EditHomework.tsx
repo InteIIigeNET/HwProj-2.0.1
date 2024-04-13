@@ -8,6 +8,7 @@ import {Grid, Typography, Button, TextField} from "@material-ui/core";
 import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
 import {Alert, Checkbox, FormControlLabel} from "@mui/material";
+import Tags from "./HomeworkTags";
 
 interface IEditHomeworkState {
     isLoaded: boolean;
@@ -23,7 +24,8 @@ interface IEditHomeworkState {
     isPublished: boolean;
     isGroupWork: boolean;
     hasErrors: boolean;
-    changedTaskPublicationDates: Date[]
+    changedTaskPublicationDates: Date[];
+    tags: string[];
 }
 
 const useStyles = makeStyles(theme => ({
@@ -54,7 +56,8 @@ const EditHomework: FC = () => {
         publicationDate: new Date(),
         isPublished: false,
         hasErrors: false,
-        changedTaskPublicationDates: []
+        changedTaskPublicationDates: [],
+        tags: []
     })
 
     useEffect(() => {
@@ -84,23 +87,29 @@ const EditHomework: FC = () => {
             publicationDate: new Date(homework.publicationDate!),
             isPublished: !homework.isDeferred,
             hasErrors: false,
+            tags: homework.tags!,
             changedTaskPublicationDates: homework.tasks!
                 .filter(t => t.publicationDate != undefined)
-                .map(t => new Date(t.publicationDate!))
+                .map(t => new Date(t.publicationDate!)),
         }))
     }
-
     const handleSubmit = async (e: any) => {
         e.preventDefault()
 
         await ApiSingleton.homeworksApi
             .apiHomeworksUpdateByHomeworkIdPut(+homeworkId!, editHomework)
-
         setEditHomework((prevState) => ({
             ...prevState,
             edited: true
         }))
     }
+
+    const handleTagsChange = (newValue: string[]) => {
+        setEditHomework((prevState) => ({
+            ...prevState,
+            tags: newValue
+        }))
+    };
 
     const classes = useStyles()
 
@@ -189,22 +198,8 @@ const EditHomework: FC = () => {
                                     }}
                                 />
                             </Grid>
-                            <Grid style={{width: "90%", marginBottom: 15}}>
-                                <FormControlLabel
-                                    label="Командное"
-                                    control={
-                                        <Checkbox
-                                            color="primary"
-                                            checked={editHomework.isGroupWork}
-                                            onChange={(e) => {
-                                                setEditHomework(prevState => ({
-                                                    ...prevState,
-                                                    isGroupWork: e.target.checked,
-                                                }))
-                                            }}
-                                        />
-                                    }
-                                />
+                            <Grid item xs={11} style={{marginBottom: 15}}>
+                                <Tags editFlag={true} tags={editHomework.tags} courseId={editHomework.courseId} onTagsChange={handleTagsChange}/>
                                 <PublicationAndDeadlineDates
                                     hasDeadline={editHomework.hasDeadline}
                                     isDeadlineStrict={editHomework.isDeadlineStrict}
