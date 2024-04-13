@@ -9,7 +9,6 @@ import EditIcon from "@material-ui/icons/Edit";
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
 import Lecturers from "./Lecturers";
 import {AccountDataDto} from "../../api";
-import CalculateIcon from '@mui/icons-material/Calculate';
 import CodeWindow from '../CodeWindow';
 
 interface IEditCourseState {
@@ -52,6 +51,11 @@ const useStyles = makeStyles((theme) => ({
     item: {
         marginTop: theme.spacing(2),
     },
+    button: {
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+        fontSize: '0.9rem',
+        borderRadius: '0.5rem',
+    }
 }))
 
 const EditCourse: FC = () => {
@@ -216,13 +220,11 @@ const EditCourse: FC = () => {
                                 </Grid>
                             <Grid className={classes.item} style={{alignItems: 'center'}}>
                                 <Button
+                                    className={classes.button}
                                     color="primary"
                                     variant="contained"
                                     startIcon={<EditIcon />}
-                                    style={{
-                                        textTransform: 'none',
-                                        fontSize: '0.9rem',
-                                        borderRadius: '0.5rem'}}
+                                    style={{textTransform: 'none'}}
                                     type="submit">
                                     Редактировать курс
                                 </Button>
@@ -232,10 +234,8 @@ const EditCourse: FC = () => {
                                 </Divider>
 
                                 <Button
-                                    style={{
-                                        textTransform: 'none',
-                                        fontSize: '0.9rem',
-                                        borderRadius: '0.5rem'}}
+                                    className={classes.button}
+                                    style={{textTransform: 'none'}}
                                     color="primary"
                                     startIcon={<ConfirmationNumberIcon />}
                                     onClick={onOpenToken}

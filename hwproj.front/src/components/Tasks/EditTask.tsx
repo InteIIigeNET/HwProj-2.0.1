@@ -38,6 +38,10 @@ const useStyles = makeStyles(theme => ({
     },
     form: {
         marginTop: "20px"
+    },
+    button: {
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+        fontSize: '0.9rem'
     }
 }))
 
@@ -243,10 +247,8 @@ const EditTask: FC = () => {
                             </Grid>
                             <Grid item xs={12}>
                                 <Button
-                                    style={{
-                                        textTransform: 'none',
-                                        fontSize: '0.9rem',
-                                        borderRadius: '0.5rem'}}
+                                    className={classes.button}
+                                    style={{textTransform: 'none', borderRadius: '0.5rem'}}
                                     color="primary"
                                     variant="contained"
                                     startIcon={<EditIcon />}
@@ -262,11 +264,8 @@ const EditTask: FC = () => {
                         <Typography color="textSecondary">Автоматическая сдача</Typography>
                     </Divider>
                     <Button
-                        style={{
-                            textTransform: 'none',
-                            fontSize: '0.9rem',
-                            borderRadius: '0.5rem',
-                            marginTop: '7px'}}
+                        className={classes.button}
+                        style={{textTransform: 'none'}}
                         color="primary"
                         startIcon={<CalculateIcon />}
                         onClick={onOpenCodeWindow}
