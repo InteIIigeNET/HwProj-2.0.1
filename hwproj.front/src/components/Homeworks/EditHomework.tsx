@@ -178,12 +178,6 @@ const EditHomework: FC = () => {
                             />
                         </Grid>
                         <Grid item xs={12}>
-                            <Tags 
-                                editFlag={true} 
-                                tags={editHomework.tags} 
-                                courseId={editHomework.courseId}
-                                onTagsChange={handleTagsChange}
-                            />
                             <TextFieldWithPreview
                                 multiline
                                 fullWidth
@@ -200,6 +194,12 @@ const EditHomework: FC = () => {
                                         description: e.target.value
                                     }))
                                 }}
+                            />
+                            <Tags 
+                                editFlag={true} 
+                                tags={editHomework.tags} 
+                                courseId={editHomework.courseId}
+                                onTagsChange={handleTagsChange}
                             />
                         </Grid>
                         <Grid item style={{width: "90%", maxHeight: "45px"}}>
