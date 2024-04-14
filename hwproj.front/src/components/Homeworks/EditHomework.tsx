@@ -7,6 +7,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import {Button} from "@material-ui/core";
 import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
+import Tags from "./HomeworkTags";
 import {Alert, Checkbox, FormControlLabel, Grid, Typography, TextField} from "@mui/material";
 
 interface IEditHomeworkState {
@@ -23,7 +24,8 @@ interface IEditHomeworkState {
     isPublished: boolean;
     isGroupWork: boolean;
     hasErrors: boolean;
-    changedTaskPublicationDates: Date[]
+    changedTaskPublicationDates: Date[];
+    tags: string[]
 }
 
 const useStyles = makeStyles(theme => ({
@@ -54,6 +56,7 @@ const EditHomework: FC = () => {
         publicationDate: new Date(),
         isPublished: false,
         hasErrors: false,
+        tags: [],
         changedTaskPublicationDates: []
     })
 
@@ -84,6 +87,7 @@ const EditHomework: FC = () => {
             publicationDate: new Date(homework.publicationDate!),
             isPublished: !homework.isDeferred,
             hasErrors: false,
+            tags: homework.tags!,
             changedTaskPublicationDates: homework.tasks!
                 .filter(t => t.publicationDate != undefined)
                 .map(t => new Date(t.publicationDate!))
@@ -93,14 +97,20 @@ const EditHomework: FC = () => {
     const handleSubmit = async (e: any) => {
         e.preventDefault()
 
-        await ApiSingleton.homeworksApi
-            .apiHomeworksUpdateByHomeworkIdPut(+homeworkId!, editHomework)
+        await ApiSingleton.homeworksApi.apiHomeworksUpdateByHomeworkIdPut(+homeworkId!, editHomework)
 
         setEditHomework((prevState) => ({
             ...prevState,
             edited: true
         }))
     }
+
+    const handleTagsChange = (newValue: string[]) => {
+        setEditHomework((prevState) => ({
+            ...prevState,
+            tags: newValue
+        }))
+    };
 
     const classes = useStyles()
 
@@ -168,6 +178,12 @@ const EditHomework: FC = () => {
                             />
                         </Grid>
                         <Grid item xs={12}>
+                            <Tags 
+                                editFlag={true} 
+                                tags={editHomework.tags} 
+                                courseId={editHomework.courseId}
+                                onTagsChange={handleTagsChange}
+                            />
                             <TextFieldWithPreview
                                 multiline
                                 fullWidth
