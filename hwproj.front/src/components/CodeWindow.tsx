@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Box, Modal, Typography, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import {Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { Prism as SyntaxHighlighter} from 'react-syntax-highlighter';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import { prism } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 interface ICodeWindowProps {
     open: boolean;
@@ -30,7 +31,7 @@ const CodeWindow: React.FC<ICodeWindowProps> = (props) => {
                 boxShadow: 24,
                 p: 4,
                 minWidth: 600,
-                maxWidth: 600,
+                maxWidth: 650,
                 maxHeight: 800
             }}
             >
@@ -45,7 +46,7 @@ const CodeWindow: React.FC<ICodeWindowProps> = (props) => {
                 </IconButton>
                 </Box>
             </Box>
-            <SyntaxHighlighter style={{overflow: 'auto'}} language={props.language}>
+            <SyntaxHighlighter style={prism} language={props.language}>
                 {props.code}
             </SyntaxHighlighter>
         </Box>

@@ -150,25 +150,23 @@ const EditHomework: FC = () => {
                         className={classes.form}
                     >
                         <Grid container spacing={1}>
-                            <Grid container xs={"auto"} spacing={1} direction={"row"}>
-                                <Grid>
-                                    <TextField
-                                        required
-                                        fullWidth
-                                        style={{width: '300px'}}
-                                        label="Название задания"
-                                        variant="outlined"
-                                        margin="normal"
-                                        value={editHomework.title}
-                                        onChange={(e) => {
-                                            e.persist()
-                                            setEditHomework((prevState) => ({
-                                                ...prevState,
-                                                title: e.target.value,
-                                            }))
-                                        }}
-                                    />
-                                </Grid>
+                            <Grid item>
+                                <TextField
+                                    required
+                                    fullWidth
+                                    style={{width: '300px'}}
+                                    label="Название задания"
+                                    variant="outlined"
+                                    margin="normal"
+                                    value={editHomework.title}
+                                    onChange={(e) => {
+                                        e.persist()
+                                        setEditHomework((prevState) => ({
+                                            ...prevState,
+                                            title: e.target.value,
+                                        }))
+                                    }}
+                                />
                             </Grid>
                             <Grid item xs={12}>
                                 <TextFieldWithPreview
