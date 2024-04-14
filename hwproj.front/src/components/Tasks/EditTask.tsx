@@ -126,128 +126,126 @@ const EditTask: FC = () => {
             );
         }
         return (
-            <Grid container justifyContent="center">
-                <Grid item xs={6}>
-                    <Grid container style={{marginTop: '20px'}}>
-                        <Grid item xs={11}>
-                            <Link
-                                style={{color: '#212529'}}
-                                to={"/courses/" + taskState.courseId.toString()}
-                            >
-                                <Typography>
-                                    Назад к курсу
-                                </Typography>
-                            </Link>
-                        </Grid>
-                    </Grid>
-
-                    <div className={classes.logo}>
-                        <div>
-                            <EditIcon style={{color: 'red', marginRight: '0.5rem'}}/>
-                        </div>
-                        <div>
-                            <Typography style={{fontSize: '22px'}}>
-                                Редактирование задачи
+            <Grid container justifyContent="center" className="container">
+                <Grid container style={{marginTop: '20px'}}>
+                    <Grid item xs={11}>
+                        <Link
+                            style={{color: '#212529'}}
+                            to={"/courses/" + taskState.courseId.toString()}
+                        >
+                            <Typography>
+                                Назад к курсу
                             </Typography>
-                        </div>
+                        </Link>
+                    </Grid>
+                </Grid>
+
+                <div className={classes.logo}>
+                    <div>
+                        <EditIcon style={{color: 'red', marginRight: '0.5rem'}}/>
                     </div>
-                    <form
-                        onSubmit={(e) => handleSubmit(e)}
-                        className={classes.form}
-                    >
-                        <Grid container spacing={1}>
-                            <Grid container xs={"auto"} spacing={1} direction={"row"}>
-                                <Grid item>
-                                    <TextField
-                                        required
-                                        fullWidth
-                                        style={{width: '250px'}}
-                                        label="Название задачи"
-                                        variant="outlined"
-                                        margin="normal"
-                                        value={taskState.title}
-                                        onChange={(e) => {
-                                            e.persist()
-                                            setTaskState((prevState) => ({
-                                                ...prevState,
-                                                title: e.target.value,
-                                            }))
-                                        }}
-                                    />
-                                </Grid>
-                                <Grid item>
-                                    <TextField
-                                        required
-                                        fullWidth
-                                        style={{width: '75px'}}
-                                        label="Баллы"
-                                        variant="outlined"
-                                        margin="normal"
-                                        type="number"
-                                        value={taskState.maxRating}
-                                        onChange={(e) => {
-                                            e.persist()
-                                            setTaskState((prevState) => ({
-                                                ...prevState,
-                                                maxRating: +e.target.value,
-                                            }))
-                                        }}
-                                    />
-                                </Grid>
-                            </Grid>
-                            <Grid item xs={12}>
-                                <TextFieldWithPreview
-                                    multiline
+                    <div>
+                        <Typography style={{fontSize: '22px'}}>
+                            Редактирование задачи
+                        </Typography>
+                    </div>
+                </div>
+                <form
+                    onSubmit={(e) => handleSubmit(e)}
+                    className={classes.form}
+                >
+                    <Grid container spacing={1}>
+                        <Grid item container xs={"auto"} spacing={1} direction={"row"}>
+                            <Grid item>
+                                <TextField
+                                    required
                                     fullWidth
-                                    minRows={7}
-                                    maxRows="20"
-                                    label="Условие задачи"
+                                    style={{width: '250px'}}
+                                    label="Название задачи"
                                     variant="outlined"
                                     margin="normal"
-                                    value={taskState.description}
+                                    value={taskState.title}
                                     onChange={(e) => {
                                         e.persist()
                                         setTaskState((prevState) => ({
                                             ...prevState,
-                                            description: e.target.value
+                                            title: e.target.value,
                                         }))
                                     }}
                                 />
                             </Grid>
-                            <Grid item style={{width: "90%", marginBottom: '10px'}}>
-                                <TaskPublicationAndDeadlineDates
-                                    homework={taskState.homework!}
-                                    hasDeadline={taskState.hasDeadline}
-                                    isDeadlineStrict={taskState.isDeadlineStrict}
-                                    publicationDate={taskState.publicationDate}
-                                    deadlineDate={taskState.deadlineDate}
-                                    disabledPublicationDate={taskState.isTaskPublished}
-                                    onChange={(state) => setTaskState(prevState => ({
-                                        ...prevState,
-                                        hasDeadline: state.hasDeadline,
-                                        isDeadlineStrict: state.isDeadlineStrict,
-                                        publicationDate: state.publicationDate,
-                                        deadlineDate: state.deadlineDate,
-                                        hasErrors: state.hasErrors
-                                    }))}
+                            <Grid item>
+                                <TextField
+                                    required
+                                    fullWidth
+                                    style={{width: '75px'}}
+                                    label="Баллы"
+                                    variant="outlined"
+                                    margin="normal"
+                                    type="number"
+                                    value={taskState.maxRating}
+                                    onChange={(e) => {
+                                        e.persist()
+                                        setTaskState((prevState) => ({
+                                            ...prevState,
+                                            maxRating: +e.target.value,
+                                        }))
+                                    }}
                                 />
                             </Grid>
-                            <Grid item xs={12}>
-                                <Button
-                                    className={classes.button}
-                                    style={{textTransform: 'none', borderRadius: '0.5rem'}}
-                                    color="primary"
-                                    variant="contained"
-                                    startIcon={<EditIcon />}
-                                    type="submit"
-                                    disabled={taskState.hasErrors}
-                                >
-                                    Редактировать задачу
-                                </Button>
-                            </Grid>
                         </Grid>
-                    </form>
-                </Grid>
+                        <Grid item xs={12}>
+                            <TextFieldWithPreview
+                                multiline
+                                fullWidth
+                                minRows={7}
+                                maxRows="20"
+                                label="Условие задачи"
+                                variant="outlined"
+                                margin="normal"
+                                value={taskState.description}
+                                onChange={(e) => {
+                                    e.persist()
+                                    setTaskState((prevState) => ({
+                                        ...prevState,
+                                        description: e.target.value
+                                    }))
+                                }}
+                            />
+                        </Grid>
+                        <Grid item style={{width: "90%", marginBottom: '10px'}}>
+                            <TaskPublicationAndDeadlineDates
+                                homework={taskState.homework!}
+                                hasDeadline={taskState.hasDeadline}
+                                isDeadlineStrict={taskState.isDeadlineStrict}
+                                publicationDate={taskState.publicationDate}
+                                deadlineDate={taskState.deadlineDate}
+                                disabledPublicationDate={taskState.isTaskPublished}
+                                onChange={(state) => setTaskState(prevState => ({
+                                    ...prevState,
+                                    hasDeadline: state.hasDeadline,
+                                    isDeadlineStrict: state.isDeadlineStrict,
+                                    publicationDate: state.publicationDate,
+                                    deadlineDate: state.deadlineDate,
+                                    hasErrors: state.hasErrors
+                                }))}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Button
+                                className={classes.button}
+                                style={{textTransform: 'none', borderRadius: '0.5rem'}}
+                                color="primary"
+                                variant="contained"
+                                startIcon={<EditIcon />}
+                                type="submit"
+                                disabled={taskState.hasErrors}
+                            >
+                                Редактировать задачу
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </form>
             </Grid>
         )
     }
