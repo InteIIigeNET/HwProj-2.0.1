@@ -20,11 +20,6 @@ interface IEditCourseState {
     lecturerEmail: string;
 }
 
-interface ITokenState {
-    isOpen: boolean,
-    token: string,
-}
-
 const useStyles = makeStyles((theme) => ({
     logo: {
         display: "flex",
