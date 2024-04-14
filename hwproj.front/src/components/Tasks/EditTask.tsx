@@ -4,11 +4,11 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useEffect, useState} from "react";
 import EditIcon from "@material-ui/icons/Edit";
 import {makeStyles} from "@material-ui/styles";
-import Utils from "../../services/Utils";
-import {Typography, Button, TextField, Grid} from "@material-ui/core";
+import {Typography, TextField, Grid, Divider} from "@mui/material";
+import Button from '@material-ui/core/Button'
 import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 import TaskPublicationAndDeadlineDates from "../Common/TaskPublicationAndDeadlineDates";
-import {CreateTaskViewModel, HomeworkViewModel} from "../../api";
+import {HomeworkViewModel} from "../../api";
 
 interface IEditTaskState {
     isLoaded: boolean;
@@ -36,6 +36,10 @@ const useStyles = makeStyles(theme => ({
     form: {
         marginTop: "20px"
     },
+    button: {
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+        fontSize: '0.9rem'
+    }
 }))
 
 const EditTask: FC = () => {
@@ -123,7 +127,7 @@ const EditTask: FC = () => {
         }
         return (
             <Grid container justifyContent="center">
-                <Grid item xs={9}>
+                <Grid item xs={6}>
                     <Grid container style={{marginTop: '20px'}}>
                         <Grid item xs={11}>
                             <Link
@@ -139,7 +143,7 @@ const EditTask: FC = () => {
 
                     <div className={classes.logo}>
                         <div>
-                            <EditIcon style={{color: 'red'}}/>
+                            <EditIcon style={{color: 'red', marginRight: '0.5rem'}}/>
                         </div>
                         <div>
                             <Typography style={{fontSize: '22px'}}>
@@ -157,7 +161,7 @@ const EditTask: FC = () => {
                                     <TextField
                                         required
                                         fullWidth
-                                        style={{width: '300px'}}
+                                        style={{width: '250px'}}
                                         label="Название задачи"
                                         variant="outlined"
                                         margin="normal"
@@ -175,7 +179,7 @@ const EditTask: FC = () => {
                                     <TextField
                                         required
                                         fullWidth
-                                        style={{width: '300px'}}
+                                        style={{width: '75px'}}
                                         label="Баллы"
                                         variant="outlined"
                                         margin="normal"
@@ -212,27 +216,29 @@ const EditTask: FC = () => {
                             </Grid>
                             <Grid item style={{width: "90%", marginBottom: '10px'}}>
                                 <TaskPublicationAndDeadlineDates
-                                homework={taskState.homework!}
-                                hasDeadline={taskState.hasDeadline}
-                                isDeadlineStrict={taskState.isDeadlineStrict}
-                                publicationDate={taskState.publicationDate}
-                                deadlineDate={taskState.deadlineDate}
-                                disabledPublicationDate={taskState.isTaskPublished}
-                                onChange={(state) => setTaskState(prevState => ({
-                                    ...prevState,
-                                    hasDeadline: state.hasDeadline,
-                                    isDeadlineStrict: state.isDeadlineStrict,
-                                    publicationDate: state.publicationDate,
-                                    deadlineDate: state.deadlineDate,
-                                    hasErrors: state.hasErrors
-                                }))}
+                                    homework={taskState.homework!}
+                                    hasDeadline={taskState.hasDeadline}
+                                    isDeadlineStrict={taskState.isDeadlineStrict}
+                                    publicationDate={taskState.publicationDate}
+                                    deadlineDate={taskState.deadlineDate}
+                                    disabledPublicationDate={taskState.isTaskPublished}
+                                    onChange={(state) => setTaskState(prevState => ({
+                                        ...prevState,
+                                        hasDeadline: state.hasDeadline,
+                                        isDeadlineStrict: state.isDeadlineStrict,
+                                        publicationDate: state.publicationDate,
+                                        deadlineDate: state.deadlineDate,
+                                        hasErrors: state.hasErrors
+                                    }))}
                                 />
                             </Grid>
                             <Grid item xs={12}>
                                 <Button
-                                    fullWidth
-                                    variant="contained"
+                                    className={classes.button}
+                                    style={{textTransform: 'none', borderRadius: '0.5rem'}}
                                     color="primary"
+                                    variant="contained"
+                                    startIcon={<EditIcon />}
                                     type="submit"
                                     disabled={taskState.hasErrors}
                                 >

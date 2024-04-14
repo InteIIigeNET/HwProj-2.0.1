@@ -1,19 +1,11 @@
 import * as React from 'react';
-import TextField from '@material-ui/core/TextField';
-import Checkbox from '@material-ui/core/Checkbox'
-import Button from '@material-ui/core/Button'
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Typography from '@material-ui/core/Typography'
 import {Navigate, useParams} from 'react-router-dom';
 import ApiSingleton from "../../api/ApiSingleton";
-import {Grid} from '@material-ui/core';
+import Button from '@material-ui/core/Button'
+import {Grid, Box, Checkbox, TextField, FormControlLabel, Container, Link, Typography} from '@mui/material';
 import {FC, useEffect, useState} from "react";
-import Container from "@material-ui/core/Container";
 import makeStyles from "@material-ui/styles/makeStyles";
 import EditIcon from "@material-ui/icons/Edit";
-import DeletionConfirmation from "../DeletionConfirmation";
-import Link from "@material-ui/core/Link";
-import DeleteIcon from '@material-ui/icons/Delete';
 import Lecturers from "./Lecturers";
 import {AccountDataDto} from "../../api";
 
@@ -26,6 +18,11 @@ interface IEditCourseState {
     edited: boolean,
     deleted: boolean,
     lecturerEmail: string;
+}
+
+interface ITokenState {
+    isOpen: boolean,
+    token: string,
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -51,6 +48,11 @@ const useStyles = makeStyles((theme) => ({
     },
     item: {
         marginTop: theme.spacing(2),
+    },
+    button: {
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+        fontSize: '0.9rem',
+        borderRadius: '0.5rem',
     }
 }))
 
@@ -67,8 +69,6 @@ const EditCourse: FC = () => {
         deleted: false,
         lecturerEmail: "",
     })
-
-    const [isOpenDialogDeleteCourse, setIsOpenDialogDeleteCourse] = useState<boolean>(false)
 
     useEffect(() => {
         getCourse()
@@ -103,22 +103,6 @@ const EditCourse: FC = () => {
         }))
     }
 
-    const openDialogDeleteCourse = () => {
-        setIsOpenDialogDeleteCourse(true)
-    }
-
-    const closeDialogDeleteCourse = () => {
-        setIsOpenDialogDeleteCourse(false)
-    }
-
-    const onDeleteCourse = async () => {
-        await ApiSingleton.coursesApi.apiCoursesByCourseIdDelete(+courseId!)
-        setCourseState((prevState) => ({
-            ...prevState,
-            deleted: true
-        }))
-    }
-
     const classes = useStyles()
 
     if (courseState.isLoaded) {
@@ -140,21 +124,91 @@ const EditCourse: FC = () => {
         }
 
         return (
-            <div>
-                <Grid container justify="center" style={{marginTop: '20px'}}>
-                    <Grid container justifyContent="space-between" xs={11}>
-                        <Grid item>
-                            <Link
-                                component="button"
-                                style={{color: '#212529'}}
-                                onClick={() => window.location.assign('/courses/' + courseId)}
-                            >
-                                <Typography>
-                                    Назад к курсу
-                                </Typography>
-                            </Link>
+            <Grid container justifyContent="center">
+                <Grid item xs={6}>
+                    <Grid container spacing={3} direction='row'>
+                        <Grid item xs={2}>
+                            <Box style={{marginTop: "40px"}} display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+                                <Link
+                                    component="button"
+                                    style={{ color: '#212529', textDecoration: 'none' }}
+                                    onClick={() => window.location.assign('/courses/' + courseId)}
+                                >
+                                    <Typography variant="body1">Назад к курсу</Typography>
+                                </Link>
+                            </Box>
                         </Grid>
-                        <Grid item>
+                        <Grid item xs={6}>
+                            <Box display="flex" justifyContent="center" mb={3} style={{marginTop: "120px"}}>
+                                <EditIcon style={{ color: 'red', marginRight: '0.5rem' }} />
+                                <Typography variant="h5">Редактировать курс</Typography>
+                            </Box>
+                            <form onSubmit={handleSubmit}>
+                                <TextField
+                                    className={classes.item}
+                                    margin="normal"
+                                    fullWidth
+                                    required
+                                    label="Название курса"
+                                    variant="outlined"
+                                    value={courseState.name}
+                                    onChange={(e) => {
+                                        e.persist()
+                                        setCourseState((prevState) => ({
+                                            ...prevState,
+                                            name: e.target.value
+                                        }))
+                                    }}
+                                />
+                                <TextField
+                                    className={classes.item}
+                                    label="Номер группы"
+                                    variant="outlined"
+                                    margin="normal"
+                                    fullWidth
+                                    value={courseState.groupName}
+                                    onChange={(e) => {
+                                        e.persist()
+                                        setCourseState((prevState) => ({
+                                            ...prevState,
+                                            groupName: e.target.value
+                                        }))
+                                    }}
+                                />
+                                    <Grid>
+                                        <FormControlLabel
+                                            style={{margin: 0}}
+                                            control={
+                                                <Checkbox
+                                                    defaultChecked
+                                                    color="primary"
+                                                    checked={courseState.isCompleted}
+                                                    onChange={(e) => {
+                                                        e.persist()
+                                                        setCourseState((prevState) => ({
+                                                            ...prevState,
+                                                            isCompleted: e.target.checked
+                                                        }))
+                                                    }}
+                                                />
+                                            }
+                                            label="Завершённый курс"
+                                        />
+                                    </Grid>
+                                <Grid className={classes.item} style={{alignItems: 'center'}}>
+                                    <Button
+                                        className={classes.button}
+                                        color="primary"
+                                        variant="contained"
+                                        startIcon={<EditIcon />}
+                                        style={{textTransform: 'none'}}
+                                        type="submit">
+                                        Редактировать курс
+                                    </Button>
+                                </Grid>
+                            </form>
+                        </Grid>
+                        <Grid item xs={4} style={{marginTop: "20px"}}>
                             <Lecturers
                                 update={getCourse}
                                 mentors={courseState.mentors}
@@ -164,108 +218,7 @@ const EditCourse: FC = () => {
                         </Grid>
                     </Grid>
                 </Grid>
-                <Container component="main" maxWidth="xs">
-                    <div className={classes.paper}>
-                        <div className={classes.logo}>
-                            <div>
-                                <EditIcon style={{color: 'red'}}/>
-                            </div>
-                            <Typography style={{fontSize: '22px'}}>
-                                Редактировать курс
-                            </Typography>
-                        </div>
-                        <form onSubmit={e => handleSubmit(e)} className={classes.form}>
-                            <TextField
-                                className={classes.item}
-                                margin="normal"
-                                fullWidth
-                                required
-                                label="Название курса"
-                                variant="outlined"
-                                value={courseState.name}
-                                onChange={(e) => {
-                                    e.persist()
-                                    setCourseState((prevState) => ({
-                                        ...prevState,
-                                        name: e.target.value
-                                    }))
-                                }}
-                            />
-                            <TextField
-                                className={classes.item}
-                                label="Номер группы"
-                                variant="outlined"
-                                margin="normal"
-                                fullWidth
-                                value={courseState.groupName}
-                                onChange={(e) => {
-                                    e.persist()
-                                    setCourseState((prevState) => ({
-                                        ...prevState,
-                                        groupName: e.target.value
-                                    }))
-                                }}
-                            />
-                            <Grid container spacing={2} className={classes.item}>
-                                <Grid item xs={12} sm={6}>
-                                    <FormControlLabel
-                                        style={{margin: 0}}
-                                        control={
-                                            <Checkbox
-                                                defaultChecked
-                                                color="primary"
-                                                checked={courseState.isCompleted}
-                                                onChange={(e) => {
-                                                    e.persist()
-                                                    setCourseState((prevState) => ({
-                                                        ...prevState,
-                                                        isCompleted: e.target.checked
-                                                    }))
-                                                }}
-                                            />
-                                        }
-                                        label="Завершённый курс"
-                                    />
-                                </Grid>
-                            </Grid>
-                            <div className={classes.item}>
-                                <Button
-                                    fullWidth
-                                    variant="contained"
-                                    color="primary"
-                                    type="submit"
-                                >
-                                    Редактировать курс
-                                </Button>
-                            </div>
-                        </form>
-                    </div>
-                </Container>
-                <Grid container justify="center" style={{marginTop: '20px', marginBottom: '20px'}}>
-                    <Grid container xs={11} justifyContent="flex-end">
-                        <Grid>
-                            <Button
-                                onClick={openDialogDeleteCourse}
-                                fullWidth
-                                variant="contained"
-                                style={{color: '#8d8686'}}
-                                startIcon={<DeleteIcon/>}
-                            >
-                                Удалить курс
-                            </Button>
-                        </Grid>
-                    </Grid>
-                </Grid>
-                <DeletionConfirmation
-                    onCancel={closeDialogDeleteCourse}
-                    onSubmit={onDeleteCourse}
-                    isOpen={isOpenDialogDeleteCourse}
-                    dialogTitle={"Удаление курса"}
-                    dialogContentText={`Вы точно хотите удалить курс "${courseState.name}"?`}
-                    confirmationWord={courseState.name}
-                    confirmationText={"Для подтверждения введите название курса."}
-                />
-            </div>
+            </Grid>
         );
     }
 
