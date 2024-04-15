@@ -16,6 +16,7 @@ import EditTask from "./components/Tasks/EditTask";
 import EditHomework from "./components/Homeworks/EditHomework";
 import Register from "./components/Auth/Register";
 import RegisterExpert from "./components/Auth/RegisterExpert";
+import ExpertsNotebook from "./components/Common/ExpertsNotebook";
 import StudentSolutionsPage from "./components/Solutions/StudentSolutionsPage";
 import EditProfile from "./components/EditProfile";
 import ApiSingleton from "./api/ApiSingleton";
@@ -99,6 +100,7 @@ class App extends Component<{ navigate: any }, AppState> {
                         <Route path="courses" element={<Courses navigate={this.props.navigate}/>}/>
                         <Route path="profile/:id" element={<Workspace/>}/>
                         <Route path="register_expert" element={<RegisterExpert/>}/>
+                        <Route path="experts" element={<ExpertsNotebook/>}/>
                         <Route path="create_course" element={<CreateCourse/>}/>
                         <Route path="courses/:courseId" element={<Course/>}/>
                         <Route path="courses/:courseId/:tab" element={<Course/>}/>

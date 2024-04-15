@@ -14,6 +14,7 @@ import makeStyles from "@material-ui/styles/makeStyles";
 import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined';
 import Avatar from "@material-ui/core/Avatar";
 import Utils from "../../services/Utils";
+import {CopyField, DefaultCopyField} from "@eisberg-labs/mui-copy-field";
 
 interface  ICommonState {
     lecturerCourses: CoursePreviewView[];
@@ -321,16 +322,29 @@ const RegisterExpert: FC = () => {
             </Container>
             {isOpenRegisterResult && (
                 commonState.error.length === 0 &&
-                        <Dialog open={isOpenRegisterResult} onClose={closeRegisterResult} aria-labelledby="form-dialog-title">
+                        <Dialog open={true} onClose={closeRegisterResult} aria-labelledby="form-dialog-title">
                             <DialogTitle id="form-dialog-title">
                                 Эксперт успешно зарегистрирован
                             </DialogTitle>
                             <DialogContent>
                                 <DialogContentText>
-                                    Пригласительная ссылка для эксперта: {ApiSingleton.authService.buildInvitationLink(commonState.expertToken!)}.
                                 </DialogContentText>
+                                <div style={{marginTop: '3px'}}>
+                                    <DefaultCopyField
+                                        label="Ссылка"
+                                        value={ApiSingleton.authService.buildInvitationLink(commonState.expertToken!)}
+                                        fullWidth
+                                    />
+                                </div>
                             </DialogContent>
                             <DialogActions>
+                                <Button
+                                    onClick={closeRegisterResult}
+                                    color="primary"
+                                    variant="contained"
+                                >
+                                    Закрыть
+                                </Button>
                             </DialogActions>
                         </Dialog>
             )}
