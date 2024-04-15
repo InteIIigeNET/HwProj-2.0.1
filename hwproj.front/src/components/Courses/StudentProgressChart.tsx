@@ -247,29 +247,36 @@ const StudentProgressChart : React.FC<IStudentStatsChartProps> = (props) => {
     );
     const finishCourseDate = Array.from(characteristicDates).sort(compareStringFormatDates).slice(-1)[0];
     
-    var maximumExpectedRating = Math.max(
-        ...deadlinePointsArray.map(p => p.totalRatingValue!),
-        ...studentChartsArray.map(line => line.slice(-1)[0].totalRatingValue!)
+    let maximumExpectedRating = Math.max(
+        ...deadlinePointsArray.map(p => p.totalRatingValue ? p.totalRatingValue : 0),
+        ...studentChartsArray.map(line => {
+            return line.length > 0 ? line.slice(-1)[0].totalRatingValue! : 0;
+        })
     );
 
     // дозаполняем все линии значениями во всех точках домена
-    studentCharts.forEach(line => {
-        const dates = line.map(p => p.date)
-        const studentId = line[0].id!;
+    if (props.homeworks.length > 0) {
+        studentCharts.forEach(line => {
+            const dates = line.map(p => p.date)
+            const studentId = line[0].id!;
 
-        if (!dates.includes(startCourseDate)) {
-            line.push({id: studentId, date: startCourseDate, totalRatingValue: 0, tasks: []});
-        }
-        if (!dates.includes(finishCourseDate)) {
-            const lastRating = line.map(p => p.totalRatingValue!).sort((x, y) => x - y).slice(-1)[0];
-            line.push({id: studentId, date: finishCourseDate, totalRatingValue: lastRating, tasks: []})
-        }
+            if (!dates.includes(startCourseDate)) {
+                line.push({id: studentId, date: startCourseDate, totalRatingValue: 0, tasks: []});
+            }
+            if (!dates.includes(finishCourseDate)) {
+                const lastRating = line.map(p => p.totalRatingValue!).sort((x, y) => x - y).slice(-1)[0];
+                line.push({id: studentId, date: finishCourseDate, totalRatingValue: lastRating, tasks: []})
+            }
 
-        const diff = Array.from(characteristicDates).filter(d => dates.every(x => x !== d))
-        diff.forEach(date => line.push({date, id: studentId, tasks: [], totalRatingValue: null}))
-        line = line.sort((x, y) => compareStringFormatDates(x.date, y.date))
-    })
+            const diff = Array.from(characteristicDates).filter(d => dates.every(x => x !== d))
+            diff.forEach(date => line.push({date, id: studentId, tasks: [], totalRatingValue: null}))
+            line = line.sort((x, y) => compareStringFormatDates(x.date, y.date))
+        })
+    }
 
+    const deadlineDateFormat = [...deadlinePointsArray.map(p => p.date), startCourseDate, finishCourseDate]
+        .sort(compareStringFormatDates).filter(item => item);
+    console.log(deadlineDateFormat)
     const lineColors = useMemo(() => new Map<string, string>
     (Array.from(studentCharts.entries()).map(([student, _]) => {
         const color = student === straightAStudent ? '#2cba00' : (
@@ -292,8 +299,7 @@ const StudentProgressChart : React.FC<IStudentStatsChartProps> = (props) => {
                        domain={Array.from(characteristicDates).sort(compareStringFormatDates)}
                        stroke={chartColors.axis}
                        strokeWidth={0.5}
-                       ticks={[...deadlinePointsArray.map(p => p.date), startCourseDate, finishCourseDate]
-                           .sort(compareStringFormatDates)}
+                       ticks={deadlineDateFormat.length != 0 ? deadlineDateFormat : ['']}
                        tickLine={false}
                 />
                 <CartesianGrid vertical={false} strokeWidth={0.3}/>

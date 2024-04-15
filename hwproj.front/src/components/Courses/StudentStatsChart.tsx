@@ -81,14 +81,14 @@ const StudentStatsChart: React.FC = () => {
                                 Анализ прогресса студентов
                                 <HelpPopoverChartInfo chartName='progress'/>
                             </Typography>
-                            <StudentProgressChart
-                                selectedStudents = {selectedStudents}
-                                homeworks = {props.homeworks}
-                                course = {props.course}
-                                isMentor = {props.isMentor}
-                                userId = {props.userId}
-                                solutions = {props.solutions}
-                            />
+                                <StudentProgressChart
+                                    selectedStudents = {selectedStudents}
+                                    homeworks = {props.homeworks}
+                                    course = {props.course}
+                                    isMentor = {props.isMentor}
+                                    userId = {props.userId}
+                                    solutions = {props.solutions}
+                                />
                         </Paper>
                     </Box>
                     <Box mb={5}>
