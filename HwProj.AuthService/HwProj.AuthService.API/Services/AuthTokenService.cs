@@ -51,5 +51,26 @@ namespace HwProj.AuthService.API.Services
 
             return tokenCredentials;
         }
+
+        public async Task<TokenCredentials> GetTokenAsync(string courseId, string userId)
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["SecurityKey"]));
+
+            var token = new JwtSecurityToken(
+                issuer: _configuration["ApiName"],
+                claims: new[]
+                {
+                    new Claim("_courseId", courseId),
+                    new Claim("_creatorId", userId)
+                },
+                signingCredentials: new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256));
+
+            var tokenCredentials = new TokenCredentials
+            {
+                AccessToken = new JwtSecurityTokenHandler().WriteToken(token)
+            };
+
+            return tokenCredentials;
+        }
     }
 }

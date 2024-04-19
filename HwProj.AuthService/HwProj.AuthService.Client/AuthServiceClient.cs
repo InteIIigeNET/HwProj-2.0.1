@@ -89,6 +89,17 @@ namespace HwProj.AuthService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Result<TokenCredentials>>();
         }
+        
+        public async Task<Result<TokenCredentials>> CreateToken(string courseId, string userId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _authServiceUri + $"api/account/createToken/{courseId}?userId={userId}");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            
+            return await response.DeserializeAsync<Result<TokenCredentials>>();
+        }
 
         public async Task<Result<TokenCredentials>> RefreshToken(string userId)
         {
