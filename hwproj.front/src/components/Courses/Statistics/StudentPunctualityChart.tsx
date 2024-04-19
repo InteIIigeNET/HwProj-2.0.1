@@ -3,12 +3,12 @@ import {
     Bar, XAxis, YAxis, ComposedChart, Text,
     ReferenceLine, Tooltip, Scatter, ZAxis
 } from 'recharts';
-import { HomeworkViewModel, StatisticsCourseMatesModel } from '../../api';
-import StudentStatsUtils from "../../services/StudentStatsUtils";
-import Utils from "../../services/Utils";
+import { HomeworkViewModel, StatisticsCourseMatesModel } from '../../../api';
+import StudentStatsUtils from "../../../services/StudentStatsUtils";
+import Utils from "../../../services/Utils";
 import {Payload, ValueType} from "recharts/types/component/DefaultTooltipContent";
 interface IStudentPunctualityChartProps {
-    index: number; // для получения yAxis через className
+    index: number;
     homeworks: HomeworkViewModel[];
     solutions: StatisticsCourseMatesModel;
 }
@@ -16,7 +16,7 @@ interface IStudentPunctualityChartProps {
 interface IStudentAttempt {
     fill? : string;
     xAxisPosition: number;
-    yAxisPosition: number | null; // нужно выбрать диапазон, допустим [-14, 14]
+    yAxisPosition: number | null;
     yAxisPositionDeadline?: number
 }
 

@@ -1,6 +1,6 @@
 import React, {useEffect, useState, createContext} from "react";
 import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api/";
-import { useNavigate } from 'react-router-dom';
+import {useNavigate, useParams} from 'react-router-dom';
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
 import {Alert, Chip, Button} from "@mui/material";
@@ -33,17 +33,10 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
     const [state, setSearched] = useState<IStudentStatsState>({
         searched: ""
     });
+    const { courseId } = useParams();
     const navigate = useNavigate();
-    
     const handleClick = () => {
-        navigate('./charts', { state: 
-                { course: props.course, 
-                homeworks: props.homeworks,
-                isMentor: props.isMentor,
-                solutions: props.solutions,
-                userId: props.userId
-        }}
-        )
+        navigate(`../../../statistics/${courseId}/charts`, {relative: 'path'})
     }
 
     const {searched} = state
@@ -146,9 +139,11 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                         <TableRow>
                             <TableCell style={{zIndex: 10}}
                                        component="td">
-                                <Button startIcon={<ShowChartIcon/>} color="primary" size='small' onClick={handleClick}>
-                                    Графики
-                                </Button>
+                                {solutions.length > 0 && 
+                                    <Button startIcon={<ShowChartIcon/>} color="primary" size='small' onClick={handleClick}>
+                                        Графики
+                                    </Button>
+                                }
                             </TableCell>
                             {hasHomeworks && <TableCell padding="checkbox" component="td" align="center"
                                                         style={{

@@ -4,7 +4,7 @@ import "./App.css";
 import "./components/Courses/Course";
 import Course from "./components/Courses/Course";
 import Courses from "./components/Courses/Courses";
-import StudentStatsChart from "./components/Courses/StudentStatsChart";
+import StudentStatsChart from "./components/Courses/Statistics/StudentStatsChart";
 import CreateCourse from "./components/Courses/CreateCourse";
 import Notifications from "./components/Notifications";
 import Workspace from "./components/Workspace";
@@ -99,13 +99,13 @@ class App extends Component<{ navigate: any }, AppState> {
                         <Route path="create_course" element={<CreateCourse/>}/>
                         <Route path="courses/:courseId" element={<Course/>}/>
                         <Route path="courses/:courseId/:tab" element={<Course/>}/>
-                        <Route path="courses/:courseId/stats/charts" element={<StudentStatsChart/>}/>
                         <Route path="courses/:courseId/edit" element={<EditCourse/>}/>
                         <Route path="homework/:homeworkId/edit" element={<EditHomework/>}/>
                         <Route path="task/:taskId/edit" element={<EditTask/>}/>
                         <Route path="task/:taskId/:studentId" element={<StudentSolutionsPage/>}/>
                         <Route path="task/:taskId/" element={<TaskSolutionsPage/>}/>
                     </Route>
+                    <Route path="statistics/:courseId/charts" element={<StudentStatsChart isLoggedIn={this.state.loggedIn}/>}/>
                     <Route path="status" element={<SystemInfoComponent/>}/>
                     <Route path="login" element={<Login onLogin={this.login}/>}/>
                     <Route path="register" element={<Register onLogin={this.login}/>}/>

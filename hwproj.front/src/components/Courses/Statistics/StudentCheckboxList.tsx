@@ -3,7 +3,7 @@ import { Autocomplete, TextField } from '@mui/material';
 
 
 export interface StudentItem {
-    id : string; // == name + surname ?
+    id : string;
     name : string;
     surname : string;
 }
