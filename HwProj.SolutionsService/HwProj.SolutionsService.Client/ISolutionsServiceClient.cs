@@ -18,6 +18,7 @@ namespace HwProj.SolutionsService.Client
         Task<Solution[]> GetTaskSolutions(long groupId, long taskId);
         Task<StatisticsCourseMatesDto[]> GetCourseStatistics(long courseId, string userId);
         Task<StatisticsLecturerDTO[]> GetLecturersStatistics(long courseId);
+        Task<StatisticsCourseAdvancedDto> GetAdvancedStatistics(long courseId);
         Task<StudentSolutions[]> GetTaskSolutionStatistics(long courseId, long taskId);
         Task<Solution?[]> GetLastTaskSolutions(long[] taskIds, string userId);
         Task<SolutionPreviewDto[]> GetAllUnratedSolutionsForTasks(long[] taskIds);
