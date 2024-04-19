@@ -34,6 +34,7 @@ namespace HwProj.Models.CoursesService.ViewModels
     {
         public bool IsOpen { get; set; }
         public string InviteCode { get; set; }
+        public string Token { get; set; }
         public CourseMateViewModel[] CourseMates { get; set; }
         public HomeworkViewModel[] Homeworks { get; set; }
         public GroupViewModel[] Groups { get; set; } = Array.Empty<GroupViewModel>();

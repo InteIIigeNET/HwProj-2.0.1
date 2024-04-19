@@ -130,6 +130,13 @@ namespace HwProj.AuthService.API.Services
             return Result<TokenCredentials>.Success(token);
         }
 
+        public async Task<Result<TokenCredentials>> CreateToken(string courseId, string userId)
+        {
+            var token =  await _tokenService.GetTokenAsync(courseId, userId);
+            
+            return Result<TokenCredentials>.Success(token);
+        }
+
         public async Task<Result<TokenCredentials>> RefreshToken(string userId)
         {
             return await _userManager.FindByIdAsync(userId) is var user && user == null

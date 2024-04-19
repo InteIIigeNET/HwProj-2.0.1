@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -75,6 +76,14 @@ namespace HwProj.AuthService.API.Controllers
             return Ok(tokenMeta);
         }
 
+        [HttpGet("createToken/{courseId}")]
+        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> CreateToken(string courseId, [FromQuery] string userId)
+        {
+            var tokenMeta = await _accountService.CreateToken(courseId, userId);
+            return Ok(tokenMeta);
+        }
+        
         [HttpGet("refreshToken")]
         [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> RefreshToken(string userId)
