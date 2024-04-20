@@ -69,18 +69,7 @@ namespace HwProj.CoursesService.API.Services
         {
             var course = await _coursesRepository.GetWithCourseMatesAsync(id);
             if (course == null) return null;
-
-            if (course.Token == null)
-            {
-                var userId = (await GetCourseLecturers(id)).First();
-                var token = await _authServiceClient.CreateToken(course.Id.ToString(), userId);
             
-                await _coursesRepository.UpdateAsync(id, c => new Course
-                {
-                    Token = token.Value.AccessToken
-                });
-            }
-
             CourseDomain.FillTasksInCourses(course);
 
             var groups = await _groupsRepository.GetGroupsWithGroupMatesByCourse(course.Id).ToArrayAsync();
@@ -98,17 +87,7 @@ namespace HwProj.CoursesService.API.Services
         {
             course.MentorIds = mentorId;
             course.InviteCode = Guid.NewGuid().ToString();
-
-            var courseId = await _coursesRepository.AddAsync(course);
-            
-            var token = await _authServiceClient.CreateToken(course.Id.ToString(), mentorId);
-            
-            await _coursesRepository.UpdateAsync(courseId, c => new Course
-            {
-                Token = token.Value.AccessToken
-            });
-            
-            return courseId;
+            return await _coursesRepository.AddAsync(course);
         }
 
         public async Task DeleteAsync(long id)
@@ -123,7 +102,7 @@ namespace HwProj.CoursesService.API.Services
                 Name = updated.Name,
                 GroupName = updated.GroupName,
                 IsCompleted = updated.IsCompleted,
-                IsOpen = updated.IsOpen,
+                IsOpen = updated.IsOpen
             });
         }
 

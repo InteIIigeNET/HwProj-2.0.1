@@ -1410,12 +1410,6 @@ export interface StatisticsCourseAdvancedViewModel {
     course?: CoursePreview;
     /**
      * 
-     * @type {string}
-     * @memberof StatisticsCourseAdvancedViewModel
-     */
-    token?: string;
-    /**
-     * 
      * @type {Array<HomeworkViewModel>}
      * @memberof StatisticsCourseAdvancedViewModel
      */

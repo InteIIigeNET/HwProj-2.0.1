@@ -56,8 +56,6 @@ namespace HwProj.CoursesService.API.Migrations
 
                     b.Property<string>("Name");
 
-                    b.Property<string>("Token");
-
                     b.HasKey("Id");
 
                     b.ToTable("Courses");
@@ -130,8 +128,6 @@ namespace HwProj.CoursesService.API.Migrations
                     b.Property<bool>("HasDeadline");
 
                     b.Property<bool>("IsDeadlineStrict");
-
-                    b.Property<bool>("IsGroupWork");
 
                     b.Property<DateTime>("PublicationDate");
 

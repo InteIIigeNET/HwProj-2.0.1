@@ -73,7 +73,6 @@ namespace HwProj.CoursesService.API.Domains
                 MentorIds = course.MentorIds.Split("/"),
                 IsOpen = course.IsOpen,
                 InviteCode = course.InviteCode,
-                Token = course.Token,
                 CourseMates = course.CourseMates.Select(cm => cm.ToCourseMateViewModel()).ToArray(),
                 Homeworks = course.Homeworks.Select(h => h.ToHomeworkViewModel()).ToArray(),
             };

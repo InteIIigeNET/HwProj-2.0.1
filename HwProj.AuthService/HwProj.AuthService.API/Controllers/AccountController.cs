@@ -75,14 +75,6 @@ namespace HwProj.AuthService.API.Controllers
             var tokenMeta = await _accountService.LoginUserAsync(model).ConfigureAwait(false);
             return Ok(tokenMeta);
         }
-
-        [HttpGet("createToken/{courseId}")]
-        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> CreateToken(string courseId, [FromQuery] string userId)
-        {
-            var tokenMeta = await _accountService.CreateToken(courseId, userId);
-            return Ok(tokenMeta);
-        }
         
         [HttpGet("refreshToken")]
         [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
