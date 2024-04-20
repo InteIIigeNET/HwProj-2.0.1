@@ -1,12 +1,9 @@
-﻿using HwProj.APIGateway.API.Authorization.Handlers;
-using HwProj.APIGateway.API.Authorization.Requirements;
-using HwProj.AuthService.Client;
+﻿using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.NotificationsService.Client;
 using HwProj.SolutionsService.Client;
 using HwProj.Utils.Auth;
 using HwProj.Utils.Configuration;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -44,14 +41,6 @@ namespace HwProj.APIGateway.API
                         ValidateIssuerSigningKey = true
                     };
                 });
-            
-            services.AddSingleton<IAuthorizationHandler, JwtRequirementHandler>();
-            services.AddAuthorization(options =>
-            {
-                options.DefaultPolicy = new AuthorizationPolicyBuilder().RequireAssertion(_ => true).Build();
-                options.AddPolicy("CourseStatisticsPolicy", policy =>
-                    policy.Requirements.Add(new JwtRequirement()));
-            }); 
             
             services.AddHttpClient();
             services.AddHttpContextAccessor();

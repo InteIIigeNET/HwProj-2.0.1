@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+﻿import React, {useRef, useState} from 'react';
 import { IconButton, Popover, Divider, List, ListItem} from "@mui/material";
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
@@ -8,12 +8,16 @@ interface IHelpPopoverChartInfoProps {
 
 const HelpPopoverChartInfo : React.FC<IHelpPopoverChartInfoProps> = (prop) => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const buttonRef = useRef(null);
     
-    const handleClick = (event : React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(anchorEl ? null : event.currentTarget);
+    const handleMouseEnter = () => {
+        setAnchorEl(buttonRef.current);
+    }
+    const handleMouseLeave = () => {
+        setAnchorEl(null);
     }
     const handleClose = () => {
-        setAnchorEl(null);
+        setAnchorEl(anchorEl)
     }
     const open = Boolean(anchorEl);
     
@@ -64,13 +68,17 @@ const HelpPopoverChartInfo : React.FC<IHelpPopoverChartInfoProps> = (prop) => {
     
     return (
         <>
-            <IconButton onClick={handleClick}>
+            <IconButton ref={buttonRef}
+                onMouseEnter={handleMouseEnter}
+                onClick={handleMouseEnter}        
+                //onMouseLeave={handleMouseLeave}
+            >
                 <HelpOutlineIcon style={{color: 'rgb(100, 100, 100)'}}/>
             </IconButton>
-            <Popover open={open} anchorEl={anchorEl} onClose={handleClose}
-                     anchorOrigin={{vertical: 'center', horizontal: 'right'}}
-                     transformOrigin={{vertical: 'center', horizontal: 'left'}}
-                     
+            <Popover open={open} anchorEl={anchorEl} onClose={handleMouseLeave}
+                     anchorOrigin={{vertical: 'bottom', horizontal: 'left'}}
+                     transformOrigin={{vertical: 'top', horizontal: 'left'}}
+                     disableRestoreFocus
             >
                 {prop.chartName === 'progress' &&
                     popoverContent(progressPopoverItems, progressPopoverHeader)

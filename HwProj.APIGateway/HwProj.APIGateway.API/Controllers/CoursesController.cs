@@ -35,7 +35,6 @@ namespace HwProj.APIGateway.API.Controllers
         }
 
         [HttpGet("{courseId}")]
-        [Authorize]
         [ProducesResponseType(typeof(CourseViewModel), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetCourseData(long courseId)
         {

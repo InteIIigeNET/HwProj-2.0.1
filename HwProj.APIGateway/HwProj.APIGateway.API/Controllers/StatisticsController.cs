@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using HwProj.APIGateway.API.Models.Statistics;
@@ -71,7 +70,6 @@ namespace HwProj.APIGateway.API.Controllers
         }
         
         [HttpGet("{courseId}/charts")]
-        [Authorize(Policy = "CourseStatisticsPolicy")]
         [ProducesResponseType(typeof(StatisticsCourseAdvancedViewModel), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetChartStatistics(long courseId, [FromQuery] string token)
         {
@@ -79,10 +77,7 @@ namespace HwProj.APIGateway.API.Controllers
             if (course == null) 
                 return Forbid();
             
-            var id = HttpContext.User.Identity.IsAuthenticated
-                ? UserId
-                : User.FindFirst("_creatorId").Value;
-            var statistics = await _solutionClient.GetCourseStatistics(courseId, id);
+            var statistics = await _solutionClient.GetCourseStatistics(courseId, UserId);
             var studentIds = statistics.Select(t => t.StudentId).ToArray();
             var studentsData = await AuthServiceClient.GetAccountsData(studentIds);
             
@@ -105,7 +100,6 @@ namespace HwProj.APIGateway.API.Controllers
                     Name = course.Name,
                     GroupName = course.GroupName,
                 },
-                Token = course.Token,
                 Students = students.ToArray(),
                 Homeworks = course.Homeworks,
                 AverageStudentSolutions = statisticsMeasure.AverageStudentSolutions,

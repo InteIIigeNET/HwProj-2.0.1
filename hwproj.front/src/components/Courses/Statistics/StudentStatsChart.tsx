@@ -17,7 +17,6 @@ import StudentPunctualityChart from './StudentPunctualityChart';
 interface IStudentStatsChartState {
     isFound: boolean;
     isSelectionMode: boolean;
-    sharingLink: string;
     course: CourseViewModel;
     homeworks: HomeworkViewModel[];
     solutions: StatisticsCourseMatesModel[];
@@ -25,19 +24,14 @@ interface IStudentStatsChartState {
     averageStudent: StatisticsCourseMeasureSolutionModel[];
 }
 
-interface IStudentStatsChartProps {
-    isLoggedIn: boolean;
-}
-
-const StudentStatsChart: React.FC<IStudentStatsChartProps> = (props) => {
+const StudentStatsChart: React.FC = () => {
     const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
-    const [copied, setCopied] = useState(false);
     const [ searchParams ] = useSearchParams();
     const { courseId } = useParams();
+    const isLoggedIn = ApiSingleton.authService.isLoggedIn();
     const [state, setState] = useState<IStudentStatsChartState>({
         isFound: false,
         isSelectionMode: false,
-        sharingLink: '',
         course: {},
         homeworks: [],
         solutions: [],
@@ -52,7 +46,6 @@ const StudentStatsChart: React.FC<IStudentStatsChartProps> = (props) => {
         setState({
             isFound: true,
             isSelectionMode: params.students!.length > 1,
-            sharingLink: params.token!,
             course: params.course!,
             homeworks: params.homeworks!,
             solutions: params.students!,
@@ -81,18 +74,6 @@ const StudentStatsChart: React.FC<IStudentStatsChartProps> = (props) => {
         })
     }
     
-    const sharingLink = window.location.href.includes('?token=')
-        ? window.location.href : window.location.href + '?token=' + state.sharingLink;
-    const copyLink = () => {
-        if (copied) {
-            setCopied(false);
-            return;
-        }
-        navigator.clipboard.writeText(sharingLink);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-    }
-    
     const nameById = (id : string) => {
         const student = state.solutions.find(solution => solution.id === id)!
         return student.name + ' ' + student.surname;
@@ -114,21 +95,14 @@ const StudentStatsChart: React.FC<IStudentStatsChartProps> = (props) => {
     if (state.isFound) {
         return (
             <div className="container">
-                <Grid container spacing={3} style={{marginTop: 15, marginBottom: 20, paddingLeft: 40, paddingRight: 40}}>
+                <Grid container spacing={3} style={{marginTop: 15, marginBottom: 20}}>
                     <Grid item container xs={11} direction='column'>
                         <Grid item container direction='row'>
                             <Typography style={{fontSize: '22px'}}>
                                 {`${state.course.name} / ${state.course.groupName}`} &nbsp;
                             </Typography>
-                            {state.isSelectionMode && props.isLoggedIn &&
-                                <>
-                                    <IconButton color="primary" onClick={copyLink}>
-                                        <ShareIcon/>
-                                    </IconButton>
-                                    <Snackbar open={copied} message="Ссылка скопирована"/>
-                                </>}
                         </Grid>
-                        {props.isLoggedIn && renderGoBackToCoursesStatsLink()}
+                        {isLoggedIn && renderGoBackToCoursesStatsLink()}
                     </Grid>
                     {state.isSelectionMode &&
                         <Grid item xs={12} sm={4} style={{paddingBottom: 0}}>
