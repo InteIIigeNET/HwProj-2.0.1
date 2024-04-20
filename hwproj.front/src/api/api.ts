@@ -1399,43 +1399,43 @@ export interface SolutionViewModel {
 /**
  * 
  * @export
- * @interface StatisticsCourseAdvancedModel
+ * @interface StatisticsCourseAdvancedViewModel
  */
-export interface StatisticsCourseAdvancedModel {
+export interface StatisticsCourseAdvancedViewModel {
     /**
      * 
      * @type {CoursePreview}
-     * @memberof StatisticsCourseAdvancedModel
+     * @memberof StatisticsCourseAdvancedViewModel
      */
     course?: CoursePreview;
     /**
      * 
      * @type {string}
-     * @memberof StatisticsCourseAdvancedModel
+     * @memberof StatisticsCourseAdvancedViewModel
      */
-    sharingLink?: string;
+    token?: string;
     /**
      * 
      * @type {Array<HomeworkViewModel>}
-     * @memberof StatisticsCourseAdvancedModel
+     * @memberof StatisticsCourseAdvancedViewModel
      */
     homeworks?: Array<HomeworkViewModel>;
     /**
      * 
      * @type {Array<StatisticsCourseMatesModel>}
-     * @memberof StatisticsCourseAdvancedModel
+     * @memberof StatisticsCourseAdvancedViewModel
      */
     students?: Array<StatisticsCourseMatesModel>;
     /**
      * 
      * @type {Array<StatisticsCourseMeasureSolutionModel>}
-     * @memberof StatisticsCourseAdvancedModel
+     * @memberof StatisticsCourseAdvancedViewModel
      */
     averageStudentSolutions?: Array<StatisticsCourseMeasureSolutionModel>;
     /**
      * 
      * @type {Array<StatisticsCourseMeasureSolutionModel>}
-     * @memberof StatisticsCourseAdvancedModel
+     * @memberof StatisticsCourseAdvancedViewModel
      */
     bestStudentSolutions?: Array<StatisticsCourseMeasureSolutionModel>;
 }
@@ -6464,7 +6464,7 @@ export const StatisticsApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiStatisticsByCourseIdChartsGet(courseId: number, token?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<StatisticsCourseAdvancedModel> {
+        apiStatisticsByCourseIdChartsGet(courseId: number, token?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<StatisticsCourseAdvancedViewModel> {
             const localVarFetchArgs = StatisticsApiFetchParamCreator(configuration).apiStatisticsByCourseIdChartsGet(courseId, token, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {

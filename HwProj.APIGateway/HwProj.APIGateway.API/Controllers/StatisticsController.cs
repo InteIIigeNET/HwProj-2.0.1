@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using HwProj.APIGateway.API.Models.Statistics;
@@ -76,9 +77,10 @@ namespace HwProj.APIGateway.API.Controllers
         {
             var course = await _coursesClient.GetCourseById(courseId);
             if (course == null) return Forbid();
-            
-            var lectureId = User.FindFirst("_creatorId").Value; // ??
-            var statistics = await _solutionClient.GetCourseStatistics(courseId, lectureId);
+            var id = HttpContext.User.Identity.IsAuthenticated
+                ? UserId
+                : User.FindFirst("_creatorId").Value;
+            var statistics = await _solutionClient.GetCourseStatistics(courseId, id);
             var studentIds = statistics.Select(t => t.StudentId).ToArray();
             var studentsData = await AuthServiceClient.GetAccountsData(studentIds);
             
