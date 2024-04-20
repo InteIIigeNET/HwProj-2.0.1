@@ -21,11 +21,13 @@ namespace HwProj.APIGateway.API.Authorization.Handlers
             if (context.User.Identity.IsAuthenticated)
             {
                 context.Succeed(requirement);
+                
                 return Task.CompletedTask;
             }
 
             var httpContext = (AuthorizationFilterContext)context.Resource;
-            if (httpContext == null) return Task.CompletedTask;
+            if (httpContext == null) 
+                return Task.CompletedTask;
 
             var token = httpContext.HttpContext.Request.Query["token"].ToString();
             var courseIdRoute = long.Parse(httpContext.HttpContext.GetRouteValue("courseId").ToString());

@@ -218,21 +218,28 @@ namespace HwProj.SolutionsService.API.Controllers
             var course = await _coursesClient.GetCourseById(courseId);
             if (course == null) return NotFound();
             
-            var taskIds = course.Homeworks.SelectMany(t => t.Tasks).Select(t => t.Id).ToArray();
+            var taskIds = course.Homeworks
+                .SelectMany(t => t.Tasks)
+                .Select(t => t.Id)
+                .ToArray();
             var solutions = await _solutionsRepository.FindAll(t => taskIds.Contains(t.TaskId)).ToListAsync();
             
-            var averageStudentSolutions = solutions.GroupBy(e => new { e.StudentId, e.TaskId })
+            var averageStudentSolutions = solutions
+                .GroupBy(e => new { e.StudentId, e.TaskId })
                 .Select(e => e.OrderByDescending(s => s.PublicationDate).First())
                 .GroupBy(e => e.TaskId).Select(e => new StatisticsCourseMeasureSolutionModel
                 {
                     TaskId = e.Select(t => t.TaskId).First(),
-                    Rating = e.Sum(s => s.Rating) / Convert.ToDouble(course.CourseMates.Length),
+                    Rating = e.Sum(s => s.Rating) / (double)course.CourseMates.Length,
                     PublicationDate = new DateTime((long)e.Average(s => s.PublicationDate.Ticks))
                 }).ToArray();
             var bestStudentSolutions = taskIds
                 .Select(taskId =>
                 {
-                    var task = course.Homeworks.SelectMany(e => e.Tasks).First(t => t.Id == taskId);
+                    var task = course.Homeworks
+                        .SelectMany(e => e.Tasks)
+                        .First(t => t.Id == taskId);
+                    
                     return new StatisticsCourseMeasureSolutionModel
                     {
                         TaskId = task.Id,

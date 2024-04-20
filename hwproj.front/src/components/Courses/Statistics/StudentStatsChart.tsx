@@ -64,6 +64,7 @@ const StudentStatsChart: React.FC<IStudentStatsChartProps> = (props) => {
     useEffect(() => {
         setCurrentState()
     }, [])
+    
     useEffect(() => {
         if (state.isFound && !state.isSelectionMode) {
             setSelectedStudents((_) => [state.solutions[0].id!])
