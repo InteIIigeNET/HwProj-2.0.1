@@ -52,7 +52,7 @@ const StudentStatsChart: React.FC<IStudentStatsChartProps> = (props) => {
         setState({
             isFound: true,
             isSelectionMode: params.students!.length > 1,
-            sharingLink: params.sharingLink!,
+            sharingLink: params.token!,
             course: params.course!,
             homeworks: params.homeworks!,
             solutions: params.students!,
