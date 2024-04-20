@@ -76,7 +76,9 @@ namespace HwProj.APIGateway.API.Controllers
         public async Task<IActionResult> GetChartStatistics(long courseId, [FromQuery] string token)
         {
             var course = await _coursesClient.GetCourseById(courseId);
-            if (course == null) return Forbid();
+            if (course == null) 
+                return Forbid();
+            
             var id = HttpContext.User.Identity.IsAuthenticated
                 ? UserId
                 : User.FindFirst("_creatorId").Value;
@@ -84,7 +86,8 @@ namespace HwProj.APIGateway.API.Controllers
             var studentIds = statistics.Select(t => t.StudentId).ToArray();
             var studentsData = await AuthServiceClient.GetAccountsData(studentIds);
             
-            var students = statistics.Zip(studentsData, (stats, student) => new StatisticsCourseMatesModel
+            var students = statistics.Zip(studentsData, 
+                (stats, student) => new StatisticsCourseMatesModel
             {
                 Id = student.UserId,
                 Name = student.Name,

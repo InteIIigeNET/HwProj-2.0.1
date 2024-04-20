@@ -12,11 +12,9 @@ const HelpPopoverChartInfo : React.FC<IHelpPopoverChartInfoProps> = (prop) => {
     const handleClick = (event : React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(anchorEl ? null : event.currentTarget);
     }
-    
     const handleClose = () => {
         setAnchorEl(null);
     }
-    
     const open = Boolean(anchorEl);
     
     const popoverContent = (listItems : JSX.Element[], headerText: string) => (

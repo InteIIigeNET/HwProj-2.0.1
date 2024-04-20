@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using HwProj.APIGateway.API.Authorization.Handlers;
+﻿using HwProj.APIGateway.API.Authorization.Handlers;
 using HwProj.APIGateway.API.Authorization.Requirements;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
@@ -7,7 +6,6 @@ using HwProj.NotificationsService.Client;
 using HwProj.SolutionsService.Client;
 using HwProj.Utils.Auth;
 using HwProj.Utils.Configuration;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -47,7 +45,7 @@ namespace HwProj.APIGateway.API
                     };
                 });
             
-            services.AddScoped<IAuthorizationHandler, JwtRequirementHandler>();
+            services.AddSingleton<IAuthorizationHandler, JwtRequirementHandler>();
             services.AddAuthorization(options =>
             {
                 options.DefaultPolicy = new AuthorizationPolicyBuilder().RequireAssertion(_ => true).Build();

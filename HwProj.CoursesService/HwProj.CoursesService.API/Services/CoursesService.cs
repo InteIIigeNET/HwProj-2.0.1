@@ -124,7 +124,6 @@ namespace HwProj.CoursesService.API.Services
                 GroupName = updated.GroupName,
                 IsCompleted = updated.IsCompleted,
                 IsOpen = updated.IsOpen,
-                // Token = updated.Token не уверен пока
             });
         }
 
