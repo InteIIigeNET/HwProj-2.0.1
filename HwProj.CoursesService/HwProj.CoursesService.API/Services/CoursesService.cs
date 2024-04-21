@@ -12,7 +12,6 @@ using HwProj.Models.CoursesService.ViewModels;
 using HwProj.CoursesService.API.Domains;
 using HwProj.Models.Roles;
 using HwProj.Utils.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.CoursesService.API.Services

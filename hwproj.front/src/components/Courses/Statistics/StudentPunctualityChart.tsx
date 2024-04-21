@@ -25,6 +25,7 @@ interface ICustomTooltipProps {
     payload? : Payload<ValueType, string | number>[] | undefined;
     label? : number;
     deadlineRepresentation : Map<number, string>;
+    isCountedFromRatingDate: Map<number, boolean>;
 }
 
 const chartColors = {
@@ -50,8 +51,8 @@ const CustomXAxisTick = (props : any) => {
     const { x, y, payload, title, barsAmount} = props;
     
     const maxWordSize = 10 + 4 * barsAmount.get(payload.value);
-    
-    const customTitle = title.get(payload.value).split(' ').map((word : string) => 
+    const value = payload.value + 1;
+    const customTitle = title.get(value).split(' ').map((word : string) => 
         {
             if (word.length > maxWordSize) {
             return word.slice(0, maxWordSize-2) + '..'
@@ -62,8 +63,8 @@ const CustomXAxisTick = (props : any) => {
     
     return (
         <g transform={`translate(${x},${y})`}>
-            <Text x={0} y={3} width={20} textAnchor='middle' fill={chartColors.axisLabel}
-                  verticalAnchor='middle' fontSize={11.5}
+            <Text x={0} y={3} width={20} textAnchor='start' fill={chartColors.axisLabel}
+                  verticalAnchor='middle' fontSize={12.5}
             >
                 {customTitle}
             </Text>
@@ -78,10 +79,12 @@ const CustomTooltip : React.FC<ICustomTooltipProps> = (props) => {
         } else {
             const dateToMs = parseFloat(`${props.payload![0].value!}`) * 1000 * 3600 * 24;
             const sentDeviationDeadline = Utils.pluralizeDateTime(Math.abs(dateToMs));
+            const isCountedFromRating = props.isCountedFromRatingDate.get(props.label!);
+            const measure = isCountedFromRating  ? 'последней проверки' : 'дедлайна';
             
-            return (Math.abs(dateToMs / 60000) < 1) ? 'Сдано ровно в срок'
+            return (Math.abs(dateToMs / 60000) < 1) ? `Сдано ${isCountedFromRating ? 'сразу после последней проверки' : 'ровно в срок'}`
                 : (dateToMs < 0 
-                    ? `Сдано через ${sentDeviationDeadline} после дедлайна`
+                    ? `Сдано через ${sentDeviationDeadline} после ${measure}`
                     : `Сдано за ${sentDeviationDeadline} до дедлайна`);
         }
     }
@@ -126,19 +129,31 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
     const deadlinesRepresentation = new Map<number, string>();
     const titleRepresentation = new Map<number, string>();
     const SectorBarsAmount = new Map<number, number>();
+    const isCountedFromRatingDate = new Map<number, boolean>();
     let count = 0;
-    
+    solveAttempts.push({xAxisPosition: count, yAxisPosition: null})
     props.solutions.homeworks!.forEach(hw => {
-        hw.tasks!.forEach(task => {
-            const deadlineDate = tasks.find(t => t.id === task.id)!.deadlineDate!; // заменить ??
+        hw.tasks!.filter(task => tasks.find(t => t.id === task.id)!.hasDeadline)
+            .forEach(task => {
+                
+            count += 1;
+            const deadlineDate = tasks.find(t => t.id === task.id)!.deadlineDate!;
             const maxRating = tasks.find(t => t.id === task.id)!.maxRating!;
             const title = tasks.find(t => t.id === task.id)!.title!;
             let isDeadlinePassed = false;
-            count += 1;
             titleRepresentation.set(count, title);
             SectorBarsAmount.set(count, task.solution!.length);
-            task.solution!.forEach(solution => {
-                const deviation = getDatesDiff(solution.publicationDate!, deadlineDate);
+            task.solution!.forEach((solution, index) => {
+                const prevSolution = index ? task.solution![index-1] : undefined;
+                let measureDate = deadlineDate;
+                if (prevSolution?.rating && prevSolution?.ratingDate && 
+                    prevSolution.ratingDate < solution.publicationDate! && prevSolution.ratingDate > deadlineDate) {
+                    measureDate = prevSolution.ratingDate;
+                    isCountedFromRatingDate.set(count, true);
+                }
+                const deviation = getDatesDiff(
+                    solution.publicationDate!, 
+                    measureDate);
                 const color = 
                     StudentStatsUtils.calculateLastRatedSolutionInfo([solution], maxRating).color;
 
@@ -181,7 +196,7 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
             >
                 <XAxis dataKey="xAxisPosition"
                        tickMargin={10}
-                       ticks={Array.from(titleRepresentation.keys())}
+                       ticks={Array.from(titleRepresentation.keys()).map(v => v -1)}
                        tick={<CustomXAxisTick title={titleRepresentation} barsAmount={SectorBarsAmount}/>}
                        padding={{left: 20}}
                        strokeWidth={0.5}
@@ -191,7 +206,10 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
                 <ZAxis range={[30, 31]}/>
                 
                 <Tooltip 
-                    content={ <CustomTooltip deadlineRepresentation={deadlinesRepresentation}/>}
+                    content={ <CustomTooltip 
+                        deadlineRepresentation={deadlinesRepresentation} 
+                        isCountedFromRatingDate={isCountedFromRatingDate}
+                    />}
                     wrapperStyle={{border: `solid 1px ${chartColors.tooltipBorder}`, borderRadius: 3, background: 'white'}}
                 />
                 

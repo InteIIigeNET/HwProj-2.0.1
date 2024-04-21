@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using HwProj.Models.AuthService.DTO;
 using HwProj.Repositories;
 
 namespace HwProj.CoursesService.API.Models
