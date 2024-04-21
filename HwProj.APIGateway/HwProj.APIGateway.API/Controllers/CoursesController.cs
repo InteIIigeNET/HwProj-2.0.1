@@ -66,6 +66,7 @@ namespace HwProj.APIGateway.API.Controllers
                 Mentors = getMentorsTask.Result.Where(t => t != null).ToArray(),
                 AcceptedStudents = acceptedStudents.ToArray(),
                 NewStudents = newStudents.ToArray(),
+                isAutoSolutionOnly = course.IsAutoSolutionOnly,
                 Homeworks = course.Homeworks,
                 IsCompleted = course.IsCompleted,
                 IsOpen = course.IsOpen,
@@ -85,7 +86,7 @@ namespace HwProj.APIGateway.API.Controllers
         [HttpPost("create")]
         [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> CreateCourse(CreateCourseViewModel model)
+        public async Task<IActionResult> CreateCourse(CreateCourseDto model)
         {
             var result = await _coursesClient.CreateCourse(model, UserId);
             return Ok(result);
@@ -93,7 +94,7 @@ namespace HwProj.APIGateway.API.Controllers
 
         [HttpPost("update/{courseId}")]
         [Authorize(Roles = Roles.LecturerRole)]
-        public async Task<IActionResult> UpdateCourse(UpdateCourseViewModel model, long courseId)
+        public async Task<IActionResult> UpdateCourse(UpdateCourseDto model, long courseId)
         {
             await _coursesClient.UpdateCourse(model, courseId);
             return Ok();

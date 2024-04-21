@@ -106,6 +106,7 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok(new UserTaskSolutionsPageData()
             {
                 CourseId = course.Id,
+                isAutoSolutionOnly = course.IsAutoSolutionOnly,
                 CourseMates = accounts,
                 TaskSolutions = taskSolutions,
                 Task = tasks[taskId]

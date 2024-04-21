@@ -109,7 +109,8 @@ namespace HwProj.CoursesService.API.Services
         public async Task<bool> AddStudentAsync(long courseId, string studentId)
         {
             var course = await _coursesRepository.GetAsync(courseId);
-            var cm = await _courseMatesRepository.FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
+            var cm = await _courseMatesRepository
+                .FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
 
             if (course == null || cm != null)
                 return false;
@@ -137,7 +138,8 @@ namespace HwProj.CoursesService.API.Services
         public async Task<bool> AcceptCourseMateAsync(long courseId, string studentId)
         {
             var course = await _coursesRepository.GetAsync(courseId);
-            var cm = await _courseMatesRepository.FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
+            var cm = await _courseMatesRepository
+                .FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
 
             if (course == null || cm == null)
                 return false;
@@ -158,7 +160,8 @@ namespace HwProj.CoursesService.API.Services
         public async Task<bool> RejectCourseMateAsync(long courseId, string studentId)
         {
             var course = await _coursesRepository.GetAsync(courseId);
-            var cm = await _courseMatesRepository.FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
+            var cm = await _courseMatesRepository
+                .FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
 
             if (course == null || cm == null)
                 return false;
@@ -194,7 +197,8 @@ namespace HwProj.CoursesService.API.Services
         public async Task<bool> AcceptLecturerAsync(long courseId, string lecturerEmail, string lecturerId)
         {
             var course = await _coursesRepository.GetAsync(courseId);
-            if (course == null) return false;
+            if (course == null) 
+                return false;
             if (!course.MentorIds.Contains(lecturerId))
             {
                 var newMentors = course.MentorIds + "/" + lecturerId;

@@ -6,7 +6,7 @@ using HwProj.Models.AuthService.DTO;
 
 namespace HwProj.Models.CoursesService.ViewModels
 {
-    public class CreateCourseViewModel
+    public class CreateCourseDto
     {
         [Required]
         [RegularExpression(@"^\S+.*", ErrorMessage = "Name shouldn't start with white spaces.")]
@@ -19,7 +19,7 @@ namespace HwProj.Models.CoursesService.ViewModels
         [Required] public bool IsOpen { get; set; }
     }
 
-    public class UpdateCourseViewModel
+    public class UpdateCourseDto
     {
         [Required]
         [RegularExpression(@"^\S+.*", ErrorMessage = "Name shouldn't start with white spaces.")]
@@ -53,7 +53,7 @@ namespace HwProj.Models.CoursesService.ViewModels
         public string GroupName { get; set; }
         public bool IsOpen { get; set; }
         public bool IsCompleted { get; set; }
-
+        public bool isAutoSolutionOnly { get; set; }
         public AccountDataDto[] Mentors { get; set; }
         public AccountDataDto[] AcceptedStudents { get; set; }
         public AccountDataDto[] NewStudents { get; set; }

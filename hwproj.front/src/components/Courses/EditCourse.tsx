@@ -16,6 +16,7 @@ interface IEditCourseState {
     name: string,
     groupName?: string,
     isCompleted: boolean,
+    isAutoSolutionOnly: boolean,
     mentors: AccountDataDto[],
     edited: boolean,
     deleted: boolean,
@@ -66,6 +67,7 @@ const EditCourse: FC = () => {
         name: "",
         groupName: "",
         isCompleted: false,
+        isAutoSolutionOnly: false,
         mentors: [],
         edited: false,
         deleted: false,
@@ -89,6 +91,7 @@ const EditCourse: FC = () => {
             name: course.name!,
             groupName: course.groupName!,
             isOpen: course.isOpen!,
+            isAutoSolutionOnly: course.isAutoSolutionOnly!,
             isCompleted: course.isCompleted!,
             mentors: course.mentors!,
         }))
@@ -100,7 +103,8 @@ const EditCourse: FC = () => {
             name: courseState.name,
             groupName: courseState.groupName,
             isOpen: true,
-            isCompleted: courseState.isCompleted
+            isCompleted: courseState.isCompleted,
+            isAutoSolutionOnly: courseState.isAutoSolutionOnly
         };
 
         await ApiSingleton.coursesApi.apiCoursesUpdateByCourseIdPost(+courseId!, courseViewModel)
@@ -111,7 +115,7 @@ const EditCourse: FC = () => {
     }
 
     const onOpenToken = async () => {
-        const token = (await ApiSingleton.coursesApi.apiCoursesGetTokenByCourseIdGet(+courseId!)).value?.accessToken
+        const token = (await ApiSingleton.coursesApi.apiCoursesGetTokenByCourseIdGet(+courseId!)).accessToken
         setTokenState((prevState) => ({
             ...prevState,
             isOpen: true,
@@ -216,6 +220,25 @@ const EditCourse: FC = () => {
                                             />
                                         }
                                         label="Завершённый курс"
+                                    />
+                                </Grid>
+                                <Grid>
+                                    <FormControlLabel
+                                        style={{margin: 0}}
+                                        control={
+                                            <Checkbox
+                                                color="primary"
+                                                checked={courseState.isAutoSolutionOnly}
+                                                onChange={(e) => {
+                                                    e.persist()
+                                                    setCourseState((prevState) => ({
+                                                        ...prevState,
+                                                        isAutoSolutionOnly: e.target.checked
+                                                    }))
+                                                }}
+                                            />
+                                        }
+                                        label="Запретить самостоятельную отправку решений"
                                     />
                                 </Grid>
                             <Grid className={classes.item} style={{alignItems: 'center'}}>

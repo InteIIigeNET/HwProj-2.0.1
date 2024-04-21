@@ -73,7 +73,7 @@ namespace HwProj.CoursesService.Client
             return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
         }
 
-        public async Task<long> CreateCourse(CreateCourseViewModel model, string mentorId)
+        public async Task<long> CreateCourse(CreateCourseDto model, string mentorId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
@@ -89,7 +89,7 @@ namespace HwProj.CoursesService.Client
             return await response.DeserializeAsync<long>();
         }
 
-        public async Task<Result> UpdateCourse(UpdateCourseViewModel model, long courseId)
+        public async Task<Result> UpdateCourse(UpdateCourseDto model, long courseId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,

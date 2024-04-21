@@ -72,10 +72,10 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> AddCourse([FromBody] CreateCourseViewModel courseViewModel,
+        public async Task<IActionResult> AddCourse([FromBody] CreateCourseDto courseDto,
             [FromQuery] string mentorId)
         {
-            var course = _mapper.Map<Course>(courseViewModel);
+            var course = _mapper.Map<Course>(courseDto);
             var id = await _coursesService.AddAsync(course, mentorId);
             return Ok(id);
         }
@@ -90,14 +90,15 @@ namespace HwProj.CoursesService.API.Controllers
 
         [HttpPost("update/{courseId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        public async Task<IActionResult> UpdateCourse(long courseId, [FromBody] UpdateCourseViewModel courseViewModel)
+        public async Task<IActionResult> UpdateCourse(long courseId, [FromBody] UpdateCourseDto courseDto)
         {
             await _coursesService.UpdateAsync(courseId, new Course
             {
-                Name = courseViewModel.Name,
-                GroupName = courseViewModel.GroupName,
-                IsCompleted = courseViewModel.IsCompleted,
-                IsOpen = courseViewModel.IsOpen
+                Name = courseDto.Name,
+                GroupName = courseDto.GroupName,
+                IsCompleted = courseDto.IsCompleted,
+                IsAutoSolutionOnly = courseDto.IsAutoSolutionOnly,
+                IsOpen = courseDto.IsOpen
             });
 
             return Ok();

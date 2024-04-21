@@ -4,6 +4,8 @@ import {
   Button,
   Typography,
   Grid,
+  FormControlLabel,
+  Checkbox
 } from "@material-ui/core";
 import ApiSingleton from "../../api/ApiSingleton";
 import './Styles/CreateCourse.css';
@@ -16,6 +18,7 @@ interface ICreateCourseState {
   name: string;
   groupName?: string;
   courseId: string;
+  isAutoSolutionOnly: boolean;
   errors: string[];
 }
 
@@ -42,6 +45,7 @@ const CreateCourse: FC = () => {
   const [course, setCourse] = useState<ICreateCourseState>({
     name: "",
     groupName: "",
+    isAutoSolutionOnly: false,
     courseId: "",
     errors: [],
   })
@@ -125,6 +129,26 @@ const CreateCourse: FC = () => {
                 />
               </Grid>
             </Grid>
+            <Grid item>
+              <FormControlLabel
+                  style={{margin: 0}}
+                  control={
+                      <Checkbox
+                          defaultChecked
+                          color="primary"
+                          checked={course.isAutoSolutionOnly}
+                          onChange={(e) => {
+                              e.persist()
+                              setCourse((prevState) => ({
+                                  ...prevState,
+                                  isAutoSolutionOnly: e.target.checked
+                              }))
+                          }}
+                      />
+                  }
+                  label="Запретить самостоятельную отправку решений"
+              />
+          </Grid>
             <Button
                 style={{ marginTop: '16px'}}
                 fullWidth
