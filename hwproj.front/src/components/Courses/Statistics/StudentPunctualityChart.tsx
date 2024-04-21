@@ -7,6 +7,7 @@ import { HomeworkViewModel, StatisticsCourseMatesModel } from '../../../api';
 import StudentStatsUtils from "../../../services/StudentStatsUtils";
 import Utils from "../../../services/Utils";
 import {Payload, ValueType} from "recharts/types/component/DefaultTooltipContent";
+import {Day} from "@material-ui/pickers";
 interface IStudentPunctualityChartProps {
     index: number;
     homeworks: HomeworkViewModel[];
@@ -26,6 +27,7 @@ interface ICustomTooltipProps {
     label? : number;
     deadlineRepresentation : Map<number, string>;
     isCountedFromRatingDate: Map<number, boolean>;
+    actuallyDeviation: Map<number, number>;
 }
 
 const chartColors = {
@@ -34,6 +36,7 @@ const chartColors = {
     axisLabel: 'rgb(126, 126, 126)',
     tooltipBorder: 'rgb(232, 232, 232)'
 }
+const MAXIMUM_DEVIATION = 10;
 
 const CustomYAxisTick = (props : any) => {
     const { x, y, payload } = props;
@@ -50,7 +53,7 @@ const CustomYAxisTick = (props : any) => {
 const CustomXAxisTick = (props : any) => {
     const { x, y, payload, title, barsAmount} = props;
     
-    const maxWordSize = 10 + 4 * barsAmount.get(payload.value);
+    const maxWordSize = MAXIMUM_DEVIATION + 4 * barsAmount.get(payload.value);
     const value = payload.value + 1;
     const customTitle = title.get(value).split(' ').map((word : string) => 
         {
@@ -77,11 +80,10 @@ const CustomTooltip : React.FC<ICustomTooltipProps> = (props) => {
         if (props.payload![0].name === 'scatter') {
             return 'День дедлайна'
         } else {
-            const dateToMs = parseFloat(`${props.payload![0].value!}`) * 1000 * 3600 * 24;
+            const dateToMs = props.actuallyDeviation.get(props.label!)! * 1000 * 3600 * 24;
             const sentDeviationDeadline = Utils.pluralizeDateTime(Math.abs(dateToMs));
             const isCountedFromRating = props.isCountedFromRatingDate.get(props.label!);
             const measure = isCountedFromRating  ? 'последней проверки' : 'дедлайна';
-            
             return (Math.abs(dateToMs / 60000) < 1) ? `Сдано ${isCountedFromRating ? 'сразу после последней проверки' : 'ровно в срок'}`
                 : (dateToMs < 0 
                     ? `Сдано через ${sentDeviationDeadline} после ${measure}`
@@ -108,18 +110,20 @@ const CustomTooltip : React.FC<ICustomTooltipProps> = (props) => {
 }
 
 const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props) => {
-    const MAXIMUM_DEVIATION = 10;
     const homeworks = props.homeworks.filter(hw => hw.tasks && hw.tasks.length > 0);
     const tasks = [...new Set(homeworks.map(hw => hw.tasks!).flat())]
         .sort((x, y) => {
             const [xDate, yDate] = [x.publicationDate!, y.publicationDate!];
             return xDate > yDate ? 1 : (yDate > xDate ? -1 : 0);
         })
+    const actuallyDeviation = new Map<number, number>();
     
-    const getDatesDiff = (solutionPublicationDate: Date, deadlineDate : Date) => {
+    const daysDifference = (firstDate: Date, secondDate : Date) => {
         const msecInDay = 1000 * 3600 * 24;
-        const differenceInDays = (new Date(deadlineDate).getTime() - new Date(solutionPublicationDate).getTime()) / msecInDay;
-        
+        return (new Date(firstDate).getTime() - new Date(secondDate).getTime()) / msecInDay;
+    }
+    const getDatesDiff = (solutionPublicationDate: Date, deadlineDate : Date) => {
+        const differenceInDays = daysDifference(deadlineDate, solutionPublicationDate);
         return ( Math.abs(differenceInDays) > MAXIMUM_DEVIATION
             ? MAXIMUM_DEVIATION * Math.sign(differenceInDays) : differenceInDays);
     }
@@ -151,9 +155,7 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
                     measureDate = prevSolution.ratingDate;
                     isCountedFromRatingDate.set(count, true);
                 }
-                const deviation = getDatesDiff(
-                    solution.publicationDate!, 
-                    measureDate);
+                const deviation = getDatesDiff(solution.publicationDate!, measureDate);
                 const color = 
                     StudentStatsUtils.calculateLastRatedSolutionInfo([solution], maxRating).color;
 
@@ -163,6 +165,7 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
                     isDeadlinePassed = true;
                     count += 1;
                 }
+                actuallyDeviation.set(count, daysDifference(measureDate, solution.publicationDate!));
                 
                 solveAttempts.push({fill : color, xAxisPosition: count, yAxisPosition: deviation})
                 count += 1;
@@ -209,6 +212,7 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
                     content={ <CustomTooltip 
                         deadlineRepresentation={deadlinesRepresentation} 
                         isCountedFromRatingDate={isCountedFromRatingDate}
+                        actuallyDeviation={actuallyDeviation}
                     />}
                     wrapperStyle={{border: `solid 1px ${chartColors.tooltipBorder}`, borderRadius: 3, background: 'white'}}
                 />
