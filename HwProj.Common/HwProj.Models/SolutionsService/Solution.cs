@@ -24,6 +24,8 @@ namespace HwProj.Models.SolutionsService
         public long TaskId { get; set; }
 
         public DateTime PublicationDate { get; set; }
+        
+        public DateTime? RatingDate { get; set; }
 
         public string LecturerComment { get; set; }
     }

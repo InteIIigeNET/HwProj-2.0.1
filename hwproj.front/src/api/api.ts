@@ -1244,6 +1244,12 @@ export interface Solution {
     publicationDate?: Date;
     /**
      * 
+     * @type {Date}
+     * @memberof Solution
+     */
+    ratingDate?: Date;
+    /**
+     * 
      * @type {string}
      * @memberof Solution
      */
@@ -1394,6 +1400,12 @@ export interface SolutionViewModel {
      * @memberof SolutionViewModel
      */
     rating?: number;
+    /**
+     * 
+     * @type {Date}
+     * @memberof SolutionViewModel
+     */
+    ratingDate?: Date;
 }
 
 /**

@@ -16,5 +16,7 @@ namespace HwProj.Models.SolutionsService
         public string LecturerComment { get; set; }
 
         public int? Rating { get; set; }
+        
+        public DateTime? RatingDate { get; set; }
     }
 }
