@@ -185,8 +185,13 @@ namespace HwProj.AuthService.API.Services
             return Result<TokenCredentials>.Failed(result.Errors.Select(errors => errors.Description).ToArray());
         }
 
-        public async Task<Result<TokenCredentials>> RegisterExpertAsync(RegisterExpertViewModel model)
+        public async Task<Result> RegisterExpertAsync(RegisterExpertViewModel model)
         {
+            if (await _userManager.FindByEmailAsync(model.Email) != null)
+            {
+                return Result.Failed("Пользователь уже зарегистрирован");
+            }
+
             var user = _mapper.Map<User>(model);
             user.UserName = user.Email;
 
@@ -200,13 +205,9 @@ namespace HwProj.AuthService.API.Services
                     return _userManager.UpdateAsync(user);
                 });
 
-            if (result.Succeeded)
-            {
-                // todo: now create and save in database proxy course for expert, based on model properties
-                return await GetToken(user, model.TokenExpirationTime);
-            }
-
-            return Result<TokenCredentials>.Failed(result.Errors.Select(errors => errors.Description).ToArray());
+            return result.Succeeded
+                ? Result.Success()
+                : Result.Failed(result.Errors.Select(errors => errors.Description).ToArray());
         }
 
         public async Task<Result> InviteNewLecturer(string emailOfInvitedUser)
@@ -364,10 +365,9 @@ namespace HwProj.AuthService.API.Services
                 .ConfigureAwait(false);
         }
 
-        private async Task<Result<TokenCredentials>> GetToken(User user, DateTime? tokenExpirationTime = null)
+        private async Task<Result<TokenCredentials>> GetToken(User user)
         {
-            return Result<TokenCredentials>.Success(
-                await _tokenService.GetTokenAsync(user, tokenExpirationTime).ConfigureAwait(false));
+            return Result<TokenCredentials>.Success(await _tokenService.GetTokenAsync(user).ConfigureAwait(false));
         }
     }
 }

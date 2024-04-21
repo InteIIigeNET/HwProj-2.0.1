@@ -24,7 +24,7 @@ namespace HwProj.AuthService.API.Services
             _configuration = configuration.GetSection("AppSettings");
         }
 
-        public async Task<TokenCredentials> GetTokenAsync(User user, DateTime? tokenExpirationTime = null)
+        public async Task<TokenCredentials> GetTokenAsync(User user)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["SecurityKey"]));
             var timeNow = DateTime.UtcNow;
@@ -34,7 +34,7 @@ namespace HwProj.AuthService.API.Services
             var token = new JwtSecurityToken(
                 issuer: _configuration["ApiName"],
                 notBefore: timeNow,
-                expires: tokenExpirationTime ?? timeNow.AddMinutes(int.Parse(_configuration["ExpiresIn"])),
+                expires: timeNow.AddMinutes(int.Parse(_configuration["ExpiresIn"])),
                 claims: new[]
                 {
                     new Claim("_userName", user.UserName),

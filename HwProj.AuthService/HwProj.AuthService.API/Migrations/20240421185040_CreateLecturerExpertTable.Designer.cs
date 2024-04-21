@@ -4,14 +4,16 @@ using HwProj.AuthService.API.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HwProj.AuthService.API.Migrations
 {
     [DbContext(typeof(IdentityContext))]
-    partial class IdentityContextModelSnapshot : ModelSnapshot
+    [Migration("20240421185040_CreateLecturerExpertTable")]
+    partial class CreateLecturerExpertTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -28,7 +30,7 @@ namespace HwProj.AuthService.API.Migrations
                     b.Property<string>("ExpertId");
 
                     b.Property<string>("LecturerId");
-                    
+
                     b.HasKey("Id");
 
                     b.ToTable("LecturerExperts");
