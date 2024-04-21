@@ -101,6 +101,7 @@ namespace HwProj.CoursesService.API.Services
                 Name = updated.Name,
                 GroupName = updated.GroupName,
                 IsCompleted = updated.IsCompleted,
+                IsAutoSolutionOnly = updated.IsAutoSolutionOnly,
                 IsOpen = updated.IsOpen
             });
         }

@@ -7,7 +7,6 @@ using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
-using HwProj.Models.Result;
 using HwProj.Models.Roles;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

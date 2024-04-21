@@ -13,6 +13,8 @@ namespace HwProj.Models.CoursesService.ViewModels
         public string Name { get; set; }
 
         public string GroupName { get; set; }
+        
+        public bool isAutoSolutionOnly { get; set; }
 
         [Required] public bool IsOpen { get; set; }
     }
@@ -26,6 +28,8 @@ namespace HwProj.Models.CoursesService.ViewModels
         public string GroupName { get; set; }
 
         [Required] public bool IsOpen { get; set; }
+        
+        public bool IsAutoSolutionOnly { get; set; }
 
         public bool IsCompleted { get; set; }
     }
@@ -34,6 +38,7 @@ namespace HwProj.Models.CoursesService.ViewModels
     {
         public bool IsOpen { get; set; }
         public string InviteCode { get; set; }
+        public bool IsAutoSolutionOnly { get; set; }
         public CourseMateViewModel[] CourseMates { get; set; }
         public HomeworkViewModel[] Homeworks { get; set; }
         public GroupViewModel[] Groups { get; set; } = Array.Empty<GroupViewModel>();
