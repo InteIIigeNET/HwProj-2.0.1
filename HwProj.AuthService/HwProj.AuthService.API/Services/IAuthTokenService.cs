@@ -7,6 +7,6 @@ namespace HwProj.AuthService.API.Services
 {
     public interface IAuthTokenService
     {
-        Task<TokenCredentials> GetTokenAsync(User user, DateTime? tokenExpirationTime = null);
+        Task<TokenCredentials> GetTokenAsync(User user);
     }
 }

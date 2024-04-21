@@ -6,6 +6,8 @@ namespace HwProj.AuthService.API.Models
 {
     public sealed class IdentityContext : IdentityDbContext<User>
     {
+        public DbSet<LecturerExpert> LecturerExperts { get; set; }
+        
         public IdentityContext(DbContextOptions<IdentityContext> options)
             : base(options)
         {

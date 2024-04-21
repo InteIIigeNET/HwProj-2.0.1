@@ -20,7 +20,6 @@ namespace HwProj.Utils.Auth
                     options => options.MapFrom(model => model.Bio))
                 .ForMember(destination => destination.CompanyName,
                 options => options.MapFrom(model => model.CompanyName));
-
         }
     }
 }

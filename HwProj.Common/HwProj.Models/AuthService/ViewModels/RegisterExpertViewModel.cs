@@ -21,14 +21,5 @@ namespace HwProj.Models.AuthService.ViewModels
         public string Bio { get; set; }
         
         public string CompanyName { get; set; }
-
-        [Required]
-        public int CourseId { get; set; }
-
-        [Required]
-        public int HomeworkId { get; set; }
-
-        [Required]
-        public DateTime TokenExpirationTime { get; set; }
     }
 }
