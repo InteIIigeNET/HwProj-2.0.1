@@ -5,6 +5,7 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {AccountDataDto, SolutionViewModel} from "../../api";
 import {FC, useState} from "react";
 import {Alert, Autocomplete, Grid, DialogContent, Dialog, DialogTitle, DialogActions} from "@mui/material";
+import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 
 interface IAddSolutionProps {
     userId: string
@@ -90,12 +91,15 @@ const AddSolution: FC<IAddSolutionProps> = (props) => {
                                 решения</Alert>}
                     </Grid>}
                     <Grid item xs={12} style={{marginTop: '16px'}}>
-                        <TextField
+                        <TextFieldWithPreview
                             multiline
                             fullWidth
-                            rows="4"
+                            minRows={4}
+                            maxRows={20}
+                            margin="normal"
                             label="Комментарий"
                             variant="outlined"
+                            previewStyle={{borderColor: "GrayText"}}
                             value={solution.comment}
                             onChange={(e) => {
                                 e.persist()

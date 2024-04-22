@@ -11,7 +11,7 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 import Utils from "../../services/Utils";
 import {RatingStorage} from "../Storages/RatingStorage";
 import {Assignment, Edit, GradingTwoTone} from "@mui/icons-material";
-import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
+import {ReactMarkdownWithCodeHighlighting, TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 import {LoadingButton} from "@mui/lab";
 
 interface ISolutionProps {
@@ -52,7 +52,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         setState(getDefaultState())
         getAchievementState()
         setRateInProgressState(false)
-        
+
     }, [props.student.userId, props.task.id, props.solution?.id, props.solution?.rating])
 
     useEffect(() => {
@@ -187,145 +187,143 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
 
     const sentAfterDeadline = solution && task.hasDeadline && getDatesDiff(solution.publicationDate!, task.deadlineDate!)
 
-    return (<div>
-            <Grid container direction="column" spacing={2}>
-                {solution &&
-                    <Stack direction={students.length > 1 ? "column" : "row"} spacing={1} style={{marginLeft: 7}}>
+    return <Grid container direction="column" spacing={2} style={{marginTop: -16}}>
+        {solution &&
+            <Grid item container direction={"column"} spacing={1}>
+                <Grid item>
+                    <Stack direction={students.length > 1 ? "column" : "row"}
+                           alignItems={students.length === 1 ? "center" : "normal"} spacing={1}>
                         <Stack direction={"row"} spacing={1}>
                             {students && students.map(t => <Tooltip title={t.surname + " " + t.name}>
                                 <Avatar {...AvatarUtils.stringAvatar(t.name!, t.surname!)} />
                             </Tooltip>)}
                         </Stack>
                         <Grid item spacing={1} container direction="column">
-                            {solution.comment &&
-                                <Grid item>
-                                    <Typography className="antiLongWords">
-                                        {solution.comment}
-                                    </Typography>
-                                </Grid>
-                            }
-                            <Grid item>
-                                <Stack>
-                                    {solution.githubUrl && <Link
-                                        href={solution.githubUrl}
-                                        target="_blank"
-                                        style={{color: 'darkblue'}}
-                                    >
-                                        {solution.githubUrl?.startsWith("https://github.com/") && <GitHubIcon/>} Ссылка
-                                        на
-                                        решение
-                                    </Link>}
-                                </Stack>
-                                <Typography style={{color: "GrayText"}}>
-                                    {postedSolutionTime}
-                                </Typography>
-                            </Grid>
-                        </Grid>
-                    </Stack>}
-                {sentAfterDeadline && <Grid item>
-                    <Alert variant="standard" severity="warning">
-                        Решение сдано на {sentAfterDeadline} позже дедлайна.
-                    </Alert>
-                </Grid>}
-                {points > maxRating && <Grid item>
-                    <Alert variant="standard" severity="info">
-                        Решение оценено выше максимального балла.
-                    </Alert>
-                </Grid>}
-                {achievement !== undefined && <Grid item>
-                    <Alert variant="outlined" severity={achievement >= 80 ? "success" : "info"}>
-                        Лучше {achievement}% других решений по задаче.
-                    </Alert>
-                </Grid>}
-                {(props.forMentor || isRated) &&
-                    <Grid item container direction={"column"}>
-                        {lecturerName && isRated &&
-                            <Stack direction={"row"} alignItems={"center"} spacing={1} style={{marginTop: 5}}>
-                                <Avatar>
-                                    {state.clickedForRate ? <Edit/> : <Assignment/>}
-                                </Avatar>
-                                <Typography variant={"body1"}>{state.clickedForRate ? "..." : lecturerName}</Typography>
-                            </Stack>}
-                        {renderRateInput()}
-                        {lastRating !== undefined &&
-                            <Typography style={{color: "GrayText", fontSize: "medium", marginBottom: 5}}>
-                                Оценка за предыдущее решение: {lastRating} ⭐
-                            </Typography>}
-                    </Grid>}
-                {((isRated && lecturerComment) || state.clickedForRate) &&
-                    <Grid item style={{marginTop: -15, marginBottom: -15}}>
-                        <TextFieldWithPreview
-                            multiline
-                            fullWidth
-                            InputProps={{
-                                readOnly: !props.forMentor || !state.clickedForRate
-                            }}
-                            rows="4"
-                            rowsMax="15"
-                            label="Комментарий преподавателя"
-                            variant="outlined"
-                            margin="normal"
-                            isEditable={props.forMentor}
-                            value={state.lecturerComment}
-                            previewStyle={{borderColor: "GrayText"}}
-                            onClick={() => {
-                                if (!state.clickedForRate)
-                                    setState((prevState) => ({
-                                        ...prevState,
-                                        clickedForRate: true
-                                    }))
-                            }}
-                            onChange={(e) => {
-                                e.persist()
-                                setState((prevState) => ({
-                                    ...prevState,
-                                    lecturerComment: e.target.value
-                                }))
-                            }}
-                        />
-                        {props.forMentor && state.clickedForRate && <Typography variant={"caption"}>
-                            Промежуточное оценивание будет сохранено локально
-                        </Typography>}
-                    </Grid>
-                }
-                {props.forMentor && state.clickedForRate &&
-                    <Grid container item spacing={1} style={{marginTop: '10px'}}>
-                        <Grid item>
-                            <LoadingButton
-                                loading={rateInProgress}
-                                endIcon={<GradingTwoTone />}
-                                loadingPosition="end"
-                                size="small"
-                                variant="contained"
-                                style={rateInProgress ? undefined : {backgroundColor: "#3f51b5"}} 
-                                onClick={rateSolution}
+                            {solution.githubUrl && <Link
+                                href={solution.githubUrl}
+                                target="_blank"
+                                style={{color: 'darkblue'}}
                             >
-                                {isRated ? "Изменить оценку" : "Оценить решение"}
-                            </LoadingButton>
+                                {solution.githubUrl?.startsWith("https://github.com/") &&
+                                    <GitHubIcon/>} Ссылка
+                                на
+                                решение
+                            </Link>}
+                            <Typography style={{color: "GrayText"}}>
+                                {postedSolutionTime}
+                            </Typography>
                         </Grid>
-                        <Grid item>
-                            { !rateInProgress &&
-                            <Button
-                                size="small"
-                                variant="contained"
-                                color="primary"
-                                onClick={() => {
-                                    setState(prevState => ({
-                                        ...prevState,
-                                        points: props.solution?.rating || 0,
-                                        lecturerComment: props.solution?.lecturerComment || "",
-                                        clickedForRate: false
-                                    }))
-                                }}
-                            >
-                                Отмена
-                            </Button>}
-                        </Grid>
+                    </Stack>
+                </Grid>
+                {solution.comment &&
+                    <Grid item style={{marginBottom: -16}}>
+                        <ReactMarkdownWithCodeHighlighting value={solution.comment as string}/>
                     </Grid>
                 }
             </Grid>
-        </div>
-    )
+        }
+        {sentAfterDeadline && <Grid item>
+            <Alert variant="standard" severity="warning">
+                Решение сдано на {sentAfterDeadline} позже дедлайна.
+            </Alert>
+        </Grid>}
+        {points > maxRating && <Grid item>
+            <Alert variant="standard" severity="info">
+                Решение оценено выше максимального балла.
+            </Alert>
+        </Grid>}
+        {achievement !== undefined && <Grid item>
+            <Alert variant="outlined" severity={achievement >= 80 ? "success" : "info"}>
+                Лучше {achievement}% других решений по задаче.
+            </Alert>
+        </Grid>}
+        {(props.forMentor || isRated) &&
+            <Grid item container direction={"column"}>
+                {lecturerName && isRated &&
+                    <Stack direction={"row"} alignItems={"center"} spacing={1} style={{marginTop: 5}}>
+                        <Avatar>
+                            {state.clickedForRate ? <Edit/> : <Assignment/>}
+                        </Avatar>
+                        <Typography variant={"body1"}>{state.clickedForRate ? "..." : lecturerName}</Typography>
+                    </Stack>}
+                {renderRateInput()}
+                {lastRating !== undefined &&
+                    <Typography style={{color: "GrayText", fontSize: "medium", marginBottom: 5}}>
+                        Оценка за предыдущее решение: {lastRating} ⭐
+                    </Typography>}
+            </Grid>}
+        {((isRated && lecturerComment) || state.clickedForRate) &&
+            <Grid item style={{marginTop: -15, marginBottom: -15}}>
+                <TextFieldWithPreview
+                    multiline
+                    fullWidth
+                    InputProps={{
+                        readOnly: !props.forMentor || !state.clickedForRate
+                    }}
+                    rows="4"
+                    rowsMax="15"
+                    label="Комментарий преподавателя"
+                    variant="outlined"
+                    margin="normal"
+                    isEditable={props.forMentor}
+                    value={state.lecturerComment}
+                    previewStyle={{borderColor: "GrayText"}}
+                    onClick={() => {
+                        if (!state.clickedForRate)
+                            setState((prevState) => ({
+                                ...prevState,
+                                clickedForRate: true
+                            }))
+                    }}
+                    onChange={(e) => {
+                        e.persist()
+                        setState((prevState) => ({
+                            ...prevState,
+                            lecturerComment: e.target.value
+                        }))
+                    }}
+                />
+                {props.forMentor && state.clickedForRate && <Typography variant={"caption"}>
+                    Промежуточное оценивание будет сохранено локально
+                </Typography>}
+            </Grid>
+        }
+        {props.forMentor && state.clickedForRate &&
+            <Grid container item spacing={1} style={{marginTop: '10px'}}>
+                <Grid item>
+                    <LoadingButton
+                        loading={rateInProgress}
+                        endIcon={<GradingTwoTone/>}
+                        loadingPosition="end"
+                        size="small"
+                        variant="contained"
+                        style={rateInProgress ? undefined : {backgroundColor: "#3f51b5"}}
+                        onClick={rateSolution}
+                    >
+                        {isRated ? "Изменить оценку" : "Оценить решение"}
+                    </LoadingButton>
+                </Grid>
+                <Grid item>
+                    {!rateInProgress &&
+                        <Button
+                            size="small"
+                            variant="contained"
+                            color="primary"
+                            onClick={() => {
+                                setState(prevState => ({
+                                    ...prevState,
+                                    points: props.solution?.rating || 0,
+                                    lecturerComment: props.solution?.lecturerComment || "",
+                                    clickedForRate: false
+                                }))
+                            }}
+                        >
+                            Отмена
+                        </Button>}
+                </Grid>
+            </Grid>
+        }
+    </Grid>
 }
 
 export default TaskSolutionComponent
