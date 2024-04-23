@@ -4,6 +4,7 @@ import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "
 import StudentStatsCell from "../Tasks/StudentStatsCell";
 import {Alert} from "@mui/material";
 import {grey} from "@material-ui/core/colors";
+import HomeworkTags from "../Common/HomeworkTags";
 
 interface IStudentStatsProps {
     course: CourseViewModel;
@@ -49,6 +50,19 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
         : props.solutions
 
     const borderStyle = `1px solid ${greyBorder}`
+    const testHomeworkStyle = {
+        backgroundColor: "#3f51b5",
+        borderLeftColor: "#3f51b5",
+        color: "white",
+    }
+
+    const homeworkStyles = (homeworks: HomeworkViewModel[], idx: number): React.CSSProperties | undefined => {
+        if (homeworks[idx].tags?.includes(HomeworkTags.TestTag))
+            return testHomeworkStyle
+        if (idx !== 0 && homeworks[idx - 1].tags?.includes(HomeworkTags.TestTag))
+            return {borderLeftColor: testHomeworkStyle.borderLeftColor}
+        return undefined
+    }
 
     return (
         <div>
@@ -64,32 +78,33 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                        padding="none"
                                        component="td">
                             </TableCell>
-                            {homeworks.map((homework) => (
+                            {homeworks.map((homework, idx) =>
                                 <TableCell
                                     padding="checkbox"
                                     component="td"
                                     align="center"
                                     style={{
                                         zIndex: -5,
-                                        borderLeft: borderStyle
+                                        borderLeft: borderStyle,
+                                        ...homeworkStyles(homeworks, idx)
                                     }}
                                     colSpan={homework.tasks!.length}
                                 >
                                     {homework.title}
-                                </TableCell>
-                            ))}
+                                </TableCell>)}
                         </TableRow>
                         <TableRow>
                             <TableCell style={{zIndex: 10}}
                                        component="td"></TableCell>
-                            {homeworks.map((homework) =>
+                            {homeworks.map((homework, idx) =>
                                 homework.tasks!.map((task, i) => (
                                     <TableCell padding="checkbox" component="td" align="center"
                                                style={{
                                                    minWidth: "75px",
                                                    paddingLeft: 10,
                                                    paddingRight: 10,
-                                                   borderLeft: i === 0 ? borderStyle : ""
+                                                   borderLeft: i === 0 ? borderStyle : "",
+                                                   ...homeworkStyles(homeworks, idx)
                                                }}
                                                key={task.id}>
                                         {task.title}
@@ -111,9 +126,10 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                 >
                                     {cm.surname} {cm.name}
                                 </TableCell>
-                                {homeworks.map((homework) =>
-                                    homework.tasks!.map((task) => (
-                                        <StudentStatsCell
+                                {homeworks.map((homework, idx) =>
+                                    homework.tasks!.map((task, i) => {
+                                        const additionalStyles = i === 0 && homeworkStyles(homeworks, idx)
+                                        return <StudentStatsCell
                                             solutions={solutions
                                                 .find(s => s.id == cm.id)!.homeworks!
                                                 .find(h => h.id == homework.id)!.tasks!
@@ -122,8 +138,9 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                             forMentor={props.isMentor}
                                             studentId={String(cm.id)}
                                             taskId={task.id!}
-                                            taskMaxRating={task.maxRating!}/>
-                                    ))
+                                            taskMaxRating={task.maxRating!}
+                                            {...additionalStyles}/>;
+                                    })
                                 )}
                             </TableRow>
                         ))}
