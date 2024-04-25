@@ -96,10 +96,12 @@ const StudentProgressChart : React.FC<IStudentProgressChartProps> = (props) => {
         }
         
     })
-    
-    const averageStudentLine: IChartPoint[] = [];
+
     totalRating = 0;
-    props.averageStudentSolutions.forEach(solution => {
+    const averageStudentLine = new Array<IChartPoint>();
+    props.averageStudentSolutions.sort((x, y) =>
+        compareDates(x.publicationDate!, y.publicationDate!) ).forEach(solution => {
+            
         totalRating += solution.rating!;
         const date = Utils.renderDateWithoutHours(new Date(solution.publicationDate!));
         const task = courseTasks.find(t => t.id === solution.taskId)!;
@@ -119,13 +121,12 @@ const StudentProgressChart : React.FC<IStudentProgressChartProps> = (props) => {
     })
 
     totalRating = 0;
-    
     const deadlineDates = Array.from(new Set(courseTasks.filter(t => t.hasDeadline!)
         .map(task => Utils.renderDateWithoutHours(task.deadlineDate!))));
     
     // для каждого студента отсортировали сгруппировали задачи по дню последнего решения
     const studentTasks = new Map(solutions.map(cm => {
-        const studentId = cm.name! + ' ' + cm.surname!;
+        const studentId = cm.name + ' ' + cm.surname;
         const tasks = cm.homeworks!.filter(hw => hw.tasks && hw.tasks.length > 0)
             .map(hw => hw.tasks!).flat().filter(t => t.solution && t.solution.length > 0)
         
@@ -198,9 +199,8 @@ const StudentProgressChart : React.FC<IStudentProgressChartProps> = (props) => {
 
     // дозаполняем все линии значениями во всех точках домена
     if (props.homeworks.length > 0) {
-        studentCharts.forEach(line => {
+        studentCharts.forEach((line, studentId) => {
             const dates = line.map(p => p.date)
-            const studentId = line[0].id!;
 
             if (!dates.includes(startCourseDate)) {
                 line.push({id: studentId, date: startCourseDate, totalRatingValue: 0, tasks: []});
