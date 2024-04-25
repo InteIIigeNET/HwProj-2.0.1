@@ -127,9 +127,10 @@ namespace HwProj.SolutionsService.API.Services
                 .AnyAsync();
 
             if (hasSolution) throw new InvalidOperationException("У студента имеются решения");
-
-            solution.PublicationDate = DateTime.UtcNow;
-            solution.RatingDate = DateTime.UtcNow;
+            var currentTime = DateTime.UtcNow;
+            
+            solution.PublicationDate = currentTime;
+            solution.RatingDate = currentTime;
             solution.TaskId = taskId;
             var id = await _solutionsRepository.AddAsync(solution);
             await RateSolutionAsync(id, solution.LecturerId!, solution.Rating, solution.LecturerComment);
