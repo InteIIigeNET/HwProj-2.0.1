@@ -9,7 +9,7 @@ export interface StudentItem {
 }
 interface StudentStatsListProps {
     mates : StudentItem[];
-    onStudentSelection : (studentId : string) => void;
+    onStudentsChange : (studentIds : string[]) => void;
 }
 
 const StudentCheckboxList : React.FC<StudentStatsListProps> = (props) => {
@@ -31,12 +31,7 @@ const StudentCheckboxList : React.FC<StudentStatsListProps> = (props) => {
             value={props.mates.filter(m => checked.includes(m.id))}
             onChange={(_, values) => {
                 const selectedStudentsId = values.map(v => v.id);
-                
-                const newSelectChangedStudents = selectedStudentsId.length > checked.length 
-                    ? selectedStudentsId.filter(s => !checked.includes(s))
-                    : checked.filter(c => !selectedStudentsId.includes(c));
-                
-                newSelectChangedStudents.forEach(s => props.onStudentSelection(s));
+                props.onStudentsChange(selectedStudentsId);
                 setChecked(selectedStudentsId)
             }}
         />

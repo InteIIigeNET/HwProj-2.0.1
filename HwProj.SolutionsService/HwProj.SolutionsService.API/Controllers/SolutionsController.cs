@@ -210,9 +210,9 @@ namespace HwProj.SolutionsService.API.Controllers
             return Ok(result);
         }
 
-        [HttpGet("getAdvancedStat/{courseId}")]
-        [ProducesResponseType(typeof(StatisticsCourseAdvancedDto), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetAdvancedStats(long courseId)
+        [HttpGet("getBenchmarkStat/{courseId}")]
+        [ProducesResponseType(typeof(StatisticsCourseStudentsBenchmarkDTO), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetBenchmarkStats(long courseId)
         {
             var course = await _coursesClient.GetCourseById(courseId);
             if (course == null) return NotFound();
@@ -224,30 +224,29 @@ namespace HwProj.SolutionsService.API.Controllers
             var solutions = await _solutionsRepository.FindAll(t => taskIds.Contains(t.TaskId)).ToListAsync();
             
             var averageStudentSolutions = solutions
-                .GroupBy(e => new { e.StudentId, e.TaskId })
-                .Select(e => e.OrderByDescending(s => s.PublicationDate).First())
-                .GroupBy(e => e.TaskId).Select(e => new StatisticsCourseMeasureSolutionModel
+                .GroupBy(e => new { Id = e.GroupId is {} groupId ? groupId.ToString() : e.StudentId, e.TaskId })
+                .Select(e => e
+                    .OrderByDescending(s => s.PublicationDate)
+                    .FirstOrDefault(s => s.State != SolutionState.Posted))
+                .Where(e => e != null)
+                .GroupBy(e => e.TaskId)
+                .Select(e => new StatisticsCourseMeasureSolutionModel
                 {
-                    TaskId = e.Select(t => t.TaskId).First(),
-                    Rating = e.Sum(s => s.Rating) / (double)course.CourseMates.Length,
+                    TaskId = e.Key,
+                    Rating = e.Sum(s => s.Rating) / (double)e.Count(), // на данный момент берем среднее от сданных решений
                     PublicationDate = new DateTime((long)e.Average(s => s.PublicationDate.Ticks))
                 }).ToArray();
-            var bestStudentSolutions = taskIds
-                .Select(taskId =>
+            
+            var bestStudentSolutions = course.Homeworks
+                .SelectMany(e => e.Tasks)
+                .Select(task => new StatisticsCourseMeasureSolutionModel
                 {
-                    var task = course.Homeworks
-                        .SelectMany(e => e.Tasks)
-                        .First(t => t.Id == taskId);
-                    
-                    return new StatisticsCourseMeasureSolutionModel
-                    {
-                        TaskId = task.Id,
-                        Rating = task.MaxRating,
-                        PublicationDate = task.PublicationDate ?? DateTime.MinValue
-                    };
+                    TaskId = task.Id,
+                    Rating = task.MaxRating,
+                    PublicationDate = task.PublicationDate ?? DateTime.MinValue
                 }).ToArray();
 
-            var result = new StatisticsCourseAdvancedDto
+            var result = new StatisticsCourseStudentsBenchmarkDTO
             {
                 CourseId = courseId,
                 AverageStudentSolutions = averageStudentSolutions,

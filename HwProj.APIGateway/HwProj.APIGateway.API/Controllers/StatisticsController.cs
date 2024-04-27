@@ -70,8 +70,8 @@ namespace HwProj.APIGateway.API.Controllers
         }
         
         [HttpGet("{courseId}/charts")]
-        [ProducesResponseType(typeof(StatisticsCourseAdvancedViewModel), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetChartStatistics(long courseId, [FromQuery] string token)
+        [ProducesResponseType(typeof(AdvancedCourseStatisticsViewModel), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetChartStatistics(long courseId)
         {
             var course = await _coursesClient.GetCourseById(courseId);
             if (course == null) 
@@ -90,9 +90,9 @@ namespace HwProj.APIGateway.API.Controllers
                 Homeworks = stats.Homeworks
             }).OrderBy(t => t.Surname).ThenBy(t => t.Name);
             
-            var statisticsMeasure = await _solutionClient.GetAdvancedStatistics(courseId);
+            var statisticsMeasure = await _solutionClient.GetBenchmarkStatistics(courseId);
 
-            var result = new StatisticsCourseAdvancedViewModel
+            var result = new AdvancedCourseStatisticsViewModel
             {
                 Course = new CoursePreview
                 {
@@ -100,7 +100,7 @@ namespace HwProj.APIGateway.API.Controllers
                     Name = course.Name,
                     GroupName = course.GroupName,
                 },
-                Students = students.ToArray(),
+                StudentStatistics = students.ToArray(),
                 Homeworks = course.Homeworks,
                 AverageStudentSolutions = statisticsMeasure.AverageStudentSolutions,
                 BestStudentSolutions = statisticsMeasure.BestStudentSolutions

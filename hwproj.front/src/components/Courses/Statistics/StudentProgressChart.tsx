@@ -66,61 +66,45 @@ const StudentProgressChart : React.FC<IStudentProgressChartProps> = (props) => {
     const getRandomColorWithMinBrightness = (string: string) => {
         return `hsl(${hashCode(string) % 360}, 100%, 70%)`;
     }
-    const [straightAStudent, averageStudent] = ['Круглый отличник', 'Усредненная по курсу']
+    const [straightAStudent, averageStudent] = ['Круглый отличник', 'Средний студент']
     const courseHomeworks = props.homeworks.filter(hw => hw.tasks && hw.tasks.length > 0);
     const courseTasks = courseHomeworks.map(hw => hw.tasks!)
         .flat().sort((x, y) => compareDates(x.publicationDate!, y.publicationDate!));
     const solutions = props.solutions.filter(solution =>
         props.selectedStudents.includes(solution.id!))
-
-    let totalRating = 0;
-    const straightAStudentLine: IChartPoint[] = [];
-    props.bestStudentSolutions.forEach(solution => {
-        totalRating += solution.rating!;
-        const taskTitle = courseTasks.find(t => t.id === solution.taskId)!.title;
-        const taskView = {title: taskTitle!, maxRating: solution.rating!, receiveRating: solution.rating!};
-        const publicationDate = Utils.renderDateWithoutHours(new Date(solution.publicationDate!));
-        const indexTasksWithSameDate = straightAStudentLine.findIndex(p => p.date === publicationDate);
-        
-        if (indexTasksWithSameDate === -1) {
-            straightAStudentLine.push({
-                id: straightAStudent, totalRatingValue: totalRating,
-                date: publicationDate, tasks: [taskView]
-            })
-        } else {
-            const currentPoint = straightAStudentLine[indexTasksWithSameDate];
-            straightAStudentLine[indexTasksWithSameDate] = {
-                id: currentPoint.id, date: currentPoint.date,
-                totalRatingValue: totalRating, tasks: [...currentPoint.tasks, taskView]
-            }
-        }
-        
-    })
-
-    totalRating = 0;
-    const averageStudentLine = new Array<IChartPoint>();
-    props.averageStudentSolutions.sort((x, y) =>
-        compareDates(x.publicationDate!, y.publicationDate!) ).forEach(solution => {
+    const averageStudentSolutions = props.averageStudentSolutions
+        .sort((x, y) => compareDates(x.publicationDate!, y.publicationDate!));
+    
+    const measureStudentSolutionsLine = (publicationDates: string[], studentId: string, solutions: StatisticsCourseMeasureSolutionModel[]) => {
+        return solutions.reduce<[number, IChartPoint[]]>(([total, points], solution, index) => {
+            const totalRating = total + solution.rating!;
+            const task = courseTasks.find(t => t.id === solution.taskId)!;
+            const taskView = {title: task.title!, maxRating: task.maxRating!, receiveRating: solution.rating!};
+            const indexTasksWithSameDate = points.findIndex(p => p.date === publicationDates[index]);
             
-        totalRating += solution.rating!;
-        const date = Utils.renderDateWithoutHours(new Date(solution.publicationDate!));
-        const task = courseTasks.find(t => t.id === solution.taskId)!;
-        const indexTasksWithSameDate = averageStudentLine.findIndex(p => p.date === date);
-        const taskView = {maxRating: task.maxRating!, receiveRating: solution.rating!, title: task.title!}
-
-        if (indexTasksWithSameDate === -1) {
-            averageStudentLine.push({id: averageStudent, date, totalRatingValue: +totalRating.toFixed(2), tasks: [taskView]})
-        } else {
-            const currentPoint = averageStudentLine[indexTasksWithSameDate];
-            averageStudentLine[indexTasksWithSameDate] = {
-                id: averageStudent, date,
-                totalRatingValue: +totalRating.toFixed(2),
-                tasks: [...currentPoint.tasks, taskView]
+            if (indexTasksWithSameDate === -1) {
+                points.push({ id: studentId, date: publicationDates[index],
+                    totalRatingValue: +totalRating.toFixed(2), tasks: [taskView]});
+            } else {
+                const currentPoint = points[indexTasksWithSameDate];
+                points[indexTasksWithSameDate] = {
+                    id: studentId, date: publicationDates[index],
+                    totalRatingValue: +totalRating.toFixed(2), tasks: [...currentPoint.tasks, taskView]
+                }
             }
-        }
-    })
-
-    totalRating = 0;
+            
+            return [totalRating, points];
+        }, [0, []])[1];
+    }
+    
+    const straightAStudentSolutionDates = props.bestStudentSolutions.map(s =>
+        Utils.renderDateWithoutHours(new Date(s.publicationDate!)));
+    const straightAStudentLine = measureStudentSolutionsLine(straightAStudentSolutionDates, straightAStudent, props.bestStudentSolutions);
+    
+    const averageStudentSolutionDates = averageStudentSolutions.map(s => 
+        Utils.renderDateWithoutHours(new Date(s.publicationDate!)));
+    const averageStudentLine = measureStudentSolutionsLine(averageStudentSolutionDates, averageStudent, averageStudentSolutions);
+    
     const deadlineDates = Array.from(new Set(courseTasks.filter(t => t.hasDeadline!)
         .map(task => Utils.renderDateWithoutHours(task.deadlineDate!))));
     
@@ -151,8 +135,8 @@ const StudentProgressChart : React.FC<IStudentProgressChartProps> = (props) => {
         
         return [studentId, groupedTasksToArray];
     }))
-    
-    const studentCharts = new Map([[straightAStudent, straightAStudentLine], 
+
+    const studentCharts = new Map([[straightAStudent, straightAStudentLine],
         [averageStudent, averageStudentLine]]);
     
     Array.from(studentTasks.entries())
@@ -176,7 +160,6 @@ const StudentProgressChart : React.FC<IStudentProgressChartProps> = (props) => {
         })
 
     const studentChartsArray = Array.from(studentCharts.entries()).map(([_, line]) => line);
-    studentCharts.set(averageStudent, averageStudentLine);
 
     const startCourseDate = courseHomeworks.map(hw => Utils.renderDateWithoutHours(hw.publicationDate!))
         .sort(compareStringFormatDates)[0];
@@ -219,7 +202,7 @@ const StudentProgressChart : React.FC<IStudentProgressChartProps> = (props) => {
     const deadlineDateFormat = [...deadlineDates, startCourseDate, finishCourseDate]
         .sort(compareStringFormatDates).filter(item => item);
     const lineColors = useMemo(() => new Map<string, string>
-    (Array.from(studentCharts.entries()).map(([student, _]) => {
+    (Array.from(studentCharts.keys()).map(student => {
         const color = student === straightAStudent ? '#2cba00' : (
             student === averageStudent ? '#FFA756' : getRandomColorWithMinBrightness(student)
         );

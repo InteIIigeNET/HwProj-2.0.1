@@ -1,4 +1,4 @@
-import React, {useEffect, useState, createContext} from "react";
+import React, {useEffect, useState} from "react";
 import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api/";
 import {useNavigate, useParams} from 'react-router-dom';
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
@@ -27,8 +27,6 @@ interface IStudentStatsState {
 
 const greyBorder = grey[300]
 
-export const MyDataContext = createContext(null);
-
 const StudentStats: React.FC<IStudentStatsProps> = (props) => {
     const [state, setSearched] = useState<IStudentStatsState>({
         searched: ""
@@ -36,7 +34,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
     const { courseId } = useParams();
     const navigate = useNavigate();
     const handleClick = () => {
-        navigate(`../../../statistics/${courseId}/charts`, {relative: 'path'})
+        navigate(`/statistics/${courseId}/charts`)
     }
 
     const {searched} = state

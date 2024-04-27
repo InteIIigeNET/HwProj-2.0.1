@@ -12,13 +12,13 @@ interface ITaskChartView {
     maxRating: number;
 }
 
-interface IDummyInterface {
+interface ITooltipProps {
     active? : boolean,
     payload? : Payload<ValueType, string | number>[] | undefined
     activeId: string
 }
 
-const StudentStatsTooltip : React.FC<IDummyInterface> = (props) => {
+const StudentStatsTooltip : React.FC<ITooltipProps> = (props) => {
     if (props.active! && props.payload && props.payload.length) {
         return (
             <div style={{fontSize: 11, color: '#666', backgroundColor: 'rgba(255, 255, 255, 0.9)'}}>
