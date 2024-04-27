@@ -103,7 +103,7 @@ export class TaskDeadlines extends React.Component<ITaskDeadlinesProps, {
                     <Stack direction={"row"} spacing={10} alignItems={"baseline"} justifyContent={"space-between"}
                            style={{height: 27}}>
                         {Utils.renderReadableDate(deadline!.deadlineDate!)}
-                        {hoveredElement === i && rating == undefined &&
+                        {hoveredElement === i && solutionState == undefined &&
                             <Typography variant={"caption"}>
                                 <LinkText
                                     style={{textDecoration: "none", cursor: "pointer"}}
