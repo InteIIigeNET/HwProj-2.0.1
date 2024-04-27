@@ -22,7 +22,6 @@ export default class AvatarUtils {
         return {
             sx: {
                 bgcolor: AvatarUtils.stringToColor(surname + ' ' + name),
-                borderStyle: "solid", borderWidth: "1px", borderColor: "#3f51b5", textShadow: "0 0 2px #3f51b5"
             },
             children: `${surname[0]}${name[0]}`,
         };

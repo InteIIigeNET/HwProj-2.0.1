@@ -54,11 +54,11 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
     const handleClose = () => {
         setAnchorEl(null)
     }
+    const classes = styles()
 
     return (
         <div>
-            <AppBar style={{position: "static", width: "100vw", maxWidth: "100%", alignItems: "center",
-                minHeight: "5vh", justifyContent: "center"}}>
+            <AppBar style={{position: "static", width: "100vw", maxWidth: "100%"}}>
                 <div className={"container"} style={{display: "flex", alignItems: "center"}}>
                     <Grid container spacing={1} alignItems={"center"}>
                         <Grid item>
@@ -112,13 +112,6 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                             open={Boolean(anchorEl)}
                             onClose={handleClose}
                         >
-                            <Link
-                                style={{textDecoration: "none", color: "black"}}
-                                to={"/user/edit"}>
-                                <MenuItem>
-                                    Редактировать профиль
-                                </MenuItem>
-                            </Link>
                             <MenuItem onClick={openInviteLecturer}>
                                 Пригласить преподавателя
                             </MenuItem>
@@ -151,17 +144,24 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                             open={Boolean(anchorEl)}
                             onClose={handleClose}
                         >
-                            <Link
-                                style={{textDecoration: "none", color: "black"}}
-                                to={"/user/edit"}>
-                                <MenuItem>
-                                    Редактировать профиль
-                                </MenuItem>
-                            </Link>
                             <MenuItem onClick={props.onLogout}>
                                 Выйти
                             </MenuItem>
                         </Menu>
+                    </div>}
+                    {!props.loggedIn && <div className={classes.tools}>
+                        <Link
+                            className={classes.item}
+                            style={{color: "white", marginLeft: "10px"}}
+                            to={("/login")}>
+                            Вход
+                        </Link>
+                        <Link
+                            className={classes.item}
+                            style={{color: "white", marginLeft: "10px"}}
+                            to={"/register"}>
+                            Регистрация
+                        </Link>
                     </div>}
                 </div>
             </AppBar>

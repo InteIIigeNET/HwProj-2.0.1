@@ -20,7 +20,7 @@ namespace HwProj.CoursesService.API.Models
 
         public DateTime PublicationDate { get; set; }
 
-        public string? Tags { get; set; }
+        public bool IsGroupWork { get; set; }
 
         public long CourseId { get; set; }
 

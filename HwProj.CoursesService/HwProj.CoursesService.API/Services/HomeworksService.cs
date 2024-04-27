@@ -76,7 +76,7 @@ namespace HwProj.CoursesService.API.Services
                 DeadlineDate = update.DeadlineDate,
                 PublicationDate = update.PublicationDate,
                 IsDeadlineStrict = update.IsDeadlineStrict,
-                Tags = update.Tags
+                IsGroupWork = update.IsGroupWork
             });
         }
     }

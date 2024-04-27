@@ -97,9 +97,6 @@ const Homework: FC<IHomeworkProps> = (props) => {
                                 </Tooltip>
                             }
                             {tasksCount > 0 && <Chip label={tasksCount + " заданий"}/>}
-                            {props.homework.tags?.filter(t => t != '').map((tag, index) => (
-                                <Chip key={index} label={tag} />
-                            ))}
                             {props.forMentor && !props.isReadingMode && <div>
                                 <IconButton aria-label="Delete" onClick={openDialogDeleteHomework}>
                                     <DeleteIcon fontSize="small"/>

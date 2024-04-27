@@ -88,6 +88,12 @@ const Workspace: FC = () => {
                 <Grid container style={{marginTop: "15px"}} spacing={2}>
                     <Grid item container className={classes.info} direction={"row"}>
                         <Grid item direction={"row"} spacing={2} style={{display: "flex"}}>
+                            {isUserProfile &&
+                                <Grid item style={{paddingRight: 5}}>
+                                    <RouterLink to={"/user/edit"}>
+                                        <EditIcon fontSize="small"/>
+                                    </RouterLink>
+                                </Grid>}
                             <Grid item>
                                 <Typography style={{fontSize: '20px'}}>
                                     {fullName}

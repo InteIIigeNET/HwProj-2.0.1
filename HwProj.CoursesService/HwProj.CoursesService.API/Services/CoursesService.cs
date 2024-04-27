@@ -11,7 +11,6 @@ using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.CoursesService.API.Domains;
 using HwProj.Models.Roles;
-using HwProj.Utils.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.CoursesService.API.Services
@@ -237,7 +236,14 @@ namespace HwProj.CoursesService.API.Services
             var availableLecturers = lecturers.Where(u => !mentorIds.Contains(u.Id));
 
             return availableLecturers
-                .Select(u => u.ToAccountDataDto(Roles.LecturerRole))
+                .Select(u => new AccountDataDto(
+                    u.Id,
+                    u.Name,
+                    u.Surname,
+                    u.Email,
+                    Roles.LecturerRole,
+                    u.IsExternalAuth,
+                    u.MiddleName))
                 .ToArray();
         }
     }
