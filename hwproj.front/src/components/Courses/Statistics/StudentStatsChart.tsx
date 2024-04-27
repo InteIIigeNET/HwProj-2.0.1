@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from "react";
-import {Link, useParams, useSearchParams} from 'react-router-dom';
-import {Grid, Box, Typography, Paper, IconButton, Snackbar, CircularProgress} from "@mui/material";
-import ShareIcon from '@mui/icons-material/Share';
+import {Link, useParams} from 'react-router-dom';
+import {Grid, Box, Typography, Paper, CircularProgress} from "@mui/material";
 import {
     CourseViewModel,
     HomeworkViewModel,
@@ -26,7 +25,6 @@ interface IStudentStatsChartState {
 
 const StudentStatsChart: React.FC = () => {
     const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
-    const [ searchParams ] = useSearchParams();
     const { courseId } = useParams();
     const isLoggedIn = ApiSingleton.authService.isLoggedIn();
     const [state, setState] = useState<IStudentStatsChartState>({
@@ -41,14 +39,14 @@ const StudentStatsChart: React.FC = () => {
     
     const setCurrentState = async () => {
         const params = 
-            await ApiSingleton.statisticsApi.apiStatisticsByCourseIdChartsGet(+courseId!, searchParams.get('token')!);
+            await ApiSingleton.statisticsApi.apiStatisticsByCourseIdChartsGet(+courseId!);
         
         setState({
             isFound: true,
-            isSelectionMode: params.students!.length > 1,
+            isSelectionMode: params.studentStatistics!.length > 1,
             course: params.course!,
             homeworks: params.homeworks!,
-            solutions: params.students!,
+            solutions: params.studentStatistics!,
             bestStudent: params.bestStudentSolutions!,
             averageStudent: params.averageStudentSolutions!
         })
@@ -63,16 +61,6 @@ const StudentStatsChart: React.FC = () => {
             setSelectedStudents((_) => [state.solutions[0].id!])
         }
     }, [state.isFound])
-    
-    const handleStudentSelection = (studentId : string) => {
-        setSelectedStudents((prevSelectedStudents) => {
-            if (prevSelectedStudents.includes(studentId)) {
-                return (prevSelectedStudents.filter(id => id !== studentId))
-            } else {
-                return [...prevSelectedStudents, studentId];
-            }
-        })
-    }
     
     const nameById = (id : string) => {
         const student = state.solutions.find(solution => solution.id === id)!
@@ -109,7 +97,7 @@ const StudentStatsChart: React.FC = () => {
                             <Box mb={2}>
                                 <StudentCheckboxList
                                     mates={[...state.solutions.map(s => ({id: s.id!, name: s.name!, surname: s.surname!}))]}
-                                    onStudentSelection = {handleStudentSelection}/>
+                                    onStudentsChange = {setSelectedStudents}/>
                             </Box>
                         </Grid>
                     }

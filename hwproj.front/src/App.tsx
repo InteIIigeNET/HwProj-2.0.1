@@ -105,8 +105,8 @@ class App extends Component<{ navigate: any }, AppState> {
                         <Route path="task/:taskId/:studentId" element={<StudentSolutionsPage/>}/>
                         <Route path="task/:taskId/" element={<TaskSolutionsPage/>}/>
                     </Route>
-                    <Route path="statistics/:courseId/charts" element={<StudentStatsChart/>}/> // можно чекать через апишку
-                    <Route path="status" element={<SystemInfoComponent/>}/> // заменить кнопку на тултип для подсказку
+                    <Route path="statistics/:courseId/charts" element={<StudentStatsChart/>}/>
+                    <Route path="status" element={<SystemInfoComponent/>}/>
                     <Route path="login" element={<Login onLogin={this.login}/>}/>
                     <Route path="register" element={<Register onLogin={this.login}/>}/>
                     <Route path="recovery" element={<PasswordRecovery/>}/>
