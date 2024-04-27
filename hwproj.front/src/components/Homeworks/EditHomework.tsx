@@ -9,6 +9,7 @@ import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
 import Tags from "./HomeworkTags";
 import {Alert, Checkbox, FormControlLabel, Grid, Typography, TextField} from "@mui/material";
+import Tags from "./HomeworkTags";
 
 interface IEditHomeworkState {
     isLoaded: boolean;
@@ -216,7 +217,8 @@ const EditHomework: FC = () => {
                                     }
                                 />
                             </Grid>
-                            <Grid item style={{width: "90%", marginBottom: '20px'}}>
+                            <Grid item xs={11} style={{marginBottom: 15}}>
+                                <Tags editFlag={true} tags={editHomework.tags} courseId={editHomework.courseId} onTagsChange={handleTagsChange}/>
                                 <PublicationAndDeadlineDates
                                     hasDeadline={editHomework.hasDeadline}
                                     isDeadlineStrict={editHomework.isDeadlineStrict}

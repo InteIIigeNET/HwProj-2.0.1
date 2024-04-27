@@ -33,6 +33,7 @@ namespace HwProj.CoursesService.API.Controllers
             ICourseTokenService courseTokenService,
             ICoursesRepository coursesRepository,
             ICourseMatesRepository courseMatesRepository,
+            IHomeworksRepository homeworksRepository,
             IMapper mapper)
         {
             _coursesService = coursesService;
@@ -218,6 +219,25 @@ namespace HwProj.CoursesService.API.Controllers
         {
             var token = await _courseTokenService.GetTokenAsync(courseId);
             return Ok(token);
+        }
+
+        [HttpGet("getAllTagsForCourse/{courseId}")]
+        [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetAllTagsForCourse(long courseId)
+        {
+            var homeworks = await _homeworksRepository
+                .FindAll(t => t.CourseId == courseId)
+                .ToListAsync();
+
+            var result = homeworks
+                .SelectMany(hw => hw.Tags?.Split(';') ?? Array.Empty<string>())
+                .Where(t => !string.IsNullOrEmpty(t))
+                .ToArray();
+
+            var defaultTags = new [] { "Контрольная работа", "Доп. баллы", "Командная работа" };
+            result = result.Concat(defaultTags).Distinct().ToArray();
+
+            return Ok(result);
         }
     }
 }
