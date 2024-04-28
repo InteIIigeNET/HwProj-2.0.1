@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api/";
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
-import {Alert, Chip, Tooltip, Typography} from "@mui/material";
+import {Alert} from "@mui/material";
 import {grey} from "@material-ui/core/colors";
 
 interface IStudentStatsProps {
