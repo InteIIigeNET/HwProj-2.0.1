@@ -70,14 +70,16 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
         .flatMap(homework => homework.tasks)
         .reduce((sum, task) => {
             return sum + (task!.maxRating || 0);
-        }, 0);
+        }, 0)
 
     const testsMaxSum = homeworks.filter(h => h.tags!.includes(HomeworkTags.TestTag))
         .filter(h => !h.tags!.includes(HomeworkTags.BonusTag))
         .flatMap(homework => homework.tasks)
         .reduce((sum, task) => {
             return sum + (task!.maxRating || 0);
-        }, 0);
+        }, 0)
+
+    const hasTests = testsMaxSum > 0
 
     return (
         <div>
@@ -95,7 +97,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                             </TableCell>
                             <TableCell
                                 padding="checkbox"
-                                colSpan={2}
+                                colSpan={hasTests ? 2 : 1}
                                 align="center"
                                 component="td"
                                 style={{
@@ -134,7 +136,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                        }}>
                                 ДЗ {homeworksMaxSum}
                             </TableCell>
-                            <TableCell padding="checkbox" component="td" align="center"
+                            {hasTests && <TableCell padding="checkbox" component="td" align="center"
                                        style={{
                                            paddingLeft: 5,
                                            paddingRight: 5,
@@ -142,7 +144,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                            backgroundColor: "lightgrey"
                                        }}>
                                 КР {testsMaxSum}
-                            </TableCell>
+                            </TableCell>}
                             {homeworks.map((homework, idx) =>
                                 homework.tasks!.map((task, i) => (
                                     <TableCell padding="checkbox" component="td" align="center"
@@ -165,14 +167,12 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                             const homeworksSum = homeworks
                                 .filter(h => !h.tags!.includes(HomeworkTags.TestTag))
                                 .flatMap(homework =>
-                                    homework.tasks!.flatMap(task =>
                                         solutions
                                             .find(s => s.id === cm.id)?.homeworks!
                                             .find(h => h.id === homework.id)?.tasks!
-                                            .find(t => t.id === task.id)?.solution!
-                                            .flatMap(s => s.rating!) || []
+                                            .flatMap(t => t.solution)
+                                            .flatMap(s => s!.rating!) || []
                                     )
-                                )
                                 .reduce((sum, rating) => sum + rating, 0)
                             const testsSum = homeworks
                                 .filter(h => h.tags!.includes(HomeworkTags.TestTag))
@@ -216,7 +216,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                               }}
                                               label={homeworksSum}/>
                                     </TableCell>
-                                    <TableCell
+                                    {hasTests && <TableCell
                                         align="center"
                                         padding="none"
                                         style={{
@@ -233,7 +233,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                                   fontSize: 16
                                               }}
                                               label={testsSum}/>
-                                    </TableCell>
+                                    </TableCell>}
                                     {homeworks.map((homework, idx) =>
                                         homework.tasks!.map((task, i) => {
                                             const additionalStyles = i === 0 && homeworkStyles(homeworks, idx)
