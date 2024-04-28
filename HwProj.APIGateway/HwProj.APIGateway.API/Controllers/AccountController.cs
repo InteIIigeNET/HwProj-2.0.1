@@ -8,6 +8,7 @@ using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
+using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Result;
 using HwProj.Models.Roles;
 using HwProj.SolutionsService.Client;
@@ -49,10 +50,11 @@ namespace HwProj.APIGateway.API.Controllers
         public async Task<IActionResult> GetUserData()
         {
             var accountData = await AuthServiceClient.GetAccountData(UserId);
+            
+            var courses = await _coursesClient.GetAllUserCourses();
 
             if (User.IsInRole(Roles.LecturerRole))
             {
-                var courses = await _coursesClient.GetAllUserCourses();
                 var courseEvents = courses
                     .Select(t => new CourseEvents
                     {
@@ -69,10 +71,23 @@ namespace HwProj.APIGateway.API.Controllers
                 {
                     UserData = accountData,
                     CourseEvents = courseEvents,
-                    TaskDeadlines = Array.Empty<TaskDeadlineView>()
+                    TaskDeadlines = Array.Empty<TaskDeadlineView>(),
+                    GroupTasks = Array.Empty<GroupTaskWithoutGroupInSolutionViewModel>(),
                 });
             }
 
+            var courseHomeworkTasks = (await Task.WhenAll(
+                courses.Select(async c => await _coursesClient.GetAllCourseTasks(c.Id))))
+                .Zip(courses, (tasks, course) => (tasks, course.Name));
+            
+            var groupWorkTasks = courseHomeworkTasks
+                .SelectMany(t => (t.tasks))
+                .Where(t => t.IsGroupWork)
+                .Select(t => new GroupTaskWithoutGroupInSolutionViewModel()
+                {
+                    TaskId = t.Id,
+                    Cou
+                });
             var currentTime = DateTime.UtcNow;
             var taskDeadlines = await _coursesClient.GetTaskDeadlines();
             var taskIds = taskDeadlines.Select(t => t.TaskId).ToArray();

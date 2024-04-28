@@ -97,5 +97,15 @@ namespace HwProj.CoursesService.API.Controllers
 
             return Ok();
         }
+
+        [HttpGet("{courseId}")]
+        public async Task<HomeworkTaskViewModel[]> GetAllCourseTasks(long courseId)
+        {
+            var result = (await _tasksService.GetAllCourseTasks(courseId))
+                .Select(t => t.ToHomeworkTaskViewModel())
+                .ToArray();
+
+            return result;
+        }
     }
 }
