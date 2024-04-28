@@ -7,6 +7,7 @@ import {CreateHomeworkViewModel, CreateTaskViewModel} from "../../api";
 import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
 import CreateTask from "../Tasks/CreateTask"
 import {Checkbox, FormControlLabel} from "@mui/material";
+import Tags from "./HomeworkTags";
 
 interface IAddHomeworkProps {
     id: number;
@@ -74,6 +75,13 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
         props.onSubmit()
     }
 
+    const handleTagsChange = (newValue: string[]) => {
+        setAddHomeworkState((prevState) => ({
+            ...prevState,
+            tags: newValue
+        }))
+    };
+
     return (
         <div>
             <form onSubmit={(e) => handleSubmit(e)} style={{maxWidth: "100%"}}>
@@ -111,21 +119,7 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                     }
                     }
                 />
-                <FormControlLabel
-                    label="Командное"
-                    control={
-                        <Checkbox
-                            color="primary"
-                            checked={addHomeworkState.isGroupWork}
-                            onChange={(e) => {
-                                setAddHomeworkState(prevState => ({
-                                    ...prevState,
-                                    isGroupWork: e.target.checked,
-                                }))
-                            }}
-                        />
-                    }
-                />
+                <Tags editFlag={true} tags={[]} courseId={props.id} onTagsChange={handleTagsChange}/>
                 <PublicationAndDeadlineDates
                     hasDeadline={false}
                     isDeadlineStrict={false}

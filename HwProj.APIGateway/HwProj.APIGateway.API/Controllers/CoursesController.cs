@@ -175,5 +175,16 @@ namespace HwProj.APIGateway.API.Controllers
             var token = await _coursesClient.GetToken(courseId);
             return Ok(token.Value);
         }
+
+        [HttpGet("tags/{courseId}")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetAllTagsForCourse(long courseId)
+        {
+            var result = await _coursesClient.GetAllTagsForCourse(courseId);
+            return result.Succeeded
+                ? Ok(result.Value) as IActionResult
+                : BadRequest(result.Errors);
+        }
     }
 }

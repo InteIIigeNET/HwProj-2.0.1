@@ -4,14 +4,16 @@ using HwProj.CoursesService.API.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HwProj.CoursesService.API.Migrations
 {
     [DbContext(typeof(CourseContext))]
-    partial class CourseContextModelSnapshot : ModelSnapshot
+    [Migration("20240408124740_AddTagsToHomework")]
+    partial class AddTagsToHomework
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,8 +50,6 @@ namespace HwProj.CoursesService.API.Migrations
 
                     b.Property<string>("InviteCode");
 
-                    b.Property<bool>("IsAutoSolutionOnly");
-
                     b.Property<bool>("IsCompleted");
 
                     b.Property<bool>("IsOpen");
@@ -80,24 +80,6 @@ namespace HwProj.CoursesService.API.Migrations
                     b.HasIndex("CourseId");
 
                     b.ToTable("CourseMates");
-                });
-
-            modelBuilder.Entity("HwProj.CoursesService.API.Models.CourseToken", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<long>("CourseId");
-
-                    b.Property<DateTime>("Expires");
-
-                    b.Property<string>("Token")
-                        .IsRequired();
-
-                    b.HasKey("Id");
-
-                    b.ToTable("CourseTokens");
                 });
 
             modelBuilder.Entity("HwProj.CoursesService.API.Models.Group", b =>
