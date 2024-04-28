@@ -2,9 +2,10 @@ import React, {useEffect, useState} from "react";
 import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api/";
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
-import {Alert} from "@mui/material";
+import {Alert, Chip} from "@mui/material";
 import {grey} from "@material-ui/core/colors";
 import HomeworkTags from "../Common/HomeworkTags";
+import StudentStatsUtils from "../../services/StudentStatsUtils";
 
 interface IStudentStatsProps {
     course: CourseViewModel;
@@ -64,15 +65,15 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
         return undefined
     }
 
-    const defaultMaxSum = homeworks.filter(h => !h.tags!.includes("Доп. баллы"))
-        .filter(h => !h.tags!.includes("Контрольная работа"))
+    const homeworksMaxSum = homeworks.filter(h => !h.tags!.includes(HomeworkTags.BonusTag))
+        .filter(h => !h.tags!.includes(HomeworkTags.TestTag))
         .flatMap(homework => homework.tasks)
         .reduce((sum, task) => {
-        return sum + (task!.maxRating || 0);
-    }, 0);
+            return sum + (task!.maxRating || 0);
+        }, 0);
 
-    const testsMaxSum = homeworks.filter(h => h.tags!.includes("Контрольная работа"))
-        .filter(h => !h.tags!.includes("Доп. баллы"))
+    const testsMaxSum = homeworks.filter(h => h.tags!.includes(HomeworkTags.TestTag))
+        .filter(h => !h.tags!.includes(HomeworkTags.BonusTag))
         .flatMap(homework => homework.tasks)
         .reduce((sum, task) => {
             return sum + (task!.maxRating || 0);
@@ -94,25 +95,17 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                             </TableCell>
                             <TableCell
                                 padding="checkbox"
-                                component="td"
+                                colSpan={2}
                                 align="center"
+                                component="td"
                                 style={{
+                                    minWidth: 150,
                                     zIndex: -5,
-                                    borderLeft: borderStyle
+                                    borderLeft: borderStyle,
+                                    backgroundColor: "lightgrey"
                                 }}
                             >
-                                ДЗ
-                            </TableCell>
-                            <TableCell
-                                padding="checkbox"
-                                component="td"
-                                align="center"
-                                style={{
-                                    zIndex: -5,
-                                    borderLeft: borderStyle
-                                }}
-                            >
-                                КР
+                                Зачетные единицы
                             </TableCell>
                             {homeworks.map((homework, idx) =>
                                 <TableCell
@@ -136,17 +129,19 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                        style={{
                                            paddingLeft: 5,
                                            paddingRight: 5,
-                                           borderLeft: borderStyle
+                                           borderLeft: borderStyle,
+                                           backgroundColor: "lightgrey"
                                        }}>
-                                Max {defaultMaxSum}
+                                ДЗ {homeworksMaxSum}
                             </TableCell>
                             <TableCell padding="checkbox" component="td" align="center"
                                        style={{
                                            paddingLeft: 5,
                                            paddingRight: 5,
-                                           borderLeft: borderStyle
+                                           borderLeft: borderStyle,
+                                           backgroundColor: "lightgrey"
                                        }}>
-                                Max {testsMaxSum}
+                                КР {testsMaxSum}
                             </TableCell>
                             {homeworks.map((homework, idx) =>
                                 homework.tasks!.map((task, i) => (
@@ -166,86 +161,96 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {solutions.map((cm, index) => (
-                            <TableRow key={index} hover style={{height: 50}}>
-                                <TableCell
-                                    align="left"
-                                    padding="checkbox"
-                                    style={{paddingRight: 15}}
-                                    component="td"
-                                    scope="row"
-                                    variant={"head"}
-                                >
-                                    {cm.surname} {cm.name}
-                                </TableCell>
-                                <TableCell
-                                    align="center"
-                                    padding="none"
-                                    style={{
-                                        borderLeft: borderStyle,
-                                    }}
-                                    component="td"
-                                    scope="row"
-                                    variant={"body"}
-                                >
-                                    {homeworks
-                                        .filter(h => !h.tags!.includes("Доп. баллы"))
-                                        .filter(h => !h.tags!.includes("Контрольная работа"))
-                                        .flatMap(homework =>
-                                            homework.tasks!.flatMap(task =>
-                                                solutions
-                                                    .find(s => s.id === cm.id)?.homeworks!
-                                                    .find(h => h.id === homework.id)?.tasks!
-                                                    .find(t => t.id === task.id)?.solution!
-                                                    .flatMap(s => s.rating!) || []
-                                            )
-                                        )
-                                        .reduce((sum, rating) => sum + rating, 0)
-                                    }
-                                </TableCell>
-                                <TableCell
-                                    align="center"
-                                    padding="none"
-                                    style={{
-                                        borderLeft: borderStyle,
-                                    }}
-                                    component="td"
-                                    scope="row"
-                                    variant={"body"}
-                                >
-                                    {homeworks
-                                        .filter(h => h.tags!.includes("Контрольная работа"))
-                                        .filter(h => !h.tags!.includes("Доп. баллы"))
-                                        .flatMap(homework =>
-                                            homework.tasks!.flatMap(task =>
-                                                solutions
-                                                    .find(s => s.id === cm.id)?.homeworks!
-                                                    .find(h => h.id === homework.id)?.tasks!
-                                                    .find(t => t.id === task.id)?.solution!
-                                                    .flatMap(s => s.rating!) || []
-                                            )
-                                        )
-                                        .reduce((sum, rating) => sum + rating, 0)
-                                    }
-                                </TableCell>
-                                {homeworks.map((homework, idx) =>
-                                    homework.tasks!.map((task, i) => {
-                                        const additionalStyles = i === 0 && homeworkStyles(homeworks, idx)
-                                        return <StudentStatsCell
-                                            solutions={solutions
-                                                .find(s => s.id == cm.id)!.homeworks!
-                                                .find(h => h.id == homework.id)!.tasks!
-                                                .find(t => t.id == task.id)!.solution!}
-                                            userId={props.userId}
-                                            forMentor={props.isMentor}
-                                            studentId={String(cm.id)}
-                                            taskId={task.id!}
-                                            taskMaxRating={task.maxRating!}
-                                            {...additionalStyles}/>;
-                                    })
-                                )}
-                            </TableRow>
-                        ))}
+                        {solutions.map((cm, index) => {
+                            const homeworksSum = homeworks
+                                .filter(h => !h.tags!.includes(HomeworkTags.TestTag))
+                                .flatMap(homework =>
+                                    homework.tasks!.flatMap(task =>
+                                        solutions
+                                            .find(s => s.id === cm.id)?.homeworks!
+                                            .find(h => h.id === homework.id)?.tasks!
+                                            .find(t => t.id === task.id)?.solution!
+                                            .flatMap(s => s.rating!) || []
+                                    )
+                                )
+                                .reduce((sum, rating) => sum + rating, 0)
+                            const testsSum = homeworks
+                                .filter(h => h.tags!.includes(HomeworkTags.TestTag))
+                                .flatMap(homework =>
+                                    homework.tasks!.flatMap(task =>
+                                        solutions
+                                            .find(s => s.id === cm.id)?.homeworks!
+                                            .find(h => h.id === homework.id)?.tasks!
+                                            .find(t => t.id === task.id)?.solution!
+                                            .flatMap(s => s.rating!) || []
+                                    )
+                                )
+                                .reduce((sum, rating) => sum + rating, 0)
+                            return (
+                                <TableRow key={index} hover style={{height: 50}}>
+                                    <TableCell
+                                        align="left"
+                                        padding="checkbox"
+                                        style={{paddingRight: 10, paddingLeft: 10}}
+                                        component="td"
+                                        scope="row"
+                                        variant={"head"}
+                                    >
+                                        {cm.surname} {cm.name}
+                                    </TableCell>
+                                    <TableCell
+                                        align="center"
+                                        padding="none"
+                                        style={{
+                                            borderLeft: borderStyle,
+                                        }}
+                                        component="td"
+                                        scope="row"
+                                        variant={"body"}
+                                    >
+                                        <Chip size={"small"}
+                                              style={{
+                                                  backgroundColor: StudentStatsUtils.getRatingColor(homeworksSum, homeworksMaxSum),
+                                                  fontSize: 16
+                                              }}
+                                              label={homeworksSum}/>
+                                    </TableCell>
+                                    <TableCell
+                                        align="center"
+                                        padding="none"
+                                        style={{
+                                            borderLeft: borderStyle,
+                                        }}
+                                        component="td"
+                                        scope="row"
+                                        variant={"body"}
+                                    >
+                                        <Chip size={"small"}
+                                              style={{
+                                                  backgroundColor: StudentStatsUtils.getRatingColor(testsSum, testsMaxSum),
+                                                  fontSize: 16
+                                              }}
+                                              label={testsSum}/>
+                                    </TableCell>
+                                    {homeworks.map((homework, idx) =>
+                                        homework.tasks!.map((task, i) => {
+                                            const additionalStyles = i === 0 && homeworkStyles(homeworks, idx)
+                                            return <StudentStatsCell
+                                                solutions={solutions
+                                                    .find(s => s.id == cm.id)!.homeworks!
+                                                    .find(h => h.id == homework.id)!.tasks!
+                                                    .find(t => t.id == task.id)!.solution!}
+                                                userId={props.userId}
+                                                forMentor={props.isMentor}
+                                                studentId={String(cm.id)}
+                                                taskId={task.id!}
+                                                taskMaxRating={task.maxRating!}
+                                                {...additionalStyles}/>;
+                                        })
+                                    )}
+                                </TableRow>
+                            );
+                        })}
                     </TableBody>
                 </Table>
             </TableContainer>
