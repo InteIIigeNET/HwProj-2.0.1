@@ -1564,6 +1564,12 @@ export interface TaskDeadlineView {
     rating?: number;
     /**
      * 
+     * @type {number}
+     * @memberof TaskDeadlineView
+     */
+    maxRating?: number;
+    /**
+     * 
      * @type {boolean}
      * @memberof TaskDeadlineView
      */

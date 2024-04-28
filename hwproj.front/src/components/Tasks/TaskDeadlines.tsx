@@ -49,28 +49,28 @@ const TaskDeadlines: FC<ITaskDeadlinesProps> = ({ taskDeadlines, onGiveUpClick }
 
     return (
         <div>
-            {taskDeadlines.map(({ deadline, rating, deadlinePast, solutionState }, i) => (
+            {taskDeadlines.map(({ deadline, rating, maxRating, deadlinePast, solutionState }, i) => (
                 <Grid onMouseEnter={() => setHoveredElement(i)}
-                      onMouseLeave={() => setHoveredElement(undefined)}
-                      key={deadline!.taskId}>
+                    onMouseLeave={() => setHoveredElement(undefined)}
+                    key={deadline!.taskId}>
                     <Link to={`/task/${deadline!.taskId}`}>
                         <ListItem style={{ padding: 0, color: "#212529" }}>
-                            <Grid container direction={"row"} spacing={1} justifyContent={"space-between"}>
+                        <Grid container direction={"row"} spacing={1} justifyContent={"flex-end"} alignItems={"center"}>
+                            <Grid item xs>
+                                <NavLink to={`/task/${deadline!.taskId}`} style={{ color: "#212529" }}>
+                                    <Typography style={{ fontSize: "20px" }}>
+                                        {deadline!.taskTitle}{deadline!.tags!.includes(HomeworkTags.TestTag) && <TestTip/>}
+                                    </Typography>
+                                </NavLink>
+                            </Grid>
+                            <Grid item>
+                                <Chip size={"small"} color={'primary'} label={`⭐ ${maxRating}`}/>
+                            </Grid>
+                            {!deadlinePast && (
                                 <Grid item>
-                                    <NavLink
-                                        to={`/task/${deadline!.taskId}`}
-                                        style={{color: "#212529"}}
-                                    >
-                                        <Typography style={{fontSize: "20px"}}>
-                                            {deadline!.taskTitle}{deadline!.tags!.includes(HomeworkTags.TestTag) && <TestTip/>}
-                                        </Typography>
-                                    </NavLink>
+                                    {renderBadge(solutionState, rating!, deadline!.maxRating!)}
                                 </Grid>
-                                {!deadlinePast && (
-                                    <Grid item>
-                                        {renderBadge(solutionState, rating!, deadline!.maxRating!)}
-                                    </Grid>
-                                )}
+                            )}
                             </Grid>
                         </ListItem>
                     </Link>
@@ -78,11 +78,11 @@ const TaskDeadlines: FC<ITaskDeadlinesProps> = ({ taskDeadlines, onGiveUpClick }
                         {deadline!.courseTitle}
                     </Typography>
                     <LinearProgress variant="determinate"
-                                    color={deadlinePast ? "error" : "primary"}
-                                    style={{ marginTop: 5 }}
-                                    value={deadlinePast ? 100 : getPercent(deadline!.publicationDate!, deadline!.deadlineDate!)} />
+                        color={deadlinePast ? "error" : "primary"}
+                        style={{ marginTop: 5 }}
+                        value={deadlinePast ? 100 : getPercent(deadline!.publicationDate!, deadline!.deadlineDate!)} />
                     <Stack direction={"row"} spacing={10} alignItems={"baseline"} justifyContent={"space-between"}
-                           style={{ height: 27 }}>
+                        style={{ height: 27 }}>
                         {Utils.renderReadableDate(deadline!.deadlineDate!)}
                         {hoveredElement === i && solutionState === undefined && (
                             <Typography variant={"caption"}>
@@ -100,8 +100,8 @@ const TaskDeadlines: FC<ITaskDeadlinesProps> = ({ taskDeadlines, onGiveUpClick }
                 </Grid>
             ))}
             <Dialog open={showGiveUpModalForTaskId !== undefined}
-                    onClose={() => setShowGiveUpModalForTaskId(undefined)}
-                    aria-labelledby="form-dialog-title">
+                onClose={() => setShowGiveUpModalForTaskId(undefined)}
+                aria-labelledby="form-dialog-title">
                 <DialogTitle id="form-dialog-title">
                     Отказаться от решения задачи
                 </DialogTitle>

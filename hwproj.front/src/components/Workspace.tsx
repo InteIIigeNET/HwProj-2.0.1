@@ -6,7 +6,6 @@ import "./Styles/Profile.css";
 import {FC, useEffect, useState} from "react";
 import {Link, useParams} from "react-router-dom";
 import {makeStyles} from "@material-ui/styles";
-import EditIcon from "@material-ui/icons/Edit";
 import TaskDeadlines from "./Tasks/TaskDeadlines";
 import UnratedSolutions from "./Solutions/UnratedSolutions";
 import {Alert, Chip, Stack} from "@mui/material";
