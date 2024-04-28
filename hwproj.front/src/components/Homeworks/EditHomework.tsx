@@ -9,7 +9,6 @@ import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
 import Tags from "./HomeworkTags";
 import {Alert, Checkbox, FormControlLabel, Grid, Typography, TextField} from "@mui/material";
-import Tags from "./HomeworkTags";
 
 interface IEditHomeworkState {
     isLoaded: boolean;
