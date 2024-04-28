@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HwProj.CoursesService.API.Models;
 using HwProj.Models;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Utils.Authorization;
@@ -26,7 +27,22 @@ namespace HwProj.CoursesService.API.Filters
                 if (result?.Value is CourseDTO courseDto && !courseDto.MentorIds.Contains(userId))
                 {
                     var currentDate = DateTime.UtcNow;
-                    courseDto.Homeworks = courseDto.Homeworks.Where(h => currentDate >= h.PublicationDate).ToArray();
+
+                    var isCourseStudent = false;
+                    courseDto.CourseMates = courseDto.CourseMates
+                        .Where(t =>
+                        {
+                            if (!t.IsAccepted) return t.StudentId == userId;
+                            if (t.StudentId == userId) isCourseStudent = true;
+                            return true;
+                        })
+                        .ToArray();
+
+                    courseDto.Homeworks = courseDto.Homeworks
+                        .Where(h =>
+                            currentDate >= h.PublicationDate &&
+                            (isCourseStudent || !h.Tags.Contains(HomeworkTags.Test)))
+                        .ToArray();
 
                     foreach (var homework in courseDto.Homeworks)
                     {
@@ -34,10 +50,6 @@ namespace HwProj.CoursesService.API.Filters
                             new List<HomeworkTaskViewModel>(homework.Tasks.Where(t =>
                                 currentDate >= t.PublicationDate));
                     }
-
-                    courseDto.CourseMates = courseDto.CourseMates
-                        .Where(t => t.IsAccepted || t.StudentId == userId)
-                        .ToArray();
 
                     courseDto.Groups = courseDto.Groups.Where(g => g.StudentsIds.Contains(userId)).ToArray();
                 }

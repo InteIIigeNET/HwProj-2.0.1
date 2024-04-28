@@ -17,7 +17,7 @@ interface ITaskStudentCellProps {
     solutions?: Solution[];
 }
 
-const StudentStatsCell: FC<ITaskStudentCellProps> = (props) => {
+const StudentStatsCell: FC<ITaskStudentCellProps & { borderLeftColor?: string }> = (props) => {
     const navigate = useNavigate()
     const {solutions, taskMaxRating, forMentor} = props
     const [cellState, setCellState] = useState({
@@ -55,8 +55,8 @@ const StudentStatsCell: FC<ITaskStudentCellProps> = (props) => {
                 align="center"
                 style={{
                     backgroundColor: cellState.color,
-                    borderLeft: `1px solid ${grey[300]}`,
-                    cursor: "pointer"
+                    borderLeft: `1px solid ${props.borderLeftColor || grey[300]}`,
+                    cursor: "pointer",
                 }}>
                 {result}
             </TableCell>
