@@ -168,7 +168,7 @@ namespace HwProj.APIGateway.API.Controllers
         [HttpPost("{taskId}")]
         [Authorize(Roles = Roles.StudentRole)]
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> PostSolution(SolutionViewModel model, long taskId)
+        public async Task<IActionResult> PostOrUpdateSolution(SolutionViewModel model, long taskId)
         {
             var solutionModel = new PostSolutionModel(model)
             {

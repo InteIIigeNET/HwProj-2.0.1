@@ -12,6 +12,7 @@ interface ITaskSolutionsProps {
     solutions: GetSolutionModel[]
     student: AccountDataDto
     forMentor: boolean
+    courseMates : AccountDataDto []
     onSolutionRateClick?: () => void
 }
 
@@ -141,6 +142,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                     lastRating={lastRating}
                     onRateSolutionClick={onSolutionRateClick}
                     isLastSolution={true}
+                    courseMates={props.courseMates}
                 />
                 : "Студент не отправил ни одного решения."}
         </Grid>}
@@ -154,6 +156,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                         student={student!}
                         onRateSolutionClick={onSolutionRateClick}
                         isLastSolution={false}
+                        courseMates={props.courseMates}
                     />
                     {i < arrayOfRatedSolutions.length - 1 ?
                         <Divider style={{marginTop: 10, marginBottom: 4}}/> : null}

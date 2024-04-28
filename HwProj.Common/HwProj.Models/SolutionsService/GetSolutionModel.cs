@@ -24,6 +24,8 @@ namespace HwProj.Models.SolutionsService
             TaskId = model.TaskId;
             State = model.State;
             Lecturer = lecturer;
+            IsAutomatic = model.IsAutomatic;
+            IsUpdated = model.IsUpdated;
         }
 
         public long Id { get; set; }
@@ -45,6 +47,11 @@ namespace HwProj.Models.SolutionsService
         public string LecturerComment { get; set; }
 
         public AccountDataDto[] GroupMates { get; set; }
+
         public AccountDataDto? Lecturer { get; set; }
+
+        public bool IsAutomatic { get; set; }
+
+        public bool IsUpdated { get; set; }
     }
 }

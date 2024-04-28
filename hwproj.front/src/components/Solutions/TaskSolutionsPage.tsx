@@ -201,6 +201,7 @@ const TaskSolutionsPage: FC = () => {
                                     task={task}
                                     forMentor={false}
                                     student={student}
+                                    courseMates={courseMates}
                                     solutions={currentTaskSolutions}/>
                             </Grid>
                         )}

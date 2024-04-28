@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {FC, useEffect, useState} from 'react';
-import {Button, Grid, TextField, Typography} from "@material-ui/core";
+import {Button, Grid, TextField, Typography, IconButton} from "@material-ui/core";
 import Link from '@material-ui/core/Link'
 import './style.css'
 import {AccountDataDto, GetSolutionModel, HomeworkTaskViewModel, Solution} from '../../api'
@@ -12,6 +12,9 @@ import Utils from "../../services/Utils";
 import {RatingStorage} from "../Storages/RatingStorage";
 import {Assignment, Edit} from "@mui/icons-material";
 import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
+import EditSolution from './EditSolution';
+import EditIcon from "@material-ui/icons/Edit";
+
 
 interface ISolutionProps {
     solution: GetSolutionModel | undefined,
@@ -21,25 +24,30 @@ interface ISolutionProps {
     lastRating?: number,
     onRateSolutionClick?: () => void,
     isLastSolution: boolean,
+    courseMates : AccountDataDto[]
 }
 
 interface ISolutionState {
     points: number,
     lecturerComment: string,
     clickedForRate: boolean,
-    addBonusPoints: boolean
+    addBonusPoints: boolean,
+    isUpdated : boolean,
+    isEdit: boolean,
 }
 
 const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     const storageKey = {taskId: props.task.id!, studentId: props.student.userId!, solutionId: props.solution?.id}
 
-    const getDefaultState = (): ISolutionState => {
+    const getDefaultState = () => {
         const storageValue = RatingStorage.tryGet(storageKey)
         return ({
             points: storageValue?.points || props.solution?.rating || 0,
             lecturerComment: storageValue?.comment || props.solution?.lecturerComment || "",
             clickedForRate: storageValue !== null,
-            addBonusPoints: false
+            addBonusPoints: false,
+            isUpdated : props.solution?.isUpdated!,
+            isEdit : false
         });
     }
 
@@ -68,6 +76,20 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         } else setAchievementState(undefined)
     }
 
+    const onCancelEditSolution = () => {
+        setState((prevState) => ({
+            ...prevState,
+            isEdit : false
+        }))
+    }
+
+    const onFinishEditSolution = () => {
+        setState((prevState) => ({
+            ...prevState,
+            isUpdated : true
+        }))
+    }
+
     const rateSolution = async () => {
         if (props.solution) {
             await ApiSingleton.solutionsApi
@@ -94,11 +116,11 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         props.onRateSolutionClick?.()
     }
 
-    const {solution, lastRating, student, task} = props
+    const {solution, lastRating, student, task, isLastSolution} = props
     const maxRating = task.maxRating!
     //TODO: enum instead of string
     const isRated = solution && solution.state !== Solution.StateEnum.NUMBER_0 // != Posted
-    const {points, lecturerComment, addBonusPoints} = state
+    const {points, lecturerComment, addBonusPoints, isEdit, isUpdated} = state
     const postedSolutionTime = solution && Utils.renderReadableDate(solution.publicationDate!)
     const students = (solution?.groupMates?.length || 0) > 0 ? solution!.groupMates! : [student]
     const lecturerName = solution?.lecturer && (solution.lecturer.surname + " " + solution.lecturer.name)
@@ -185,11 +207,20 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     return (<div>
             <Grid container direction="column" spacing={2}>
                 {solution &&
-                    <Stack direction={students.length > 1 ? "column" : "row"} spacing={1} style={{marginLeft: 7}}>
+                    <Stack direction= "column" spacing={1} style={{marginLeft: 7}}>
                         <Stack direction={"row"} spacing={1}>
                             {students && students.map(t => <Tooltip title={t.surname + " " + t.name}>
                                 <Avatar {...AvatarUtils.stringAvatar(t.name!, t.surname!)} />
                             </Tooltip>)}
+                            <Typography>
+                                {isLastSolution && task.isGroupWork && solution.isAutomatic && !isUpdated && <IconButton onClick={() =>{
+                                                            setState(prevState => ({
+                                                                ...prevState,
+                                                                isEdit:  true}))}}>
+                                                            {true && <EditIcon fontSize='small'></EditIcon>}        
+                                                                        </IconButton>}    
+
+                            </Typography>   
                         </Stack>
                         <Grid item spacing={1} container direction="column">
                             {solution.comment &&
@@ -201,19 +232,21 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                             }
                             <Grid item>
                                 <Stack>
-                                    {solution.githubUrl && <Link
-                                        href={solution.githubUrl}
-                                        target="_blank"
-                                        style={{color: 'darkblue'}}
-                                    >
-                                        {solution.githubUrl?.startsWith("https://github.com/") && <GitHubIcon/>} Ссылка
-                                        на
-                                        решение
-                                    </Link>}
-                                </Stack>
-                                <Typography style={{color: "GrayText"}}>
-                                    {postedSolutionTime}
-                                </Typography>
+                                    <Stack direction={"row"}>   
+                                        {solution.githubUrl && <Link
+                                            href={solution.githubUrl}
+                                            target="_blank"
+                                            style={{color: 'darkblue'}}
+                                        >
+                                            {solution.githubUrl?.startsWith("https://github.com/") && <GitHubIcon/>} Ссылка
+                                            на
+                                            решение 
+                                        </Link>}  
+                                    </Stack>
+                                    <Typography style={{color: "GrayText"}}>
+                                        {postedSolutionTime}  
+                                    </Typography>   
+                                </Stack>                       
                             </Grid>
                         </Grid>
                     </Stack>}
@@ -314,6 +347,16 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                         </Grid>
                     </Grid>
                 }
+
+                {isEdit &&  <EditSolution
+                userId={props.student.userId!}
+                solutionId={solution?.id!}
+                taskId={props.task.id!}
+                onCancel={onCancelEditSolution}
+                onSubmit={onFinishEditSolution}
+                courseMates={props.courseMates || []}
+                lastGroup={solution?.groupMates?.map(s => s.userId!) || []}
+                supportsGroup={task.isGroupWork!}/>}
             </Grid>
         </div>
     )

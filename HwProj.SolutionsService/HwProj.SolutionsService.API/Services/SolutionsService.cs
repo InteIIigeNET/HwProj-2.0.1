@@ -108,11 +108,14 @@ namespace HwProj.SolutionsService.API.Services
                 return id;
             }
 
+            if (!currentSolution.IsAutomatic)
+                throw new InvalidOperationException("Обновлять решение, отправленное не автоматически невозможно");
+            if (currentSolution.IsAutomatic && currentSolution.IsUpdated)
+                throw new InvalidOperationException("Обновлять автоматически отправленное решение возможно только один раз после сдачи");
+
             await _solutionsRepository.UpdateAsync(currentSolution.Id, s => new Solution()
                 {
-                    State = SolutionState.Rated,
-                    Comment = solution.Comment,
-                    GithubUrl = solution.GithubUrl,
+                    IsUpdated = true,
                     PublicationDate = solution.PublicationDate,
                 }
             );

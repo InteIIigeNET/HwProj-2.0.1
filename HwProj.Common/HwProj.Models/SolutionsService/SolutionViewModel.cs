@@ -4,6 +4,8 @@ namespace HwProj.Models.SolutionsService
 {
     public class SolutionViewModel
     {
+        public long Id { get; set; }
+
         public string GithubUrl { get; set; }
 
         public string Comment { get; set; }
@@ -16,5 +18,7 @@ namespace HwProj.Models.SolutionsService
         public string LecturerComment { get; set; }
 
         public int? Rating { get; set; }
+
+        public bool IsAutomatic { get; set; }
     }
 }

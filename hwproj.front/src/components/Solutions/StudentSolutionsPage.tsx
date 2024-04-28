@@ -38,6 +38,7 @@ interface IStudentSolutionsPageState {
     allSolutionsRated: boolean,
     courseId: number,
     allTaskSolutionsStats: TaskSolutionsStats[],
+    courseMates : AccountDataDto[],
     allStudentSolutionsPreview: {
         student: AccountDataDto,
         solutions: GetSolutionModel[]
@@ -74,6 +75,7 @@ const StudentSolutionsPage: FC = () => {
         isLoaded: false,
         courseId: -1,
         allTaskSolutionsStats: [],
+        courseMates : [],
         allStudentSolutionsPreview: [],
     })
     const [filterState, setFilterState] = React.useState<Filter[]>(
@@ -111,7 +113,7 @@ const StudentSolutionsPage: FC = () => {
         const task = fullUpdate
             ? await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+taskId!)
             : studentSolutionsState.task
-
+        const pageData = await ApiSingleton.solutionsApi.apiSolutionsTaskSolutionByTaskIdByStudentIdGet(props.taskId, props.userId);
         const {
             studentsSolutions,
             courseId,
@@ -132,6 +134,7 @@ const StudentSolutionsPage: FC = () => {
             allTaskSolutionsStats: statsForTasks!,
             allStudentSolutionsPreview: studentSolutionsPreview,
             courseId: courseId!,
+            courseMates : pageData.courseMates,
             allSolutionsRated: studentSolutionsPreview.findIndex(x => x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0) === -1
         })
     }
@@ -256,6 +259,7 @@ const StudentSolutionsPage: FC = () => {
                             task={studentSolutionsState.task}
                             solutions={currentStudent!.solutions}
                             student={currentStudent!.student}
+                            courseMates={studentSolutionsState.courseMates}
                             onSolutionRateClick={async () => {
                                 //const nextStudentIndex = studentSolutionsPreview.findIndex(x => x.student.userId !== currentStudentId && x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0)
                                 await getTaskData(currentTaskId, currentStudentId)

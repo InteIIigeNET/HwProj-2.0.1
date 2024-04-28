@@ -6,18 +6,20 @@ namespace HwProj.Models.SolutionsService
     {
         public PostSolutionModel(SolutionViewModel model)
         {
+            Id = model.Id;
             GithubUrl = model.GithubUrl;
             Comment = model.Comment;
             StudentId = model.StudentId;
             PublicationDate = model.PublicationDate;
             LecturerComment = model.LecturerComment;
             Rating = model.Rating;
-            IsAutomatic = false;
         }
 
         public PostSolutionModel()
         {
         }
+
+        public long Id { get; set; }
 
         public string GithubUrl { get; set; }
 

@@ -5,7 +5,6 @@ namespace HwProj.Models.SolutionsService
 {
     public class Solution : IEntity<long>
     {
-        public bool IsAutomatic { get; set; }
 
         public long Id { get; set; }
 
@@ -28,5 +27,9 @@ namespace HwProj.Models.SolutionsService
         public DateTime PublicationDate { get; set; }
 
         public string LecturerComment { get; set; }
+
+        public bool IsAutomatic { get; set; }
+
+        public bool IsUpdated { get; set; }
     }
 }
