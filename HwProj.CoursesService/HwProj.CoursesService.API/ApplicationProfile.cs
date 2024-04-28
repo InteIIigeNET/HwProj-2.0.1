@@ -8,8 +8,8 @@ namespace HwProj.CoursesService.API
     {
         public ApplicationProfile()
         {
-            CreateMap<Course, CreateCourseViewModel>().ReverseMap();
-            CreateMap<Course, UpdateCourseViewModel>().ReverseMap();
+            CreateMap<Course, CreateCourseDto>().ReverseMap();
+            CreateMap<Course, UpdateCourseDto>().ReverseMap();
 
             CreateMap<CourseMate, CourseMateViewModel>();
 

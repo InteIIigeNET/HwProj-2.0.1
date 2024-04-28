@@ -11,6 +11,7 @@ using HwProj.Models.Roles;
 using HwProj.Utils.Authorization;
 using Microsoft.Extensions.Configuration;
 using User = HwProj.Models.AuthService.ViewModels.User;
+using System.Text.RegularExpressions;
 
 namespace HwProj.AuthService.API.Controllers
 {
@@ -189,6 +190,13 @@ namespace HwProj.AuthService.API.Controllers
         {
             var result = await _accountService.AuthorizeGithub(code, userId);
             return result;
+        }
+
+        [HttpGet("github/getUserId")]
+        [ProducesResponseType(typeof(AccountDataDto), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetAccountDataByGithubIdAsync([FromBody] string githubId)
+        {
+            return Ok(await _accountService.GetAccountDataByGithubIdAsync(githubId));
         }
     }
 }

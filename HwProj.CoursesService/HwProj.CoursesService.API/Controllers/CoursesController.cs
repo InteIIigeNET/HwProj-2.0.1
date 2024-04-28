@@ -23,14 +23,23 @@ namespace HwProj.CoursesService.API.Controllers
     public class CoursesController : Controller
     {
         private readonly ICoursesService _coursesService;
+        private readonly ICourseTokenService _courseTokenService;
+        private readonly ICoursesRepository _coursesRepository;
+        private readonly ICourseMatesRepository _courseMatesRepository;
         private readonly IHomeworksRepository _homeworksRepository;
         private readonly IMapper _mapper;
 
         public CoursesController(ICoursesService coursesService,
+            ICourseTokenService courseTokenService,
+            ICoursesRepository coursesRepository,
+            ICourseMatesRepository courseMatesRepository,
             IHomeworksRepository homeworksRepository,
             IMapper mapper)
         {
             _coursesService = coursesService;
+            _courseTokenService = courseTokenService;
+            _coursesRepository = coursesRepository;
+            _courseMatesRepository = courseMatesRepository;
             _homeworksRepository = homeworksRepository;
             _mapper = mapper;
         }
@@ -53,7 +62,7 @@ namespace HwProj.CoursesService.API.Controllers
             return Ok(course);
         }
 
-        [CourseDataFilter]
+        //[CourseDataFilter] TODO : Transfer
         [HttpGet("getByTask/{taskId}")]
         public async Task<IActionResult> GetByTask(long taskId)
         {
@@ -64,10 +73,10 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> AddCourse([FromBody] CreateCourseViewModel courseViewModel,
+        public async Task<IActionResult> AddCourse([FromBody] CreateCourseDto courseDto,
             [FromQuery] string mentorId)
         {
-            var course = _mapper.Map<Course>(courseViewModel);
+            var course = _mapper.Map<Course>(courseDto);
             var id = await _coursesService.AddAsync(course, mentorId);
             return Ok(id);
         }
@@ -82,14 +91,15 @@ namespace HwProj.CoursesService.API.Controllers
 
         [HttpPost("update/{courseId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        public async Task<IActionResult> UpdateCourse(long courseId, [FromBody] UpdateCourseViewModel courseViewModel)
+        public async Task<IActionResult> UpdateCourse(long courseId, [FromBody] UpdateCourseDto courseDto)
         {
             await _coursesService.UpdateAsync(courseId, new Course
             {
-                Name = courseViewModel.Name,
-                GroupName = courseViewModel.GroupName,
-                IsCompleted = courseViewModel.IsCompleted,
-                IsOpen = courseViewModel.IsOpen
+                Name = courseDto.Name,
+                GroupName = courseDto.GroupName,
+                IsCompleted = courseDto.IsCompleted,
+                IsAutoSolutionOnly = courseDto.IsAutoSolutionOnly,
+                IsOpen = courseDto.IsOpen
             });
 
             return Ok();
@@ -202,6 +212,14 @@ namespace HwProj.CoursesService.API.Controllers
             result = result.Concat(defaultTags).Distinct().ToArray();
 
             return Ok(result);
+        }
+
+        [HttpGet("getToken/{courseId}")]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        public async Task<IActionResult> GetToken(long courseId)
+        {
+            var token = await _courseTokenService.GetTokenAsync(courseId);
+            return Ok(token);
         }
     }
 }

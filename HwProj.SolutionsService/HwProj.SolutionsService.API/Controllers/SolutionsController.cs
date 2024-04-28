@@ -71,7 +71,8 @@ namespace HwProj.SolutionsService.API.Controllers
         public async Task<IActionResult> PostSolution(long taskId, [FromBody] PostSolutionModel solutionModel)
         {
             var task = await _coursesClient.GetTask(taskId);
-            if (!task.CanSendSolution) return BadRequest();
+            if (!task.CanSendSolution) 
+                return BadRequest();
 
             var solution = _mapper.Map<Solution>(solutionModel);
             solution.TaskId = taskId;
@@ -154,7 +155,9 @@ namespace HwProj.SolutionsService.API.Controllers
                 .Select(t => t.Id)
                 .ToArray();
 
-            var solutions = await _solutionsRepository.FindAll(t => taskIds.Contains(t.TaskId)).ToListAsync();
+            var solutions = await _solutionsRepository
+                .FindAll(t => taskIds.Contains(t.TaskId))
+                .ToListAsync();
             var lecturerStat = solutions
                 .Where(s => !string.IsNullOrEmpty(s.LecturerId))
                 .GroupBy(s => s.LecturerId)
@@ -191,7 +194,9 @@ namespace HwProj.SolutionsService.API.Controllers
                 .ToArray();
 
             var userId = Request.GetUserIdFromHeader();
-            var solutions = await _solutionsRepository.FindAll(t => taskIds.Contains(t.TaskId)).ToListAsync();
+            var solutions = await _solutionsRepository
+                .FindAll(t => taskIds.Contains(t.TaskId))
+                .ToListAsync();
             var courseMates = course.MentorIds.Contains(userId)
                 ? course.AcceptedStudents
                 : course.CourseMates.Where(t => t.StudentId == userId);

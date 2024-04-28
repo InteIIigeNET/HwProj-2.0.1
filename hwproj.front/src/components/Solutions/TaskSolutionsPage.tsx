@@ -29,6 +29,7 @@ interface ITaskSolutionsState {
     task: HomeworkTaskViewModel
     addSolution: boolean
     courseId: number
+    isAutoSolutionOnly: boolean
     allTaskSolutions: UserTaskSolutions2[]
     courseMates: AccountDataDto[]
 }
@@ -55,6 +56,7 @@ const TaskSolutionsPage: FC = () => {
         task: {},
         courseId: 0,
         addSolution: false,
+        isAutoSolutionOnly: false,
         allTaskSolutions: [],
         courseMates: []
     })
@@ -83,6 +85,7 @@ const TaskSolutionsPage: FC = () => {
             courseId: pageData.courseId!,
             task: pageData.task!,
             allTaskSolutions: pageData.taskSolutions!,
+            isAutoSolutionOnly: pageData.isAutoSolutionOnly!,
             courseMates: pageData.courseMates!,
         })
     }
@@ -157,21 +160,23 @@ const TaskSolutionsPage: FC = () => {
                                 </Select>
                             </FormControl>
                         </Grid>
-                        {task.canSendSolution && <Grid item><Button
-                            fullWidth
-                            size="large"
-                            variant="contained"
-                            color="primary"
-                            onClick={(e) => {
-                                e.persist()
-                                setTaskSolutionPage((prevState) => ({
-                                    ...prevState,
-                                    addSolution: true,
-                                }))
-                            }}
-                        >
+                        {task.canSendSolution && !taskSolutionPage.isAutoSolutionOnly && <Grid item>
+                            <Button
+                                fullWidth
+                                size="large"
+                                variant="contained"
+                                color="primary"
+                                onClick={(e) => {
+                                    e.persist()
+                                    setTaskSolutionPage((prevState) => ({
+                                        ...prevState,
+                                        addSolution: true,
+                                    }))
+                                }}
+                            >
                             Добавить решение
-                        </Button></Grid>}
+                            </Button>
+                        </Grid>}
                         <Grid item>
                             <Link
                                 style={{color: '#212529'}}

@@ -137,6 +137,32 @@ export interface AccountDataDto {
 /**
  * 
  * @export
+ * @interface AutomaticSolution
+ */
+export interface AutomaticSolution {
+    /**
+     * 
+     * @type {string}
+     * @memberof AutomaticSolution
+     */
+    githubId?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof AutomaticSolution
+     */
+    solutionUrl?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof AutomaticSolution
+     */
+    taskId?: number;
+}
+
+/**
+ * 
+ * @export
  * @interface CategorizedNotifications
  */
 export interface CategorizedNotifications {
@@ -291,6 +317,12 @@ export interface CourseViewModel {
     isCompleted?: boolean;
     /**
      * 
+     * @type {boolean}
+     * @memberof CourseViewModel
+     */
+    isAutoSolutionOnly?: boolean;
+    /**
+     * 
      * @type {Array<AccountDataDto>}
      * @memberof CourseViewModel
      */
@@ -318,25 +350,31 @@ export interface CourseViewModel {
 /**
  * 
  * @export
- * @interface CreateCourseViewModel
+ * @interface CreateCourseDto
  */
-export interface CreateCourseViewModel {
+export interface CreateCourseDto {
     /**
      * 
      * @type {string}
-     * @memberof CreateCourseViewModel
+     * @memberof CreateCourseDto
      */
     name: string;
     /**
      * 
      * @type {string}
-     * @memberof CreateCourseViewModel
+     * @memberof CreateCourseDto
      */
     groupName?: string;
     /**
      * 
      * @type {boolean}
-     * @memberof CreateCourseViewModel
+     * @memberof CreateCourseDto
+     */
+    isAutoSolutionOnly?: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof CreateCourseDto
      */
     isOpen: boolean;
 }
@@ -1140,6 +1178,12 @@ export interface ResultTokenCredentials {
 export interface Solution {
     /**
      * 
+     * @type {boolean}
+     * @memberof Solution
+     */
+    isAutomatic?: boolean;
+    /**
+     * 
      * @type {number}
      * @memberof Solution
      */
@@ -1645,31 +1689,37 @@ export interface UnratedSolutionPreviews {
 /**
  * 
  * @export
- * @interface UpdateCourseViewModel
+ * @interface UpdateCourseDto
  */
-export interface UpdateCourseViewModel {
+export interface UpdateCourseDto {
     /**
      * 
      * @type {string}
-     * @memberof UpdateCourseViewModel
+     * @memberof UpdateCourseDto
      */
     name: string;
     /**
      * 
      * @type {string}
-     * @memberof UpdateCourseViewModel
+     * @memberof UpdateCourseDto
      */
     groupName?: string;
     /**
      * 
      * @type {boolean}
-     * @memberof UpdateCourseViewModel
+     * @memberof UpdateCourseDto
      */
     isOpen: boolean;
     /**
      * 
      * @type {boolean}
-     * @memberof UpdateCourseViewModel
+     * @memberof UpdateCourseDto
+     */
+    isAutoSolutionOnly?: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof UpdateCourseDto
      */
     isCompleted?: boolean;
 }
@@ -1804,6 +1854,12 @@ export interface UserTaskSolutionsPageData {
      * @memberof UserTaskSolutionsPageData
      */
     courseId?: number;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof UserTaskSolutionsPageData
+     */
+    isAutoSolutionOnly?: boolean;
     /**
      * 
      * @type {Array<AccountDataDto>}
@@ -3721,11 +3777,11 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
         },
         /**
          * 
-         * @param {CreateCourseViewModel} [model] 
+         * @param {CreateCourseDto} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCoursesCreatePost(model?: CreateCourseViewModel, options: any = {}): FetchArgs {
+        apiCoursesCreatePost(model?: CreateCourseDto, options: any = {}): FetchArgs {
             const localVarPath = `/api/Courses/create`;
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
@@ -3746,7 +3802,7 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-            const needsSerialization = (<any>"CreateCourseViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            const needsSerialization = (<any>"CreateCourseDto" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
 
             return {
@@ -3796,6 +3852,42 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
                 throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesGetLecturersAvailableForCourseByCourseIdGet.');
             }
             const localVarPath = `/api/Courses/getLecturersAvailableForCourse/{courseId}`
+                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesGetTokenByCourseIdGet(courseId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'courseId' is not null or undefined
+            if (courseId === null || courseId === undefined) {
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesGetTokenByCourseIdGet.');
+            }
+            const localVarPath = `/api/Courses/getToken/{courseId}`
                 .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
@@ -3941,7 +4033,7 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCoursesUpdateByCourseIdPost(courseId: number, model?: UpdateCourseViewModel, options: any = {}): FetchArgs {
+        apiCoursesUpdateByCourseIdPost(courseId: number, model?: UpdateCourseDto, options: any = {}): FetchArgs {
             // verify required parameter 'courseId' is not null or undefined
             if (courseId === null || courseId === undefined) {
                 throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesUpdateByCourseIdPost.');
@@ -3967,7 +4059,7 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-            const needsSerialization = (<any>"UpdateCourseViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            const needsSerialization = (<any>"UpdateCourseDto" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
 
             return {
@@ -4090,11 +4182,11 @@ export const CoursesApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @param {CreateCourseViewModel} [model] 
+         * @param {CreateCourseDto} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCoursesCreatePost(model?: CreateCourseViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
+        apiCoursesCreatePost(model?: CreateCourseDto, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
             const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesCreatePost(model, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
@@ -4131,6 +4223,24 @@ export const CoursesApiFp = function(configuration?: Configuration) {
          */
         apiCoursesGetLecturersAvailableForCourseByCourseIdGet(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<AccountDataDto>> {
             const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesGetLecturersAvailableForCourseByCourseIdGet(courseId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesGetTokenByCourseIdGet(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<TokenCredentials> {
+            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesGetTokenByCourseIdGet(courseId, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -4203,7 +4313,7 @@ export const CoursesApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCoursesUpdateByCourseIdPost(courseId: number, model?: UpdateCourseViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+        apiCoursesUpdateByCourseIdPost(courseId: number, model?: UpdateCourseDto, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
             const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesUpdateByCourseIdPost(courseId, model, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
@@ -4281,11 +4391,11 @@ export const CoursesApiFactory = function (configuration?: Configuration, fetch?
         },
         /**
          * 
-         * @param {CreateCourseViewModel} [model] 
+         * @param {CreateCourseDto} [model] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCoursesCreatePost(model?: CreateCourseViewModel, options?: any) {
+        apiCoursesCreatePost(model?: CreateCourseDto, options?: any) {
             return CoursesApiFp(configuration).apiCoursesCreatePost(model, options)(fetch, basePath);
         },
         /**
@@ -4304,6 +4414,15 @@ export const CoursesApiFactory = function (configuration?: Configuration, fetch?
          */
         apiCoursesGetLecturersAvailableForCourseByCourseIdGet(courseId: number, options?: any) {
             return CoursesApiFp(configuration).apiCoursesGetLecturersAvailableForCourseByCourseIdGet(courseId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesGetTokenByCourseIdGet(courseId: number, options?: any) {
+            return CoursesApiFp(configuration).apiCoursesGetTokenByCourseIdGet(courseId, options)(fetch, basePath);
         },
         /**
          * 
@@ -4340,7 +4459,7 @@ export const CoursesApiFactory = function (configuration?: Configuration, fetch?
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCoursesUpdateByCourseIdPost(courseId: number, model?: UpdateCourseViewModel, options?: any) {
+        apiCoursesUpdateByCourseIdPost(courseId: number, model?: UpdateCourseDto, options?: any) {
             return CoursesApiFp(configuration).apiCoursesUpdateByCourseIdPost(courseId, model, options)(fetch, basePath);
         },
         /**
@@ -4409,12 +4528,12 @@ export class CoursesApi extends BaseAPI {
 
     /**
      * 
-     * @param {CreateCourseViewModel} [model] 
+     * @param {CreateCourseDto} [model] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CoursesApi
      */
-    public apiCoursesCreatePost(model?: CreateCourseViewModel, options?: any) {
+    public apiCoursesCreatePost(model?: CreateCourseDto, options?: any) {
         return CoursesApiFp(this.configuration).apiCoursesCreatePost(model, options)(this.fetch, this.basePath);
     }
 
@@ -4437,6 +4556,17 @@ export class CoursesApi extends BaseAPI {
      */
     public apiCoursesGetLecturersAvailableForCourseByCourseIdGet(courseId: number, options?: any) {
         return CoursesApiFp(this.configuration).apiCoursesGetLecturersAvailableForCourseByCourseIdGet(courseId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} courseId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CoursesApi
+     */
+    public apiCoursesGetTokenByCourseIdGet(courseId: number, options?: any) {
+        return CoursesApiFp(this.configuration).apiCoursesGetTokenByCourseIdGet(courseId, options)(this.fetch, this.basePath);
     }
 
     /**
@@ -4481,7 +4611,7 @@ export class CoursesApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof CoursesApi
      */
-    public apiCoursesUpdateByCourseIdPost(courseId: number, model?: UpdateCourseViewModel, options?: any) {
+    public apiCoursesUpdateByCourseIdPost(courseId: number, model?: UpdateCourseDto, options?: any) {
         return CoursesApiFp(this.configuration).apiCoursesUpdateByCourseIdPost(courseId, model, options)(this.fetch, this.basePath);
     }
 
@@ -5304,6 +5434,41 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
     return {
         /**
          * 
+         * @param {AutomaticSolution} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsAutomaticPost(model?: AutomaticSolution, options: any = {}): FetchArgs {
+            const localVarPath = `/api/Solutions/automatic`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"AutomaticSolution" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(model || {}) : (model || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {number} solutionId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5733,6 +5898,24 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
+         * @param {AutomaticSolution} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsAutomaticPost(model?: AutomaticSolution, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
+            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsAutomaticPost(model, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
          * @param {number} solutionId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5945,6 +6128,15 @@ export const SolutionsApiFactory = function (configuration?: Configuration, fetc
     return {
         /**
          * 
+         * @param {AutomaticSolution} [model] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiSolutionsAutomaticPost(model?: AutomaticSolution, options?: any) {
+            return SolutionsApiFp(configuration).apiSolutionsAutomaticPost(model, options)(fetch, basePath);
+        },
+        /**
+         * 
          * @param {number} solutionId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6057,6 +6249,17 @@ export const SolutionsApiFactory = function (configuration?: Configuration, fetc
  * @extends {BaseAPI}
  */
 export class SolutionsApi extends BaseAPI {
+    /**
+     * 
+     * @param {AutomaticSolution} [model] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SolutionsApi
+     */
+    public apiSolutionsAutomaticPost(model?: AutomaticSolution, options?: any) {
+        return SolutionsApiFp(this.configuration).apiSolutionsAutomaticPost(model, options)(this.fetch, this.basePath);
+    }
+
     /**
      * 
      * @param {number} solutionId 

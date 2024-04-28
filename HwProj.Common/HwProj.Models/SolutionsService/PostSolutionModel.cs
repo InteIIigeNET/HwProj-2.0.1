@@ -12,6 +12,7 @@ namespace HwProj.Models.SolutionsService
             PublicationDate = model.PublicationDate;
             LecturerComment = model.LecturerComment;
             Rating = model.Rating;
+            IsAutomatic = false;
         }
 
         public PostSolutionModel()
@@ -31,5 +32,7 @@ namespace HwProj.Models.SolutionsService
         public string LecturerComment { get; set; }
 
         public int? Rating { get; set; }
+
+        public bool IsAutomatic { get; set; }
     }
 }

@@ -6,18 +6,20 @@ using HwProj.Models.AuthService.DTO;
 
 namespace HwProj.Models.CoursesService.ViewModels
 {
-    public class CreateCourseViewModel
+    public class CreateCourseDto
     {
         [Required]
         [RegularExpression(@"^\S+.*", ErrorMessage = "Name shouldn't start with white spaces.")]
         public string Name { get; set; }
 
         public string GroupName { get; set; }
+        
+        public bool isAutoSolutionOnly { get; set; }
 
         [Required] public bool IsOpen { get; set; }
     }
 
-    public class UpdateCourseViewModel
+    public class UpdateCourseDto
     {
         [Required]
         [RegularExpression(@"^\S+.*", ErrorMessage = "Name shouldn't start with white spaces.")]
@@ -26,6 +28,8 @@ namespace HwProj.Models.CoursesService.ViewModels
         public string GroupName { get; set; }
 
         [Required] public bool IsOpen { get; set; }
+        
+        public bool IsAutoSolutionOnly { get; set; }
 
         public bool IsCompleted { get; set; }
     }
@@ -34,6 +38,7 @@ namespace HwProj.Models.CoursesService.ViewModels
     {
         public bool IsOpen { get; set; }
         public string InviteCode { get; set; }
+        public bool IsAutoSolutionOnly { get; set; }
         public CourseMateViewModel[] CourseMates { get; set; }
         public HomeworkViewModel[] Homeworks { get; set; }
         public GroupViewModel[] Groups { get; set; } = Array.Empty<GroupViewModel>();
@@ -48,7 +53,7 @@ namespace HwProj.Models.CoursesService.ViewModels
         public string GroupName { get; set; }
         public bool IsOpen { get; set; }
         public bool IsCompleted { get; set; }
-
+        public bool isAutoSolutionOnly { get; set; }
         public AccountDataDto[] Mentors { get; set; }
         public AccountDataDto[] AcceptedStudents { get; set; }
         public AccountDataDto[] NewStudents { get; set; }

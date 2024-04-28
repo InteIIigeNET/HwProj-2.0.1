@@ -5,6 +5,8 @@ namespace HwProj.Models.SolutionsService
 {
     public class Solution : IEntity<long>
     {
+        public bool IsAutomatic { get; set; }
+
         public long Id { get; set; }
 
         public string GithubUrl { get; set; }

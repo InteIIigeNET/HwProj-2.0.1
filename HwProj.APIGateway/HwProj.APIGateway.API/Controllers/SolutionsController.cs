@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using HwProj.APIGateway.API.ExceptionFilters;
 using HwProj.APIGateway.API.Extensions;
@@ -49,13 +50,17 @@ namespace HwProj.APIGateway.API.Controllers
         public async Task<IActionResult> GetStudentSolution(long taskId, string studentId)
         {
             var course = await _coursesServiceClient.GetCourseByTask(taskId);
-            if (course == null) return NotFound();
+            if (course == null) 
+                return NotFound();
 
             var courseMate = course.AcceptedStudents.FirstOrDefault(t => t.StudentId == studentId);
-            if (courseMate == null) return NotFound();
+            if (courseMate == null) 
+                return NotFound();
 
             var studentSolutions = (await _solutionsClient.GetCourseStatistics(course.Id, UserId)).Single();
-            var tasks = course.Homeworks.SelectMany(t => t.Tasks).ToDictionary(t => t.Id);
+            var tasks = course.Homeworks
+                .SelectMany(t => t.Tasks)
+                .ToDictionary(t => t.Id);
 
             // Получаем группы только для выбранной задачи
             var studentsOnCourse = course.AcceptedStudents
@@ -101,6 +106,7 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok(new UserTaskSolutionsPageData()
             {
                 CourseId = course.Id,
+                isAutoSolutionOnly = course.IsAutoSolutionOnly,
                 CourseMates = accounts,
                 TaskSolutions = taskSolutions,
                 Task = tasks[taskId]
@@ -175,10 +181,16 @@ namespace HwProj.APIGateway.API.Controllers
             };
 
             var course = await _coursesServiceClient.GetCourseByTask(taskId);
-            if (course is null) return BadRequest();
+            if (course is null) 
+                return BadRequest();
 
-            var courseMate = course.AcceptedStudents.FirstOrDefault(t => t.StudentId == solutionModel.StudentId);
-            if (courseMate == null) return BadRequest($"Студента с id {solutionModel.StudentId} не существует");
+            if (course.IsAutoSolutionOnly)
+                return Forbid();
+            
+            var courseMate = course.AcceptedStudents
+                .FirstOrDefault(t => t.StudentId == solutionModel.StudentId);
+            if (courseMate == null) 
+                return BadRequest($"Студента с id {solutionModel.StudentId} не существует");
 
             if (model.GroupMateIds == null || model.GroupMateIds.Length == 0)
             {
@@ -316,7 +328,9 @@ namespace HwProj.APIGateway.API.Controllers
             var isMentor = course.MentorIds.Contains(UserId);
             if (!isMentor &&
                 course.AcceptedStudents.FirstOrDefault(t => t.StudentId == UserId) == null)
+            {
                 return BadRequest($"Студента или преподавателя с id {UserId} не существует");
+            }
 
             var solutions = await _solutionsClient.GetTaskSolutionStatistics(course.Id, taskId);
             var lastRatedSolutions = solutions
@@ -326,7 +340,8 @@ namespace HwProj.APIGateway.API.Controllers
 
             var solution = lastRatedSolutions.FirstOrDefault(t => t!.Id == solutionId &&
                 (isMentor || t.StudentId == UserId));
-            if (solution == null) return NotFound();
+            if (solution == null) 
+                return NotFound();
 
             if (lastRatedSolutions.Any(x => x!.GroupId != null))
                 lastRatedSolutions = lastRatedSolutions.DistinctBy(t => t!.Id).ToArray();
@@ -341,18 +356,55 @@ namespace HwProj.APIGateway.API.Controllers
             FilterTasks(CourseDTO[] courses, long? taskId)
         {
             foreach (var course in courses)
-            foreach (var homework in course.Homeworks)
-            foreach (var task in homework.Tasks)
-            {
-                if (taskId is { } id && task.Id == id)
-                {
-                    yield return (task.Id, (course, homework.Title, task));
-                    yield break;
-                }
+                foreach (var homework in course.Homeworks)
+                    foreach (var task in homework.Tasks)
+                    {
+                        if (taskId is { } id && task.Id == id)
+                        {
+                            yield return (task.Id, (course, homework.Title, task));
+                            yield break;
+                        }
 
-                if (!taskId.HasValue)
-                    yield return (task.Id, (course, homework.Title, task));
+                        if (!taskId.HasValue)
+                            yield return (task.Id, (course, homework.Title, task));
+                    }
+        }
+
+        [HttpPost("automatic")]
+        [Authorize(AuthenticationSchemes = "Automatic", Roles = Roles.AutomaticRole)]
+        [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> AutomaticPostSolution([FromBody] AutomaticSolution model)
+        {
+            var course = await _coursesServiceClient.GetCourseByTask(model.TaskId);
+            var accountData = await AuthServiceClient.GetAccountDataByGithubId(model.GithubId);
+
+            if (course == null || !int.TryParse(User.FindFirst("_course_Id").Value, out var requestCourseId)
+                || requestCourseId != course.Id || accountData is null)
+            {
+                return BadRequest();
             }
+
+            var courseMate = course.AcceptedStudents.FirstOrDefault(t => t.StudentId == accountData.UserId);
+            if (courseMate == null) 
+                return BadRequest($"Студента с id {accountData.UserId} не существует");
+
+            var solutionModel = new PostSolutionModel()
+            {
+                IsAutomatic = true,
+                GithubUrl = model.SolutionUrl,
+                StudentId = accountData.UserId,
+                PublicationDate = DateTime.UtcNow
+            };
+
+            var claims = new List<Claim>()
+            {
+                new Claim ("_id", accountData.UserId)
+            };
+            var identity = new ClaimsIdentity(claims);
+            HttpContext.User.AddIdentity(identity);
+
+            var result = await _solutionsClient.PostSolution(model.TaskId, solutionModel);
+            return Ok(result);
         }
     }
 }

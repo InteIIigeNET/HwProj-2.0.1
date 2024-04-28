@@ -44,9 +44,9 @@ namespace HwProj.SolutionsService.IntegrationTests
             return new AuthServiceClient(mockClientFactory.Object, mockIConfiguration.Object);
         }
 
-        private CreateCourseViewModel GenerateCreateCourseViewModel()
+        private CreateCourseDto GenerateCreateCourseViewModel()
         {
-            var fixture = new Fixture().Build<CreateCourseViewModel>()
+            var fixture = new Fixture().Build<CreateCourseDto>()
                 .With(cvm => cvm.IsOpen, true);
             return fixture.Create();
         }

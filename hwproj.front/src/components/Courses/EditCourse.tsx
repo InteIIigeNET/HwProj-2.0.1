@@ -1,31 +1,31 @@
 import * as React from 'react';
-import TextField from '@material-ui/core/TextField';
-import Checkbox from '@material-ui/core/Checkbox'
-import Button from '@material-ui/core/Button'
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Typography from '@material-ui/core/Typography'
 import {Navigate, useParams} from 'react-router-dom';
 import ApiSingleton from "../../api/ApiSingleton";
-import {Grid} from '@material-ui/core';
+import Button from '@material-ui/core/Button'
+import {Grid, Box, Divider, Checkbox, TextField, FormControlLabel, Container, Link, Typography} from '@mui/material';
 import {FC, useEffect, useState} from "react";
-import Container from "@material-ui/core/Container";
 import makeStyles from "@material-ui/styles/makeStyles";
 import EditIcon from "@material-ui/icons/Edit";
-import DeletionConfirmation from "../DeletionConfirmation";
-import Link from "@material-ui/core/Link";
-import DeleteIcon from '@material-ui/icons/Delete';
+import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
 import Lecturers from "./Lecturers";
 import {AccountDataDto} from "../../api";
+import CodeWindow from '../CodeWindow';
 
 interface IEditCourseState {
     isLoaded: boolean,
     name: string,
     groupName?: string,
     isCompleted: boolean,
+    isAutoSolutionOnly: boolean,
     mentors: AccountDataDto[],
     edited: boolean,
     deleted: boolean,
     lecturerEmail: string;
+}
+
+interface ITokenState {
+    isOpen: boolean,
+    token: string,
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -51,6 +51,11 @@ const useStyles = makeStyles((theme) => ({
     },
     item: {
         marginTop: theme.spacing(2),
+    },
+    button: {
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+        fontSize: '0.9rem',
+        borderRadius: '0.5rem',
     }
 }))
 
@@ -62,13 +67,17 @@ const EditCourse: FC = () => {
         name: "",
         groupName: "",
         isCompleted: false,
+        isAutoSolutionOnly: false,
         mentors: [],
         edited: false,
         deleted: false,
         lecturerEmail: "",
     })
 
-    const [isOpenDialogDeleteCourse, setIsOpenDialogDeleteCourse] = useState<boolean>(false)
+    const [tokenState, setTokenState] = useState<ITokenState>({
+        isOpen: false,
+        token: '',
+    })
 
     useEffect(() => {
         getCourse()
@@ -82,6 +91,7 @@ const EditCourse: FC = () => {
             name: course.name!,
             groupName: course.groupName!,
             isOpen: course.isOpen!,
+            isAutoSolutionOnly: course.isAutoSolutionOnly!,
             isCompleted: course.isCompleted!,
             mentors: course.mentors!,
         }))
@@ -93,7 +103,8 @@ const EditCourse: FC = () => {
             name: courseState.name,
             groupName: courseState.groupName,
             isOpen: true,
-            isCompleted: courseState.isCompleted
+            isCompleted: courseState.isCompleted,
+            isAutoSolutionOnly: courseState.isAutoSolutionOnly
         };
 
         await ApiSingleton.coursesApi.apiCoursesUpdateByCourseIdPost(+courseId!, courseViewModel)
@@ -103,19 +114,20 @@ const EditCourse: FC = () => {
         }))
     }
 
-    const openDialogDeleteCourse = () => {
-        setIsOpenDialogDeleteCourse(true)
-    }
-
-    const closeDialogDeleteCourse = () => {
-        setIsOpenDialogDeleteCourse(false)
-    }
-
-    const onDeleteCourse = async () => {
-        await ApiSingleton.coursesApi.apiCoursesByCourseIdDelete(+courseId!)
-        setCourseState((prevState) => ({
+    const onOpenToken = async () => {
+        const token = (await ApiSingleton.coursesApi.apiCoursesGetTokenByCourseIdGet(+courseId!)).accessToken
+        setTokenState((prevState) => ({
             ...prevState,
-            deleted: true
+            isOpen: true,
+            token: token!,
+        }))
+    }
+
+    const onCloseToken = () => {
+        setTokenState((prevState) => ({
+            ...prevState,
+            isOpen: false,
+            token: '',
         }))
     }
 
@@ -140,41 +152,25 @@ const EditCourse: FC = () => {
         }
 
         return (
-            <div>
-                <Grid container justify="center" style={{marginTop: '20px'}}>
-                    <Grid container justifyContent="space-between" xs={11}>
-                        <Grid item>
+            <Container maxWidth='lg' style={{width: '60%'}}>
+                <Grid container spacing={3} direction='row'>
+                    <Grid item xs={2}>
+                    <Box style={{marginTop: "40px"}} display="flex" justifyContent="space-between" alignItems="center" mb={3}>
                             <Link
                                 component="button"
-                                style={{color: '#212529'}}
+                                style={{ color: '#212529', textDecoration: 'none' }}
                                 onClick={() => window.location.assign('/courses/' + courseId)}
                             >
-                                <Typography>
-                                    Назад к курсу
-                                </Typography>
+                                <Typography variant="body1">Назад к курсу</Typography>
                             </Link>
-                        </Grid>
-                        <Grid item>
-                            <Lecturers
-                                update={getCourse}
-                                mentors={courseState.mentors}
-                                courseId={courseId!}
-                                isEditCourse={true}
-                            />
-                        </Grid>
+                        </Box>
                     </Grid>
-                </Grid>
-                <Container component="main" maxWidth="xs">
-                    <div className={classes.paper}>
-                        <div className={classes.logo}>
-                            <div>
-                                <EditIcon style={{color: 'red'}}/>
-                            </div>
-                            <Typography style={{fontSize: '22px'}}>
-                                Редактировать курс
-                            </Typography>
-                        </div>
-                        <form onSubmit={e => handleSubmit(e)} className={classes.form}>
+                    <Grid item xs={6}>
+                        <Box display="flex" justifyContent="center" mb={3} style={{marginTop: "100px"}}>
+                            <EditIcon style={{ color: 'red', marginRight: '0.5rem' }} />
+                            <Typography variant="h5">Редактировать курс</Typography>
+                        </Box>
+                        <form onSubmit={handleSubmit}>
                             <TextField
                                 className={classes.item}
                                 margin="normal"
@@ -206,8 +202,7 @@ const EditCourse: FC = () => {
                                     }))
                                 }}
                             />
-                            <Grid container spacing={2} className={classes.item}>
-                                <Grid item xs={12} sm={6}>
+                                <Grid>
                                     <FormControlLabel
                                         style={{margin: 0}}
                                         control={
@@ -227,45 +222,70 @@ const EditCourse: FC = () => {
                                         label="Завершённый курс"
                                     />
                                 </Grid>
-                            </Grid>
-                            <div className={classes.item}>
+                                <Grid>
+                                    <FormControlLabel
+                                        style={{margin: 0}}
+                                        control={
+                                            <Checkbox
+                                                color="primary"
+                                                checked={courseState.isAutoSolutionOnly}
+                                                onChange={(e) => {
+                                                    e.persist()
+                                                    setCourseState((prevState) => ({
+                                                        ...prevState,
+                                                        isAutoSolutionOnly: e.target.checked
+                                                    }))
+                                                }}
+                                            />
+                                        }
+                                        label="Запретить самостоятельную отправку решений"
+                                    />
+                                </Grid>
+                            <Grid className={classes.item} style={{alignItems: 'center'}}>
                                 <Button
-                                    fullWidth
-                                    variant="contained"
+                                    className={classes.button}
                                     color="primary"
-                                    type="submit"
-                                >
+                                    variant="contained"
+                                    startIcon={<EditIcon />}
+                                    style={{textTransform: 'none'}}
+                                    type="submit">
                                     Редактировать курс
                                 </Button>
-                            </div>
+
+                                <Divider textAlign="left" style={{marginTop: '1.5rem', marginBottom: '1.5rem'}}>
+                                    <Typography color="textSecondary">Токены</Typography>
+                                </Divider>
+
+                                <Button
+                                    className={classes.button}
+                                    style={{textTransform: 'none'}}
+                                    color="primary"
+                                    startIcon={<ConfirmationNumberIcon />}
+                                    onClick={onOpenToken}
+                                    >
+                                    Получить токен для отправки решений
+                                </Button>
+                            </Grid>
                         </form>
-                    </div>
-                </Container>
-                <Grid container justify="center" style={{marginTop: '20px', marginBottom: '20px'}}>
-                    <Grid container xs={11} justifyContent="flex-end">
-                        <Grid>
-                            <Button
-                                onClick={openDialogDeleteCourse}
-                                fullWidth
-                                variant="contained"
-                                style={{color: '#8d8686'}}
-                                startIcon={<DeleteIcon/>}
-                            >
-                                Удалить курс
-                            </Button>
-                        </Grid>
                     </Grid>
+                    <Grid item xs={4} style={{marginTop: "20px"}}>
+                        <Lecturers
+                            update={getCourse}
+                            mentors={courseState.mentors}
+                            courseId={courseId!}
+                            isEditCourse={true}
+                        />
+                    </Grid>
+
                 </Grid>
-                <DeletionConfirmation
-                    onCancel={closeDialogDeleteCourse}
-                    onSubmit={onDeleteCourse}
-                    isOpen={isOpenDialogDeleteCourse}
-                    dialogTitle={"Удаление курса"}
-                    dialogContentText={`Вы точно хотите удалить курс "${courseState.name}"?`}
-                    confirmationWord={courseState.name}
-                    confirmationText={"Для подтверждения введите название курса."}
+                <CodeWindow 
+                    onClose={onCloseToken}
+                    open={tokenState.isOpen}
+                    code={tokenState.token}
+                    language="bash"
+                    title="Secret Token"
                 />
-            </div>
+            </Container>
         );
     }
 
