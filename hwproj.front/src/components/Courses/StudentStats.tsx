@@ -170,8 +170,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                     solutions
                                         .find(s => s.id === cm.id)?.homeworks!
                                         .find(h => h.id === homework.id)?.tasks!
-                                        .flatMap(t => t.solution)
-                                        .flatMap(s => s!.rating!) || []
+                                        .flatMap(t => StudentStatsUtils.calculateLastRatedSolution(t.solution || [])?.rating || 0) || 0
                                 )
                                 .reduce((sum, rating) => sum + rating, 0)
                             const testsSum = homeworks
@@ -180,8 +179,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                     solutions
                                         .find(s => s.id === cm.id)?.homeworks!
                                         .find(h => h.id === homework.id)?.tasks!
-                                        .flatMap(t => t.solution)
-                                        .flatMap(s => s!.rating!) || []
+                                        .flatMap(t => StudentStatsUtils.calculateLastRatedSolution(t.solution || [])?.rating || 0) || 0
                                 )
                                 .reduce((sum, rating) => sum + rating, 0)
                             return (
