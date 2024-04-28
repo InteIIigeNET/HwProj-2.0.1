@@ -72,7 +72,7 @@ namespace HwProj.APIGateway.API.Controllers
                     UserData = accountData,
                     CourseEvents = courseEvents,
                     TaskDeadlines = Array.Empty<TaskDeadlineView>(),
-                    GroupTasks = Array.Empty<GroupTaskWithoutGroupInSolutionViewModel>(),
+                    GroupWorkTasks = Array.Empty<GroupTaskWithoutGroupInSolutionViewModel>(),
                 });
             }
 
@@ -81,13 +81,15 @@ namespace HwProj.APIGateway.API.Controllers
                 .Zip(courses, (tasks, course) => (tasks, course.Name));
             
             var groupWorkTasks = courseHomeworkTasks
-                .SelectMany(t => (t.tasks))
-                .Where(t => t.IsGroupWork)
+                .SelectMany(t => t.tasks.Select(task => (task, t.Name)))
+                .Where(t => t.task.IsGroupWork)
                 .Select(t => new GroupTaskWithoutGroupInSolutionViewModel()
                 {
-                    TaskId = t.Id,
-                    Cou
-                });
+                    TaskId = t.task.Id,
+                    CourseTitle = t.Name,
+                    TaskTitle = t.task.Title
+                })
+                .ToArray();
             var currentTime = DateTime.UtcNow;
             var taskDeadlines = await _coursesClient.GetTaskDeadlines();
             var taskIds = taskDeadlines.Select(t => t.TaskId).ToArray();
@@ -106,7 +108,8 @@ namespace HwProj.APIGateway.API.Controllers
             var aggregatedResult = new UserDataDto
             {
                 UserData = accountData,
-                TaskDeadlines = taskDeadlinesInfo
+                TaskDeadlines = taskDeadlinesInfo,
+                GroupWorkTasks = groupWorkTasks
             };
             return Ok(aggregatedResult);
         }
