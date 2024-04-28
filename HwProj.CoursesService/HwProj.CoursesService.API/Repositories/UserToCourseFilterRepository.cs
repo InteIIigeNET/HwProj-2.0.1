@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
+using Microsoft.EntityFrameworkCore;
 using Z.EntityFramework.Plus;
 
 namespace HwProj.CoursesService.API.Repositories
@@ -16,7 +17,7 @@ namespace HwProj.CoursesService.API.Repositories
         
         public async Task<UserToCourseFilter> GetAsync(string userId, long courseId)
         {
-            return await _context.UserToCourseFilters.FindAsync(userId, courseId);
+            return await _context.FindAsync<UserToCourseFilter>(userId, courseId).ConfigureAwait(false);
         }
 
         public async Task AddAsync(UserToCourseFilter userToCourseFilter)
@@ -33,7 +34,7 @@ namespace HwProj.CoursesService.API.Repositories
         public async Task DeleteAsync(string userId, long courseId)
         {
             await _context.UserToCourseFilters.Where(x => 
-                    x.UserId == userId && x.CourseId == courseId)
+                    x.UserId == userId && x.CourseId == courseId).AsNoTracking()
                 .DeleteAsync();
         }
     }
