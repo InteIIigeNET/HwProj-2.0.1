@@ -64,15 +64,15 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
         return undefined
     }
 
-    const defaultMaxSum = homeworks.filter(h => !h.tags!.includes("Доп. баллы"))
-        .filter(h => !h.tags!.includes("Контрольная работа"))
+    const defaultMaxSum = homeworks.filter(h => !h.tags!.includes(HomeworkTags.ExtraPointsTag))
+        .filter(h => !h.tags!.includes(HomeworkTags.TestTag))
         .flatMap(homework => homework.tasks)
         .reduce((sum, task) => {
         return sum + (task!.maxRating || 0);
     }, 0);
 
-    const testsMaxSum = homeworks.filter(h => h.tags!.includes("Контрольная работа"))
-        .filter(h => !h.tags!.includes("Доп. баллы"))
+    const testsMaxSum = homeworks.filter(h => h.tags!.includes(HomeworkTags.TestTag))
+        .filter(h => !h.tags!.includes(HomeworkTags.ExtraPointsTag))
         .flatMap(homework => homework.tasks)
         .reduce((sum, task) => {
             return sum + (task!.maxRating || 0);
@@ -189,8 +189,8 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                     variant={"body"}
                                 >
                                     {homeworks
-                                        .filter(h => !h.tags!.includes("Доп. баллы"))
-                                        .filter(h => !h.tags!.includes("Контрольная работа"))
+                                        .filter(h => !h.tags!.includes(HomeworkTags.ExtraPointsTag))
+                                        .filter(h => !h.tags!.includes(HomeworkTags.TestTag))
                                         .flatMap(homework =>
                                             homework.tasks!.flatMap(task =>
                                                 solutions
@@ -214,8 +214,8 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                     variant={"body"}
                                 >
                                     {homeworks
-                                        .filter(h => h.tags!.includes("Контрольная работа"))
-                                        .filter(h => !h.tags!.includes("Доп. баллы"))
+                                        .filter(h => h.tags!.includes(HomeworkTags.TestTag))
+                                        .filter(h => !h.tags!.includes(HomeworkTags.ExtraPointsTag))
                                         .flatMap(homework =>
                                             homework.tasks!.flatMap(task =>
                                                 solutions

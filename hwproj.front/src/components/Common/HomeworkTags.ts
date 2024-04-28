@@ -1,2 +1,3 @@
-﻿const TestTag = "Контрольная работа"
-export default {TestTag}
+﻿const TestTag = 'Контрольная работа'
+const ExtraPointsTag = 'Доп. баллы'
+export default {TestTag, ExtraPointsTag};
