@@ -203,6 +203,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                         padding="none"
                                         style={{
                                             borderLeft: borderStyle,
+                                            backgroundColor: "white"
                                         }}
                                         component="td"
                                         scope="row"
@@ -220,6 +221,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                         padding="none"
                                         style={{
                                             borderLeft: borderStyle,
+                                            backgroundColor: "white"
                                         }}
                                         component="td"
                                         scope="row"
