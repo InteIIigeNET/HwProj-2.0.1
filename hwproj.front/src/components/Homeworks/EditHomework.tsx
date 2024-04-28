@@ -199,7 +199,7 @@ const EditHomework: FC = () => {
                                 />
                             </Grid>
                             <Grid item xs={11} style={{marginBottom: 15}}>
-                                <Tags editFlag={true} tags={editHomework.tags} courseId={editHomework.courseId} onTagsChange={handleTagsChange}/>
+                                <Tags tags={editHomework.tags} courseId={editHomework.courseId} onTagsChange={handleTagsChange}/>
                                 <PublicationAndDeadlineDates
                                     hasDeadline={editHomework.hasDeadline}
                                     isDeadlineStrict={editHomework.isDeadlineStrict}

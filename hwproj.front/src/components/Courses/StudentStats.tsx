@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api/";
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
-import {Alert} from "@mui/material";
+import {Alert, Chip, Tooltip, Typography} from "@mui/material";
 import {grey} from "@material-ui/core/colors";
 
 interface IStudentStatsProps {
@@ -50,6 +50,20 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
 
     const borderStyle = `1px solid ${greyBorder}`
 
+    const defaultMaxSum = homeworks.filter(h => !h.tags!.includes("Доп. баллы"))
+        .filter(h => !h.tags!.includes("Контрольная работа"))
+        .flatMap(homework => homework.tasks)
+        .reduce((sum, task) => {
+        return sum + (task!.maxRating || 0);
+    }, 0);
+
+    const testsMaxSum = homeworks.filter(h => h.tags!.includes("Контрольная работа"))
+        .filter(h => !h.tags!.includes("Доп. баллы"))
+        .flatMap(homework => homework.tasks)
+        .reduce((sum, task) => {
+            return sum + (task!.maxRating || 0);
+        }, 0);
+
     return (
         <div>
             {searched &&
@@ -63,6 +77,28 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                             <TableCell style={{zIndex: -4, color: ""}} align="center"
                                        padding="none"
                                        component="td">
+                            </TableCell>
+                            <TableCell
+                                padding="checkbox"
+                                component="td"
+                                align="center"
+                                style={{
+                                    zIndex: -5,
+                                    borderLeft: borderStyle
+                                }}
+                            >
+                                ДЗ
+                            </TableCell>
+                            <TableCell
+                                padding="checkbox"
+                                component="td"
+                                align="center"
+                                style={{
+                                    zIndex: -5,
+                                    borderLeft: borderStyle
+                                }}
+                            >
+                                КР
                             </TableCell>
                             {homeworks.map((homework) => (
                                 <TableCell
@@ -82,11 +118,27 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                         <TableRow>
                             <TableCell style={{zIndex: 10}}
                                        component="td"></TableCell>
+                            <TableCell padding="checkbox" component="td" align="center"
+                                       style={{
+                                           paddingLeft: 5,
+                                           paddingRight: 5,
+                                           borderLeft: borderStyle
+                                       }}>
+                                Max {defaultMaxSum}
+                            </TableCell>
+                            <TableCell padding="checkbox" component="td" align="center"
+                                       style={{
+                                           paddingLeft: 5,
+                                           paddingRight: 5,
+                                           borderLeft: borderStyle
+                                       }}>
+                                Max {testsMaxSum}
+                            </TableCell>
                             {homeworks.map((homework) =>
                                 homework.tasks!.map((task, i) => (
                                     <TableCell padding="checkbox" component="td" align="center"
                                                style={{
-                                                   minWidth: "75px",
+                                                   width: "75px",
                                                    paddingLeft: 10,
                                                    paddingRight: 10,
                                                    borderLeft: i === 0 ? borderStyle : ""
@@ -110,6 +162,56 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                     variant={"head"}
                                 >
                                     {cm.surname} {cm.name}
+                                </TableCell>
+                                <TableCell
+                                    align="center"
+                                    padding="none"
+                                    style={{
+                                        borderLeft: borderStyle,
+                                    }}
+                                    component="td"
+                                    scope="row"
+                                    variant={"body"}
+                                >
+                                    {homeworks
+                                        .filter(h => !h.tags!.includes("Доп. баллы"))
+                                        .filter(h => !h.tags!.includes("Контрольная работа"))
+                                        .flatMap(homework =>
+                                            homework.tasks!.flatMap(task =>
+                                                solutions
+                                                    .find(s => s.id === cm.id)?.homeworks!
+                                                    .find(h => h.id === homework.id)?.tasks!
+                                                    .find(t => t.id === task.id)?.solution!
+                                                    .flatMap(s => s.rating!) || []
+                                            )
+                                        )
+                                        .reduce((sum, rating) => sum + rating, 0)
+                                    }
+                                </TableCell>
+                                <TableCell
+                                    align="center"
+                                    padding="none"
+                                    style={{
+                                        borderLeft: borderStyle,
+                                    }}
+                                    component="td"
+                                    scope="row"
+                                    variant={"body"}
+                                >
+                                    {homeworks
+                                        .filter(h => h.tags!.includes("Контрольная работа"))
+                                        .filter(h => !h.tags!.includes("Доп. баллы"))
+                                        .flatMap(homework =>
+                                            homework.tasks!.flatMap(task =>
+                                                solutions
+                                                    .find(s => s.id === cm.id)?.homeworks!
+                                                    .find(h => h.id === homework.id)?.tasks!
+                                                    .find(t => t.id === task.id)?.solution!
+                                                    .flatMap(s => s.rating!) || []
+                                            )
+                                        )
+                                        .reduce((sum, rating) => sum + rating, 0)
+                                    }
                                 </TableCell>
                                 {homeworks.map((homework) =>
                                     homework.tasks!.map((task) => (
