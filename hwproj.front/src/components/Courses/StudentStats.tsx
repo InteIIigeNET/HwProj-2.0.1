@@ -79,6 +79,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
             return sum + (task!.maxRating || 0);
         }, 0)
 
+    const hasHomeworks = homeworksMaxSum > 0
     const hasTests = testsMaxSum > 0
 
     return (
@@ -95,9 +96,9 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                        padding="none"
                                        component="td">
                             </TableCell>
-                            <TableCell
+                            {(hasHomeworks || hasTests) && <TableCell
                                 padding="checkbox"
-                                colSpan={hasTests ? 2 : 1}
+                                colSpan={(hasHomeworks ? 1 : 0) + (hasTests ? 1 : 0)}
                                 align="center"
                                 component="td"
                                 style={{
@@ -108,7 +109,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                 }}
                             >
                                 Зачетные единицы
-                            </TableCell>
+                            </TableCell>}
                             {homeworks.map((homework, idx) =>
                                 <TableCell
                                     padding="checkbox"
@@ -127,22 +128,22 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                         <TableRow>
                             <TableCell style={{zIndex: 10}}
                                        component="td"></TableCell>
-                            <TableCell padding="checkbox" component="td" align="center"
-                                       style={{
-                                           paddingLeft: 5,
-                                           paddingRight: 5,
-                                           borderLeft: borderStyle,
-                                           backgroundColor: "lightgrey"
-                                       }}>
+                            {hasHomeworks && <TableCell padding="checkbox" component="td" align="center"
+                                                        style={{
+                                                            paddingLeft: 5,
+                                                            paddingRight: 5,
+                                                            borderLeft: borderStyle,
+                                                            backgroundColor: "lightgrey"
+                                                        }}>
                                 ДЗ {homeworksMaxSum}
-                            </TableCell>
+                            </TableCell>}
                             {hasTests && <TableCell padding="checkbox" component="td" align="center"
-                                       style={{
-                                           paddingLeft: 5,
-                                           paddingRight: 5,
-                                           borderLeft: borderStyle,
-                                           backgroundColor: "lightgrey"
-                                       }}>
+                                                    style={{
+                                                        paddingLeft: 5,
+                                                        paddingRight: 5,
+                                                        borderLeft: borderStyle,
+                                                        backgroundColor: "lightgrey"
+                                                    }}>
                                 КР {testsMaxSum}
                             </TableCell>}
                             {homeworks.map((homework, idx) =>
@@ -194,7 +195,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                     >
                                         {cm.surname} {cm.name}
                                     </TableCell>
-                                    <TableCell
+                                    {hasHomeworks && <TableCell
                                         align="center"
                                         padding="none"
                                         style={{
@@ -211,7 +212,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                                   fontSize: 16
                                               }}
                                               label={homeworksSum}/>
-                                    </TableCell>
+                                    </TableCell>}
                                     {hasTests && <TableCell
                                         align="center"
                                         padding="none"
