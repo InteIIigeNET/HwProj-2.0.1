@@ -167,23 +167,19 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                             const homeworksSum = homeworks
                                 .filter(h => !h.tags!.includes(HomeworkTags.TestTag))
                                 .flatMap(homework =>
-                                        solutions
-                                            .find(s => s.id === cm.id)?.homeworks!
-                                            .find(h => h.id === homework.id)?.tasks!
-                                            .flatMap(t => t.solution)
-                                            .flatMap(s => s!.rating!) || []
-                                    )
+                                    solutions
+                                        .find(s => s.id === cm.id)?.homeworks!
+                                        .find(h => h.id === homework.id)?.tasks!
+                                        .flatMap(t => StudentStatsUtils.calculateLastRatedSolution(t.solution || [])?.rating || 0) || 0
+                                )
                                 .reduce((sum, rating) => sum + rating, 0)
                             const testsSum = homeworks
                                 .filter(h => h.tags!.includes(HomeworkTags.TestTag))
                                 .flatMap(homework =>
-                                    homework.tasks!.flatMap(task =>
-                                        solutions
-                                            .find(s => s.id === cm.id)?.homeworks!
-                                            .find(h => h.id === homework.id)?.tasks!
-                                            .find(t => t.id === task.id)?.solution!
-                                            .flatMap(s => s.rating!) || []
-                                    )
+                                    solutions
+                                        .find(s => s.id === cm.id)?.homeworks!
+                                        .find(h => h.id === homework.id)?.tasks!
+                                        .flatMap(t => StudentStatsUtils.calculateLastRatedSolution(t.solution || [])?.rating || 0) || 0
                                 )
                                 .reduce((sum, rating) => sum + rating, 0)
                             return (

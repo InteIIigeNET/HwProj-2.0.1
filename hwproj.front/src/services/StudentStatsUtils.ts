@@ -17,6 +17,11 @@ export default class StudentStatsUtils {
             : "#ffffff"
     }
 
+    static calculateLastRatedSolution(solutions: Solution[]){
+        const ratedSolutions = solutions!.filter(x => x.state != Solution.StateEnum.NUMBER_0)
+        return ratedSolutions.slice(-1)[0]
+    }
+
     static calculateLastRatedSolutionInfo(solutions: Solution[], taskMaxRating: number) {
         const ratedSolutions = solutions!.filter(x => x.state != Solution.StateEnum.NUMBER_0)
         const ratedSolutionsCount = ratedSolutions.length
