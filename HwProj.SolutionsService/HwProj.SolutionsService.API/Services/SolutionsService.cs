@@ -50,7 +50,8 @@ namespace HwProj.SolutionsService.API.Services
 
             var studentGroupsIds = course.Groups
                 .Where(g => g.StudentsIds.Contains(studentId))
-                .Select(g => g.Id);
+                .Select(g => g.Id)
+                .ToHashSet();
 
             return await _solutionsRepository
                 .FindAll(solution => solution.TaskId == taskId &&
@@ -164,11 +165,11 @@ namespace HwProj.SolutionsService.API.Services
         {
             var getSolutionsQuery = _solutionsRepository.FindAll(t => taskIds.Contains(t.TaskId));
 
-            var groupIds = getSolutionsQuery
+            var groupIds = await getSolutionsQuery
                 .Where(t => t.GroupId != null)
                 .Select(s => s.GroupId!.Value)
                 .Distinct()
-                .ToArray();
+                .ToArrayAsync();
 
             if (groupIds.Any())
             {
