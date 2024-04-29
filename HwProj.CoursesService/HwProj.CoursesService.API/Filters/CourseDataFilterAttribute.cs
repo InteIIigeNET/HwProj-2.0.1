@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HwProj.CoursesService.API.Services;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,8 +11,6 @@ namespace HwProj.CoursesService.API.Filters
 {
     public class CourseDataFilterAttribute : ResultFilterAttribute
     {
-        private readonly ICourseFilterService _courseFilterService;
-        
         public override async Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next)
         {
             var userId = context.HttpContext.Request.GetUserIdFromHeader();
@@ -27,7 +24,6 @@ namespace HwProj.CoursesService.API.Filters
                 var result = context.Result as ObjectResult;
                 if (result?.Value is CourseDTO courseDto && !courseDto.MentorIds.Contains(userId))
                 {
-                    var filter = await _courseFilterService.GetUserCourseFilterAsync(userId, courseDto.Id);
                     var currentDate = DateTime.UtcNow;
                     courseDto.Homeworks = courseDto.Homeworks.Where(h => currentDate >= h.PublicationDate).ToArray();
 
@@ -35,13 +31,11 @@ namespace HwProj.CoursesService.API.Filters
                     {
                         homework.Tasks =
                             new List<HomeworkTaskViewModel>(homework.Tasks.Where(t =>
-                                currentDate >= t.PublicationDate && filter.HomeworkIds.Contains(t.HomeworkId)));
+                                currentDate >= t.PublicationDate));
                     }
 
                     courseDto.CourseMates = courseDto.CourseMates
-                        .Where(t => (t.IsAccepted || t.StudentId == userId) 
-                                    && filter.CourseMateIds.Contains(t.StudentId))
-                        .ToArray();
+                        .Where(t => t.IsAccepted || t.StudentId == userId).ToArray();
 
                     courseDto.Groups = courseDto.Groups.Where(g => g.StudentsIds.Contains(userId)).ToArray();
                 }

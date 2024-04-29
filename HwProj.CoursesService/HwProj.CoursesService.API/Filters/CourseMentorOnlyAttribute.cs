@@ -1,6 +1,5 @@
 using System.Linq;
 using System.Threading.Tasks;
-using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,15 +13,13 @@ namespace HwProj.CoursesService.API.Filters
         private readonly ICoursesService _coursesService;
         private readonly IHomeworksService _homeworksService;
         private readonly ITasksService _taskService;
-        private readonly ICourseFilterService _courseFilterService;
 
         public CourseMentorOnlyAttribute(ICoursesService coursesService, IHomeworksService homeworksService,
-            ITasksService taskService, ICourseFilterService courseFilterService)
+            ITasksService taskService)
         {
             _coursesService = coursesService;
             _homeworksService = homeworksService;
             _taskService = taskService;
-            _courseFilterService = courseFilterService;
         }
 
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
@@ -32,12 +29,9 @@ namespace HwProj.CoursesService.API.Filters
 
             headers.TryGetValue("UserId", out var userId);
             string[]? mentorIds = null;
-            Filter? filter = null;
 
             if (routeData.Values.TryGetValue("courseId", out var courseId))
             {
-                filter = await _courseFilterService
-                    .GetUserCourseFilterAsync(userId, long.Parse(courseId.ToString()));
                 mentorIds = await _coursesService.GetCourseLecturers(long.Parse(courseId.ToString()));
             }
 
@@ -53,8 +47,7 @@ namespace HwProj.CoursesService.API.Filters
                 mentorIds = await _coursesService.GetCourseLecturers(task.Homework.CourseId);
             }
 
-            if (mentorIds != null && !mentorIds.Contains(userId.ToString()) 
-                || filter != null && !filter.CourseMateIds.Contains(userId.ToString()))
+            if (mentorIds != null && !mentorIds.Contains(userId.ToString()))
             {
                 context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
             }
