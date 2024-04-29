@@ -191,11 +191,9 @@ const EditCourse: FC = () => {
                                 </Grid>
                             <Grid className={classes.item} style={{alignItems: 'center'}}>
                                 <Button
-                                    className={classes.button}
+                                    fullWidth
                                     color="primary"
                                     variant="contained"
-                                    startIcon={<EditIcon />}
-                                    style={{textTransform: 'none'}}
                                     type="submit">
                                     Редактировать курс
                                 </Button>

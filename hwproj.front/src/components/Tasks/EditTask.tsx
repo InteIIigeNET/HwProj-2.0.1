@@ -4,7 +4,7 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useEffect, useState} from "react";
 import EditIcon from "@material-ui/icons/Edit";
 import {makeStyles} from "@material-ui/styles";
-import {Typography, TextField, Grid, Divider} from "@mui/material";
+import {Typography, TextField, Grid} from "@mui/material";
 import Button from '@material-ui/core/Button'
 import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 import TaskPublicationAndDeadlineDates from "../Common/TaskPublicationAndDeadlineDates";
@@ -142,7 +142,7 @@ const EditTask: FC = () => {
 
                 <div className={classes.logo}>
                     <div>
-                        <EditIcon style={{color: 'red', marginRight: '0.5rem'}}/>
+                        <EditIcon color="primary" style={{marginRight: '0.5rem'}}/>
                     </div>
                     <div>
                         <Typography style={{fontSize: '22px'}}>
@@ -160,7 +160,7 @@ const EditTask: FC = () => {
                                 <TextField
                                     required
                                     fullWidth
-                                    style={{width: '250px'}}
+                                    style={{width: '300px'}}
                                     label="Название задачи"
                                     variant="outlined"
                                     margin="normal"
@@ -231,19 +231,15 @@ const EditTask: FC = () => {
                                 }))}
                             />
                         </Grid>
-                        <Grid item xs={12}>
-                            <Button
-                                className={classes.button}
-                                style={{textTransform: 'none', borderRadius: '0.5rem'}}
-                                color="primary"
-                                variant="contained"
-                                startIcon={<EditIcon />}
-                                type="submit"
-                                disabled={taskState.hasErrors}
-                            >
-                                Редактировать задачу
-                            </Button>
-                        </Grid>
+                        <Button
+                            fullWidth
+                            color="primary"
+                            variant="contained"
+                            type="submit"
+                            disabled={taskState.hasErrors}
+                        >
+                            Редактировать задачу
+                        </Button>
                     </Grid>
                 </form>
             </Grid>

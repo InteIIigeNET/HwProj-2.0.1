@@ -146,10 +146,10 @@ const EditHomework: FC = () => {
 
                 <div className={classes.logo}>
                     <div>
-                        <EditIcon style={{color: 'red', marginRight: '0.5rem'}}/>
+                        <EditIcon color='primary' style={{ marginRight: '0.5rem' }}/>
                     </div>
                     <div>
-                        <Typography style={{fontSize: '22px', marginBottom: '10px'}}>
+                        <Typography style={{ fontSize: '22px', marginBottom: '10px' }}>
                             Редактировать домашнее задание
                         </Typography>
                     </div>
@@ -202,23 +202,6 @@ const EditHomework: FC = () => {
                                 onTagsChange={handleTagsChange}
                             />
                         </Grid>
-                        <Grid item style={{width: "90%", maxHeight: "45px"}}>
-                            <FormControlLabel
-                                label="Командное"
-                                control={
-                                    <Checkbox
-                                        color="primary"
-                                        checked={editHomework.isGroupWork}
-                                        onChange={(e) => {
-                                            setEditHomework(prevState => ({
-                                                ...prevState,
-                                                isGroupWork: e.target.checked,
-                                            }))
-                                        }}
-                                    />
-                                }
-                            />
-                        </Grid>
                         <Grid item style={{width: "90%", marginBottom: '20px'}}>
                             <PublicationAndDeadlineDates
                                 hasDeadline={editHomework.hasDeadline}
@@ -242,23 +225,16 @@ const EditHomework: FC = () => {
                                 Дата публикации домашнего задания позже даты публикации задачи
                             </Alert>
                         </Grid>}
-
-                        <Grid item xs={11}>
-                            <Button
-                                color="primary"
-                                variant="contained"
-                                style={{
-                                    textTransform: 'none',
-                                    fontSize: '0.9rem',
-                                    borderRadius: '0.5rem'}}
-                                startIcon={<EditIcon />}
-                                type="submit"
-                                disabled={isSomeTaskSoonerThanHomework || editHomework.hasErrors}
-                            >
-                                Редактировать домашнее задание
-                            </Button>
-                        </Grid>
                     </Grid>
+                    <Button
+                            fullWidth
+                            color="primary"
+                            variant="contained"
+                            type="submit"
+                            disabled={isSomeTaskSoonerThanHomework || editHomework.hasErrors}
+                        >
+                            Редактировать домашнее задание
+                        </Button>
                 </form>
             </Grid>
         )
