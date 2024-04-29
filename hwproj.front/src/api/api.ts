@@ -711,6 +711,12 @@ export interface GroupTaskWithoutGroupInSolutionViewModel {
      * @memberof GroupTaskWithoutGroupInSolutionViewModel
      */
     courseTitle?: string;
+    /**
+     * 
+     * @type {Date}
+     * @memberof GroupTaskWithoutGroupInSolutionViewModel
+     */
+    publicationDate?: Date;
 }
 
 /**

@@ -4,7 +4,6 @@ using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.EventBus.Client.Interfaces;
-using HwProj.Models;
 using HwProj.CoursesService.API.Domains;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
@@ -98,11 +97,18 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<HomeworkTask[]> GetAllCourseTasks(long courseId)
         {
-            return await _homeworksRepository
+            var tasks = await _homeworksRepository
                 .FindAll(h => h.CourseId == courseId)
                 .Include(h => h.Tasks)
                 .SelectMany(h => h.Tasks)
+                .Include(t => t.Homework)
                 .ToArrayAsync();
+
+            var result = tasks
+                .Select(t => CourseDomain.FillTask(t.Homework, t))
+                .ToArray();
+
+            return result;
         }
     }
 }

@@ -79,7 +79,7 @@ namespace HwProj.APIGateway.API.Controllers
             var courseHomeworkTasks = (await Task.WhenAll(
                 courses.Select(async c => await _coursesClient.GetAllCourseTasks(c.Id))))
                 .Zip(courses, (tasks, course) => (tasks, course.Name));
-            
+
             var groupWorkTasks = courseHomeworkTasks
                 .SelectMany(t => t.tasks.Select(task => (task, t.Name)))
                 .Where(t => t.task.IsGroupWork)
@@ -87,8 +87,24 @@ namespace HwProj.APIGateway.API.Controllers
                 {
                     TaskId = t.task.Id,
                     CourseTitle = t.Name,
-                    TaskTitle = t.task.Title
-                })
+                    TaskTitle = t.task.Title,
+                    PublicationDate = t.task.PublicationDate ?? DateTime.MinValue,
+                });
+
+            var temp = await _solutionsServiceClient
+                .GetLastTaskSolutions(
+                    groupWorkTasks
+                        .Select(t => t.TaskId)
+                        .ToArray(),
+                    UserId);
+
+            var autoGroupSolutionsTasksId = temp
+                .Where(s => s != null && s.IsAutomatic && s.GroupId == null)
+                .Select(s => s?.TaskId)
+                .ToHashSet();
+
+            var autoGroupSolutionTasksWithoutGroup = groupWorkTasks
+                .Where(t => autoGroupSolutionsTasksId.Contains(t.TaskId))
                 .ToArray();
             var currentTime = DateTime.UtcNow;
             var taskDeadlines = await _coursesClient.GetTaskDeadlines();
@@ -109,7 +125,7 @@ namespace HwProj.APIGateway.API.Controllers
             {
                 UserData = accountData,
                 TaskDeadlines = taskDeadlinesInfo,
-                GroupWorkTasks = groupWorkTasks
+                GroupWorkTasks = autoGroupSolutionTasksWithoutGroup
             };
             return Ok(aggregatedResult);
         }
