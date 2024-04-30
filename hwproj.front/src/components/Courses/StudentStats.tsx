@@ -102,13 +102,11 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                 align="center"
                                 component="td"
                                 style={{
-                                    minWidth: 150,
                                     zIndex: -5,
                                     borderLeft: borderStyle,
-                                    backgroundColor: "lightgrey"
                                 }}
                             >
-                                Зачетные единицы
+                                Итоговые баллы
                             </TableCell>}
                             {homeworks.map((homework, idx) =>
                                 <TableCell
@@ -130,21 +128,21 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                        component="td"></TableCell>
                             {hasHomeworks && <TableCell padding="checkbox" component="td" align="center"
                                                         style={{
+                                                            minWidth: 70,
                                                             paddingLeft: 5,
                                                             paddingRight: 5,
                                                             borderLeft: borderStyle,
-                                                            backgroundColor: "lightgrey"
                                                         }}>
-                                ДЗ {homeworksMaxSum}
+                                ДЗ ({homeworksMaxSum})
                             </TableCell>}
                             {hasTests && <TableCell padding="checkbox" component="td" align="center"
                                                     style={{
+                                                        minWidth: 70,
                                                         paddingLeft: 5,
                                                         paddingRight: 5,
                                                         borderLeft: borderStyle,
-                                                        backgroundColor: "lightgrey"
                                                     }}>
-                                КР {testsMaxSum}
+                                КР ({testsMaxSum})
                             </TableCell>}
                             {homeworks.map((homework, idx) =>
                                 homework.tasks!.map((task, i) => (
