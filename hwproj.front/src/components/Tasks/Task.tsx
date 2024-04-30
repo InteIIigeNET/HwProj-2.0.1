@@ -120,12 +120,14 @@ const Task: FC<ITaskProp> = (props) => {
                                     <RouterLink to={'/task/' + task.id!.toString() + '/edit'}>
                                         <EditIcon fontSize="small" />
                                     </RouterLink>
-                                    <IconButton aria-label="Github" onClick={() => setCodeWindowState({
-                                        isOpen: true,
-                                        taskId: task.id!
-                                    })}>
-                                        <GitHubIcon fontSize="small" />
-                                    </IconButton>
+                                    <Tooltip placement={"right"} arrow title={"Запрос для отправки автоматического решения"}>
+                                        <IconButton aria-label="Github" onClick={() => setCodeWindowState({
+                                            isOpen: true,
+                                            taskId: task.id!
+                                        })}>
+                                            <GitHubIcon fontSize="small" />
+                                        </IconButton>
+                                    </Tooltip>
                                 </div>
                             </Grid>
                             }
