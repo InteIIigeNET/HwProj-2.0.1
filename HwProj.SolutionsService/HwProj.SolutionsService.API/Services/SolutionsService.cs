@@ -50,8 +50,7 @@ namespace HwProj.SolutionsService.API.Services
 
             var studentGroupsIds = course.Groups
                 .Where(g => g.StudentsIds.Contains(studentId))
-                .Select(g => g.Id)
-                .ToHashSet();
+                .Select(g => g.Id);
 
             return await _solutionsRepository
                 .FindAll(solution => solution.TaskId == taskId &&
