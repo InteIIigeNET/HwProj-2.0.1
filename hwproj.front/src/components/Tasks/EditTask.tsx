@@ -154,7 +154,7 @@ const EditTask: FC = () => {
                     onSubmit={(e) => handleSubmit(e)}
                     className={classes.form}
                 >
-                    <Grid container spacing={1}>
+                    <Grid container>
                         <Grid item container xs={"auto"} spacing={1} direction={"row"}>
                             <Grid item>
                                 <TextField
