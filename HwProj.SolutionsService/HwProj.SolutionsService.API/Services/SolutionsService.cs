@@ -164,11 +164,11 @@ namespace HwProj.SolutionsService.API.Services
         {
             var getSolutionsQuery = _solutionsRepository.FindAll(t => taskIds.Contains(t.TaskId));
 
-            var groupIds = getSolutionsQuery
+            var groupIds = await getSolutionsQuery
                 .Where(t => t.GroupId != null)
                 .Select(s => s.GroupId!.Value)
                 .Distinct()
-                .ToArray();
+                .ToArrayAsync();
 
             if (groupIds.Any())
             {

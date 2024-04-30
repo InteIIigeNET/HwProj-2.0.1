@@ -71,7 +71,7 @@ namespace HwProj.CoursesService.API.Services
 
             CourseDomain.FillTasksInCourses(course);
 
-            var groups = _groupsRepository.GetGroupsWithGroupMatesByCourse(course.Id).ToArray();
+            var groups = await _groupsRepository.GetGroupsWithGroupMatesByCourse(course.Id).ToArrayAsync();
             var result = course.ToCourseDto();
             result.Groups = groups.Select(g =>
                 new GroupViewModel
