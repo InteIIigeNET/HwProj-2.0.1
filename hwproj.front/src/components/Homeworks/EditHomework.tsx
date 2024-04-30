@@ -195,14 +195,9 @@ const EditHomework: FC = () => {
                                     }))
                                 }}
                             />
-                            <Tags 
-                                editFlag={true} 
-                                tags={editHomework.tags} 
-                                courseId={editHomework.courseId}
-                                onTagsChange={handleTagsChange}
-                            />
                         </Grid>
-                        <Grid item style={{width: "90%", marginBottom: '20px'}}>
+                        <Grid item xs={12} style={{marginBottom: 15}}>
+                            <Tags tags={editHomework.tags} courseId={editHomework.courseId} onTagsChange={handleTagsChange}/>
                             <PublicationAndDeadlineDates
                                 hasDeadline={editHomework.hasDeadline}
                                 isDeadlineStrict={editHomework.isDeadlineStrict}

@@ -134,7 +134,7 @@ const EditCourse: FC = () => {
                     </Grid>
                     <Grid item xs={6}>
                         <Box display="flex" justifyContent="center" mb={3} style={{marginTop: "120px"}}>
-                            <EditIcon style={{ color: 'red', marginRight: '0.5rem' }} />
+                            <EditIcon color='primary' style={{ marginRight: '0.5rem' }} />
                             <Typography variant="h5">Редактировать курс</Typography>
                         </Box>
                         <form onSubmit={handleSubmit}>
