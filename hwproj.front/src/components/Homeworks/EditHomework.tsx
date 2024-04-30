@@ -220,16 +220,15 @@ const EditHomework: FC = () => {
                                 Дата публикации домашнего задания позже даты публикации задачи
                             </Alert>
                         </Grid>}
-                    </Grid>
-                    <Button
+                        <Button
                             fullWidth
                             color="primary"
                             variant="contained"
                             type="submit"
-                            disabled={isSomeTaskSoonerThanHomework || editHomework.hasErrors}
-                        >
-                            Редактировать домашнее задание
+                            disabled={isSomeTaskSoonerThanHomework || editHomework.hasErrors}>
+                                Редактировать домашнее задание
                         </Button>
+                    </Grid>
                 </form>
             </Grid>
         )

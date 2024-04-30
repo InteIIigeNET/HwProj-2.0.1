@@ -64,7 +64,7 @@ const TaskDeadlines: FC<ITaskDeadlinesProps> = ({ taskDeadlines, onGiveUpClick }
                                 </NavLink>
                             </Grid>
                             <Grid item>
-                                <Chip size={"small"} color={'primary'} label={`⭐ ${maxRating}`}/>
+                                <Chip size={"small"} style={{ height: 20 }} color={'primary'} label={`⭐ ${maxRating}`}/>
                             </Grid>
                             {!deadlinePast && (
                                 <Grid item>
