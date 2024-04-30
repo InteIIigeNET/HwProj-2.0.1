@@ -70,16 +70,6 @@ const EditTask: FC = () => {
         getTask()
     }, [])
 
-    const [isOpenCodeWindow, setIsOpenCodeWindow] = useState<boolean>(false)
-
-    const onCloseCodeWindow = () => {
-        setIsOpenCodeWindow(false)
-    }
-
-    const onOpenCodeWindow = () => {
-        setIsOpenCodeWindow(true)
-    }
-
     const getTask = async () => {
         const taskForEditing = await ApiSingleton.tasksApi.apiTasksGetForEditingByTaskIdGet(+taskId!)
         const homework = taskForEditing.homework!
@@ -260,26 +250,7 @@ const EditTask: FC = () => {
                             </Grid>
                         </Grid>
                     </form>
-                    <Divider textAlign="left" style={{marginTop: '2rem', marginBottom: '1.5rem'}}>
-                        <Typography color="textSecondary">Автоматическая сдача</Typography>
-                    </Divider>
-                    <Button
-                        className={classes.button}
-                        style={{textTransform: 'none'}}
-                        color="primary"
-                        startIcon={<CalculateIcon />}
-                        onClick={onOpenCodeWindow}
-                        >
-                        Сгенерировать команду для автоматической отправки решений
-                    </Button>
                 </Grid>
-
-                <CodeWindow
-                    onClose={onCloseCodeWindow}
-                    open={isOpenCodeWindow}
-                    code={AutomaticUtils.getAutoSendSolutionScript(+taskId!)}
-                    title="bash"
-                    language="bash"/>
             </Grid>
         )
     }
