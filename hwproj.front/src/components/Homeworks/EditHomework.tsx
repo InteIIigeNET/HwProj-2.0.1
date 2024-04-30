@@ -196,28 +196,10 @@ const EditHomework: FC = () => {
                                     }}
                                 />
                             </Grid>
-                            <Grid item xs={11} style={{marginBottom: 15}}>
+                            <Grid item xs={11}>
                                 <Tags editFlag={true} tags={editHomework.tags} courseId={editHomework.courseId} onTagsChange={handleTagsChange}/>
                             </Grid>
-                            <Grid item style={{width: "90%", maxHeight: "45px"}}>
-                                <FormControlLabel
-                                    label="Командное"
-                                    control={
-                                        <Checkbox
-                                            color="primary"
-                                            checked={editHomework.isGroupWork}
-                                            onChange={(e) => {
-                                                setEditHomework(prevState => ({
-                                                    ...prevState,
-                                                    isGroupWork: e.target.checked,
-                                                }))
-                                            }}
-                                        />
-                                    }
-                                />
-                            </Grid>
-                            <Grid item xs={11} style={{marginBottom: 15}}>
-                                <Tags editFlag={true} tags={editHomework.tags} courseId={editHomework.courseId} onTagsChange={handleTagsChange}/>
+                            <Grid item xs={11}>
                                 <PublicationAndDeadlineDates
                                     hasDeadline={editHomework.hasDeadline}
                                     isDeadlineStrict={editHomework.isDeadlineStrict}
