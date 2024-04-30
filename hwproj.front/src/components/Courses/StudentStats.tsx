@@ -88,7 +88,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                 <Alert style={{marginBottom: 5}} severity="info"><b>Поиск: </b>
                     {searched.replaceAll(" ", "·")}
                 </Alert>}
-            <TableContainer style={{maxHeight: "100vh"}}>
+            <TableContainer style={{maxHeight: "100vh", marginBottom: -50}}>
                 <Table stickyHeader aria-label="sticky table">
                     <TableHead>
                         <TableRow>
