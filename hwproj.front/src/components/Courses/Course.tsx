@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Link as RouterLink} from "react-router-dom";
+import {Link as RouterLink, useSearchParams} from "react-router-dom";
 import {AccountDataDto, CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api";
 import CourseHomework from "../Homeworks/CourseHomework";
 import AddHomework from "../Homeworks/AddHomework";
@@ -51,6 +51,7 @@ const styles = makeStyles(() => ({
 
 const Course: React.FC = () => {
     const {courseId, tab} = useParams()
+    const [searchParams, setSearchParams] = useSearchParams()
     const navigate = useNavigate()
     const classes = styles()
 
@@ -82,7 +83,7 @@ const Course: React.FC = () => {
         studentSolutions,
     } = courseState;
 
-    const getPostedHomeworks = (homeworks: HomeworkViewModel[]) => 
+    const getPostedHomeworks = (homeworks: HomeworkViewModel[]) =>
         homeworks.filter(h => !h.isDeferred).map(h => ({
             ...h,
             tasks: h.tasks?.filter(t => !t.isDeferred)
@@ -161,6 +162,7 @@ const Course: React.FC = () => {
     }
 
     const {tabValue} = pageState
+    const searchedHomeworkId = searchParams.get("homeworkId")
 
     const unratedSolutionsCount = studentSolutions
         .flatMap(x => x.homeworks)
@@ -233,8 +235,8 @@ const Course: React.FC = () => {
                                                                 onChange={(e, checked) => setCourseState(prevState => ({
                                                                     ...prevState,
                                                                     isStudentViewMode: checked
-                                                                }))}/> 
-                                <Typography display="inline">Студенческий режим отображения</Typography>
+                                                                }))}/>
+                                    <Typography display="inline">Студенческий режим отображения</Typography>
                                 </div>}
                             </Grid>
                             <Grid item style={{width: '187px'}}>
@@ -291,13 +293,14 @@ const Course: React.FC = () => {
                     {tabValue === "homeworks" && <div>
                         {
                             isStudentViewMode
-                            ?
-                                <CourseExperimental homeworks={courseHomeworks} 
+                                ?
+                                <CourseExperimental homeworks={courseHomeworks}
                                                     isMentor={isCourseMentor}
                                                     studentSolutions={studentSolutions}
                                                     isStudentAccepted={isAcceptedStudent}
-                                                    userId={userId!}/> 
-                            :
+                                                    selectedHomeworkId={searchedHomeworkId == null ? undefined : +searchedHomeworkId}
+                                                    userId={userId!}/>
+                                :
                                 <div>
                                     {createHomework && (
                                         <div>

@@ -5,8 +5,11 @@ namespace HwProj.Models.CoursesService.DTO
     public class TaskDeadlineDto
     {
         public long TaskId { get; set; }
+        public string[] Tags { get; set; }
         public string TaskTitle { get; set; }
         public string CourseTitle { get; set; }
+        public long CourseId { get; set; }
+        public long HomeworkId { get; set; }
         public long MaxRating { get; set; }
         public DateTime PublicationDate { get; set; }
         public DateTime DeadlineDate { get; set; }

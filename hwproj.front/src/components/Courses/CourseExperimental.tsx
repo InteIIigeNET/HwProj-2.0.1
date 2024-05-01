@@ -28,6 +28,7 @@ interface ICourseExperimentalProps {
     isMentor: boolean
     isStudentAccepted: boolean
     userId: string
+    selectedHomeworkId: number | undefined
 }
 
 interface ICourseExperimentalState {
@@ -40,13 +41,14 @@ interface ICourseExperimentalState {
 
 const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const homeworks = props.homeworks.slice().reverse()
-    const {isMentor, studentSolutions, isStudentAccepted, userId} = props
+    const {isMentor, studentSolutions, isStudentAccepted, userId, selectedHomeworkId} = props
 
+    const defaultHomeworkIndex = Math.max(selectedHomeworkId ? homeworks?.findIndex(x => x.id === selectedHomeworkId) : 0, 0)
     const [state, setState] = useState<ICourseExperimentalState>({
         selectedItem: {
             isHomework: true,
-            id: homeworks && homeworks.length > 0 ? homeworks[0].id : undefined,
-            data: homeworks && homeworks.length > 0 ? homeworks[0] : undefined
+            id: homeworks && homeworks.length > 0 ? homeworks[defaultHomeworkIndex].id : undefined,
+            data: homeworks && homeworks.length > 0 ? homeworks[defaultHomeworkIndex] : undefined
         }
     })
 
@@ -88,7 +90,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 </Grid>}
                 {homework.tags?.filter(t => t != '').map((tag, index) => (
                     <Grid item>
-                        <Chip key={index} label={tag} />
+                        <Chip key={index} label={tag}/>
                     </Grid>
                 ))}
             </Grid>
