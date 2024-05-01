@@ -5,5 +5,6 @@
         public long TaskId { get; set; }
         public int CountUnratedSolutions { get; set; }
         public string Title { get; set; }
+        public string[] Tags { get; set; }
     }
 }

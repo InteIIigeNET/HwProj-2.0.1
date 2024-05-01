@@ -1636,6 +1636,12 @@ export interface TaskSolutionsStats {
      * @memberof TaskSolutionsStats
      */
     title?: string;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof TaskSolutionsStats
+     */
+    tags?: Array<string>;
 }
 
 /**
@@ -1802,6 +1808,12 @@ export interface UserTaskSolutions2 {
      * @memberof UserTaskSolutions2
      */
     title?: string;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof UserTaskSolutions2
+     */
+    tags?: Array<string>;
     /**
      * 
      * @type {string}

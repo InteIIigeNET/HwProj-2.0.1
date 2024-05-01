@@ -21,7 +21,7 @@ import {Link} from "react-router-dom";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import Utils from "../../services/Utils";
 import {ReactMarkdownWithCodeHighlighting} from "../Common/TextFieldWithPreview";
-import HomeworkTags from "../Common/HomeworkTags";
+import HomeworkTags, {TestTip} from "../Common/HomeworkTags";
 
 interface ICourseExperimentalProps {
     homeworks: HomeworkViewModel[]
@@ -182,8 +182,6 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         </Card>
     }
 
-    const testTip = <sup style={{color: "#2979ff"}}> тест</sup>
-
     return <Grid container direction={"row"} spacing={1}>
         <Grid item lg={4}>
             <Timeline style={{maxHeight: 500, overflow: 'auto'}}
@@ -204,7 +202,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                  }))
                              }}>
                             <Typography variant="h6" style={{fontSize: 18}} align={"center"}>
-                                {x.title}{isTest && testTip}
+                                {x.title}{isTest && TestTip}
                             </Typography>
                             {x.isDeferred &&
                                 <Typography style={{fontSize: "14px"}} align={"center"}>
@@ -241,7 +239,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                             </TimelineSeparator>
                             <TimelineContent alignItems={"center"}>
                                 <Typography className="antiLongWords">
-                                    {t.title}{isTest && testTip}
+                                    {t.title}{isTest && <TestTip/>}
                                 </Typography>
                             </TimelineContent>
                         </TimelineItem>)}

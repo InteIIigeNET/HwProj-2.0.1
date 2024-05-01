@@ -86,6 +86,7 @@ namespace HwProj.APIGateway.API.Controllers
                     {
                         MaxRating = task.MaxRating,
                         Title = task.Title,
+                        Tags = task.Tags,
                         TaskId = task.Id.ToString(),
                         Solutions = t.Solution.Select(s => new GetSolutionModel(s,
                             s.TaskId == taskId && s.GroupId is { } groupId
@@ -141,7 +142,11 @@ namespace HwProj.APIGateway.API.Controllers
                 t => t.Id,
                 t => t.StudentsIds.Select(s => usersData[s]).ToArray());
 
-            for (var i = 0; i < statsForTasks.Length; i++) statsForTasks[i].Title = tasks[i].Title;
+            for (var i = 0; i < statsForTasks.Length; i++)
+            {
+                statsForTasks[i].Title = tasks[i].Title;
+                statsForTasks[i].Tags = tasks[i].Tags;
+            }
 
             var result = new TaskSolutionStatisticsPageData()
             {
