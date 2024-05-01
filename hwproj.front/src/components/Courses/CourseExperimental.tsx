@@ -202,7 +202,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                  }))
                              }}>
                             <Typography variant="h6" style={{fontSize: 18}} align={"center"}>
-                                {x.title}{isTest && TestTip}
+                                {x.title}{isTest && <TestTip/>}
                             </Typography>
                             {x.isDeferred &&
                                 <Typography style={{fontSize: "14px"}} align={"center"}>
