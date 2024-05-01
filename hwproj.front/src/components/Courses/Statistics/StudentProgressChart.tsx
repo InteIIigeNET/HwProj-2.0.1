@@ -1,17 +1,16 @@
-import React, { useState, useMemo } from 'react';
-import {CourseViewModel, HomeworkViewModel, 
-    StatisticsCourseMatesModel, 
-    StatisticsCourseMeasureSolutionModel, 
+import React, {useMemo, useState} from 'react';
+import {
+    Solution,
+    CourseViewModel,
+    HomeworkViewModel,
+    StatisticsCourseMatesModel,
+    StatisticsCourseMeasureSolutionModel,
     StatisticsCourseTasksModel
 } from "../../../api/";
 import StudentStatsTooltip from './StudentStatsTooltip';
 import Utils from "../../../services/Utils";
 
-import {ComposedChart, CartesianGrid,
-        ResponsiveContainer,
-        Line, XAxis, YAxis, 
-        Tooltip, Legend
-} from 'recharts';
+import {CartesianGrid, ComposedChart, Legend, Line, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts';
 
 interface IStudentProgressChartProps {
     selectedStudents: string[];
@@ -42,6 +41,7 @@ const chartColors = {
 
 const StudentProgressChart : React.FC<IStudentProgressChartProps> = (props) => {
     const [mouseHoverState, setMouseHoverState] = useState("");
+    const [highlightStudent, setHighlightStudent ] = useState("");
     const compareStringFormatDates = (x: string, y: string) => {
         const [xDay, xMonth] = x.split('.').map(s => Number.parseInt(s));
         const [yDay, yMonth] = y.split('.').map(s => Number.parseInt(s));
@@ -108,7 +108,7 @@ const StudentProgressChart : React.FC<IStudentProgressChartProps> = (props) => {
     const deadlineDates = Array.from(new Set(courseTasks.filter(t => t.hasDeadline!)
         .map(task => Utils.renderDateWithoutHours(task.deadlineDate!))));
     
-    // для каждого студента отсортировали сгруппировали задачи по дню последнего решения
+    // для каждого студента отсортировали и сгруппировали задачи по дню последнего решения
     const studentTasks = new Map(solutions.map(cm => {
         const studentId = cm.name + ' ' + cm.surname;
         const tasks = cm.homeworks!.filter(hw => hw.tasks && hw.tasks.length > 0)
@@ -122,7 +122,7 @@ const StudentProgressChart : React.FC<IStudentProgressChartProps> = (props) => {
         
         const tasksGroupedByLastSolution = new Map<String, StatisticsCourseTasksModel[]>()
         tasks.forEach(task => {
-            const lastSolution = task.solution!.slice(-1)[0];
+            const lastSolution = task.solution!.filter(s => s.state != Solution.StateEnum.NUMBER_0).slice(-1)[0];
             const publicationDate = Utils.renderDateWithoutHours(lastSolution.publicationDate!);
             if (!tasksGroupedByLastSolution.has(publicationDate)) {
                 tasksGroupedByLastSolution.set(publicationDate, []);
@@ -130,6 +130,7 @@ const StudentProgressChart : React.FC<IStudentProgressChartProps> = (props) => {
             const tasksWithSameDate = tasksGroupedByLastSolution.get(publicationDate)!;
             tasksGroupedByLastSolution.set(publicationDate, [...tasksWithSameDate, task]);
         })
+        
         const groupedTasksToArray = Array.from(tasksGroupedByLastSolution.entries())
             .map(([_, tasks]) => tasks);
         
@@ -146,7 +147,7 @@ const StudentProgressChart : React.FC<IStudentProgressChartProps> = (props) => {
             const points : IChartPoint[] = taskGroups.map(tasks => {
                 const date = Utils.renderDateWithoutHours(tasks[0].solution!.slice(-1)[0].publicationDate!);
                 const tasksChartView : ITaskChartView[] = tasks.map(task => {
-                    const lastSolution = task.solution!.slice(-1)[0];
+                    const lastSolution = task.solution!.filter(s => s.state != Solution.StateEnum.NUMBER_0).slice(-1)[0];
                     totalStudentRating += lastSolution.rating ? lastSolution.rating : 0;
                     const taskView = courseTasks.find(t => t.id === task.id)!;
                     
@@ -242,6 +243,7 @@ const StudentProgressChart : React.FC<IStudentProgressChartProps> = (props) => {
 
                 {Array.from(studentCharts.entries()).map(([studentName, line]) => {
                     return <Line
+                        onClick={_ => setHighlightStudent(studentName)}
                         activeDot={{
                             onMouseOver: () => {
                                 setMouseHoverState(line[0].id!);
@@ -256,7 +258,7 @@ const StudentProgressChart : React.FC<IStudentProgressChartProps> = (props) => {
                         data={line}
                         isAnimationActive={false}
                         stroke={lineColors.get(studentName)}
-                        strokeWidth={2}
+                        strokeWidth={studentName === highlightStudent ? 5 : 3}
                         legendType={studentName === straightAStudent || studentName === averageStudent ? 'diamond' : 'line'}
                         connectNulls/>
                 })}
