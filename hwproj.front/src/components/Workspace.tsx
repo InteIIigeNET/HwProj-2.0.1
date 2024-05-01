@@ -4,13 +4,14 @@ import ApiSingleton from "api/ApiSingleton";
 import {UnratedSolutionPreviews, UserDataDto} from "../api/";
 import "./Styles/Profile.css";
 import {FC, useEffect, useState} from "react";
-import {Link as RouterLink, useParams} from "react-router-dom";
+import {Link, useParams} from "react-router-dom";
 import {makeStyles} from "@material-ui/styles";
-import EditIcon from "@material-ui/icons/Edit";
 import {TaskDeadlines} from "./Tasks/TaskDeadlines";
 import UnratedSolutions from "./Solutions/UnratedSolutions";
-import {Chip, Stack} from "@mui/material";
+import {Alert, Chip, Stack} from "@mui/material";
 import NewCourseEvents from "./Courses/NewCourseEvents";
+import HomeworkTags from "./Common/HomeworkTags";
+import Utils from "../services/Utils";
 
 interface IWorkspaceState {
     isLoaded: boolean;
@@ -75,6 +76,15 @@ const Workspace: FC = () => {
     const {tabValue} = profileState
 
     const nearestTaskDeadlines = taskDeadlines?.filter(x => !x.deadlinePast) || []
+    const testDeadlines = nearestTaskDeadlines
+        .filter(x => x.deadline!.tags!.includes(HomeworkTags.TestTag))
+        .map(x => x.deadline!)
+        .map(x => ({
+            courseId: x.courseId!,
+            courseTitle: x.courseTitle!,
+            homeworkId: x.homeworkId!,
+            deadlineDate: x.deadlineDate!
+        })) || []
     const pastTaskDeadlines = taskDeadlines?.filter(x => x.deadlinePast) || []
 
     if (profileState.isLoaded) {
@@ -100,6 +110,21 @@ const Workspace: FC = () => {
                             </Typography>
                         </Grid>
                     </Grid>
+                    {isUserProfile && !isLecturer && testDeadlines &&
+                        <Grid container item spacing={1} alignContent={"stretch"}>
+                            {[...new Set(testDeadlines.map(x => x.courseId))].map(courseId => {
+                                const test = testDeadlines.find(x => x.courseId === courseId)!
+                                const timeLeft = Math.ceil((new Date(test.deadlineDate).getTime() - new Date().getTime()) / (1000 * 60))
+                                return <Grid item>
+                                    <Alert severity="info"
+                                           action={<Link to={`/courses/${test.courseId}?homeworkId=${test.homeworkId}`}
+                                                         style={{marginTop: 4}}> Перейти к заданиям </Link>}>
+                                        На курсе <b>{test.courseTitle}</b> проходит контрольная работа. До конца работы
+                                        осталось {timeLeft} {Utils.pluralizeHelper(["минута", "минуты", "минут"], timeLeft)}.
+                                    </Alert>
+                                </Grid>;
+                            })}
+                        </Grid>}
                     {isUserProfile && <Grid item>
                         <Tabs
                             value={tabValue}
@@ -118,11 +143,12 @@ const Workspace: FC = () => {
                                     <Chip size={"small"} color={"default"}
                                           label={(unratedSolutionPreviews!.unratedSolutions!.length)}/>
                                 </Stack>}/>}
-                            {isLecturer && courseEvents!.length > 0 && <Tab label={<Stack direction="row" spacing={1}>
-                                <div>Курсы</div>
-                                <Chip size={"small"} color={"primary"}
-                                      label={(courseEvents!.length)}/>
-                            </Stack>}/>}
+                            {isLecturer && courseEvents!.length > 0 &&
+                                <Tab label={<Stack direction="row" spacing={1}>
+                                    <div>Курсы</div>
+                                    <Chip size={"small"} color={"primary"}
+                                          label={(courseEvents!.length)}/>
+                                </Stack>}/>}
 
                             {!isLecturer && <Tab label={
                                 <Stack direction="row" spacing={1}>

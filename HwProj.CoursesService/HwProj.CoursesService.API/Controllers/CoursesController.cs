@@ -173,7 +173,10 @@ namespace HwProj.CoursesService.API.Controllers
                     .Select(task => new TaskDeadlineDto
                     {
                         TaskId = task.Id,
+                        CourseId = course.Id,
+                        HomeworkId = task.HomeworkId,
                         TaskTitle = task.Title,
+                        Tags = task.Tags,
                         CourseTitle = course.Name + " / " + course.GroupName,
                         PublicationDate = task.PublicationDate ?? DateTime.MinValue,
                         MaxRating = task.MaxRating,
