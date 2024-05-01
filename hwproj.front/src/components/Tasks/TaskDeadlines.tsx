@@ -13,6 +13,7 @@ import {colorBetween} from "../../services/JsUtils";
 import Utils from "../../services/Utils";
 import ApiSingleton from "../../api/ApiSingleton";
 import Button from "@material-ui/core/Button";
+import HomeworkTags, {TestTip} from "../Common/HomeworkTags";
 
 interface ITaskDeadlinesProps {
     taskDeadlines: TaskDeadlineView[]
@@ -83,7 +84,7 @@ export class TaskDeadlines extends React.Component<ITaskDeadlinesProps, {
                                         style={{color: "#212529"}}
                                     >
                                         <Typography style={{fontSize: "20px"}}>
-                                            {deadline!.taskTitle}
+                                            {deadline!.taskTitle}{deadline!.tags!.includes(HomeworkTags.TestTag) && <TestTip/>}
                                         </Typography>
                                     </NavLink>
                                 </Grid>
