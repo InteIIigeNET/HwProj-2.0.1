@@ -9,7 +9,7 @@ import HomeworkTags from "../Common/HomeworkTags";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
 
-export interface IStudentStatsProps {
+interface IStudentStatsProps {
     course: CourseViewModel;
     homeworks: HomeworkViewModel[];
     isMentor: boolean;
