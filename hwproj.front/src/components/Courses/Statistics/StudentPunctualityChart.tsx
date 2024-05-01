@@ -1,12 +1,10 @@
 ﻿import * as React from 'react';
-import {
-    Bar, XAxis, YAxis, ComposedChart, Text,
-    ReferenceLine, Tooltip, Scatter, ZAxis
-} from 'recharts';
-import { HomeworkViewModel, StatisticsCourseMatesModel } from '../../../api';
+import {Bar, ComposedChart, ReferenceLine, Scatter, Text, Tooltip, XAxis, YAxis, ZAxis} from 'recharts';
+import {Solution, HomeworkViewModel,  StatisticsCourseMatesModel} from '../../../api';
 import StudentStatsUtils from "../../../services/StudentStatsUtils";
 import Utils from "../../../services/Utils";
 import {Payload, ValueType} from "recharts/types/component/DefaultTooltipContent";
+
 interface IStudentPunctualityChartProps {
     index: number;
     homeworks: HomeworkViewModel[];
@@ -35,8 +33,11 @@ interface ICustomTooltipProps {
     payload? : Payload<ValueType, string | number>[] | undefined;
     label? : number;
     deadlineRepresentation : Map<number, string>;
-    attemptRepresentation: Map<number, [IDatesDeviation, string]>;
+    attemptRepresentation: Map<number, [IDatesDeviation, string, boolean]>;
 }
+
+type DeadlineRepresentation = Map<number, [number, string]>
+type SectorRepresentation = Map<number, [number, ISectorProps]>
 
 const chartColors = {
     axis: 'rgb(200, 200, 200)', 
@@ -87,17 +88,20 @@ const CustomTooltip : React.FC<ICustomTooltipProps> = (props) => {
         if (props.payload![0].name === 'scatter') {
             return 'День дедлайна'
         } else {
-            const [actuallyDeviation, rating] = props.attemptRepresentation.get(props.label!)!;
-            const dateToMs = actuallyDeviation.value * 1000 * 3600 * 24;
-            const sentDeviationDeadline = Utils.pluralizeDateTime(Math.abs(dateToMs));
+            const [actuallyDeviation, rating, isRate] = props.attemptRepresentation.get(props.label!)!;
+            const deviationToMs = actuallyDeviation.value * 1000 * 3600 * 24;
+            const MsPerMinute = 60000;
+            const sentDeviationDeadline = Utils.pluralizeDateTime(Math.abs(deviationToMs));
 
             const isCountedFromRating = actuallyDeviation.measure === "RatingDate";
             const measure = isCountedFromRating  ? 'последней проверки' : 'дедлайна';
-            const deviation = (Math.abs(dateToMs / 60000) < 1) ? `Сдано ${isCountedFromRating ? 'сразу после последней проверки' : 'ровно в срок'}`
-                : (dateToMs < 0
+            const deviation = (Math.abs(deviationToMs / MsPerMinute) < 1) ? `Сдано ${isCountedFromRating ? 'сразу после последней проверки' : 'ровно в срок'}`
+                : (deviationToMs < 0
                     ? `Сдано через ${sentDeviationDeadline} после ${measure}`
                     : `Сдано за ${sentDeviationDeadline} до дедлайна`);
-            return <p style={{margin: 0}}>{deviation} <br/><strong>Баллов</strong>: {rating}</p>
+            const rate = isRate ? <><strong>Баллов</strong>: {rating}</> : <>Ещё не проверено</>;
+            
+            return <p style={{margin: 0}}>{deviation} <br/>{rate}</p>
         }
     }
         
@@ -146,67 +150,74 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
         return [...acc, prevLineIndex + task.solution!.length + 2];
     }, [])
     
-    const sectors = studentTaskSolutions.reduce<Map<number, ISectorProps>>
-    ((prevSectors, task, index) => {
-        const prevLeftBorder = Array.from(prevSectors.keys()).sort((x, y) => y - x)[0];
-        const leftBorder = index ? prevLeftBorder + prevSectors.get(prevLeftBorder)!.barsAmount + 2 : 0;
+    const sectorRepresentation = studentTaskSolutions.reduce<[SectorRepresentation, number]>
+    (([prevSectors, leftBorder], task) => {
         const title = tasks.find(t => t.id === task.id)!.title!;
         const sector = {title, barsAmount: task.solution!.length};
-        prevSectors.set(leftBorder, sector);
+        prevSectors.set(task.id!, [leftBorder, sector])
         
-        return prevSectors;
-    }, new Map());
-
-    const attemptRepresentation = new Map<number, [IDatesDeviation, string]>();
-    const deadlinesRepresentation = new Map<number, string>();
+        return [prevSectors, leftBorder + sector.barsAmount + 2];
+    }, [new Map(), 0])[0];
     
-    const solveAttempts = studentTaskSolutions.reduce((acc: IStudentAttempt[], task) => {
-        const leftBorder = acc.length;
+    const sectors = new Map<number, ISectorProps>();
+    sectorRepresentation.forEach(([tick, sector], _) => {
+        sectors.set(tick, sector);
+    })
+    
+    const taskDeadlines = studentTaskSolutions.reduce<[DeadlineRepresentation, number]>(
+        ([deadlines, prev], task) => {
+            const courseTask = tasks.find(t => t.id === task.id)!;
+            const deadlineDate = courseTask.deadlineDate!;
+            const dates = [...task.solution!.map(s => s.publicationDate!), deadlineDate];
+            const deadlineOrder = dates.sort((x, y) => new Date(x).getTime() - new Date(y).getTime())
+                .findIndex(d => new Date(d).getTime() == new Date(deadlineDate).getTime());
+            
+            deadlines.set(task.id!, [prev + deadlineOrder + 1, Utils.renderDateWithoutHours(deadlineDate)]);
+            
+        return [deadlines, prev+task.solution!.length + 2]
+            
+    }, [new Map(), 0])[0]
+    
+    const deadlineTooltipRepresentation = new Map<number, string>();
+    taskDeadlines.forEach(([tick, date], _) => {
+        deadlineTooltipRepresentation.set(tick, date);
+    })
+
+    const attemptTooltipRepresentation = new Map<number, [IDatesDeviation, string, boolean]>();
+    const solveAttempts = studentTaskSolutions.reduce
+    ((attemptAcc : IStudentAttempt[], task) => {
+        
+        const leftBorder = sectorRepresentation.get(task.id!)![0];
+        const deadlineTick = taskDeadlines.get(task.id!)![0];
         const courseTask = tasks.find(t => t.id === task.id)!;
         const deadlineDate = courseTask.deadlineDate!;
         const maxRating = courseTask.maxRating!;
         const taskSolutions = task.solution!;
         
-        if (!taskSolutions.length) {
-            deadlinesRepresentation.set(leftBorder, Utils.renderDateWithoutHours(deadlineDate));
-            const deadlineFill = {xAxisPosition: leftBorder, yAxisPosition: null, yAxisPositionDeadline: 0};
-            const referenceLineFill = {xAxisPosition: leftBorder+1, yAxisPosition: null};
-            return [...acc, deadlineFill, referenceLineFill]
-        }
-        if (getDatesDiff(taskSolutions[0].publicationDate!, deadlineDate) < 0) {
-            deadlinesRepresentation.set(leftBorder, Utils.renderDateWithoutHours(deadlineDate));
-            const deadlineFill = {xAxisPosition: leftBorder, yAxisPosition: null, yAxisPositionDeadline: 0};
-            acc = [...acc, deadlineFill];
-        }
         const attempts = taskSolutions.reduce((currentAcc : IStudentAttempt[], solution, index) => {
+            const tick = leftBorder + index + 1;
+            const actualTick = tick >= deadlineTick ? tick + 1 : tick;
             const fill = StudentStatsUtils.calculateLastRatedSolutionInfo([solution], maxRating).color;
             const prevSolution = taskSolutions[index-1];
             const measureDate = prevSolution?.rating && prevSolution?.ratingDate &&
             prevSolution.ratingDate < solution.publicationDate! && prevSolution.ratingDate > deadlineDate
                 ? prevSolution.ratingDate : deadlineDate;
             const deviation = getDatesDiff(solution.publicationDate!, measureDate);
-
-            const x = acc.length + currentAcc.length;
-            const attempt = {fill, xAxisPosition: x, yAxisPosition: deviation};
             const actuallyDeviation : {value: number, measure: "RatingDate" | "DeadlineDate"} = {
                 value: daysDifference(measureDate, solution.publicationDate!),
                 measure: measureDate === prevSolution?.ratingDate ? "RatingDate" : "DeadlineDate"
             };
-            attemptRepresentation.set(x, [actuallyDeviation, `${solution.rating}/${courseTask.maxRating}`]);
-            
-            const nextSolutionPublication = index + 1 < taskSolutions.length - 1 
-                ? taskSolutions[index+1].publicationDate! : new Date(Date.now());
-            
-            if (deviation > 0 && getDatesDiff(nextSolutionPublication, deadlineDate) < 0) {
-                deadlinesRepresentation.set(attempt.xAxisPosition + 1, Utils.renderDateWithoutHours(deadlineDate));
-                return [...currentAcc, attempt, {xAxisPosition: attempt.xAxisPosition + 1, yAxisPosition: null, yAxisPositionDeadline: 0}];
-            }
+            const attempt = {fill, xAxisPosition: actualTick, yAxisPosition: deviation};
+            attemptTooltipRepresentation.set(actualTick, [actuallyDeviation, `${solution.rating}/${maxRating}`, solution.state != Solution.StateEnum.NUMBER_0]);
             
             return [...currentAcc, attempt];
-        }, []);
-        const referenceLineFill = {xAxisPosition: attempts.slice(-1)[0].xAxisPosition+1, yAxisPosition: null};
-        
-        return [...acc, ...attempts, referenceLineFill];
+        }, [])
+        const referenceLineFill : IStudentAttempt = {xAxisPosition: leftBorder + sectors.get(leftBorder)!.barsAmount + 2, yAxisPosition: null};
+        const deadlineFill : IStudentAttempt = {xAxisPosition: deadlineTick, yAxisPosition: null, yAxisPositionDeadline: 0};
+        const sectorItems = [...attempts, deadlineFill]
+            .sort((a, b) => a.xAxisPosition - b.xAxisPosition);
+
+        return [...attemptAcc, ...sectorItems, referenceLineFill];
     }, [{xAxisPosition: 0, yAxisPosition: null}])
     
     const [ barSize, barGap] = [ 20, 10];
@@ -238,8 +249,8 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
                 
                 <Tooltip 
                     content={ <CustomTooltip 
-                        deadlineRepresentation={deadlinesRepresentation}
-                        attemptRepresentation={attemptRepresentation}
+                        deadlineRepresentation={deadlineTooltipRepresentation}
+                        attemptRepresentation={attemptTooltipRepresentation}
                     />}
                     wrapperStyle={{border: `solid 1px ${chartColors.tooltipBorder}`, borderRadius: 3, background: 'white'}}
                 />

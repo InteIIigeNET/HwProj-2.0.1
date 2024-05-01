@@ -7,10 +7,6 @@ import {Alert, Chip, Button} from "@mui/material";
 import {grey} from "@material-ui/core/colors";
 import HomeworkTags from "../Common/HomeworkTags";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
-import StudentStatsTable from "./StudentStatsTable";
-import StudentCheckboxList from "./StudentCheckboxList";
-import StudentStatsChart from "./StudentStatsChart";
-import StudentPunctualityChart from './StudentPunctualityChart';
 import ShowChartIcon from "@mui/icons-material/ShowChart";
 
 export interface IStudentStatsProps {
