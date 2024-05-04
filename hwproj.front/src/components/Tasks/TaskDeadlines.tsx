@@ -55,7 +55,7 @@ const TaskDeadlines: FC<ITaskDeadlinesProps> = ({ taskDeadlines, onGiveUpClick }
                     key={deadline!.taskId}>
                     <Link to={`/task/${deadline!.taskId}`}>
                         <ListItem style={{ padding: 0, color: "#212529" }}>
-                        <Grid container direction={"row"} spacing={1} justifyContent={"flex-end"} alignItems={"center"}>
+                        <Grid container direction={"row"} spacing={1} justifyContent={"flex-end"}>
                             <Grid item xs>
                                 <NavLink to={`/task/${deadline!.taskId}`} style={{ color: "#212529" }}>
                                     <Typography style={{ fontSize: "20px" }}>
@@ -63,11 +63,11 @@ const TaskDeadlines: FC<ITaskDeadlinesProps> = ({ taskDeadlines, onGiveUpClick }
                                     </Typography>
                                 </NavLink>
                             </Grid>
-                            <Grid item>
                                 {(solutionState === null || solutionState === 0) &&
-                                    <Chip size={"small"} style={{ height: 20 }} color={'primary'} label={`⭐ ${maxRating}`}/>
+                                    <Grid item>
+                                        <Chip size={"small"} style={{ height: 20 }} color={'primary'} label={renderBadgeLabel(`⭐ ${maxRating}`)}/>
+                                    </Grid>
                                 }
-                            </Grid>
                             {!deadlinePast && (
                                 <Grid item>
                                     {renderBadge(solutionState, rating!, deadline!.maxRating!)}
