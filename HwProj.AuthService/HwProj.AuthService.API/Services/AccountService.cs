@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
 using System.Linq;
@@ -129,7 +130,31 @@ namespace HwProj.AuthService.API.Services
             var token = await _tokenService.GetTokenAsync(user);
             return Result<TokenCredentials>.Success(token);
         }
-        
+
+        public async Task<Result> LoginExpertAsync(string accessToken)
+        {
+            var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(accessToken);
+            if (await _userManager.FindByEmailAsync(model.Email)
+                    is var user && user == null)
+            {
+                return Result.Failed("Пользователь не найден");
+            }
+
+            var result = await _signInManager.PasswordSignInAsync(
+                user,
+                model.Password,
+                model.RememberMe,
+                false).ConfigureAwait(false);
+
+            if (!result.Succeeded)
+            {
+                return Result<TokenCredentials>.Failed(result.TryGetIdentityError());
+            }
+
+            var token = await _tokenService.GetTokenAsync(user);
+            return Result<TokenCredentials>.Success(token);
+        }
+
         public async Task<Result<TokenCredentials>> RefreshToken(string userId)
         {
             return await _userManager.FindByIdAsync(userId) is var user && user == null
@@ -187,7 +212,7 @@ namespace HwProj.AuthService.API.Services
             return Result<TokenCredentials>.Failed(result.Errors.Select(errors => errors.Description).ToArray());
         }
 
-        public async Task<Result> RegisterExpertAsync(RegisterExpertViewModel model)
+        public async Task<Result> RegisterExpertAsync(RegisterExpertViewModel model, string lecturerId)
         {
             if (await _userManager.FindByEmailAsync(model.Email) != null)
             {

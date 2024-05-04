@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HwProj.AuthService.API.Migrations
 {
     [DbContext(typeof(IdentityContext))]
-    [Migration("20240421185040_CreateLecturerExpertTable")]
-    partial class CreateLecturerExpertTable
+    [Migration("20240504144039_AddExpertsDataTable")]
+    partial class AddExpertsDataTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -21,19 +21,19 @@ namespace HwProj.AuthService.API.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("HwProj.AuthService.API.Models.LecturerExpert", b =>
+            modelBuilder.Entity("HwProj.Models.AuthService.ViewModels.ExpertData", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasMaxLength(450);
 
-                    b.Property<string>("ExpertId");
+                    b.Property<string>("AccessToken");
 
                     b.Property<string>("LecturerId");
 
                     b.HasKey("Id");
 
-                    b.ToTable("LecturerExperts");
+                    b.ToTable("ExpertsData");
                 });
 
             modelBuilder.Entity("HwProj.Models.AuthService.ViewModels.User", b =>
