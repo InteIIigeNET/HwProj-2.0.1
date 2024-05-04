@@ -8,7 +8,7 @@ import {Button} from "@material-ui/core";
 import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
 import Tags from "./HomeworkTags";
-import {Alert, Checkbox, FormControlLabel, Grid, Typography, TextField} from "@mui/material";
+import {Grid, Typography, TextField} from "@mui/material";
 
 interface IEditHomeworkState {
     isLoaded: boolean;
@@ -177,7 +177,7 @@ const EditHomework: FC = () => {
                                 }}
                             />
                         </Grid>
-                        <Grid item xs={12}>
+                        <Grid item xs={11} style={{marginBottom: "5px"}}>
                             <TextFieldWithPreview
                                 multiline
                                 fullWidth
@@ -196,7 +196,7 @@ const EditHomework: FC = () => {
                                 }}
                             />
                         </Grid>
-                        <Grid item xs={12} style={{marginBottom: 15}}>
+                        <Grid item xs={11} style={{marginBottom: "15px"}}>
                             <Tags tags={editHomework.tags} courseId={editHomework.courseId} onTagsChange={handleTagsChange}/>
                             <PublicationAndDeadlineDates
                                 hasDeadline={editHomework.hasDeadline}
@@ -214,12 +214,6 @@ const EditHomework: FC = () => {
                                 }))}
                             />
                         </Grid>
-                        {isSomeTaskSoonerThanHomework &&
-                        <Grid item xs={12}>
-                            <Alert severity="error">
-                                Дата публикации домашнего задания позже даты публикации задачи
-                            </Alert>
-                        </Grid>}
                         <Button
                             fullWidth
                             color="primary"
