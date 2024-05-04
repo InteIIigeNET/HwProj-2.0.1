@@ -70,9 +70,9 @@ namespace HwProj.AuthService.API.Controllers
 
         [HttpPost("registerExpert")]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> RegisterExpert([FromBody] RegisterExpertViewModel model)
+        public async Task<IActionResult> RegisterExpert([FromBody] RegisterExpertViewModel model, string lecturerId)
         {
-            var result = await _accountService.RegisterExpertAsync(model);
+            var result = await _accountService.RegisterExpertAsync(model, lecturerId);
             return Ok(result);
         }
 
@@ -82,6 +82,14 @@ namespace HwProj.AuthService.API.Controllers
         {
             var tokenMeta = await _accountService.LoginUserAsync(model).ConfigureAwait(false);
             return Ok(tokenMeta);
+        }
+        
+        [HttpPost("loginExpert")]
+        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> LoginExpert(string accessToken)
+        {
+            var result = await _accountService.LoginExpertAsync(accessToken).ConfigureAwait(false);
+            return Ok(result);
         }
 
         [HttpGet("refreshToken")]
