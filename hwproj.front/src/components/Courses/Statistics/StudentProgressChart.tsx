@@ -11,6 +11,7 @@ import StudentStatsTooltip from './StudentStatsTooltip';
 import Utils from "../../../services/Utils";
 
 import {CartesianGrid, ComposedChart, Legend, Line, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts';
+import StudentStatsUtils from "../../../services/StudentStatsUtils";
 
 interface IStudentProgressChartProps {
     selectedStudents: string[];
@@ -124,7 +125,7 @@ const StudentProgressChart: React.FC<IStudentProgressChartProps> = (props) => {
 
         const tasksGroupedByLastSolution = new Map<String, StatisticsCourseTasksModel[]>()
         tasks.forEach(task => {
-            const lastSolution = task.solution!.filter(s => s.state != Solution.StateEnum.NUMBER_0).slice(-1)[0];
+            const lastSolution = StudentStatsUtils.calculateLastRatedSolution(task.solution!);
             const publicationDate = Utils.renderDateWithoutHours(lastSolution.publicationDate!);
             if (!tasksGroupedByLastSolution.has(publicationDate)) {
                 tasksGroupedByLastSolution.set(publicationDate, []);
@@ -149,7 +150,7 @@ const StudentProgressChart: React.FC<IStudentProgressChartProps> = (props) => {
             const points: IChartPoint[] = taskGroups.map(tasks => {
                 const date = Utils.renderDateWithoutHours(tasks[0].solution!.slice(-1)[0].publicationDate!);
                 const tasksChartView: ITaskChartView[] = tasks.map(task => {
-                    const lastSolution = task.solution!.filter(s => s.state != Solution.StateEnum.NUMBER_0).slice(-1)[0];
+                    const lastSolution = StudentStatsUtils.calculateLastRatedSolution(task.solution!);
                     totalStudentRating += lastSolution.rating ? lastSolution.rating : 0;
                     const taskView = courseTasks.find(t => t.id === task.id)!;
 
