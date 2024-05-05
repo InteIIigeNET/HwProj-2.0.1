@@ -98,7 +98,8 @@ const StudentStatsChart: React.FC = () => {
                               style={{marginTop: -20}}>
                             <Grid item>
                                 <Typography style={{fontSize: '22px'}}>
-                                    {`${state.course.name} / ${state.course.groupName}`} &nbsp;
+                                    {`${state.course.name} / ${state.course.groupName}`}
+                                    <sup style={{color: "#2979ff"}}> бета</sup>
                                 </Typography>
                             </Grid>
                             <Grid item>
