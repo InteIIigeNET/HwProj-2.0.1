@@ -63,7 +63,7 @@ const TaskDeadlines: FC<ITaskDeadlinesProps> = ({ taskDeadlines, onGiveUpClick }
                                     </Typography>
                                 </NavLink>
                             </Grid>
-                                {(solutionState === null || solutionState === 0) &&
+                                {(solutionState == null) &&
                                     <Grid item>
                                         <Chip size={"small"} style={{ height: 20 }} color={'primary'} label={renderBadgeLabel(`⭐ ${maxRating}`)}/>
                                     </Grid>
@@ -86,7 +86,7 @@ const TaskDeadlines: FC<ITaskDeadlinesProps> = ({ taskDeadlines, onGiveUpClick }
                     <Stack direction={"row"} spacing={10} alignItems={"baseline"} justifyContent={"space-between"}
                         style={{ height: 27 }}>
                         {Utils.renderReadableDate(deadline!.deadlineDate!)}
-                        {hoveredElement === i && solutionState === undefined && (
+                        {hoveredElement === i && solutionState == undefined && (
                             <Typography variant={"caption"}>
                                 <LinkText
                                     style={{ textDecoration: "none", cursor: "pointer" }}
