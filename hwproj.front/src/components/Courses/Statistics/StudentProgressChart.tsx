@@ -62,6 +62,7 @@ const StudentProgressChart: React.FC<IStudentProgressChartProps> = (props) => {
         return hash;
     }
     const getRandomColorWithMinBrightness = (string: string) => {
+        //language=css prefix=.div{color: suffix=}
         return `hsl(${hashCode(string) % 360}, 100%, 70%)`;
     }
     const [straightAStudent, averageStudent] = ['Круглый отличник', 'Средний студент']
