@@ -11,8 +11,7 @@ namespace HwProj.AuthService.API.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(maxLength: 450, nullable: false),
-                    AccessToken = table.Column<string>(nullable: true),
-                    LecturerId = table.Column<string>(maxLength: 450, nullable: true)
+                    LecturerId = table.Column<string>(maxLength: 450, nullable: false)
                 },
                 constraints: table =>
                 {

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -20,16 +19,19 @@ namespace HwProj.AuthService.API.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService;
+        private readonly IAuthTokenService _tokenService;
         private readonly IUserManager _userManager;
         private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
 
         public AccountController(
             IAccountService accountService,
+            IAuthTokenService authTokenService,
             IUserManager userManager,
             IMapper mapper)
         {
             _accountService = accountService;
+            _tokenService = authTokenService;
             _userManager = userManager;
             _mapper = mapper;
         }
@@ -86,9 +88,18 @@ namespace HwProj.AuthService.API.Controllers
         
         [HttpPost("loginExpert")]
         [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> LoginExpert(string accessToken)
+        public async Task<IActionResult> LoginExpert(TokenCredentials tokenCredentials)
         {
-            var result = await _accountService.LoginExpertAsync(accessToken).ConfigureAwait(false);
+            var result = await _accountService.LoginExpertAsync(tokenCredentials).ConfigureAwait(false);
+            return Ok(result);
+        }
+        
+        [HttpGet("getExpertToken")]
+        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetExpertToken(string expertEmail)
+        {
+            var expert = await _userManager.FindByEmailAsync(expertEmail);
+            var result = await _tokenService.GetExpertTokenAsync(expert).ConfigureAwait(false);
             return Ok(result);
         }
 

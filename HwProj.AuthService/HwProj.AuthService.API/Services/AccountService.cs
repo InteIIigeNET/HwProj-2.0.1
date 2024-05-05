@@ -129,28 +129,39 @@ namespace HwProj.AuthService.API.Services
             return Result<TokenCredentials>.Success(token);
         }
 
-        public async Task<Result> LoginExpertAsync(string accessToken)
+        public async Task<Result> LoginExpertAsync(TokenCredentials tokenCredentials)
         {
-            var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(accessToken);
-            if (await _userManager.FindByEmailAsync(model.Email)
-                    is var user && user == null)
+            var tokenClaims = _tokenService.GetTokenClaims(tokenCredentials);
+
+            if (tokenClaims.Role != Roles.ExpertRole)
             {
-                return Result.Failed("Пользователь не найден");
+                return Result.Failed("Невалидный токен: пользователь не является экспертом");
             }
 
-            var result = await _signInManager.PasswordSignInAsync(
-                user,
-                model.Password,
-                model.RememberMe,
-                false).ConfigureAwait(false);
-
-            if (!result.Succeeded)
+            if (tokenClaims.Email is null)
             {
-                return Result<TokenCredentials>.Failed(result.TryGetIdentityError());
+                return Result.Failed("Невалидный токен: пользователь не найден");
             }
 
-            var token = await _tokenService.GetTokenAsync(user);
-            return Result<TokenCredentials>.Success(token);
+            var expert = await _userManager.FindByEmailAsync(tokenClaims.Email);
+            if (expert.Id != tokenClaims.Id)
+            {
+                return Result.Failed("Невалидный токен: пользователь не найден");
+            }
+
+            var tokenCredentialsResult = await _tokenService.GetExpertTokenAsync(expert);
+            if (!tokenCredentialsResult.Succeeded)
+            {
+                return Result.Failed(tokenCredentialsResult.Errors);
+            }
+
+            if (tokenCredentials.AccessToken != tokenCredentialsResult.Value.AccessToken)
+            {
+                return Result.Failed("Невалидный токен");
+            }
+            
+            await _signInManager.SignInAsync(expert, false).ConfigureAwait(false);
+            return Result.Success();
         }
 
         public async Task<Result<TokenCredentials>> RefreshToken(string userId)

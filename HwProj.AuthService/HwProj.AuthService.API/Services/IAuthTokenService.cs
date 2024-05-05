@@ -1,7 +1,7 @@
-﻿using System;
-using HwProj.Models.AuthService.DTO;
+﻿using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
 using System.Threading.Tasks;
+using HwProj.Models.Result;
 
 namespace HwProj.AuthService.API.Services
 {
@@ -9,7 +9,7 @@ namespace HwProj.AuthService.API.Services
     {
         Task<TokenCredentials> GetTokenAsync(User user);
 
-        Task<TokenCredentials> GetExpertTokenAsync();
+        Task<Result<TokenCredentials>> GetExpertTokenAsync(User expert);
 
         TokenClaims GetTokenClaims(TokenCredentials tokenCredentials);
     }
