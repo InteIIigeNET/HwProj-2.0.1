@@ -2,6 +2,7 @@
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
+using HwProj.AuthService.API.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using HwProj.AuthService.API.Services;
 using HwProj.Models.AuthService.DTO;
@@ -28,7 +29,8 @@ namespace HwProj.AuthService.API.Controllers
             IAccountService accountService,
             IAuthTokenService authTokenService,
             IUserManager userManager,
-            IMapper mapper)
+            IMapper mapper,
+            IExpertsRepository expertsRepository)
         {
             _accountService = accountService;
             _tokenService = authTokenService;
@@ -165,7 +167,26 @@ namespace HwProj.AuthService.API.Controllers
 
             return Ok(result);
         }
+        
+        [HttpGet("getAllExperts")]
+        [ProducesResponseType(typeof(User[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetAllExperts()
+        {
+            var allExperts = await _accountService.GetUsersInRole(Roles.ExpertRole);
+            var result = allExperts.ToArray();
 
+            return Ok(result);
+        }
+        
+        [HttpGet("getExperts")]
+        [ProducesResponseType(typeof(User[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetExperts(string userId)
+        {
+            var experts = await _accountService.GetExperts(userId);
+
+            return Ok(experts);
+        }
+        
         [HttpPost("requestPasswordRecovery")]
         public async Task<Result> RequestPasswordRecovery(RequestPasswordRecoveryViewModel model)
         {

@@ -15,7 +15,7 @@ namespace HwProj.AuthService.API.Repositories
         {
         }
 
-        public async Task<string[]> GetExpertIdsByLecturerId(string lecturerId)
+        public async Task<string[]> GetExpertIds(string lecturerId)
         {
             return await Context.Set<ExpertData>()
                 .AsNoTracking()
@@ -23,25 +23,6 @@ namespace HwProj.AuthService.API.Repositories
                 .Select(data => data.Id)
                 .ToArrayAsync()
                 .ConfigureAwait(false);
-        }
-
-        public async Task<string[]> GetAllExpertIds()
-        {
-            return await Context.Set<ExpertData>()
-                .AsNoTracking()
-                .Select(data => data.Id)
-                .ToArrayAsync()
-                .ConfigureAwait(false);
-        }
-
-        public async Task<string?> GetExpertAccessToken(string expertId)
-        {
-            return "a";
-            // return await Context.Set<ExpertData>()
-            //     .AsNoTracking()
-            //     .Where(data => data.Id == expertId)
-            //     .Select(data => data.AccessToken)
-            //     .FirstOrDefaultAsync();
         }
     }
 }

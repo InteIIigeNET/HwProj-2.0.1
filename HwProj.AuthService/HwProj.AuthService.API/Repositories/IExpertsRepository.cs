@@ -8,10 +8,6 @@ namespace HwProj.AuthService.API.Repositories
 {
     public interface IExpertsRepository : ICrudRepository<ExpertData, string>
     {
-        public Task<string[]> GetExpertIdsByLecturerId(string lecturerId);
-
-        public Task<string[]> GetAllExpertIds();
-
-        public Task<string?> GetExpertAccessToken(string expertId);
+        public Task<string[]> GetExpertIds(string lecturerId);
     }
 }

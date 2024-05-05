@@ -10,6 +10,7 @@ using AutoMapper;
 using HwProj.AuthService.API.Extensions;
 using HwProj.Models.Roles;
 using HwProj.AuthService.API.Events;
+using HwProj.AuthService.API.Repositories;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
@@ -33,6 +34,7 @@ namespace HwProj.AuthService.API.Services
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
         private readonly HttpClient _client;
+        private readonly IExpertsRepository _expertsRepository;
 
         public AccountService(IUserManager userManager,
             SignInManager<User> signInManager,
@@ -41,7 +43,8 @@ namespace HwProj.AuthService.API.Services
             IMapper mapper,
             UserManager<User> aspUserManager,
             IConfiguration configuration,
-            IHttpClientFactory clientFactory)
+            IHttpClientFactory clientFactory,
+            IExpertsRepository expertsRepository)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -51,6 +54,7 @@ namespace HwProj.AuthService.API.Services
             _aspUserManager = aspUserManager;
             _configuration = configuration;
             _client = clientFactory.CreateClient();
+            _expertsRepository = expertsRepository;
         }
 
         private async Task<AccountDataDto> GetAccountDataAsync(User user)
@@ -275,6 +279,17 @@ namespace HwProj.AuthService.API.Services
         public async Task<IList<User>> GetUsersInRole(string role)
         {
             return await _userManager.GetUsersInRoleAsync(role);
+        }
+
+        public async Task<User[]> GetExperts(string userId)
+        {
+            var expertIds = await _expertsRepository.GetExpertIds(userId);
+            var experts = _aspUserManager.Users
+                .Where(user => expertIds.Contains(user.Id))
+                .AsNoTracking()
+                .ToArray();
+
+            return experts;
         }
 
         public async Task<Result> RequestPasswordRecovery(RequestPasswordRecoveryViewModel model)

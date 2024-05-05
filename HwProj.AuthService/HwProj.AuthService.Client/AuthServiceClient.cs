@@ -184,6 +184,26 @@ namespace HwProj.AuthService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<User[]>().ConfigureAwait(false);
         }
+        
+        public async Task<User[]> GetAllExperts()
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _authServiceUri + "api/account/getAllExperts");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<User[]>().ConfigureAwait(false);
+        }
+        
+        public async Task<User[]> GetExperts(string userId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _authServiceUri + "api/account/getExperts");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<User[]>().ConfigureAwait(false);
+        }
 
         public async Task<bool> Ping()
         {

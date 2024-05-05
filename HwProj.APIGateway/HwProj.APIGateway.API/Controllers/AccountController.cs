@@ -156,6 +156,24 @@ namespace HwProj.APIGateway.API.Controllers
             var result = await AuthServiceClient.GetAllStudents();
             return Ok(result);
         }
+        
+        [HttpGet("getAllExperts")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        [ProducesResponseType(typeof(User[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetAllExperts()
+        {
+            var result = await AuthServiceClient.GetAllExperts();
+            return Ok(result);
+        }
+        
+        [HttpGet("getExperts")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        [ProducesResponseType(typeof(User[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetExperts(string userId)
+        {
+            var result = await AuthServiceClient.GetExperts(userId);
+            return Ok(result);
+        }
 
         [HttpPost("requestPasswordRecovery")]
         public async Task<Result> RequestPasswordRecovery(RequestPasswordRecoveryViewModel model)

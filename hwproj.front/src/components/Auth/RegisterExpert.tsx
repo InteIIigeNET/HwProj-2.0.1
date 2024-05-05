@@ -14,7 +14,7 @@ import makeStyles from "@material-ui/styles/makeStyles";
 import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined';
 import Avatar from "@material-ui/core/Avatar";
 import Utils from "../../services/Utils";
-import {CopyField, DefaultCopyField} from "@eisberg-labs/mui-copy-field";
+// import {CopyField, DefaultCopyField} from "@eisberg-labs/mui-copy-field";
 
 interface  ICommonState {
     lecturerCourses: CoursePreviewView[];
@@ -240,72 +240,72 @@ const RegisterExpert: FC = () => {
                                     }}
                                 />
                             </Grid>
-                            <Grid item xs={12}>
-                                <TextField
-                                    required
-                                    fullWidth
-                                    type="datetime-local"
-                                    label="Срок действия ссылки"
-                                    variant="outlined"
-                                    value={Utils.toISOString(expertRegisterState.tokenExpirationTime)}
-                                    onChange={(e) =>
-                                    {
-                                        e.persist()
-                                        setExpertRegisterState((prevState) => ({
-                                            ...prevState,
-                                            tokenExpirationTime: new Date(e.target.value)
-                                        }))
-                                    }}
-                                />
-                            </Grid>
-                            <Grid item xs={12} sm={12}>
-                                <FormControl fullWidth>
-                                    <InputLabel id="course-select-label">Курс</InputLabel>
-                                    <Select
-                                        required
-                                        fullWidth
-                                        label="Курс"
-                                        labelId="course-select-label"
-                                        value={expertRegisterState.courseId === -1 ? '' : expertRegisterState.courseId}
-                                        onChange={async (e) =>
-                                        {
-                                            const selectedId = Number(e.target.value)
-                                            setExpertRegisterState((prevState) => ({
-                                                ...prevState,
-                                                courseId: selectedId
-                                            }));
-                                        }}>
-                                        {commonState.lecturerCourses.map((courseViewModel, i) =>
-                                            <MenuItem key={i} value={courseViewModel.id}>
-                                                {courseViewModel.name}
-                                            </MenuItem>)}
-                                    </Select>
-                                </FormControl>
-                            </Grid>
-                            <Grid item xs={12} sm={12}>
-                                <FormControl fullWidth>
-                                    <InputLabel id="homework-select-label">Домашняя работа</InputLabel>
-                                    <Select
-                                        required
-                                        fullWidth
-                                        label="Домашняя работа"
-                                        labelId="homework-select-label"
-                                        value={expertRegisterState.homeworkId === -1 ? '' : expertRegisterState.homeworkId}
-                                        onChange={async (e) =>
-                                        {
-                                            const selectedId = Number(e.target.value)
-                                            setExpertRegisterState((prevState) => ({
-                                                ...prevState,
-                                                homeworkId: selectedId
-                                            }));
-                                        }}>
-                                        {commonState.courseHomeworks.map((homeworkViewModel, i) =>
-                                            <MenuItem value={homeworkViewModel.id}>
-                                                {homeworkViewModel.title}
-                                            </MenuItem>)}
-                                    </Select>
-                                </FormControl>
-                            </Grid>
+                            {/*<Grid item xs={12}>*/}
+                            {/*    <TextField*/}
+                            {/*        required*/}
+                            {/*        fullWidth*/}
+                            {/*        type="datetime-local"*/}
+                            {/*        label="Срок действия ссылки"*/}
+                            {/*        variant="outlined"*/}
+                            {/*        value={Utils.toISOString(expertRegisterState.tokenExpirationTime)}*/}
+                            {/*        onChange={(e) =>*/}
+                            {/*        {*/}
+                            {/*            e.persist()*/}
+                            {/*            setExpertRegisterState((prevState) => ({*/}
+                            {/*                ...prevState,*/}
+                            {/*                tokenExpirationTime: new Date(e.target.value)*/}
+                            {/*            }))*/}
+                            {/*        }}*/}
+                            {/*    />*/}
+                            {/*</Grid>*/}
+                            {/*<Grid item xs={12} sm={12}>*/}
+                            {/*    <FormControl fullWidth>*/}
+                            {/*        <InputLabel id="course-select-label">Курс</InputLabel>*/}
+                            {/*        <Select*/}
+                            {/*            required*/}
+                            {/*            fullWidth*/}
+                            {/*            label="Курс"*/}
+                            {/*            labelId="course-select-label"*/}
+                            {/*            value={expertRegisterState.courseId === -1 ? '' : expertRegisterState.courseId}*/}
+                            {/*            onChange={async (e) =>*/}
+                            {/*            {*/}
+                            {/*                const selectedId = Number(e.target.value)*/}
+                            {/*                setExpertRegisterState((prevState) => ({*/}
+                            {/*                    ...prevState,*/}
+                            {/*                    courseId: selectedId*/}
+                            {/*                }));*/}
+                            {/*            }}>*/}
+                            {/*            {commonState.lecturerCourses.map((courseViewModel, i) =>*/}
+                            {/*                <MenuItem key={i} value={courseViewModel.id}>*/}
+                            {/*                    {courseViewModel.name}*/}
+                            {/*                </MenuItem>)}*/}
+                            {/*        </Select>*/}
+                            {/*    </FormControl>*/}
+                            {/*</Grid>*/}
+                            {/*<Grid item xs={12} sm={12}>*/}
+                            {/*    <FormControl fullWidth>*/}
+                            {/*        <InputLabel id="homework-select-label">Домашняя работа</InputLabel>*/}
+                            {/*        <Select*/}
+                            {/*            required*/}
+                            {/*            fullWidth*/}
+                            {/*            label="Домашняя работа"*/}
+                            {/*            labelId="homework-select-label"*/}
+                            {/*            value={expertRegisterState.homeworkId === -1 ? '' : expertRegisterState.homeworkId}*/}
+                            {/*            onChange={async (e) =>*/}
+                            {/*            {*/}
+                            {/*                const selectedId = Number(e.target.value)*/}
+                            {/*                setExpertRegisterState((prevState) => ({*/}
+                            {/*                    ...prevState,*/}
+                            {/*                    homeworkId: selectedId*/}
+                            {/*                }));*/}
+                            {/*            }}>*/}
+                            {/*            {commonState.courseHomeworks.map((homeworkViewModel, i) =>*/}
+                            {/*                <MenuItem value={homeworkViewModel.id}>*/}
+                            {/*                    {homeworkViewModel.title}*/}
+                            {/*                </MenuItem>)}*/}
+                            {/*        </Select>*/}
+                            {/*    </FormControl>*/}
+                            {/*</Grid>*/}
                         </Grid>
                         <Button
                             style={{ marginTop: '15px'}}
@@ -330,11 +330,11 @@ const RegisterExpert: FC = () => {
                                 <DialogContentText>
                                 </DialogContentText>
                                 <div style={{marginTop: '3px'}}>
-                                    <DefaultCopyField
-                                        label="Ссылка"
-                                        value={ApiSingleton.authService.buildInvitationLink(commonState.expertToken!)}
-                                        fullWidth
-                                    />
+                                    {/*<DefaultCopyField*/}
+                                    {/*    label="Ссылка"*/}
+                                    {/*    value={ApiSingleton.authService.buildInvitationLink(commonState.expertToken!)}*/}
+                                    {/*    fullWidth*/}
+                                    {/*/>*/}
                                 </div>
                             </DialogContent>
                             <DialogActions>
