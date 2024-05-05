@@ -114,8 +114,10 @@ const StudentProgressChart: React.FC<IStudentProgressChartProps> = (props) => {
     // для каждого студента отсортировали и сгруппировали задачи по дню последнего решения
     const studentTasks = new Map(solutions.map(cm => {
         const studentId = cm.name + ' ' + cm.surname;
-        const tasks = cm.homeworks!.filter(hw => hw.tasks && hw.tasks.length > 0)
-            .map(hw => hw.tasks!).flat().filter(t => t.solution && t.solution.length > 0)
+        const tasks = cm.homeworks!
+            .filter(hw => hw.tasks && hw.tasks.length > 0)
+            .flatMap(hw => hw.tasks!)
+            .filter(t => t.solution && StudentStatsUtils.calculateLastRatedSolution(t.solution) != undefined)
 
         tasks.sort((x, y) => {
             const xLastSolutionDate = x.solution!.slice(-1)[0].publicationDate!;
