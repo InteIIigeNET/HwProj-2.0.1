@@ -132,7 +132,7 @@ const EditHomework: FC = () => {
         return (
             <Grid container className="container" justifyContent="center">
                 <Grid container style={{marginTop: '20px'}}>
-                    <Grid item xs={11}>
+                    <Grid item xs={12}>
                         <Link
                             style={{color: '#212529'}}
                             to={"/courses/" + editHomework.courseId.toString()}
@@ -149,7 +149,7 @@ const EditHomework: FC = () => {
                         <EditIcon color='primary' style={{ marginRight: '0.5rem' }}/>
                     </div>
                     <div>
-                        <Typography style={{ fontSize: '22px', marginBottom: '10px' }}>
+                        <Typography style={{ fontSize: '22px' }}>
                             Редактировать домашнее задание
                         </Typography>
                     </div>
@@ -177,7 +177,7 @@ const EditHomework: FC = () => {
                                 }}
                             />
                         </Grid>
-                        <Grid item xs={11} style={{marginBottom: "5px"}}>
+                        <Grid item xs={12} style={{marginBottom: "10px"}}>
                             <TextFieldWithPreview
                                 multiline
                                 fullWidth
@@ -196,7 +196,7 @@ const EditHomework: FC = () => {
                                 }}
                             />
                         </Grid>
-                        <Grid item xs={11} style={{marginBottom: "15px"}}>
+                        <Grid item xs={12} style={{marginBottom: "15px"}}>
                             <Tags tags={editHomework.tags} courseId={editHomework.courseId} onTagsChange={handleTagsChange}/>
                             <PublicationAndDeadlineDates
                                 hasDeadline={editHomework.hasDeadline}
