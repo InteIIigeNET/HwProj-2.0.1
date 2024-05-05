@@ -1,25 +1,29 @@
 import React, {useState} from 'react';
-import { Autocomplete, TextField } from '@mui/material';
+import {Autocomplete, TextField} from '@mui/material';
 
 
 export interface StudentItem {
-    id : string;
-    name : string;
-    surname : string;
-}
-interface StudentStatsListProps {
-    mates : StudentItem[];
-    onStudentsChange : (studentIds : string[]) => void;
+    id: string;
+    name: string;
+    surname: string;
 }
 
-const StudentCheckboxList : React.FC<StudentStatsListProps> = (props) => {
+interface StudentStatsListProps {
+    mates: StudentItem[];
+    onStudentsChange: (studentIds: string[]) => void;
+}
+
+const StudentCheckboxList: React.FC<StudentStatsListProps> = (props) => {
     const [checked, setChecked] = useState(new Array<string>())
-    
+
     return (
         <Autocomplete
             multiple
+            size={"medium"}
+            style={{minWidth: 300}}
+            fullWidth
             options={props.mates}
-            getOptionLabel = {(option) => option.name + ' ' + option.surname}
+            getOptionLabel={(option) => option.name + ' ' + option.surname}
             filterSelectedOptions
             renderInput={(params) => (
                 <TextField
