@@ -27,7 +27,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
     const [state, setSearched] = useState<IStudentStatsState>({
         searched: ""
     });
-    const { courseId } = useParams();
+    const {courseId} = useParams();
     const navigate = useNavigate();
     const handleClick = () => {
         navigate(`/statistics/${courseId}/charts`)
@@ -133,8 +133,10 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                         <TableRow>
                             <TableCell style={{zIndex: 10}}
                                        component="td">
-                                {solutions.length > 0 && 
-                                    <Button startIcon={<ShowChartIcon/>} color="primary" size='small' onClick={handleClick}>
+                                {solutions.length > 0 &&
+                                    <Button startIcon={<ShowChartIcon/>} color="primary"
+                                            style={{backgroundColor: 'transparent'}} size='medium'
+                                            onClick={handleClick}>
                                         Графики
                                     </Button>
                                 }

@@ -23,7 +23,7 @@ interface IStudentProgressChartProps {
 }
 
 interface ITaskChartView {
-    title : string;
+    title: string;
     receiveRating?: number;
     maxRating: number;
 }
@@ -47,7 +47,7 @@ const chartColors = {
     tooltipBorder: 'rgb(232, 232, 232)'
 }
 
-const StudentProgressChart : React.FC<IStudentProgressChartProps> = (props) => {
+const StudentProgressChart: React.FC<IStudentProgressChartProps> = (props) => {
     const [mouseHoverState, setMouseHoverState] = useState("");
     const [highlightStudent, setHighlightStudent ] = useState("");
     const compareDates = (x: Date, y: Date) => {
@@ -81,8 +81,10 @@ const StudentProgressChart : React.FC<IStudentProgressChartProps> = (props) => {
             const indexTasksWithSameDate = points.findIndex(p => p.date === publicationDates[index]);
 
             if (indexTasksWithSameDate === -1) {
-                points.push({ id: studentId, date: publicationDates[index],
-                    totalRatingValue: +totalRating.toFixed(2), tasks: [taskView]});
+                points.push({
+                    id: studentId, date: publicationDates[index],
+                    totalRatingValue: +totalRating.toFixed(2), tasks: [taskView]
+                });
             } else {
                 const currentPoint = points[indexTasksWithSameDate];
                 points[indexTasksWithSameDate] = {
@@ -121,9 +123,10 @@ const StudentProgressChart : React.FC<IStudentProgressChartProps> = (props) => {
     // для каждого студента отсортировали и сгруппировали задачи по дню последнего решения
     const studentTasks = new Map(solutions.map(cm => {
         const studentId = cm.name + ' ' + cm.surname;
-        const tasks = cm.homeworks!.filter(hw => hw.tasks && hw.tasks.length > 0)
+        const tasks = cm.homeworks!
+            .filter(hw => hw.tasks && hw.tasks.length > 0)
             .flatMap(hw => hw.tasks!)
-            .filter(t => t.solution && StudentStatsUtils.calculateLastRatedSolution(t.solution!) != undefined)
+            .filter(t => t.solution && StudentStatsUtils.calculateLastRatedSolution(t.solution) != undefined)
 
         tasks.sort((x, y) => {
             const xLastSolutionDate = x.solution!.slice(-1)[0].publicationDate!;
@@ -229,8 +232,8 @@ const StudentProgressChart : React.FC<IStudentProgressChartProps> = (props) => {
     })), [props]);
 
     return (
-        <ResponsiveContainer height={350} width='99%'>
-            <ComposedChart margin={{right: 15, top: 5}}>
+        <ResponsiveContainer height={360} width='99%'>
+            <ComposedChart margin={{right: 15, top: 5, bottom: 5}}>
                 <YAxis dataKey="totalRatingValue"
                        domain={[0, maximumExpectedRating + (50 - maximumExpectedRating % 50)]}
                        stroke={chartColors.axis}
