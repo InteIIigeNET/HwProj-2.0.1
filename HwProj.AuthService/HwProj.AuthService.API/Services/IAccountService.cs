@@ -16,7 +16,7 @@ namespace HwProj.AuthService.API.Services
         Task<Result> RegisterExpertAsync(RegisterExpertViewModel model, string lecturerId);
         Task<Result> EditAccountAsync(string accountId, EditDataDTO model);
         Task<Result<TokenCredentials>> LoginUserAsync(LoginViewModel model);
-        Task<Result> LoginExpertAsync(string accessToken);
+        Task<Result> LoginExpertAsync(TokenCredentials tokenCredentials);
         Task<Result<TokenCredentials>> RefreshToken(string userId);
         Task<Result> InviteNewLecturer(string emailOfInvitedUser);
         Task<IList<User>> GetUsersInRole(string role);

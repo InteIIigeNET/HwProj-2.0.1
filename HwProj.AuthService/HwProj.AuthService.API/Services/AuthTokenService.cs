@@ -11,6 +11,7 @@ using HwProj.Models.Roles;
 using Microsoft.Extensions.Configuration;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
+using HwProj.Models.Result;
 
 namespace HwProj.AuthService.API.Services
 {
@@ -35,7 +36,7 @@ namespace HwProj.AuthService.API.Services
             var userRoles = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
 
             var expiresIn = userRoles.FirstOrDefault() == Roles.ExpertRole
-                ? GetExpertExpiresIn(timeNow)
+                ? GetExpertTokenExpiresIn(timeNow)
                 : timeNow.AddMinutes(int.Parse(_configuration["ExpiresIn"]));
             
             var token = new JwtSecurityToken(
@@ -59,9 +60,35 @@ namespace HwProj.AuthService.API.Services
             return tokenCredentials;
         }
 
-        public Task<TokenCredentials> GetExpertTokenAsync()
+        public async Task<Result<TokenCredentials>> GetExpertTokenAsync(User expert)
         {
-            throw new NotImplementedException();
+            var expertOptions = _configuration.GetSection("ExpertOptions");
+            var token = await _userManager.GetAuthenticationTokenAsync(expert, expertOptions["LoginProvider"],
+                expertOptions["TokenName"]);
+
+            if (token is null || _tokenHandler.ReadJwtToken(token).ValidTo >= DateTime.UtcNow)
+            {
+                if (token != null)
+                {
+                    var deletionResult = await _userManager.RemoveAuthenticationTokenAsync(expert, expertOptions["LoginProvider"],
+                        expertOptions["TokenName"]);
+                    if (!deletionResult.Succeeded)
+                        return Result<TokenCredentials>.Failed(deletionResult.Errors.Select(errors => errors.Description)
+                            .ToArray());
+                }
+                
+                var tokenCredentials = await GetTokenAsync(expert);
+                var result = await _userManager.SetAuthenticationTokenAsync(expert, expertOptions["LoginProvider"],
+                    expertOptions["TokenName"], tokenCredentials.AccessToken);
+                if (result.Succeeded) return Result<TokenCredentials>.Success(tokenCredentials);
+                
+                return Result<TokenCredentials>.Failed(result.Errors.Select(errors => errors.Description).ToArray());
+            }
+            
+            return Result<TokenCredentials>.Success(new TokenCredentials
+            {
+                AccessToken = token
+            });
         }
 
         public TokenClaims GetTokenClaims(TokenCredentials tokenCredentials)
@@ -76,7 +103,7 @@ namespace HwProj.AuthService.API.Services
             };
         }
 
-        private DateTime GetExpertExpiresIn(DateTime timeNow)
+        private DateTime GetExpertTokenExpiresIn(DateTime timeNow)
         {
             var expertOptions = _configuration.GetSection("ExpertOptions");
             var firstTermDate = DateTime.ParseExact(expertOptions["ExpiresFirstTerm"],

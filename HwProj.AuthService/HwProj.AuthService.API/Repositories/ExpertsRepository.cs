@@ -36,11 +36,12 @@ namespace HwProj.AuthService.API.Repositories
 
         public async Task<string?> GetExpertAccessToken(string expertId)
         {
-            return await Context.Set<ExpertData>()
-                .AsNoTracking()
-                .Where(data => data.Id == expertId)
-                .Select(data => data.AccessToken)
-                .FirstOrDefaultAsync();
+            return "a";
+            // return await Context.Set<ExpertData>()
+            //     .AsNoTracking()
+            //     .Where(data => data.Id == expertId)
+            //     .Select(data => data.AccessToken)
+            //     .FirstOrDefaultAsync();
         }
     }
 }
