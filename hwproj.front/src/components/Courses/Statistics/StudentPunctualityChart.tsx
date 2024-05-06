@@ -1,9 +1,11 @@
 ﻿import * as React from 'react';
 import {Bar, ComposedChart, ReferenceLine, Scatter, Text, Tooltip, XAxis, YAxis, ZAxis} from 'recharts';
+import { Tooltip as MuiTooltip } from '@mui/material';
 import {Solution, HomeworkViewModel,  StatisticsCourseMatesModel} from '../../../api';
 import StudentStatsUtils from "../../../services/StudentStatsUtils";
 import Utils from "../../../services/Utils";
 import {Payload, ValueType} from "recharts/types/component/DefaultTooltipContent";
+import {useState} from "react";
 
 interface IStudentPunctualityChartProps {
     index: number;
@@ -61,25 +63,34 @@ const CustomYAxisTick = (props : any) => {
 
 const CustomXAxisTick = (props : any) => {
     const { x, y, payload, sectors} = props;
-    
+    const [open, setOpen] = useState(false);
+
     const maxWordSize = MAXIMUM_DEVIATION + 4 * sectors.get(payload.value)!.barsAmount
-    const customTitle = sectors.get(payload.value)!.title.split(' ').map((word : string) => 
-        {
-            if (word.length > maxWordSize) {
+    const title : string = sectors.get(payload.value)!.title
+    const customTitle = title.split(' ').slice(0, 3).map((word : string) =>
+    {
+        if (word.length > maxWordSize) {
             return word.slice(0, maxWordSize-2) + '..'
-            }
-            return word;
-        }).join(' ');
-    
+        }
+        return word;
+    }).join(' ');
+
+    const isClipped = (title.split(' ').length > 3) || title.split(' ')
+        .some(word => word.length > maxWordSize)
     
     return (
-        <g transform={`translate(${x},${y})`}>
-            <Text x={0} y={3} width={20} textAnchor='start' fill={chartColors.axisLabel}
-                  verticalAnchor='middle' fontSize={12}
-            >
-                {customTitle}
-            </Text>
-        </g>
+        <MuiTooltip open={open && isClipped} title={title}
+                    onMouseEnter={() => setOpen(true)}
+                    onMouseLeave={() => setOpen(false)}
+                    placement="top">
+            <g transform={`translate(${x},${y})`}>
+                <Text x={0} y={3} width={20} textAnchor='start' fill={chartColors.axisLabel}
+                      verticalAnchor='middle' fontSize={12}
+                >
+                    {customTitle}
+                </Text>
+            </g>
+        </MuiTooltip>
     )
 }
 
