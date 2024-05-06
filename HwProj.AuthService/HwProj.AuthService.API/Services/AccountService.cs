@@ -237,6 +237,7 @@ namespace HwProj.AuthService.API.Services
             var user = _mapper.Map<User>(model);
             user.UserName = user.Email;
 
+            
             var createUserTask = _userManager.CreateAsync(user);
 
             var result = await createUserTask
@@ -247,9 +248,18 @@ namespace HwProj.AuthService.API.Services
                     return _userManager.UpdateAsync(user);
                 });
 
-            return result.Succeeded
-                ? Result.Success()
-                : Result.Failed(result.Errors.Select(errors => errors.Description).ToArray());
+            if (result.Succeeded)
+            {
+                await _expertsRepository.AddAsync(new ExpertData
+                {
+                    Id = user.Id,
+                    LecturerId = lecturerId
+                });
+
+                return Result.Success();
+            }
+            
+            return Result.Failed(result.Errors.Select(errors => errors.Description).ToArray());
         }
 
         public async Task<Result> InviteNewLecturer(string emailOfInvitedUser)

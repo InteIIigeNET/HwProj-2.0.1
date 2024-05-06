@@ -109,7 +109,7 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> RegisterExpert(RegisterExpertViewModel model)
         {
-            var result = await AuthServiceClient.RegisterExpert(model);
+            var result = await AuthServiceClient.RegisterExpert(model, UserId);
             return Ok(result);
         }
 
@@ -187,9 +187,9 @@ namespace HwProj.APIGateway.API.Controllers
         [HttpGet("getExperts")]
         [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(User[]), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetExperts(string userId)
+        public async Task<IActionResult> GetExperts()
         {
-            var result = await AuthServiceClient.GetExperts(userId);
+            var result = await AuthServiceClient.GetExperts(UserId);
             return Ok(result);
         }
 

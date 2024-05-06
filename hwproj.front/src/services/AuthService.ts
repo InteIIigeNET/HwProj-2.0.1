@@ -49,22 +49,6 @@ export default class AuthService {
             error: []
         }
     }
-
-    async registerExpert(expert: RegisterExpertViewModel) {
-        const token = await ApiSingleton.accountApi.apiAccountRegisterExpertPost(expert)
-        if (!token.succeeded) {
-            return {
-                loggedIn: false,
-                error: token.errors,
-                token: undefined
-            }
-        }
-        return {
-            loggedIn: true,
-            error: [],
-            token: token.value?.accessToken!
-        }
-    }
     
     buildInvitationLink(token : string) {
         return `https://hwproj.ru/join/${token}`;
