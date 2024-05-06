@@ -39,7 +39,7 @@ const StudentStatsTooltip : React.FC<ITooltipProps> = (props) => {
                                         {item.payload.tasks.map((task : ITaskChartView) => (
                                             <ListItem sx={{display: 'list-item', padding: 0}}>
                                                 <p style={{marginTop: 2, marginBottom: 2, marginRight: 5}}>
-                                                    {task.title} <b>{task.receiveRating!}/{task.maxRating}</b>
+                                                    {task.title} <b>{+task.receiveRating!.toFixed(2)}/{task.maxRating}</b>
                                                 </p>
                                             </ListItem>
                                         ))}

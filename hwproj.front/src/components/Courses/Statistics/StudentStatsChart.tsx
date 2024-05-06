@@ -79,8 +79,10 @@ const StudentStatsChart: React.FC = () => {
             </Link>
         )
     }
+    
+    const tasksAmount = state.homeworks.flatMap(h => h.tasks).length
 
-    if (state.isFound) {
+    if (state.isFound && tasksAmount) {
         return (
             <div className="container">
                 <Grid container spacing={1} style={{marginBottom: 10, marginTop: 20}}>

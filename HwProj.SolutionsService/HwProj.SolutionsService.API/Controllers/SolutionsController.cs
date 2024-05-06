@@ -230,11 +230,15 @@ namespace HwProj.SolutionsService.API.Controllers
                     .FirstOrDefault(s => s.State != SolutionState.Posted))
                 .Where(e => e != null)
                 .GroupBy(e => e.TaskId)
-                .Select(e => new StatisticsCourseMeasureSolutionModel
+                .Select(e =>
                 {
-                    TaskId = e.Key,
-                    Rating = e.Sum(s => s.Rating) / (double)e.Count(), // на данный момент берем среднее от сданных решений
-                    PublicationDate = new DateTime((long)e.Average(s => s.PublicationDate.Ticks))
+                    var solutionCount = (double)e.Count();
+                    return new StatisticsCourseMeasureSolutionModel
+                    {
+                        TaskId = e.Key,
+                        Rating = e.Sum(s => s.Rating) / solutionCount, // на данный момент берем среднее от сданных решений
+                        PublicationDate = new DateTime((long)e.Sum(s => s.PublicationDate.Ticks / solutionCount))
+                    };
                 }).ToArray();
             
             var bestStudentSolutions = course.Homeworks
