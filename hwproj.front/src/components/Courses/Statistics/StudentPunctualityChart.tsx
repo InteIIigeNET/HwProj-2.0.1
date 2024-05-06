@@ -222,12 +222,6 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
     
     const [ barSize, barGap] = [ 20, 10];
 
-    const length = props.solutions.homeworks!.flatMap(h => h.tasks!)
-        .reduce((acc, t) => {
-            const solutionLength = t.solution?.length ?? 0;
-            return acc + Math.max(solutionLength, 3) + 2;
-        }, 0);
-
     return (
         <div style={{height: '300', width: '100%', overflowX: 'auto', overflowY: "hidden", paddingBottom: 7}}
              onScroll={(e) => {
@@ -237,7 +231,7 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
             
             <ComposedChart data={solveAttempts.sort((x, y) => x.xAxisPosition - y.xAxisPosition)}
                            height={300}
-                           width={length * (barSize + barGap)}
+                           width={solveAttempts.length * (barSize + barGap)}
                            margin={{top: 5, right: 5, bottom: 10, left: 0}}
                            style={{color: 'red'}}
                            barGap={barGap}
