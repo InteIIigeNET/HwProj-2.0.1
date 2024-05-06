@@ -49,8 +49,8 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
                         <Typography>
                             Для приглашения эксперта поделитесь с ним ссылкой:
                         </Typography>
-                        <Grid container>
-                            <Grid item xs={12} sm={10}>
+                        <Grid container style={{marginTop: '2px'}}>
+                            <Grid item xs={12} sm={10} style={{marginTop: '4px'}}>
                                 <TextField
                                     id="outlined-read-only-input"
                                     label=""
@@ -72,7 +72,7 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
                                 justifyContent="flex-end"
                                 alignItems="flex-end"
                                 container
-                                style={{marginTop: '16px'}}
+                                style={{marginTop: '8px'}}
                             >
                                 <Grid item>
                                     <Button

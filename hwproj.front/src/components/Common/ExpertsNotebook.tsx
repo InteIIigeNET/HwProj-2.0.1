@@ -14,7 +14,6 @@ import {User} from 'api/api';
 import ApiSingleton from "../../api/ApiSingleton";
 import RegisterExpertModal from "../../components/Auth/RegisterExpertModal";
 import InviteExpertModal from "../../components/InviteExpertModal";
-import {Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} from "@mui/material";
 
 interface InviteExpertState {
     isOpen: boolean;
@@ -24,22 +23,19 @@ interface InviteExpertState {
 const useStyles = makeStyles(() => ({
     info: {
         justifyContent: "space-between",
-    },
+    }
 }))
 
 const ExpertsNotebook: FC = () => {
     const classes = useStyles();
     const [experts, setExperts] = useState<User[]>([]);
-
     const [isAllExpertsSelected, setIsAllExpertsSelected] = useState<boolean>(false)
-
     const [isOpenRegisterExpert, setIsOpenRegisterExpert] = useState<boolean>(false)
-    
     const [inviteExpertState, setInviteExpertState] = useState<InviteExpertState>({
         isOpen: false,
         email: ""
     })
-    
+
     useEffect(() => {
         const fetchExperts = async () => {
             const allExperts = isAllExpertsSelected
@@ -49,14 +45,14 @@ const ExpertsNotebook: FC = () => {
         };
 
         fetchExperts();
-    }, [isAllExpertsSelected]);
+    }, [isAllExpertsSelected, isOpenRegisterExpert]);
 
 
     const handleIsAllExpertsSelectedChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setIsAllExpertsSelected(event.target.checked)
     };
-    
-    const handleOpenExpertInvitation = (expertEmail : string) => {
+
+    const handleOpenExpertInvitation = (expertEmail: string) => {
         setInviteExpertState({
             email: expertEmail,
             isOpen: true
@@ -70,6 +66,10 @@ const ExpertsNotebook: FC = () => {
         })
     }
 
+    const handleCloseExpertRegistration = () => {
+        setIsOpenRegisterExpert(false);
+    }
+
     return (
         <div className="container" style={{marginBottom: '50px'}}>
             <Grid container style={{marginTop: "15px"}} spacing={2}>
@@ -79,32 +79,48 @@ const ExpertsNotebook: FC = () => {
                             Эксперты
                         </Typography>
                     </Grid>
-                </Grid>
-                <Grid item container>
-                    <Grid item>
+                    <Grid item justify-content={"flex-to-end"}>
                         <FormControlLabel
                             control={<Checkbox size="small" onChange={handleIsAllExpertsSelectedChange}/>}
                             label="Показать всех"/>
                     </Grid>
                 </Grid>
-
+                {/*<Grid item container>*/}
+                {/*    <Grid item>*/}
+                {/*        <FormControlLabel*/}
+                {/*            control={<Checkbox size="small" onChange={handleIsAllExpertsSelectedChange}/>}*/}
+                {/*            label="Показать всех"/>*/}
+                {/*    </Grid>*/}
+                {/*</Grid>*/}
                 <TableContainer>
-                    <Table aria-label="table" size="medium" aria-labelledby="tableTitle">
+                    <Table style={{ tableLayout: 'fixed' }} aria-label="table" size="medium" aria-labelledby="tableTitle">
                         <TableHead>
                             <TableRow>
-                                <TableCell>Почта</TableCell>
-                                <TableCell>ФИО</TableCell>
-                                <TableCell>Компания</TableCell>
-                                <TableCell/>
+                                <TableCell align={"left"}>
+                                    <Typography variant={"h6"} style={{fontSize: '18px' }}>
+                                        Почта
+                                    </Typography>
+                                </TableCell>
+                                <TableCell align={"left"}>
+                                    <Typography variant={"h6"} style={{fontSize: '18px' }}>
+                                        ФИО
+                                    </Typography>
+                                </TableCell>
+                                <TableCell align={"left"}>
+                                    <Typography variant={"h6"} style={{fontSize: '18px'}}>
+                                        Компания
+                                    </Typography>
+                                </TableCell>
+                                <TableCell align={"center"}/>
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {experts.map((row: User) => (
+                                {experts.map((row: User) => (
                                 <TableRow key={row.id}>
-                                    <TableCell>{row.email}</TableCell>
-                                    <TableCell>{row.surname + ' ' + row.name + ' ' + row.middleName}</TableCell>
-                                    <TableCell>{row.companyName}</TableCell>
-                                    <TableCell>
+                                    <TableCell align={"left"}>{row.email}</TableCell>
+                                    <TableCell align={"left"}>{row.surname + ' ' + row.name + ' ' + row.middleName}</TableCell>
+                                    <TableCell align={"left"}>{row.companyName}</TableCell>
+                                    <TableCell align={"center"}>
                                         <Grid container justifyContent="flex-end">
                                             <Grid item>
                                                 <Button
@@ -129,20 +145,19 @@ const ExpertsNotebook: FC = () => {
                                 ariaLabel="SpeedDial example"
                                 icon={<SpeedDialIcon/>}
                                 onClick={() => setIsOpenRegisterExpert(true)}
-                                //onClickCapture={() => false}
                                 open={false}
-                                
-                                sx={{'& .MuiFab-primary': {width: 45, height: 45}}}
+                                sx={{'& .MuiFab-primary': {width: 42, height: 42}}}
                             />
                         </Box>
                     </Grid>
                 </Grid>
             </Grid>
             {isOpenRegisterExpert && (
-                <RegisterExpertModal isOpen={isOpenRegisterExpert} close={() => setIsOpenRegisterExpert(false)}/>
+                <RegisterExpertModal isOpen={isOpenRegisterExpert} close={handleCloseExpertRegistration}/>
             )}
             {inviteExpertState.isOpen && (
-                <InviteExpertModal isOpen={inviteExpertState.isOpen} close={handleCloseExpertInvitation} expertEmail={inviteExpertState.email}/>
+                <InviteExpertModal isOpen={inviteExpertState.isOpen} close={handleCloseExpertInvitation}
+                                   expertEmail={inviteExpertState.email}/>
             )}
         </div>
     );
