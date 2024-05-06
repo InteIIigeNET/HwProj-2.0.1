@@ -2,6 +2,9 @@
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
+import SpeedDial from '@mui/material/SpeedDial';
+import Box from '@mui/material/Box';
+import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
@@ -9,9 +12,13 @@ import {Typography, Grid, Button, Checkbox, FormControlLabel} from "@material-ui
 import {makeStyles} from "@material-ui/styles";
 import {User} from 'api/api';
 import ApiSingleton from "../../api/ApiSingleton";
+import RegisterExpertModal from "../../components/Auth/RegisterExpertModal";
+import InviteExpertModal from "../../components/InviteExpertModal";
+import {Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} from "@mui/material";
 
-interface ICommonState {
-    showAllExperts: boolean
+interface InviteExpertState {
+    isOpen: boolean;
+    email: string;
 }
 
 const useStyles = makeStyles(() => ({
@@ -24,29 +31,46 @@ const ExpertsNotebook: FC = () => {
     const classes = useStyles();
     const [experts, setExperts] = useState<User[]>([]);
 
-    const [state, setState] = useState<ICommonState>({
-        showAllExperts: false
-    })
+    const [isAllExpertsSelected, setIsAllExpertsSelected] = useState<boolean>(false)
 
+    const [isOpenRegisterExpert, setIsOpenRegisterExpert] = useState<boolean>(false)
+    
+    const [inviteExpertState, setInviteExpertState] = useState<InviteExpertState>({
+        isOpen: false,
+        email: ""
+    })
+    
     const userId = ApiSingleton.authService.getUserId()
 
     useEffect(() => {
         const fetchExperts = async () => {
-            const allExperts = state.showAllExperts
+            const allExperts = isAllExpertsSelected
                 ? await ApiSingleton.accountApi.apiAccountGetAllExpertsGet()
                 : await ApiSingleton.accountApi.apiAccountGetExpertsGet(userId);
             setExperts(allExperts);
         };
 
         fetchExperts();
-    }, [state]);
+    }, [isAllExpertsSelected]);
 
 
-    const handleShowAllExpertsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setState({
-            showAllExperts: event.target.checked,
-        });
+    const handleIsAllExpertsSelectedChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setIsAllExpertsSelected(event.target.checked)
     };
+    
+    const handleOpenExpertInvitation = (expertEmail : string) => {
+        setInviteExpertState({
+            email: expertEmail,
+            isOpen: true
+        })
+    }
+
+    const handleCloseExpertInvitation = () => {
+        setInviteExpertState({
+            email: "",
+            isOpen: false
+        })
+    }
 
     return (
         <div className="container" style={{marginBottom: '50px'}}>
@@ -58,6 +82,13 @@ const ExpertsNotebook: FC = () => {
                         </Typography>
                     </Grid>
                 </Grid>
+                <Grid item container>
+                    <Grid item>
+                        <FormControlLabel
+                            control={<Checkbox size="small" onChange={handleIsAllExpertsSelectedChange}/>}
+                            label="Показать всех"/>
+                    </Grid>
+                </Grid>
 
                 <TableContainer>
                     <Table aria-label="table" size="medium" aria-labelledby="tableTitle">
@@ -66,16 +97,7 @@ const ExpertsNotebook: FC = () => {
                                 <TableCell>Почта</TableCell>
                                 <TableCell>ФИО</TableCell>
                                 <TableCell>Компания</TableCell>
-
-                                <TableCell>
-                                    <Grid container justifyContent="flex-end">
-                                        <Grid item>
-                                            <FormControlLabel
-                                                control={<Checkbox size="small" onChange={handleShowAllExpertsChange}/>}
-                                                label="Показать всех"/>
-                                        </Grid>
-                                    </Grid>
-                                </TableCell>
+                                <TableCell/>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -85,10 +107,10 @@ const ExpertsNotebook: FC = () => {
                                     <TableCell>{row.surname + ' ' + row.name + ' ' + row.middleName}</TableCell>
                                     <TableCell>{row.companyName}</TableCell>
                                     <TableCell>
-                                        <Grid container>
+                                        <Grid container justifyContent="flex-end">
                                             <Grid item>
                                                 <Button
-                                                    //onClick={}
+                                                    onClick={() => handleOpenExpertInvitation(row.email!)}
                                                     color="primary"
                                                     size="small"
                                                 >
@@ -100,10 +122,30 @@ const ExpertsNotebook: FC = () => {
                                 </TableRow>
                             ))}
                         </TableBody>
-                        
                     </Table>
                 </TableContainer>
+                <Grid item container>
+                    <Grid item>
+                        <Box sx={{fontSize: 100}}>
+                            <SpeedDial
+                                ariaLabel="SpeedDial example"
+                                icon={<SpeedDialIcon/>}
+                                onClick={() => setIsOpenRegisterExpert(true)}
+                                //onClickCapture={() => false}
+                                open={false}
+                                
+                                sx={{'& .MuiFab-primary': {width: 45, height: 45}}}
+                            />
+                        </Box>
+                    </Grid>
+                </Grid>
             </Grid>
+            {isOpenRegisterExpert && (
+                <RegisterExpertModal isOpen={isOpenRegisterExpert} close={() => setIsOpenRegisterExpert(false)}/>
+            )}
+            {inviteExpertState.isOpen && (
+                <InviteExpertModal isOpen={inviteExpertState.isOpen} close={handleCloseExpertInvitation} expertEmail={inviteExpertState.email}/>
+            )}
         </div>
     );
 }
