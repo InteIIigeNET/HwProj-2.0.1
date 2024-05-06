@@ -83,19 +83,19 @@ const StudentStatsChart: React.FC = () => {
     if (state.isFound) {
         return (
             <div className="container">
-                <Grid container spacing={3} style={{marginBottom: 20, marginTop: 20}}>
+                <Grid container spacing={1} style={{marginBottom: 10, marginTop: 20}}>
                     <Grid item container direction='row' spacing={1}
                           justifyContent={"space-between"}
                           alignContent={"center"}
-                          alignItems={"center"}
+                          alignItems={"baseline"}
                           position={"sticky"}
+                          paddingTop={-24}
                           top={0}
                           style={{
                               backgroundColor: "white",
                               zIndex: 100
                           }}>
-                        <Grid item container direction='column' xs={"auto"}
-                              style={{marginTop: -20}}>
+                        <Grid item container direction='column' xs={"auto"}>
                             <Grid item>
                                 <Typography style={{fontSize: '22px'}}>
                                     {`${state.course.name} / ${state.course.groupName}`}
@@ -107,7 +107,7 @@ const StudentStatsChart: React.FC = () => {
                             </Grid>
                         </Grid>
                         {state.isSelectionMode &&
-                            <Grid item style={{marginTop: -20}}>
+                            <Grid item>
                                 <StudentCheckboxList
                                     mates={[...state.solutions.map(s => ({
                                         id: s.id!,
@@ -118,8 +118,8 @@ const StudentStatsChart: React.FC = () => {
                             </Grid>
                         }
                     </Grid>
-                    <Grid item xs={12} style={{marginBottom: 10}}>
-                        <Box mb={8}>
+                    <Grid xs={12} item>
+                        <Box mt={3} mb={8}>
                             <Paper elevation={2}>
                                 <Typography variant="h6" align="center" color="textSecondary">
                                     Анализ прогресса студентов
@@ -141,8 +141,10 @@ const StudentStatsChart: React.FC = () => {
                                 <HelpPopoverChartInfo chartName='punctuality'/>
                             </Typography>
                         </Box>}
-                        {selectedStudents.map((studentId, index) => {
-                            return <Box key={studentId} mb={3}>
+                    </Grid>
+                    {selectedStudents.map((studentId, index) =>
+                        <Grid xs={12} item>
+                            <Box key={studentId} mb={3}>
                                 <Paper elevation={2} style={{padding: 15}}>
                                     <Typography variant="h6" style={{marginBottom: 7}} color="textSecondary">
                                         {nameById(studentId)}
@@ -155,8 +157,7 @@ const StudentStatsChart: React.FC = () => {
                                     />
                                 </Paper>
                             </Box>
-                        })}
-                    </Grid>
+                        </Grid>)}
                 </Grid>
             </div>
         )
