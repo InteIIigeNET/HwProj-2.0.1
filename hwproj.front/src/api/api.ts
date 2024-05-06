@@ -137,6 +137,44 @@ export interface AccountDataDto {
 /**
  * 
  * @export
+ * @interface AdvancedCourseStatisticsViewModel
+ */
+export interface AdvancedCourseStatisticsViewModel {
+    /**
+     * 
+     * @type {CoursePreview}
+     * @memberof AdvancedCourseStatisticsViewModel
+     */
+    course?: CoursePreview;
+    /**
+     * 
+     * @type {Array<HomeworkViewModel>}
+     * @memberof AdvancedCourseStatisticsViewModel
+     */
+    homeworks?: Array<HomeworkViewModel>;
+    /**
+     * 
+     * @type {Array<StatisticsCourseMatesModel>}
+     * @memberof AdvancedCourseStatisticsViewModel
+     */
+    studentStatistics?: Array<StatisticsCourseMatesModel>;
+    /**
+     * 
+     * @type {Array<StatisticsCourseMeasureSolutionModel>}
+     * @memberof AdvancedCourseStatisticsViewModel
+     */
+    averageStudentSolutions?: Array<StatisticsCourseMeasureSolutionModel>;
+    /**
+     * 
+     * @type {Array<StatisticsCourseMeasureSolutionModel>}
+     * @memberof AdvancedCourseStatisticsViewModel
+     */
+    bestStudentSolutions?: Array<StatisticsCourseMeasureSolutionModel>;
+}
+
+/**
+ * 
+ * @export
  * @interface CategorizedNotifications
  */
 export interface CategorizedNotifications {
@@ -213,6 +251,44 @@ export interface CourseEvents {
      * @memberof CourseEvents
      */
     newStudentsCount?: number;
+}
+
+/**
+ * 
+ * @export
+ * @interface CoursePreview
+ */
+export interface CoursePreview {
+    /**
+     * 
+     * @type {number}
+     * @memberof CoursePreview
+     */
+    id?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof CoursePreview
+     */
+    name?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CoursePreview
+     */
+    groupName?: string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof CoursePreview
+     */
+    isCompleted?: boolean;
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof CoursePreview
+     */
+    mentorIds?: Array<string>;
 }
 
 /**
@@ -1206,6 +1282,12 @@ export interface Solution {
     publicationDate?: Date;
     /**
      * 
+     * @type {Date}
+     * @memberof Solution
+     */
+    ratingDate?: Date;
+    /**
+     * 
      * @type {string}
      * @memberof Solution
      */
@@ -1356,6 +1438,12 @@ export interface SolutionViewModel {
      * @memberof SolutionViewModel
      */
     rating?: number;
+    /**
+     * 
+     * @type {Date}
+     * @memberof SolutionViewModel
+     */
+    ratingDate?: Date;
 }
 
 /**
@@ -1408,6 +1496,32 @@ export interface StatisticsCourseMatesModel {
      * @memberof StatisticsCourseMatesModel
      */
     homeworks?: Array<StatisticsCourseHomeworksModel>;
+}
+
+/**
+ * 
+ * @export
+ * @interface StatisticsCourseMeasureSolutionModel
+ */
+export interface StatisticsCourseMeasureSolutionModel {
+    /**
+     * 
+     * @type {number}
+     * @memberof StatisticsCourseMeasureSolutionModel
+     */
+    rating?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof StatisticsCourseMeasureSolutionModel
+     */
+    taskId?: number;
+    /**
+     * 
+     * @type {Date}
+     * @memberof StatisticsCourseMeasureSolutionModel
+     */
+    publicationDate?: Date;
 }
 
 /**
@@ -6239,6 +6353,42 @@ export const StatisticsApiFetchParamCreator = function (configuration?: Configur
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
+        apiStatisticsByCourseIdChartsGet(courseId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'courseId' is not null or undefined
+            if (courseId === null || courseId === undefined) {
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiStatisticsByCourseIdChartsGet.');
+            }
+            const localVarPath = `/api/Statistics/{courseId}/charts`
+                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
         apiStatisticsByCourseIdGet(courseId: number, options: any = {}): FetchArgs {
             // verify required parameter 'courseId' is not null or undefined
             if (courseId === null || courseId === undefined) {
@@ -6320,6 +6470,24 @@ export const StatisticsApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
+        apiStatisticsByCourseIdChartsGet(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<AdvancedCourseStatisticsViewModel> {
+            const localVarFetchArgs = StatisticsApiFetchParamCreator(configuration).apiStatisticsByCourseIdChartsGet(courseId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
         apiStatisticsByCourseIdGet(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<StatisticsCourseMatesModel>> {
             const localVarFetchArgs = StatisticsApiFetchParamCreator(configuration).apiStatisticsByCourseIdGet(courseId, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
@@ -6365,6 +6533,15 @@ export const StatisticsApiFactory = function (configuration?: Configuration, fet
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
+        apiStatisticsByCourseIdChartsGet(courseId: number, options?: any) {
+            return StatisticsApiFp(configuration).apiStatisticsByCourseIdChartsGet(courseId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
         apiStatisticsByCourseIdGet(courseId: number, options?: any) {
             return StatisticsApiFp(configuration).apiStatisticsByCourseIdGet(courseId, options)(fetch, basePath);
         },
@@ -6387,6 +6564,17 @@ export const StatisticsApiFactory = function (configuration?: Configuration, fet
  * @extends {BaseAPI}
  */
 export class StatisticsApi extends BaseAPI {
+    /**
+     * 
+     * @param {number} courseId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StatisticsApi
+     */
+    public apiStatisticsByCourseIdChartsGet(courseId: number, options?: any) {
+        return StatisticsApiFp(this.configuration).apiStatisticsByCourseIdChartsGet(courseId, options)(this.fetch, this.basePath);
+    }
+
     /**
      * 
      * @param {number} courseId 

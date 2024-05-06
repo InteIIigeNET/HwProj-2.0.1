@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -206,6 +207,52 @@ namespace HwProj.SolutionsService.API.Controllers
             };
 
             var result = SolutionsStatsDomain.GetCourseStatistics(solutionsStatsContext);
+            return Ok(result);
+        }
+
+        [HttpGet("getBenchmarkStat/{courseId}")]
+        [ProducesResponseType(typeof(StatisticsCourseStudentsBenchmarkDTO), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetBenchmarkStats(long courseId)
+        {
+            var course = await _coursesClient.GetCourseById(courseId);
+            if (course == null) return NotFound();
+            
+            var taskIds = course.Homeworks
+                .SelectMany(t => t.Tasks)
+                .Select(t => t.Id)
+                .ToArray();
+            var solutions = await _solutionsRepository.FindAll(t => taskIds.Contains(t.TaskId)).ToListAsync();
+            
+            var averageStudentSolutions = solutions
+                .GroupBy(e => new { Id = e.GroupId is {} groupId ? groupId.ToString() : e.StudentId, e.TaskId })
+                .Select(e => e
+                    .OrderByDescending(s => s.PublicationDate)
+                    .FirstOrDefault(s => s.State != SolutionState.Posted))
+                .Where(e => e != null)
+                .GroupBy(e => e.TaskId)
+                .Select(e => new StatisticsCourseMeasureSolutionModel
+                {
+                    TaskId = e.Key,
+                    Rating = e.Sum(s => s.Rating) / (double)e.Count(), // на данный момент берем среднее от сданных решений
+                    PublicationDate = new DateTime((long)e.Average(s => s.PublicationDate.Ticks))
+                }).ToArray();
+            
+            var bestStudentSolutions = course.Homeworks
+                .SelectMany(e => e.Tasks)
+                .Select(task => new StatisticsCourseMeasureSolutionModel
+                {
+                    TaskId = task.Id,
+                    Rating = task.MaxRating,
+                    PublicationDate = task.PublicationDate ?? DateTime.MinValue
+                }).ToArray();
+
+            var result = new StatisticsCourseStudentsBenchmarkDTO
+            {
+                CourseId = courseId,
+                AverageStudentSolutions = averageStudentSolutions,
+                BestStudentSolutions = bestStudentSolutions
+            };
+
             return Ok(result);
         }
 

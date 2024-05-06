@@ -19,6 +19,7 @@
     "@types/classnames": "^2.3.1",
     "@types/jwt-decode": "^2.2.1",
     "@types/react-syntax-highlighter": "^10.2.1",
+    "@types/recharts": "^1.8.29",
     "@types/remarkable": "^1.7.4",
     "@types/request": "^2.48.7",
     "axios": "^0.21.2",
@@ -41,7 +42,8 @@
     "react-router-dom": "^6.5.0",
     "react-scripts": "^4.0.3",
     "react-social-login-buttons": "^3.5.1",
-    "react-syntax-highlighter": "^15.5.0"
+    "react-syntax-highlighter": "^15.5.0",
+    "recharts": "^2.12.3"
   },
   "scripts": {
     "start": "react-scripts start",

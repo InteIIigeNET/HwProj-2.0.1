@@ -1,11 +1,13 @@
 import React, {useEffect, useState} from "react";
 import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api/";
+import {useNavigate, useParams} from 'react-router-dom';
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
-import {Alert, Chip} from "@mui/material";
+import {Alert, Chip, Button} from "@mui/material";
 import {grey} from "@material-ui/core/colors";
 import HomeworkTags from "../Common/HomeworkTags";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
+import ShowChartIcon from "@mui/icons-material/ShowChart";
 
 interface IStudentStatsProps {
     course: CourseViewModel;
@@ -25,6 +27,11 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
     const [state, setSearched] = useState<IStudentStatsState>({
         searched: ""
     });
+    const {courseId} = useParams();
+    const navigate = useNavigate();
+    const handleClick = () => {
+        navigate(`/statistics/${courseId}/charts`)
+    }
 
     const {searched} = state
 
@@ -125,7 +132,15 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                         </TableRow>
                         <TableRow>
                             <TableCell style={{zIndex: 10}}
-                                       component="td"></TableCell>
+                                       component="td">
+                                {solutions.length > 0 &&
+                                    <Button startIcon={<ShowChartIcon/>} color="primary"
+                                            style={{backgroundColor: 'transparent'}} size='medium'
+                                            onClick={handleClick}>
+                                        Графики
+                                    </Button>
+                                }
+                            </TableCell>
                             {hasHomeworks && <TableCell padding="checkbox" component="td" align="center"
                                                         style={{
                                                             minWidth: 70,
