@@ -1,4 +1,4 @@
-﻿import React, {FC, FormEvent, useEffect, useState} from 'react'
+﻿import React, {FC, useEffect, useState} from 'react'
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
@@ -9,9 +9,8 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import ApiSingleton from "../api/ApiSingleton";
 import Typography from "@material-ui/core/Typography";
 import Grid from '@material-ui/core/Grid';
-import {Autocomplete} from "@material-ui/lab";
-import {AccountDataDto} from "../api";
-import {Box} from "@material-ui/core";
+import {IconButton} from "@material-ui/core";
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 interface IInviteExpertProps {
     isOpen: boolean;
@@ -19,7 +18,26 @@ interface IInviteExpertProps {
     expertEmail: string;
 }
 
+const handleCopyClick = (textToCopy : string) => {
+    navigator.clipboard.writeText(textToCopy);
+}
+
 const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
+
+    const [invitationLink, setInvitationLink] = useState<string>("");
+    
+    const setCurrentState = async () => {
+
+        const expertToken = await ApiSingleton.accountApi.apiAccountGetExpertTokenGet(props.expertEmail);
+        const invitationLink = ApiSingleton.authService.buildInvitationLink(expertToken!.value!.accessToken!);
+
+        setInvitationLink(invitationLink);
+    }
+
+    useEffect(() => {
+        setCurrentState()
+    }, [])
+    
     return (
         <div>
             <Dialog open={props.isOpen} onClose={props.close} aria-labelledby="dialog-title">
@@ -29,15 +47,25 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
                 <DialogContent>
                     <DialogContentText>
                         <Typography>
-                            Для приглашения эксперта отправьте ему ссылку.
+                            Для приглашения эксперта поделитесь с ним ссылкой:
                         </Typography>
-                        <Grid container justifyContent="flex-end">
-                            <Grid item xs={12}>
-                                {/*                    <div style={{marginTop: '3px'}}>*/}
-                                {/*                        /!*<DefaultCopyField*!/*/}
-                                {/*                        /!*    label="Ссылка"*!/*/}
-                                {/*                        /!*    value={ApiSingleton.authService.buildInvitationLink(commonState.expertToken!)}*!/*/}
-                                {/*                        /!*    fullWidth*!/*/}
+                        <Grid container>
+                            <Grid item xs={12} sm={10}>
+                                <TextField
+                                    id="outlined-read-only-input"
+                                    label=""
+                                    InputProps={{
+                                        readOnly: true,
+                                    }}
+                                    variant="standard"
+                                    fullWidth
+                                    value={invitationLink}
+                                />
+                            </Grid>
+                            <Grid item sm={2}>
+                                <IconButton onClick={() => handleCopyClick(invitationLink)} color="primary">
+                                    <ContentCopyIcon />
+                                </IconButton>
                             </Grid>
                             <Grid
                                 direction="row"

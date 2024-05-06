@@ -72,7 +72,7 @@ namespace HwProj.AuthService.API.Controllers
             return Ok(result);
         }
 
-        [HttpPost("registerExpert")]
+        [HttpPost("registerExpert/{lecturerId}")]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> RegisterExpert([FromBody] RegisterExpertViewModel model, string lecturerId)
         {
@@ -178,7 +178,7 @@ namespace HwProj.AuthService.API.Controllers
             return Ok(result);
         }
         
-        [HttpGet("getExperts")]
+        [HttpGet("getExperts/{userId}")]
         [ProducesResponseType(typeof(User[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetExperts(string userId)
         {

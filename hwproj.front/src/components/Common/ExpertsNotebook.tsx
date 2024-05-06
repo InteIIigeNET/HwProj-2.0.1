@@ -40,13 +40,11 @@ const ExpertsNotebook: FC = () => {
         email: ""
     })
     
-    const userId = ApiSingleton.authService.getUserId()
-
     useEffect(() => {
         const fetchExperts = async () => {
             const allExperts = isAllExpertsSelected
                 ? await ApiSingleton.accountApi.apiAccountGetAllExpertsGet()
-                : await ApiSingleton.accountApi.apiAccountGetExpertsGet(userId);
+                : await ApiSingleton.accountApi.apiAccountGetExpertsGet();
             setExperts(allExperts);
         };
 

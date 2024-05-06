@@ -74,11 +74,11 @@ namespace HwProj.AuthService.Client
             return await response.DeserializeAsync<Result<TokenCredentials>>();
         }
 
-        public async Task<Result> RegisterExpert(RegisterExpertViewModel model)
+        public async Task<Result> RegisterExpert(RegisterExpertViewModel model, string lecturerId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _authServiceUri + "api/account/registerExpert")
+                _authServiceUri + $"api/account/registerExpert/{lecturerId}")
             {
                 Content = new StringContent(
                     JsonConvert.SerializeObject(model),
@@ -209,7 +209,7 @@ namespace HwProj.AuthService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
-                _authServiceUri + "api/account/getExperts");
+                _authServiceUri + $"api/account/getExperts/{userId}");
 
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<User[]>().ConfigureAwait(false);

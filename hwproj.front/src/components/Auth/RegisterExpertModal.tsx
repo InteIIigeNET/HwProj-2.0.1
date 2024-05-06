@@ -69,6 +69,8 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
     const [isRegisterButtonDisabled, setIsRegisterButtonDisabled] = useState<boolean>(false); // Состояние для блокировки кнопки
     const [isOpenRegisterResult, setIsOpenRegisterExpertResult] = useState<boolean>(false)
     
+    const lecturerId = ApiSingleton.authService.getUserId();
+    
     const handleSubmit = async (e: any) => {
         e.preventDefault();
         if (!isCorrectEmail(registerState.email)) {
@@ -79,11 +81,11 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
             return
         }
         try {
-            const result = await ApiSingleton.authService.registerExpert(registerState);
+            const result = await ApiSingleton.accountApi.apiAccountRegisterExpertPost(registerState);
             setCommonState((prevState) => ({
                 ...prevState,
-                errors: result!.error!,
-                info: result.loggedIn
+                errors: result!.errors! ?? [],
+                isSuccessful: result.succeeded
             }));
             openRegisterResult();
         }
