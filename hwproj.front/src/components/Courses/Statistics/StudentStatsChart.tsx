@@ -79,8 +79,8 @@ const StudentStatsChart: React.FC = () => {
             </Link>
         )
     }
-    
-    const tasksAmount = state.homeworks.flatMap(h => h.tasks).length
+
+    const tasksAmount = state.homeworks.reduce((acc, h) => acc + (h.tasks?.length ?? 0), 0);
 
     if (state.isFound && tasksAmount) {
         return (
