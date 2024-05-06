@@ -74,7 +74,7 @@ namespace HwProj.AuthService.Client
             return await response.DeserializeAsync<Result<TokenCredentials>>();
         }
 
-        public async Task<Result<TokenCredentials>> RegisterExpert(RegisterExpertViewModel model)
+        public async Task<Result> RegisterExpert(RegisterExpertViewModel model)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
@@ -87,7 +87,7 @@ namespace HwProj.AuthService.Client
             };
 
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<Result<TokenCredentials>>();
+            return await response.DeserializeAsync<Result>();
         }
 
         public async Task<Result<TokenCredentials>> Login(LoginViewModel model)
@@ -111,6 +111,16 @@ namespace HwProj.AuthService.Client
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
                 _authServiceUri + $"api/account/refreshToken?userId={userId}");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<Result<TokenCredentials>>();
+        }
+
+        public async Task<Result<TokenCredentials>> GetExpertToken(string expertEmail)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _authServiceUri + $"api/account/getExpertToken?expertEmail={expertEmail}");
 
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Result<TokenCredentials>>();

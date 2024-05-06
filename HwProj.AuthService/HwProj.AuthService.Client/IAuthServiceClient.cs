@@ -11,9 +11,10 @@ namespace HwProj.AuthService.Client
         Task<AccountDataDto> GetAccountDataByEmail(string email);
         Task<AccountDataDto[]> GetAccountsData(string[] userId);
         Task<Result<TokenCredentials>> Register(RegisterViewModel model);
-        Task<Result<TokenCredentials>> RegisterExpert(RegisterExpertViewModel model);
+        Task<Result> RegisterExpert(RegisterExpertViewModel model);
         Task<Result<TokenCredentials>> Login(LoginViewModel model);
         Task<Result<TokenCredentials>> RefreshToken(string userId);
+        Task<Result<TokenCredentials>> GetExpertToken(string expertEmail);
         Task<Result> Edit(EditAccountViewModel model, string userId);
         Task<Result> InviteNewLecturer(InviteLecturerViewModel model);
         Task<Result> EditExternal(EditExternalViewModel model, string userId);

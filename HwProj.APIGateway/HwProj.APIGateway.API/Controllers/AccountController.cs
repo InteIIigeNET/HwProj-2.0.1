@@ -106,7 +106,7 @@ namespace HwProj.APIGateway.API.Controllers
         }
 
         [HttpPost("registerExpert")]
-        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> RegisterExpert(RegisterExpertViewModel model)
         {
             var result = await AuthServiceClient.RegisterExpert(model);
@@ -129,7 +129,16 @@ namespace HwProj.APIGateway.API.Controllers
             var tokenMeta = await AuthServiceClient.RefreshToken(UserId!);
             return Ok(tokenMeta);
         }
-
+        
+        [Authorize]
+        [HttpGet("getExpertToken")]
+        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetExpertToken(string expertEmail)
+        {
+            var tokenMeta = await AuthServiceClient.GetExpertToken(expertEmail);
+            return Ok(tokenMeta);
+        }
+        
         [HttpPut("edit")]
         [Authorize]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
