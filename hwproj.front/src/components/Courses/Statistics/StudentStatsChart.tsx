@@ -80,7 +80,9 @@ const StudentStatsChart: React.FC = () => {
         )
     }
 
-    if (state.isFound) {
+    const tasksAmount = state.homeworks.reduce((acc, h) => acc + (h.tasks?.length ?? 0), 0);
+
+    if (state.isFound && tasksAmount) {
         return (
             <div className="container">
                 <Grid container spacing={1} style={{marginBottom: 10, marginTop: 20}}>
