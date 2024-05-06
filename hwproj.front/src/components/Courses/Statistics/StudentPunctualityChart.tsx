@@ -79,7 +79,7 @@ const CustomXAxisTick = (props : any) => {
         .some(word => word.length > maxWordSize)
     
     return (
-        <MuiTooltip open={open && isClipped} title={title}
+        <MuiTooltip open={open && isClipped} title={title} arrow
                     onMouseEnter={() => setOpen(true)}
                     onMouseLeave={() => setOpen(false)}
                     placement="top">
