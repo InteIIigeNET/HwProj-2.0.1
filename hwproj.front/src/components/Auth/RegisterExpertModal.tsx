@@ -1,20 +1,15 @@
-﻿import React, {FC, useState, useEffect} from "react";
+﻿import React, {FC, useState} from "react";
 import TextField from "@material-ui/core/TextField";
-import {Select, MenuItem, InputLabel, FormControl, Dialog, DialogTitle,
-    DialogContent, DialogContentText, DialogActions} from "@mui/material";
+import {Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions} from "@mui/material";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
-import {Navigate} from "react-router-dom";
 import ApiSingleton from "../../api/ApiSingleton";
-import { RegisterExpertViewModel, CoursePreviewView, HomeworkViewModel } from "../../api/";
+import { RegisterExpertViewModel } from "../../api/";
 import "./Styles/Register.css";
-import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
 import makeStyles from "@material-ui/styles/makeStyles";
 import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined';
 import Avatar from "@material-ui/core/Avatar";
-import Utils from "../../services/Utils";
-// import {CopyField, DefaultCopyField} from "@eisberg-labs/mui-copy-field";
 
 interface  IRegisterExpertProps {
     isOpen: boolean;
@@ -23,7 +18,7 @@ interface  IRegisterExpertProps {
 
 interface IRegisterExpertState {
     errors: string[];
-    isSuccessful: boolean | undefined;
+    isRegisterSuccessful: boolean | undefined;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -64,19 +59,15 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
     
     const [commonState, setCommonState] = useState<IRegisterExpertState>({
         errors: [],
-        isSuccessful: undefined
+        isRegisterSuccessful: undefined
     })
-    const [isRegisterButtonDisabled, setIsRegisterButtonDisabled] = useState<boolean>(false); // Состояние для блокировки кнопки
-    const [isOpenRegisterResult, setIsOpenRegisterExpertResult] = useState<boolean>(false)
-    
-    const lecturerId = ApiSingleton.authService.getUserId();
     
     const handleSubmit = async (e: any) => {
         e.preventDefault();
         if (!isCorrectEmail(registerState.email)) {
             setCommonState((prevState) => ({
                 ...prevState,
-                errors: ['Некорректный адрес электронной почты.']
+                errors: ['Некорректный адрес электронной почты']
             }))
             return
         }
@@ -84,10 +75,9 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
             const result = await ApiSingleton.accountApi.apiAccountRegisterExpertPost(registerState);
             setCommonState((prevState) => ({
                 ...prevState,
-                errors: result!.errors! ?? [],
+                errors: result!.errors ?? [],
                 isSuccessful: result.succeeded
             }));
-            openRegisterResult();
         }
         catch (e) {
             setCommonState((prevState) => ({
@@ -96,15 +86,7 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
             }))
         }
     }
-
-    const closeRegisterResult = () => {
-        setIsOpenRegisterExpertResult(false)
-    }
-
-    const openRegisterResult = () => {
-        setIsOpenRegisterExpertResult(true)
-    }
-
+    
     const close = () => {
         setRegisterState({
             name: "",
@@ -139,6 +121,9 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
                         <Grid item container direction={"row"} justifyContent={"center"}>
                             {commonState.errors.length > 0 && (
                                 <p style={{ color: "red", marginBottom: "0" }}>{commonState.errors}</p>
+                            )}
+                            {commonState.isRegisterSuccessful && (
+                                <p style={{color: "green", marginBottom: "0"}}>Эксперт успешно зарегистрирован</p>
                             )}
                         </Grid>
                         <form onSubmit={handleSubmit} className={classes.form}>
@@ -255,7 +240,6 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
                                         onClick={close}
                                         color="primary"
                                         variant="contained"
-                                        size="small"
                                         style={{marginRight: '10px'}}
                                     >
                                         Закрыть
@@ -267,8 +251,6 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
                                         variant="contained"
                                         color="primary"
                                         type="submit"
-                                        size="small"
-                                        disabled={isRegisterButtonDisabled}
                                     >
                                         Зарегистрировать
                                     </Button>

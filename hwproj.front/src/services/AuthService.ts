@@ -51,7 +51,10 @@ export default class AuthService {
     }
     
     buildInvitationLink(token : string) {
-        return `https://hwproj.ru/join/${token}`;
+        const port = window.location.port
+        return port === '' ?
+            `${window.location.protocol}//${window.location.hostname}/join/${token}` :
+            `${window.location.protocol}//${window.location.hostname}:${window.location.port}/join/${token}`;
     }
 
     isLoggedIn() {
@@ -68,24 +71,7 @@ export default class AuthService {
             return false;
         }
     }
-
-    async isTokenValid(token: any) {
-        try {
-            let decoded = decode<TokenPayload>(token);
-            if (decoded.exp < Date.now() / 1000) {
-                return false;
-            }
-            let userData = await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(decoded._id);
-            if (userData.email !== decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"]) {
-                return false;
-            }
-            
-            return true;
-        } catch (err) {
-            return false;
-        }
-    }
-
+    
     setToken = (idToken: string) => localStorage.setItem("id_token", idToken);
 
     refreshToken = (idToken: string) => {

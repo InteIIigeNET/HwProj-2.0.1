@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using HwProj.Utils.Configuration;
 using HwProj.Models.AuthService.ViewModels;
+using HwProj.Models.Roles;
 using HwProj.Utils.Auth;
 
 namespace HwProj.AuthService.API

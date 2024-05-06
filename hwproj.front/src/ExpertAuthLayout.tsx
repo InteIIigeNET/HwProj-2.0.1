@@ -1,7 +1,7 @@
 ﻿import {Navigate, Outlet, useParams} from 'react-router-dom';
 import React, {FC, useEffect, useState} from "react";
 import ApiSingleton from "./api/ApiSingleton";
-import EditProfile from "./components/EditProfile";
+import ExpertEditProfile from "./components/ExpertEditProfile";
 import {Box, CircularProgress, Paper, Typography} from "@material-ui/core";
 import {Center} from "@skbkontur/react-ui";
 
@@ -12,11 +12,11 @@ const ExpertAuthLayout: FC = () => {
 
     useEffect(() => {
         const checkToken = async () => {
-            const isValid = await ApiSingleton.authService.isTokenValid(token);
-            if (isValid) {
+            const isExpired = await ApiSingleton.authService.isTokenExpired(token);
+            if (!isExpired) {
                 ApiSingleton.authService.setToken(token!);
             }
-            setIsTokenValid(isValid);
+            setIsTokenValid(!isExpired);
             setIsLoading(false);
         };
 
@@ -32,7 +32,7 @@ const ExpertAuthLayout: FC = () => {
         </Center>
     ) : (
         isTokenValid ? (
-            <EditProfile/>
+            <ExpertEditProfile/>
         ) : (
             <Center>
                 <Box sx={{minWidth: 150, marginTop: 15}}>
