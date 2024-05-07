@@ -109,6 +109,20 @@ namespace HwProj.AuthService.API.Services
 
             return result.Succeeded ? Result.Success() : Result.Failed();
         }
+        
+        public async Task<Result> EditExpertAccountAsync(string id, EditExpertViewModel model)
+        {
+            var expert = await _userManager.FindByIdAsync(id);
+            if (expert == null)
+            {
+                return Result.Failed("Пользователь не найден");
+            }
+
+            var result = await ChangeExpertDataTask(expert, model);
+
+            return result.Succeeded ? Result.Success() : Result.Failed();
+        }
+
 
         public async Task<Result<TokenCredentials>> LoginUserAsync(LoginViewModel model)
         {
@@ -418,6 +432,48 @@ namespace HwProj.AuthService.API.Services
             }
 
             return _userManager.UpdateAsync(user);
+        }
+
+        private Task<IdentityResult> ChangeExpertDataTask(User expert, EditExpertViewModel model)
+        {
+            if (!string.IsNullOrWhiteSpace(model.Email))
+            {
+                expert.Email = model.Email;
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.Name))
+            {
+                expert.Name = model.Name;
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.Name))
+            {
+                expert.Surname = model.Surname;
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.Name))
+            {
+                expert.MiddleName = model.MiddleName;
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.CompanyName))
+            {
+                expert.CompanyName = model.CompanyName;
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.Bio))
+            {
+                expert.Bio = model.Bio;
+            }
+
+            return _userManager.UpdateAsync(expert);
+        }
+
+        private Task<IdentityResult> ChangePasswordAsync(User user, EditDataDTO model)
+        {
+            return !string.IsNullOrWhiteSpace(model.NewPassword)
+                ? _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword)
+                : Task.FromResult(IdentityResult.Success);
         }
 
         private async Task SignIn(User user, string password)

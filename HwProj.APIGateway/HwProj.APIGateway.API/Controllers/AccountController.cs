@@ -120,6 +120,14 @@ namespace HwProj.APIGateway.API.Controllers
             var tokenMeta = await AuthServiceClient.Login(model).ConfigureAwait(false);
             return Ok(tokenMeta);
         }
+        
+        [HttpPost("loginExpert")]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> LoginExpert(TokenCredentials credentials)
+        {
+            var result = await AuthServiceClient.LoginExpert(credentials).ConfigureAwait(false);
+            return Ok(result);
+        }
 
         [Authorize]
         [HttpGet("refreshToken")]
@@ -145,6 +153,15 @@ namespace HwProj.APIGateway.API.Controllers
         public async Task<IActionResult> Edit(EditAccountViewModel model)
         {
             var result = await AuthServiceClient.Edit(model, UserId);
+            return Ok(result);
+        }
+        
+        [HttpPut("editExpert")]
+        [Authorize]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> EditExpert(EditExpertViewModel model)
+        {
+            var result = await AuthServiceClient.EditExpert(model, UserId);
             return Ok(result);
         }
 
