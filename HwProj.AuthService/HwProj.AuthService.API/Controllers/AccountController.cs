@@ -89,7 +89,7 @@ namespace HwProj.AuthService.API.Controllers
         }
         
         [HttpPost("loginExpert")]
-        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> LoginExpert(TokenCredentials tokenCredentials)
         {
             var result = await _accountService.LoginExpertAsync(tokenCredentials).ConfigureAwait(false);
@@ -119,6 +119,14 @@ namespace HwProj.AuthService.API.Controllers
         {
             var newModel = _mapper.Map<EditDataDTO>(model);
             var result = await _accountService.EditAccountAsync(userId, newModel);
+            return Ok(result);
+        }
+        
+        [HttpPut("editExpert/{expertId}")]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> Edit([FromBody] EditExpertViewModel model, string expertId)
+        {
+            var result = await _accountService.EditExpertAccountAsync(expertId, model);
             return Ok(result);
         }
 

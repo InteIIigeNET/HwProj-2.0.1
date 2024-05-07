@@ -4,23 +4,32 @@ import ApiSingleton from "./api/ApiSingleton";
 import ExpertEditProfile from "./components/ExpertEditProfile";
 import {Box, CircularProgress, Paper, Typography} from "@material-ui/core";
 import {Center} from "@skbkontur/react-ui";
+import {TokenCredentials} from "api/api";
 
 const ExpertAuthLayout: FC = () => {
     const {token} = useParams();
+    const credentials : TokenCredentials = {
+        accessToken: token
+    }
     const [isTokenValid, setIsTokenValid] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const checkToken = async () => {
-            const isExpired = await ApiSingleton.authService.isTokenExpired(token);
+            const isExpired = ApiSingleton.authService.isTokenExpired(token);
             if (!isExpired) {
-                ApiSingleton.authService.setToken(token!);
+                const isExpertLoggedIn = await ApiSingleton.accountApi.apiAccountLoginExpertPost(credentials)
+                if (isExpertLoggedIn.succeeded) {
+                    ApiSingleton.authService.setToken(token!);
+                    setIsTokenValid(true);
+                    return
+                }
             }
-            setIsTokenValid(!isExpired);
-            setIsLoading(false);
+            setIsTokenValid(false);
         };
 
         checkToken();
+        setIsLoading(false);
     }, [token]);
 
     return isLoading ? (

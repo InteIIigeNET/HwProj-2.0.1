@@ -4,11 +4,11 @@ import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import ApiSingleton from "../api/ApiSingleton";
-import {RegisterExpertViewModel} from "../api/";
+import {RegisterExpertViewModel, EditExpertViewModel} from "../api/";
 import Grid from "@material-ui/core/Grid";
 import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined';
 import Avatar from "@material-ui/core/Avatar";
-import {Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Container} from "@mui/material";
+import {Container} from "@mui/material";
 import {Navigate} from "react-router-dom";
 
 interface IRegisterExpertState {
@@ -39,7 +39,7 @@ const isCorrectEmail = (email: string) => {
 }
 
 const ExpertEditProfile: FC = () => {
-    const [editProfileState, setEditProfileState] = useState<RegisterExpertViewModel>({
+    const [editProfileState, setEditProfileState] = useState<EditExpertViewModel>({
         name: "",
         surname: "",
         middleName: "",
@@ -58,15 +58,17 @@ const ExpertEditProfile: FC = () => {
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
-        if (!isCorrectEmail(editProfileState.email)) {
-            setCommonState((prevState) => ({
-                ...prevState,
-                errors: ['Некорректный адрес электронной почты']
-            }))
-            return
+        if (editProfileState.email !== undefined && editProfileState.email !== "") {
+            if (!isCorrectEmail(editProfileState.email)) {
+                setCommonState((prevState) => ({
+                    ...prevState,
+                    errors: ['Некорректный адрес электронной почты']
+                }))
+                return
+            }
         }
         try {
-            const result = await ApiSingleton.accountApi.apiAccountRegisterExpertPost(editProfileState);
+            const result = await ApiSingleton.accountApi.apiAccountEditExpertPut(editProfileState);
             result.succeeded
                 ? setCommonState((prevState) => ({
                     ...prevState,
