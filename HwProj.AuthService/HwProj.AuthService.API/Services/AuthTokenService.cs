@@ -66,7 +66,7 @@ namespace HwProj.AuthService.API.Services
             var token = await _userManager.GetAuthenticationTokenAsync(expert, expertOptions["LoginProvider"],
                 expertOptions["TokenName"]);
 
-            if (token is null || _tokenHandler.ReadJwtToken(token).ValidTo >= DateTime.UtcNow)
+            if (token is null || _tokenHandler.ReadJwtToken(token).ValidTo <= DateTime.UtcNow)
             {
                 if (token != null)
                 {

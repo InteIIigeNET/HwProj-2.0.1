@@ -71,7 +71,12 @@ export default class AuthService {
             return false;
         }
     }
-    
+
+    getTokenExpirationDate(token: any) {
+        let decoded = decode<TokenPayload>(token);
+        return new Date(decoded.exp * 1000).toUTCString()
+    }
+
     setToken = (idToken: string) => localStorage.setItem("id_token", idToken);
 
     refreshToken = (idToken: string) => {

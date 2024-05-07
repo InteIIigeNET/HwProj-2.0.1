@@ -85,13 +85,6 @@ const ExpertsNotebook: FC = () => {
                             label="Показать всех"/>
                     </Grid>
                 </Grid>
-                {/*<Grid item container>*/}
-                {/*    <Grid item>*/}
-                {/*        <FormControlLabel*/}
-                {/*            control={<Checkbox size="small" onChange={handleIsAllExpertsSelectedChange}/>}*/}
-                {/*            label="Показать всех"/>*/}
-                {/*    </Grid>*/}
-                {/*</Grid>*/}
                 <TableContainer>
                     <Table style={{ tableLayout: 'fixed' }} aria-label="table" size="medium" aria-labelledby="tableTitle">
                         <TableHead>
