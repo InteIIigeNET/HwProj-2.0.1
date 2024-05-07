@@ -22,16 +22,17 @@ const ExpertAuthLayout: FC = () => {
                 if (isExpertLoggedIn.succeeded) {
                     ApiSingleton.authService.setToken(token!);
                     setIsTokenValid(true);
+                    setIsLoading(false);
                     return
                 }
             }
             setIsTokenValid(false);
+            setIsLoading(false);
         };
 
         checkToken();
-        setIsLoading(false);
     }, [token]);
-
+    
     return isLoading ? (
         <Center>
             <Box sx={{minWidth: 150, marginTop: 15}}>

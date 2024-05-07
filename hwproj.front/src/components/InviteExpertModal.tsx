@@ -18,26 +18,40 @@ interface IInviteExpertProps {
     expertEmail: string;
 }
 
-const handleCopyClick = (textToCopy : string) => {
+interface IInviteExpertState {
+    isTokenReady: boolean;
+    isLinkAccessible: boolean;
+    accessToken: string;
+}
+
+const handleCopyClick = (textToCopy: string) => {
     navigator.clipboard.writeText(textToCopy);
 }
 
 const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
 
-    const [invitationLink, setInvitationLink] = useState<string>("");
-    
+    const [state, setState] = useState<IInviteExpertState>({
+        isTokenReady: false,
+        isLinkAccessible: false,
+        accessToken: ""
+    });
+
     const setCurrentState = async () => {
 
-        const expertToken = await ApiSingleton.accountApi.apiAccountGetExpertTokenGet(props.expertEmail);
-        const invitationLink = ApiSingleton.authService.buildInvitationLink(expertToken!.value!.accessToken!);
+        const tokenCredentials = await ApiSingleton.accountApi.apiAccountGetExpertTokenGet(props.expertEmail);
 
-        setInvitationLink(invitationLink);
+        setState(prevState => ({
+            ...prevState,
+            isTokenReady: true,
+            isLinkAccessible: true,
+            accessToken: tokenCredentials.value!.accessToken!
+        }))
     }
 
     useEffect(() => {
         setCurrentState()
     }, [])
-    
+
     return (
         <div>
             <Dialog open={props.isOpen} onClose={props.close} aria-labelledby="dialog-title">
@@ -59,20 +73,37 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
                                     }}
                                     variant="standard"
                                     fullWidth
-                                    value={invitationLink}
+                                    value={ApiSingleton.authService.buildInvitationLink(state.accessToken)}
                                 />
                             </Grid>
                             <Grid item sm={2}>
-                                <IconButton onClick={() => handleCopyClick(invitationLink)} color="primary">
-                                    <ContentCopyIcon />
+                                <IconButton
+                                    onClick={() => handleCopyClick(ApiSingleton.authService.buildInvitationLink(state.accessToken))}
+                                    color="primary">
+                                    <ContentCopyIcon/>
                                 </IconButton>
                             </Grid>
+                        </Grid>
+                        <Grid container style={{marginTop: '2px'}}>
+                            <Grid
+                                direction="row"
+                                item
+                                style={{marginTop: '0px'}}
+                            >
+                                {state.isLinkAccessible &&
+                                    (<Typography>
+                                        Действительна
+                                        до {ApiSingleton.authService.getTokenExpirationDate(state.accessToken)}.
+                                    </Typography>)}
+                            </Grid>
+                        </Grid>
+                        <Grid container>
                             <Grid
                                 direction="row"
                                 justifyContent="flex-end"
                                 alignItems="flex-end"
                                 container
-                                style={{marginTop: '8px'}}
+                                style={{marginTop: '15px'}}
                             >
                                 <Grid item>
                                     <Button

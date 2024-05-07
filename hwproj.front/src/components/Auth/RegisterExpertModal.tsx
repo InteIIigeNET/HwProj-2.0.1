@@ -76,7 +76,7 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
             setCommonState((prevState) => ({
                 ...prevState,
                 errors: result!.errors ?? [],
-                isSuccessful: result.succeeded
+                isRegisterSuccessful: result.succeeded
             }));
         }
         catch (e) {
@@ -96,6 +96,10 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
             companyName: "",
             bio: ""
         })
+        setCommonState(prevState => ({
+            ...prevState,
+            isRegisterSuccessful: undefined
+        }))
         props.close()
     }
 

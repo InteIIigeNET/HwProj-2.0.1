@@ -87,7 +87,7 @@ const ExpertEditProfile: FC = () => {
     }
 
     if (commonState.edited) {
-        return <Navigate to={"/"}/>;
+        return <Navigate to={"/courses"}/>;
     }
 
     return (
@@ -110,7 +110,6 @@ const ExpertEditProfile: FC = () => {
                             <Grid item xs={12} sm={6}>
                                 <TextField
                                     fullWidth
-                                    required
                                     label="Имя"
                                     variant="outlined"
                                     name={editProfileState.name}
@@ -125,7 +124,6 @@ const ExpertEditProfile: FC = () => {
                             </Grid>
                             <Grid item xs={12} sm={6}>
                                 <TextField
-                                    required
                                     fullWidth
                                     label="Фамилия"
                                     variant="outlined"
@@ -156,7 +154,6 @@ const ExpertEditProfile: FC = () => {
                             </Grid>
                             <Grid item xs={12}>
                                 <TextField
-                                    required
                                     fullWidth
                                     type="email"
                                     label="Электронная почта"
