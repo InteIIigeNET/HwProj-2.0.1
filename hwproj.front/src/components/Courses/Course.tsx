@@ -18,6 +18,8 @@ import {useParams, useNavigate} from 'react-router-dom';
 import MentorsList from "../Common/MentorsList";
 import LecturerStatistics from "./Statistics/LecturerStatistics";
 import AssessmentIcon from '@mui/icons-material/Assessment';
+import ViewListIcon from '@mui/icons-material/ViewList';
+import TextWindow from "../Common/TextWindow";
 
 type TabValue = "homeworks" | "stats" | "applications"
 
@@ -67,6 +69,16 @@ const Course: React.FC = () => {
         studentSolutions: [],
         isStudentViewMode: false
     })
+
+    const [isOpenTextWindow, setIsOpenTextWindow] = useState<boolean>(false)
+
+    const onCloseTextWindow = () => {
+        setIsOpenTextWindow(false)
+    }
+
+    const onOpenTextWindow = () => {
+        setIsOpenTextWindow(true)
+    }
 
     const [pageState, setPageState] = useState<IPageState>({
         tabValue: "homeworks"
@@ -207,6 +219,11 @@ const Course: React.FC = () => {
                                                 />}
                                         </IconButton>
                                     }
+                                    {isCourseMentor && !isReadingMode! &&
+                                        <IconButton onClick={onOpenTextWindow} style={{marginLeft: -10}}>
+                                            <ViewListIcon fontSize="small" titleAccess="Список студентов курса" />
+                                        </IconButton>
+                                    }
                                     {isCourseMentor && !isReadingMode! && (
                                         <RouterLink to={`/courses/${courseId}/edit`}>
                                             <EditIcon fontSize="small"/>
@@ -294,12 +311,13 @@ const Course: React.FC = () => {
                         {
                             isStudentViewMode
                                 ?
-                                <CourseExperimental homeworks={courseHomeworks}
-                                                    isMentor={isCourseMentor}
-                                                    studentSolutions={studentSolutions}
-                                                    isStudentAccepted={isAcceptedStudent}
-                                                    selectedHomeworkId={searchedHomeworkId == null ? undefined : +searchedHomeworkId}
-                                                    userId={userId!}/>
+                                <CourseExperimental 
+                                    homeworks={courseHomeworks}
+                                    isMentor={isCourseMentor}
+                                    studentSolutions={studentSolutions}
+                                    isStudentAccepted={isAcceptedStudent}
+                                    selectedHomeworkId={searchedHomeworkId == null ? undefined : +searchedHomeworkId}
+                                    userId={userId!}/>
                                 :
                                 <div>
                                     {createHomework && (
@@ -386,6 +404,12 @@ const Course: React.FC = () => {
                         />
                     }
                 </Grid>
+                <TextWindow 
+                    isEditable
+                    title="Список студентов курса"
+                    open={isOpenTextWindow}
+                    text={courseState.acceptedStudents.map(s => `${s.surname} ${s.name} ${s.middleName}`).sort().join(`\r`)}
+                    onClose={onCloseTextWindow}/>
             </div>
         );
     }

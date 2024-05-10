@@ -3,27 +3,24 @@ import {Box, Modal, Typography, IconButton, TextField} from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import EditOffIcon from '@mui/icons-material/EditOff';
-import EditIcon from '@mui/icons-material/Edit';
 import {prism} from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 interface ITextWindowProps {
     open: boolean;
     text: string;
-    language: string;
+    isEditable: boolean;
     onClose: () => void;
+    language?: string;
     title?: string;
 }
 
 interface ITextWindowState {
     text: string;
-    isEditMode: boolean;
 }
 
 const TextWindow: React.FC<ITextWindowProps> = (props) => {
     const [state, setTextWindowState] = useState<ITextWindowState>({
         text: props.text,
-        isEditMode: false
     });
 
     const handleCopy = () => {
@@ -42,7 +39,7 @@ const TextWindow: React.FC<ITextWindowProps> = (props) => {
                     bgcolor: 'background.paper',
                     boxShadow: 24,
                     p: 4,
-                    minWidth: 400,
+                    minWidth: 600,
                     maxWidth: 650,
                     minHeight: 400,
                     maxHeight: 600
@@ -51,13 +48,6 @@ const TextWindow: React.FC<ITextWindowProps> = (props) => {
                 <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                     <Typography variant="h6">{props.title ? props.title : props.language}</Typography>
                     <Box>
-                        {state.isEditMode
-                            ? <IconButton color="primary" onClick={() => setTextWindowState({...state, isEditMode: false})}>
-                                <EditOffIcon/>
-                            </IconButton>
-                            : <IconButton color="primary" onClick={() => setTextWindowState({...state, isEditMode: true})}>
-                                <EditIcon/>
-                            </IconButton>}
                         <IconButton onClick={handleCopy}>
                             <ContentCopyIcon/>
                         </IconButton>
@@ -67,7 +57,7 @@ const TextWindow: React.FC<ITextWindowProps> = (props) => {
                     </Box>
                 </Box>
                 <Box flexGrow={1} mb={2}>
-                    {state.isEditMode
+                    {props.isEditable
                         ? <TextField
                             fullWidth
                             variant="filled"
