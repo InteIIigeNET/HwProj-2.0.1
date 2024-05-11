@@ -615,6 +615,12 @@ export interface EditExternalViewModel {
 export interface GetSolutionModel {
     /**
      * 
+     * @type {Date}
+     * @memberof GetSolutionModel
+     */
+    ratingDate?: Date;
+    /**
+     * 
      * @type {number}
      * @memberof GetSolutionModel
      */

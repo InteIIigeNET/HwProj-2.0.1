@@ -105,6 +105,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     const isRated = solution && solution.state !== Solution.StateEnum.NUMBER_0 // != Posted
     const {points, lecturerComment, addBonusPoints} = state
     const postedSolutionTime = solution && Utils.renderReadableDate(solution.publicationDate!)
+    const ratingTime = solution && solution.ratingDate && Utils.renderReadableDate(solution.ratingDate!)
     const students = (solution?.groupMates?.length || 0) > 0 ? solution!.groupMates! : [student]
     const lecturerName = solution?.lecturer && (solution.lecturer.surname + " " + solution.lecturer.name)
 
@@ -244,7 +245,14 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                         <Avatar>
                             {state.clickedForRate ? <Edit/> : <Assignment/>}
                         </Avatar>
-                        <Typography variant={"body1"}>{state.clickedForRate ? "..." : lecturerName}</Typography>
+                        <Stack direction={"column"}>
+                            <Typography variant={"body1"}>
+                                {state.clickedForRate ? "..." : lecturerName}
+                            </Typography>
+                            {ratingTime && <Typography style={{color: "GrayText"}}>
+                                {ratingTime}
+                            </Typography>}
+                        </Stack>
                     </Stack>}
                 {renderRateInput()}
                 {lastRating !== undefined &&

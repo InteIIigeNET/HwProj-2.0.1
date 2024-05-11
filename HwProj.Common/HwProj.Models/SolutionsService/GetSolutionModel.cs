@@ -23,8 +23,11 @@ namespace HwProj.Models.SolutionsService
             StudentId = model.StudentId;
             TaskId = model.TaskId;
             State = model.State;
+            RatingDate = model.RatingDate;
             Lecturer = lecturer;
         }
+
+        public DateTime? RatingDate { get; set; }
 
         public long Id { get; set; }
 
