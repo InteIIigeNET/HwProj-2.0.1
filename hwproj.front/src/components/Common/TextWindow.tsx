@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {Box, Modal, Typography, IconButton, TextField} from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter';
@@ -22,6 +22,10 @@ const TextWindow: React.FC<ITextWindowProps> = (props) => {
     const [state, setTextWindowState] = useState<ITextWindowState>({
         text: props.text,
     });
+
+    useEffect(() => {
+        setTextWindowState({text: props.text})
+    }, [props])
 
     const handleCopy = () => {
         navigator.clipboard.writeText(state.text);
@@ -56,7 +60,7 @@ const TextWindow: React.FC<ITextWindowProps> = (props) => {
                         </IconButton>
                     </Box>
                 </Box>
-                <Box flexGrow={1} mb={2}>
+                <Box>
                     {props.isEditable
                         ? <TextField
                             fullWidth
