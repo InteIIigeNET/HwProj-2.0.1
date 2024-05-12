@@ -171,8 +171,8 @@ const Course: React.FC = () => {
     if (isFound) {
         return (
             <div className="container">
-                <Grid style={{marginBottom: '50px', marginTop: "15px"}}>
-                    <Grid container direction={"column"}>
+                <Grid style={{marginBottom: '50px', marginTop: "20px"}}>
+                    <Grid container direction={"column"} spacing={2}>
                         {course.isCompleted && <Grid item>
                             <Alert severity="warning">
                                 <AlertTitle>Курс завершен!</AlertTitle>
@@ -243,14 +243,13 @@ const Course: React.FC = () => {
                                     fullWidth
                                     variant="contained"
                                     color="primary"
-                                    style={{marginTop: 15}}
                                     onClick={() => joinCourse()}
                                 >
                                     Записаться
                                 </Button>
                             )}
                             {isSignedInCourse && !isAcceptedStudent &&
-                                <Typography style={{fontSize: '15px', marginTop: 15}}>
+                                <Typography style={{fontSize: '15px'}}>
                                     Ваша заявка рассматривается
                                 </Typography>
                             }
