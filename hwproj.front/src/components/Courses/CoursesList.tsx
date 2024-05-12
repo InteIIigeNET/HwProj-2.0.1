@@ -23,7 +23,7 @@ export class CoursesList extends React.Component<ICoursesProps, {}> {
                             >
                                 <NavLink
                                     to={"/courses/" + course.id!.toString()}
-                                    style={{color: "#212529", textDecoration: "none", width: "100%"}}
+                                    style={{color: "#212529"}}
                                 >
                                     <Typography style={{fontSize: "20px"}}>
                                         {course.name} {course.groupName?.length != 0 ? "/ " + course.groupName : ""}
