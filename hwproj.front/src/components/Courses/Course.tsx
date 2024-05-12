@@ -257,7 +257,6 @@ const Course: React.FC = () => {
                     </Grid>
                     <Tabs
                         value={tabValue == "homeworks" ? 0 : tabValue === "stats" ? 1 : 2}
-                        style={{marginTop: 15}}
                         indicatorColor="primary"
                         onChange={(event, value) => {
                             if (value === 0) navigate(`/courses/${courseId}/homeworks`)
