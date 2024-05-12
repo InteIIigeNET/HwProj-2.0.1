@@ -1,8 +1,8 @@
 import * as React from "react";
 import {CoursePreviewView} from "../../api/";
-import {Divider, Grid, ListItem, Typography} from "@material-ui/core";
 import {NavLink} from "react-router-dom";
 import MentorsList from "../Common/MentorsList";
+import {Box, Divider, Grid, ListItem, Typography} from "@mui/material";
 
 interface ICoursesProps {
     navigate: any
@@ -14,27 +14,28 @@ export class CoursesList extends React.Component<ICoursesProps, {}> {
         const {courses} = this.props;
 
         return (
-            <div className="container">
-                {courses.map((course, i) => (
-                    <Grid item>
-                        <ListItem
-                            key={course.id}
-                            style={{padding: 0}}
-                        >
-                            <NavLink
-                                to={"/courses/" + course.id!.toString()}
-                                style={{color: "#212529"}}
+            <Box>
+                <Grid container direction="column">
+                    {courses.map((course, i) => (
+                        <Grid item key={course.id}>
+                            <ListItem
+                                style={{padding: 0}}
                             >
-                                <Typography style={{fontSize: "20px"}}>
-                                    {course.name} {course.groupName?.length != 0 ? "/ " + course.groupName : ""}
-                                </Typography>
-                            </NavLink>
-                        </ListItem>
-                        <MentorsList mentors={course.mentors!}/>
-                        {i < courses.length - 1 ? <Divider style={{marginTop: 5, marginBottom: 5}}/> : null}
-                    </Grid>
-                ))}
-            </div>
+                                <NavLink
+                                    to={"/courses/" + course.id!.toString()}
+                                    style={{color: "#212529", textDecoration: "none", width: "100%"}}
+                                >
+                                    <Typography style={{fontSize: "20px"}}>
+                                        {course.name} {course.groupName?.length != 0 ? "/ " + course.groupName : ""}
+                                    </Typography>
+                                </NavLink>
+                            </ListItem>
+                            <MentorsList mentors={course.mentors!}/>
+                            {i < courses.length - 1 ? <Divider style={{marginTop: 5, marginBottom: 5}}/> : null}
+                        </Grid>
+                    ))}
+                </Grid>
+            </Box>
         );
     }
 }
