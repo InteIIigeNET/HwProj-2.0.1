@@ -10,7 +10,7 @@ import Typography from "@material-ui/core/Typography";
 import Grid from '@material-ui/core/Grid';
 import {IconButton} from "@material-ui/core";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import {CoursePreviewView} from "../api";
+import {CoursePreviewView, HomeworkViewModel} from "../api";
 import {Select, MenuItem, InputLabel, FormControl} from "@mui/material";
 
 interface IInviteExpertProps {
@@ -22,7 +22,9 @@ interface IInviteExpertProps {
 interface IInviteExpertState {
     accessToken: string;
     lecturerCourses: CoursePreviewView[];
+    courseHomeworks: HomeworkViewModel[];
     selectedCourseId: number;
+    selectedHomeworkId: number;
 }
 
 const handleCopyClick = (textToCopy: string) => {
@@ -33,12 +35,16 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
     const [state, setState] = useState<IInviteExpertState>({
         accessToken: "",
         lecturerCourses: [],
-        selectedCourseId: -1
+        courseHomeworks: [],
+        selectedCourseId: -1,
+        selectedHomeworkId: -1
     });
 
-    const [isInviteButtonDisabled, setIsInviteButtonDisabled] = useState<boolean>(true); // Состояние для блокировки кнопки
+    const [isInviteButtonDisabled, setIsInviteButtonDisabled]
+        = useState<boolean>(true); // Состояние для блокировки кнопки
 
-    const [isLinkAccessible, setIsLinkAccessible] = useState<boolean>(false); // Состояние для блокировки отображения ссылки
+    const [isLinkAccessible, setIsLinkAccessible]
+        = useState<boolean>(false); // Состояние для блокировки отображения ссылки
 
     const setInitialState = async () => {
         const courses = await ApiSingleton.coursesApi.apiCoursesUserCoursesGet();
@@ -58,8 +64,20 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
         setInitialState()
     }, [])
 
+    useEffect(() => {
+        const fetchHomeworks = async () => {
+            const courseViewModel = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(state.selectedCourseId);
+            setState(prevState => ({
+                ...prevState,
+                courseHomeworks: courseViewModel.homeworks ?? []
+            }));
+        };
+
+        fetchHomeworks();
+    }, [state.selectedCourseId])
+
     const handleInvitation = async () => {
-        // TODO: query to invite expert to course with state.selectedCourseId
+        // TODO: query to invite expert to course with state.selectedCourseId using selected homeworks
         setIsInviteButtonDisabled(true);
         setIsLinkAccessible(true);
     }
@@ -100,6 +118,39 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
                                             </MenuItem>)}
                                     </Select>
                                 </FormControl>
+                            </Grid>
+                        </Grid>
+                        <Grid container style={{marginTop: '10px'}}>
+                            <Typography>
+                                Выберите домашнюю работу:
+                            </Typography>
+                            <Grid container spacing={2} style={{marginTop: '10px'}}>
+                                <Grid item xs={12} sm={12}>
+                                    <FormControl fullWidth>
+                                        <InputLabel id="homework-select-label">Домашняя работа</InputLabel>
+                                        <Select
+                                            required
+                                            fullWidth
+                                            label="Домашняя работа"
+                                            labelId="homework-select-label"
+                                            value={state.selectedHomeworkId}
+                                            onChange={async (e) => {
+                                                setIsLinkAccessible(false);
+                                                const selectedId = Number(e.target.value)
+                                                setState((prevState) => ({
+                                                    ...prevState,
+                                                    selectedHomeworkId: selectedId
+                                                }));
+                                                setIsInviteButtonDisabled(false);
+                                            }}>
+                                            {state.courseHomeworks.map((homeworkViewModel, i) =>
+                                                <MenuItem key={i} value={homeworkViewModel.id}>
+                                                    {homeworkViewModel.title}
+                                                </MenuItem>)}
+                                            <MenuItem key={-1} value={-1}>Все</MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
                             </Grid>
                         </Grid>
                         {isLinkAccessible && (
