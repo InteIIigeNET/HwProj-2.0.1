@@ -26,6 +26,7 @@ const StudentStatsTooltip : React.FC<ITooltipProps> = (props) => {
                     props.payload.map(item => {
                         if (item.payload.id! == props.activeId) {
                             const dateNumber = Date.parse(item.payload.date.split('.').reverse().join('/'));
+                            const tasks = item.payload.tasks;
                             return (
                                 <>
                                     <p style={{fontWeight: 'bold', textAlign: 'center', padding: 3, marginBottom: 0, backgroundColor: 'rgba(232, 232, 232, 0.8)'}}>
@@ -33,10 +34,12 @@ const StudentStatsTooltip : React.FC<ITooltipProps> = (props) => {
                                     </p>
                                     
                                     <p style={{margin: '3px 5px 2px 5px'}}>Баллов на текущий момент: <b>{item.value}</b></p>
-                                    <p style={{margin: '3px 5px 0px 5px'}}>Сданные в этот день задачи</p>
+                                    <p style={{margin: '3px 5px 0px 5px'}}>
+                                        {tasks.length ? "Сданные в этот день задачи" : "Нет сданных задач"}
+                                    </p>
                                     
                                     <List sx={{listStyleType: 'disc', pl: 3, pt: 0}}>
-                                        {item.payload.tasks.map((task : ITaskChartView) => (
+                                        {tasks.map((task : ITaskChartView) => (
                                             <ListItem sx={{display: 'list-item', padding: 0}}>
                                                 <p style={{marginTop: 2, marginBottom: 2, marginRight: 5}}>
                                                     {task.title} <b>{+task.receiveRating!.toFixed(2)}/{task.maxRating}</b>

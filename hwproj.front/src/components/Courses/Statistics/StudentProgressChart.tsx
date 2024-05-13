@@ -123,7 +123,6 @@ const StudentProgressChart: React.FC<IStudentProgressChartProps> = (props) => {
 
     // для каждого студента отсортировали и сгруппировали задачи по дню последнего решения
     const studentTasks = new Map(solutions.map(cm => {
-        const studentId = cm.name + ' ' + cm.surname;
         const tasks = cm.homeworks!
             .filter(hw => hw.tasks && hw.tasks.length > 0)
             .flatMap(hw => hw.tasks!)
@@ -152,7 +151,7 @@ const StudentProgressChart: React.FC<IStudentProgressChartProps> = (props) => {
         const groupedTasksToArray = Array.from(tasksGroupedByLastSolution.entries())
             .map(([_, tasks]) => tasks);
 
-        return [studentId, groupedTasksToArray];
+        return [cm.id!, groupedTasksToArray];
     }))
 
     const studentCharts = new Map([[straightAStudent, straightAStudentLine],
@@ -222,14 +221,20 @@ const StudentProgressChart: React.FC<IStudentProgressChartProps> = (props) => {
         })
     }
 
+    const fullNameById = (id: string) => {
+        const student = solutions.find(solution => solution.id === id)
+        return student ? student.name + ' ' + student.surname : id;
+    }
+
     const deadlineDateFormat = [...deadlineDates, startCourseDate, finishCourseDate]
         .sort((x, y) => x - y).filter(item => item);
     const lineColors = useMemo(() => new Map<string, string>
     (Array.from(studentCharts.keys()).map(student => {
-        const color = student === straightAStudent ? '#2cba00' : (
-            student === averageStudent ? '#FFA756' : getRandomColorWithMinBrightness(student)
+        const studentName = fullNameById(student);
+        const color = studentName === straightAStudent ? '#2cba00' : (
+            studentName === averageStudent ? '#FFA756' : getRandomColorWithMinBrightness(studentName)
         );
-        return [student, color];
+        return [studentName, color];
     })), [props]);
 
     return (
@@ -264,7 +269,8 @@ const StudentProgressChart: React.FC<IStudentProgressChartProps> = (props) => {
                         }}
                 />
                 <Legend/>
-                {Array.from(studentCharts.entries()).map(([studentName, line]) => {
+                {Array.from(studentCharts.entries()).map(([studentId, line]) => {
+                    const studentName = fullNameById(studentId);
                     const lineFormat  = line.map<IChartPointFormat>(x =>
                         ({id: x.id,
                             date: Utils.renderDateWithoutHours(new Date(x.date)),
