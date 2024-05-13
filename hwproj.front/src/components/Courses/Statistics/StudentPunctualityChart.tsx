@@ -40,6 +40,11 @@ interface ICustomTooltipProps {
     attemptRepresentation: Map<number, [IDatesDeviation, string, boolean]>;
 }
 
+interface ICustomXAxisProps {
+    [key: string]: any;
+    sectors: Map<number, ISectorProps>
+}
+
 type DeadlineRepresentation = Map<number, number>
 type SectorRepresentation = Map<number, [number, ISectorProps]>
 
@@ -64,11 +69,12 @@ const CustomYAxisTick = (props : any) => {
     )
 }
 
-const CustomXAxisTick = (props : any) => {
+const CustomXAxisTick = (props : ICustomXAxisProps) => {
     const { x, y, payload, sectors} = props;
     const [open, setOpen] = useState(false);
-    const maxWordSize = MAXIMUM_DEVIATION + 4 * sectors.get(payload.value)?.barsAmount
-    const title : string = sectors.get(payload.value)?.title ?? ""
+    const sector = sectors.get(payload.value)
+    const maxWordSize = MAXIMUM_DEVIATION + 4 * (sector?.barsAmount ?? 0)
+    const title = sector?.title ?? ""
     const customTitle = title.split(' ').slice(0, 3).map((word : string) =>
     {
         if (word.length > maxWordSize) {
@@ -96,7 +102,7 @@ const CustomXAxisTick = (props : any) => {
     )
 }
 
-const CustomTooltip : React.FC<ICustomTooltipProps> = (props) => {
+const CustomTooltip: React.FC<ICustomTooltipProps> = (props) => {
     const formatValueToText = () => {
         if (props.payload![0].name === 'scatter') {
             return 'День дедлайна'
@@ -175,7 +181,8 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
     
     const sectorRepresentation = studentTaskSolutions.reduce<[SectorRepresentation, number]>
     (([prevSectors, leftBorder], task, i) => {
-        const title = tasks.find(t => t.id === task.id)!.title!;
+        const taskView = tasks.find(t => t.id === task.id)!;
+        const title = taskView.title!;
         const sector = {title, barsAmount: props.sectorSizes[i]};
         prevSectors.set(task.id!, [leftBorder, sector])
         

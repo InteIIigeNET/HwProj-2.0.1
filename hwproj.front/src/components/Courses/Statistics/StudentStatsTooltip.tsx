@@ -4,12 +4,14 @@ import {
     Payload,
 } from 'recharts/types/component/DefaultTooltipContent';
 import {List, ListItem} from '@mui/material';
+import { TestTip } from "../../Common/HomeworkTags"
 import Utils from "../../../services/Utils";
 
-interface ITaskChartView {
+export interface ITaskChartView {
     title : string;
     receiveRating?: number;
     maxRating: number;
+    isTest: boolean;
 }
 
 interface ITooltipProps {
@@ -41,7 +43,7 @@ const StudentStatsTooltip : React.FC<ITooltipProps> = (props) => {
                                         {tasks.map((task : ITaskChartView) => (
                                             <ListItem sx={{display: 'list-item', padding: 0}}>
                                                 <p style={{marginTop: 2, marginBottom: 2, marginRight: 5}}>
-                                                    {task.title} <b>{+task.receiveRating!.toFixed(2)}/{task.maxRating}</b>
+                                                    {task.title}{task.isTest && <TestTip/>} <b>{+task.receiveRating!.toFixed(2)}/{task.maxRating}</b>
                                                 </p>
                                             </ListItem>
                                         ))}
