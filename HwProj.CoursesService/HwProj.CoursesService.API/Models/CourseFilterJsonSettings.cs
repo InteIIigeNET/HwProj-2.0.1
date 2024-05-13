@@ -8,7 +8,7 @@ namespace HwProj.CoursesService.API.Models
         {
             NullValueHandling = NullValueHandling.Ignore,
             MissingMemberHandling = MissingMemberHandling.Ignore,
-            DefaultValueHandling = DefaultValueHandling.Populate
+            DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate
         };
     }
 }

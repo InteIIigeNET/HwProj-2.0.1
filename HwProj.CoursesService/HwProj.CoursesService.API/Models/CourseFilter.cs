@@ -10,6 +10,11 @@ namespace HwProj.CoursesService.API.Models
     {
         [Key]
         public long Id { get; set; }
+        /// <summary>
+        /// This field is needed to save the filter in the database in Json format.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">
+        /// There are problems when deserializing data from the database.</exception>
         public string FilterJson
         {
             get => JsonConvert.SerializeObject(Filter, CourseFilterJsonSettings.Settings);
