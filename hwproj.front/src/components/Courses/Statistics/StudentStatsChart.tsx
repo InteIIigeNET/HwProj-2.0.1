@@ -38,12 +38,6 @@ const StudentStatsChart: React.FC = () => {
         averageStudent: []
     })
     const [sectorSizes, setSectorSizes] = useState<number[]>([]);
-    useEffect(() => {
-        const tasksWithDeadlineAmount = state.homeworks
-            .flatMap(h => h.tasks ?? []).filter(t => t.hasDeadline).length;
-        
-        setSectorSizes(new Array(tasksWithDeadlineAmount).fill(0));
-    }, [state]);
     const handleStudentSelection = (studentIds : string[]) => {
         const newSectorSizes = sectorSizes.map((_, i) => {
             const taskSectorSizes = studentIds.map(id => {
@@ -63,6 +57,12 @@ const StudentStatsChart: React.FC = () => {
     const setCurrentState = async () => {
         const params =
             await ApiSingleton.statisticsApi.apiStatisticsByCourseIdChartsGet(+courseId!);
+
+        if (params.studentStatistics && params.studentStatistics.length > 0) {
+            const sectorSizes = params.studentStatistics[0].homeworks!
+                .flatMap(h => h.tasks!.map(t => t.solution!.length))
+            setSectorSizes(sectorSizes)
+        }
 
         setState({
             isFound: true,

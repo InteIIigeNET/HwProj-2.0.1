@@ -191,7 +191,7 @@ const StudentProgressChart: React.FC<IStudentProgressChartProps> = (props) => {
             ...deadlineDates,
             ...straightAStudentLine.map(p => p.date),
             ...averageStudentLine.map(p => p.date),
-            ...studentChartsArray.flat().map(p => p.date)]
+            ...studentChartsArray.flat().map(p => p.date)].filter(d => d < Date.now())
     );
     const finishCourseDate = Array.from(characteristicDates).sort((x, y) => x - y).slice(-1)[0];
 
@@ -248,12 +248,11 @@ const StudentProgressChart: React.FC<IStudentProgressChartProps> = (props) => {
                 />
                 <XAxis dataKey="date"
                        allowDuplicatedCategory={false}
-                       domain={Array.from(characteristicDates).sort((x, y) => x - y)
-                           .map(x => Utils.renderDateWithoutHours(new Date(x)))}
+                       domain={Array.from(characteristicDates).sort((x, y) => x - y)}
                        stroke={chartColors.axis}
                        strokeWidth={0.5}
-                       ticks={deadlineDateFormat.length != 0 ? deadlineDateFormat.map(x =>
-                           Utils.renderDateWithoutHours(new Date(x))) : ['']}
+                       ticks={deadlineDateFormat}
+                       tickFormatter={t => Utils.renderDateWithoutHours(new Date(t))}
                        tickLine={false}
                 />
                 <CartesianGrid vertical={false} strokeWidth={0.3}/>
@@ -271,12 +270,6 @@ const StudentProgressChart: React.FC<IStudentProgressChartProps> = (props) => {
                 <Legend/>
                 {Array.from(studentCharts.entries()).map(([studentId, line]) => {
                     const studentName = fullNameById(studentId);
-                    const lineFormat  = line.map<IChartPointFormat>(x =>
-                        ({id: x.id,
-                            date: Utils.renderDateWithoutHours(new Date(x.date)),
-                            totalRatingValue : x.totalRatingValue,
-                            tasks : x.tasks})
-                    )
                     return <Line
                         onClick={_ => setHighlightStudent(studentName)}
                         activeDot={{
@@ -290,7 +283,7 @@ const StudentProgressChart: React.FC<IStudentProgressChartProps> = (props) => {
                         strokeDasharray={studentName === straightAStudent || studentName === averageStudent ? '4' : '0'}
                         name={studentName}
                         dataKey="totalRatingValue"
-                        data={lineFormat}
+                        data={line}
                         isAnimationActive={false}
                         stroke={lineColors.get(studentName)}
                         strokeWidth={studentName === highlightStudent ? 5 : 3}

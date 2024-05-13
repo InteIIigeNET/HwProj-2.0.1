@@ -25,12 +25,11 @@ const StudentStatsTooltip : React.FC<ITooltipProps> = (props) => {
                 {
                     props.payload.map(item => {
                         if (item.payload.id! == props.activeId) {
-                            const dateNumber = Date.parse(item.payload.date.split('.').reverse().join('/'));
                             const tasks = item.payload.tasks;
                             return (
                                 <>
                                     <p style={{fontWeight: 'bold', textAlign: 'center', padding: 3, marginBottom: 0, backgroundColor: 'rgba(232, 232, 232, 0.8)'}}>
-                                        {Utils.renderReadableDateWithoutTime(new Date(dateNumber))}
+                                        {Utils.renderReadableDateWithoutTime(new Date(item.payload.date))}
                                     </p>
                                     
                                     <p style={{margin: '3px 5px 2px 5px'}}>Баллов на текущий момент: <b>{item.value}</b></p>

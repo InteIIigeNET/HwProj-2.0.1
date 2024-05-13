@@ -16,6 +16,7 @@ interface IStudentPunctualityChartProps {
 
 interface IStudentAttempt {
     fill? : string;
+    link? : string;
     xAxisPosition: number;
     yAxisPosition: number | null;
     yAxisPositionDeadline?: number
@@ -35,11 +36,11 @@ interface ICustomTooltipProps {
     active? : boolean;
     payload? : Payload<ValueType, string | number>[] | undefined;
     label? : number;
-    dates : Map<number, string>;
+    dates : Map<number, number>;
     attemptRepresentation: Map<number, [IDatesDeviation, string, boolean]>;
 }
 
-type DeadlineRepresentation = Map<number, [number, string]>
+type DeadlineRepresentation = Map<number, number>
 type SectorRepresentation = Map<number, [number, ISectorProps]>
 
 const chartColors = {
@@ -118,14 +119,13 @@ const CustomTooltip : React.FC<ICustomTooltipProps> = (props) => {
     }
         
     if (props.active && props.payload && props.payload.length) {
-        const formatDate = props.dates.get(props.label!);
-        const numberDate = formatDate ? Date.parse(formatDate.split('.').reverse().join('/')) : undefined;
+        const dateTicks = props.dates.get(props.label!);
         return (
             <div style={{borderRadius: 3, overflow: 'hidden', fontSize: '13px', color:'rgb(90,94,98)'}}>
                 <p style={{backgroundColor: `${chartColors.tooltipBorder}`, fontWeight: 'bold',
                     textAlign: 'center', marginTop: '0px', marginBottom: '0px'}}
                 >
-                    {numberDate && Utils.renderReadableDateWithoutTime(new Date(numberDate))}
+                    {dateTicks && Utils.renderReadableDateWithoutTime(new Date(dateTicks))}
                 </p>
                 <p style={{ margin: '3px 5px 3px 5px'}}>{formatValueToText()}</p>
             </div>
@@ -136,6 +136,12 @@ const CustomTooltip : React.FC<ICustomTooltipProps> = (props) => {
 }
 
 const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props) => {
+    const handleClick = (data : IStudentAttempt) => {
+        if (data.link) {
+            window.open(data.link, '_blank');
+        }
+    }
+    
     const homeworks = props.homeworks.filter(hw => hw.tasks && hw.tasks.length > 0);
     const tasks = [...new Set(homeworks.map(hw => hw.tasks!).flat())]
         .filter(t => t.hasDeadline)
@@ -189,20 +195,20 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
             const deadlineOrder = dates.sort((x, y) => new Date(x).getTime() - new Date(y).getTime())
                 .findIndex(d => new Date(d).getTime() == new Date(deadlineDate).getTime());
             
-            deadlines.set(task.id!, [prev + deadlineOrder + 1, Utils.renderDateWithoutHours(deadlineDate)]);
+            deadlines.set(task.id!, prev + deadlineOrder + 1);
             
             return [deadlines, prev + props.sectorSizes[i] + 2]
     }, [new Map(), 0])[0]
     
-    const dates = studentTaskSolutions.reduce((acc : Map<number, string>, task) => {
+    const dates = studentTaskSolutions.reduce((acc : Map<number, number>, task) => {
         const leftBorder = sectorRepresentation.get(task.id!)![0];
-        const deadlineTick = taskDeadlines.get(task.id!)![0];
+        const deadlineTick = taskDeadlines.get(task.id!)!;
         const deadlineDate = tasks.find(t => t.id === task.id)!.deadlineDate!;
-        acc.set(deadlineTick, Utils.renderDateWithoutHours(deadlineDate));
+        acc.set(deadlineTick, new Date(deadlineDate).getTime());
         task.solution!.forEach((solution, index) => {
             const tick = leftBorder + index + 1;
             const actualTick = tick >= deadlineTick ? tick + 1 : tick;
-            acc.set(actualTick, Utils.renderDateWithoutHours(solution.publicationDate!))
+            acc.set(actualTick, new Date(solution.publicationDate!).getTime())
         })
         return acc;
     }, new Map())
@@ -214,7 +220,7 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
     ((attemptAcc : IStudentAttempt[], task, i) => {
         
         const leftBorder = sectorRepresentation.get(task.id!)![0];
-        const deadlineTick = taskDeadlines.get(task.id!)![0];
+        const deadlineTick = taskDeadlines.get(task.id!)!;
         const courseTask = tasks.find(t => t.id === task.id)!;
         const deadlineDate = courseTask.deadlineDate!;
         const maxRating = courseTask.maxRating!;
@@ -235,7 +241,7 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
                 measure: measureDate === prevSolution?.ratingDate ? "RatingDate" : "DeadlineDate"
             };
             
-            const attempt = {fill, xAxisPosition: actualTick, yAxisPosition: deviation};
+            const attempt = {fill, xAxisPosition: actualTick, yAxisPosition: deviation, link: solution.githubUrl};
             attemptTooltipRepresentation
                 .set(actualTick, [actuallyDeviation, `${solution.rating}/${maxRating}`, solution.state != Solution.StateEnum.NUMBER_0]);
             
@@ -257,7 +263,7 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
     const [ barSize, barGap] = [ 20, 10];
 
     return (
-        <div style={{height: '300', width: '100%', overflowX: 'auto', overflowY: "hidden", paddingBottom: 7}}
+        <div style={{height: '300', width: '100%', overflowX: 'scroll', overflowY: "hidden", paddingBottom: 7}}
              onScroll={(e) => {
                  let ele = (document.getElementsByClassName("recharts-yAxis") as HTMLCollectionOf<HTMLElement>)[props.index];
                  ele.style.setProperty('transform', "translateX("+(e.target as HTMLTextAreaElement).scrollLeft+"px)", 'important');
@@ -267,7 +273,6 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
                            height={300}
                            width={solveAttempts.length * (barSize + barGap)}
                            margin={{top: 5, right: 5, bottom: 10, left: 0}}
-                           style={{color: 'red'}}
                            barGap={barGap}
             >
                 <XAxis dataKey="xAxisPosition"
@@ -286,7 +291,7 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
                         dates = {dates}
                         attemptRepresentation={attemptTooltipRepresentation}
                     />}
-                    wrapperStyle={{border: `solid 1px ${chartColors.tooltipBorder}`, borderRadius: 3, background: 'white'}}
+                    wrapperStyle={{border: `solid 1px ${chartColors.tooltipBorder}`, borderRadius: 3, background: 'white', overflow: 'hidden'}}
                 />
                 
                 <ReferenceLine y={0} strokeWidth={0.5}/>
@@ -297,7 +302,7 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
 
                 <Scatter dataKey="yAxisPositionDeadline" shape="circle" fill={chartColors.scatter} name='scatter' />
 
-                <Bar dataKey="yAxisPosition"/>
+                <Bar dataKey="yAxisPosition" onClick={handleClick}/>
 
                 <YAxis domain={[-MAXIMUM_DEVIATION, MAXIMUM_DEVIATION]}
                        style={{transform: "translate(0, 0)", backgroundColor: 'white'}}
@@ -306,7 +311,6 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
                        stroke={chartColors.axis}
                        strokeWidth={0.5}
                        width={0.5}
-
                 />
             </ComposedChart>
         </div>
