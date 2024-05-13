@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
 using System.Linq;
@@ -423,12 +422,12 @@ namespace HwProj.AuthService.API.Services
                 user.Name = model.Name;
             }
 
-            if (!string.IsNullOrWhiteSpace(model.Name))
+            if (!string.IsNullOrWhiteSpace(model.Surname))
             {
                 user.Surname = model.Surname;
             }
 
-            if (!string.IsNullOrWhiteSpace(model.Name))
+            if (!string.IsNullOrWhiteSpace(model.MiddleName))
             {
                 user.MiddleName = model.MiddleName;
             }
@@ -448,12 +447,12 @@ namespace HwProj.AuthService.API.Services
                 expert.Name = model.Name;
             }
 
-            if (!string.IsNullOrWhiteSpace(model.Name))
+            if (!string.IsNullOrWhiteSpace(model.Surname))
             {
                 expert.Surname = model.Surname;
             }
 
-            if (!string.IsNullOrWhiteSpace(model.Name))
+            if (!string.IsNullOrWhiteSpace(model.MiddleName))
             {
                 expert.MiddleName = model.MiddleName;
             }

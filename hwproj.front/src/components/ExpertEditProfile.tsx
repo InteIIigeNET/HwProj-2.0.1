@@ -1,18 +1,20 @@
 ﻿import makeStyles from "@material-ui/styles/makeStyles";
-import React, {FC, useState} from "react";
+import React, {FC, useEffect, useState} from "react";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import ApiSingleton from "../api/ApiSingleton";
-import {RegisterExpertViewModel, EditExpertViewModel} from "../api/";
+import {EditExpertViewModel} from "../api/";
 import Grid from "@material-ui/core/Grid";
-import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined';
 import Avatar from "@material-ui/core/Avatar";
 import {Container} from "@mui/material";
 import {Navigate} from "react-router-dom";
+import {Center} from "@skbkontur/react-ui";
+import {Box, CircularProgress} from "@material-ui/core";
 
 interface IRegisterExpertState {
     isUpdateSuccessful: boolean | undefined;
+    isProfileLoaded: boolean;
     errors: string[];
     edited: boolean;
 }
@@ -50,6 +52,7 @@ const ExpertEditProfile: FC = () => {
 
     const [commonState, setCommonState] = useState<IRegisterExpertState>({
         isUpdateSuccessful: undefined,
+        isProfileLoaded: false,
         errors: [],
         edited: false
     })
@@ -85,12 +88,40 @@ const ExpertEditProfile: FC = () => {
             }))
         }
     }
+    
+    const getExpertInfo = async () => {
+        try {
+            const currentUser = (await ApiSingleton.accountApi.apiAccountGetUserDataGet()).userData!
+            setEditProfileState({
+                name: currentUser.name!,
+                surname: currentUser.surname!,
+                middleName: currentUser.middleName!,
+                companyName: currentUser.companyName!,
+                bio: currentUser.bio!,
+                email: currentUser.email!
+            });
+            setCommonState((prevState) => ({
+                ...prevState,
+                isProfileLoaded: true,
+            }))
+        } catch (e) {
+            setCommonState((prevState) => ({
+                ...prevState,
+                isProfileLoaded: true,
+                errors: ['Сервис недоступен']
+            }))
+        }
+    }
+
+    useEffect(() => {
+        getExpertInfo()
+    }, [])
 
     if (commonState.edited) {
         return <Navigate to={"/courses"}/>;
     }
 
-    return (
+    return commonState.isProfileLoaded ? (
         <div>
             <Container component="main" maxWidth="xs">
                 <div className={classes.paper}>
@@ -112,7 +143,7 @@ const ExpertEditProfile: FC = () => {
                                     fullWidth
                                     label="Имя"
                                     variant="outlined"
-                                    name={editProfileState.name}
+                                    value={editProfileState.name}
                                     onChange={(e) => {
                                         e.persist()
                                         setEditProfileState((prevState) => ({
@@ -127,7 +158,7 @@ const ExpertEditProfile: FC = () => {
                                     fullWidth
                                     label="Фамилия"
                                     variant="outlined"
-                                    name={editProfileState.surname}
+                                    value={editProfileState.surname}
                                     onChange={(e) => {
                                         e.persist()
                                         setEditProfileState((prevState) => ({
@@ -142,7 +173,7 @@ const ExpertEditProfile: FC = () => {
                                     fullWidth
                                     label="Отчество"
                                     variant="outlined"
-                                    name={editProfileState.middleName}
+                                    value={editProfileState.middleName}
                                     onChange={(e) => {
                                         e.persist()
                                         setEditProfileState((prevState) => ({
@@ -159,7 +190,7 @@ const ExpertEditProfile: FC = () => {
                                     label="Электронная почта"
                                     variant="outlined"
                                     size="small"
-                                    name={editProfileState.email}
+                                    value={editProfileState.email}
                                     onChange={(e) => {
                                         e.persist()
                                         setEditProfileState((prevState) => ({
@@ -214,7 +245,12 @@ const ExpertEditProfile: FC = () => {
                 </div>
             </Container>
         </div>
-    )
+    ) : (
+        <div className="container">
+            <p>Загрузка...</p>
+            <CircularProgress/>
+        </div>
+    );
 }
 
 export default ExpertEditProfile;
