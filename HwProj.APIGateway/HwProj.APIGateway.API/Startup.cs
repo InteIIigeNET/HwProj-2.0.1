@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.NotificationsService.Client;
