@@ -16,6 +16,7 @@ interface IRegisterExpertState {
     isUpdateSuccessful: boolean | undefined;
     isProfileLoaded: boolean;
     errors: string[];
+    isEdited: boolean;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -52,7 +53,8 @@ const ExpertEditProfile: FC = () => {
     const [commonState, setCommonState] = useState<IRegisterExpertState>({
         isUpdateSuccessful: undefined,
         isProfileLoaded: false,
-        errors: []
+        errors: [],
+        isEdited: ApiSingleton.authService.isExpertProfileEdited()
     })
 
     const classes = useStyles()
@@ -72,7 +74,11 @@ const ExpertEditProfile: FC = () => {
             const result = await ApiSingleton.accountApi.apiAccountEditExpertPut(editProfileState);
             if (result.succeeded) {
                 ApiSingleton.authService.setIsExpertProfileEdited();
-                return <Navigate to={"/"}/>;
+                setCommonState(prevState => ({
+                    ...prevState,
+                    isEdited: true
+                }));
+                return;
             }
 
             setCommonState((prevState) => ({
@@ -114,6 +120,10 @@ const ExpertEditProfile: FC = () => {
     useEffect(() => {
         getExpertInfo()
     }, [])
+
+    if (commonState.isEdited) {
+        return <Navigate to={"/"}/>;
+    }
 
     return commonState.isProfileLoaded ? (
         <div>
