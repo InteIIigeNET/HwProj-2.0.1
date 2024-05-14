@@ -4,6 +4,7 @@ using HwProj.EventBus.Client.Interfaces;
 using HwProj.SolutionsService.API.Models;
 using HwProj.SolutionsService.API.Repositories;
 using HwProj.SolutionsService.API.Services;
+using HwProj.Utils.Auth;
 using HwProj.Utils.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -29,7 +30,14 @@ namespace HwProj.SolutionsService.API
             services.AddScoped<ISolutionsRepository, SolutionsRepository>();
             services.AddScoped<ISolutionsService, Services.SolutionsService>();
 
-            services.AddUserIdAuthentication();
+            services
+                .AddAuthentication(options =>
+                {
+                    options.DefaultScheme = AuthSchemeConstants.UserIdAuthentication;
+                })
+                .AddUserIdAuthentication()
+                .AddGuestModeAuthentication();
+            
             services.AddHttpClient();
             services.AddHttpContextAccessor();
             services.AddAuthServiceClient();

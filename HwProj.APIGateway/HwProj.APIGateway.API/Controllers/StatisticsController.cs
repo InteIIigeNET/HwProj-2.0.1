@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using HwProj.APIGateway.API.Models.Statistics;
@@ -7,6 +8,7 @@ using HwProj.CoursesService.Client;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
 using HwProj.SolutionsService.Client;
+using HwProj.Utils.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -70,14 +72,16 @@ namespace HwProj.APIGateway.API.Controllers
         }
         
         [HttpGet("{courseId}/charts")]
+        [Authorize(AuthenticationSchemes = AuthSchemeConstants.QueryStringTokenOrDefaultAuthentication)]
         [ProducesResponseType(typeof(AdvancedCourseStatisticsViewModel), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetChartStatistics(long courseId)
+        public async Task<IActionResult> GetChartStatistics(long courseId, [FromQuery] string token)
         {
             var course = await _coursesClient.GetCourseById(courseId);
             if (course == null) 
                 return Forbid();
             
             var statistics = await _solutionClient.GetCourseStatistics(courseId, UserId);
+            
             var studentIds = statistics.Select(t => t.StudentId).ToArray();
             var studentsData = await AuthServiceClient.GetAccountsData(studentIds);
             

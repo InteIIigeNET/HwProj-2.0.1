@@ -1,12 +1,13 @@
 import React, {useEffect, useState} from "react";
-import {Link, useParams} from 'react-router-dom';
-import {Grid, Box, Typography, Paper, CircularProgress} from "@mui/material";
+import {Link, useParams, useSearchParams } from 'react-router-dom';
+import {Grid, Box, Typography, Paper, CircularProgress, IconButton, Snackbar } from "@mui/material";
 import {
     CourseViewModel,
     HomeworkViewModel,
     StatisticsCourseMatesModel,
     StatisticsCourseMeasureSolutionModel
 } from "../../../api/";
+import ShareIcon from "@mui/icons-material/Share";
 import ApiSingleton from "../../../api/ApiSingleton";
 import HelpPopoverChartInfo from './HelpPopoverChartInfo';
 import StudentCheckboxList from "./StudentCheckboxList";
@@ -15,7 +16,7 @@ import StudentPunctualityChart from './StudentPunctualityChart';
 
 interface IStudentStatsChartState {
     isFound: boolean;
-    isSelectionMode: boolean;
+    isLecturer: boolean;
     course: CourseViewModel;
     homeworks: HomeworkViewModel[];
     solutions: StatisticsCourseMatesModel[];
@@ -25,11 +26,14 @@ interface IStudentStatsChartState {
 
 const StudentStatsChart: React.FC = () => {
     const {courseId} = useParams();
+    const [ searchParams ] = useSearchParams();
     const isLoggedIn = ApiSingleton.authService.isLoggedIn();
     const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
+    const isGuestAccess = searchParams.get("token") != null;
+    const [ copied, setCopied ] = useState(false);
     const [state, setState] = useState<IStudentStatsChartState>({
         isFound: false,
-        isSelectionMode: false,
+        isLecturer: false,
         course: {},
         homeworks: [],
         solutions: [],
@@ -54,17 +58,21 @@ const StudentStatsChart: React.FC = () => {
 
     const setCurrentState = async () => {
         const params =
-            await ApiSingleton.statisticsApi.apiStatisticsByCourseIdChartsGet(+courseId!);
-
+            await ApiSingleton.statisticsApi.apiStatisticsByCourseIdChartsGet(+courseId!, searchParams.get("token")!);
+        
         if (params.studentStatistics && params.studentStatistics.length > 0) {
             const sectorSizes = params.studentStatistics[0].homeworks!
                 .flatMap(h => h.tasks!.map(t => t.solution!.length))
             setSectorSizes(sectorSizes)
         }
 
+        const userId = isLoggedIn ? ApiSingleton.authService.getUserId() : undefined;
+        const isLecturer = userId != undefined && ApiSingleton.authService.isLecturer()
+            && !params.studentStatistics?.map(s => s.id).includes(userId);
+        
         setState({
             isFound: true,
-            isSelectionMode: params.studentStatistics!.length > 1,
+            isLecturer: isLecturer,
             course: params.course!,
             homeworks: params.homeworks!,
             solutions: params.studentStatistics!,
@@ -78,7 +86,7 @@ const StudentStatsChart: React.FC = () => {
     }, [])
 
     useEffect(() => {
-        if (state.isFound && !state.isSelectionMode) {
+        if (state.isFound && !state.isLecturer && !isGuestAccess) {
             setSelectedStudents((_) => [state.solutions[0].id!])
         }
     }, [state.isFound])
@@ -86,6 +94,19 @@ const StudentStatsChart: React.FC = () => {
     const nameById = (id: string) => {
         const student = state.solutions.find(solution => solution.id === id)!
         return student.name + ' ' + student.surname;
+    }
+
+    const copyLink = async () => {
+        if (copied) {
+            setCopied(false);
+            return;
+        }
+        const token = (await ApiSingleton.accountApi.apiAccountGetGuestTokenGet(courseId)).accessToken;
+        const sharingLink = window.location.href.includes('?token=')
+            ? window.location.href : window.location.href + '?token=' + token;
+        navigator.clipboard.writeText(sharingLink);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
     }
 
     const renderGoBackToCoursesStatsLink = () => {
@@ -121,17 +142,24 @@ const StudentStatsChart: React.FC = () => {
                               zIndex: 100
                           }}>
                         <Grid item container direction='column' xs={"auto"}>
-                            <Grid item>
+                            <Grid item container direction='row'>
                                 <Typography style={{fontSize: '22px'}}>
                                     {`${state.course.name} / ${state.course.groupName}`}
                                     <sup style={{color: "#2979ff"}}> бета</sup>
                                 </Typography>
+                                {state.isLecturer &&
+                                    <>
+                                        <IconButton onClick={copyLink}>
+                                            <ShareIcon style={{color: "#2979ff"}}/>
+                                        </IconButton>
+                                        <Snackbar open={copied} message="Ссылка скопирована"/>
+                                    </>}
                             </Grid>
                             <Grid item>
                                 {isLoggedIn && renderGoBackToCoursesStatsLink()}
                             </Grid>
                         </Grid>
-                        {state.isSelectionMode &&
+                        {(state.isLecturer || isGuestAccess) &&
                             <Grid item>
                                 <StudentCheckboxList
                                     mates={[...state.solutions.map(s => ({

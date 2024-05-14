@@ -198,6 +198,7 @@ namespace HwProj.SolutionsService.Client
                 _solutionServiceUri + $"api/Solutions/getCourseStat/{courseId}?userId={userId}");
 
             httpRequest.TryAddUserId(_httpContextAccessor);
+            httpRequest.TryAddGuestMode(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<StatisticsCourseMatesDto[]>();
         }
@@ -209,6 +210,7 @@ namespace HwProj.SolutionsService.Client
                 _solutionServiceUri + $"api/Solutions/getBenchmarkStat/{courseId}");
             
             httpRequest.TryAddUserId(_httpContextAccessor);
+            httpRequest.TryAddGuestMode(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<StatisticsCourseStudentsBenchmarkDTO>();
         }

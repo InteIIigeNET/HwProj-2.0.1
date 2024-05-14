@@ -58,6 +58,7 @@ namespace HwProj.CoursesService.Client
                 _coursesServiceUri + $"api/Courses/{courseId}");
 
             httpRequest.TryAddUserId(_httpContextAccessor);
+            httpRequest.TryAddGuestMode(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
             return response.IsSuccessStatusCode ? await response.DeserializeAsync<CourseDTO>() : null;
         }

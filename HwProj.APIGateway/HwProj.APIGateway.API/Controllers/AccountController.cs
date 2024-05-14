@@ -121,6 +121,15 @@ namespace HwProj.APIGateway.API.Controllers
             var tokenMeta = await AuthServiceClient.RefreshToken(UserId!);
             return Ok(tokenMeta);
         }
+        
+        [HttpGet("getGuestToken")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        [ProducesResponseType(typeof(TokenCredentials), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetGuestToken([FromQuery] string courseId)
+        {
+            var tokenMeta = await AuthServiceClient.GetGuestToken(courseId);
+            return Ok(tokenMeta);
+        }
 
         [HttpPut("edit")]
         [Authorize]

@@ -16,6 +16,7 @@ namespace HwProj.AuthService.API.Services
         Task<Result> EditAccountAsync(string accountId, EditDataDTO model);
         Task<Result<TokenCredentials>> LoginUserAsync(LoginViewModel model);
         Task<Result<TokenCredentials>> RefreshToken(string userId);
+        Task<TokenCredentials> GetGuestToken(string courseId);
         Task<Result> InviteNewLecturer(string emailOfInvitedUser);
         Task<IList<User>> GetUsersInRole(string role);
         Task<Result> RequestPasswordRecovery(RequestPasswordRecoveryViewModel model);
