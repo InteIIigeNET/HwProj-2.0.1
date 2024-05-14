@@ -75,7 +75,7 @@ namespace HwProj.CoursesService.API.Services
 
             var groups = await _groupsRepository.GetGroupsWithGroupMatesByCourse(course.Id).ToArrayAsync();
             var filter = await _courseFilterService.GetUserCourseFilterAsync(userId, id);
-            var result = CourseFilterUtils.CourseDtoApplyFilter(course.ToCourseDto(), filter);
+            var result = course.ToCourseDto().CourseDtoApplyFilter(filter);
             result.Groups = groups.Select(g =>
                 new GroupViewModel
                 {
