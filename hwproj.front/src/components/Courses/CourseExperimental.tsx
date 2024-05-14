@@ -16,7 +16,7 @@ import TimelineConnector from '@mui/lab/TimelineConnector';
 import TimelineContent from '@mui/lab/TimelineContent';
 import TimelineDot from '@mui/lab/TimelineDot';
 import TimelineOppositeContent from '@mui/lab/TimelineOppositeContent';
-import {Box, Card, CardActions, CardContent, Chip, Divider, Tooltip} from "@mui/material";
+import {Box, Card, CardActions, CardContent, Chip, Divider, Paper, Stack, Tooltip} from "@mui/material";
 import {Link} from "react-router-dom";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import Utils from "../../services/Utils";
@@ -184,23 +184,40 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
 
     return <Grid container direction={"row"} spacing={1}>
         <Grid item lg={4}>
-            <Timeline style={{maxHeight: 500, overflow: 'auto'}}
-                      sx={{'&::-webkit-scrollbar': {display: "none"}}}>
+            <Timeline style={{maxHeight: "75vh", overflow: 'auto', paddingLeft: 0, paddingRight: 8}}
+                      sx={{
+                          '&::-webkit-scrollbar': {
+                              width: "3px",
+                          },
+                          '&::-webkit-scrollbar-track': {
+                              backgroundColor: "ghostwhite",
+                              borderRadius: "10px"
+                          },
+                          '&::-webkit-scrollbar-thumb': {
+                              backgroundColor: "lightgrey",
+                              borderRadius: 10
+                          }
+                      }}>
                 {homeworks.map(x => {
                     const isTest = x.tags!.includes(HomeworkTags.TestTag)
                     return <div>
-                        <Box sx={{":hover": hoveredItemStyle}}
-                             style={{...getStyle(true, x.id!), marginTop: 10, marginBottom: 10}}
-                             onClick={() => {
-                                 setState(prevState => ({
-                                     ...prevState,
-                                     selectedItem: {
-                                         data: x,
-                                         isHomework: true,
-                                         id: x.id
-                                     }
-                                 }))
-                             }}>
+                        <Paper
+                            elevation={0}
+                            component={Stack}
+                            justifyContent="center"
+                            alignContent={"center"}
+                            sx={{":hover": hoveredItemStyle}}
+                            style={{...getStyle(true, x.id!), marginTop: 10, marginBottom: 10, minHeight: 50}}
+                            onClick={() => {
+                                setState(prevState => ({
+                                    ...prevState,
+                                    selectedItem: {
+                                        data: x,
+                                        isHomework: true,
+                                        id: x.id
+                                    }
+                                }))
+                            }}>
                             <Typography variant="h6" style={{fontSize: 18}} align={"center"}>
                                 {x.title}{isTest && <TestTip/>}
                             </Typography>
@@ -214,7 +231,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                     <TimelineSeparator><TimelineConnector/></TimelineSeparator>
                                     <TimelineContent></TimelineContent>
                                 </TimelineItem>}
-                        </Box>
+                        </Paper>
                         {x.tasks!.map(t => <TimelineItem
                             onClick={() => {
                                 setState(prevState => ({

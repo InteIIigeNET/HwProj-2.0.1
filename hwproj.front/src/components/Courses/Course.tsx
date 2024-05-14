@@ -171,7 +171,7 @@ const Course: React.FC = () => {
     if (isFound) {
         return (
             <div className="container">
-                <Grid style={{marginBottom: '50px', marginTop: "15px"}}>
+                <Grid style={{marginTop: "15px"}}>
                     <Grid container direction={"column"} spacing={2}>
                         {course.isCompleted && <Grid item>
                             <Alert severity="warning">
@@ -284,7 +284,7 @@ const Course: React.FC = () => {
                         {
                             isReadingMode
                                 ?
-                                <CourseExperimental 
+                                <CourseExperimental
                                     homeworks={courseHomeworks}
                                     isMentor={isCourseMentor}
                                     studentSolutions={studentSolutions}
