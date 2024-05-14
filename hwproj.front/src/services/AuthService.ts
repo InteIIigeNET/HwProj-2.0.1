@@ -49,8 +49,8 @@ export default class AuthService {
             error: []
         }
     }
-    
-    buildInvitationLink(token : string) {
+
+    buildInvitationLink(token: string) {
         const port = window.location.port
         return port === '' ?
             `${window.location.protocol}//${window.location.hostname}/join/${token}` :
@@ -75,7 +75,7 @@ export default class AuthService {
     getTokenExpirationDate(token: any) {
         const decoded = decode<TokenPayload>(token);
         const expirationDate = new Date(decoded.exp * 1000);
-        
+
         return expirationDate.toLocaleDateString('ru-RU', {
             day: 'numeric',
             month: 'long',
@@ -91,6 +91,10 @@ export default class AuthService {
     }
 
     getToken = () => localStorage.getItem("id_token");
+
+    isExpertProfileEdited = () => localStorage.getItem("is_edited") == "true";
+
+    setIsExpertProfileEdited = () => localStorage.setItem("is_edited", "true");
 
     logout = () => localStorage.clear();
 

@@ -16,7 +16,6 @@ interface IRegisterExpertState {
     isUpdateSuccessful: boolean | undefined;
     isProfileLoaded: boolean;
     errors: string[];
-    edited: boolean;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -53,8 +52,7 @@ const ExpertEditProfile: FC = () => {
     const [commonState, setCommonState] = useState<IRegisterExpertState>({
         isUpdateSuccessful: undefined,
         isProfileLoaded: false,
-        errors: [],
-        edited: false
+        errors: []
     })
 
     const classes = useStyles()
@@ -72,15 +70,15 @@ const ExpertEditProfile: FC = () => {
         }
         try {
             const result = await ApiSingleton.accountApi.apiAccountEditExpertPut(editProfileState);
-            result.succeeded
-                ? setCommonState((prevState) => ({
-                    ...prevState,
-                    edited: true,
-                }))
-                : setCommonState((prevState) => ({
-                    ...prevState,
-                    errors: result.errors!
-                }))
+            if (result.succeeded) {
+                ApiSingleton.authService.setIsExpertProfileEdited();
+                return <Navigate to={"/"}/>;
+            }
+
+            setCommonState((prevState) => ({
+                ...prevState,
+                errors: result.errors!
+            }))
         } catch (e) {
             setCommonState((prevState) => ({
                 ...prevState,
@@ -88,7 +86,7 @@ const ExpertEditProfile: FC = () => {
             }))
         }
     }
-    
+
     const getExpertInfo = async () => {
         try {
             const currentUser = (await ApiSingleton.accountApi.apiAccountGetUserDataGet()).userData!
@@ -116,10 +114,6 @@ const ExpertEditProfile: FC = () => {
     useEffect(() => {
         getExpertInfo()
     }, [])
-
-    if (commonState.edited) {
-        return <Navigate to={"/courses"}/>;
-    }
 
     return commonState.isProfileLoaded ? (
         <div>

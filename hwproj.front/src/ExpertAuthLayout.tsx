@@ -8,7 +8,7 @@ import {TokenCredentials} from "api/api";
 
 const ExpertAuthLayout: FC = () => {
     const {token} = useParams();
-    const credentials : TokenCredentials = {
+    const credentials: TokenCredentials = {
         accessToken: token
     }
     const [isTokenValid, setIsTokenValid] = useState(false);
@@ -32,7 +32,12 @@ const ExpertAuthLayout: FC = () => {
 
         checkToken();
     }, [token]);
-    
+
+    const isEdited = ApiSingleton.authService.isExpertProfileEdited();
+    if (isEdited) {
+        return <Navigate to={"/"}/>;
+    }
+
     return isLoading ? (
         <Center>
             <Box sx={{minWidth: 150, marginTop: 15}}>
