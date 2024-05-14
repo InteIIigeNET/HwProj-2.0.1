@@ -25,7 +25,7 @@ namespace HwProj.CoursesService.API.Migrations
                 columns: table => new
                 {
                     CourseId = table.Column<long>(nullable: false),
-                    UserId = table.Column<string>(nullable: false),
+                    UserId = table.Column<string>(nullable: true),
                     CourseFilterId = table.Column<long>(nullable: false)
                 },
                 constraints: table =>

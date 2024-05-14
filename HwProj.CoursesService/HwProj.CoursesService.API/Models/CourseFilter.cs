@@ -10,6 +10,7 @@ namespace HwProj.CoursesService.API.Models
     {
         [Key]
         public long Id { get; set; }
+        
         /// <summary>
         /// This field is needed to save the filter in the database in Json format.
         /// </summary>
@@ -21,6 +22,7 @@ namespace HwProj.CoursesService.API.Models
             set => Filter = JsonConvert.DeserializeObject<Filter>(value, CourseFilterJsonSettings.Settings) 
                             ?? throw new InvalidOperationException("The course filter cannot be deserialized.");
         }
+        
         [NotMapped]
         public Filter Filter { get; set; }
     }
