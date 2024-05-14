@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using HwProj.CoursesService.API.Services;
 using HwProj.Repositories;
 using Newtonsoft.Json;
 
@@ -19,8 +20,12 @@ namespace HwProj.CoursesService.API.Models
         public string FilterJson
         {
             get => JsonConvert.SerializeObject(Filter, CourseFilterJsonSettings.Settings);
-            set => Filter = JsonConvert.DeserializeObject<Filter>(value, CourseFilterJsonSettings.Settings) 
-                            ?? throw new InvalidOperationException("The course filter cannot be deserialized.");
+            set
+            {
+                Filter = JsonConvert.DeserializeObject<Filter>(value, CourseFilterJsonSettings.Settings) 
+                         ?? throw new InvalidOperationException("The course filter cannot be deserialized.");
+                Filter.FillEmptyFields();
+            }
         }
         
         [NotMapped]
