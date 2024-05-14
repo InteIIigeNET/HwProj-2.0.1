@@ -479,6 +479,21 @@ namespace HwProj.CoursesService.Client
                 : Result<string[]>.Failed();
         }
 
+        public async Task<long> CreateOrUpdateExpertCourseFilter(CreateCourseFilterViewModel model)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _coursesServiceUri + "api/CourseFilters/createExpertFilter");
+            httpRequest.Content = new StringContent(
+                JsonConvert.SerializeObject(model),
+                Encoding.UTF8,
+                "application/json");
+
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<long>();
+        }
+
         public async Task<bool> Ping()
         {
             try
