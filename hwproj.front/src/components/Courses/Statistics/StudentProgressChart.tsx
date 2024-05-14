@@ -9,7 +9,6 @@ import {
 } from "../../../api/";
 import StudentStatsTooltip, { ITaskChartView } from './StudentStatsTooltip';
 import Utils from "../../../services/Utils";
-import HomeworkTags from "../../Common/HomeworkTags"
 
 import {CartesianGrid, ComposedChart, Legend, Line, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts';
 import StudentStatsUtils from "../../../services/StudentStatsUtils";
@@ -66,8 +65,7 @@ const StudentProgressChart: React.FC<IStudentProgressChartProps> = (props) => {
         return solutions.reduce<[number, IChartPoint[]]>(([total, points], solution, index) => {
             const totalRating = total + solution.rating!;
             const task = courseTasks.find(t => t.id === solution.taskId)!;
-            const isTest = task.tags!.includes(HomeworkTags.TestTag)
-            const taskView = {title: task.title!, maxRating: task.maxRating!, receiveRating: solution.rating!, isTest};
+            const taskView = {title: task.title!, maxRating: task.maxRating!, receiveRating: solution.rating!, tags: task.tags ?? []};
             const indexTasksWithSameDate = points.findIndex(p => p.date === publicationDates[index]);
 
             if (indexTasksWithSameDate === -1) {
@@ -157,10 +155,8 @@ const StudentProgressChart: React.FC<IStudentProgressChartProps> = (props) => {
                     const lastSolution = task.solution!.filter(s => s.state != Solution.StateEnum.NUMBER_0).slice(-1)[0];
                     totalStudentRating += lastSolution.rating ? lastSolution.rating : 0;
                     const taskView = courseTasks.find(t => t.id === task.id)!;
-                    const isTest = taskView.tags!.includes(HomeworkTags.TestTag)
 
-
-                    return {title: taskView.title!, receiveRating: lastSolution.rating!, maxRating: taskView.maxRating!, isTest}
+                    return {title: taskView.title!, receiveRating: lastSolution.rating!, maxRating: taskView.maxRating!, tags: taskView.tags ?? []}
                 })
 
                 return {id: studentId, date : date.getTime(), totalRatingValue: totalStudentRating, tasks: tasksChartView};

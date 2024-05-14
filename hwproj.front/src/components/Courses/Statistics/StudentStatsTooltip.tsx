@@ -4,14 +4,15 @@ import {
     Payload,
 } from 'recharts/types/component/DefaultTooltipContent';
 import {List, ListItem} from '@mui/material';
-import { TestTip } from "../../Common/HomeworkTags"
+import { TestTip, BonusTip } from "../../Common/HomeworkTags"
+import HomeworkTags from "../../Common/HomeworkTags"
 import Utils from "../../../services/Utils";
 
 export interface ITaskChartView {
     title : string;
     receiveRating?: number;
     maxRating: number;
-    isTest: boolean;
+    tags: string[];
 }
 
 interface ITooltipProps {
@@ -40,13 +41,16 @@ const StudentStatsTooltip : React.FC<ITooltipProps> = (props) => {
                                     </p>
                                     
                                     <List sx={{listStyleType: 'disc', pl: 3, pt: 0}}>
-                                        {tasks.map((task : ITaskChartView) => (
-                                            <ListItem sx={{display: 'list-item', padding: 0}}>
+                                        {tasks.map((task : ITaskChartView) => {
+                                            const isTest = task.tags.includes(HomeworkTags.TestTag);
+                                            const isBonus = task.tags.includes(HomeworkTags.BonusTag);
+                                            return <ListItem sx={{display: 'list-item', padding: 0}}>
                                                 <p style={{marginTop: 2, marginBottom: 2, marginRight: 5}}>
-                                                    {task.title}{task.isTest && <TestTip/>} <b>{+task.receiveRating!.toFixed(2)}/{task.maxRating}</b>
+                                                    {task.title}{isTest && <TestTip/>}{isBonus && <BonusTip/>}{` `}
+                                                    <b>{+task.receiveRating!.toFixed(2)}/{task.maxRating}</b>
                                                 </p>
                                             </ListItem>
-                                        ))}
+                                        })}
                                     </List>
                                 </>
                             )

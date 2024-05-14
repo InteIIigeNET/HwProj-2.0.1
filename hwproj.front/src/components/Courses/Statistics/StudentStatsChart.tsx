@@ -53,7 +53,6 @@ const StudentStatsChart: React.FC = () => {
         setSelectedStudents(studentIds);
     }
 
-
     const setCurrentState = async () => {
         const params =
             await ApiSingleton.statisticsApi.apiStatisticsByCourseIdChartsGet(+courseId!);

@@ -243,6 +243,7 @@ namespace HwProj.SolutionsService.API.Controllers
             
             var bestStudentSolutions = course.Homeworks
                 .SelectMany(e => e.Tasks)
+                .Where(e => !e.Tags.Contains("Доп. баллы"))
                 .Select(task => new StatisticsCourseMeasureSolutionModel
                 {
                     TaskId = task.Id,

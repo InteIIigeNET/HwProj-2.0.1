@@ -56,6 +56,8 @@ const chartColors = {
 }
 const MAXIMUM_DEVIATION = 10;
 const MINIMUM_DEVIATION = 1 / 12;
+const EMPTY_SECTOR_LETTER_SIZE = 8;
+const BAR_LETTER_SIZE = 4;
 
 const CustomYAxisTick = (props : any) => {
     const { x, y, payload } = props;
@@ -73,7 +75,7 @@ const CustomXAxisTick = (props : ICustomXAxisProps) => {
     const { x, y, payload, sectors} = props;
     const [open, setOpen] = useState(false);
     const sector = sectors.get(payload.value)
-    const maxWordSize = MAXIMUM_DEVIATION + 4 * (sector?.barsAmount ?? 0)
+    const maxWordSize = EMPTY_SECTOR_LETTER_SIZE + BAR_LETTER_SIZE * (sector?.barsAmount ?? 0)
     const title = sector?.title ?? ""
     const customTitle = title.split(' ').slice(0, 3).map((word : string) =>
     {
@@ -147,6 +149,19 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
             window.open(data.link, '_blank');
         }
     }
+    const daysDifference = (firstDate: Date, secondDate : Date) => {
+        const msecInDay = 1000 * 3600 * 24;
+        return (new Date(firstDate).getTime() - new Date(secondDate).getTime()) / msecInDay;
+    }
+    const getDatesDiff = (solutionPublicationDate: Date, deadlineDate : Date) => {
+        const differenceInDays = daysDifference(deadlineDate, solutionPublicationDate);
+        return (
+            Math.abs(differenceInDays) > MAXIMUM_DEVIATION
+                ? MAXIMUM_DEVIATION * Math.sign(differenceInDays)
+                : (Math.abs(differenceInDays) < MINIMUM_DEVIATION
+                    ? MINIMUM_DEVIATION * Math.sign(differenceInDays)
+                    : differenceInDays));
+    }
     
     const homeworks = props.homeworks.filter(hw => hw.tasks && hw.tasks.length > 0);
     const tasks = [...new Set(homeworks.map(hw => hw.tasks!).flat())]
@@ -155,20 +170,6 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
             const [xDate, yDate] = [x.publicationDate!, y.publicationDate!];
             return xDate > yDate ? 1 : (yDate > xDate ? -1 : 0);
         })
-    
-    const daysDifference = (firstDate: Date, secondDate : Date) => {
-        const msecInDay = 1000 * 3600 * 24;
-        return (new Date(firstDate).getTime() - new Date(secondDate).getTime()) / msecInDay;
-    }
-    const getDatesDiff = (solutionPublicationDate: Date, deadlineDate : Date) => {
-        const differenceInDays = daysDifference(deadlineDate, solutionPublicationDate);
-        return ( 
-            Math.abs(differenceInDays) > MAXIMUM_DEVIATION 
-                ? MAXIMUM_DEVIATION * Math.sign(differenceInDays) 
-                : (Math.abs(differenceInDays) < MINIMUM_DEVIATION 
-                    ? MINIMUM_DEVIATION * Math.sign(differenceInDays) 
-                    : differenceInDays));
-    }
     
     const studentTaskSolutions = props.solutions.homeworks!.filter(hw => hw.tasks)
         .map(hw => hw.tasks!.filter(task => 
