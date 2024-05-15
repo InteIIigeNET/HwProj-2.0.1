@@ -29,7 +29,7 @@ import StudentStatsUtils from "../../services/StudentStatsUtils";
 import Step from '@mui/material/Step';
 import StepButton from '@mui/material/StepButton';
 import {RatingStorage} from "../Storages/RatingStorage";
-import HomeworkTags, {TestTip} from "../Common/HomeworkTags";
+import {getTip} from "../Common/HomeworkTags";
 
 interface IStudentSolutionsPageState {
     currentTaskId: string
@@ -160,7 +160,6 @@ const StudentSolutionsPage: FC = () => {
                     <Stack direction={"row"} spacing={1}
                            style={{overflowY: "hidden", overflowX: "auto", minHeight: 80}}>
                         {taskSolutionsStats!.map((t, index) => {
-                            const isTest = t.tags!.includes(HomeworkTags.TestTag)
                             const isCurrent = taskId === String(t.taskId)
                             const color = isCurrent ? "primary" : "default"
                             return <Stack direction={"row"} spacing={1} alignItems={"center"}>
@@ -177,7 +176,7 @@ const StudentSolutionsPage: FC = () => {
                                                 ? <Chip size={"small"} color={isCurrent ? "primary" : "default"}
                                                         label={t.countUnratedSolutions}/>
                                                 : <TaskAltIcon color={isCurrent ? "primary" : "success"}/>}>
-                                            {t.title}{isTest && <TestTip/>}
+                                            {t.title}{getTip(t)}
                                         </StepButton>
                                     </Link>
                                 </Step>

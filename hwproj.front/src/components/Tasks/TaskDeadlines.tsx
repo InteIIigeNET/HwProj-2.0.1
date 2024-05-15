@@ -1,20 +1,20 @@
-import React, { FC, useState } from 'react';
-import { TaskDeadlineView } from "../../api";
-import { Link, NavLink } from "react-router-dom";
-import { Divider, Grid, ListItem, Typography, Link as LinkText } from "@material-ui/core";
-import { Chip, Dialog, DialogActions, DialogContent, DialogTitle, LinearProgress, Stack } from "@mui/material";
-import { colorBetween } from "../../services/JsUtils";
+import React, {FC, useState} from 'react';
+import {TaskDeadlineView} from "../../api";
+import {Link, NavLink} from "react-router-dom";
+import {Divider, Grid, ListItem, Typography, Link as LinkText} from "@material-ui/core";
+import {Chip, Dialog, DialogActions, DialogContent, DialogTitle, LinearProgress, Stack} from "@mui/material";
+import {colorBetween} from "../../services/JsUtils";
 import Utils from "../../services/Utils";
 import ApiSingleton from "../../api/ApiSingleton";
 import Button from "@material-ui/core/Button";
-import HomeworkTags, {TestTip} from "../Common/HomeworkTags";
+import {getTip} from "../Common/HomeworkTags";
 
 interface ITaskDeadlinesProps {
     taskDeadlines: TaskDeadlineView[]
     onGiveUpClick: () => void
 }
 
-const TaskDeadlines: FC<ITaskDeadlinesProps> = ({ taskDeadlines, onGiveUpClick }) => {
+const TaskDeadlines: FC<ITaskDeadlinesProps> = ({taskDeadlines, onGiveUpClick}) => {
     const [hoveredElement, setHoveredElement] = useState<number | undefined>(undefined);
     const [showGiveUpModalForTaskId, setShowGiveUpModalForTaskId] = useState<number | undefined>(undefined);
 
@@ -27,7 +27,7 @@ const TaskDeadlines: FC<ITaskDeadlinesProps> = ({ taskDeadlines, onGiveUpClick }
     };
 
     const renderBadgeLabel = (text: string) => (
-        <Typography style={{ color: "white", fontSize: "small" }} variant={"subtitle2"}>{text}</Typography>
+        <Typography style={{color: "white", fontSize: "small"}} variant={"subtitle2"}>{text}</Typography>
     );
 
     const giveUp = async (taskId: number) => {
@@ -38,58 +38,61 @@ const TaskDeadlines: FC<ITaskDeadlinesProps> = ({ taskDeadlines, onGiveUpClick }
 
     const renderBadge = (solutionState: TaskDeadlineView['solutionState'], rating: number, maxRating: number) => {
         if (solutionState === null)
-            return <Chip color="error" size={"small"} style={{ height: 20 }} label={renderBadgeLabel("Не решено")} />;
+            return <Chip color="error" size={"small"} style={{height: 20}} label={renderBadgeLabel("Не решено")}/>;
 
         if (solutionState === 0) //POSTED
-            return <Chip color="info" size={"small"} style={{ height: 20 }} label={renderBadgeLabel("Ожидает проверки")} />;
+            return <Chip color="info" size={"small"} style={{height: 20}}
+                         label={renderBadgeLabel("Ожидает проверки")}/>;
 
         const color = colorBetween(0xff0000, 0x2cba00, Math.min(rating, maxRating) / maxRating * 100);
-        return <Chip size={"small"} style={{ height: 20, backgroundColor: color }} label={renderBadgeLabel(`⭐ ${rating}/${maxRating}`)} />;
+        return <Chip size={"small"} style={{height: 20, backgroundColor: color}}
+                     label={renderBadgeLabel(`⭐ ${rating}/${maxRating}`)}/>;
     };
 
     return (
         <div>
-            {taskDeadlines.map(({ deadline, rating, maxRating, deadlinePast, solutionState }, i) => (
+            {taskDeadlines.map(({deadline, rating, maxRating, deadlinePast, solutionState}, i) => (
                 <Grid onMouseEnter={() => setHoveredElement(i)}
-                    onMouseLeave={() => setHoveredElement(undefined)}
-                    key={deadline!.taskId}>
+                      onMouseLeave={() => setHoveredElement(undefined)}
+                      key={deadline!.taskId}>
                     <Link to={`/task/${deadline!.taskId}`}>
-                        <ListItem style={{ padding: 0, color: "#212529" }}>
-                        <Grid container direction={"row"} spacing={1} justifyContent={"flex-end"}>
-                            <Grid item xs>
-                                <NavLink to={`/task/${deadline!.taskId}`} style={{ color: "#212529" }}>
-                                    <Typography style={{ fontSize: "20px" }}>
-                                        {deadline!.taskTitle}{deadline!.tags!.includes(HomeworkTags.TestTag) && <TestTip/>}
-                                    </Typography>
-                                </NavLink>
-                            </Grid>
+                        <ListItem style={{padding: 0, color: "#212529"}}>
+                            <Grid container direction={"row"} spacing={1} justifyContent={"flex-end"}>
+                                <Grid item xs>
+                                    <NavLink to={`/task/${deadline!.taskId}`} style={{color: "#212529"}}>
+                                        <Typography style={{fontSize: "20px"}}>
+                                            {deadline!.taskTitle}{getTip(deadline!)}
+                                        </Typography>
+                                    </NavLink>
+                                </Grid>
                                 {(solutionState == null) &&
                                     <Grid item>
-                                        <Chip size={"small"} style={{ height: 20 }} color={'primary'} label={renderBadgeLabel(`⭐ ${maxRating}`)}/>
+                                        <Chip size={"small"} style={{height: 20}} color={'primary'}
+                                              label={renderBadgeLabel(`⭐ ${maxRating}`)}/>
                                     </Grid>
                                 }
-                            {!deadlinePast && (
-                                <Grid item>
-                                    {renderBadge(solutionState, rating!, deadline!.maxRating!)}
-                                </Grid>
-                            )}
+                                {!deadlinePast && (
+                                    <Grid item>
+                                        {renderBadge(solutionState, rating!, deadline!.maxRating!)}
+                                    </Grid>
+                                )}
                             </Grid>
                         </ListItem>
                     </Link>
-                    <Typography style={{ fontSize: "18px", color: "GrayText" }}>
+                    <Typography style={{fontSize: "18px", color: "GrayText"}}>
                         {deadline!.courseTitle}
                     </Typography>
                     <LinearProgress variant="determinate"
-                        color={deadlinePast ? "error" : "primary"}
-                        style={{ marginTop: 5 }}
-                        value={deadlinePast ? 100 : getPercent(deadline!.publicationDate!, deadline!.deadlineDate!)} />
+                                    color={deadlinePast ? "error" : "primary"}
+                                    style={{marginTop: 5}}
+                                    value={deadlinePast ? 100 : getPercent(deadline!.publicationDate!, deadline!.deadlineDate!)}/>
                     <Stack direction={"row"} spacing={10} alignItems={"baseline"} justifyContent={"space-between"}
-                        style={{ height: 27 }}>
+                           style={{height: 27}}>
                         {Utils.renderReadableDate(deadline!.deadlineDate!)}
                         {hoveredElement === i && solutionState == undefined && (
                             <Typography variant={"caption"}>
                                 <LinkText
-                                    style={{ textDecoration: "none", cursor: "pointer" }}
+                                    style={{textDecoration: "none", cursor: "pointer"}}
                                     onClick={() => setShowGiveUpModalForTaskId(deadline!.taskId!)}>
                                     Отказаться от решения задачи
                                 </LinkText>
@@ -97,13 +100,13 @@ const TaskDeadlines: FC<ITaskDeadlinesProps> = ({ taskDeadlines, onGiveUpClick }
                         )}
                     </Stack>
                     {i < taskDeadlines.length - 1 && (
-                        <Divider style={{ marginTop: 10, marginBottom: 10 }} />
+                        <Divider style={{marginTop: 10, marginBottom: 10}}/>
                     )}
                 </Grid>
             ))}
             <Dialog open={showGiveUpModalForTaskId !== undefined}
-                onClose={() => setShowGiveUpModalForTaskId(undefined)}
-                aria-labelledby="form-dialog-title">
+                    onClose={() => setShowGiveUpModalForTaskId(undefined)}
+                    aria-labelledby="form-dialog-title">
                 <DialogTitle id="form-dialog-title">
                     Отказаться от решения задачи
                 </DialogTitle>
