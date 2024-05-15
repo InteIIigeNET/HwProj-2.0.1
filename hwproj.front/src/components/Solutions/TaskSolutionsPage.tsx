@@ -23,6 +23,7 @@ import {useParams, Link} from "react-router-dom";
 import Step from "@mui/material/Step";
 import StepButton from "@mui/material/StepButton";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
+import HomeworkTags, {TestTip} from "../Common/HomeworkTags";
 
 interface ITaskSolutionsState {
     isLoaded: boolean
@@ -110,6 +111,7 @@ const TaskSolutionsPage: FC = () => {
                            style={{overflowY: "hidden", overflowX: "auto", minHeight: 80}}>
                         {taskSolutions.map((t, index) => {
                             const isCurrent = taskId === String(t.taskId)
+                            const isTest = t.tags!.includes(HomeworkTags.TestTag)
                             const {
                                 color,
                                 lastRatedSolution,
@@ -131,7 +133,7 @@ const TaskSolutionsPage: FC = () => {
                                                       size={"small"}
                                                       label={lastRatedSolution == undefined ? "?" : lastRatedSolution.rating}/>
                                             </Tooltip>}>
-                                            {t.title}
+                                            {t.title}{isTest && <TestTip/>}
                                         </StepButton>
                                     </Link>
                                 </Step>

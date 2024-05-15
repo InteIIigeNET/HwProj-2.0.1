@@ -15,6 +15,7 @@ namespace HwProj.APIGateway.API.Models.Solutions
     {
         public int MaxRating { get; set; }
         public string Title { get; set; }
+        public string[] Tags { get; set; }
         public string TaskId { get; set; }
         public GetSolutionModel[] Solutions { get; set; }
     }

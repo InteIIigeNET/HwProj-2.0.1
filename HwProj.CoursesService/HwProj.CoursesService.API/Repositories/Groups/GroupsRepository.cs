@@ -15,8 +15,9 @@ namespace HwProj.CoursesService.API.Repositories.Groups
 
         public async Task<Group[]> GetGroupsWithGroupMatesAsync(long[] ids)
         {
-            return await Context.Set<Group>().Include(c => c.GroupMates)
+            return await Context.Set<Group>()
                 .Where(c => ids.Contains(c.Id))
+                .Include(c => c.GroupMates)
                 .AsNoTracking()
                 .ToArrayAsync();
         }

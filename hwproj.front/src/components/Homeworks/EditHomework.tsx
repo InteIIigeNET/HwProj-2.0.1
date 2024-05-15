@@ -4,11 +4,11 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
 import EditIcon from '@material-ui/icons/Edit';
-import {Grid, Typography, Button, TextField} from "@material-ui/core";
+import {Button} from "@material-ui/core";
 import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
-import {Alert, Checkbox, FormControlLabel} from "@mui/material";
 import Tags from "./HomeworkTags";
+import {Grid, Typography, TextField} from "@mui/material";
 
 interface IEditHomeworkState {
     isLoaded: boolean;
@@ -25,7 +25,7 @@ interface IEditHomeworkState {
     isGroupWork: boolean;
     hasErrors: boolean;
     changedTaskPublicationDates: Date[];
-    tags: string[];
+    tags: string[]
 }
 
 const useStyles = makeStyles(theme => ({
@@ -56,8 +56,8 @@ const EditHomework: FC = () => {
         publicationDate: new Date(),
         isPublished: false,
         hasErrors: false,
-        changedTaskPublicationDates: [],
-        tags: []
+        tags: [],
+        changedTaskPublicationDates: []
     })
 
     useEffect(() => {
@@ -90,14 +90,15 @@ const EditHomework: FC = () => {
             tags: homework.tags!,
             changedTaskPublicationDates: homework.tasks!
                 .filter(t => t.publicationDate != undefined)
-                .map(t => new Date(t.publicationDate!)),
+                .map(t => new Date(t.publicationDate!))
         }))
     }
+
     const handleSubmit = async (e: any) => {
         e.preventDefault()
 
-        await ApiSingleton.homeworksApi
-            .apiHomeworksUpdateByHomeworkIdPut(+homeworkId!, editHomework)
+        await ApiSingleton.homeworksApi.apiHomeworksUpdateByHomeworkIdPut(+homeworkId!, editHomework)
+
         setEditHomework((prevState) => ({
             ...prevState,
             edited: true
@@ -129,113 +130,100 @@ const EditHomework: FC = () => {
             );
         }
         return (
-            <Grid container justifyContent="center">
-                <Grid item xs={9}>
-                    <Grid container style={{marginTop: '20px'}}>
-                        <Grid item xs={11}>
-                            <Link
-                                style={{color: '#212529'}}
-                                to={"/courses/" + editHomework.courseId.toString()}
-                            >
-                                <Typography>
-                                    Назад к курсу
-                                </Typography>
-                            </Link>
-                        </Grid>
-                    </Grid>
-
-                    <div className={classes.logo}>
-                        <div>
-                            <EditIcon style={{color: 'red'}}/>
-                        </div>
-                        <div>
-                            <Typography style={{fontSize: '22px'}}>
-                                Редактировать домашнее задание
+            <Grid container className="container" justifyContent="center">
+                <Grid container style={{marginTop: '20px'}}>
+                    <Grid item xs={12}>
+                        <Link
+                            style={{color: '#212529'}}
+                            to={"/courses/" + editHomework.courseId.toString()}
+                        >
+                            <Typography>
+                                Назад к курсу
                             </Typography>
-                        </div>
-                    </div>
-                    <form
-                        onSubmit={(e) => handleSubmit(e)}
-                        className={classes.form}
-                    >
-                        <Grid container spacing={1}>
-                            <Grid container xs={"auto"} spacing={1} direction={"row"}>
-                                <Grid item>
-                                    <TextField
-                                        required
-                                        fullWidth
-                                        style={{width: '300px'}}
-                                        label="Название задания"
-                                        variant="outlined"
-                                        margin="normal"
-                                        value={editHomework.title}
-                                        onChange={(e) => {
-                                            e.persist()
-                                            setEditHomework((prevState) => ({
-                                                ...prevState,
-                                                title: e.target.value,
-                                            }))
-                                        }}
-                                    />
-                                </Grid>
-                            </Grid>
-                            <Grid item xs={11}>
-                                <TextFieldWithPreview
-                                    multiline
-                                    fullWidth
-                                    minRows={7}
-                                    maxRows="20"
-                                    label="Условие задания"
-                                    variant="outlined"
-                                    margin="normal"
-                                    value={editHomework.description}
-                                    onChange={(e) => {
-                                        e.persist()
-                                        setEditHomework((prevState) => ({
-                                            ...prevState,
-                                            description: e.target.value
-                                        }))
-                                    }}
-                                />
-                            </Grid>
-                            <Grid item xs={11} style={{marginBottom: 15}}>
-                                <Tags editFlag={true} tags={editHomework.tags} courseId={editHomework.courseId} onTagsChange={handleTagsChange}/>
-                                <PublicationAndDeadlineDates
-                                    hasDeadline={editHomework.hasDeadline}
-                                    isDeadlineStrict={editHomework.isDeadlineStrict}
-                                    publicationDate={editHomework.publicationDate}
-                                    deadlineDate={editHomework.deadlineDate}
-                                    disabledPublicationDate={editHomework.isPublished}
-                                    onChange={(state) => setEditHomework(prevState => ({
-                                        ...prevState,
-                                        hasDeadline: state.hasDeadline,
-                                        isDeadlineStrict: state.isDeadlineStrict,
-                                        publicationDate: state.publicationDate,
-                                        deadlineDate: state.deadlineDate,
-                                        hasErrors: state.hasErrors
-                                    }))}
-                                />
-                            </Grid>
-                            {isSomeTaskSoonerThanHomework &&
-                                <Grid item xs={11}>
-                                    <Alert severity="error">
-                                        Дата публикации домашнего задания позже даты публикации задачи
-                                    </Alert>
-                                </Grid>}
-                            <Grid item xs={11}>
-                                <Button
-                                    fullWidth
-                                    variant="contained"
-                                    color="primary"
-                                    type="submit"
-                                    disabled={isSomeTaskSoonerThanHomework || editHomework.hasErrors}
-                                >
-                                    Редактировать
-                                </Button>
-                            </Grid>
-                        </Grid>
-                    </form>
+                        </Link>
+                    </Grid>
                 </Grid>
+
+                <div className={classes.logo}>
+                    <div>
+                        <EditIcon color='primary' style={{ marginRight: '0.5rem' }}/>
+                    </div>
+                    <div>
+                        <Typography style={{ fontSize: '22px' }}>
+                            Редактировать домашнее задание
+                        </Typography>
+                    </div>
+                </div>
+                <form
+                    onSubmit={(e) => handleSubmit(e)}
+                    className={classes.form}
+                >
+                    <Grid container>
+                        <Grid item>
+                            <TextField
+                                required
+                                fullWidth
+                                style={{width: '300px'}}
+                                label="Название задания"
+                                variant="outlined"
+                                margin="normal"
+                                value={editHomework.title}
+                                onChange={(e) => {
+                                    e.persist()
+                                    setEditHomework((prevState) => ({
+                                        ...prevState,
+                                        title: e.target.value,
+                                    }))
+                                }}
+                            />
+                        </Grid>
+                        <Grid item xs={12} style={{marginBottom: "10px"}}>
+                            <TextFieldWithPreview
+                                multiline
+                                fullWidth
+                                minRows={7}
+                                maxRows="20"
+                                label="Условие задания"
+                                variant="outlined"
+                                margin="normal"
+                                value={editHomework.description}
+                                onChange={(e) => {
+                                    e.persist()
+                                    setEditHomework((prevState) => ({
+                                        ...prevState,
+                                        description: e.target.value
+                                    }))
+                                }}
+                            />
+                        </Grid>
+                        <Grid item xs={12} style={{marginBottom: "15px"}}>
+                            <Tags tags={editHomework.tags} courseId={editHomework.courseId} onTagsChange={handleTagsChange}/>
+                            <PublicationAndDeadlineDates
+                                hasDeadline={editHomework.hasDeadline}
+                                isDeadlineStrict={editHomework.isDeadlineStrict}
+                                publicationDate={editHomework.publicationDate}
+                                deadlineDate={editHomework.deadlineDate}
+                                disabledPublicationDate={editHomework.isPublished}
+                                onChange={(state) => setEditHomework(prevState => ({
+                                    ...prevState,
+                                    hasDeadline: state.hasDeadline,
+                                    isDeadlineStrict: state.isDeadlineStrict,
+                                    publicationDate: state.publicationDate,
+                                    deadlineDate: state.deadlineDate,
+                                    hasErrors: state.hasErrors
+                                }))}
+                            />
+                        </Grid>
+                        <Button
+                            fullWidth
+                            color="primary"
+                            variant="contained"
+                            type="submit"
+                            disabled={isSomeTaskSoonerThanHomework || editHomework.hasErrors}>
+                                Редактировать домашнее задание
+                        </Button>
+                    </Grid>
+                </form>
             </Grid>
         )
     }

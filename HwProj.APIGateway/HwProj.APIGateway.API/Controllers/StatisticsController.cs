@@ -3,6 +3,8 @@ using System.Net;
 using System.Threading.Tasks;
 using HwProj.APIGateway.API.Models.Statistics;
 using HwProj.AuthService.Client;
+using HwProj.CoursesService.Client;
+using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
 using HwProj.SolutionsService.Client;
 using Microsoft.AspNetCore.Authorization;
@@ -15,11 +17,14 @@ namespace HwProj.APIGateway.API.Controllers
     public class StatisticsController : AggregationController
     {
         private readonly ISolutionsServiceClient _solutionClient;
+        private readonly ICoursesServiceClient _coursesClient;
 
-        public StatisticsController(ISolutionsServiceClient solutionClient, IAuthServiceClient authServiceClient) :
+        public StatisticsController(ISolutionsServiceClient solutionClient, IAuthServiceClient authServiceClient, 
+            ICoursesServiceClient coursesServiceClient) :
             base(authServiceClient)
         {
             _solutionClient = solutionClient;
+            _coursesClient = coursesServiceClient;
         }
 
         [HttpGet("{courseId}/lecturers")]
@@ -61,6 +66,46 @@ namespace HwProj.APIGateway.API.Controllers
                 Homeworks = stats.Homeworks
             }).OrderBy(t => t.Surname).ThenBy(t => t.Name);
 
+            return Ok(result);
+        }
+        
+        [HttpGet("{courseId}/charts")]
+        [ProducesResponseType(typeof(AdvancedCourseStatisticsViewModel), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetChartStatistics(long courseId)
+        {
+            var course = await _coursesClient.GetCourseById(courseId);
+            if (course == null) 
+                return Forbid();
+            
+            var statistics = await _solutionClient.GetCourseStatistics(courseId, UserId);
+            var studentIds = statistics.Select(t => t.StudentId).ToArray();
+            var studentsData = await AuthServiceClient.GetAccountsData(studentIds);
+            
+            var students = statistics.Zip(studentsData, 
+                (stats, student) => new StatisticsCourseMatesModel
+            {
+                Id = student.UserId,
+                Name = student.Name,
+                Surname = student.Surname,
+                Homeworks = stats.Homeworks
+            }).OrderBy(t => t.Surname).ThenBy(t => t.Name);
+            
+            var statisticsMeasure = await _solutionClient.GetBenchmarkStatistics(courseId);
+
+            var result = new AdvancedCourseStatisticsViewModel
+            {
+                Course = new CoursePreview
+                {
+                    Id = course.Id,
+                    Name = course.Name,
+                    GroupName = course.GroupName,
+                },
+                StudentStatistics = students.ToArray(),
+                Homeworks = course.Homeworks,
+                AverageStudentSolutions = statisticsMeasure.AverageStudentSolutions,
+                BestStudentSolutions = statisticsMeasure.BestStudentSolutions
+            };
+            
             return Ok(result);
         }
     }

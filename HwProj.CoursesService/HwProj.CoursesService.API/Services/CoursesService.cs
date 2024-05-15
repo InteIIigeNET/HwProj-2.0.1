@@ -73,7 +73,7 @@ namespace HwProj.CoursesService.API.Services
 
             CourseDomain.FillTasksInCourses(course);
 
-            var groups = _groupsRepository.GetGroupsWithGroupMatesByCourse(course.Id).ToArray();
+            var groups = await _groupsRepository.GetGroupsWithGroupMatesByCourse(course.Id).ToArrayAsync();
             var filter = await _courseFilterService.GetUserCourseFilterAsync(userId, id);
             var result = course.ToCourseDto().CourseDtoApplyFilter(filter);
             result.Groups = groups.Select(g =>

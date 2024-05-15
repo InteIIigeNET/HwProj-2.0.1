@@ -127,8 +127,10 @@ namespace HwProj.SolutionsService.API.Services
                 .AnyAsync();
 
             if (hasSolution) throw new InvalidOperationException("У студента имеются решения");
-
-            solution.PublicationDate = DateTime.UtcNow;
+            var currentTime = DateTime.UtcNow;
+            
+            solution.PublicationDate = currentTime;
+            solution.RatingDate = currentTime;
             solution.TaskId = taskId;
             var id = await _solutionsRepository.AddAsync(solution);
             await RateSolutionAsync(id, solution.LecturerId!, solution.Rating, solution.LecturerComment);
@@ -138,10 +140,12 @@ namespace HwProj.SolutionsService.API.Services
         {
             if (0 <= newRating)
             {
+                var ratingDate = DateTime.UtcNow;
                 var solution = await _solutionsRepository.GetAsync(solutionId);
                 var task = await _coursesServiceClient.GetTask(solution.TaskId);
                 var state = newRating >= task.MaxRating ? SolutionState.Final : SolutionState.Rated;
-                await _solutionsRepository.RateSolutionAsync(solutionId, state, lecturerId, newRating, lecturerComment);
+                await _solutionsRepository
+                    .RateSolutionAsync(solutionId, state, lecturerId, newRating, ratingDate, lecturerComment);
 
                 var solutionModel = _mapper.Map<SolutionViewModel>(solution);
                 solutionModel.LecturerComment = lecturerComment;
@@ -164,11 +168,11 @@ namespace HwProj.SolutionsService.API.Services
         {
             var getSolutionsQuery = _solutionsRepository.FindAll(t => taskIds.Contains(t.TaskId));
 
-            var groupIds = getSolutionsQuery
+            var groupIds = await getSolutionsQuery
                 .Where(t => t.GroupId != null)
                 .Select(s => s.GroupId!.Value)
                 .Distinct()
-                .ToArray();
+                .ToArrayAsync();
 
             if (groupIds.Any())
             {
@@ -210,6 +214,7 @@ namespace HwProj.SolutionsService.API.Services
                 .Select(t => new SolutionPreviewDto
                 {
                     StudentId = t.LastSolution!.StudentId,
+                    SolutionId = t.LastSolution.Id,
                     GroupId = t.LastSolution.GroupId,
                     TaskId = t.LastSolution.TaskId,
                     PublicationDate = t.LastSolution.PublicationDate,

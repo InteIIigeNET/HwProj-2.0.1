@@ -45,6 +45,7 @@ namespace HwProj.CoursesService.API.Domains
                 IsDeferred = DateTime.UtcNow < task.PublicationDate,
                 IsGroupWork = tags.Contains("Командная работа"),
                 HomeworkId = task.HomeworkId,
+                Tags = tags,
             };
         }
 

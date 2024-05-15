@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Link as RouterLink} from "react-router-dom";
+import {Link as RouterLink, useSearchParams} from "react-router-dom";
 import {AccountDataDto, CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api";
 import CourseHomework from "../Homeworks/CourseHomework";
 import AddHomework from "../Homeworks/AddHomework";
@@ -35,7 +35,6 @@ interface ICourseState {
     newStudents: AccountDataDto[];
     isReadingMode: boolean;
     studentSolutions: StatisticsCourseMatesModel[];
-    isStudentViewMode: boolean;
 }
 
 interface IPageState {
@@ -51,6 +50,7 @@ const styles = makeStyles(() => ({
 
 const Course: React.FC = () => {
     const {courseId, tab} = useParams()
+    const [searchParams, setSearchParams] = useSearchParams()
     const navigate = useNavigate()
     const classes = styles()
 
@@ -64,7 +64,6 @@ const Course: React.FC = () => {
         newStudents: [],
         isReadingMode: true,
         studentSolutions: [],
-        isStudentViewMode: false
     })
 
     const [pageState, setPageState] = useState<IPageState>({
@@ -82,7 +81,7 @@ const Course: React.FC = () => {
         studentSolutions,
     } = courseState;
 
-    const getPostedHomeworks = (homeworks: HomeworkViewModel[]) => 
+    const getPostedHomeworks = (homeworks: HomeworkViewModel[]) =>
         homeworks.filter(h => !h.isDeferred).map(h => ({
             ...h,
             tasks: h.tasks?.filter(t => !t.isDeferred)
@@ -93,9 +92,7 @@ const Course: React.FC = () => {
     const isLecturer = ApiSingleton.authService.isLecturer()
     const isCourseMentor = mentors.some(t => t.userId === userId)
 
-    const isStudentViewMode = isCourseMentor ? courseState.isStudentViewMode : true
-
-    const courseHomeworks = (isCourseMentor && isStudentViewMode)
+    const courseHomeworks = (isCourseMentor && isReadingMode)
         ? getPostedHomeworks(courseState.courseHomework)
         : courseState.courseHomework
 
@@ -161,6 +158,7 @@ const Course: React.FC = () => {
     }
 
     const {tabValue} = pageState
+    const searchedHomeworkId = searchParams.get("homeworkId")
 
     const unratedSolutionsCount = studentSolutions
         .flatMap(x => x.homeworks)
@@ -173,8 +171,8 @@ const Course: React.FC = () => {
     if (isFound) {
         return (
             <div className="container">
-                <Grid style={{marginBottom: '50px', marginTop: "15px"}}>
-                    <Grid container direction={"column"} spacing={1}>
+                <Grid style={{marginTop: "15px"}}>
+                    <Grid container direction={"column"} spacing={2}>
                         {course.isCompleted && <Grid item>
                             <Alert severity="warning">
                                 <AlertTitle>Курс завершен!</AlertTitle>
@@ -185,16 +183,20 @@ const Course: React.FC = () => {
                                         : !isLecturer ? "Вы можете записаться на курс и отправлять решения." : ""}
                             </Alert>
                         </Grid>}
-                        <Grid item container xs={11} className={classes.info}>
+                        <Grid item container xs={12} className={classes.info} alignItems="center" justifyContent="space-between">
                             <Grid item>
                                 <Typography style={{fontSize: '22px'}}>
                                     {`${course.name} / ${course.groupName}`} &nbsp;
                                     {isCourseMentor &&
-                                        <IconButton style={{marginLeft: -5}} onClick={() =>
-                                            setCourseState(prevState => ({
-                                                ...prevState,
-                                                isReadingMode: !isReadingMode
-                                            }))}>
+                                        <IconButton
+                                            size="small"
+                                            onClick={() =>
+                                                setCourseState(prevState => ({
+                                                        ...prevState,
+                                                        isReadingMode: !isReadingMode
+                                                    })
+                                                )}
+                                        >
                                             {isReadingMode
                                                 ? <VisibilityIcon
                                                     titleAccess="Режим чтения включен"
@@ -207,17 +209,19 @@ const Course: React.FC = () => {
                                     }
                                     {isCourseMentor && !isReadingMode! && (
                                         <RouterLink to={`/courses/${courseId}/edit`}>
-                                            <EditIcon fontSize="small"/>
+                                            <EditIcon style={{marginLeft: 5}} fontSize="small"/>
                                         </RouterLink>
                                     )}
                                 </Typography>
-                                <Grid container alignItems={"center"}>
+                            </Grid>
+                            <Grid item>
+                                <Grid container alignItems="center" justifyContent="flex-end">
                                     <Grid item>
                                         <MentorsList mentors={mentors}/>
                                     </Grid>
                                     {isCourseMentor && isReadingMode &&
                                         <Grid item>
-                                            <IconButton onClick={() => setLecturerStatsState(true)}>
+                                            <IconButton size="small" style={{marginLeft: 5}} onClick={() => setLecturerStatsState(true)}>
                                                 <AssessmentIcon>
                                                     Статистика лекторов по курсу
                                                 </AssessmentIcon>
@@ -225,46 +229,34 @@ const Course: React.FC = () => {
                                         </Grid>
                                     }
                                     {lecturerStatsState &&
-                                        <LecturerStatistics courseId={+courseId!}
-                                                            onClose={() => setLecturerStatsState(false)}/>
-                                    }
-                                </Grid>
-                                {isCourseMentor && <div><Switch value={isStudentViewMode}
-                                                                onChange={(e, checked) => setCourseState(prevState => ({
-                                                                    ...prevState,
-                                                                    isStudentViewMode: checked
-                                                                }))}/> 
-                                <Typography display="inline">Студенческий режим отображения</Typography>
-                                </div>}
-                            </Grid>
-                            <Grid item style={{width: '187px'}}>
-                                <Grid container alignItems="flex-end" direction="column" xs={12}>
-                                    {!isSignedInCourse && !isLecturer && !isAcceptedStudent && (
-                                        <Grid item style={{width: '100%', marginTop: '16px'}}>
-                                            <Button
-                                                fullWidth
-                                                variant="contained"
-                                                color="primary"
-                                                onClick={() => joinCourse()}
-                                            >
-                                                Записаться
-                                            </Button>
-                                        </Grid>
-                                    )}
-                                    {isSignedInCourse && !isAcceptedStudent &&
-                                        <Grid item style={{width: '100%', marginTop: '16px'}}>
-                                            <Typography style={{fontSize: '15px'}}>
-                                                Ваша заявка рассматривается
-                                            </Typography>
-                                        </Grid>
+                                        <LecturerStatistics
+                                            courseId={+courseId!}
+                                            onClose={() => setLecturerStatsState(false)}
+                                        />
                                     }
                                 </Grid>
                             </Grid>
                         </Grid>
+                        <Grid item style={{width: 187}}>
+                            {!isSignedInCourse && !isLecturer && !isAcceptedStudent && (
+                                <Button
+                                    fullWidth
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={() => joinCourse()}
+                                >
+                                    Записаться
+                                </Button>
+                            )}
+                            {isSignedInCourse && !isAcceptedStudent &&
+                                <Typography style={{fontSize: '15px'}}>
+                                    Ваша заявка рассматривается
+                                </Typography>
+                            }
+                        </Grid>
                     </Grid>
                     <Tabs
                         value={tabValue == "homeworks" ? 0 : tabValue === "stats" ? 1 : 2}
-                        style={{marginTop: 15}}
                         indicatorColor="primary"
                         onChange={(event, value) => {
                             if (value === 0) navigate(`/courses/${courseId}/homeworks`)
@@ -290,14 +282,16 @@ const Course: React.FC = () => {
                     <br/>
                     {tabValue === "homeworks" && <div>
                         {
-                            isStudentViewMode
-                            ?
-                                <CourseExperimental homeworks={courseHomeworks} 
-                                                    isMentor={isCourseMentor}
-                                                    studentSolutions={studentSolutions}
-                                                    isStudentAccepted={isAcceptedStudent}
-                                                    userId={userId!}/> 
-                            :
+                            isReadingMode
+                                ?
+                                <CourseExperimental
+                                    homeworks={courseHomeworks}
+                                    isMentor={isCourseMentor}
+                                    studentSolutions={studentSolutions}
+                                    isStudentAccepted={isAcceptedStudent}
+                                    selectedHomeworkId={searchedHomeworkId == null ? undefined : +searchedHomeworkId}
+                                    userId={userId!}/>
+                                :
                                 <div>
                                     {createHomework && (
                                         <div>

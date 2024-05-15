@@ -201,6 +201,17 @@ namespace HwProj.SolutionsService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<StatisticsCourseMatesDto[]>();
         }
+        
+        public async Task<StatisticsCourseStudentsBenchmarkDTO> GetBenchmarkStatistics(long courseId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _solutionServiceUri + $"api/Solutions/getBenchmarkStat/{courseId}");
+            
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<StatisticsCourseStudentsBenchmarkDTO>();
+        }
 
         public async Task<StudentSolutions[]> GetTaskSolutionStatistics(long courseId, long taskId)
         {

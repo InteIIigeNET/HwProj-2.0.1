@@ -162,7 +162,7 @@ namespace HwProj.CoursesService.API.Controllers
             var courses = await _coursesService.GetUserCoursesAsync(userId, Roles.StudentRole);
 
             var currentDate = DateTime.UtcNow;
-            
+
             //TODO: Move to service
 
             var result = courses
@@ -175,7 +175,10 @@ namespace HwProj.CoursesService.API.Controllers
                     .Select(task => new TaskDeadlineDto
                     {
                         TaskId = task.Id,
+                        CourseId = course.Id,
+                        HomeworkId = task.HomeworkId,
                         TaskTitle = task.Title,
+                        Tags = task.Tags,
                         CourseTitle = course.Name + " / " + course.GroupName,
                         PublicationDate = task.PublicationDate ?? DateTime.MinValue,
                         MaxRating = task.MaxRating,
@@ -200,7 +203,7 @@ namespace HwProj.CoursesService.API.Controllers
                 .Where(t => !string.IsNullOrEmpty(t))
                 .ToArray();
 
-            var defaultTags = new [] { "Контрольная работа", "Доп. баллы", "Командная работа" };
+            var defaultTags = new[] { HomeworkTags.Test, "Доп. баллы", "Командная работа" };
             result = result.Concat(defaultTags).Distinct().ToArray();
 
             return Ok(result);

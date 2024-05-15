@@ -1,123 +1,109 @@
-import {TaskDeadlineView} from "../../api";
-import * as React from "react";
-import {Link, NavLink} from "react-router-dom";
-import {Divider, Grid, ListItem, Typography, Link as LinkText} from "@material-ui/core";
-import {
-    Chip,
-    Dialog, DialogActions,
-    DialogContent,
-    DialogTitle,
-    LinearProgress, Stack
-} from "@mui/material";
-import {colorBetween} from "../../services/JsUtils";
+import React, { FC, useState } from 'react';
+import { TaskDeadlineView } from "../../api";
+import { Link, NavLink } from "react-router-dom";
+import { Divider, Grid, ListItem, Typography, Link as LinkText } from "@material-ui/core";
+import { Chip, Dialog, DialogActions, DialogContent, DialogTitle, LinearProgress, Stack } from "@mui/material";
+import { colorBetween } from "../../services/JsUtils";
 import Utils from "../../services/Utils";
 import ApiSingleton from "../../api/ApiSingleton";
 import Button from "@material-ui/core/Button";
+import HomeworkTags, {TestTip} from "../Common/HomeworkTags";
 
 interface ITaskDeadlinesProps {
     taskDeadlines: TaskDeadlineView[]
     onGiveUpClick: () => void
 }
 
-export class TaskDeadlines extends React.Component<ITaskDeadlinesProps, {
-    hoveredElement: number | undefined,
-    showGiveUpModalForTaskId: number | undefined
-}> {
-    constructor(props: ITaskDeadlinesProps) {
-        super(props);
-        this.state = {
-            hoveredElement: undefined,
-            showGiveUpModalForTaskId: undefined
-        };
-    }
+const TaskDeadlines: FC<ITaskDeadlinesProps> = ({ taskDeadlines, onGiveUpClick }) => {
+    const [hoveredElement, setHoveredElement] = useState<number | undefined>(undefined);
+    const [showGiveUpModalForTaskId, setShowGiveUpModalForTaskId] = useState<number | undefined>(undefined);
 
-    clamp = (num: number, min: number, max: number) => Math.min(Math.max(num, min), max)
-    getPercent = (startDate: Date, endDate: Date) => {
-        const startDateNumber = new Date(startDate).getTime()
-        const endDateNumber = new Date(endDate).getTime()
-        const currentDateNumber = new Date(Date.now()).getTime()
-        return this.clamp((currentDateNumber - startDateNumber) * 100 / (endDateNumber - startDateNumber), 0, 100)
-    }
+    const clamp = (num: number, min: number, max: number) => Math.min(Math.max(num, min), max);
+    const getPercent = (startDate: Date, endDate: Date) => {
+        const startDateNumber = new Date(startDate).getTime();
+        const endDateNumber = new Date(endDate).getTime();
+        const currentDateNumber = new Date().getTime();
+        return clamp((currentDateNumber - startDateNumber) * 100 / (endDateNumber - startDateNumber), 0, 100);
+    };
 
-    renderBadgeLabel = (text: string) =>
-        <Typography style={{color: "white", fontSize: "small"}} variant={"subtitle2"}>{text}</Typography>
+    const renderBadgeLabel = (text: string) => (
+        <Typography style={{ color: "white", fontSize: "small" }} variant={"subtitle2"}>{text}</Typography>
+    );
 
-    giveUp = async (taskId: number) => {
-        await ApiSingleton.solutionsApi.apiSolutionsGiveUpByTaskIdPost(taskId)
-        this.setState({showGiveUpModalForTaskId: undefined})
-        this.props.onGiveUpClick()
-    }
+    const giveUp = async (taskId: number) => {
+        await ApiSingleton.solutionsApi.apiSolutionsGiveUpByTaskIdPost(taskId);
+        setShowGiveUpModalForTaskId(undefined);
+        onGiveUpClick();
+    };
 
-    renderBadge = (solutionState: TaskDeadlineView.SolutionStateEnum | null,
-                   rating: number | null,
-                   maxRating: number | null) => {
+    const renderBadge = (solutionState: TaskDeadlineView['solutionState'], rating: number, maxRating: number) => {
         if (solutionState === null)
-            return <Chip color="error" size={"small"} style={{height: 20}}
-                         label={this.renderBadgeLabel("Не решено")}/>
+            return <Chip color="error" size={"small"} style={{ height: 20 }} label={renderBadgeLabel("Не решено")} />;
 
         if (solutionState === 0) //POSTED
-            return <Chip color="info" size={"small"} style={{height: 20}}
-                         label={this.renderBadgeLabel("Ожидает проверки")}/>
+            return <Chip color="info" size={"small"} style={{ height: 20 }} label={renderBadgeLabel("Ожидает проверки")} />;
 
-        const color = colorBetween(0xff0000, 0x2cba00, Math.min(rating!, maxRating!) / maxRating! * 100)
-        return <Chip size={"small"} style={{height: 20, backgroundColor: color}}
-                     label={this.renderBadgeLabel(`⭐ ${rating}/${maxRating}`)}/>
-    }
+        const color = colorBetween(0xff0000, 0x2cba00, Math.min(rating, maxRating) / maxRating * 100);
+        return <Chip size={"small"} style={{ height: 20, backgroundColor: color }} label={renderBadgeLabel(`⭐ ${rating}/${maxRating}`)} />;
+    };
 
-    public render() {
-        const {taskDeadlines} = this.props
-        const {hoveredElement, showGiveUpModalForTaskId} = this.state
-        return <div>
-            {taskDeadlines.map(({deadline: deadline, rating, deadlinePast, solutionState}, i) =>
-                <Grid onMouseEnter={() => this.setState({hoveredElement: i})}
-                      onMouseLeave={() => this.setState({hoveredElement: undefined})}>
+    return (
+        <div>
+            {taskDeadlines.map(({ deadline, rating, maxRating, deadlinePast, solutionState }, i) => (
+                <Grid onMouseEnter={() => setHoveredElement(i)}
+                    onMouseLeave={() => setHoveredElement(undefined)}
+                    key={deadline!.taskId}>
                     <Link to={`/task/${deadline!.taskId}`}>
-                        <ListItem
-                            key={deadline!.taskId}
-                            style={{padding: 0, color: "#212529"}}
-                        >
-                            <Grid container direction={"row"} spacing={1} justifyContent={"space-between"}>
+                        <ListItem style={{ padding: 0, color: "#212529" }}>
+                        <Grid container direction={"row"} spacing={1} justifyContent={"flex-end"}>
+                            <Grid item xs>
+                                <NavLink to={`/task/${deadline!.taskId}`} style={{ color: "#212529" }}>
+                                    <Typography style={{ fontSize: "20px" }}>
+                                        {deadline!.taskTitle}{deadline!.tags!.includes(HomeworkTags.TestTag) && <TestTip/>}
+                                    </Typography>
+                                </NavLink>
+                            </Grid>
+                                {(solutionState == null) &&
+                                    <Grid item>
+                                        <Chip size={"small"} style={{ height: 20 }} color={'primary'} label={renderBadgeLabel(`⭐ ${maxRating}`)}/>
+                                    </Grid>
+                                }
+                            {!deadlinePast && (
                                 <Grid item>
-                                    <NavLink
-                                        to={`/task/${deadline!.taskId}`}
-                                        style={{color: "#212529"}}
-                                    >
-                                        <Typography style={{fontSize: "20px"}}>
-                                            {deadline!.taskTitle}
-                                        </Typography>
-                                    </NavLink>
+                                    {renderBadge(solutionState, rating!, deadline!.maxRating!)}
                                 </Grid>
-                                {!deadlinePast && <Grid item>
-                                    {this.renderBadge(solutionState!, rating!, deadline!.maxRating!)}
-                                </Grid>}
+                            )}
                             </Grid>
                         </ListItem>
                     </Link>
-                    <Typography style={{fontSize: "18px", color: "GrayText"}}>
+                    <Typography style={{ fontSize: "18px", color: "GrayText" }}>
                         {deadline!.courseTitle}
                     </Typography>
                     <LinearProgress variant="determinate"
-                                    color={deadlinePast ? "error" : "primary"}
-                                    style={{marginTop: 5}}
-                                    value={deadlinePast ? 100 : this.getPercent(deadline!.publicationDate!, deadline!.deadlineDate!)}/>
+                        color={deadlinePast ? "error" : "primary"}
+                        style={{ marginTop: 5 }}
+                        value={deadlinePast ? 100 : getPercent(deadline!.publicationDate!, deadline!.deadlineDate!)} />
                     <Stack direction={"row"} spacing={10} alignItems={"baseline"} justifyContent={"space-between"}
-                           style={{height: 27}}>
+                        style={{ height: 27 }}>
                         {Utils.renderReadableDate(deadline!.deadlineDate!)}
-                        {hoveredElement === i &&
+                        {hoveredElement === i && solutionState == undefined && (
                             <Typography variant={"caption"}>
                                 <LinkText
-                                    style={{textDecoration: "none", cursor: "pointer"}}
-                                    onClick={() => this.setState({showGiveUpModalForTaskId: deadline!.taskId!})}>
+                                    style={{ textDecoration: "none", cursor: "pointer" }}
+                                    onClick={() => setShowGiveUpModalForTaskId(deadline!.taskId!)}>
                                     Отказаться от решения задачи
                                 </LinkText>
-                            </Typography>}
+                            </Typography>
+                        )}
                     </Stack>
-                    {i < taskDeadlines.length - 1 ?
-                        <Divider style={{marginTop: 10, marginBottom: 10}}/> : null}
-                </Grid>)}
+                    {i < taskDeadlines.length - 1 && (
+                        <Divider style={{ marginTop: 10, marginBottom: 10 }} />
+                    )}
+                </Grid>
+            ))}
             <Dialog open={showGiveUpModalForTaskId !== undefined}
-                    onClose={() => this.setState({showGiveUpModalForTaskId: undefined})}
-                    aria-labelledby="form-dialog-title">
+                onClose={() => setShowGiveUpModalForTaskId(undefined)}
+                aria-labelledby="form-dialog-title">
                 <DialogTitle id="form-dialog-title">
                     Отказаться от решения задачи
                 </DialogTitle>
@@ -132,21 +118,20 @@ export class TaskDeadlines extends React.Component<ITaskDeadlinesProps, {
                         variant="contained"
                         color="primary"
                         type="submit"
-                        onClick={e => showGiveUpModalForTaskId && this.giveUp(showGiveUpModalForTaskId)}
-                    >
+                        onClick={() => showGiveUpModalForTaskId && giveUp(showGiveUpModalForTaskId)}>
                         Да
                     </Button>
                     <Button
                         size="small"
-                        onClick={() => this.setState({showGiveUpModalForTaskId: undefined})}
+                        onClick={() => setShowGiveUpModalForTaskId(undefined)}
                         variant="contained"
-                        color="primary"
-                    >
+                        color="primary">
                         Отменить
                     </Button>
                 </DialogActions>
             </Dialog>
         </div>
-            ;
-    }
-}
+    );
+};
+
+export default TaskDeadlines;

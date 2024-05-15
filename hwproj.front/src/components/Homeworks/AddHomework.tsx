@@ -119,7 +119,7 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                     }
                     }
                 />
-                <Tags editFlag={true} tags={[]} courseId={props.id} onTagsChange={handleTagsChange}/>
+                <Tags tags={[]} courseId={props.id} onTagsChange={handleTagsChange}/>
                 <PublicationAndDeadlineDates
                     hasDeadline={false}
                     isDeadlineStrict={false}

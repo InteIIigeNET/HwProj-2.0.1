@@ -6,20 +6,17 @@ import apiSingleton from "../../api/ApiSingleton";
 import {useState, useEffect, SyntheticEvent} from "react";
 
 interface TagsProps {
-    editFlag: boolean;
     tags: string[];
     courseId: number;
     onTagsChange: (tags: string[]) => void;
 }
 
-export default function Tags({editFlag, tags, courseId, onTagsChange}: TagsProps) {
+export default function Tags({tags, courseId, onTagsChange}: TagsProps) {
     const [allTags, setAllTags] = useState<string[]>([]);
 
     useEffect(() => {
-        if (editFlag) {
             fetchTags();
-        }
-    }, [editFlag]);
+    }, []);
 
     const fetchTags = async () => {
         try {
@@ -43,19 +40,17 @@ export default function Tags({editFlag, tags, courseId, onTagsChange}: TagsProps
             defaultValue={[]}
             onChange={handleOptionSelect}
             filterSelectedOptions
-            readOnly={!editFlag}
             freeSolo
             renderTags={(value, getTagProps) =>
                 value.map((option: string, index: number) => (
                     <Chip variant="filled" label={option} {...getTagProps({index})} />
-
                 ))
             }
             renderInput={(params) => (
                 <TextField
                     {...params}
-                    label="Тэги"
-                    placeholder={editFlag ? "Добавить тэг" : ""}
+                    label = "Тэги"
+                    placeholder = "Добавить тэг"
                 />
             )}
         />

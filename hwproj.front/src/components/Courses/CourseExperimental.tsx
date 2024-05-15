@@ -16,11 +16,12 @@ import TimelineConnector from '@mui/lab/TimelineConnector';
 import TimelineContent from '@mui/lab/TimelineContent';
 import TimelineDot from '@mui/lab/TimelineDot';
 import TimelineOppositeContent from '@mui/lab/TimelineOppositeContent';
-import {Box, Card, CardActions, CardContent, Chip, Divider, Tooltip} from "@mui/material";
+import {Box, Card, CardActions, CardContent, Chip, Divider, Paper, Stack, Tooltip} from "@mui/material";
 import {Link} from "react-router-dom";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import Utils from "../../services/Utils";
 import {ReactMarkdownWithCodeHighlighting} from "../Common/TextFieldWithPreview";
+import HomeworkTags, {TestTip} from "../Common/HomeworkTags";
 
 interface ICourseExperimentalProps {
     homeworks: HomeworkViewModel[]
@@ -28,6 +29,7 @@ interface ICourseExperimentalProps {
     isMentor: boolean
     isStudentAccepted: boolean
     userId: string
+    selectedHomeworkId: number | undefined
 }
 
 interface ICourseExperimentalState {
@@ -40,13 +42,14 @@ interface ICourseExperimentalState {
 
 const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const homeworks = props.homeworks.slice().reverse()
-    const {isMentor, studentSolutions, isStudentAccepted, userId} = props
+    const {isMentor, studentSolutions, isStudentAccepted, userId, selectedHomeworkId} = props
 
+    const defaultHomeworkIndex = Math.max(selectedHomeworkId ? homeworks?.findIndex(x => x.id === selectedHomeworkId) : 0, 0)
     const [state, setState] = useState<ICourseExperimentalState>({
         selectedItem: {
             isHomework: true,
-            id: homeworks && homeworks.length > 0 ? homeworks[0].id : undefined,
-            data: homeworks && homeworks.length > 0 ? homeworks[0] : undefined
+            id: homeworks && homeworks.length > 0 ? homeworks[defaultHomeworkIndex].id : undefined,
+            data: homeworks && homeworks.length > 0 ? homeworks[defaultHomeworkIndex] : undefined
         }
     })
 
@@ -88,7 +91,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 </Grid>}
                 {homework.tags?.filter(t => t != '').map((tag, index) => (
                     <Grid item>
-                        <Chip key={index} label={tag} />
+                        <Chip key={index} label={tag}/>
                     </Grid>
                 ))}
             </Grid>
@@ -181,62 +184,84 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
 
     return <Grid container direction={"row"} spacing={1}>
         <Grid item lg={4}>
-            <Timeline style={{maxHeight: 500, overflow: 'auto'}}
-                      sx={{'&::-webkit-scrollbar': {display: "none"}}}>
-                {homeworks.map(x => <div>
-                    <Box sx={{":hover": hoveredItemStyle}}
-                         style={{...getStyle(true, x.id!), marginTop: 10, marginBottom: 10}}
-                         onClick={() => {
-                             setState(prevState => ({
-                                 ...prevState,
-                                 selectedItem: {
-                                     data: x,
-                                     isHomework: true,
-                                     id: x.id
-                                 }
-                             }))
-                         }}>
-                        <Typography variant="h6" style={{fontSize: 18}} align={"center"}>{x.title}</Typography>
-                        {x.isDeferred &&
-                            <Typography style={{fontSize: "14px"}} align={"center"}>
-                                {"🕘 " + renderDate(x.publicationDate!) + " " + renderTime(x.publicationDate!)}
-                            </Typography>}
-                        {x.tasks?.length === 0 &&
-                            <TimelineItem style={{minHeight: 30, marginBottom: -5}}>
-                                <TimelineOppositeContent></TimelineOppositeContent>
-                                <TimelineSeparator><TimelineConnector/></TimelineSeparator>
-                                <TimelineContent></TimelineContent>
-                            </TimelineItem>}
-                    </Box>
-                    {x.tasks!.map(t => <TimelineItem
-                        onClick={() => {
-                            setState(prevState => ({
-                                ...prevState,
-                                selectedItem: {
-                                    data: t,
-                                    isHomework: false,
-                                    id: t.id
-                                }
-                            }))
-                        }}
-                        style={{...getStyle(false, t.id!)}}
-                        sx={{":hover": hoveredItemStyle}}>
-                        <TimelineOppositeContent color="textSecondary">
-                            {t.deadlineDate ? renderDate(t.deadlineDate) : ""}
-                            <br/>
-                            {t.deadlineDate ? renderTime(t.deadlineDate) : ""}
-                        </TimelineOppositeContent>
-                        <TimelineSeparator>
-                            {renderTaskStatus(t.id!, t.maxRating!)}
-                            <TimelineConnector/>
-                        </TimelineSeparator>
-                        <TimelineContent alignItems={"center"}>
-                            <Typography className="antiLongWords">
-                                {t.title}
+            <Timeline style={{maxHeight: "75vh", overflow: 'auto', paddingLeft: 0, paddingRight: 8}}
+                      sx={{
+                          '&::-webkit-scrollbar': {
+                              width: "3px",
+                          },
+                          '&::-webkit-scrollbar-track': {
+                              backgroundColor: "ghostwhite",
+                              borderRadius: "10px"
+                          },
+                          '&::-webkit-scrollbar-thumb': {
+                              backgroundColor: "lightgrey",
+                              borderRadius: 10
+                          }
+                      }}>
+                {homeworks.map(x => {
+                    const isTest = x.tags!.includes(HomeworkTags.TestTag)
+                    return <div>
+                        <Paper
+                            elevation={0}
+                            component={Stack}
+                            justifyContent="center"
+                            alignContent={"center"}
+                            sx={{":hover": hoveredItemStyle}}
+                            style={{...getStyle(true, x.id!), marginTop: 10, marginBottom: 10, minHeight: 50}}
+                            onClick={() => {
+                                setState(prevState => ({
+                                    ...prevState,
+                                    selectedItem: {
+                                        data: x,
+                                        isHomework: true,
+                                        id: x.id
+                                    }
+                                }))
+                            }}>
+                            <Typography variant="h6" style={{fontSize: 18}} align={"center"}>
+                                {x.title}{isTest && <TestTip/>}
                             </Typography>
-                        </TimelineContent>
-                    </TimelineItem>)}
-                </div>)}
+                            {x.isDeferred &&
+                                <Typography style={{fontSize: "14px"}} align={"center"}>
+                                    {"🕘 " + renderDate(x.publicationDate!) + " " + renderTime(x.publicationDate!)}
+                                </Typography>}
+                            {x.tasks?.length === 0 &&
+                                <TimelineItem style={{minHeight: 30, marginBottom: -5}}>
+                                    <TimelineOppositeContent></TimelineOppositeContent>
+                                    <TimelineSeparator><TimelineConnector/></TimelineSeparator>
+                                    <TimelineContent></TimelineContent>
+                                </TimelineItem>}
+                        </Paper>
+                        {x.tasks!.map(t => <TimelineItem
+                            onClick={() => {
+                                setState(prevState => ({
+                                    ...prevState,
+                                    selectedItem: {
+                                        data: t,
+                                        isHomework: false,
+                                        id: t.id
+                                    }
+                                }))
+                            }}
+                            style={{...getStyle(false, t.id!)}}
+                            sx={{":hover": hoveredItemStyle}}>
+                            <TimelineOppositeContent color="textSecondary">
+                                {t.deadlineDate ? renderDate(t.deadlineDate) : ""}
+                                <br/>
+                                {t.deadlineDate ? renderTime(t.deadlineDate) : ""}
+                            </TimelineOppositeContent>
+                            <TimelineSeparator>
+                                {renderTaskStatus(t.id!, t.maxRating!)}
+                                <TimelineConnector/>
+                            </TimelineSeparator>
+                            <TimelineContent alignItems={"center"}>
+                                <Typography className="antiLongWords">
+                                    {t.title}{isTest && <TestTip/>}
+                                </Typography>
+                            </TimelineContent>
+                        </TimelineItem>)}
+                    </div>;
+                })}
             </Timeline>
         </Grid>
 

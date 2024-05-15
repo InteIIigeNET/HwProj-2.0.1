@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using HwProj.Models.SolutionsService;
 using HwProj.Repositories;
@@ -15,12 +16,14 @@ namespace HwProj.SolutionsService.API.Repositories
         {
         }
 
-        public async Task RateSolutionAsync(long solutionId, SolutionState newState, string lecturerId, int newRating, string lecturerComment)
+        public async Task RateSolutionAsync(long solutionId, SolutionState newState, string lecturerId, int newRating, 
+            DateTime ratingDate, string lecturerComment)
         {
             await UpdateAsync(solutionId, solution => new Solution
             {
                 State = newState,
                 Rating = newRating,
+                RatingDate = ratingDate,
                 LecturerId = lecturerId,
                 LecturerComment = lecturerComment
             });
