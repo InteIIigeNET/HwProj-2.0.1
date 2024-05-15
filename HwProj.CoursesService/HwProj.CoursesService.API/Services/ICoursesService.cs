@@ -8,8 +8,8 @@ namespace HwProj.CoursesService.API.Services
     public interface ICoursesService
     {
         Task<Course[]> GetAllAsync();
-        Task<CourseDTO?> GetAsync(long id);
-        Task<CourseDTO?> GetByTaskAsync(long taskId);
+        Task<CourseDTO?> GetAsync(long id, string userId);
+        Task<CourseDTO?> GetByTaskAsync(long taskId, string userId);
         Task<long> AddAsync(Course course, string mentorId);
         Task DeleteAsync(long id);
         Task UpdateAsync(long courseId, Course updated);

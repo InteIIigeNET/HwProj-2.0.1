@@ -47,7 +47,8 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpGet("{courseId}")]
         public async Task<IActionResult> Get(long courseId)
         {
-            var course = await _coursesService.GetAsync(courseId);
+            var userId = Request.GetUserIdFromHeader();
+            var course = await _coursesService.GetAsync(courseId, userId);
             if (course == null) return NotFound();
 
             return Ok(course);
@@ -57,7 +58,8 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpGet("getByTask/{taskId}")]
         public async Task<IActionResult> GetByTask(long taskId)
         {
-            var course = await _coursesService.GetByTaskAsync(taskId);
+            var userId = Request.GetUserIdFromHeader();
+            var course = await _coursesService.GetByTaskAsync(taskId, userId);
             if (course == null) return NotFound();
 
             return Ok(course);
