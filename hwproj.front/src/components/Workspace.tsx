@@ -128,7 +128,7 @@ const Workspace: FC = () => {
                     {isUserProfile && <Grid item>
                         <Tabs
                             value={tabValue}
-                            style={{marginTop: 15}}
+                            style={{marginTop: 10}}
                             indicatorColor="primary"
                             onChange={(event, value) => {
                                 setProfileState(prevState => ({
