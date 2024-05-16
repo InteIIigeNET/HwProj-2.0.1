@@ -15,6 +15,7 @@ import EditCourse from "./components/Courses/EditCourse";
 import EditTask from "./components/Tasks/EditTask";
 import EditHomework from "./components/Homeworks/EditHomework";
 import Register from "./components/Auth/Register";
+import ExpertsNotebook from "./components/Common/ExpertsNotebook";
 import StudentSolutionsPage from "./components/Solutions/StudentSolutionsPage";
 import EditProfile from "./components/EditProfile";
 import ApiSingleton from "./api/ApiSingleton";
@@ -23,6 +24,7 @@ import WrongPath from "./components/WrongPath";
 import ResetPassword from "components/Auth/ResetPassword";
 import PasswordRecovery from "components/Auth/PasswordRecovery";
 import AuthLayout from "./AuthLayout";
+import ExpertAuthLayout from "./ExpertAuthLayout";
 
 // TODO: add flux
 
@@ -96,6 +98,7 @@ class App extends Component<{ navigate: any }, AppState> {
                                element={<Notifications onMarkAsSeen={this.updatedNewNotificationsCount}/>}/>
                         <Route path="courses" element={<Courses navigate={this.props.navigate}/>}/>
                         <Route path="profile/:id" element={<Workspace/>}/>
+                        <Route path="experts" element={<ExpertsNotebook/>}/>
                         <Route path="create_course" element={<CreateCourse/>}/>
                         <Route path="courses/:courseId" element={<Course/>}/>
                         <Route path="courses/:courseId/:tab" element={<Course/>}/>
@@ -111,6 +114,7 @@ class App extends Component<{ navigate: any }, AppState> {
                     <Route path="register" element={<Register onLogin={this.login}/>}/>
                     <Route path="recovery" element={<PasswordRecovery/>}/>
                     <Route path="resetPassword" element={<ResetPassword/>}/>
+                    <Route path="join/:token" element={<ExpertAuthLayout/>}/>
                     <Route path={"*"} element={<WrongPath/>}/>
                 </Routes>
                 <div style={{marginBottom: 10}}/>

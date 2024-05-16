@@ -13,11 +13,15 @@ namespace HwProj.AuthService.API.Services
         Task<AccountDataDto[]> GetAccountsDataAsync(string[] userIds);
         Task<AccountDataDto> GetAccountDataByEmailAsync(string email);
         Task<Result<TokenCredentials>> RegisterUserAsync(RegisterDataDTO model);
+        Task<Result> RegisterExpertAsync(RegisterExpertViewModel model, string lecturerId);
         Task<Result> EditAccountAsync(string accountId, EditDataDTO model);
+        Task<Result> EditExpertAccountAsync(string expertAccountId, EditExpertViewModel model);
         Task<Result<TokenCredentials>> LoginUserAsync(LoginViewModel model);
+        Task<Result> LoginExpertAsync(TokenCredentials tokenCredentials);
         Task<Result<TokenCredentials>> RefreshToken(string userId);
         Task<Result> InviteNewLecturer(string emailOfInvitedUser);
         Task<IList<User>> GetUsersInRole(string role);
+        Task<User[]> GetExperts(string userId);
         Task<Result> RequestPasswordRecovery(RequestPasswordRecoveryViewModel model);
         Task<Result> ResetPassword(ResetPasswordViewModel model);
         Task<GithubCredentials> AuthorizeGithub(string code, string userId);

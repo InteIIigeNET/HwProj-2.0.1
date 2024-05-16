@@ -2,6 +2,7 @@
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
+using HwProj.AuthService.API.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using HwProj.AuthService.API.Services;
 using HwProj.Models.AuthService.DTO;
@@ -19,16 +20,20 @@ namespace HwProj.AuthService.API.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService;
+        private readonly IAuthTokenService _tokenService;
         private readonly IUserManager _userManager;
         private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
 
         public AccountController(
             IAccountService accountService,
+            IAuthTokenService authTokenService,
             IUserManager userManager,
-            IMapper mapper)
+            IMapper mapper,
+            IExpertsRepository expertsRepository)
         {
             _accountService = accountService;
+            _tokenService = authTokenService;
             _userManager = userManager;
             _mapper = mapper;
         }
@@ -67,12 +72,37 @@ namespace HwProj.AuthService.API.Controllers
             return Ok(result);
         }
 
+        [HttpPost("registerExpert/{lecturerId}")]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> RegisterExpert([FromBody] RegisterExpertViewModel model, string lecturerId)
+        {
+            var result = await _accountService.RegisterExpertAsync(model, lecturerId);
+            return Ok(result);
+        }
+
         [HttpPost("login")]
         [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Login([FromBody] LoginViewModel model)
         {
             var tokenMeta = await _accountService.LoginUserAsync(model).ConfigureAwait(false);
             return Ok(tokenMeta);
+        }
+        
+        [HttpPost("loginExpert")]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> LoginExpert(TokenCredentials tokenCredentials)
+        {
+            var result = await _accountService.LoginExpertAsync(tokenCredentials).ConfigureAwait(false);
+            return Ok(result);
+        }
+        
+        [HttpGet("getExpertToken")]
+        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetExpertToken(string expertEmail)
+        {
+            var expert = await _userManager.FindByEmailAsync(expertEmail);
+            var result = await _tokenService.GetExpertTokenAsync(expert).ConfigureAwait(false);
+            return Ok(result);
         }
 
         [HttpGet("refreshToken")]
@@ -89,6 +119,14 @@ namespace HwProj.AuthService.API.Controllers
         {
             var newModel = _mapper.Map<EditDataDTO>(model);
             var result = await _accountService.EditAccountAsync(userId, newModel);
+            return Ok(result);
+        }
+        
+        [HttpPut("editExpert/{expertId}")]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> Edit([FromBody] EditExpertViewModel model, string expertId)
+        {
+            var result = await _accountService.EditExpertAccountAsync(expertId, model);
             return Ok(result);
         }
 
@@ -146,7 +184,26 @@ namespace HwProj.AuthService.API.Controllers
 
             return Ok(result);
         }
+        
+        [HttpGet("getAllExperts")]
+        [ProducesResponseType(typeof(User[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetAllExperts()
+        {
+            var allExperts = await _accountService.GetUsersInRole(Roles.ExpertRole);
+            var result = allExperts.ToArray();
 
+            return Ok(result);
+        }
+        
+        [HttpGet("getExperts/{userId}")]
+        [ProducesResponseType(typeof(User[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetExperts(string userId)
+        {
+            var experts = await _accountService.GetExperts(userId);
+
+            return Ok(experts);
+        }
+        
         [HttpPost("requestPasswordRecovery")]
         public async Task<Result> RequestPasswordRecovery(RequestPasswordRecoveryViewModel model)
         {

@@ -9,6 +9,7 @@ using AutoMapper;
 using HwProj.AuthService.API.Extensions;
 using HwProj.Models.Roles;
 using HwProj.AuthService.API.Events;
+using HwProj.AuthService.API.Repositories;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
@@ -32,6 +33,7 @@ namespace HwProj.AuthService.API.Services
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
         private readonly HttpClient _client;
+        private readonly IExpertsRepository _expertsRepository;
 
         public AccountService(IUserManager userManager,
             SignInManager<User> signInManager,
@@ -40,7 +42,8 @@ namespace HwProj.AuthService.API.Services
             IMapper mapper,
             UserManager<User> aspUserManager,
             IConfiguration configuration,
-            IHttpClientFactory clientFactory)
+            IHttpClientFactory clientFactory,
+            IExpertsRepository expertsRepository)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -50,6 +53,7 @@ namespace HwProj.AuthService.API.Services
             _aspUserManager = aspUserManager;
             _configuration = configuration;
             _client = clientFactory.CreateClient();
+            _expertsRepository = expertsRepository;
         }
 
         private async Task<AccountDataDto> GetAccountDataAsync(User user)
@@ -106,6 +110,20 @@ namespace HwProj.AuthService.API.Services
 
             return result.Succeeded ? Result.Success() : Result.Failed();
         }
+        
+        public async Task<Result> EditExpertAccountAsync(string id, EditExpertViewModel model)
+        {
+            var expert = await _userManager.FindByIdAsync(id);
+            if (expert == null)
+            {
+                return Result.Failed("Пользователь не найден");
+            }
+
+            var result = await ChangeExpertDataTask(expert, model);
+
+            return result.Succeeded ? Result.Success() : Result.Failed();
+        }
+
 
         public async Task<Result<TokenCredentials>> LoginUserAsync(LoginViewModel model)
         {
@@ -128,6 +146,41 @@ namespace HwProj.AuthService.API.Services
 
             var token = await _tokenService.GetTokenAsync(user);
             return Result<TokenCredentials>.Success(token);
+        }
+
+        public async Task<Result> LoginExpertAsync(TokenCredentials tokenCredentials)
+        {
+            var tokenClaims = _tokenService.GetTokenClaims(tokenCredentials);
+
+            if (tokenClaims.Role != Roles.ExpertRole)
+            {
+                return Result.Failed("Невалидный токен: пользователь не является экспертом");
+            }
+
+            if (tokenClaims.Email is null)
+            {
+                return Result.Failed("Невалидный токен: пользователь не найден");
+            }
+
+            var expert = await _userManager.FindByEmailAsync(tokenClaims.Email);
+            if (expert.Id != tokenClaims.Id)
+            {
+                return Result.Failed("Невалидный токен: пользователь не найден");
+            }
+
+            var tokenCredentialsResult = await _tokenService.GetExpertTokenAsync(expert);
+            if (!tokenCredentialsResult.Succeeded)
+            {
+                return Result.Failed(tokenCredentialsResult.Errors);
+            }
+
+            if (tokenCredentials.AccessToken != tokenCredentialsResult.Value.AccessToken)
+            {
+                return Result.Failed("Невалидный токен");
+            }
+            
+            await _signInManager.SignInAsync(expert, false).ConfigureAwait(false);
+            return Result.Success();
         }
 
         public async Task<Result<TokenCredentials>> RefreshToken(string userId)
@@ -187,6 +240,41 @@ namespace HwProj.AuthService.API.Services
             return Result<TokenCredentials>.Failed(result.Errors.Select(errors => errors.Description).ToArray());
         }
 
+        public async Task<Result> RegisterExpertAsync(RegisterExpertViewModel model, string lecturerId)
+        {
+            if (await _userManager.FindByEmailAsync(model.Email) != null)
+            {
+                return Result.Failed("Пользователь уже зарегистрирован");
+            }
+
+            var user = _mapper.Map<User>(model);
+            user.UserName = user.Email;
+
+            
+            var createUserTask = _userManager.CreateAsync(user);
+
+            var result = await createUserTask
+                .Then(() => _userManager.AddToRoleAsync(user, Roles.ExpertRole))
+                .Then(() =>
+                {
+                    user.EmailConfirmed = true;
+                    return _userManager.UpdateAsync(user);
+                });
+
+            if (result.Succeeded)
+            {
+                await _expertsRepository.AddAsync(new ExpertData
+                {
+                    Id = user.Id,
+                    LecturerId = lecturerId
+                });
+
+                return Result.Success();
+            }
+            
+            return Result.Failed(result.Errors.Select(errors => errors.Description).ToArray());
+        }
+
         public async Task<Result> InviteNewLecturer(string emailOfInvitedUser)
         {
             var invitedUser = await _userManager.FindByEmailAsync(emailOfInvitedUser).ConfigureAwait(false);
@@ -216,6 +304,17 @@ namespace HwProj.AuthService.API.Services
         public async Task<IList<User>> GetUsersInRole(string role)
         {
             return await _userManager.GetUsersInRoleAsync(role);
+        }
+
+        public async Task<User[]> GetExperts(string userId)
+        {
+            var expertIds = await _expertsRepository.GetExpertIds(userId);
+            var experts = _aspUserManager.Users
+                .Where(user => expertIds.Contains(user.Id))
+                .AsNoTracking()
+                .ToArray();
+
+            return experts;
         }
 
         public async Task<Result> RequestPasswordRecovery(RequestPasswordRecoveryViewModel model)
@@ -323,17 +422,52 @@ namespace HwProj.AuthService.API.Services
                 user.Name = model.Name;
             }
 
-            if (!string.IsNullOrWhiteSpace(model.Name))
+            if (!string.IsNullOrWhiteSpace(model.Surname))
             {
                 user.Surname = model.Surname;
             }
 
-            if (!string.IsNullOrWhiteSpace(model.Name))
+            if (!string.IsNullOrWhiteSpace(model.MiddleName))
             {
                 user.MiddleName = model.MiddleName;
             }
 
             return _userManager.UpdateAsync(user);
+        }
+
+        private Task<IdentityResult> ChangeExpertDataTask(User expert, EditExpertViewModel model)
+        {
+            if (!string.IsNullOrWhiteSpace(model.Email))
+            {
+                expert.Email = model.Email;
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.Name))
+            {
+                expert.Name = model.Name;
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.Surname))
+            {
+                expert.Surname = model.Surname;
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.MiddleName))
+            {
+                expert.MiddleName = model.MiddleName;
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.CompanyName))
+            {
+                expert.CompanyName = model.CompanyName;
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.Bio))
+            {
+                expert.Bio = model.Bio;
+            }
+
+            return _userManager.UpdateAsync(expert);
         }
 
         private Task<IdentityResult> ChangePasswordAsync(User user, EditDataDTO model)

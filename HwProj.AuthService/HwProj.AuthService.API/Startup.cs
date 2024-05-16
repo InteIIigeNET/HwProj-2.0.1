@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using HwProj.AuthService.API.Models;
+using HwProj.AuthService.API.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using HwProj.AuthService.API.Services;
@@ -11,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using HwProj.Utils.Configuration;
 using HwProj.Models.AuthService.ViewModels;
+using HwProj.Models.Roles;
 using HwProj.Utils.Auth;
 
 namespace HwProj.AuthService.API
@@ -73,7 +75,8 @@ namespace HwProj.AuthService.API
 
             services.AddScoped<IAuthTokenService, AuthTokenService>()
                 .AddScoped<IAccountService, AccountService>()
-                .AddScoped<IUserManager, ProxyUserManager>();
+                .AddScoped<IUserManager, ProxyUserManager>()
+                .AddScoped<IExpertsRepository, ExpertsRepository>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IdentityContext context)

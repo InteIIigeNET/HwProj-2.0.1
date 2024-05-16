@@ -1,4 +1,4 @@
-import {LoginViewModel, AccountApi, RegisterViewModel} from './../api/';
+import {LoginViewModel, AccountApi, RegisterViewModel, RegisterExpertViewModel} from './../api/';
 import ApiSingleton from "../api/ApiSingleton";
 import decode from "jwt-decode";
 
@@ -50,6 +50,13 @@ export default class AuthService {
         }
     }
 
+    buildInvitationLink(token: string) {
+        const port = window.location.port
+        return port === '' ?
+            `${window.location.protocol}//${window.location.hostname}/join/${token}` :
+            `${window.location.protocol}//${window.location.hostname}:${window.location.port}/join/${token}`;
+    }
+
     isLoggedIn() {
         const token = this.getToken();
         return !!token && !this.isTokenExpired(token);
@@ -65,6 +72,17 @@ export default class AuthService {
         }
     }
 
+    getTokenExpirationDate(token: any) {
+        const decoded = decode<TokenPayload>(token);
+        const expirationDate = new Date(decoded.exp * 1000);
+
+        return expirationDate.toLocaleDateString('ru-RU', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+        });
+    }
+
     setToken = (idToken: string) => localStorage.setItem("id_token", idToken);
 
     refreshToken = (idToken: string) => {
@@ -73,6 +91,10 @@ export default class AuthService {
     }
 
     getToken = () => localStorage.getItem("id_token");
+
+    isExpertProfileEdited = () => localStorage.getItem("is_edited") == "true";
+
+    setIsExpertProfileEdited = () => localStorage.setItem("is_edited", "true");
 
     logout = () => localStorage.clear();
 
