@@ -50,10 +50,16 @@ namespace HwProj.CoursesService.API.Services
             await _userToCourseFilterRepository.AddAsync(userToCourseFilter);
         }
         
-        public async Task<Filter> GetUserCourseFilterAsync(string userId, long courseId)
+        public async Task<Filter?> GetUserFilterAsync(string userId, long courseId)
         {
-            var courseFilter = await _userToCourseFilterRepository.GetAsync(userId, courseId);
-            return (await _courseFilterRepository.GetAsync(courseFilter.CourseFilterId)).Filter;
+            var userToCourseFilter = await _userToCourseFilterRepository.GetAsync(userId, courseId);
+            if (userToCourseFilter == null)
+            {
+                return null;
+            }
+
+            var courseFilter = await _courseFilterRepository.GetAsync(userToCourseFilter.CourseFilterId);
+            return courseFilter == null ? null : courseFilter.Filter;
         }
 
         public async Task UpdateAsync(string userId, long courseId, Filter filter)

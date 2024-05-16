@@ -8,7 +8,7 @@ namespace HwProj.CoursesService.API.Services
     {
         Task<long> CreateOrUpdateExpertFilter(CreateCourseFilterViewModel courseFilterView);
         Task AddUserToCourseFilterRecords(CreateCourseFilterViewModel courseFilterView, long filterId);
-        Task<Filter> GetUserCourseFilterAsync(string userId, long courseId);
+        Task<Filter?> GetUserFilterAsync(string userId, long courseId);
         Task UpdateAsync(string userId, long courseId, Filter filter);
         Task UpdateAsync(long courseFilterId, Filter filter);
     }
