@@ -25,7 +25,7 @@ namespace HwProj.CoursesService.API.Migrations
                 columns: table => new
                 {
                     CourseId = table.Column<long>(nullable: false),
-                    UserId = table.Column<string>(nullable: true),
+                    UserId = table.Column<string>(nullable: false),
                     CourseFilterId = table.Column<long>(nullable: false)
                 },
                 constraints: table =>
@@ -41,12 +41,6 @@ namespace HwProj.CoursesService.API.Migrations
 
             migrationBuilder.DropTable(
                 name: "UserToCourseFilters");
-
-            migrationBuilder.AddColumn<bool>(
-                name: "IsGroupWork",
-                table: "Homeworks",
-                nullable: false,
-                defaultValue: false);
         }
     }
 }
