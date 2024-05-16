@@ -12,7 +12,6 @@ import HelpPopoverChartInfo from './HelpPopoverChartInfo';
 import StudentCheckboxList from "./StudentCheckboxList";
 import StudentProgressChart from "./StudentProgressChart";
 import StudentPunctualityChart from './StudentPunctualityChart';
-import task from "../../Tasks/Task";
 
 interface IStudentStatsChartState {
     isFound: boolean;
@@ -196,7 +195,12 @@ const StudentStatsChart: React.FC = () => {
                 </Grid>
             </div>
         )
+    } else if (state.isFound && !tasksAmount) {
+        return <div className="container">
+            <p>На курсе нет задач</p>
+        </div>
     }
+    
     return <div className="container">
         <p>Загрузка...</p>
         <CircularProgress/>
