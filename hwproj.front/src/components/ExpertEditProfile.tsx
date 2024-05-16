@@ -9,8 +9,7 @@ import Grid from "@material-ui/core/Grid";
 import Avatar from "@material-ui/core/Avatar";
 import {Container} from "@mui/material";
 import {Navigate} from "react-router-dom";
-import {Center} from "@skbkontur/react-ui";
-import {Box, CircularProgress} from "@material-ui/core";
+import {CircularProgress} from "@material-ui/core";
 
 interface IRegisterExpertState {
     isUpdateSuccessful: boolean | undefined;
@@ -54,7 +53,7 @@ const ExpertEditProfile: FC = () => {
         isUpdateSuccessful: undefined,
         isProfileLoaded: false,
         errors: [],
-        isEdited: ApiSingleton.authService.isExpertProfileEdited()
+        isEdited: false
     })
 
     const classes = useStyles()
