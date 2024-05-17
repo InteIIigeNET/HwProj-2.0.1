@@ -29,6 +29,7 @@ interface IInviteExpertState {
     selectedHomeworks: HomeworkViewModel[];
     selectedStudents: AccountDataDto[];
     selectedCourseId: number;
+    errors: string[];
 }
 
 // TODO: make placeholder darker
@@ -50,7 +51,8 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
         courseStudents: [],
         selectedHomeworks: [],
         selectedStudents: [],
-        selectedCourseId: -1
+        selectedCourseId: -1,
+        errors: []
     });
 
     const [isInviteButtonDisabled, setIsInviteButtonDisabled]
@@ -110,18 +112,32 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
 
     // Если преподаватель не выбрал ни одного студента, по умолчанию регистрируем всех
     const handleInvitation = async () => {
-        // const courseFilter: CreateCourseFilterViewModel = {
-        //     userId: props.expertId,
-        //     courseId: state.selectedCourseId,
-        //     homeworkIds: state.selectedHomeworks.map(homeworkViewModel => homeworkViewModel.id!),
-        //     studentIds: state.selectedStudents.length === 0 ?
-        //         state.courseStudents.map(accountData => accountData.userId!)
-        //         : state.selectedStudents.map(accountData => accountData.userId!),
-        //     mentorIds: []
-        // }
-        // await ApiSingleton.courseFiltersApi.apiCourseFiltersCreateExpertFilterPut(courseFilter);
-        setIsInviteButtonDisabled(true);
-        setIsLinkAccessible(true);
+        try {
+            const courseFilter: CreateCourseFilterViewModel = {
+                userId: props.expertId,
+                courseId: state.selectedCourseId,
+                homeworkIds: state.selectedHomeworks.map(homeworkViewModel => homeworkViewModel.id!),
+                studentIds: state.selectedStudents.length === 0 ?
+                    state.courseStudents.map(accountData => accountData.userId!)
+                    : state.selectedStudents.map(accountData => accountData.userId!),
+                mentorIds: []
+            }
+            const result = await ApiSingleton.courseFiltersApi.apiCourseFiltersCreateExpertFilterPut(courseFilter);
+            if (result.succeeded) {
+                setIsInviteButtonDisabled(true);
+                setIsLinkAccessible(true);
+            }
+            setState((prevState) => ({
+                ...prevState,
+                errors: result!.errors ?? [],
+            }));
+        }
+        catch (e) {
+            setState((prevState) => ({
+                ...prevState,
+                errors: ['Сервис недоступен'],
+            }))
+        }
     }
 
     return (
@@ -131,6 +147,11 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
                     Пригласить эксперта
                 </DialogTitle>
                 <DialogContent>
+                    <Grid item container direction={"row"} justifyContent={"center"}>
+                        {state.errors.length > 0 && (
+                            <p style={{color: "red", marginBottom: "0"}}>{state.errors}</p>
+                        )}
+                    </Grid>
                     <Typography>
                         Выберите курс:
                     </Typography>
