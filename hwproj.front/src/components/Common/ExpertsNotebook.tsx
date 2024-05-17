@@ -18,11 +18,15 @@ import InviteExpertModal from "../../components/InviteExpertModal";
 interface InviteExpertState {
     isOpen: boolean;
     email: string;
+    id: string;
 }
 
 const useStyles = makeStyles(() => ({
     info: {
         justifyContent: "space-between",
+    },
+    tableHeader: {
+        fontSize: "18px"
     }
 }))
 
@@ -33,7 +37,8 @@ const ExpertsNotebook: FC = () => {
     const [isOpenRegisterExpert, setIsOpenRegisterExpert] = useState<boolean>(false)
     const [inviteExpertState, setInviteExpertState] = useState<InviteExpertState>({
         isOpen: false,
-        email: ""
+        email: "",
+        id: ""
     })
 
     useEffect(() => {
@@ -48,13 +53,14 @@ const ExpertsNotebook: FC = () => {
     }, [isAllExpertsSelected, isOpenRegisterExpert]);
 
 
-    const handleIsAllExpertsSelectedChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleAllExpertsSelection = (event: React.ChangeEvent<HTMLInputElement>) => {
         setIsAllExpertsSelected(event.target.checked)
     };
 
-    const handleOpenExpertInvitation = (expertEmail: string) => {
+    const handleOpenExpertInvitation = (expertEmail: string, id: string) => {
         setInviteExpertState({
             email: expertEmail,
+            id: id,
             isOpen: true
         })
     }
@@ -62,6 +68,7 @@ const ExpertsNotebook: FC = () => {
     const handleCloseExpertInvitation = () => {
         setInviteExpertState({
             email: "",
+            id: "",
             isOpen: false
         })
     }
@@ -81,26 +88,26 @@ const ExpertsNotebook: FC = () => {
                     </Grid>
                     <Grid item justify-content={"flex-to-end"}>
                         <FormControlLabel
-                            control={<Checkbox size="small" onChange={handleIsAllExpertsSelectedChange}/>}
+                            control={<Checkbox size="small" onChange={handleAllExpertsSelection}/>}
                             label="Показать всех"/>
                     </Grid>
                 </Grid>
                 <TableContainer>
-                    <Table style={{ tableLayout: 'fixed' }} aria-label="table" size="medium" aria-labelledby="tableTitle">
+                    <Table style={{tableLayout: 'fixed'}} aria-label="table" size="medium" aria-labelledby="tableTitle">
                         <TableHead>
                             <TableRow>
                                 <TableCell align={"left"}>
-                                    <Typography variant={"h6"} style={{fontSize: '18px' }}>
+                                    <Typography variant={"h6"} className={classes.tableHeader}>
                                         Почта
                                     </Typography>
                                 </TableCell>
                                 <TableCell align={"left"}>
-                                    <Typography variant={"h6"} style={{fontSize: '18px' }}>
+                                    <Typography variant={"h6"} className={classes.tableHeader}>
                                         ФИО
                                     </Typography>
                                 </TableCell>
                                 <TableCell align={"left"}>
-                                    <Typography variant={"h6"} style={{fontSize: '18px'}}>
+                                    <Typography variant={"h6"} className={classes.tableHeader}>
                                         Компания
                                     </Typography>
                                 </TableCell>
@@ -108,16 +115,17 @@ const ExpertsNotebook: FC = () => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                                {experts.map((row: User) => (
+                            {experts.map((row: User) => (
                                 <TableRow key={row.id}>
                                     <TableCell align={"left"}>{row.email}</TableCell>
-                                    <TableCell align={"left"}>{row.surname + ' ' + row.name + ' ' + row.middleName}</TableCell>
+                                    <TableCell
+                                        align={"left"}>{row.surname + ' ' + row.name + ' ' + row.middleName}</TableCell>
                                     <TableCell align={"left"}>{row.companyName}</TableCell>
                                     <TableCell align={"center"}>
                                         <Grid container justifyContent="flex-end">
                                             <Grid item>
                                                 <Button
-                                                    onClick={() => handleOpenExpertInvitation(row.email!)}
+                                                    onClick={() => handleOpenExpertInvitation(row.email!, row.id!)}
                                                     color="primary"
                                                     size="small"
                                                 >
@@ -150,7 +158,7 @@ const ExpertsNotebook: FC = () => {
             )}
             {inviteExpertState.isOpen && (
                 <InviteExpertModal isOpen={inviteExpertState.isOpen} close={handleCloseExpertInvitation}
-                                   expertEmail={inviteExpertState.email}/>
+                                   expertEmail={inviteExpertState.email} expertId={inviteExpertState.id}/>
             )}
         </div>
     );

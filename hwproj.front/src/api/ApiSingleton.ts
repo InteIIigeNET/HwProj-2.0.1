@@ -2,6 +2,7 @@ import {
     AccountApi,
     NotificationsApi,
     CoursesApi,
+    CourseFiltersApi,
     SolutionsApi,
     HomeworksApi,
     TasksApi,
@@ -17,6 +18,7 @@ class Api {
     auth = new AuthService()
     readonly accountApi: AccountApi;
     readonly coursesApi: CoursesApi;
+    readonly courseFiltersApi: CourseFiltersApi;
     readonly solutionsApi: SolutionsApi;
     readonly notificationsApi: NotificationsApi;
     readonly homeworksApi: HomeworksApi;
@@ -28,6 +30,7 @@ class Api {
     constructor(
         accountApi: AccountApi,
         coursesApi: CoursesApi,
+        courseFiltersApi: CourseFiltersApi,
         solutionsApi: SolutionsApi,
         notificationsApi: NotificationsApi,
         homeworksApi: HomeworksApi,
@@ -38,6 +41,7 @@ class Api {
     ) {
         this.accountApi = accountApi;
         this.coursesApi = coursesApi;
+        this.courseFiltersApi = courseFiltersApi;
         this.solutionsApi = solutionsApi;
         this.notificationsApi = notificationsApi;
         this.homeworksApi = homeworksApi;
@@ -55,6 +59,7 @@ let ApiSingleton: Api;
 ApiSingleton = new Api(
     new AccountApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!}),
     new CoursesApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!}),
+    new CourseFiltersApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!}),
     new SolutionsApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!}),
     new NotificationsApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!}),
     new HomeworksApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!}),
