@@ -3,28 +3,39 @@ import {Tab, Tabs, CircularProgress} from "@material-ui/core";
 import {CoursesList} from "./CoursesList";
 import {CoursePreviewView} from "../../api/";
 import ApiSingleton from "../../api/ApiSingleton";
+import {UserRoles} from "../Auth/UserRoles";
+
+const Roles = UserRoles.Roles;
 
 interface ICoursesState {
     isLoaded: boolean;
     myCourses: CoursePreviewView[];
     allCourses: CoursePreviewView[];
     tabValue: number;
+    role: UserRoles.Roles
 }
 
-export default class Courses extends React.Component<{ navigate: any }, ICoursesState> {
-    constructor(props: { navigate: any }) {
+interface Props {
+    navigate: any,
+    role: UserRoles.Roles
+}
+
+export default class Courses extends React.Component<Props, ICoursesState> {
+    constructor(props: Props) {
         super(props);
         this.state = {
             isLoaded: false,
             myCourses: [],
             allCourses: [],
             tabValue: 0,
+            role: props.role
         };
     }
 
     public render() {
         const {isLoaded, allCourses, myCourses, tabValue} = this.state;
-        const {navigate} = this.props
+        const {navigate} = this.props.navigate;
+        const role = this.props.role;
 
         if (!isLoaded) {
             return (
@@ -54,12 +65,13 @@ export default class Courses extends React.Component<{ navigate: any }, ICourses
                     }}
                 >
                     {activeCourses.length > 0 && <Tab label="Ваши курсы"/>}
-                    <Tab label="Все курсы"/>
+                    {(role == Roles.Lecturer || role == Roles.Student) && <Tab label="Все курсы"/>}
                     {completedCourses.length > 0 && <Tab label="Завершенные курсы"/>}
                 </Tabs>
                 <br/>
                 {tabValue === activeCoursesTab && <CoursesList navigate={navigate} courses={activeCourses}/>}
-                {tabValue === allCoursesTab && <CoursesList navigate={navigate} courses={allCourses}/>}
+                {tabValue === allCoursesTab && (role == Roles.Lecturer || role == Roles.Student)
+                    && <CoursesList navigate={navigate} courses={allCourses}/>}
                 {tabValue === completedCoursesTab && <CoursesList navigate={navigate} courses={completedCourses}/>}
             </div>
         );

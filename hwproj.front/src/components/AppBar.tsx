@@ -8,6 +8,8 @@ import Menu from '@material-ui/core/Menu';
 import InviteLecturerModal from "./InviteLecturerModal";
 import MailIcon from '@mui/icons-material/Mail';
 import {Button} from "@mui/material";
+import {UserRoles} from "./Auth/UserRoles";
+const Roles = UserRoles.Roles;
 
 const styles = makeStyles(theme => ({
     tools: {
@@ -29,7 +31,7 @@ const styles = makeStyles(theme => ({
 
 interface AppBarProps {
     loggedIn: boolean;
-    isLecturer: boolean;
+    role: UserRoles.Roles;
     newNotificationsCount: number;
     onLogout: () => void;
 }
@@ -68,7 +70,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                                 </Typography>
                             </Link>
                         </Grid>
-                        {props.loggedIn &&
+                        {props.loggedIn && props.role != Roles.Expert &&
                             <Grid item>
                                 <Link to={"/notifications"}>
                                     <IconButton>
@@ -96,7 +98,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                             </Grid>
                         }
                     </Grid>
-                    {props.loggedIn && props.isLecturer && <div>
+                    {props.loggedIn && props.role == Roles.Lecturer && <div>
                         <IconButton
                             edge="start"
                             color="inherit"
@@ -143,7 +145,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                             </MenuItem>
                         </Menu>
                     </div>}
-                    {props.loggedIn && !props.isLecturer && <div>
+                    {props.loggedIn && props.role == Roles.Student && <div>
                         <IconButton
                             edge="start"
                             color="inherit"
@@ -162,6 +164,34 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                             <Link
                                 style={{textDecoration: "none", color: "black"}}
                                 to={"/user/edit"}>
+                                <MenuItem>
+                                    Редактировать профиль
+                                </MenuItem>
+                            </Link>
+                            <MenuItem onClick={props.onLogout}>
+                                Выйти
+                            </MenuItem>
+                        </Menu>
+                    </div>}
+                    {props.role == Roles.Expert && <div>
+                        <IconButton
+                            edge="start"
+                            color="inherit"
+                            aria-label="menu"
+                            onClick={handleClick}
+                        >
+                            <MenuIcon/>
+                        </IconButton>
+                        <Menu
+                            id="simple-menu"
+                            anchorEl={anchorEl}
+                            keepMounted
+                            open={Boolean(anchorEl)}
+                            onClose={handleClose}
+                        >
+                            <Link
+                                style={{textDecoration: "none", color: "black"}}
+                                to={"/expert/edit"}>
                                 <MenuItem>
                                     Редактировать профиль
                                 </MenuItem>

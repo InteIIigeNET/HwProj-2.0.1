@@ -25,12 +25,15 @@ import ResetPassword from "components/Auth/ResetPassword";
 import PasswordRecovery from "components/Auth/PasswordRecovery";
 import AuthLayout from "./AuthLayout";
 import ExpertAuthLayout from "./ExpertAuthLayout";
+import {UserRoles} from "./components/Auth/UserRoles";
+import ExpertEditProfile from "./components/ExpertEditProfile";
+const Roles = UserRoles.Roles;
 
 // TODO: add flux
 
 interface AppState {
     loggedIn: boolean;
-    isLecturer: boolean;
+    role: UserRoles.Roles;
     newNotificationsCount: number;
 }
 
@@ -52,7 +55,7 @@ class App extends Component<{ navigate: any }, AppState> {
         super(props);
         this.state = {
             loggedIn: ApiSingleton.authService.isLoggedIn(),
-            isLecturer: ApiSingleton.authService.isLecturer(),
+            role: ApiSingleton.authService.getRole(),
             newNotificationsCount: 0
         };
     }
@@ -71,7 +74,7 @@ class App extends Component<{ navigate: any }, AppState> {
     login = () => {
         this.setState({
             loggedIn: true,
-            isLecturer: ApiSingleton.authService.isLecturer()
+            role: ApiSingleton.authService.getRole()
         })
         this.props.navigate("/");
     }
@@ -79,7 +82,7 @@ class App extends Component<{ navigate: any }, AppState> {
     logout = () => {
         ApiSingleton.authService.logout();
         this.setState({loggedIn: false});
-        this.setState({isLecturer: false});
+        this.setState({role: Roles.Student});
         this.props.navigate("/login");
     }
 
@@ -88,15 +91,16 @@ class App extends Component<{ navigate: any }, AppState> {
             <>
                 <Header loggedIn={this.state.loggedIn}
                         newNotificationsCount={this.state.newNotificationsCount}
-                        isLecturer={this.state.isLecturer}
+                        role={this.state.role}
                         onLogout={this.logout}/>
                 <Routes>
                     <Route element={<AuthLayout/>}>
                         <Route path="user/edit" element={<EditProfile/>}/>
+                        <Route path="expert/edit" element={<ExpertEditProfile/>}/>
                         <Route path="/" element={<Workspace/>}/>
                         <Route path="notifications"
                                element={<Notifications onMarkAsSeen={this.updatedNewNotificationsCount}/>}/>
-                        <Route path="courses" element={<Courses navigate={this.props.navigate}/>}/>
+                        <Route path="courses" element={<Courses navigate={this.props.navigate} role={this.state.role}/>}/>
                         <Route path="profile/:id" element={<Workspace/>}/>
                         <Route path="experts" element={<ExpertsNotebook/>}/>
                         <Route path="create_course" element={<CreateCourse/>}/>
