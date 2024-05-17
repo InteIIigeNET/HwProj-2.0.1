@@ -4,14 +4,14 @@ import {Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions} fr
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import ApiSingleton from "../../api/ApiSingleton";
-import { RegisterExpertViewModel } from "../../api/";
+import {RegisterExpertViewModel} from "../../api/";
 import "./Styles/Register.css";
 import Grid from "@material-ui/core/Grid";
 import makeStyles from "@material-ui/styles/makeStyles";
 import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined';
 import Avatar from "@material-ui/core/Avatar";
 
-interface  IRegisterExpertProps {
+interface IRegisterExpertProps {
     isOpen: boolean;
     close: any;
 }
@@ -47,7 +47,7 @@ const isCorrectEmail = (email: string) => {
 
 const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
     const classes = useStyles()
-    
+
     const [registerState, setRegisterState] = useState<RegisterExpertViewModel>({
         name: "",
         surname: "",
@@ -56,12 +56,12 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
         companyName: "",
         bio: ""
     })
-    
+
     const [commonState, setCommonState] = useState<IRegisterExpertState>({
         errors: [],
         isRegisterSuccessful: undefined
     })
-    
+
     const handleSubmit = async (e: any) => {
         e.preventDefault();
         if (!isCorrectEmail(registerState.email)) {
@@ -78,15 +78,14 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
                 errors: result!.errors ?? [],
                 isRegisterSuccessful: result.succeeded
             }));
-        }
-        catch (e) {
+        } catch (e) {
             setCommonState((prevState) => ({
                 ...prevState,
                 errors: ['Сервис недоступен'],
             }))
         }
     }
-    
+
     const close = () => {
         setRegisterState({
             name: "",
@@ -109,8 +108,8 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
                 <DialogTitle id="form-dialog-title">
                     <Grid container>
                         <Grid item container direction={"row"} justifyContent={"center"}>
-                            <Avatar className={classes.avatar} style={{ color: 'white', backgroundColor: '#00AB00' }}>
-                                <PersonAddOutlinedIcon />
+                            <Avatar className={classes.avatar} style={{color: 'white', backgroundColor: '#00AB00'}}>
+                                <PersonAddOutlinedIcon/>
                             </Avatar>
                         </Grid>
                         <Grid item container direction={"row"} justifyContent={"center"}>
@@ -124,7 +123,7 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
                     <DialogContentText>
                         <Grid item container direction={"row"} justifyContent={"center"}>
                             {commonState.errors.length > 0 && (
-                                <p style={{ color: "red", marginBottom: "0" }}>{commonState.errors}</p>
+                                <p style={{color: "red", marginBottom: "0"}}>{commonState.errors}</p>
                             )}
                             {commonState.isRegisterSuccessful && (
                                 <p style={{color: "green", marginBottom: "0"}}>Эксперт успешно зарегистрирован</p>

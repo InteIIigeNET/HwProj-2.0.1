@@ -24,9 +24,6 @@ interface InviteExpertState {
 const useStyles = makeStyles(() => ({
     info: {
         justifyContent: "space-between",
-    },
-    tableHeader: {
-        fontSize: "18px"
     }
 }))
 
@@ -97,17 +94,17 @@ const ExpertsNotebook: FC = () => {
                         <TableHead>
                             <TableRow>
                                 <TableCell align={"left"}>
-                                    <Typography variant={"h6"} className={classes.tableHeader}>
+                                    <Typography variant={"h6"} style={{fontSize: '18px' }}>
                                         Почта
                                     </Typography>
                                 </TableCell>
                                 <TableCell align={"left"}>
-                                    <Typography variant={"h6"} className={classes.tableHeader}>
+                                    <Typography variant={"h6"} style={{fontSize: '18px' }}>
                                         ФИО
                                     </Typography>
                                 </TableCell>
-                                <TableCell align={"left"}>
-                                    <Typography variant={"h6"} className={classes.tableHeader}>
+                                <TableCell align={"center"}>
+                                    <Typography variant={"h6"} style={{fontSize: '18px' }}>
                                         Компания
                                     </Typography>
                                 </TableCell>
@@ -120,7 +117,7 @@ const ExpertsNotebook: FC = () => {
                                     <TableCell align={"left"}>{row.email}</TableCell>
                                     <TableCell
                                         align={"left"}>{row.surname + ' ' + row.name + ' ' + row.middleName}</TableCell>
-                                    <TableCell align={"left"}>{row.companyName}</TableCell>
+                                    <TableCell align={"center"}>{row.companyName}</TableCell>
                                     <TableCell align={"center"}>
                                         <Grid container justifyContent="flex-end">
                                             <Grid item>
