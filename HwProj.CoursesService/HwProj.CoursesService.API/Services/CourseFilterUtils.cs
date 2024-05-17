@@ -30,7 +30,7 @@ namespace HwProj.CoursesService.API.Services
                 return courseDto;
             }
             
-            courseDto.MentorIds = 
+            courseDto.MentorIds = !filter.MentorIds.Any() ? courseDto.MentorIds :
                 courseDto.MentorIds.Intersect(filter.MentorIds).ToArray();
             courseDto.CourseMates = 
                 courseDto.CourseMates.Where(mate => filter.StudentIds.Contains(mate.StudentId)).ToArray();
