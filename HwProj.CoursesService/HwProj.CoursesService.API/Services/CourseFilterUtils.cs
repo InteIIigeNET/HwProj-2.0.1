@@ -24,14 +24,12 @@ namespace HwProj.CoursesService.API.Services
                 return courseDto;
             }
             
-            courseDto.MentorIds = filter.MentorIds.Any() ? courseDto.MentorIds 
-                : courseDto.MentorIds.Intersect(filter.MentorIds).ToArray();
-            courseDto.CourseMates = filter.StudentIds.Any() ? courseDto.CourseMates 
-                : courseDto.CourseMates.Where(mate => filter.StudentIds.Contains(mate.StudentId)).ToArray();
-            courseDto.Homeworks = filter.HomeworkIds.Any() ? courseDto.Homeworks 
-                : courseDto.Homeworks.Where(hw => filter.HomeworkIds.Contains(hw.Id)).ToArray();
-            courseDto.Groups = filter.StudentIds.Any() ? courseDto.Groups
-                : courseDto.Groups.Where(g => g.StudentsIds.Union(filter.StudentIds).Any()).ToArray();
+            courseDto.MentorIds = 
+                courseDto.MentorIds.Intersect(filter.MentorIds).ToArray();
+            courseDto.CourseMates = 
+                courseDto.CourseMates.Where(mate => filter.StudentIds.Contains(mate.StudentId)).ToArray();
+            courseDto.Homeworks = 
+                courseDto.Homeworks.Where(hw => filter.HomeworkIds.Contains(hw.Id)).ToArray();
 
             return courseDto;
         }

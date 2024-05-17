@@ -64,22 +64,35 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task UpdateAsync(string userId, long courseId, Filter filter)
         {
-            var courseFilter = await _userToCourseFilterRepository.GetAsync(userId, courseId);
-            if (courseFilter == null)
+            var userToCourseFilter = await _userToCourseFilterRepository.GetAsync(userId, courseId);
+            if (userToCourseFilter == null)
             {
                 return;
             }
             
-            await UpdateAsync(courseFilter.CourseFilterId, filter);
+            await UpdateAsync(userToCourseFilter.CourseFilterId, filter);
         }
 
         public async Task UpdateAsync(long courseFilterId, Filter filter)
         {
+            var courseFilter = new CourseFilter
+            {
+                Id = courseFilterId,
+                Filter = filter
+            };
+            
             await _courseFilterRepository.UpdateAsync(courseFilterId, f =>
                 new CourseFilter
                 {
-                    Filter = filter
+                    FilterJson = courseFilter.FilterJson
                 });
+        }
+
+        public IQueryable<long> GetExpertCourseIds(string userId)
+        {
+            return _userToCourseFilterRepository
+                .FindAll(ucf => ucf.UserId == userId)
+                .Select(ucf => ucf.CourseId);
         }
     }
 }

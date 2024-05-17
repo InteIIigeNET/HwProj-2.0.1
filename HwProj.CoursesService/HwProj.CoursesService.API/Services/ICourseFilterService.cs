@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
 using HwProj.Models.CoursesService.ViewModels;
@@ -11,5 +12,6 @@ namespace HwProj.CoursesService.API.Services
         Task<Filter?> GetUserFilterAsync(string userId, long courseId);
         Task UpdateAsync(string userId, long courseId, Filter filter);
         Task UpdateAsync(long courseFilterId, Filter filter);
+        IQueryable<long> GetExpertCourseIds(string userId);
     }
 }
