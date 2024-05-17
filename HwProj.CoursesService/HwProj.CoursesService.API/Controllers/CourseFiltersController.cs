@@ -19,8 +19,8 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpPost("createExpertFilter")]
         public async Task<IActionResult> CreateCourseFilter([FromBody] CreateCourseFilterViewModel courseFilterViewModel)
         {
-            var filterId = await _courseFilterService.CreateOrUpdateExpertFilter(courseFilterViewModel);
-            return Ok(filterId);
+            var result = await _courseFilterService.CreateOrUpdateExpertFilter(courseFilterViewModel);
+            return Ok(result);
         }
     }
 }

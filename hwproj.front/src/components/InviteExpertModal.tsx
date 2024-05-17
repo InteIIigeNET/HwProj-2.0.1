@@ -122,8 +122,9 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
                     : state.selectedStudents.map(accountData => accountData.userId!),
                 mentorIds: []
             }
-            const result = await ApiSingleton.courseFiltersApi.apiCourseFiltersCreateExpertFilterPut(courseFilter);
+            const result = await ApiSingleton.courseFiltersApi.apiCourseFiltersCreateExpertFilterPost(courseFilter);
             if (result.succeeded) {
+                await ApiSingleton.coursesApi.apiCoursesAcceptLecturerByCourseIdByLecturerEmailGet(courseFilter.courseId!, props.expertEmail);
                 setIsInviteButtonDisabled(true);
                 setIsLinkAccessible(true);
             }

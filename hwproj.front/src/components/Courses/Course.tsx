@@ -18,6 +18,8 @@ import {useParams, useNavigate} from 'react-router-dom';
 import MentorsList from "../Common/MentorsList";
 import LecturerStatistics from "./Statistics/LecturerStatistics";
 import AssessmentIcon from '@mui/icons-material/Assessment';
+import {UserRoles} from "../Auth/UserRoles";
+const Roles = UserRoles.Roles;
 
 type TabValue = "homeworks" | "stats" | "applications"
 
@@ -89,10 +91,12 @@ const Course: React.FC = () => {
 
     const userId = ApiSingleton.authService.getUserId()
 
-    const isLecturer = ApiSingleton.authService.isLecturer()
+    const role = ApiSingleton.authService.getRole()
     const isCourseMentor = mentors.some(t => t.userId === userId)
+    const isExpert = isCourseMentor && role == Roles.Expert
+    const isLecturer = isCourseMentor && role == Roles.Lecturer
 
-    const courseHomeworks = (isCourseMentor && isReadingMode)
+    const courseHomeworks = isCourseMentor && isReadingMode
         ? getPostedHomeworks(courseState.courseHomework)
         : courseState.courseHomework
 
@@ -121,7 +125,7 @@ const Course: React.FC = () => {
         // У пользователя изменилась роль (иначе он не может стать лектором в курсе), 
         // однако он все ещё использует токен с прежней ролью
         const shouldRefreshToken =
-            !ApiSingleton.authService.isLecturer() &&
+            role != Roles.Lecturer && role != Roles.Expert &&
             course &&
             course.mentors!.some(t => t.userId === userId)
         if (shouldRefreshToken) {
@@ -178,16 +182,16 @@ const Course: React.FC = () => {
                                 <AlertTitle>Курс завершен!</AlertTitle>
                                 {isAcceptedStudent
                                     ? "Вы можете отправлять решения и получать уведомления об их проверке."
-                                    : isCourseMentor
+                                    : isLecturer
                                         ? "Вы продолжите получать уведомления о новых заявках на вступление и решениях."
-                                        : !isLecturer ? "Вы можете записаться на курс и отправлять решения." : ""}
+                                        : role == Roles.Student ? "Вы можете записаться на курс и отправлять решения." : ""}
                             </Alert>
                         </Grid>}
                         <Grid item container xs={12} className={classes.info} alignItems="center" justifyContent="space-between">
                             <Grid item>
                                 <Typography style={{fontSize: '22px'}}>
                                     {`${course.name} / ${course.groupName}`} &nbsp;
-                                    {isCourseMentor &&
+                                    {isLecturer &&
                                         <IconButton
                                             size="small"
                                             onClick={() =>
@@ -207,7 +211,7 @@ const Course: React.FC = () => {
                                                 />}
                                         </IconButton>
                                     }
-                                    {isCourseMentor && !isReadingMode! && (
+                                    {isLecturer && !isReadingMode! && (
                                         <RouterLink to={`/courses/${courseId}/edit`}>
                                             <EditIcon style={{marginLeft: 5}} fontSize="small"/>
                                         </RouterLink>
@@ -219,7 +223,7 @@ const Course: React.FC = () => {
                                     <Grid item>
                                         <MentorsList mentors={mentors}/>
                                     </Grid>
-                                    {isCourseMentor && isReadingMode &&
+                                    {isLecturer && isReadingMode &&
                                         <Grid item>
                                             <IconButton size="small" style={{marginLeft: 5}} onClick={() => setLecturerStatsState(true)}>
                                                 <AssessmentIcon>
@@ -238,7 +242,7 @@ const Course: React.FC = () => {
                             </Grid>
                         </Grid>
                         <Grid item style={{width: 187}}>
-                            {!isSignedInCourse && !isLecturer && !isAcceptedStudent && (
+                            {!isSignedInCourse && role == Roles.Student && !isAcceptedStudent && (
                                 <Button
                                     fullWidth
                                     variant="contained"
@@ -272,7 +276,7 @@ const Course: React.FC = () => {
                                       label={unratedSolutionsCount}/>
                             </Stack>
                         }/>}
-                        {showApplicationsTab && <Tab label={
+                        {showApplicationsTab && !isExpert && <Tab label={
                             <Stack direction="row" spacing={1}>
                                 <div>Заявки</div>
                                 <Chip size={"small"} color={"default"}
@@ -315,7 +319,7 @@ const Course: React.FC = () => {
                                             </Grid>
                                         </div>
                                     )}
-                                    {isCourseMentor && !createHomework && (
+                                    {isLecturer && !createHomework && (
                                         <div>
                                             <Grid container>
                                                 {!isReadingMode! &&

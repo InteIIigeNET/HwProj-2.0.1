@@ -138,7 +138,8 @@ namespace HwProj.APIGateway.API.Controllers
         {
             var lecturer = await AuthServiceClient.GetAccountDataByEmail(lecturerEmail);
             if (lecturer == null) return NotFound("Преподаватель с такой почтой не найден");
-            if (lecturer.Role != Roles.LecturerRole) return BadRequest("Пользователь не является преподавателем");
+            if (lecturer.Role != Roles.LecturerRole && lecturer.Role != Roles.ExpertRole) 
+                return BadRequest("Пользователь не является преподавателем");
 
             var result = await _coursesClient.AcceptLecturer(courseId, lecturerEmail, lecturer.UserId);
             return result.Succeeded

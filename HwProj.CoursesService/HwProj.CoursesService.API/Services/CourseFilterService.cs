@@ -1,7 +1,9 @@
+using System.Linq;
 using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.Models.CoursesService.ViewModels;
+using HwProj.Models.Result;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -18,23 +20,29 @@ namespace HwProj.CoursesService.API.Services
             _userToCourseFilterRepository = userToCourseFilterRepository;
         }
         
-        public async Task<long> CreateOrUpdateExpertFilter(CreateCourseFilterViewModel courseFilterView)
+        public async Task<Result<long>> CreateOrUpdateExpertFilter(CreateCourseFilterViewModel courseFilterView)
         {
             var exitingUserToCurseFilter = 
                 await _userToCourseFilterRepository.GetAsync(courseFilterView.UserId, courseFilterView.CourseId);
             if (exitingUserToCurseFilter != null)
             {
+                var areViewInvalid = courseFilterView.IsFilterParametersEmpty();
+                if (areViewInvalid)
+                {
+                    return Result<long>.Failed("Необходимо выделить эксперту хотя бы одного студента и домашню работу");
+                }
+                
                 var filter = CourseFilterUtils.CreateFilter(courseFilterView);
                 var exitingFilter = await _courseFilterRepository.GetAsync(exitingUserToCurseFilter.CourseFilterId);
                 await UpdateAsync(exitingFilter.Id, filter);
-                return exitingFilter.Id;
+                return Result<long>.Success(exitingFilter.Id);
             }
             else
             {
                 var filter = CourseFilterUtils.CreateFilter(courseFilterView);
                 var filterId = await _courseFilterRepository.AddAsync(new CourseFilter { Filter = filter });
                 await AddUserToCourseFilterRecords(courseFilterView, filterId);
-                return filterId;
+                return Result<long>.Success(filterId);
             }
         }
 

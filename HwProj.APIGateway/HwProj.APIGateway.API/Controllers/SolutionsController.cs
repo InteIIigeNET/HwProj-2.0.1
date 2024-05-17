@@ -216,7 +216,7 @@ namespace HwProj.APIGateway.API.Controllers
         }
 
         [HttpPost("rateEmptySolution/{taskId}")]
-        [Authorize(Roles = Roles.LecturerRole)]
+        [Authorize(Roles = Roles.LecturerOrExpertRole)]
         public async Task<IActionResult> PostEmptySolutionWithRate(long taskId, SolutionViewModel solution)
         {
             var course = await _coursesServiceClient.GetCourseByTask(taskId);
@@ -248,7 +248,7 @@ namespace HwProj.APIGateway.API.Controllers
         }
 
         [HttpPost("rateSolution/{solutionId}")]
-        [Authorize(Roles = Roles.LecturerRole)]
+        [Authorize(Roles = Roles.LecturerOrExpertRole)]
         public async Task<IActionResult> RateSolution(long solutionId,
             RateSolutionModel rateSolutionModel)
         {
@@ -282,7 +282,7 @@ namespace HwProj.APIGateway.API.Controllers
         }
 
         [HttpGet("unratedSolutions")]
-        [Authorize(Roles = Roles.LecturerRole)]
+        [Authorize(Roles = Roles.LecturerOrExpertRole)]
         public async Task<UnratedSolutionPreviews> GetUnratedSolutions(long? taskId)
         {
             var mentorCourses = await _coursesServiceClient.GetAllUserCourses();

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HwProj.AuthService.Client;
@@ -179,10 +180,21 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<CourseDTO[]> GetUserCoursesAsync(string userId, string role)
         {
-            var courses = role == Roles.LecturerRole
-                ? _coursesRepository.FindAll(c => c.MentorIds.Contains(userId))
-                : _coursesRepository.FindAll(c => c.CourseMates.Any(cm => cm.IsAccepted && cm.StudentId == userId));
+            IQueryable<long> courseIds = new EnumerableQuery<long>(new List<long>());
+            if (role == Roles.ExpertRole)
+            {
+                courseIds = _courseFilterService.GetExpertCourseIds(userId);
+            }
 
+            IQueryable<Course> courses = role switch
+            {
+                Roles.LecturerRole => _coursesRepository.FindAll(c => c.MentorIds.Contains(userId)),
+                Roles.StudentRole => _coursesRepository
+                    .FindAll(c => c.CourseMates.Any(cm => cm.IsAccepted && cm.StudentId == userId)),
+                Roles.ExpertRole => _coursesRepository.FindAll(c => courseIds.Contains(c.Id)),
+                _ => new EnumerableQuery<Course>(new List<Course>())
+            };
+            
             var result = await courses
                 .Include(c => c.CourseMates)
                 .Include(c => c.Homeworks).ThenInclude(t => t.Tasks)
