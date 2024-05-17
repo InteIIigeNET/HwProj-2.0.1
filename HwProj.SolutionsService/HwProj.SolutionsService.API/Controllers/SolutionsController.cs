@@ -108,7 +108,9 @@ namespace HwProj.SolutionsService.API.Controllers
             solution.LecturerId = Request.GetUserIdFromHeader()!;
             if (solution.LecturerId == solution.StudentId)
                 solution.LecturerId = null;
+            
             await _solutionsService.PostEmptySolutionWithRateAsync(taskId, solution);
+            
             return Ok();
         }
 
