@@ -1,6 +1,8 @@
+using System.Net;
 using System.Threading.Tasks;
 using HwProj.CoursesService.Client;
 using HwProj.Models.CoursesService.ViewModels;
+using HwProj.Models.Result;
 using HwProj.Models.Roles;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,8 +20,9 @@ namespace HwProj.APIGateway.API.Controllers
             _coursesClient = coursesClient;
         }
 
-        [HttpPut("createExpertFilter")]
+        [HttpPost("createExpertFilter")]
         [Authorize(Roles = Roles.LecturerRole)]
+        [ProducesResponseType(typeof(Result<long>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> CreateOrUpdateExpertCourseFilter(CreateCourseFilterViewModel model)
         {
             var result = await _coursesClient.CreateOrUpdateExpertCourseFilter(model);

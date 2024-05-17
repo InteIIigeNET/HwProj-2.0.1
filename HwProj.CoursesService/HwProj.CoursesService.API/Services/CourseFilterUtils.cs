@@ -16,6 +16,12 @@ namespace HwProj.CoursesService.API.Services
                 StudentIds = courseFilterViewModel.StudentIds
             };
         }
+
+        public static bool IsFilterParametersEmpty(this CreateCourseFilterViewModel courseFilterViewModel)
+        {
+            return !courseFilterViewModel.StudentIds.Any()
+                   || !courseFilterViewModel.HomeworkIds.Any();
+        }
         
         public static CourseDTO CourseDtoApplyFilter(this CourseDTO courseDto, Filter? filter)
         {

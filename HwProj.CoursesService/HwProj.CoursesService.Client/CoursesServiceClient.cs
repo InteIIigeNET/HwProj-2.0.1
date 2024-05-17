@@ -479,7 +479,7 @@ namespace HwProj.CoursesService.Client
                 : Result<string[]>.Failed();
         }
 
-        public async Task<long> CreateOrUpdateExpertCourseFilter(CreateCourseFilterViewModel model)
+        public async Task<Result<long>> CreateOrUpdateExpertCourseFilter(CreateCourseFilterViewModel model)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
@@ -491,7 +491,7 @@ namespace HwProj.CoursesService.Client
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<long>();
+            return await response.DeserializeAsync<Result<long>>();
         }
 
         public async Task<bool> Ping()
