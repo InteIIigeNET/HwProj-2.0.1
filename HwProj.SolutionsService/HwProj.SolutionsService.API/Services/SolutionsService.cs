@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -263,7 +264,26 @@ namespace HwProj.SolutionsService.API.Services
             var solution = await _solutionsRepository.GetAsync(solutionId)
                 ?? throw new ArgumentException(nameof(solutionId));
             var lastSolutionCommit = await _githubSolutionCommitsRepository.TryGetLastBySolutionId(solutionId);
-            
+
+            var commits = await GetCommitsByUrl(solution.GithubUrl);
+
+            return SolutionHelper.GetCommitActuality(commits, lastSolutionCommit);
+        }
+
+        public async Task<long> SaveSolutionCommitsInfo(SolutionUrlDto solutionUrlDto)
+        {
+            var lastCommitHash = (await GetCommitsByUrl(solutionUrlDto.SolutionUrl)).Last().Sha;
+
+            return await _githubSolutionCommitsRepository.AddAsync(new GithubSolutionCommit
+            {
+                SolutionId = solutionUrlDto.SolutionId,
+                CommitHash = lastCommitHash
+            });
+        }
+
+        private static async Task<IEnumerable<PullRequestCommit>> GetCommitsByUrl(string solutionUrl)
+        {
+            const string appName = "Hwproj";
             var token = "";
             
             var client = new GitHubClient(new ProductHeaderValue(appName))
@@ -271,14 +291,14 @@ namespace HwProj.SolutionsService.API.Services
                 Credentials = new Credentials(token)
             };
 
-            var pullRequest = SolutionHelper.ParsePullRequestUrl(solution.GithubUrl);
+            var pullRequest = SolutionHelper.ParsePullRequestUrl(solutionUrl);
             
             var commits = await client.PullRequest
                 .Commits(pullRequest.Owner, pullRequest.Name, pullRequest.Number);
             if (commits is null)
                 throw new InvalidOperationException("У решения не найден пулл реквест");
 
-            return SolutionHelper.GetCommitActuality(commits, lastSolutionCommit);
+            return commits;
         }
     }
 }

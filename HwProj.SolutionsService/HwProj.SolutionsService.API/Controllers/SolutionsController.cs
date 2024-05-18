@@ -295,5 +295,11 @@ namespace HwProj.SolutionsService.API.Controllers
         {
             return await _solutionsService.GetSolutionActuality(solutionId);
         }
+
+        [HttpPost("commitsInfo")]
+        public async Task<long> SaveSolutionCommitsInfo([FromBody] SolutionUrlDto solutionUrlDto)
+        {
+            return await _solutionsService.SaveSolutionCommitsInfo(solutionUrlDto);
+        }
     }
 }
