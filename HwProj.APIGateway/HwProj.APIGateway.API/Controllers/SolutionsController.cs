@@ -252,6 +252,15 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok();
         }
 
+        [HttpGet("actuality")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        [ProducesResponseType(typeof(SolutionActualityDto), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetSolutionActuality([FromQuery] long solutionId)
+        {
+            var result = await _solutionsClient.GetSolutionActuality(solutionId);
+            return Ok(result);
+        }
+
         [HttpPost("markSolutionFinal/{solutionId}")]
         [Authorize(Roles = Roles.LecturerRole)]
         public async Task<IActionResult> MarkSolution(long solutionId)

@@ -271,15 +271,14 @@ namespace HwProj.SolutionsService.API.Services
                 Credentials = new Credentials(token)
             };
 
-            var pullRequest = SolutionUrlHelper.ParsePullRequestUrl(solution.GithubUrl);
+            var pullRequest = SolutionHelper.ParsePullRequestUrl(solution.GithubUrl);
             
             var commits = await client.PullRequest
                 .Commits(pullRequest.Owner, pullRequest.Name, pullRequest.Number);
             if (commits is null)
                 throw new InvalidOperationException("У решения не найден пулл реквест");
-            
+
+            return SolutionHelper.GetCommitActuality(commits, lastSolutionCommit);
         }
-        
-        private SolutionActualityDto CreateSolutionActualityD
     }
 }
