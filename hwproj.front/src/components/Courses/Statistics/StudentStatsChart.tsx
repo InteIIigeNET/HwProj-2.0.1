@@ -37,17 +37,17 @@ const StudentStatsChart: React.FC = () => {
         averageStudent: []
     })
     const [sectorSizes, setSectorSizes] = useState<number[]>([]);
-    const handleStudentSelection = (studentIds : string[]) => {
+    const handleStudentSelection = (studentIds: string[]) => {
         const newSectorSizes = sectorSizes.map((_, i) => {
             const taskSectorSizes = studentIds.map(id => {
                 const task = state.solutions.filter(s => s.id === id)[0]
                     .homeworks!.flatMap(h => h.tasks ?? [])[i]
                 return task.solution!.length;
             })
-            
+
             return Math.max(...taskSectorSizes);
         })
-        
+
         setSectorSizes(newSectorSizes);
         setSelectedStudents(studentIds);
     }
@@ -161,16 +161,16 @@ const StudentStatsChart: React.FC = () => {
                                 />
                             </Paper>
                         </Box>
-                        {selectedStudents.length > 0 && <Box mb={5}>
-                            <Typography variant="h6" align="center" color="textSecondary">
-                                Анализ соблюдения сроков выполнения задач
-                                <HelpPopoverChartInfo chartName='punctuality'/>
-                            </Typography>
-                        </Box>}
                     </Grid>
-                    {tasksWithDeadlineAmount > 0 
-                        ? selectedStudents.map((studentId, index) =>
-                            <Grid xs={12} item>
+                    {tasksWithDeadlineAmount > 0 && selectedStudents.length > 0 &&
+                        <Grid item xs={12}>
+                            <Box mb={5}>
+                                <Typography variant="h6" align="center" color="textSecondary">
+                                    Анализ соблюдения сроков выполнения задач
+                                    <HelpPopoverChartInfo chartName='punctuality'/>
+                                </Typography>
+                            </Box>
+                            {selectedStudents.map((studentId, index) =>
                                 <Box key={studentId} mb={3}>
                                     <Paper elevation={2} style={{padding: 15}}>
                                         <Typography variant="h6" style={{marginBottom: 7}} color="textSecondary">
@@ -185,13 +185,8 @@ const StudentStatsChart: React.FC = () => {
                                         />
                                     </Paper>
                                 </Box>
-                            </Grid>)
-                        
-                        :   <Grid xs={12} item>
-                                <Typography variant="subtitle1" color="textSecondary">
-                                    На курсе еще нет задач с дедлайнами.
-                                </Typography>
-                            </Grid>}
+                            )}
+                        </Grid>}
                 </Grid>
             </div>
         )
@@ -200,7 +195,7 @@ const StudentStatsChart: React.FC = () => {
             <p>На курсе нет задач</p>
         </div>
     }
-    
+
     return <div className="container">
         <p>Загрузка...</p>
         <CircularProgress/>

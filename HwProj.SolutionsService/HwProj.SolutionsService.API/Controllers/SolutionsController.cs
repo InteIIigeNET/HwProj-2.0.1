@@ -4,6 +4,7 @@ using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.Client;
+using HwProj.Models.CoursesService;
 using HwProj.Models.SolutionsService;
 using HwProj.Models.StatisticsService;
 using HwProj.SolutionsService.API.Domains;
@@ -243,7 +244,7 @@ namespace HwProj.SolutionsService.API.Controllers
             
             var bestStudentSolutions = course.Homeworks
                 .SelectMany(e => e.Tasks)
-                .Where(e => !e.Tags.Contains("Доп. баллы"))
+                .Where(e => !e.Tags.Contains(HomeworkTags.BonusTask))
                 .Select(task => new StatisticsCourseMeasureSolutionModel
                 {
                     TaskId = task.Id,

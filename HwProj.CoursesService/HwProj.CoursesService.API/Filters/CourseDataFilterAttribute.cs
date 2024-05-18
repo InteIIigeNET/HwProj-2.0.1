@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
 using HwProj.Models;
+using HwProj.Models.CoursesService;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
