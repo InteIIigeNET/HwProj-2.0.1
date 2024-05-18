@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HwProj.SolutionsService.API.Migrations
 {
     [DbContext(typeof(SolutionContext))]
-    [Migration("20240518174639_GithubSolutionCommits")]
+    [Migration("20240518180325_GithubSolutionCommits")]
     partial class GithubSolutionCommits
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -68,7 +68,17 @@ namespace HwProj.SolutionsService.API.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("SolutionId");
+
                     b.ToTable("LastGithubSolutionCommits");
+                });
+
+            modelBuilder.Entity("HwProj.SolutionsService.API.Models.GithubSolutionCommit", b =>
+                {
+                    b.HasOne("HwProj.Models.SolutionsService.Solution", "Solution")
+                        .WithMany()
+                        .HasForeignKey("SolutionId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }

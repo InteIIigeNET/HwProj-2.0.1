@@ -66,7 +66,17 @@ namespace HwProj.SolutionsService.API.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("SolutionId");
+
                     b.ToTable("LastGithubSolutionCommits");
+                });
+
+            modelBuilder.Entity("HwProj.SolutionsService.API.Models.GithubSolutionCommit", b =>
+                {
+                    b.HasOne("HwProj.Models.SolutionsService.Solution", "Solution")
+                        .WithMany()
+                        .HasForeignKey("SolutionId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }

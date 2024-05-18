@@ -19,7 +19,18 @@ namespace HwProj.SolutionsService.API.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_LastGithubSolutionCommits", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_LastGithubSolutionCommits_Solutions_SolutionId",
+                        column: x => x.SolutionId,
+                        principalTable: "Solutions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LastGithubSolutionCommits_SolutionId",
+                table: "LastGithubSolutionCommits",
+                column: "SolutionId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
