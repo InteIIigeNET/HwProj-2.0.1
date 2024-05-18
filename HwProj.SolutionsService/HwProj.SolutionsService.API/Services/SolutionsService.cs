@@ -24,15 +24,22 @@ namespace HwProj.SolutionsService.API.Services
         private readonly IMapper _mapper;
         private readonly ICoursesServiceClient _coursesServiceClient;
         private readonly IAuthServiceClient _authServiceClient;
+        private readonly IGithubSolutionCommitsRepository _githubSolutionCommitsRepository;
 
-        public SolutionsService(ISolutionsRepository solutionsRepository, IEventBus eventBus, IMapper mapper,
-            ICoursesServiceClient coursesServiceClient, IAuthServiceClient authServiceClient)
+        public SolutionsService(
+            ISolutionsRepository solutionsRepository,
+            IEventBus eventBus,
+            IMapper mapper,
+            ICoursesServiceClient coursesServiceClient,
+            IAuthServiceClient authServiceClient,
+            IGithubSolutionCommitsRepository githubSolutionCommitsRepository)
         {
             _solutionsRepository = solutionsRepository;
             _eventBus = eventBus;
             _mapper = mapper;
             _coursesServiceClient = coursesServiceClient;
             _authServiceClient = authServiceClient;
+            _githubSolutionCommitsRepository = githubSolutionCommitsRepository;
         }
 
         public async Task<Solution[]> GetAllSolutionsAsync()
@@ -255,6 +262,7 @@ namespace HwProj.SolutionsService.API.Services
             const string appName = "Hwproj";
             var solution = await _solutionsRepository.GetAsync(solutionId)
                 ?? throw new ArgumentException(nameof(solutionId));
+            var lastSolutionCommit = await _githubSolutionCommitsRepository.TryGetLastBySolutionId(solutionId);
             
             var token = "";
             
@@ -270,7 +278,8 @@ namespace HwProj.SolutionsService.API.Services
             if (commits is null)
                 throw new InvalidOperationException("У решения не найден пулл реквест");
             
-            var lastCommit = commits.Last();
         }
+        
+        private SolutionActualityDto CreateSolutionActualityD
     }
 }

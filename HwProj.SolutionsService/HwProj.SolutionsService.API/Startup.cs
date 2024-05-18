@@ -27,6 +27,7 @@ namespace HwProj.SolutionsService.API
             var connectionString = ConnectionString.GetConnectionString(Configuration);
             services.AddDbContext<SolutionContext>(options => options.UseSqlServer(connectionString));
             services.AddScoped<ISolutionsRepository, SolutionsRepository>();
+            services.AddScoped<IGithubSolutionCommitsRepository, IGithubSolutionCommitsRepository>();
             services.AddScoped<ISolutionsService, Services.SolutionsService>();
 
             services.AddUserIdAuthentication();
