@@ -42,7 +42,7 @@ namespace HwProj.CoursesService.API.Filters
                     courseDto.Homeworks = courseDto.Homeworks
                         .Where(h =>
                             currentDate >= h.PublicationDate &&
-                            (isCourseStudent || !h.Tags.Contains(HomeworkTags.Test)))
+                            (isCourseStudent || !h.Tags.Contains(DefaultTags.Test)))
                         .ToArray();
 
                     foreach (var homework in courseDto.Homeworks)

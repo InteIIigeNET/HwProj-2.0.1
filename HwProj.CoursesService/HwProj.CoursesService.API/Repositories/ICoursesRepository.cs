@@ -7,7 +7,7 @@ namespace HwProj.CoursesService.API.Repositories
 {
     public interface ICoursesRepository : ICrudRepository<Course, long>
     {
-        Task<Course?> GetWithCourseMatesAsync(long id);
+        Task<Course?> GetWithCourseMatesAndHomeworksAsync(long id);
         IQueryable<Course> GetAllWithCourseMatesAndHomeworks();
     }
 }

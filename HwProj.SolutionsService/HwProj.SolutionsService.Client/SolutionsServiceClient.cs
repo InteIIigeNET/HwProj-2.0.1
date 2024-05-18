@@ -290,7 +290,7 @@ namespace HwProj.SolutionsService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _solutionServiceUri + "commitsInfo")
+                _solutionServiceUri + "api/Solutions/commitsInfo")
             {
                 Content = new StringContent(
                     JsonConvert.SerializeObject(solutionUrlDto),

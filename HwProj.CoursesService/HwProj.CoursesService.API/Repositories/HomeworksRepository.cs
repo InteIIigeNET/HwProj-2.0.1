@@ -20,7 +20,9 @@ namespace HwProj.CoursesService.API.Repositories
 
         public async Task<Homework[]> GetAllWithTasksByCourseAsync(long courseId)
         {
-            return await Context.Set<Homework>().AsNoTracking().Include(h => h.Tasks)
+            return await Context.Set<Homework>()
+                .AsNoTracking()
+                .Include(h => h.Tasks)
                 .Where(h => h.CourseId == courseId)
                 .ToArrayAsync();
         }
