@@ -289,5 +289,11 @@ namespace HwProj.SolutionsService.API.Controllers
         {
             return await _solutionsService.GetTaskSolutionsStats(taskIds);
         }
+
+        [HttpGet("actuality")]
+        public async Task<SolutionActualityDto> GetSolutionActuality([FromQuery] long solutionId)
+        {
+            return await _solutionsService.GetSolutionActuality(solutionId);
+        }
     }
 }

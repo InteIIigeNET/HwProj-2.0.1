@@ -10,8 +10,10 @@ using HwProj.Models.SolutionsService;
 using HwProj.Models.StatisticsService;
 using HwProj.SolutionsService.API.Domains;
 using HwProj.SolutionsService.API.Events;
+using HwProj.SolutionsService.API.Models;
 using HwProj.SolutionsService.API.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Octokit;
 
 namespace HwProj.SolutionsService.API.Services
 {
@@ -243,9 +245,32 @@ namespace HwProj.SolutionsService.API.Services
                 }).ToArray();
         }
 
-        public Task<Solution[]> GetTaskSolutionsFromGroupAsync(long taskId, long groupId)
+        public async Task<Solution[]> GetTaskSolutionsFromGroupAsync(long taskId, long groupId)
         {
-            return _solutionsRepository.FindAll(cm => cm.GroupId == groupId).ToArrayAsync();
+            return await _solutionsRepository.FindAll(cm => cm.GroupId == groupId).ToArrayAsync();
+        }
+
+        public async Task<SolutionActualityDto> GetSolutionActuality(long solutionId)
+        {
+            const string appName = "Hwproj";
+            var solution = await _solutionsRepository.GetAsync(solutionId)
+                ?? throw new ArgumentException(nameof(solutionId));
+            
+            var token = "";
+            
+            var client = new GitHubClient(new ProductHeaderValue(appName))
+            {
+                Credentials = new Credentials(token)
+            };
+
+            var pullRequest = SolutionUrlHelper.ParsePullRequestUrl(solution.GithubUrl);
+            
+            var commits = await client.PullRequest
+                .Commits(pullRequest.Owner, pullRequest.Name, pullRequest.Number);
+            if (commits is null)
+                throw new InvalidOperationException("У решения не найден пулл реквест");
+            
+            var lastCommit = commits.Last();
         }
     }
 }
