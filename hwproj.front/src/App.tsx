@@ -72,11 +72,14 @@ class App extends Component<{ navigate: any }, AppState> {
     }
 
     login = () => {
+        const role = ApiSingleton.authService.getRole();
         this.setState({
             loggedIn: true,
-            role: ApiSingleton.authService.getRole()
+            role: role
         })
-        this.props.navigate("/");
+        if (role !== Roles.Expert) {
+            this.props.navigate("/");
+        }
     }
 
     logout = () => {
@@ -118,7 +121,7 @@ class App extends Component<{ navigate: any }, AppState> {
                     <Route path="register" element={<Register onLogin={this.login}/>}/>
                     <Route path="recovery" element={<PasswordRecovery/>}/>
                     <Route path="resetPassword" element={<ResetPassword/>}/>
-                    <Route path="join/:token" element={<ExpertAuthLayout/>}/>
+                    <Route path="join/:token" element={<ExpertAuthLayout onLogin={this.login}/>}/>
                     <Route path={"*"} element={<WrongPath/>}/>
                 </Routes>
                 <div style={{marginBottom: 10}}/>

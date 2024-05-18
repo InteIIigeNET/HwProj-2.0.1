@@ -132,8 +132,7 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
                 ...prevState,
                 errors: result!.errors ?? [],
             }));
-        }
-        catch (e) {
+        } catch (e) {
             setState((prevState) => ({
                 ...prevState,
                 errors: ['Сервис недоступен'],
