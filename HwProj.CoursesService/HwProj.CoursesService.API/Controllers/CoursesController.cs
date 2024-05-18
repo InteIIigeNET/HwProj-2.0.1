@@ -14,6 +14,7 @@ using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
 using Microsoft.EntityFrameworkCore;
 using HwProj.CoursesService.API.Domains;
+using HwProj.Models.CoursesService;
 using HwProj.Models.Roles;
 
 namespace HwProj.CoursesService.API.Controllers
@@ -201,7 +202,7 @@ namespace HwProj.CoursesService.API.Controllers
                 .Where(t => !string.IsNullOrEmpty(t))
                 .ToArray();
 
-            var defaultTags = new[] { HomeworkTags.Test, "Доп. баллы", "Командная работа" };
+            var defaultTags = new[] { HomeworkTags.Test, HomeworkTags.BonusTask, HomeworkTags.GroupWork };
             result = result.Concat(defaultTags).Distinct().ToArray();
 
             return Ok(result);

@@ -7,7 +7,7 @@ import {
     StatisticsCourseMeasureSolutionModel,
     StatisticsCourseTasksModel
 } from "../../../api/";
-import StudentStatsTooltip from './StudentStatsTooltip';
+import StudentStatsTooltip, { ITaskChartView } from './StudentStatsTooltip';
 import Utils from "../../../services/Utils";
 
 import {CartesianGrid, ComposedChart, Legend, Line, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts';
@@ -22,22 +22,9 @@ interface IStudentProgressChartProps {
     averageStudentSolutions: StatisticsCourseMeasureSolutionModel[];
 }
 
-interface ITaskChartView {
-    title: string;
-    receiveRating?: number;
-    maxRating: number;
-}
-
 interface IChartPoint {
     id? : string;
     date : number;
-    totalRatingValue : number | null;
-    tasks : ITaskChartView[];
-}
-
-interface IChartPointFormat {
-    id? : string;
-    date : string;
     totalRatingValue : number | null;
     tasks : ITaskChartView[];
 }
@@ -78,7 +65,7 @@ const StudentProgressChart: React.FC<IStudentProgressChartProps> = (props) => {
         return solutions.reduce<[number, IChartPoint[]]>(([total, points], solution, index) => {
             const totalRating = total + solution.rating!;
             const task = courseTasks.find(t => t.id === solution.taskId)!;
-            const taskView = {title: task.title!, maxRating: task.maxRating!, receiveRating: solution.rating!};
+            const taskView = {title: task.title!, maxRating: task.maxRating!, receiveRating: solution.rating!, tags: task.tags ?? []};
             const indexTasksWithSameDate = points.findIndex(p => p.date === publicationDates[index]);
 
             if (indexTasksWithSameDate === -1) {
@@ -123,7 +110,6 @@ const StudentProgressChart: React.FC<IStudentProgressChartProps> = (props) => {
 
     // для каждого студента отсортировали и сгруппировали задачи по дню последнего решения
     const studentTasks = new Map(solutions.map(cm => {
-        const studentId = cm.name + ' ' + cm.surname;
         const tasks = cm.homeworks!
             .filter(hw => hw.tasks && hw.tasks.length > 0)
             .flatMap(hw => hw.tasks!)
@@ -152,7 +138,7 @@ const StudentProgressChart: React.FC<IStudentProgressChartProps> = (props) => {
         const groupedTasksToArray = Array.from(tasksGroupedByLastSolution.entries())
             .map(([_, tasks]) => tasks);
 
-        return [studentId, groupedTasksToArray];
+        return [cm.id!, groupedTasksToArray];
     }))
 
     const studentCharts = new Map([[straightAStudent, straightAStudentLine],
@@ -170,7 +156,7 @@ const StudentProgressChart: React.FC<IStudentProgressChartProps> = (props) => {
                     totalStudentRating += lastSolution.rating ? lastSolution.rating : 0;
                     const taskView = courseTasks.find(t => t.id === task.id)!;
 
-                    return {title: taskView.title!, receiveRating: lastSolution.rating!, maxRating: taskView.maxRating!}
+                    return {title: taskView.title!, receiveRating: lastSolution.rating!, maxRating: taskView.maxRating!, tags: taskView.tags ?? []}
                 })
 
                 return {id: studentId, date : date.getTime(), totalRatingValue: totalStudentRating, tasks: tasksChartView};
@@ -192,7 +178,7 @@ const StudentProgressChart: React.FC<IStudentProgressChartProps> = (props) => {
             ...deadlineDates,
             ...straightAStudentLine.map(p => p.date),
             ...averageStudentLine.map(p => p.date),
-            ...studentChartsArray.flat().map(p => p.date)]
+            ...studentChartsArray.flat().map(p => p.date)].filter(d => d < Date.now())
     );
     const finishCourseDate = Array.from(characteristicDates).sort((x, y) => x - y).slice(-1)[0];
 
@@ -222,14 +208,20 @@ const StudentProgressChart: React.FC<IStudentProgressChartProps> = (props) => {
         })
     }
 
+    const fullNameById = (id: string) => {
+        const student = solutions.find(solution => solution.id === id)
+        return student ? student.name + ' ' + student.surname : id;
+    }
+
     const deadlineDateFormat = [...deadlineDates, startCourseDate, finishCourseDate]
         .sort((x, y) => x - y).filter(item => item);
     const lineColors = useMemo(() => new Map<string, string>
     (Array.from(studentCharts.keys()).map(student => {
-        const color = student === straightAStudent ? '#2cba00' : (
-            student === averageStudent ? '#FFA756' : getRandomColorWithMinBrightness(student)
+        const studentName = fullNameById(student);
+        const color = studentName === straightAStudent ? '#2cba00' : (
+            studentName === averageStudent ? '#FFA756' : getRandomColorWithMinBrightness(studentName)
         );
-        return [student, color];
+        return [studentName, color];
     })), [props]);
 
     return (
@@ -243,12 +235,11 @@ const StudentProgressChart: React.FC<IStudentProgressChartProps> = (props) => {
                 />
                 <XAxis dataKey="date"
                        allowDuplicatedCategory={false}
-                       domain={Array.from(characteristicDates).sort((x, y) => x - y)
-                           .map(x => Utils.renderDateWithoutHours(new Date(x)))}
+                       domain={Array.from(characteristicDates).sort((x, y) => x - y)}
                        stroke={chartColors.axis}
                        strokeWidth={0.5}
-                       ticks={deadlineDateFormat.length != 0 ? deadlineDateFormat.map(x =>
-                           Utils.renderDateWithoutHours(new Date(x))) : ['']}
+                       ticks={deadlineDateFormat}
+                       tickFormatter={t => Utils.renderDateWithoutHours(new Date(t))}
                        tickLine={false}
                 />
                 <CartesianGrid vertical={false} strokeWidth={0.3}/>
@@ -264,13 +255,8 @@ const StudentProgressChart: React.FC<IStudentProgressChartProps> = (props) => {
                         }}
                 />
                 <Legend/>
-                {Array.from(studentCharts.entries()).map(([studentName, line]) => {
-                    const lineFormat  = line.map<IChartPointFormat>(x =>
-                        ({id: x.id,
-                            date: Utils.renderDateWithoutHours(new Date(x.date)),
-                            totalRatingValue : x.totalRatingValue,
-                            tasks : x.tasks})
-                    )
+                {Array.from(studentCharts.entries()).map(([studentId, line]) => {
+                    const studentName = fullNameById(studentId);
                     return <Line
                         onClick={_ => setHighlightStudent(studentName)}
                         activeDot={{
@@ -284,7 +270,7 @@ const StudentProgressChart: React.FC<IStudentProgressChartProps> = (props) => {
                         strokeDasharray={studentName === straightAStudent || studentName === averageStudent ? '4' : '0'}
                         name={studentName}
                         dataKey="totalRatingValue"
-                        data={lineFormat}
+                        data={line}
                         isAnimationActive={false}
                         stroke={lineColors.get(studentName)}
                         strokeWidth={studentName === highlightStudent ? 5 : 3}

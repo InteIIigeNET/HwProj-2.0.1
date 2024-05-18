@@ -24,9 +24,9 @@ interface IStudentStatsChartState {
 }
 
 const StudentStatsChart: React.FC = () => {
-    const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
     const {courseId} = useParams();
     const isLoggedIn = ApiSingleton.authService.isLoggedIn();
+    const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
     const [state, setState] = useState<IStudentStatsChartState>({
         isFound: false,
         isSelectionMode: false,
@@ -36,10 +36,31 @@ const StudentStatsChart: React.FC = () => {
         bestStudent: [],
         averageStudent: []
     })
+    const [sectorSizes, setSectorSizes] = useState<number[]>([]);
+    const handleStudentSelection = (studentIds: string[]) => {
+        const newSectorSizes = sectorSizes.map((_, i) => {
+            const taskSectorSizes = studentIds.map(id => {
+                const task = state.solutions.filter(s => s.id === id)[0]
+                    .homeworks!.flatMap(h => h.tasks ?? [])[i]
+                return task.solution!.length;
+            })
+
+            return Math.max(...taskSectorSizes);
+        })
+
+        setSectorSizes(newSectorSizes);
+        setSelectedStudents(studentIds);
+    }
 
     const setCurrentState = async () => {
         const params =
             await ApiSingleton.statisticsApi.apiStatisticsByCourseIdChartsGet(+courseId!);
+
+        if (params.studentStatistics && params.studentStatistics.length > 0) {
+            const sectorSizes = params.studentStatistics[0].homeworks!
+                .flatMap(h => h.tasks!.map(t => t.solution!.length))
+            setSectorSizes(sectorSizes)
+        }
 
         setState({
             isFound: true,
@@ -80,7 +101,9 @@ const StudentStatsChart: React.FC = () => {
         )
     }
 
-    const tasksAmount = state.homeworks.reduce((acc, h) => acc + (h.tasks?.length ?? 0), 0);
+    const tasks = state.homeworks.flatMap(h => h.tasks ?? [])
+    const tasksAmount = tasks.length
+    const tasksWithDeadlineAmount = tasks.filter(t => t.hasDeadline).length
 
     if (state.isFound && tasksAmount) {
         return (
@@ -116,7 +139,8 @@ const StudentStatsChart: React.FC = () => {
                                         name: s.name!,
                                         surname: s.surname!
                                     }))]}
-                                    onStudentsChange={setSelectedStudents}/>
+                                    onStudentsChange={handleStudentSelection}
+                                />
                             </Grid>
                         }
                     </Grid>
@@ -137,33 +161,41 @@ const StudentStatsChart: React.FC = () => {
                                 />
                             </Paper>
                         </Box>
-                        {selectedStudents.length > 0 && <Box mb={5}>
-                            <Typography variant="h6" align="center" color="textSecondary">
-                                Анализ соблюдения сроков выполнения задач
-                                <HelpPopoverChartInfo chartName='punctuality'/>
-                            </Typography>
-                        </Box>}
                     </Grid>
-                    {selectedStudents.map((studentId, index) =>
-                        <Grid xs={12} item>
-                            <Box key={studentId} mb={3}>
-                                <Paper elevation={2} style={{padding: 15}}>
-                                    <Typography variant="h6" style={{marginBottom: 7}} color="textSecondary">
-                                        {nameById(studentId)}
-                                    </Typography>
-                                    <StudentPunctualityChart
-                                        index={index + 1}
-                                        homeworks={state.homeworks}
-                                        solutions={state.solutions.find
-                                        (solution => solution.id === studentId)!}
-                                    />
-                                </Paper>
+                    {tasksWithDeadlineAmount > 0 && selectedStudents.length > 0 &&
+                        <Grid item xs={12}>
+                            <Box mb={5}>
+                                <Typography variant="h6" align="center" color="textSecondary">
+                                    Анализ соблюдения сроков выполнения задач
+                                    <HelpPopoverChartInfo chartName='punctuality'/>
+                                </Typography>
                             </Box>
-                        </Grid>)}
+                            {selectedStudents.map((studentId, index) =>
+                                <Box key={studentId} mb={3}>
+                                    <Paper elevation={2} style={{padding: 15}}>
+                                        <Typography variant="h6" style={{marginBottom: 7}} color="textSecondary">
+                                            {nameById(studentId)}
+                                        </Typography>
+                                        <StudentPunctualityChart
+                                            index={index + 1}
+                                            homeworks={state.homeworks}
+                                            solutions={state.solutions.find
+                                            (solution => solution.id === studentId)!}
+                                            sectorSizes={sectorSizes}
+                                        />
+                                    </Paper>
+                                </Box>
+                            )}
+                        </Grid>}
                 </Grid>
             </div>
         )
+    } else if (state.isFound && !tasksAmount) {
+        return <div className="container">
+            <p>На курсе нет задач</p>
+        </div>
     }
+
     return <div className="container">
         <p>Загрузка...</p>
         <CircularProgress/>

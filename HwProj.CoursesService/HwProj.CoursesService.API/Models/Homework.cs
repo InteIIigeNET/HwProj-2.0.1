@@ -26,9 +26,4 @@ namespace HwProj.CoursesService.API.Models
 
         public List<HomeworkTask> Tasks { get; set; }
     }
-
-    public static class HomeworkTags
-    {
-        public const string Test = "Контрольная работа";
-    }
 }
