@@ -6,7 +6,11 @@ import {Box, CircularProgress, Paper, Typography} from "@material-ui/core";
 import {Center} from "@skbkontur/react-ui";
 import {TokenCredentials} from "api/api";
 
-const ExpertAuthLayout: FC = () => {
+interface IExpertAuthLayoutProps {
+    onLogin: any;
+}
+
+const ExpertAuthLayout: FC<IExpertAuthLayoutProps> = (props: IExpertAuthLayoutProps) => {
     const {token} = useParams();
     const credentials: TokenCredentials = {
         accessToken: token
@@ -22,6 +26,7 @@ const ExpertAuthLayout: FC = () => {
                 if (isExpertLoggedIn.succeeded) {
                     ApiSingleton.authService.setToken(token!);
                     setIsTokenValid(true);
+                    props.onLogin();
                     setIsLoading(false);
                     return
                 }
