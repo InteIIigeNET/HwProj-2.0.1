@@ -4,6 +4,7 @@ using HwProj.AuthService.Client;
 using HwProj.CoursesService.API.Events;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.NotificationsService;
+using HwProj.Models.Roles;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
 using Microsoft.Extensions.Configuration;
@@ -51,6 +52,10 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
                 var subject = $"Новая заявка в курс {@event.CourseName}";
                 var mentor = await _authServiceClient.GetAccountData(notification.Owner);
+                if (mentor.Role == Roles.ExpertRole)
+                {
+                    continue;
+                }
 
                 var addNotificationTask = _notificationRepository.AddAsync(notification);
                 var sendEmailTask = _emailService.SendEmailAsync(notification, mentor.Email, subject);
