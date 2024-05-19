@@ -152,7 +152,7 @@ const Workspace: FC = () => {
 
                             {!isLecturer && <Tab label={
                                 <Stack direction="row" spacing={1}>
-                                    <div>,Дедлайны</div>
+                                    <div>Дедлайны</div>
                                     <Chip size={"small"} color={"default"}
                                           label={(nearestTaskDeadlines!.length)}/>
                                 </Stack>}/>}
