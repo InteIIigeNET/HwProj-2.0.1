@@ -85,7 +85,7 @@ const Workspace: FC = () => {
             homeworkId: x.homeworkId!,
             deadlineDate: x.deadlineDate!
         })) || []
-    const pastTaskDeadlines = taskDeadlines?.filter(x => x.deadlinePast) || []
+    const pastTaskDeadlines = taskDeadlines?.filter(x => x.deadlinePast).filter(x => !x.deadline!.tags!.includes(TestTag)) || []
 
     if (profileState.isLoaded) {
         const isUserProfile = userData!.userId === ApiSingleton.authService.getUserId()
@@ -152,7 +152,7 @@ const Workspace: FC = () => {
 
                             {!isLecturer && <Tab label={
                                 <Stack direction="row" spacing={1}>
-                                    <div>Дедлайны</div>
+                                    <div>,Дедлайны</div>
                                     <Chip size={"small"} color={"default"}
                                           label={(nearestTaskDeadlines!.length)}/>
                                 </Stack>}/>}
