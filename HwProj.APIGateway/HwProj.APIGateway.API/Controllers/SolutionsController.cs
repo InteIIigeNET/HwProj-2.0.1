@@ -277,10 +277,10 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok();
         }
 
-        [HttpGet("actuality")]
+        [HttpGet("actuality/{solutionId}")]
         [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(SolutionActualityDto), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetSolutionActuality([FromQuery] long solutionId)
+        public async Task<IActionResult> GetSolutionActuality(long solutionId)
         {
             var result = await _solutionsClient.GetSolutionActuality(solutionId);
             return Ok(result);

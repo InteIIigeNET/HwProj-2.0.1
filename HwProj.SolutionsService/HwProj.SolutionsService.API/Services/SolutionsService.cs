@@ -14,6 +14,7 @@ using HwProj.SolutionsService.API.Events;
 using HwProj.SolutionsService.API.Models;
 using HwProj.SolutionsService.API.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Octokit;
 
 namespace HwProj.SolutionsService.API.Services
@@ -26,6 +27,7 @@ namespace HwProj.SolutionsService.API.Services
         private readonly ICoursesServiceClient _coursesServiceClient;
         private readonly IAuthServiceClient _authServiceClient;
         private readonly IGithubSolutionCommitsRepository _githubSolutionCommitsRepository;
+        private readonly IConfiguration _configuration;
 
         public SolutionsService(
             ISolutionsRepository solutionsRepository,
@@ -33,7 +35,8 @@ namespace HwProj.SolutionsService.API.Services
             IMapper mapper,
             ICoursesServiceClient coursesServiceClient,
             IAuthServiceClient authServiceClient,
-            IGithubSolutionCommitsRepository githubSolutionCommitsRepository)
+            IGithubSolutionCommitsRepository githubSolutionCommitsRepository,
+            IConfiguration configuration)
         {
             _solutionsRepository = solutionsRepository;
             _eventBus = eventBus;
@@ -41,6 +44,7 @@ namespace HwProj.SolutionsService.API.Services
             _coursesServiceClient = coursesServiceClient;
             _authServiceClient = authServiceClient;
             _githubSolutionCommitsRepository = githubSolutionCommitsRepository;
+            _configuration = configuration;
         }
 
         public async Task<Solution[]> GetAllSolutionsAsync()
@@ -164,9 +168,9 @@ namespace HwProj.SolutionsService.API.Services
             }
         }
 
-        public Task DeleteSolutionAsync(long solutionId)
-        {
-            return _solutionsRepository.DeleteAsync(solutionId);
+        public async Task DeleteSolutionAsync(long solutionId)
+        { 
+            await _solutionsRepository.DeleteAsync(solutionId);
         }
 
         public async Task MarkSolutionFinal(long solutionId)
@@ -260,7 +264,6 @@ namespace HwProj.SolutionsService.API.Services
 
         public async Task<SolutionActualityDto> GetSolutionActuality(long solutionId)
         {
-            const string appName = "Hwproj";
             var solution = await _solutionsRepository.GetAsync(solutionId)
                 ?? throw new ArgumentException(nameof(solutionId));
             var lastSolutionCommit = await _githubSolutionCommitsRepository.TryGetLastBySolutionId(solutionId);
@@ -281,12 +284,12 @@ namespace HwProj.SolutionsService.API.Services
             });
         }
 
-        private static async Task<IEnumerable<PullRequestCommit>> GetCommitsByUrl(string solutionUrl)
+        private async Task<IEnumerable<PullRequestCommit>> GetCommitsByUrl(string solutionUrl)
         {
-            const string appName = "Hwproj";
-            var token = "";
+            const string productName = "Hwproj";
+            var token = _configuration.GetSection("Github")["Token"];
             
-            var client = new GitHubClient(new ProductHeaderValue(appName))
+            var client = new GitHubClient(new ProductHeaderValue(productName))
             {
                 Credentials = new Credentials(token)
             };

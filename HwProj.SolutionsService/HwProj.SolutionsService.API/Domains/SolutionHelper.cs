@@ -11,7 +11,7 @@ namespace HwProj.SolutionsService.API.Domains
     public static class SolutionHelper
     {
         public const string PullRequestPattern =
-            @"https://github\.com/(?<owner>[^/]+)/(?<repo>[^/]+)/pull/(?<number>\d+)/.*";
+            @"https:\/\/github\.com\/(?<owner>[^\/]+)\/(?<repo>[^\/]+)\/pull\/(?<number>\d+)(\/.*)?";
         
         public static PullRequestDto ParsePullRequestUrl(string url)
         {
