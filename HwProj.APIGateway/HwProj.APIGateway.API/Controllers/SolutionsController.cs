@@ -8,7 +8,7 @@ using HwProj.APIGateway.API.Extensions;
 using HwProj.APIGateway.API.Models.Solutions;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
-using HwProj.Models.CoursesService.Tags;
+using HwProj.Models.CoursesService;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
 using HwProj.Models.SolutionsService;
@@ -194,7 +194,7 @@ namespace HwProj.APIGateway.API.Controllers
             if (model.GroupMateIds == null || model.GroupMateIds.Length == 0)
             {
                 var result = await _solutionsClient.PostSolution(taskId, solutionModel);
-                if (taskTags?.Contains(DefaultTags.Test) ?? false)
+                if (taskTags?.Contains(HomeworkTags.Test) ?? false)
                     await _solutionsClient.SaveSolutionCommitsInfo(
                         new SolutionUrlDto
                         {
@@ -225,7 +225,7 @@ namespace HwProj.APIGateway.API.Controllers
                     taskId);
 
             var postResult = await _solutionsClient.PostSolution(taskId, solutionModel);
-            if (taskTags?.Contains(DefaultTags.Test) ?? false)
+            if (taskTags?.Contains(HomeworkTags.Test) ?? false)
                 await _solutionsClient.SaveSolutionCommitsInfo(
                     new SolutionUrlDto
                     {
