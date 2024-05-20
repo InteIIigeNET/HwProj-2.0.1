@@ -8,8 +8,6 @@ import Menu from '@material-ui/core/Menu';
 import InviteLecturerModal from "./InviteLecturerModal";
 import MailIcon from '@mui/icons-material/Mail';
 import {Button} from "@mui/material";
-import {UserRoles} from "./Auth/UserRoles";
-const Roles = UserRoles.Roles;
 
 const styles = makeStyles(theme => ({
     tools: {
@@ -31,7 +29,8 @@ const styles = makeStyles(theme => ({
 
 interface AppBarProps {
     loggedIn: boolean;
-    role: UserRoles.Roles;
+    isLecturer: boolean;
+    isExpert: boolean;
     newNotificationsCount: number;
     onLogout: () => void;
 }
@@ -56,6 +55,9 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
     const handleClose = () => {
         setAnchorEl(null)
     }
+    
+    const isLecturer = props.isLecturer
+    const isExpert = props.isExpert
 
     return (
         <div>
@@ -70,7 +72,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                                 </Typography>
                             </Link>
                         </Grid>
-                        {props.loggedIn && props.role != Roles.Expert &&
+                        {props.loggedIn && !isExpert &&
                             <Grid item>
                                 <Link to={"/notifications"}>
                                     <IconButton>
@@ -98,7 +100,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                             </Grid>
                         }
                     </Grid>
-                    {props.loggedIn && props.role == Roles.Lecturer && <div>
+                    {props.loggedIn && isLecturer && <div>
                         <IconButton
                             edge="start"
                             color="inherit"
@@ -145,7 +147,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                             </MenuItem>
                         </Menu>
                     </div>}
-                    {props.loggedIn && props.role == Roles.Student && <div>
+                    {props.loggedIn && !isLecturer && !isExpert && <div>
                         <IconButton
                             edge="start"
                             color="inherit"
@@ -173,7 +175,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                             </MenuItem>
                         </Menu>
                     </div>}
-                    {props.role == Roles.Expert && <div>
+                    {isExpert && <div>
                         <IconButton
                             edge="start"
                             color="inherit"

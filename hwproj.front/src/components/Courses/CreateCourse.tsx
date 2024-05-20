@@ -11,8 +11,6 @@ import {FC, FormEvent, useState} from "react";
 import GroupIcon from '@material-ui/icons/Group';
 import makeStyles from "@material-ui/styles/makeStyles";
 import Container from "@material-ui/core/Container";
-import {UserRoles} from "../Auth/UserRoles";
-const Roles = UserRoles.Roles;
 
 interface ICreateCourseState {
   name: string;
@@ -73,7 +71,7 @@ const CreateCourse: FC = () => {
 
   const classes = useStyles()
 
-  if (ApiSingleton.authService.getRole() != Roles.Lecturer) {
+  if (!ApiSingleton.authService.isLecturer()) {
     return (
         <Typography component="h1" variant="h5">
           Страница не доступна

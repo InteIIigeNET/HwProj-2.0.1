@@ -12,8 +12,6 @@ import {Alert, Chip, Stack} from "@mui/material";
 import NewCourseEvents from "./Courses/NewCourseEvents";
 import HomeworkTags from "./Common/HomeworkTags";
 import Utils from "../services/Utils";
-import {UserRoles} from "./Auth/UserRoles";
-const Roles = UserRoles.Roles;
 
 
 interface IWorkspaceState {
@@ -43,7 +41,8 @@ const Workspace: FC = () => {
     })
 
     const classes = useStyles()
-    const role = ApiSingleton.authService.getRole()
+    const isLecturer = ApiSingleton.authService.isLecturer()
+    const isExpert = ApiSingleton.authService.isExpert()
 
     useEffect(() => {
         getUserInfo()
@@ -60,7 +59,7 @@ const Workspace: FC = () => {
             return
         }
         const data = await ApiSingleton.accountApi.apiAccountGetUserDataGet()
-        const unratedSolutions = (role == Roles.Lecturer || role == Roles.Expert)
+        const unratedSolutions = isLecturer || isExpert
             ? await ApiSingleton.solutionsApi.apiSolutionsUnratedSolutionsGet()
             : undefined
         setAccountState({...data, unratedSolutionPreviews: unratedSolutions})
@@ -113,7 +112,7 @@ const Workspace: FC = () => {
                             </Typography>
                         </Grid>
                     </Grid>
-                    {isUserProfile && role == Roles.Student && testDeadlines &&
+                    {isUserProfile && !isLecturer && !isExpert && testDeadlines &&
                         <Grid container item spacing={1} alignContent={"stretch"}>
                             {[...new Set(testDeadlines.map(x => x.courseId))].map(courseId => {
                                 const test = testDeadlines.find(x => x.courseId === courseId)!
@@ -140,26 +139,26 @@ const Workspace: FC = () => {
                                 }));
                             }}
                         >
-                            {(role == Roles.Lecturer || role == Roles.Expert) && <Tab label={
+                            {(isLecturer || isExpert) && <Tab label={
                                 <Stack direction="row" spacing={1}>
                                     <div>Ожидают проверки</div>
                                     <Chip size={"small"} color={"default"}
                                           label={(unratedSolutionPreviews!.unratedSolutions!.length)}/>
                                 </Stack>}/>}
-                            {role == Roles.Lecturer && courseEvents!.length > 0 &&
+                            {isLecturer && courseEvents!.length > 0 &&
                                 <Tab label={<Stack direction="row" spacing={1}>
                                     <div>Курсы</div>
                                     <Chip size={"small"} color={"primary"}
                                           label={(courseEvents!.length)}/>
                                 </Stack>}/>}
 
-                            {role == Roles.Student && <Tab label={
+                            {!isLecturer && !isExpert && <Tab label={
                                 <Stack direction="row" spacing={1}>
                                     <div>Дедлайны</div>
                                     <Chip size={"small"} color={"default"}
                                           label={(nearestTaskDeadlines!.length)}/>
                                 </Stack>}/>}
-                            {role == Roles.Student && pastTaskDeadlines.length > 0 &&
+                            {!isLecturer && !isExpert && pastTaskDeadlines.length > 0 &&
                                 <Tab style={{minWidth: "fit-content"}}
                                      label={
                                          <Stack direction="row" spacing={1}>
@@ -172,12 +171,12 @@ const Workspace: FC = () => {
                         </Tabs>
                         <div style={{marginTop: 15}}>
                             {tabValue === 0 &&
-                                ((role == Roles.Lecturer || role == Roles.Expert)
+                                (isLecturer || isExpert
                                     ? <UnratedSolutions unratedSolutionsPreviews={unratedSolutionPreviews!}/>
                                     : <TaskDeadlines taskDeadlines={nearestTaskDeadlines}
                                                      onGiveUpClick={onGiveUpClick}/>)}
-                            {tabValue === 1 && role != Roles.Expert &&
-                                ((role == Roles.Lecturer)
+                            {tabValue === 1 && !isExpert &&
+                                (isLecturer
                                     ? <NewCourseEvents courseEvents={courseEvents!}/>
                                     : <TaskDeadlines taskDeadlines={pastTaskDeadlines}
                                                      onGiveUpClick={onGiveUpClick}/>)}

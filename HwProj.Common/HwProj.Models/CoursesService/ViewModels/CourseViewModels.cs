@@ -63,5 +63,6 @@ namespace HwProj.Models.CoursesService.ViewModels
         public string GroupName { get; set; }
         public bool IsCompleted { get; set; }
         public string[] MentorIds { get; set; }
+        public long? TaskId { get; set; }
     }
 }

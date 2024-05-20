@@ -1,8 +1,6 @@
 import {LoginViewModel, AccountApi, RegisterViewModel, RegisterExpertViewModel} from './../api/';
 import ApiSingleton from "../api/ApiSingleton";
 import decode from "jwt-decode";
-import {UserRoles} from "../components/Auth/UserRoles";
-const Roles = UserRoles.Roles;
 
 interface TokenPayload {
     _userName: string;
@@ -107,10 +105,17 @@ export default class AuthService {
         return this.getProfile()["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"]
     }
 
-    getRole() {
+    isLecturer() {
         if (this.getToken() === null) {
-            return Roles.Student
+            return false
         }
-        return Roles[this.getProfile()["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]as keyof typeof Roles]
+        return this.getProfile()["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] === "Lecturer"
+    }
+    
+    isExpert() {
+        if (this.getToken() === null) {
+            return false
+        }
+        return this.getProfile()["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] === "Expert"
     }
 }
