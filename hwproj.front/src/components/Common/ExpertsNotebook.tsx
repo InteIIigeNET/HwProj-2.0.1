@@ -21,14 +21,7 @@ interface InviteExpertState {
     id: string;
 }
 
-const useStyles = makeStyles(() => ({
-    info: {
-        justifyContent: "space-between",
-    }
-}))
-
 const ExpertsNotebook: FC = () => {
-    const classes = useStyles();
     const [experts, setExperts] = useState<User[]>([]);
     const [isAllExpertsSelected, setIsAllExpertsSelected] = useState<boolean>(false)
     const [isOpenRegisterExpert, setIsOpenRegisterExpert] = useState<boolean>(false)
@@ -77,7 +70,7 @@ const ExpertsNotebook: FC = () => {
     return (
         <div className="container" style={{marginBottom: '50px'}}>
             <Grid container style={{marginTop: "15px"}} spacing={2}>
-                <Grid item container className={classes.info} direction={"row"}>
+                <Grid item container justifyContent={"space-between"} direction={"row"}>
                     <Grid item direction={"row"} spacing={2} style={{display: "flex"}}>
                         <Typography style={{fontSize: '22px'}}>
                             Эксперты

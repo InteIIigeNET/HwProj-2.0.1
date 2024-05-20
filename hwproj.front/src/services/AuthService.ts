@@ -52,12 +52,6 @@ export default class AuthService {
         }
     }
 
-    buildInvitationLink(token: string) {
-        const port = window.location.port
-        return port === '' ?
-            `${window.location.protocol}//${window.location.hostname}/join/${token}` :
-            `${window.location.protocol}//${window.location.hostname}:${window.location.port}/join/${token}`;
-    }
 
     isLoggedIn() {
         const token = this.getToken();

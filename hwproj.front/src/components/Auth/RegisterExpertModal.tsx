@@ -217,7 +217,7 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
                                     <TextField
                                         fullWidth
                                         multiline
-                                        label="Дополнительная информация (bio)"
+                                        label="Дополнительная информация (био)"
                                         variant="outlined"
                                         size="small"
                                         value={registerState.bio}
