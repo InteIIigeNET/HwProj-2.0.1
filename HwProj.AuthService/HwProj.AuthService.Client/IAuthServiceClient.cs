@@ -18,6 +18,8 @@ namespace HwProj.AuthService.Client
         Task<Result<TokenCredentials>> GetExpertToken(string expertEmail);
         Task<Result> Edit(EditAccountViewModel model, string userId);
         Task<Result> EditExpert(EditExpertViewModel model, string expertId);
+        Task<Result<bool>> GetIsExpertProfileEdited(string expertId);
+        Task<Result> SetExpertProfileIsEdited(string expertId);
         Task<Result> InviteNewLecturer(InviteLecturerViewModel model);
         Task<Result> EditExternal(EditExternalViewModel model, string userId);
         Task<string> FindByEmailAsync(string email);

@@ -9,6 +9,8 @@ namespace HwProj.Models.AuthService.ViewModels
         [MaxLength(450)]
         public string Id { get; set; }
 
+        public bool IsProfileEdited { get; set; }
+
         [MaxLength(450)]
         public string LecturerId { get; set; }
     }

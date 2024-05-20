@@ -123,7 +123,6 @@ namespace HwProj.APIGateway.API.Controllers
         }
         
         [HttpPost("loginExpert")]
-        [Authorize(Roles = Roles.ExpertRole)]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> LoginExpert(TokenCredentials credentials)
         {
@@ -159,11 +158,29 @@ namespace HwProj.APIGateway.API.Controllers
         }
         
         [HttpPut("editExpert")]
-        [Authorize]
+        [Authorize(Roles = Roles.ExpertRole)]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> EditExpert(EditExpertViewModel model)
         {
             var result = await AuthServiceClient.EditExpert(model, UserId);
+            return Ok(result);
+        }
+
+        [HttpPost("setExpertProfileIsEdited")]
+        [Authorize(Roles = Roles.ExpertRole)]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> SetExpertProfileIsEdited()
+        {
+            var result = await AuthServiceClient.SetExpertProfileIsEdited(UserId);
+            return Ok(result);
+        }
+
+        [HttpGet("isExpertProfileEdited")]
+        [Authorize(Roles = Roles.ExpertRole)]
+        [ProducesResponseType(typeof(Result<bool>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetIsExpertProfileEdited()
+        {
+            var result = await AuthServiceClient.GetIsExpertProfileEdited(UserId);
             return Ok(result);
         }
 

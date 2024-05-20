@@ -86,15 +86,15 @@ export default class AuthService {
 
     getToken = () => localStorage.getItem("id_token");
 
-    isExpertProfileEdited = () => localStorage.getItem("is_edited") == "true";
-
-    setIsExpertProfileEdited = () => localStorage.setItem("is_edited", "true");
-
     logout = () => localStorage.clear();
 
     getProfile = () => decode<TokenPayload>(this.getToken() as string);
 
     getUserId = () => this.getProfile()._id;
+
+    isExpertProfileEdited = async () => await ApiSingleton.accountApi.apiAccountIsExpertProfileEditedGet();
+
+    setIsExpertProfileEdited = async () => await ApiSingleton.accountApi.apiAccountSetExpertProfileIsEditedPost();
 
     loggedIn = () => this.getToken() !== null
 
@@ -111,7 +111,7 @@ export default class AuthService {
         }
         return this.getProfile()["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] === "Lecturer"
     }
-    
+
     isExpert() {
         if (this.getToken() === null) {
             return false

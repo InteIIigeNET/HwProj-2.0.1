@@ -17,6 +17,7 @@ const ExpertAuthLayout: FC<IExpertAuthLayoutProps> = (props: IExpertAuthLayoutPr
     }
     const [isTokenValid, setIsTokenValid] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [isProfileAlreadyEdited, setIsProfileAlreadyEdited] = useState(false);
 
     useEffect(() => {
         const checkToken = async () => {
@@ -27,6 +28,12 @@ const ExpertAuthLayout: FC<IExpertAuthLayoutProps> = (props: IExpertAuthLayoutPr
                     ApiSingleton.authService.setToken(token!);
                     setIsTokenValid(true);
                     props.onLogin();
+
+                    const isEdited = await ApiSingleton.authService.isExpertProfileEdited();
+                    if (isEdited.succeeded && isEdited.value) {
+                        setIsProfileAlreadyEdited(true);
+                    }
+
                     setIsLoading(false);
                     return
                 }
@@ -38,21 +45,15 @@ const ExpertAuthLayout: FC<IExpertAuthLayoutProps> = (props: IExpertAuthLayoutPr
         checkToken();
     }, [token]);
 
-    const isEdited = ApiSingleton.authService.isExpertProfileEdited();
-    if (isEdited) {
-        return <Navigate to={"/"}/>;
-    }
-
     return isLoading ? (
-        <Center>
-            <Box sx={{minWidth: 150, marginTop: 15}}>
-                <CircularProgress/>
-                <p>Проверка токена...</p>
-            </Box>
-        </Center>
+        <div className="container">
+            <p>Проверка токена...</p>
+            <CircularProgress/>
+        </div>
     ) : (
         isTokenValid ? (
-            <ExpertEditProfile/>
+            isProfileAlreadyEdited ? (
+                <Navigate to={"/"}/>) : (<ExpertEditProfile/>)
         ) : (
             <Center>
                 <Box sx={{minWidth: 150, marginTop: 15}}>

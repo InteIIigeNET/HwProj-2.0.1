@@ -174,6 +174,26 @@ namespace HwProj.AuthService.Client
             return await response.DeserializeAsync<Result>();
         }
 
+        public async Task<Result<bool>> GetIsExpertProfileEdited(string expertId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _authServiceUri + $"api/account/isExpertProfileEdited/{expertId}");
+            
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<Result<bool>>();
+        }
+
+        public async Task<Result> SetExpertProfileIsEdited(string expertId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _authServiceUri + $"api/account/setExpertProfileIsEdited/{expertId}");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<Result>();
+        }
+
         public async Task<Result> InviteNewLecturer(InviteLecturerViewModel model)
         {
             using var httpRequest = new HttpRequestMessage(
