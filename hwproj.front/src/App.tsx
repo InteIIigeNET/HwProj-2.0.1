@@ -25,15 +25,14 @@ import ResetPassword from "components/Auth/ResetPassword";
 import PasswordRecovery from "components/Auth/PasswordRecovery";
 import AuthLayout from "./AuthLayout";
 import ExpertAuthLayout from "./ExpertAuthLayout";
-import {UserRoles} from "./components/Auth/UserRoles";
 import ExpertEditProfile from "./components/ExpertEditProfile";
-const Roles = UserRoles.Roles;
 
 // TODO: add flux
 
 interface AppState {
     loggedIn: boolean;
-    role: UserRoles.Roles;
+    isLecturer: boolean;
+    isExpert: boolean;
     newNotificationsCount: number;
 }
 
@@ -55,7 +54,8 @@ class App extends Component<{ navigate: any }, AppState> {
         super(props);
         this.state = {
             loggedIn: ApiSingleton.authService.isLoggedIn(),
-            role: ApiSingleton.authService.getRole(),
+            isLecturer: ApiSingleton.authService.isLecturer(),
+            isExpert: ApiSingleton.authService.isExpert(),
             newNotificationsCount: 0
         };
     }
@@ -72,12 +72,14 @@ class App extends Component<{ navigate: any }, AppState> {
     }
 
     login = () => {
-        const role = ApiSingleton.authService.getRole();
+        const isLecturer = ApiSingleton.authService.isLecturer();
+        const isExpert = ApiSingleton.authService.isExpert();
         this.setState({
             loggedIn: true,
-            role: role
+            isLecturer: isLecturer,
+            isExpert: isExpert
         })
-        if (role !== Roles.Expert) {
+        if (!isExpert) {
             this.props.navigate("/");
         }
     }
@@ -85,7 +87,8 @@ class App extends Component<{ navigate: any }, AppState> {
     logout = () => {
         ApiSingleton.authService.logout();
         this.setState({loggedIn: false});
-        this.setState({role: Roles.Student});
+        this.setState({isLecturer: false});
+        this.setState({isExpert: false})
         this.props.navigate("/login");
     }
 
@@ -94,7 +97,8 @@ class App extends Component<{ navigate: any }, AppState> {
             <>
                 <Header loggedIn={this.state.loggedIn}
                         newNotificationsCount={this.state.newNotificationsCount}
-                        role={this.state.role}
+                        isLecturer={this.state.isLecturer}
+                        isExpert={this.state.isExpert}
                         onLogout={this.logout}/>
                 <Routes>
                     <Route element={<AuthLayout/>}>
@@ -103,7 +107,9 @@ class App extends Component<{ navigate: any }, AppState> {
                         <Route path="/" element={<Workspace/>}/>
                         <Route path="notifications"
                                element={<Notifications onMarkAsSeen={this.updatedNewNotificationsCount}/>}/>
-                        <Route path="courses" element={<Courses navigate={this.props.navigate} role={this.state.role}/>}/>
+                        <Route path="courses"
+                               element={<Courses navigate={this.props.navigate} isLecturer={this.state.isLecturer}
+                                                 isExpert={this.state.isExpert}/>}/>
                         <Route path="profile/:id" element={<Workspace/>}/>
                         <Route path="experts" element={<ExpertsNotebook/>}/>
                         <Route path="create_course" element={<CreateCourse/>}/>
@@ -112,7 +118,8 @@ class App extends Component<{ navigate: any }, AppState> {
                         <Route path="courses/:courseId/edit" element={<EditCourse/>}/>
                         <Route path="homework/:homeworkId/edit" element={<EditHomework/>}/>
                         <Route path="task/:taskId/edit" element={<EditTask/>}/>
-                        <Route path="task/:taskId/:studentId" element={<StudentSolutionsPage/>}/>
+                        <Route path="task/:taskId/:studentId"
+                               element={<StudentSolutionsPage isExpert={this.state.isExpert}/>}/>
                         <Route path="task/:taskId/" element={<TaskSolutionsPage/>}/>
                     </Route>
                     <Route path="statistics/:courseId/charts" element={<StudentStatsChart/>}/>

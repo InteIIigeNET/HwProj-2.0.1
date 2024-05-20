@@ -14,5 +14,6 @@ namespace HwProj.CoursesService.API.Services
         Task UpdateAsync(string userId, long courseId, Filter filter);
         Task UpdateAsync(long courseFilterId, Filter filter);
         IQueryable<long> GetExpertCourseIds(string userId);
+        CourseDTO[] FilterCourses(string userId, CourseDTO[] courses);
     }
 }

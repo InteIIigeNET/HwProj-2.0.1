@@ -195,14 +195,27 @@ namespace HwProj.CoursesService.API.Services
                 _ => new EnumerableQuery<Course>(new List<Course>())
             };
             
-            var result = await courses
+            var coursesWithValues = await courses
                 .Include(c => c.CourseMates)
                 .Include(c => c.Homeworks).ThenInclude(t => t.Tasks)
                 .ToArrayAsync();
 
-            CourseDomain.FillTasksInCourses(result);
+            CourseDomain.FillTasksInCourses(coursesWithValues);
 
-            return result.Select(c => c.ToCourseDto()).ToArray();
+            var result = _courseFilterService.FilterCourses(
+                userId, coursesWithValues.Select(c => c.ToCourseDto()).ToArray());
+
+            if (role == Roles.ExpertRole)
+            {
+                foreach (var courseDto in result)
+                {
+                    courseDto.TaskId = courseDto.Homeworks
+                        .SelectMany(h => h.Tasks)
+                        .FirstOrDefault()?.Id;
+                }
+            }
+            
+            return result;
         }
 
         public async Task<bool> AcceptLecturerAsync(long courseId, string lecturerEmail, string lecturerId)

@@ -19,8 +19,6 @@ import parse from 'html-react-parser';
 import {Button} from "@mui/material";
 import NotificationSettings from "./NotificationSettings";
 import Utils from "../services/Utils";
-import {UserRoles} from "./Auth/UserRoles";
-const Roles = UserRoles.Roles;
 
 let CategoryEnum = CategorizedNotifications.CategoryEnum;
 const dateTimeOptions = {year: '2-digit', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'};
@@ -70,7 +68,7 @@ const Notifications: FC<IProfileProps> = (props) => {
     })
 
     const allNotSeen = getAllNotSeen(profileState.notifications)
-    const role = ApiSingleton.authService.getRole()
+    const isLecturer = ApiSingleton.authService.isLecturer()
 
     const [filterState, setFilterState] = useState<IFilterState>({
         categoryFlag: new Map([
@@ -247,7 +245,7 @@ const Notifications: FC<IProfileProps> = (props) => {
                                     {allNotSeen.length != 0 &&
                                         <Button fullWidth variant="contained" onClick={markAllNotificationsAsSeen}>Прочитать
                                             все</Button>}
-                                    {role == Roles.Lecturer &&
+                                    {isLecturer &&
                                         <Button style={{marginTop: 10}}
                                                 fullWidth variant="outlined"
                                                 onClick={() => setShowSettings(true)}>Настройки

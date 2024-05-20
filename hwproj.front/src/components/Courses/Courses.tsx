@@ -3,21 +3,20 @@ import {Tab, Tabs, CircularProgress} from "@material-ui/core";
 import {CoursesList} from "./CoursesList";
 import {CoursePreviewView} from "../../api/";
 import ApiSingleton from "../../api/ApiSingleton";
-import {UserRoles} from "../Auth/UserRoles";
-
-const Roles = UserRoles.Roles;
 
 interface ICoursesState {
     isLoaded: boolean;
     myCourses: CoursePreviewView[];
     allCourses: CoursePreviewView[];
     tabValue: number;
-    role: UserRoles.Roles
+    isLecturer: boolean;
+    isExpert: boolean;
 }
 
 interface Props {
     navigate: any,
-    role: UserRoles.Roles
+    isLecturer: boolean;
+    isExpert: boolean;
 }
 
 export default class Courses extends React.Component<Props, ICoursesState> {
@@ -28,14 +27,14 @@ export default class Courses extends React.Component<Props, ICoursesState> {
             myCourses: [],
             allCourses: [],
             tabValue: 0,
-            role: props.role
+            isLecturer: this.props.isLecturer,
+            isExpert: this.props.isExpert
         };
     }
 
     public render() {
         const {isLoaded, allCourses, myCourses, tabValue} = this.state;
         const {navigate} = this.props.navigate;
-        const role = this.props.role;
 
         if (!isLoaded) {
             return (
@@ -48,7 +47,7 @@ export default class Courses extends React.Component<Props, ICoursesState> {
 
         const activeCourses = myCourses.filter(course => !course.isCompleted)
         const completedCourses = myCourses.filter(course => course.isCompleted)
-
+        const isExpert = this.props.isExpert 
         let activeCoursesTab = activeCourses.length > 0 ? 0 : undefined
         let allCoursesTab = activeCoursesTab === 0 ? 1 : 0
         let completedCoursesTab = completedCourses.length > 0
@@ -65,14 +64,16 @@ export default class Courses extends React.Component<Props, ICoursesState> {
                     }}
                 >
                     {activeCourses.length > 0 && <Tab label="Ваши курсы"/>}
-                    {(role == Roles.Lecturer || role == Roles.Student) && <Tab label="Все курсы"/>}
+                    {!isExpert && <Tab label="Все курсы"/>}
                     {completedCourses.length > 0 && <Tab label="Завершенные курсы"/>}
                 </Tabs>
                 <br/>
-                {tabValue === activeCoursesTab && <CoursesList navigate={navigate} courses={activeCourses}/>}
-                {tabValue === allCoursesTab && (role == Roles.Lecturer || role == Roles.Student)
-                    && <CoursesList navigate={navigate} courses={allCourses}/>}
-                {tabValue === completedCoursesTab && <CoursesList navigate={navigate} courses={completedCourses}/>}
+                {tabValue === activeCoursesTab &&
+                    <CoursesList navigate={navigate} courses={activeCourses} isExpert={isExpert}/>}
+                {tabValue === allCoursesTab && !isExpert
+                    && <CoursesList navigate={navigate} courses={allCourses} isExpert={isExpert}/>}
+                {tabValue === completedCoursesTab &&
+                    <CoursesList navigate={navigate} courses={completedCourses} isExpert={isExpert}/>}
             </div>
         );
     }

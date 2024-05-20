@@ -102,5 +102,26 @@ namespace HwProj.CoursesService.API.Services
                 .FindAll(ucf => ucf.UserId == userId)
                 .Select(ucf => ucf.CourseId);
         }
+
+        public CourseDTO[] FilterCourses(string userId, CourseDTO[] courses)
+        {
+            var courseIds = courses.Select(c => c.Id).ToArray();
+            var userToCourseFilters = _userToCourseFilterRepository
+                .FindAll(ucf => ucf.UserId == userId && courseIds.Contains(ucf.CourseId))
+                .ToDictionary(ucf => ucf.CourseId, ucf => ucf.CourseFilterId);
+    
+            var courseFilters = _courseFilterRepository
+                .FindAll(cf => userToCourseFilters.Values.Contains(cf.Id))
+                .ToDictionary(cf => cf.Id, cf => cf.Filter);
+
+            return courses.Select(c => {
+                if (userToCourseFilters.TryGetValue(c.Id, out var filterId) &&
+                    courseFilters.TryGetValue(filterId, out var filter))
+                {
+                    return c.CourseDtoApplyFilter(filter);
+                }
+                return c;
+            }).ToArray();
+        }
     }
 }
