@@ -106,6 +106,7 @@ namespace HwProj.APIGateway.API.Controllers
         }
 
         [HttpPost("registerExpert")]
+        [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> RegisterExpert(RegisterExpertViewModel model)
         {
@@ -122,6 +123,7 @@ namespace HwProj.APIGateway.API.Controllers
         }
         
         [HttpPost("loginExpert")]
+        [Authorize(Roles = Roles.ExpertRole)]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> LoginExpert(TokenCredentials credentials)
         {
@@ -138,8 +140,8 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok(tokenMeta);
         }
         
-        [Authorize]
         [HttpGet("getExpertToken")]
+        [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetExpertToken(string expertEmail)
         {

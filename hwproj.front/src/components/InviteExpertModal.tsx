@@ -140,6 +140,8 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
         }
     }
 
+    const invitationLink = `${window.location.origin}/join/${state.accessToken}`;
+
     return (
         <div>
             <Dialog open={props.isOpen} onClose={props.close} aria-labelledby="dialog-title" fullWidth>
@@ -260,12 +262,12 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
                                             }}
                                             variant="standard"
                                             fullWidth
-                                            value={ApiSingleton.authService.buildInvitationLink(state.accessToken)}
+                                            value={invitationLink}
                                         />
                                     </Grid>
                                     <Grid item sm={1} justifyContent="center" alignItems="center">
                                         <IconButton
-                                            onClick={() => handleCopyClick(ApiSingleton.authService.buildInvitationLink(state.accessToken))}
+                                            onClick={() => handleCopyClick(invitationLink)}
                                             color="primary">
                                             <ContentCopyIcon/>
                                         </IconButton>
