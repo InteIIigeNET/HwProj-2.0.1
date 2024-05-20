@@ -11,11 +11,11 @@ import {Container} from "@mui/material";
 import {Navigate} from "react-router-dom";
 import {CircularProgress} from "@material-ui/core";
 
-interface IRegisterExpertState {
+interface IEditExpertState {
     isUpdateSuccessful: boolean | undefined;
     isProfileLoaded: boolean;
+    isProfileEdited: boolean;
     errors: string[];
-    isEdited: boolean;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -49,11 +49,11 @@ const ExpertEditProfile: FC = () => {
         bio: ""
     })
 
-    const [commonState, setCommonState] = useState<IRegisterExpertState>({
+    const [commonState, setCommonState] = useState<IEditExpertState>({
         isUpdateSuccessful: undefined,
         isProfileLoaded: false,
-        errors: [],
-        isEdited: false
+        isProfileEdited: false,
+        errors: []
     })
 
     const classes = useStyles()
@@ -72,11 +72,11 @@ const ExpertEditProfile: FC = () => {
         try {
             const result = await ApiSingleton.accountApi.apiAccountEditExpertPut(editProfileState);
             if (result.succeeded) {
-                ApiSingleton.authService.setIsExpertProfileEdited();
+                await ApiSingleton.authService.setIsExpertProfileEdited();
                 setCommonState(prevState => ({
                     ...prevState,
-                    isEdited: true
-                }));
+                    isProfileEdited: true
+                }))
                 return;
             }
 
@@ -120,7 +120,7 @@ const ExpertEditProfile: FC = () => {
         getExpertInfo()
     }, [])
 
-    if (commonState.isEdited) {
+    if (commonState.isProfileEdited) {
         return <Navigate to={"/"}/>;
     }
 

@@ -122,6 +122,36 @@ namespace HwProj.AuthService.API.Services
             return result.Succeeded ? Result.Success() : Result.Failed();
         }
 
+        public async Task<Result<bool>> GetIsExpertProfileEdited(string expertAccountId)
+        {
+            var expertData = await _expertsRepository.GetAsync(expertAccountId);
+
+            if (expertData == null)
+            {
+                return Result<bool>.Failed("Информация об эксперте не найдена");
+            }
+
+            return Result<bool>.Success(expertData.IsProfileEdited);
+        }
+
+        public async Task<Result> SetExpertProfileIsEdited(string expertAccountId)
+        {
+            var expertData = await _expertsRepository.GetAsync(expertAccountId);
+
+            if (expertData == null)
+            {
+                return Result.Failed("Информация об эксперте не найдена");
+            }
+
+            await _expertsRepository.UpdateAsync(expertAccountId, ed => new ExpertData
+            {
+                Id = ed.Id,
+                IsProfileEdited = true,
+                LecturerId = ed.LecturerId
+            });
+
+            return Result.Success();
+        }
 
         public async Task<Result<TokenCredentials>> LoginUserAsync(LoginViewModel model)
         {

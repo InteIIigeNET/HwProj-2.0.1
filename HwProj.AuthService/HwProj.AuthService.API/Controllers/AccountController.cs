@@ -130,6 +130,22 @@ namespace HwProj.AuthService.API.Controllers
             return Ok(result);
         }
 
+        [HttpGet("isExpertProfileEdited/{expertId}")]
+        [ProducesResponseType(typeof(Result<bool>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetIsExpertProfileEdited(string expertId)
+        {
+            var result = await _accountService.GetIsExpertProfileEdited(expertId);
+            return Ok(result);
+        }
+
+        [HttpPost("setExpertProfileIsEdited/{expertId}")]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> SetExpertProfileIsEdited(string expertId)
+        {
+            var result = await _accountService.SetExpertProfileIsEdited(expertId);
+            return Ok(result);
+        }
+
         [HttpPost("inviteNewLecturer")]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> InviteNewLecturer(InviteLecturerViewModel model)
