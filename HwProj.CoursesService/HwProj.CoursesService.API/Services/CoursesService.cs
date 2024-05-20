@@ -76,14 +76,14 @@ namespace HwProj.CoursesService.API.Services
 
             var groups = await _groupsRepository.GetGroupsWithGroupMatesByCourse(course.Id).ToArrayAsync();
             var filter = await _courseFilterService.GetUserFilterAsync(userId, id);
-            var result = course.ToCourseDto().CourseDtoApplyFilter(filter);
+            var result = course.ToCourseDto();
             result.Groups = groups.Select(g =>
                 new GroupViewModel
                 {
                     Id = g.Id,
                     StudentsIds = g.GroupMates.Select(t => t.StudentId).ToArray()
                 }).ToArray();
-            return result;
+            return result.CourseDtoApplyFilter(filter);
         }
 
         public async Task<long> AddAsync(Course course, string mentorId)

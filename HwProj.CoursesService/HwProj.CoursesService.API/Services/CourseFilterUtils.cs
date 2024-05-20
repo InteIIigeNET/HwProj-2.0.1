@@ -38,7 +38,14 @@ namespace HwProj.CoursesService.API.Services
                 IsCompleted = courseDto.IsCompleted,
                 IsOpen = courseDto.IsOpen,
                 InviteCode = courseDto.InviteCode,
-                Groups = courseDto.Groups,
+                Groups = 
+                    courseDto.Groups.Where(gs => gs.StudentsIds.Intersect(filter.StudentIds).Any())
+                        .Select(gs => new GroupViewModel
+                        {
+                            Id = gs.Id,
+                            StudentsIds = gs.StudentsIds.Intersect(filter.StudentIds).ToArray()
+                        })
+                        .ToArray(),
                 MentorIds = !filter.MentorIds.Any()
                     ? courseDto.MentorIds
                     : courseDto.MentorIds.Intersect(filter.MentorIds).ToArray(),
