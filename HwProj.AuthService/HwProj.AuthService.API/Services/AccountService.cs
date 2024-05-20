@@ -104,22 +104,7 @@ namespace HwProj.AuthService.API.Services
                 return Result.Failed("Пользователь не найден");
             }
 
-            var result = user.IsExternalAuth
-                ? await ChangeUserNameTask(user, model)
-                : await ChangeUserNameTask(user, model).Then(() => ChangePasswordAsync(user, model));
-
-            return result.Succeeded ? Result.Success() : Result.Failed();
-        }
-        
-        public async Task<Result> EditExpertAccountAsync(string id, EditExpertViewModel model)
-        {
-            var expert = await _userManager.FindByIdAsync(id);
-            if (expert == null)
-            {
-                return Result.Failed("Пользователь не найден");
-            }
-
-            var result = await ChangeExpertDataTask(expert, model);
+            var result = await ChangeUserDataTask(user, model);
 
             return result.Succeeded ? Result.Success() : Result.Failed();
         }
@@ -445,8 +430,13 @@ namespace HwProj.AuthService.API.Services
             return githubCredentials;
         }
 
-        private Task<IdentityResult> ChangeUserNameTask(User user, EditDataDTO model)
+        private Task<IdentityResult> ChangeUserDataTask(User user, EditDataDTO model)
         {
+            if (!string.IsNullOrWhiteSpace(model.Email))
+            {
+                user.Email = model.Email;
+            }
+
             if (!string.IsNullOrWhiteSpace(model.Name))
             {
                 user.Name = model.Name;
@@ -462,49 +452,17 @@ namespace HwProj.AuthService.API.Services
                 user.MiddleName = model.MiddleName;
             }
 
-            return _userManager.UpdateAsync(user);
-        }
-
-        private Task<IdentityResult> ChangeExpertDataTask(User expert, EditExpertViewModel model)
-        {
-            if (!string.IsNullOrWhiteSpace(model.Email))
-            {
-                expert.Email = model.Email;
-            }
-
-            if (!string.IsNullOrWhiteSpace(model.Name))
-            {
-                expert.Name = model.Name;
-            }
-
-            if (!string.IsNullOrWhiteSpace(model.Surname))
-            {
-                expert.Surname = model.Surname;
-            }
-
-            if (!string.IsNullOrWhiteSpace(model.MiddleName))
-            {
-                expert.MiddleName = model.MiddleName;
-            }
-
             if (!string.IsNullOrWhiteSpace(model.CompanyName))
             {
-                expert.CompanyName = model.CompanyName;
+                user.CompanyName = model.CompanyName;
             }
 
             if (!string.IsNullOrWhiteSpace(model.Bio))
             {
-                expert.Bio = model.Bio;
+                user.Bio = model.Bio;
             }
 
-            return _userManager.UpdateAsync(expert);
-        }
-
-        private Task<IdentityResult> ChangePasswordAsync(User user, EditDataDTO model)
-        {
-            return !string.IsNullOrWhiteSpace(model.NewPassword)
-                ? _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword)
-                : Task.FromResult(IdentityResult.Success);
+            return _userManager.UpdateAsync(user);
         }
 
         private async Task SignIn(User user, string password)

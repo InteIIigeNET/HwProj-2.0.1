@@ -21,7 +21,6 @@ namespace HwProj.AuthService.Client
         Task<Result<bool>> GetIsExpertProfileEdited(string expertId);
         Task<Result> SetExpertProfileIsEdited(string expertId);
         Task<Result> InviteNewLecturer(InviteLecturerViewModel model);
-        Task<Result> EditExternal(EditExternalViewModel model, string userId);
         Task<string> FindByEmailAsync(string email);
         Task<AccountDataDto[]> GetAllStudents();
         Task<User[]> GetAllLecturers();

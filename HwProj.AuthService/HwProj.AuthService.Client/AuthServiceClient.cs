@@ -210,21 +210,6 @@ namespace HwProj.AuthService.Client
             return await response.DeserializeAsync<Result>();
         }
 
-        public async Task<Result> EditExternal(EditExternalViewModel model, string userId)
-        {
-            using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Put,
-                _authServiceUri + $"api/account/editExternal/{userId}")
-            {
-                Content = new StringContent(
-                    JsonConvert.SerializeObject(model),
-                    Encoding.UTF8,
-                    "application/json")
-            };
-            var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<Result>();
-        }
-
         public async Task<string> FindByEmailAsync(string email)
         {
             using var httpRequest = new HttpRequestMessage(
