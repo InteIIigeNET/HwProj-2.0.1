@@ -156,15 +156,6 @@ namespace HwProj.APIGateway.API.Controllers
             var result = await AuthServiceClient.Edit(model, UserId);
             return Ok(result);
         }
-        
-        [HttpPut("editExpert")]
-        [Authorize(Roles = Roles.ExpertRole)]
-        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> EditExpert(EditExpertViewModel model)
-        {
-            var result = await AuthServiceClient.EditExpert(model, UserId);
-            return Ok(result);
-        }
 
         [HttpPost("setExpertProfileIsEdited")]
         [Authorize(Roles = Roles.ExpertRole)]

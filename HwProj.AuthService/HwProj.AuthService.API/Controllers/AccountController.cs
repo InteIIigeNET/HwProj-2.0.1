@@ -121,14 +121,6 @@ namespace HwProj.AuthService.API.Controllers
             var result = await _accountService.EditAccountAsync(userId, newModel);
             return Ok(result);
         }
-        
-        [HttpPut("editExpert/{expertId}")]
-        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Edit([FromBody] EditExpertViewModel model, string expertId)
-        {
-            var result = await _accountService.EditExpertAccountAsync(expertId, model);
-            return Ok(result);
-        }
 
         [HttpGet("isExpertProfileEdited/{expertId}")]
         [ProducesResponseType(typeof(Result<bool>), (int)HttpStatusCode.OK)]

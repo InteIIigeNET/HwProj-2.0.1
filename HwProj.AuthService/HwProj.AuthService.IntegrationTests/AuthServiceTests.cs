@@ -84,6 +84,7 @@ namespace HwProj.AuthService.IntegrationTests
                 Name = model.Name,
                 Surname = model.Surname,
                 MiddleName = model.MiddleName,
+                Email = model.Email
             };
 
         private static EditAccountViewModel GenerateEditAccountViewModel(RegisterViewModel model)
@@ -92,6 +93,7 @@ namespace HwProj.AuthService.IntegrationTests
                 Name = new Fixture().Create<string>(),
                 Surname = new Fixture().Create<string>(),
                 MiddleName = new Fixture().Create<string>(),
+                Email = model.Email
             };
 
         private static InviteLecturerViewModel GenerateInviteNewLecturerViewModel(RegisterViewModel model)
