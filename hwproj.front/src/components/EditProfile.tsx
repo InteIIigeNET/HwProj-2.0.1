@@ -79,29 +79,19 @@ const EditProfile: FC<IEditProfileProps> = (props) => {
             companyName: profile.company
         }
         try {
-            if (profile.isExternalAuth) {
-                const result = await ApiSingleton.accountApi.apiAccountEditPut(editForm)
-                result.succeeded
-                    ? setProfile((prevState) => ({
-                        ...prevState,
-                        edited: true,
-                    }))
-                    : setProfile((prevState) => ({
-                        ...prevState,
-                        errors: result.errors!
-                    }))
-                return
-            }
             const result = await ApiSingleton.accountApi.apiAccountEditPut(editForm)
-            result.succeeded
-                ? setProfile((prevState) => ({
+            if (result.succeeded) {
+                setProfile((prevState) => ({
                     ...prevState,
                     edited: true,
-                }))
-                : setProfile((prevState) => ({
+                }));
+                await ApiSingleton.authService.setIsExpertProfileEdited();
+            } else {
+                setProfile((prevState) => ({
                     ...prevState,
                     errors: result.errors!
-                }))
+                }));
+            }
         } catch (e) {
             setProfile((prevState) => ({
                 ...prevState,
