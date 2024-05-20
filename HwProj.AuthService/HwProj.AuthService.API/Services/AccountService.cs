@@ -321,12 +321,12 @@ namespace HwProj.AuthService.API.Services
                 user.Name = model.Name;
             }
 
-            if (!string.IsNullOrWhiteSpace(model.Name))
+            if (!string.IsNullOrWhiteSpace(model.Surname))
             {
                 user.Surname = model.Surname;
             }
 
-            if (!string.IsNullOrWhiteSpace(model.Name))
+            if (!string.IsNullOrWhiteSpace(model.MiddleName))
             {
                 user.MiddleName = model.MiddleName;
             }
