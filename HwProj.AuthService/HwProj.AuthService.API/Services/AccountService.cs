@@ -100,9 +100,7 @@ namespace HwProj.AuthService.API.Services
                 return Result.Failed("Пользователь не найден");
             }
 
-            var result = user.IsExternalAuth
-                ? await ChangeUserNameTask(user, model)
-                : await ChangeUserNameTask(user, model).Then(() => ChangePasswordAsync(user, model));
+            var result = await ChangeUserNameTask(user, model);
 
             return result.Succeeded ? Result.Success() : Result.Failed();
         }
@@ -323,24 +321,17 @@ namespace HwProj.AuthService.API.Services
                 user.Name = model.Name;
             }
 
-            if (!string.IsNullOrWhiteSpace(model.Name))
+            if (!string.IsNullOrWhiteSpace(model.Surname))
             {
                 user.Surname = model.Surname;
             }
 
-            if (!string.IsNullOrWhiteSpace(model.Name))
+            if (!string.IsNullOrWhiteSpace(model.MiddleName))
             {
                 user.MiddleName = model.MiddleName;
             }
 
             return _userManager.UpdateAsync(user);
-        }
-
-        private Task<IdentityResult> ChangePasswordAsync(User user, EditDataDTO model)
-        {
-            return !string.IsNullOrWhiteSpace(model.NewPassword)
-                ? _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword)
-                : Task.FromResult(IdentityResult.Success);
         }
 
         private async Task SignIn(User user, string password)

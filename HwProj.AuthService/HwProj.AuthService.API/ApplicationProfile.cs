@@ -11,7 +11,6 @@ namespace HwProj.AuthService.API
             CreateMap<RegisterDataDTO, User>();
             CreateMap<EditAccountViewModel, EditDataDTO>();
             CreateMap<RegisterViewModel, RegisterDataDTO>();
-            CreateMap<EditExternalViewModel, EditDataDTO>();
         }
     }
 }
