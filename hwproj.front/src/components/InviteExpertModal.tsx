@@ -151,7 +151,7 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
                 <DialogContent>
                     <Grid item container direction={"row"} justifyContent={"center"}>
                         {state.errors.length > 0 && (
-                            <p style={{color: "red", marginBottom: "0"}}>{state.errors}</p>
+                            <p style={{color: "red", marginBottom: "5px"}}>{state.errors}</p>
                         )}
                     </Grid>
                     <Typography>

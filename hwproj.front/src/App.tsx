@@ -25,7 +25,6 @@ import ResetPassword from "components/Auth/ResetPassword";
 import PasswordRecovery from "components/Auth/PasswordRecovery";
 import AuthLayout from "./AuthLayout";
 import ExpertAuthLayout from "./ExpertAuthLayout";
-import ExpertEditProfile from "./components/ExpertEditProfile";
 
 // TODO: add flux
 
@@ -102,8 +101,7 @@ class App extends Component<{ navigate: any }, AppState> {
                         onLogout={this.logout}/>
                 <Routes>
                     <Route element={<AuthLayout/>}>
-                        <Route path="user/edit" element={<EditProfile/>}/>
-                        <Route path="expert/edit" element={<ExpertEditProfile/>}/>
+                        <Route path="user/edit" element={<EditProfile isExpert={this.state.isExpert}/>}/>
                         <Route path="/" element={<Workspace/>}/>
                         <Route path="notifications"
                                element={<Notifications onMarkAsSeen={this.updatedNewNotificationsCount}/>}/>

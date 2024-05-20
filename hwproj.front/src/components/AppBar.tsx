@@ -147,7 +147,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                             </MenuItem>
                         </Menu>
                     </div>}
-                    {props.loggedIn && !isLecturer && !isExpert && <div>
+                    {props.loggedIn && !isLecturer && <div>
                         <IconButton
                             edge="start"
                             color="inherit"
@@ -166,34 +166,6 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                             <Link
                                 style={{textDecoration: "none", color: "black"}}
                                 to={"/user/edit"}>
-                                <MenuItem>
-                                    Редактировать профиль
-                                </MenuItem>
-                            </Link>
-                            <MenuItem onClick={props.onLogout}>
-                                Выйти
-                            </MenuItem>
-                        </Menu>
-                    </div>}
-                    {isExpert && <div>
-                        <IconButton
-                            edge="start"
-                            color="inherit"
-                            aria-label="menu"
-                            onClick={handleClick}
-                        >
-                            <MenuIcon/>
-                        </IconButton>
-                        <Menu
-                            id="simple-menu"
-                            anchorEl={anchorEl}
-                            keepMounted
-                            open={Boolean(anchorEl)}
-                            onClose={handleClose}
-                        >
-                            <Link
-                                style={{textDecoration: "none", color: "black"}}
-                                to={"/expert/edit"}>
                                 <MenuItem>
                                     Редактировать профиль
                                 </MenuItem>
