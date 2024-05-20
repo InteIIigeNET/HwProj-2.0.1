@@ -1,10 +1,10 @@
 ﻿import {Navigate, Outlet, useParams} from 'react-router-dom';
 import React, {FC, useEffect, useState} from "react";
 import ApiSingleton from "./api/ApiSingleton";
-import ExpertEditProfile from "./components/ExpertEditProfile";
 import {Box, CircularProgress, Paper, Typography} from "@material-ui/core";
 import {Center} from "@skbkontur/react-ui";
 import {TokenCredentials} from "api/api";
+import EditProfile from "./components/EditProfile";
 
 interface IExpertAuthLayoutProps {
     onLogin: any;
@@ -53,7 +53,7 @@ const ExpertAuthLayout: FC<IExpertAuthLayoutProps> = (props: IExpertAuthLayoutPr
     ) : (
         isTokenValid ? (
             isProfileAlreadyEdited ? (
-                <Navigate to={"/"}/>) : (<ExpertEditProfile/>)
+                <Navigate to={"/"}/>) : (<Navigate to={"/user/edit"}/>)
         ) : (
             <Center>
                 <Box sx={{minWidth: 150, marginTop: 15}}>
