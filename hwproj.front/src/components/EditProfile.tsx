@@ -66,7 +66,7 @@ const EditProfile: FC = () => {
         }
         try {
             if (profile.isExternalAuth) {
-                const result = await ApiSingleton.accountApi.apiAccountEditExternalPut(editForm)
+                const result = await ApiSingleton.accountApi.apiAccountEditPut(editForm)
                 result.succeeded
                     ? setProfile((prevState) => ({
                         ...prevState,

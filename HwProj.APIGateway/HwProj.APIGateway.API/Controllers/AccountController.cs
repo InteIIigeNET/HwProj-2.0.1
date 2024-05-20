@@ -140,15 +140,6 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok(result);
         }
 
-        [HttpPut("editExternal")]
-        [Authorize]
-        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> EditExternal(EditExternalViewModel model)
-        {
-            var result = await AuthServiceClient.EditExternal(model, UserId);
-            return Ok(result);
-        }
-
         [HttpGet("getAllStudents")]
         [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(AccountDataDto[]), (int)HttpStatusCode.OK)]
