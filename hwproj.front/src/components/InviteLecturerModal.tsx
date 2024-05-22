@@ -19,11 +19,6 @@ interface InviteLecturer {
     close: any;
 }
 
-const isCorrectEmail = (email: string) => {
-    const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,5}))$/;
-    return re.test(email);
-}
-
 interface InviteLecturerState {
     email: string;
     errors: string[];
@@ -42,7 +37,7 @@ const InviteLecturerModal: FC<InviteLecturer> = (props) => {
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        if (!isCorrectEmail(lecturerState.email)) {
+        if (!ApiSingleton.authService.isCorrectEmail(lecturerState.email)) {
             setLecturerState((prevState) => ({
                 ...prevState,
                 errors: ['Некорректный адрес электронной почты.']

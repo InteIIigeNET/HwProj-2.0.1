@@ -57,12 +57,18 @@ const Register: FC<LoginProps> = (props) => {
         error: [],
     })
     const [passwordError, setPasswordError] = useState<string>(""); // Состояние для ошибки паролей
+    const [emailError, setEmailError] = useState<string>(""); // Состояние для ошибки электронной почты
     const [isRegisterButtonDisabled, setIsRegisterButtonDisabled] = useState<boolean>(false); // Состояние для блокировки кнопки
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
        if (registerState.password !== registerState.passwordConfirm) {
             setPasswordError("Пароли не совпадают");
+            setIsRegisterButtonDisabled(true);
+            return;
+        }
+        if (!ApiSingleton.authService.isCorrectEmail(registerState.email)) {
+            setEmailError("Некорректный адрес электронной почты");
             setIsRegisterButtonDisabled(true);
             return;
         }
@@ -173,7 +179,11 @@ const Register: FC<LoginProps> = (props) => {
                                         ...prevState,
                                         email: e.target.value
                                     }))
+                                    setEmailError("");
+                                    setIsRegisterButtonDisabled(false);
                                 }}
+                                error={emailError !== ""}
+                                helperText={emailError}
                             />
                         </Grid>
                         <Grid item xs={12} sm={6}>

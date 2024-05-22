@@ -62,8 +62,20 @@ const Login: FC<LoginProps> = (props) => {
         isLogin: ApiSingleton.authService.isLoggedIn(),
     })
 
+    // Состояние для ошибки электронной почты
+    const [emailError, setEmailError] = useState<string>("");
+    // Состояние для блокировки кнопки
+    const [isLoginButtonDisabled, setIsLoginButtonDisabled]
+        = useState<boolean>(false);
+
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        if (!ApiSingleton.authService.isCorrectEmail(loginState.email)) {
+            setEmailError("Некорректный адрес электронной почты");
+            setIsLoginButtonDisabled(true);
+            return;
+        }
 
         const userData: LoginViewModel = {
             email: loginState.email,
@@ -95,6 +107,8 @@ const Login: FC<LoginProps> = (props) => {
             ...prevState,
             email: e.target.value
         }))
+        setEmailError("");
+        setIsLoginButtonDisabled(false);
     }
 
     const handleChangePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -143,6 +157,8 @@ const Login: FC<LoginProps> = (props) => {
                             margin="normal"
                             name={loginState.email}
                             onChange={handleChangeEmail}
+                            error={emailError !== ""}
+                            helperText={emailError}
                         />
                     </Grid>
                     <Grid>
@@ -163,6 +179,7 @@ const Login: FC<LoginProps> = (props) => {
                             variant="contained"
                             color="primary"
                             type="submit"
+                            disabled={isLoginButtonDisabled}
                         >
                             Войти
                         </Button>

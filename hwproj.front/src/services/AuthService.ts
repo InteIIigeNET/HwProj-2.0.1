@@ -89,6 +89,11 @@ export default class AuthService {
         return this.getProfile()["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"]
     }
 
+    isCorrectEmail = (email: string) => {
+        const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,5}))$/;
+        return re.test(email);
+    }
+
     isLecturer() {
         if (this.getToken() === null) {
             return false
