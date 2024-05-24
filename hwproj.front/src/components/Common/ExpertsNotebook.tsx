@@ -23,6 +23,7 @@ interface InviteExpertState {
 
 const ExpertsNotebook: FC = () => {
     const [experts, setExperts] = useState<User[]>([]);
+    const [visibleInviteButtonRow, setVisibleInviteButtonRow] = useState<string>("");
     const [isAllExpertsSelected, setIsAllExpertsSelected] = useState<boolean>(false)
     const [isOpenRegisterExpert, setIsOpenRegisterExpert] = useState<boolean>(false)
     const [inviteExpertState, setInviteExpertState] = useState<InviteExpertState>({
@@ -87,17 +88,17 @@ const ExpertsNotebook: FC = () => {
                         <TableHead>
                             <TableRow>
                                 <TableCell align={"left"}>
-                                    <Typography variant={"h6"} style={{fontSize: '18px' }}>
+                                    <Typography variant={"h6"} style={{fontSize: '18px'}}>
                                         Почта
                                     </Typography>
                                 </TableCell>
                                 <TableCell align={"left"}>
-                                    <Typography variant={"h6"} style={{fontSize: '18px' }}>
+                                    <Typography variant={"h6"} style={{fontSize: '18px'}}>
                                         ФИО
                                     </Typography>
                                 </TableCell>
                                 <TableCell align={"center"}>
-                                    <Typography variant={"h6"} style={{fontSize: '18px' }}>
+                                    <Typography variant={"h6"} style={{fontSize: '18px'}}>
                                         Компания
                                     </Typography>
                                 </TableCell>
@@ -106,21 +107,26 @@ const ExpertsNotebook: FC = () => {
                         </TableHead>
                         <TableBody>
                             {experts.map((row: User) => (
-                                <TableRow key={row.id}>
+                                <TableRow
+                                    key={row.id}
+                                    onMouseEnter={() => setVisibleInviteButtonRow(row.id!)}
+                                    // onMouseLeave={() => setVisibleInviteButtonRow("")}
+                                >
                                     <TableCell align={"left"}>{row.email}</TableCell>
                                     <TableCell
                                         align={"left"}>{row.surname + ' ' + row.name + ' ' + row.middleName}</TableCell>
                                     <TableCell align={"center"}>{row.companyName}</TableCell>
                                     <TableCell align={"center"}>
                                         <Grid container justifyContent="flex-end">
-                                            <Grid item>
-                                                <Button
-                                                    onClick={() => handleOpenExpertInvitation(row.email!, row.id!)}
-                                                    color="primary"
-                                                    size="small"
-                                                >
-                                                    Пригласить
-                                                </Button>
+                                            <Grid item style={{minHeight: 30}} alignContent={"center"}>
+                                                {visibleInviteButtonRow === row.id &&
+                                                    <Button
+                                                        onClick={() => handleOpenExpertInvitation(row.email!, row.id!)}
+                                                        color="primary"
+                                                        size="small"
+                                                    >
+                                                        Пригласить
+                                                    </Button>}
                                             </Grid>
                                         </Grid>
                                     </TableCell>
