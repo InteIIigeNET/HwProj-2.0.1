@@ -14,6 +14,7 @@ import {User} from 'api/api';
 import ApiSingleton from "../../api/ApiSingleton";
 import RegisterExpertModal from "../../components/Auth/RegisterExpertModal";
 import InviteExpertModal from "../../components/InviteExpertModal";
+import Chip from "@mui/material/Chip/Chip";
 
 interface InviteExpertState {
     isOpen: boolean;
@@ -43,7 +44,6 @@ const ExpertsNotebook: FC = () => {
         fetchExperts();
     }, [isAllExpertsSelected, isOpenRegisterExpert]);
 
-
     const handleAllExpertsSelection = (event: React.ChangeEvent<HTMLInputElement>) => {
         setIsAllExpertsSelected(event.target.checked)
     };
@@ -68,6 +68,10 @@ const ExpertsNotebook: FC = () => {
         setIsOpenRegisterExpert(false);
     }
 
+    const handleChipClick = () => {
+
+    }
+
     return (
         <div className="container" style={{marginBottom: '50px'}}>
             <Grid container style={{marginTop: "15px"}} spacing={2}>
@@ -89,17 +93,22 @@ const ExpertsNotebook: FC = () => {
                             <TableRow>
                                 <TableCell align={"left"}>
                                     <Typography variant={"h6"} style={{fontSize: '18px'}}>
-                                        Почта
-                                    </Typography>
-                                </TableCell>
-                                <TableCell align={"left"}>
-                                    <Typography variant={"h6"} style={{fontSize: '18px'}}>
                                         ФИО
                                     </Typography>
                                 </TableCell>
                                 <TableCell align={"center"}>
                                     <Typography variant={"h6"} style={{fontSize: '18px'}}>
+                                        Почта
+                                    </Typography>
+                                </TableCell>
+                                <TableCell align={"center"}>
+                                    <Typography variant={"h6"} style={{fontSize: '18px'}}>
                                         Компания
+                                    </Typography>
+                                </TableCell>
+                                <TableCell align={"center"}>
+                                    <Typography variant={"h6"} style={{fontSize: '18px'}}>
+                                        Тэги
                                     </Typography>
                                 </TableCell>
                                 <TableCell align={"center"}/>
@@ -115,10 +124,11 @@ const ExpertsNotebook: FC = () => {
                                     <TableCell align={"left"}>{row.email}</TableCell>
                                     <TableCell
                                         align={"left"}>{row.surname + ' ' + row.name + ' ' + row.middleName}</TableCell>
+                                    <TableCell align={"center"}>{row.email}</TableCell>
                                     <TableCell align={"center"}>{row.companyName}</TableCell>
                                     <TableCell align={"center"}>
                                         <Grid container justifyContent="flex-end">
-                                            <Grid item style={{minHeight: 30}} alignContent={"center"}>
+                                            <Grid item style={{minHeight: 32}} alignContent={"center"}>
                                                 {visibleInviteButtonRow === row.id &&
                                                     <Button
                                                         onClick={() => handleOpenExpertInvitation(row.email!, row.id!)}

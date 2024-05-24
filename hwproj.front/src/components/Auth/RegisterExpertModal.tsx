@@ -10,6 +10,7 @@ import Grid from "@material-ui/core/Grid";
 import makeStyles from "@material-ui/styles/makeStyles";
 import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined';
 import Avatar from "@material-ui/core/Avatar";
+import Tags from "../Common/Tags";
 
 interface IRegisterExpertProps {
     isOpen: boolean;
@@ -54,13 +55,22 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
         middleName: "",
         email: "",
         companyName: "",
-        bio: ""
+        bio: "",
+        tags: []
     })
 
     const [commonState, setCommonState] = useState<IRegisterExpertState>({
         errors: [],
         isRegisterSuccessful: undefined
     })
+
+
+    const handleTagsChange = (newValue: string[]) => {
+        setRegisterState((prevState) => ({
+            ...prevState,
+            tags: newValue
+        }))
+    };
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
@@ -120,147 +130,149 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
                     </Grid>
                 </DialogTitle>
                 <DialogContent>
-                    <DialogContentText>
-                        <Grid item container direction={"row"} justifyContent={"center"}>
-                            {commonState.errors.length > 0 && (
-                                <p style={{color: "red", marginBottom: "0"}}>{commonState.errors}</p>
-                            )}
-                            {commonState.isRegisterSuccessful && (
-                                <p style={{color: "green", marginBottom: "0"}}>Эксперт успешно зарегистрирован</p>
-                            )}
+                    <Grid item container direction={"row"} justifyContent={"center"}>
+                        {commonState.errors.length > 0 && (
+                            <p style={{color: "red", marginBottom: "0"}}>{commonState.errors}</p>
+                        )}
+                        {commonState.isRegisterSuccessful && (
+                            <p style={{color: "green", marginBottom: "0"}}>Эксперт успешно зарегистрирован</p>
+                        )}
+                    </Grid>
+                    <form onSubmit={handleSubmit} className={classes.form}>
+                        <Grid container spacing={2}>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    fullWidth
+                                    required
+                                    label="Имя"
+                                    variant="outlined"
+                                    name={registerState.name}
+                                    onChange={(e) => {
+                                        e.persist()
+                                        setRegisterState((prevState) => ({
+                                            ...prevState,
+                                            name: e.target.value
+                                        }))
+                                    }}
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <TextField
+                                    required
+                                    fullWidth
+                                    label="Фамилия"
+                                    variant="outlined"
+                                    name={registerState.surname}
+                                    onChange={(e) => {
+                                        e.persist()
+                                        setRegisterState((prevState) => ({
+                                            ...prevState,
+                                            surname: e.target.value
+                                        }))
+                                    }}
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField
+                                    fullWidth
+                                    label="Отчество"
+                                    variant="outlined"
+                                    size="small"
+                                    name={registerState.middleName}
+                                    onChange={(e) => {
+                                        e.persist()
+                                        setRegisterState((prevState) => ({
+                                            ...prevState,
+                                            middleName: e.target.value
+                                        }))
+                                    }}
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField
+                                    required
+                                    fullWidth
+                                    type="email"
+                                    label="Электронная почта"
+                                    variant="outlined"
+                                    size="small"
+                                    name={registerState.email}
+                                    onChange={(e) => {
+                                        e.persist()
+                                        setRegisterState((prevState) => ({
+                                            ...prevState,
+                                            email: e.target.value
+                                        }))
+                                    }}
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField
+                                    fullWidth
+                                    label="Компания"
+                                    variant="outlined"
+                                    size="small"
+                                    value={registerState.companyName}
+                                    onChange={(e) => {
+                                        e.persist()
+                                        setRegisterState((prevState) => ({
+                                            ...prevState,
+                                            companyName: e.target.value
+                                        }))
+                                    }}
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Tags tags={[]} onTagsChange={handleTagsChange} isAutocompleteSmall={true}
+                                      requestTags={() => new Promise((resolve, _) => resolve([]))}/>
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField
+                                    fullWidth
+                                    multiline
+                                    label="Дополнительная информация (био)"
+                                    variant="outlined"
+                                    size="small"
+                                    value={registerState.bio}
+                                    onChange={(e) => {
+                                        e.persist()
+                                        setRegisterState((prevState) => ({
+                                            ...prevState,
+                                            bio: e.target.value
+                                        }))
+                                    }}
+                                />
+                            </Grid>
                         </Grid>
-                        <form onSubmit={handleSubmit} className={classes.form}>
-                            <Grid container spacing={2}>
-                                <Grid item xs={12} sm={6}>
-                                    <TextField
-                                        fullWidth
-                                        required
-                                        label="Имя"
-                                        variant="outlined"
-                                        name={registerState.name}
-                                        onChange={(e) => {
-                                            e.persist()
-                                            setRegisterState((prevState) => ({
-                                                ...prevState,
-                                                name: e.target.value
-                                            }))
-                                        }}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} sm={6}>
-                                    <TextField
-                                        required
-                                        fullWidth
-                                        label="Фамилия"
-                                        variant="outlined"
-                                        name={registerState.surname}
-                                        onChange={(e) => {
-                                            e.persist()
-                                            setRegisterState((prevState) => ({
-                                                ...prevState,
-                                                surname: e.target.value
-                                            }))
-                                        }}
-                                    />
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <TextField
-                                        fullWidth
-                                        label="Отчество"
-                                        variant="outlined"
-                                        size="small"
-                                        name={registerState.middleName}
-                                        onChange={(e) => {
-                                            e.persist()
-                                            setRegisterState((prevState) => ({
-                                                ...prevState,
-                                                middleName: e.target.value
-                                            }))
-                                        }}
-                                    />
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <TextField
-                                        required
-                                        fullWidth
-                                        type="email"
-                                        label="Электронная почта"
-                                        variant="outlined"
-                                        size="small"
-                                        name={registerState.email}
-                                        onChange={(e) => {
-                                            e.persist()
-                                            setRegisterState((prevState) => ({
-                                                ...prevState,
-                                                email: e.target.value
-                                            }))
-                                        }}
-                                    />
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <TextField
-                                        fullWidth
-                                        label="Компания"
-                                        variant="outlined"
-                                        size="small"
-                                        value={registerState.companyName}
-                                        onChange={(e) => {
-                                            e.persist()
-                                            setRegisterState((prevState) => ({
-                                                ...prevState,
-                                                companyName: e.target.value
-                                            }))
-                                        }}
-                                    />
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <TextField
-                                        fullWidth
-                                        multiline
-                                        label="Дополнительная информация (био)"
-                                        variant="outlined"
-                                        size="small"
-                                        value={registerState.bio}
-                                        onChange={(e) => {
-                                            e.persist()
-                                            setRegisterState((prevState) => ({
-                                                ...prevState,
-                                                bio: e.target.value
-                                            }))
-                                        }}
-                                    />
-                                </Grid>
+                        <Grid
+                            direction="row"
+                            justifyContent="flex-end"
+                            alignItems="flex-end"
+                            container
+                            style={{marginTop: '16px'}}
+                        >
+                            <Grid item>
+                                <Button
+                                    onClick={close}
+                                    color="primary"
+                                    variant="contained"
+                                    style={{marginRight: '10px'}}
+                                >
+                                    Закрыть
+                                </Button>
                             </Grid>
-                            <Grid
-                                direction="row"
-                                justifyContent="flex-end"
-                                alignItems="flex-end"
-                                container
-                                style={{marginTop: '16px'}}
-                            >
-                                <Grid item>
-                                    <Button
-                                        onClick={close}
-                                        color="primary"
-                                        variant="contained"
-                                        style={{marginRight: '10px'}}
-                                    >
-                                        Закрыть
-                                    </Button>
-                                </Grid>
-                                <Grid item>
-                                    <Button
-                                        fullWidth
-                                        variant="contained"
-                                        color="primary"
-                                        type="submit"
-                                    >
-                                        Зарегистрировать
-                                    </Button>
-                                </Grid>
+                            <Grid item>
+                                <Button
+                                    fullWidth
+                                    variant="contained"
+                                    color="primary"
+                                    type="submit"
+                                >
+                                    Зарегистрировать
+                                </Button>
                             </Grid>
-                        </form>
-                    </DialogContentText>
+                        </Grid>
+                    </form>
                 </DialogContent>
                 <DialogActions>
                 </DialogActions>
