@@ -103,20 +103,23 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
             if (isLinkAccessible) {
                 setIsLinkAccessible(false);
             }
-            const isInputAllowed = state.selectedCourseId !== -1 && state.selectedHomeworks.length !== 0;
+
+            const isInputAllowed = state.selectedCourseId !== -1;
             setIsInviteButtonDisabled(!isInputAllowed);
         }
 
         controlItemsAccessibility();
     }, [state.selectedCourseId, state.selectedStudents, state.selectedHomeworks])
 
-    // Если преподаватель не выбрал ни одного студента, по умолчанию регистрируем всех
+    // Если преподаватель не выбрал ни одного студента, по умолчанию регистрируем всех. Аналогично с выбором домашних работ
     const handleInvitation = async () => {
         try {
             const courseFilter: CreateCourseFilterViewModel = {
                 userId: props.expertId,
                 courseId: state.selectedCourseId,
-                homeworkIds: state.selectedHomeworks.map(homeworkViewModel => homeworkViewModel.id!),
+                homeworkIds: state.selectedHomeworks.length === 0 ?
+                    state.courseHomeworks.map(homeworkViewModel => homeworkViewModel.id!)
+                    : state.selectedHomeworks.map(homeworkViewModel => homeworkViewModel.id!),
                 studentIds: state.selectedStudents.length === 0 ?
                     state.courseStudents.map(accountData => accountData.userId!)
                     : state.selectedStudents.map(accountData => accountData.userId!),
@@ -169,10 +172,11 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
                                         labelId="course-select-label"
                                         value={state.selectedCourseId === -1 ? '' : state.selectedCourseId}
                                         onChange={async (e) => {
-                                            const selectedId = Number(e.target.value)
                                             setState((prevState) => ({
                                                 ...prevState,
-                                                selectedCourseId: selectedId
+                                                selectedCourseId: +e.target.value,
+                                                selectedHomeworks: [],
+                                                selectedStudents: []
                                             }));
                                         }}>
                                         {state.lecturerCourses.map((courseViewModel, i) =>
@@ -199,7 +203,8 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
                                             <TextField
                                                 {...params}
                                                 variant="outlined"
-                                                label='Домашние работы'
+                                                label={state.selectedHomeworks.length === 0 ? "" : "Домашние работы"}
+                                                placeholder={state.selectedHomeworks.length === 0 ? "Все домашние работы" : ""}
                                             />
                                         )}
                                         noOptionsText={'На курсе больше нет домашних работ'}
