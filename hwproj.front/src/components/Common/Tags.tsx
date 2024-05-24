@@ -7,11 +7,12 @@ import {useState, useEffect, SyntheticEvent} from "react";
 
 interface TagsProps {
     tags: string[];
-    courseId: number;
     onTagsChange: (tags: string[]) => void;
+    requestTags: () => Promise<string[]>;
+    isAutocompleteSmall: boolean;
 }
 
-export default function Tags({tags, courseId, onTagsChange}: TagsProps) {
+export default function Tags({tags, onTagsChange, requestTags, isAutocompleteSmall}: TagsProps) {
     const [allTags, setAllTags] = useState<string[]>([]);
 
     useEffect(() => {
@@ -20,7 +21,7 @@ export default function Tags({tags, courseId, onTagsChange}: TagsProps) {
 
     const fetchTags = async () => {
         try {
-            const response = await apiSingleton.coursesApi.apiCoursesTagsByCourseIdGet(courseId);
+            const response = await requestTags();
             setAllTags(response);
         } catch (error) {
             console.error('Ошибка при получении данных:', error);
@@ -41,6 +42,7 @@ export default function Tags({tags, courseId, onTagsChange}: TagsProps) {
             onChange={handleOptionSelect}
             filterSelectedOptions
             freeSolo
+            size={isAutocompleteSmall ? "small" : "medium"}
             renderTags={(value, getTagProps) =>
                 value.map((option: string, index: number) => (
                     <Chip variant="filled" label={option} {...getTagProps({index})} />

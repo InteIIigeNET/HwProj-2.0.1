@@ -7,7 +7,8 @@ import {CreateHomeworkViewModel, CreateTaskViewModel} from "../../api";
 import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
 import CreateTask from "../Tasks/CreateTask"
 import {Checkbox, FormControlLabel} from "@mui/material";
-import Tags from "./HomeworkTags";
+import Tags from "../Common/Tags";
+import apiSingleton from "../../api/ApiSingleton";
 
 interface IAddHomeworkProps {
     id: number;
@@ -119,7 +120,8 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                     }
                     }
                 />
-                <Tags tags={[]} courseId={props.id} onTagsChange={handleTagsChange}/>
+                <Tags tags={[]} onTagsChange={handleTagsChange} isAutocompleteSmall={false}
+                      requestTags={() => apiSingleton.coursesApi.apiCoursesTagsByCourseIdGet(props.id)}/>
                 <PublicationAndDeadlineDates
                     hasDeadline={false}
                     isDeadlineStrict={false}
