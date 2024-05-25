@@ -105,29 +105,12 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok(result);
         }
 
-        [HttpPost("registerExpert")]
-        [Authorize(Roles = Roles.LecturerRole)]
-        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> RegisterExpert(RegisterExpertViewModel model)
-        {
-            var result = await AuthServiceClient.RegisterExpert(model, UserId);
-            return Ok(result);
-        }
-
         [HttpPost("login")]
         [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             var tokenMeta = await AuthServiceClient.Login(model).ConfigureAwait(false);
             return Ok(tokenMeta);
-        }
-        
-        [HttpPost("loginExpert")]
-        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> LoginExpert(TokenCredentials credentials)
-        {
-            var result = await AuthServiceClient.LoginExpert(credentials).ConfigureAwait(false);
-            return Ok(result);
         }
 
         [Authorize]
@@ -138,40 +121,13 @@ namespace HwProj.APIGateway.API.Controllers
             var tokenMeta = await AuthServiceClient.RefreshToken(UserId!);
             return Ok(tokenMeta);
         }
-        
-        [HttpGet("getExpertToken")]
-        [Authorize(Roles = Roles.LecturerRole)]
-        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetExpertToken(string expertEmail)
-        {
-            var tokenMeta = await AuthServiceClient.GetExpertToken(expertEmail);
-            return Ok(tokenMeta);
-        }
-        
+
         [HttpPut("edit")]
         [Authorize]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Edit(EditAccountViewModel model)
         {
             var result = await AuthServiceClient.Edit(model, UserId);
-            return Ok(result);
-        }
-
-        [HttpPost("setExpertProfileIsEdited")]
-        [Authorize(Roles = Roles.ExpertRole)]
-        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> SetExpertProfileIsEdited()
-        {
-            var result = await AuthServiceClient.SetExpertProfileIsEdited(UserId);
-            return Ok(result);
-        }
-
-        [HttpGet("isExpertProfileEdited")]
-        [Authorize(Roles = Roles.ExpertRole)]
-        [ProducesResponseType(typeof(Result<bool>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetIsExpertProfileEdited()
-        {
-            var result = await AuthServiceClient.GetIsExpertProfileEdited(UserId);
             return Ok(result);
         }
 
@@ -190,33 +146,6 @@ namespace HwProj.APIGateway.API.Controllers
         public async Task<IActionResult> GetAllStudents()
         {
             var result = await AuthServiceClient.GetAllStudents();
-            return Ok(result);
-        }
-        
-        [HttpGet("getAllExperts")]
-        [Authorize(Roles = Roles.LecturerRole)]
-        [ProducesResponseType(typeof(ExpertDataDTO[]), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetAllExperts()
-        {
-            var result = await AuthServiceClient.GetAllExperts();
-            return Ok(result);
-        }
-
-        [HttpGet("getExperts")]
-        [Authorize(Roles = Roles.LecturerRole)]
-        [ProducesResponseType(typeof(ExpertDataDTO[]), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetExperts()
-        {
-            var result = await AuthServiceClient.GetExperts(UserId);
-            return Ok(result);
-        }
-
-        [HttpPost("updateExpertTags")]
-        [Authorize(Roles = Roles.LecturerRole)]
-        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> UpdateExpertTags(UpdateExpertTagsDTO updateExpertTagsDto)
-        {
-            var result = await AuthServiceClient.UpdateExpertTags(UserId, updateExpertTagsDto);
             return Ok(result);
         }
 

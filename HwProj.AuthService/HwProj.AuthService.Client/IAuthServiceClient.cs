@@ -11,26 +11,25 @@ namespace HwProj.AuthService.Client
         Task<AccountDataDto> GetAccountDataByEmail(string email);
         Task<AccountDataDto[]> GetAccountsData(string[] userId);
         Task<Result<TokenCredentials>> Register(RegisterViewModel model);
-        Task<Result> RegisterExpert(RegisterExpertViewModel model, string lecturerId);
         Task<Result<TokenCredentials>> Login(LoginViewModel model);
-        Task<Result> LoginExpert(TokenCredentials credentials);
         Task<Result<TokenCredentials>> RefreshToken(string userId);
-        Task<Result<TokenCredentials>> GetExpertToken(string expertEmail);
         Task<Result> Edit(EditAccountViewModel model, string userId);
-        Task<Result> EditExpert(EditExpertViewModel model, string expertId);
-        Task<Result<bool>> GetIsExpertProfileEdited(string expertId);
-        Task<Result> SetExpertProfileIsEdited(string expertId);
         Task<Result> InviteNewLecturer(InviteLecturerViewModel model);
         Task<string> FindByEmailAsync(string email);
         Task<AccountDataDto[]> GetAllStudents();
         Task<User[]> GetAllLecturers();
-        Task<ExpertDataDTO[]> GetAllExperts();
-        Task<ExpertDataDTO[]> GetExperts(string userId);
-        Task<Result> UpdateExpertTags(string lecturerId, UpdateExpertTagsDTO updateExpertTagsDto);
         Task<bool> Ping();
         Task<Result> RequestPasswordRecovery(RequestPasswordRecoveryViewModel model);
         Task<Result> ResetPassword(ResetPasswordViewModel model);
         Task<UrlDto> GetGithubLoginUrl(UrlDto redirectUrl);
         Task<GithubCredentials> AuthorizeGithub(string code, string userId);
+        Task<Result> RegisterExpert(RegisterExpertViewModel model, string lecturerId);
+        Task<Result> LoginExpert(TokenCredentials credentials);
+        Task<Result<TokenCredentials>> GetExpertToken(string expertEmail);
+        Task<Result<bool>> GetIsExpertProfileEdited(string expertId);
+        Task<Result> SetExpertProfileIsEdited(string expertId);
+        Task<ExpertDataDTO[]> GetAllExperts();
+        Task<ExpertDataDTO[]> GetExperts(string userId);
+        Task<Result> UpdateExpertTags(string lecturerId, UpdateExpertTagsDTO updateExpertTagsDto);
     }
 }
