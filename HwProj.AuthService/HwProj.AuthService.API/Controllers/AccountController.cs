@@ -185,20 +185,28 @@ namespace HwProj.AuthService.API.Controllers
         }
         
         [HttpGet("getAllExperts")]
-        [ProducesResponseType(typeof(User[]), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ExpertDataDTO[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetAllExperts()
         {
-            var allExperts = await _accountService.GetUsersInRole(Roles.ExpertRole);
-            var result = allExperts.ToArray();
+            var allExperts = await _accountService.GetAllExperts();
 
-            return Ok(result);
+            return Ok(allExperts);
         }
         
-        [HttpGet("getExperts/{userId}")]
-        [ProducesResponseType(typeof(User[]), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetExperts(string userId)
+        [HttpGet("getExperts/{lecturerId}")]
+        [ProducesResponseType(typeof(ExpertDataDTO[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetExperts(string lecturerId)
         {
-            var experts = await _accountService.GetExperts(userId);
+            var experts = await _accountService.GetExperts(lecturerId);
+
+            return Ok(experts);
+        }
+        
+        [HttpPost("updateExpertTags/{lecturerId}")]
+        [ProducesResponseType(typeof(ExpertDataDTO[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> UpdateExpertTags(string lecturerId, [FromBody] UpdateExpertTagsDTO updateExpertTagsDto)
+        {
+            var experts = await _accountService.UpdateExpertTags(lecturerId, updateExpertTagsDto);
 
             return Ok(experts);
         }

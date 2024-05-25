@@ -247,24 +247,40 @@ namespace HwProj.AuthService.Client
             return await response.DeserializeAsync<User[]>().ConfigureAwait(false);
         }
         
-        public async Task<User[]> GetAllExperts()
+        public async Task<ExpertDataDTO[]> GetAllExperts()
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
                 _authServiceUri + "api/account/getAllExperts");
 
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<User[]>().ConfigureAwait(false);
+            return await response.DeserializeAsync<ExpertDataDTO[]>().ConfigureAwait(false);
         }
         
-        public async Task<User[]> GetExperts(string userId)
+        public async Task<ExpertDataDTO[]> GetExperts(string userId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
                 _authServiceUri + $"api/account/getExperts/{userId}");
 
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<User[]>().ConfigureAwait(false);
+            return await response.DeserializeAsync<ExpertDataDTO[]>().ConfigureAwait(false);
+        }
+
+        public async Task<Result> UpdateExpertTags(string lecturerId, UpdateExpertTagsDTO updateExpertTagsDto)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _authServiceUri + $"api/account/updateExpertTags/{lecturerId}")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(updateExpertTagsDto),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<Result>();
         }
 
         public async Task<bool> Ping()

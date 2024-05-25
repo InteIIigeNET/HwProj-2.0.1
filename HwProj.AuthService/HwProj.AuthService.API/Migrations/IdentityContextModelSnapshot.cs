@@ -30,6 +30,8 @@ namespace HwProj.AuthService.API.Migrations
                     b.Property<string>("LecturerId")
                         .HasMaxLength(450);
 
+                    b.Property<string>("Tags");
+
                     b.HasKey("Id");
 
                     b.ToTable("ExpertsData");

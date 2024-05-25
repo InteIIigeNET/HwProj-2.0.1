@@ -19,6 +19,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Octokit;
 using User = HwProj.Models.AuthService.ViewModels.User;
+using Microsoft.EntityFrameworkCore.Internal;
 
 
 namespace HwProj.AuthService.API.Services
@@ -193,7 +194,7 @@ namespace HwProj.AuthService.API.Services
             {
                 return Result.Failed("Невалидный токен");
             }
-            
+
             await _signInManager.SignInAsync(expert, false).ConfigureAwait(false);
             return Result.Success();
         }
@@ -265,7 +266,7 @@ namespace HwProj.AuthService.API.Services
             var user = _mapper.Map<User>(model);
             user.UserName = user.Email;
 
-            
+
             var createUserTask = _userManager.CreateAsync(user);
 
             var result = await createUserTask
@@ -281,12 +282,13 @@ namespace HwProj.AuthService.API.Services
                 await _expertsRepository.AddAsync(new ExpertData
                 {
                     Id = user.Id,
-                    LecturerId = lecturerId
+                    LecturerId = lecturerId,
+                    Tags = model.Tags.Join(";")
                 });
 
                 return Result.Success();
             }
-            
+
             return Result.Failed(result.Errors.Select(errors => errors.Description).ToArray());
         }
 
@@ -321,15 +323,50 @@ namespace HwProj.AuthService.API.Services
             return await _userManager.GetUsersInRoleAsync(role);
         }
 
-        public async Task<User[]> GetExperts(string userId)
+        public async Task<ExpertDataDTO[]> GetExperts(string userId)
         {
-            var expertIds = await _expertsRepository.GetExpertIds(userId);
-            var experts = _aspUserManager.Users
+            var expertsFromDb = await _expertsRepository.GetExpertsData(userId);
+            var expertIds = expertsFromDb.Select(expert => expert.Id);
+
+            var users = _aspUserManager.Users
                 .Where(user => expertIds.Contains(user.Id))
                 .AsNoTracking()
                 .ToArray();
 
-            return experts;
+            var expertsDataDto = ToExpertDataDTO(users, expertsFromDb);
+
+            return expertsDataDto;
+        }
+
+        public async Task<ExpertDataDTO[]> GetAllExperts()
+        {
+            var users = await _userManager.GetUsersInRoleAsync(Roles.ExpertRole);
+            var expertsFromDb = _expertsRepository.GetAll().ToArray();
+
+            var expertsDataDto = ToExpertDataDTO(users.ToArray(), expertsFromDb);
+            
+            return expertsDataDto;
+        }
+
+        public async Task<Result> UpdateExpertTags(string lecturerId, UpdateExpertTagsDTO updateExpertTagsDto)
+        {
+            var expertData = await _expertsRepository.GetAsync(updateExpertTagsDto.ExpertId);
+
+            if (expertData.LecturerId != lecturerId)
+            {
+                return Result.Failed(
+                    "Менять тэги эксперта может только преподаватель, зарегистрировавший этого эксперта");
+            }
+
+            await _expertsRepository.UpdateAsync(updateExpertTagsDto.ExpertId, data => new ExpertData()
+            {
+                Id = data.Id,
+                IsProfileEdited = data.IsProfileEdited,
+                LecturerId = data.LecturerId,
+                Tags = updateExpertTagsDto.Tags.Join(";")
+            });
+
+            return Result.Success();
         }
 
         public async Task<Result> RequestPasswordRecovery(RequestPasswordRecoveryViewModel model)
@@ -384,7 +421,7 @@ namespace HwProj.AuthService.API.Services
         public async Task<GithubCredentials> AuthorizeGithub(string code, string userId)
         {
             var sourceSettings = _configuration.GetSection("Github");
-            
+
             var parameters = new Dictionary<string, string>
             {
                 { "client_id", sourceSettings["ClientIdGithub"] },
@@ -428,6 +465,26 @@ namespace HwProj.AuthService.API.Services
             };
 
             return githubCredentials;
+        }
+
+        private ExpertDataDTO[] ToExpertDataDTO(User[] users, ExpertData[] expertsData)
+        {
+            return expertsData.Join(
+                    users,
+                    expertData => expertData.Id,
+                    user => user.Id,
+                    (expertData, user) => new ExpertDataDTO()
+                    {
+                        Id = user.Id,
+                        Name = user.Name,
+                        Surname = user.Surname,
+                        MiddleName = user.MiddleName,
+                        Bio = user.Bio,
+                        CompanyName = user.CompanyName,
+                        Email = user.Email,
+                        Tags = expertData.Tags?.Split(';').ToList() ?? new List<string>()
+                    })
+                .ToArray();
         }
 
         private Task<IdentityResult> ChangeUserDataTask(User user, EditDataDTO model)
