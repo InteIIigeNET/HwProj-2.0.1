@@ -10,17 +10,16 @@ namespace HwProj.AuthService.API.Repositories
 {
     public class ExpertsRepository : CrudRepository<ExpertData, string>, IExpertsRepository
     {
-        public ExpertsRepository(IdentityContext context, UserManager<User> aspUserManager)
+        public ExpertsRepository(IdentityContext context)
             : base(context)
         {
         }
 
-        public async Task<string[]> GetExpertIds(string lecturerId)
+        public async Task<ExpertData[]> GetExpertsData(string lecturerId)
         {
             return await Context.Set<ExpertData>()
                 .AsNoTracking()
                 .Where(data => data.LecturerId == lecturerId)
-                .Select(data => data.Id)
                 .ToArrayAsync()
                 .ConfigureAwait(false);
         }

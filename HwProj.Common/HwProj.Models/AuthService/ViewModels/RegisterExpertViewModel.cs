@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
@@ -21,5 +22,7 @@ namespace HwProj.Models.AuthService.ViewModels
         public string Bio { get; set; }
         
         public string CompanyName { get; set; }
+
+        public List<string> Tags { get; set; } = new List<string>();
     }
 }

@@ -13,5 +13,7 @@ namespace HwProj.Models.AuthService.ViewModels
 
         [MaxLength(450)]
         public string LecturerId { get; set; }
+
+        public string? Tags { get; set; }
     }
 }

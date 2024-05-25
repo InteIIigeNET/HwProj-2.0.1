@@ -195,19 +195,28 @@ namespace HwProj.APIGateway.API.Controllers
         
         [HttpGet("getAllExperts")]
         [Authorize(Roles = Roles.LecturerRole)]
-        [ProducesResponseType(typeof(User[]), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ExpertDataDTO[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetAllExperts()
         {
             var result = await AuthServiceClient.GetAllExperts();
             return Ok(result);
         }
-        
+
         [HttpGet("getExperts")]
         [Authorize(Roles = Roles.LecturerRole)]
-        [ProducesResponseType(typeof(User[]), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ExpertDataDTO[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetExperts()
         {
             var result = await AuthServiceClient.GetExperts(UserId);
+            return Ok(result);
+        }
+
+        [HttpPost("updateExpertTags")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> UpdateExpertTags(UpdateExpertTagsDTO updateExpertTagsDto)
+        {
+            var result = await AuthServiceClient.UpdateExpertTags(UserId, updateExpertTagsDto);
             return Ok(result);
         }
 
