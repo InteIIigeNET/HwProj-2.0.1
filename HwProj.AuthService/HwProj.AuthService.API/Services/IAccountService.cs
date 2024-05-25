@@ -22,7 +22,6 @@ namespace HwProj.AuthService.API.Services
         Task<Result<TokenCredentials>> RefreshToken(string userId);
         Task<Result> InviteNewLecturer(string emailOfInvitedUser);
         Task<IList<User>> GetUsersInRole(string role);
-        Task<ExpertDataDTO[]> GetExperts(string userId);
         Task<ExpertDataDTO[]> GetAllExperts();
         Task<Result> UpdateExpertTags(string lecturerId, UpdateExpertTagsDTO updateExpertTagsDto);
         Task<Result> RequestPasswordRecovery(RequestPasswordRecoveryViewModel model);
