@@ -323,29 +323,30 @@ namespace HwProj.AuthService.API.Services
             return await _userManager.GetUsersInRoleAsync(role);
         }
 
-        public async Task<ExpertDataDTO[]> GetExperts(string userId)
-        {
-            var expertsFromDb = await _expertsRepository.GetExpertsData(userId);
-            var expertIds = expertsFromDb.Select(expert => expert.Id);
-
-            var users = _aspUserManager.Users
-                .Where(user => expertIds.Contains(user.Id))
-                .AsNoTracking()
-                .ToArray();
-
-            var expertsDataDto = ToExpertDataDTO(users, expertsFromDb);
-
-            return expertsDataDto;
-        }
-
         public async Task<ExpertDataDTO[]> GetAllExperts()
         {
             var users = await _userManager.GetUsersInRoleAsync(Roles.ExpertRole);
             var expertsFromDb = _expertsRepository.GetAll().ToArray();
 
-            var expertsDataDto = ToExpertDataDTO(users.ToArray(), expertsFromDb);
-            
-            return expertsDataDto;
+            var result = expertsFromDb.Join(
+                    users,
+                    expertData => expertData.Id,
+                    user => user.Id,
+                    (expertData, user) => new ExpertDataDTO
+                    {
+                        Id = user.Id,
+                        Name = user.Name,
+                        Surname = user.Surname,
+                        MiddleName = user.MiddleName,
+                        Bio = user.Bio,
+                        CompanyName = user.CompanyName,
+                        Email = user.Email,
+                        Tags = expertData.Tags?.Split(';').ToList() ?? new List<string>(),
+                        LecturerId = expertData.LecturerId
+                    })
+                .ToArray();
+
+            return result;
         }
 
         public async Task<Result> UpdateExpertTags(string lecturerId, UpdateExpertTagsDTO updateExpertTagsDto)
@@ -465,26 +466,6 @@ namespace HwProj.AuthService.API.Services
             };
 
             return githubCredentials;
-        }
-
-        private ExpertDataDTO[] ToExpertDataDTO(User[] users, ExpertData[] expertsData)
-        {
-            return expertsData.Join(
-                    users,
-                    expertData => expertData.Id,
-                    user => user.Id,
-                    (expertData, user) => new ExpertDataDTO()
-                    {
-                        Id = user.Id,
-                        Name = user.Name,
-                        Surname = user.Surname,
-                        MiddleName = user.MiddleName,
-                        Bio = user.Bio,
-                        CompanyName = user.CompanyName,
-                        Email = user.Email,
-                        Tags = expertData.Tags?.Split(';').ToList() ?? new List<string>()
-                    })
-                .ToArray();
         }
 
         private Task<IdentityResult> ChangeUserDataTask(User user, EditDataDTO model)

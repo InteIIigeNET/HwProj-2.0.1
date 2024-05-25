@@ -320,16 +320,6 @@ namespace HwProj.AuthService.Client
             return await response.DeserializeAsync<ExpertDataDTO[]>().ConfigureAwait(false);
         }
 
-        public async Task<ExpertDataDTO[]> GetExperts(string lecturerId)
-        {
-            using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Get,
-                _authServiceUri + $"api/Experts/get?lecturerId={lecturerId}");
-
-            var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<ExpertDataDTO[]>().ConfigureAwait(false);
-        }
-
         public async Task<Result> UpdateExpertTags(string lecturerId, UpdateExpertTagsDTO updateExpertTagsDto)
         {
             using var httpRequest = new HttpRequestMessage(

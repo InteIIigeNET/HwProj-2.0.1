@@ -29,7 +29,6 @@ namespace HwProj.AuthService.Client
         Task<Result<bool>> GetIsExpertProfileEdited(string expertId);
         Task<Result> SetExpertProfileIsEdited(string expertId);
         Task<ExpertDataDTO[]> GetAllExperts();
-        Task<ExpertDataDTO[]> GetExperts(string userId);
         Task<Result> UpdateExpertTags(string lecturerId, UpdateExpertTagsDTO updateExpertTagsDto);
     }
 }
