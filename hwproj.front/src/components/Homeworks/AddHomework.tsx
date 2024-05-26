@@ -120,7 +120,7 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                     }
                     }
                 />
-                <Tags tags={[]} onTagsChange={handleTagsChange} isAutocompleteSmall={false}
+                <Tags tags={[]} onTagsChange={handleTagsChange} isElementSmall={false}
                       requestTags={() => apiSingleton.coursesApi.apiCoursesTagsByCourseIdGet(props.id)}/>
                 <PublicationAndDeadlineDates
                     hasDeadline={false}

@@ -14,7 +14,7 @@ import Tags from "../Common/Tags";
 
 interface IRegisterExpertProps {
     isOpen: boolean;
-    close: any;
+    onClose: any;
 }
 
 interface IRegisterExpertState {
@@ -82,7 +82,7 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
             return
         }
         try {
-            const result = await ApiSingleton.accountApi.apiAccountRegisterExpertPost(registerState);
+            const result = await ApiSingleton.expertsApi.apiExpertsRegisterPost(registerState);
             setCommonState((prevState) => ({
                 ...prevState,
                 errors: result!.errors ?? [],
@@ -96,7 +96,7 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
         }
     }
 
-    const close = () => {
+    const handleClose = () => {
         setRegisterState({
             name: "",
             surname: "",
@@ -109,12 +109,12 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
             ...prevState,
             isRegisterSuccessful: undefined
         }))
-        props.close()
+        props.onClose()
     }
 
     return (
         <div>
-            <Dialog open={props.isOpen} onClose={close} aria-labelledby="form-dialog-title" maxWidth="xs">
+            <Dialog open={props.isOpen} onClose={handleClose} aria-labelledby="form-dialog-title" maxWidth="xs">
                 <DialogTitle id="form-dialog-title">
                     <Grid container>
                         <Grid item container direction={"row"} justifyContent={"center"}>
@@ -223,7 +223,7 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
                                 />
                             </Grid>
                             <Grid item xs={12}>
-                                <Tags tags={[]} onTagsChange={handleTagsChange} isAutocompleteSmall={true}
+                                <Tags tags={[]} onTagsChange={handleTagsChange} isElementSmall={true}
                                       requestTags={() => new Promise((resolve, _) => resolve([]))}/>
                             </Grid>
                             <Grid item xs={12}>
@@ -253,7 +253,7 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
                         >
                             <Grid item>
                                 <Button
-                                    onClick={close}
+                                    onClick={handleClose}
                                     color="primary"
                                     variant="contained"
                                     style={{marginRight: '10px'}}
