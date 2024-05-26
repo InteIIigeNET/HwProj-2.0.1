@@ -16,12 +16,12 @@ import TimelineConnector from '@mui/lab/TimelineConnector';
 import TimelineContent from '@mui/lab/TimelineContent';
 import TimelineDot from '@mui/lab/TimelineDot';
 import TimelineOppositeContent from '@mui/lab/TimelineOppositeContent';
-import {Box, Card, CardActions, CardContent, Chip, Divider, Paper, Stack, Tooltip} from "@mui/material";
+import {Card, CardActions, CardContent, Chip, Divider, Paper, Stack, Tooltip} from "@mui/material";
 import {Link} from "react-router-dom";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import Utils from "../../services/Utils";
 import {ReactMarkdownWithCodeHighlighting} from "../Common/TextFieldWithPreview";
-import HomeworkTags, {TestTip} from "../Common/HomeworkTags";
+import {getTip} from "../Common/HomeworkTags";
 
 interface ICourseExperimentalProps {
     homeworks: HomeworkViewModel[]
@@ -199,7 +199,6 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                           }
                       }}>
                 {homeworks.map(x => {
-                    const isTest = x.tags!.includes(HomeworkTags.TestTag)
                     return <div>
                         <Paper
                             elevation={0}
@@ -219,7 +218,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                 }))
                             }}>
                             <Typography variant="h6" style={{fontSize: 18}} align={"center"}>
-                                {x.title}{isTest && <TestTip/>}
+                                {x.title}{getTip(x)}
                             </Typography>
                             {x.isDeferred &&
                                 <Typography style={{fontSize: "14px"}} align={"center"}>
@@ -256,7 +255,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                             </TimelineSeparator>
                             <TimelineContent alignItems={"center"}>
                                 <Typography className="antiLongWords">
-                                    {t.title}{isTest && <TestTip/>}
+                                    {t.title}{getTip(x)}
                                 </Typography>
                             </TimelineContent>
                         </TimelineItem>)}

@@ -96,6 +96,10 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
         .filter(t => !filtersState.tasksFilter || t.taskTitle === filtersState.tasksFilter)
         .filter(t => !filtersState.studentsFilter || renderStudent(t.student!) === filtersState.studentsFilter)
 
+    const randomSolution = filteredUnratedSolutions.length > 1
+        ? filteredUnratedSolutions[Math.floor(Math.random() * filteredUnratedSolutions.length)]
+        : undefined
+
     const handleFilterChange = (filterName: FilterTitleName, value: string) => {
         let courseFilter = filtersState.coursesFilter
         let homeworkFilter = filtersState.homeworksFilter
@@ -167,12 +171,23 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
                     {renderSelect("Студент", "studentsFilter", filtersState.studentsFilter, filtersState.students)}
                 </Grid>
             </Grid>
-            {filteredUnratedSolutions.length < unratedSolutions.length &&
-                <div style={{marginTop: 10}}>
+            <Grid container direction={"row"} spacing={1} style={{marginTop: 10}}>
+                {filteredUnratedSolutions.length < unratedSolutions.length && <Grid item>
                     <Typography variant={"caption"} color={"GrayText"}>
                         {`${filteredUnratedSolutions.length} ${Utils.pluralizeHelper(solutionPlurals, filteredUnratedSolutions.length)} найдено по заданному фильтру`}
                     </Typography>
-                </div>}
+                </Grid>}
+                {randomSolution && <Grid item>
+                    <NavLink
+                        style={{color: "#1976d2"}}
+                        to={`/task/${randomSolution.taskId}/${randomSolution.student!.userId}`}
+                    >
+                        <Typography variant={"caption"}>
+                            проверить случайное решение
+                        </Typography>
+                    </NavLink>
+                </Grid>}
+            </Grid>
         </div>
     }
 

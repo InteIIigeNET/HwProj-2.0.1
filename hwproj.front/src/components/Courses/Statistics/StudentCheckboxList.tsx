@@ -31,7 +31,7 @@ const StudentCheckboxList: React.FC<StudentStatsListProps> = (props) => {
                     label='Выбрать студентов'
                 />
             )}
-            noOptionsText={'На курсе еще нет студентов'}
+            noOptionsText={'Нет студентов для выбора'}
             value={props.mates.filter(m => checked.includes(m.id))}
             onChange={(_, values) => {
                 const selectedStudentsId = values.map(v => v.id);

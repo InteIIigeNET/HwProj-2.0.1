@@ -5,9 +5,9 @@ import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "
 import StudentStatsCell from "../Tasks/StudentStatsCell";
 import {Alert, Chip, Button} from "@mui/material";
 import {grey} from "@material-ui/core/colors";
-import HomeworkTags from "../Common/HomeworkTags";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
+import {BonusTag, TestTag} from "../Common/HomeworkTags";
 
 interface IStudentStatsProps {
     course: CourseViewModel;
@@ -65,22 +65,22 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
     }
 
     const homeworkStyles = (homeworks: HomeworkViewModel[], idx: number): React.CSSProperties | undefined => {
-        if (homeworks[idx].tags?.includes(HomeworkTags.TestTag))
+        if (homeworks[idx].tags?.includes(TestTag))
             return testHomeworkStyle
-        if (idx !== 0 && homeworks[idx - 1].tags?.includes(HomeworkTags.TestTag))
+        if (idx !== 0 && homeworks[idx - 1].tags?.includes(TestTag))
             return {borderLeftColor: testHomeworkStyle.borderLeftColor}
         return undefined
     }
 
-    const homeworksMaxSum = homeworks.filter(h => !h.tags!.includes(HomeworkTags.BonusTag))
-        .filter(h => !h.tags!.includes(HomeworkTags.TestTag))
+    const homeworksMaxSum = homeworks.filter(h => !h.tags!.includes(BonusTag))
+        .filter(h => !h.tags!.includes(TestTag))
         .flatMap(homework => homework.tasks)
         .reduce((sum, task) => {
             return sum + (task!.maxRating || 0);
         }, 0)
 
-    const testsMaxSum = homeworks.filter(h => h.tags!.includes(HomeworkTags.TestTag))
-        .filter(h => !h.tags!.includes(HomeworkTags.BonusTag))
+    const testsMaxSum = homeworks.filter(h => h.tags!.includes(TestTag))
+        .filter(h => !h.tags!.includes(BonusTag))
         .flatMap(homework => homework.tasks)
         .reduce((sum, task) => {
             return sum + (task!.maxRating || 0);
@@ -179,7 +179,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                     <TableBody>
                         {solutions.map((cm, index) => {
                             const homeworksSum = homeworks
-                                .filter(h => !h.tags!.includes(HomeworkTags.TestTag))
+                                .filter(h => !h.tags!.includes(TestTag))
                                 .flatMap(homework =>
                                     solutions
                                         .find(s => s.id === cm.id)?.homeworks!
@@ -188,7 +188,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                 )
                                 .reduce((sum, rating) => sum + rating, 0)
                             const testsSum = homeworks
-                                .filter(h => h.tags!.includes(HomeworkTags.TestTag))
+                                .filter(h => h.tags!.includes(TestTag))
                                 .flatMap(homework =>
                                     solutions
                                         .find(s => s.id === cm.id)?.homeworks!

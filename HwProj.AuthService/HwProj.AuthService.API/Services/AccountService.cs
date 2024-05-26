@@ -422,7 +422,7 @@ namespace HwProj.AuthService.API.Services
         public async Task<GithubCredentials> AuthorizeGithub(string code, string userId)
         {
             var sourceSettings = _configuration.GetSection("Github");
-
+            
             var parameters = new Dictionary<string, string>
             {
                 { "client_id", sourceSettings["ClientIdGithub"] },

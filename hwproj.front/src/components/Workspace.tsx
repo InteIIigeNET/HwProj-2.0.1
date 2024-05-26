@@ -10,7 +10,7 @@ import TaskDeadlines from "./Tasks/TaskDeadlines";
 import UnratedSolutions from "./Solutions/UnratedSolutions";
 import {Alert, Chip, Stack} from "@mui/material";
 import NewCourseEvents from "./Courses/NewCourseEvents";
-import HomeworkTags from "./Common/HomeworkTags";
+import {TestTag} from "./Common/HomeworkTags";
 import Utils from "../services/Utils";
 
 
@@ -79,7 +79,7 @@ const Workspace: FC = () => {
 
     const nearestTaskDeadlines = taskDeadlines?.filter(x => !x.deadlinePast) || []
     const testDeadlines = nearestTaskDeadlines
-        .filter(x => x.deadline!.tags!.includes(HomeworkTags.TestTag))
+        .filter(x => x.deadline!.tags!.includes(TestTag))
         .map(x => x.deadline!)
         .map(x => ({
             courseId: x.courseId!,
@@ -130,7 +130,7 @@ const Workspace: FC = () => {
                     {isUserProfile && <Grid item>
                         <Tabs
                             value={tabValue}
-                            style={{marginTop: 15}}
+                            style={{marginTop: 10}}
                             indicatorColor="primary"
                             onChange={(event, value) => {
                                 setProfileState(prevState => ({
