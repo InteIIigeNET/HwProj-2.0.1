@@ -92,9 +92,9 @@ export default class AuthService {
 
     getUserId = () => this.getProfile()._id;
 
-    isExpertProfileEdited = async () => await ApiSingleton.accountApi.apiAccountIsExpertProfileEditedGet();
+    isExpertProfileEdited = async () => await ApiSingleton.expertsApi.apiExpertsIsProfileEditedGet();
 
-    setIsExpertProfileEdited = async () => await ApiSingleton.accountApi.apiAccountSetExpertProfileIsEditedPost();
+    setIsExpertProfileEdited = async () => await ApiSingleton.expertsApi.apiExpertsSetProfileIsEditedPost();
 
     loggedIn = () => this.getToken() !== null
 
