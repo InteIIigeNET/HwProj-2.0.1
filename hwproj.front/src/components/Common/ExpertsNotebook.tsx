@@ -9,12 +9,12 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import {Typography, Grid, Button, Checkbox, FormControlLabel} from "@material-ui/core";
-import {makeStyles} from "@material-ui/styles";
-import {User} from 'api/api';
+import {ExpertDataDTO, UpdateExpertTagsDTO} from 'api/api';
 import ApiSingleton from "../../api/ApiSingleton";
 import RegisterExpertModal from "../../components/Auth/RegisterExpertModal";
 import InviteExpertModal from "../../components/InviteExpertModal";
 import Chip from "@mui/material/Chip/Chip";
+import InlineTags from "./InlineTags";
 
 interface InviteExpertState {
     isOpen: boolean;
@@ -22,36 +22,50 @@ interface InviteExpertState {
     id: string;
 }
 
+interface EditTagsState {
+    isOpen: boolean;
+    areTagsChanged: boolean;
+}
+
+export const ControlledExpertTip: FC = () => <sup style={{color: "#2979ff", "fontWeight": "bold"}}>*</sup>
+
 const ExpertsNotebook: FC = () => {
-    const [experts, setExperts] = useState<User[]>([]);
-    const [visibleInviteButtonRow, setVisibleInviteButtonRow] = useState<string>("");
+    const [allExperts, setAllExperts] = useState<ExpertDataDTO[]>([]);
+    const [mouseHoveredRow, setMouseHoveredRow] = useState<string>("");
     const [isAllExpertsSelected, setIsAllExpertsSelected] = useState<boolean>(false)
     const [isOpenRegisterExpert, setIsOpenRegisterExpert] = useState<boolean>(false)
+
+    const [tagsEditingState, setTagsEditingState] = useState<EditTagsState>({
+        isOpen: false,
+        areTagsChanged: false
+    })
+
     const [inviteExpertState, setInviteExpertState] = useState<InviteExpertState>({
         isOpen: false,
         email: "",
         id: ""
     })
 
+    const userId = ApiSingleton.authService.getUserId();
+    const isExpertControlled = (expertLecturerId: string) => expertLecturerId === userId;
+
     useEffect(() => {
         const fetchExperts = async () => {
-            const allExperts = isAllExpertsSelected
-                ? await ApiSingleton.accountApi.apiAccountGetAllExpertsGet()
-                : await ApiSingleton.accountApi.apiAccountGetExpertsGet();
-            setExperts(allExperts);
+            const allExperts = await ApiSingleton.expertsApi.apiExpertsGetAllGet();
+            setAllExperts(allExperts);
         };
 
         fetchExperts();
-    }, [isAllExpertsSelected, isOpenRegisterExpert]);
+    }, [isOpenRegisterExpert]);
 
     const handleAllExpertsSelection = (event: React.ChangeEvent<HTMLInputElement>) => {
         setIsAllExpertsSelected(event.target.checked)
     };
 
-    const handleOpenExpertInvitation = (expertEmail: string, id: string) => {
+    const handleOpenExpertInvitation = (expertEmail: string, expertId: string) => {
         setInviteExpertState({
             email: expertEmail,
-            id: id,
+            id: expertId,
             isOpen: true
         })
     }
@@ -68,8 +82,84 @@ const ExpertsNotebook: FC = () => {
         setIsOpenRegisterExpert(false);
     }
 
-    const handleChipClick = () => {
+    const handleOpenTagsEditing = () => {
+        setTagsEditingState(prevState => ({
+            ...prevState,
+            isOpen: true
+        }));
+    }
 
+    const handleCloseTagsEditing = (expert: ExpertDataDTO) => {
+        if (tagsEditingState.areTagsChanged) {
+            const dto: UpdateExpertTagsDTO = {
+                expertId: expert.id,
+                tags: expert.tags
+            }
+            ApiSingleton.expertsApi.apiExpertsUpdateTagsPost(dto);
+        }
+        setTagsEditingState({
+            isOpen: false,
+            areTagsChanged: false
+        });
+    }
+
+    const handleTagsChange = (expert: ExpertDataDTO, newTags: string[]) => {
+        setTagsEditingState(prevState => ({
+            ...prevState,
+            areTagsChanged: true
+        }));
+        expert.tags = newTags
+    }
+
+    const getExpertRows = () => {
+        const visibleExperts = isAllExpertsSelected ?
+            allExperts : allExperts.filter(expert => expert.lecturerId === userId);
+
+        return visibleExperts.map((expert: ExpertDataDTO) => (
+            <TableRow
+                key={expert.id}
+                onMouseEnter={() => setMouseHoveredRow(expert.id!)}
+            >
+                <TableCell
+                    align={"left"}>{expert.surname + ' ' + expert.name + ' ' + expert.middleName}
+                    {isExpertControlled(expert.lecturerId!) && <ControlledExpertTip/>}
+                </TableCell>
+                <TableCell align={"center"}>{expert.email}</TableCell>
+                <TableCell align={"center"}>{expert.companyName}</TableCell>
+                <TableCell align={"center"} onClick={handleOpenTagsEditing}
+                           onMouseLeave={() => handleCloseTagsEditing(expert)}
+                           style={{cursor: isExpertControlled(expert.lecturerId!) ? "pointer" : "default"}}>
+                    <Grid container spacing={1} alignItems={"center"} justifyContent={"center"}>
+                        {mouseHoveredRow === expert.id && isExpertControlled(expert.lecturerId!) && tagsEditingState.isOpen ?
+                            <InlineTags tags={expert.tags!} onTagsChange={(value) => handleTagsChange(expert, value)}/>
+                            :
+                            (expert.tags?.filter(t => t !== '').map((tag, index) => (
+                                <Grid item>
+                                    <Chip key={index}
+                                          variant={"outlined"}
+                                          label={tag}
+                                          size={"small"}
+                                          style={{cursor: "pointer"}}/>
+                                </Grid>)))
+                        }
+                    </Grid>
+                </TableCell>
+                <TableCell align={"right"}>
+                    <Grid container justifyContent="flex-end">
+                        <Grid item style={{minHeight: 32}} alignContent={"center"}>
+                            {mouseHoveredRow === expert.id &&
+                                <Button
+                                    onClick={() => handleOpenExpertInvitation(expert.email!, expert.id!)}
+                                    color="primary"
+                                    size="small"
+                                >
+                                    Пригласить
+                                </Button>}
+                        </Grid>
+                    </Grid>
+                </TableCell>
+            </TableRow>
+        ))
     }
 
     return (
@@ -115,33 +205,7 @@ const ExpertsNotebook: FC = () => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {experts.map((row: User) => (
-                                <TableRow
-                                    key={row.id}
-                                    onMouseEnter={() => setVisibleInviteButtonRow(row.id!)}
-                                    // onMouseLeave={() => setVisibleInviteButtonRow("")}
-                                >
-                                    <TableCell align={"left"}>{row.email}</TableCell>
-                                    <TableCell
-                                        align={"left"}>{row.surname + ' ' + row.name + ' ' + row.middleName}</TableCell>
-                                    <TableCell align={"center"}>{row.email}</TableCell>
-                                    <TableCell align={"center"}>{row.companyName}</TableCell>
-                                    <TableCell align={"center"}>
-                                        <Grid container justifyContent="flex-end">
-                                            <Grid item style={{minHeight: 32}} alignContent={"center"}>
-                                                {visibleInviteButtonRow === row.id &&
-                                                    <Button
-                                                        onClick={() => handleOpenExpertInvitation(row.email!, row.id!)}
-                                                        color="primary"
-                                                        size="small"
-                                                    >
-                                                        Пригласить
-                                                    </Button>}
-                                            </Grid>
-                                        </Grid>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
+                            {getExpertRows()}
                         </TableBody>
                     </Table>
                 </TableContainer>
@@ -160,12 +224,10 @@ const ExpertsNotebook: FC = () => {
                 </Grid>
             </Grid>
             {isOpenRegisterExpert && (
-                <RegisterExpertModal isOpen={isOpenRegisterExpert} close={handleCloseExpertRegistration}/>
-            )}
+                <RegisterExpertModal isOpen={isOpenRegisterExpert} onClose={handleCloseExpertRegistration}/>)}
             {inviteExpertState.isOpen && (
-                <InviteExpertModal isOpen={inviteExpertState.isOpen} close={handleCloseExpertInvitation}
-                                   expertEmail={inviteExpertState.email} expertId={inviteExpertState.id}/>
-            )}
+                <InviteExpertModal isOpen={inviteExpertState.isOpen} onClose={handleCloseExpertInvitation}
+                                   expertEmail={inviteExpertState.email} expertId={inviteExpertState.id}/>)}
         </div>
     );
 }

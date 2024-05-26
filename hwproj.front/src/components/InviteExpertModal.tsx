@@ -16,7 +16,7 @@ import {Select, MenuItem, InputLabel, FormControl, Autocomplete} from "@mui/mate
 
 interface IInviteExpertProps {
     isOpen: boolean;
-    close: any;
+    onClose: any;
     expertEmail: string;
     expertId: string;
 }
@@ -74,7 +74,7 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
         }
 
         const fetchCredentials = async () => {
-            const tokenCredentials = await ApiSingleton.accountApi.apiAccountGetExpertTokenGet(props.expertEmail);
+            const tokenCredentials = await ApiSingleton.expertsApi.apiExpertsGetTokenGet(props.expertEmail);
             setState(prevState => ({
                 ...prevState,
                 accessToken: tokenCredentials.value!.accessToken!
@@ -147,7 +147,7 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
 
     return (
         <div>
-            <Dialog open={props.isOpen} onClose={props.close} aria-labelledby="dialog-title" fullWidth>
+            <Dialog open={props.isOpen} onClose={props.onClose} aria-labelledby="dialog-title" fullWidth>
                 <DialogTitle id="dialog-title">
                     Пригласить эксперта
                 </DialogTitle>
@@ -301,7 +301,7 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
                     >
                         <Grid item>
                             <Button
-                                onClick={props.close}
+                                onClick={props.onClose}
                                 color="primary"
                                 variant="contained"
                                 style={{marginRight: '10px'}}

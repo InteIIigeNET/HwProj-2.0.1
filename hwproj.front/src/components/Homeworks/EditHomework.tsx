@@ -198,7 +198,7 @@ const EditHomework: FC = () => {
                             />
                         </Grid>
                         <Grid item xs={12} style={{marginBottom: "15px"}}>
-                            <Tags tags={editHomework.tags} onTagsChange={handleTagsChange} isAutocompleteSmall={false}
+                            <Tags tags={editHomework.tags} onTagsChange={handleTagsChange} isElementSmall={false}
                                   requestTags={() => apiSingleton.coursesApi.apiCoursesTagsByCourseIdGet(editHomework.courseId)}/>
                             <PublicationAndDeadlineDates
                                 hasDeadline={editHomework.hasDeadline}

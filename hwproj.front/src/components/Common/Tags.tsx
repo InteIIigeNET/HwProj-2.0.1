@@ -2,21 +2,20 @@ import * as React from 'react';
 import Chip from '@mui/material/Chip';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
-import apiSingleton from "../../api/ApiSingleton";
 import {useState, useEffect, SyntheticEvent} from "react";
 
 interface TagsProps {
     tags: string[];
     onTagsChange: (tags: string[]) => void;
     requestTags: () => Promise<string[]>;
-    isAutocompleteSmall: boolean;
+    isElementSmall: boolean;
 }
 
-export default function Tags({tags, onTagsChange, requestTags, isAutocompleteSmall}: TagsProps) {
+export default function Tags({tags, onTagsChange, requestTags, isElementSmall}: TagsProps) {
     const [allTags, setAllTags] = useState<string[]>([]);
 
     useEffect(() => {
-            fetchTags();
+        fetchTags();
     }, []);
 
     const fetchTags = async () => {
@@ -42,7 +41,7 @@ export default function Tags({tags, onTagsChange, requestTags, isAutocompleteSma
             onChange={handleOptionSelect}
             filterSelectedOptions
             freeSolo
-            size={isAutocompleteSmall ? "small" : "medium"}
+            size={isElementSmall ? "small" : "medium"}
             renderTags={(value, getTagProps) =>
                 value.map((option: string, index: number) => (
                     <Chip variant="filled" label={option} {...getTagProps({index})} />

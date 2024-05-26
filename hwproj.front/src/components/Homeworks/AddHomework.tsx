@@ -123,7 +123,7 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                     }
                     }
                 />
-                <Tags tags={[]} onTagsChange={handleTagsChange} isAutocompleteSmall={false}
+                <Tags tags={[]} onTagsChange={handleTagsChange} isElementSmall={false}
                       requestTags={() => apiSingleton.coursesApi.apiCoursesTagsByCourseIdGet(props.id)}/>
                 {addHomeworkState.tags.includes(TestTag) && <Alert severity="info">Вы можете сгруппировать контрольные работы и переписывания с помощью дополнительного тега. Например, 'КР 1'</Alert>}
                 <PublicationAndDeadlineDates
