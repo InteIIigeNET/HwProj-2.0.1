@@ -3,10 +3,11 @@ import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "..
 import {useNavigate, useParams} from 'react-router-dom';
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
-import {Alert, Chip, Button} from "@mui/material";
+import {Alert, Chip, Button, IconButton} from "@mui/material";
 import {grey} from "@material-ui/core/colors";
 import HomeworkTags from "../Common/HomeworkTags";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ShowChartIcon from "@mui/icons-material/ShowChart";
 
 interface IStudentStatsProps {
@@ -63,6 +64,20 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
         borderLeftColor: "#3f51b5",
         color: "white",
     }
+    
+    const copyAcceptedStudents = async () => {
+        const studentsListText = props.course.acceptedStudents!
+            .map(s => `${s.surname} ${s.name} ${s.middleName}`)
+            .sort()
+            .join(`\r`)
+        
+        try {
+            await navigator.clipboard.writeText(studentsListText);
+        } catch (e) {
+            console.error('Failed to copy', e);
+        }
+    }
+        
 
     const homeworkStyles = (homeworks: HomeworkViewModel[], idx: number): React.CSSProperties | undefined => {
         if (homeworks[idx].tags?.includes(HomeworkTags.TestTag))
@@ -99,9 +114,13 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                 <Table stickyHeader aria-label="sticky table">
                     <TableHead>
                         <TableRow>
-                            <TableCell style={{zIndex: -4, color: ""}} align="center"
+                            <TableCell style={{zIndex: 0, color: ""}} align="center"
                                        padding="none"
                                        component="td">
+                                Студенты
+                                <IconButton onClick={() => copyAcceptedStudents()}>
+                                    <ContentCopyIcon fontSize="small" titleAccess="Скопировать список студентов" />
+                                </IconButton>
                             </TableCell>
                             {(hasHomeworks || hasTests) && <TableCell
                                 padding="checkbox"
