@@ -15,7 +15,7 @@ import EditCourse from "./components/Courses/EditCourse";
 import EditTask from "./components/Tasks/EditTask";
 import EditHomework from "./components/Homeworks/EditHomework";
 import Register from "./components/Auth/Register";
-import ExpertsNotebook from "./components/Common/ExpertsNotebook";
+import ExpertsNotebook from "./components/Experts/Notebook";
 import StudentSolutionsPage from "./components/Solutions/StudentSolutionsPage";
 import EditProfile from "./components/EditProfile";
 import ApiSingleton from "./api/ApiSingleton";
@@ -24,7 +24,7 @@ import WrongPath from "./components/WrongPath";
 import ResetPassword from "components/Auth/ResetPassword";
 import PasswordRecovery from "components/Auth/PasswordRecovery";
 import AuthLayout from "./AuthLayout";
-import ExpertAuthLayout from "./ExpertAuthLayout";
+import ExpertAuthLayout from "./components/Experts/AuthLayout";
 
 // TODO: add flux
 
