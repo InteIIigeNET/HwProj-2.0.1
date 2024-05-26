@@ -135,9 +135,9 @@ namespace HwProj.AuthService.API.Services
                 : await GetToken(user);
         }
         
-        public async Task<TokenCredentials> GetGuestToken(string courseId)
+        public TokenCredentials GetGuestToken(string courseId)
         {
-            return await _tokenService.GetTokenAsync(courseId);
+            return _tokenService.GetGuestToken(courseId);
         }
 
         public async Task<Result<TokenCredentials>> RegisterUserAsync(RegisterDataDTO model)

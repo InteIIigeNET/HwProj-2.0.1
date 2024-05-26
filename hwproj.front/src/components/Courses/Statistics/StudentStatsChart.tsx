@@ -65,7 +65,7 @@ const StudentStatsChart: React.FC = () => {
                 .flatMap(h => h.tasks!.map(t => t.solution!.length))
             setSectorSizes(sectorSizes)
         }
-
+        
         const userId = isLoggedIn ? ApiSingleton.authService.getUserId() : undefined;
         const isLecturer = userId != undefined && ApiSingleton.authService.isLecturer()
             && !params.studentStatistics?.map(s => s.id).includes(userId);
@@ -149,7 +149,7 @@ const StudentStatsChart: React.FC = () => {
                                 </Typography>
                                 {state.isLecturer &&
                                     <>
-                                        <IconButton onClick={copyLink}>
+                                        <IconButton onClick={copyLink} size="small">
                                             <ShareIcon style={{color: "#2979ff"}}/>
                                         </IconButton>
                                         <Snackbar open={copied} message="Ссылка скопирована"/>

@@ -52,7 +52,7 @@ namespace HwProj.AuthService.API.Services
             return tokenCredentials;
         }
         
-        public async Task<TokenCredentials> GetTokenAsync(string courseId)
+        public TokenCredentials GetGuestToken(string courseId)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["SecurityKey"]));
 
