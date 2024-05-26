@@ -8,11 +8,11 @@ import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import {Typography, Grid, Button, Checkbox, FormControlLabel} from "@material-ui/core";
+import {Typography, Grid, Button, Checkbox, FormControlLabel, CircularProgress} from "@material-ui/core";
 import {ExpertDataDTO, UpdateExpertTagsDTO} from 'api/api';
 import ApiSingleton from "../../api/ApiSingleton";
-import RegisterExpertModal from "../../components/Auth/RegisterExpertModal";
-import InviteExpertModal from "../../components/InviteExpertModal";
+import RegisterExpertModal from "./RegisterModal";
+import InviteExpertModal from "./InviteModal";
 import Chip from "@mui/material/Chip/Chip";
 import InlineTags from "./InlineTags";
 
@@ -30,6 +30,7 @@ interface EditTagsState {
 export const ControlledExpertTip: FC = () => <sup style={{color: "#2979ff", "fontWeight": "bold"}}>*</sup>
 
 const ExpertsNotebook: FC = () => {
+    const [isLoaded, setLoadedState] = useState<boolean>(false);
     const [allExperts, setAllExperts] = useState<ExpertDataDTO[]>([]);
     const [mouseHoveredRow, setMouseHoveredRow] = useState<string>("");
     const [isAllExpertsSelected, setIsAllExpertsSelected] = useState<boolean>(false)
@@ -53,6 +54,7 @@ const ExpertsNotebook: FC = () => {
         const fetchExperts = async () => {
             const allExperts = await ApiSingleton.expertsApi.apiExpertsGetAllGet();
             setAllExperts(allExperts);
+            setLoadedState(true);
         };
 
         fetchExperts();
@@ -162,74 +164,83 @@ const ExpertsNotebook: FC = () => {
         ))
     }
 
+    if (isLoaded) {
+        return (
+            <div className="container" style={{marginBottom: '50px'}}>
+                <Grid container style={{marginTop: "15px"}} spacing={2}>
+                    <Grid item container justifyContent={"space-between"} direction={"row"}>
+                        <Grid item direction={"row"} spacing={2} style={{display: "flex"}}>
+                            <Typography style={{fontSize: '22px'}}>
+                                Эксперты
+                            </Typography>
+                        </Grid>
+                        <Grid item justify-content={"flex-to-end"}>
+                            <FormControlLabel
+                                control={<Checkbox size="small" onChange={handleAllExpertsSelection}/>}
+                                label="Показать всех"/>
+                        </Grid>
+                    </Grid>
+                    <TableContainer>
+                        <Table style={{tableLayout: 'fixed'}} aria-label="table" size="medium"
+                               aria-labelledby="tableTitle">
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell align={"left"}>
+                                        <Typography variant={"h6"} style={{fontSize: '18px'}}>
+                                            ФИО
+                                        </Typography>
+                                    </TableCell>
+                                    <TableCell align={"center"}>
+                                        <Typography variant={"h6"} style={{fontSize: '18px'}}>
+                                            Почта
+                                        </Typography>
+                                    </TableCell>
+                                    <TableCell align={"center"}>
+                                        <Typography variant={"h6"} style={{fontSize: '18px'}}>
+                                            Компания
+                                        </Typography>
+                                    </TableCell>
+                                    <TableCell align={"center"}>
+                                        <Typography variant={"h6"} style={{fontSize: '18px'}}>
+                                            Тэги
+                                        </Typography>
+                                    </TableCell>
+                                    <TableCell align={"center"}/>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {getExpertRows()}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                    <Grid item container>
+                        <Grid item>
+                            <Box sx={{fontSize: 100}}>
+                                <SpeedDial
+                                    ariaLabel="SpeedDial example"
+                                    icon={<SpeedDialIcon/>}
+                                    onClick={() => setIsOpenRegisterExpert(true)}
+                                    open={false}
+                                    sx={{'& .MuiFab-primary': {width: 42, height: 42}}}
+                                />
+                            </Box>
+                        </Grid>
+                    </Grid>
+                </Grid>
+                {isOpenRegisterExpert && (
+                    <RegisterExpertModal isOpen={isOpenRegisterExpert} onClose={handleCloseExpertRegistration}/>)}
+                {inviteExpertState.isOpen && (
+                    <InviteExpertModal isOpen={inviteExpertState.isOpen} onClose={handleCloseExpertInvitation}
+                                       expertEmail={inviteExpertState.email} expertId={inviteExpertState.id}/>)}
+            </div>
+        )
+    }
     return (
-        <div className="container" style={{marginBottom: '50px'}}>
-            <Grid container style={{marginTop: "15px"}} spacing={2}>
-                <Grid item container justifyContent={"space-between"} direction={"row"}>
-                    <Grid item direction={"row"} spacing={2} style={{display: "flex"}}>
-                        <Typography style={{fontSize: '22px'}}>
-                            Эксперты
-                        </Typography>
-                    </Grid>
-                    <Grid item justify-content={"flex-to-end"}>
-                        <FormControlLabel
-                            control={<Checkbox size="small" onChange={handleAllExpertsSelection}/>}
-                            label="Показать всех"/>
-                    </Grid>
-                </Grid>
-                <TableContainer>
-                    <Table style={{tableLayout: 'fixed'}} aria-label="table" size="medium" aria-labelledby="tableTitle">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell align={"left"}>
-                                    <Typography variant={"h6"} style={{fontSize: '18px'}}>
-                                        ФИО
-                                    </Typography>
-                                </TableCell>
-                                <TableCell align={"center"}>
-                                    <Typography variant={"h6"} style={{fontSize: '18px'}}>
-                                        Почта
-                                    </Typography>
-                                </TableCell>
-                                <TableCell align={"center"}>
-                                    <Typography variant={"h6"} style={{fontSize: '18px'}}>
-                                        Компания
-                                    </Typography>
-                                </TableCell>
-                                <TableCell align={"center"}>
-                                    <Typography variant={"h6"} style={{fontSize: '18px'}}>
-                                        Тэги
-                                    </Typography>
-                                </TableCell>
-                                <TableCell align={"center"}/>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {getExpertRows()}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-                <Grid item container>
-                    <Grid item>
-                        <Box sx={{fontSize: 100}}>
-                            <SpeedDial
-                                ariaLabel="SpeedDial example"
-                                icon={<SpeedDialIcon/>}
-                                onClick={() => setIsOpenRegisterExpert(true)}
-                                open={false}
-                                sx={{'& .MuiFab-primary': {width: 42, height: 42}}}
-                            />
-                        </Box>
-                    </Grid>
-                </Grid>
-            </Grid>
-            {isOpenRegisterExpert && (
-                <RegisterExpertModal isOpen={isOpenRegisterExpert} onClose={handleCloseExpertRegistration}/>)}
-            {inviteExpertState.isOpen && (
-                <InviteExpertModal isOpen={inviteExpertState.isOpen} onClose={handleCloseExpertInvitation}
-                                   expertEmail={inviteExpertState.email} expertId={inviteExpertState.id}/>)}
+        <div className="container">
+            <p>Загрузка...</p>
+            <CircularProgress/>
         </div>
-    );
+    )
 }
 
 export default ExpertsNotebook

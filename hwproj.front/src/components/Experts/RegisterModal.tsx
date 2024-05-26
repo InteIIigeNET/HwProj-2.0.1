@@ -5,7 +5,7 @@ import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import ApiSingleton from "../../api/ApiSingleton";
 import {RegisterExpertViewModel} from "../../api/";
-import "./Styles/Register.css";
+import "../Auth/Styles/Register.css";
 import Grid from "@material-ui/core/Grid";
 import makeStyles from "@material-ui/styles/makeStyles";
 import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined';
