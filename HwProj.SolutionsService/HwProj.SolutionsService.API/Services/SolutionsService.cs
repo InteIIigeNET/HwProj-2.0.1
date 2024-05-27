@@ -164,9 +164,13 @@ namespace HwProj.SolutionsService.API.Services
             await _solutionsRepository.UpdateSolutionState(solutionId, SolutionState.Final);
         }
 
-        public async Task<SolutionPreviewDto[]> GetAllUnratedSolutions(long[] taskIds)
+        public async Task<SolutionPreviewDto[]> GetAllUnratedSolutions(GetTasksSolutionsModel model)
         {
-            var getSolutionsQuery = _solutionsRepository.FindAll(t => taskIds.Contains(t.TaskId));
+            var taskIds = model.TaskIds;
+            var studentIds = model.StudentIds;
+            var getSolutionsQuery = studentIds == null
+                ? _solutionsRepository.FindAll(t => taskIds.Contains(t.TaskId))
+                : _solutionsRepository.FindAll(t => taskIds.Contains(t.TaskId) && studentIds.Contains(t.StudentId));
 
             var groupIds = await getSolutionsQuery
                 .Where(t => t.GroupId != null)
@@ -225,7 +229,10 @@ namespace HwProj.SolutionsService.API.Services
 
         public async Task<TaskSolutionsStats[]> GetTaskSolutionsStats(long[] taskIds)
         {
-            var unratedSolutions = await GetAllUnratedSolutions(taskIds);
+            var unratedSolutions = await GetAllUnratedSolutions(new GetTasksSolutionsModel
+            {
+                TaskIds = taskIds
+            });
             var statsSolutions = unratedSolutions
                 .GroupBy(s => s.TaskId)
                 .Select(s => new TaskSolutionsStats

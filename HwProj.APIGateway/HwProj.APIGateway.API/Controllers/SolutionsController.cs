@@ -275,8 +275,7 @@ namespace HwProj.APIGateway.API.Controllers
             var mentorCourses = await _coursesServiceClient.GetAllUserCourses();
             var tasks = FilterTasks(mentorCourses, taskId).ToDictionary(t => t.taskId, t => t.data);
 
-            var taskIds = tasks.Select(t => t.Key).ToArray();
-            var solutions = await _solutionsClient.GetAllUnratedSolutionsForTasks(taskIds);
+            var solutions = await GetAllUnratedSolutionsForTasks(mentorCourses, taskId);
 
             var studentIds = solutions.Select(t => t.StudentId).Distinct().ToArray();
             var accountsData = await AuthServiceClient.GetAccountsData(studentIds);
@@ -339,6 +338,51 @@ namespace HwProj.APIGateway.API.Controllers
             var betterThanCount = lastRatedSolutions.Count(t => solution.Rating > t!.Rating);
             if (betterThanCount == 0) return Ok(lastRatedSolutions.Length == 1 ? 100 : 0);
             return Ok(betterThanCount * 100 / (lastRatedSolutions.Length - 1));
+        }
+
+        private async Task<SolutionPreviewDto[]> GetAllUnratedSolutionsForTasks(CourseDTO[] mentorCourses, long? taskId)
+        {
+            var role = (await AuthServiceClient.GetAccountData(UserId!)).Role;
+
+            if (role == Roles.LecturerRole)
+            {
+                var tasks = FilterTasks(mentorCourses, taskId).ToDictionary(t => t.taskId, t => t.data);
+                var taskIds = tasks.Select(t => t.Key).ToArray();
+                return await _solutionsClient.GetAllUnratedSolutionsForTasks(new GetTasksSolutionsModel
+                {
+                    TaskIds = taskIds
+                });
+            }
+
+            var solutions = new List<Task<SolutionPreviewDto[]>>();
+
+            foreach (var course in mentorCourses)
+            {
+                var studentIds = course.AcceptedStudents.Select(s => s.StudentId).ToArray();
+
+                foreach (var homework in course.Homeworks)
+                {
+                    var taskIds = homework.Tasks.Select(t => t.Id).ToArray();
+
+                    if (taskId.HasValue && taskIds.Contains(taskId.Value))
+                    {
+                        return await _solutionsClient.GetAllUnratedSolutionsForTasks(new GetTasksSolutionsModel
+                        {
+                            TaskIds = new [] { taskId.Value },
+                            StudentIds = studentIds
+                        });
+                    }
+
+                    solutions.Add(_solutionsClient.GetAllUnratedSolutionsForTasks(new GetTasksSolutionsModel
+                    {
+                        TaskIds = taskIds,
+                        StudentIds = studentIds
+                    }));
+                }
+            }
+
+            var allSolutions = await Task.WhenAll(solutions);
+            return allSolutions.SelectMany(s => s).OrderBy(s => s.PublicationDate).ToArray();
         }
 
         private static IEnumerable<(long taskId,
