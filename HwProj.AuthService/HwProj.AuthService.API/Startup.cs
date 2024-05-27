@@ -75,6 +75,7 @@ namespace HwProj.AuthService.API
 
             services.AddScoped<IAuthTokenService, AuthTokenService>()
                 .AddScoped<IAccountService, AccountService>()
+                .AddScoped<IExpertsService, ExpertsService>()
                 .AddScoped<IUserManager, ProxyUserManager>()
                 .AddScoped<IExpertsRepository, ExpertsRepository>();
         }

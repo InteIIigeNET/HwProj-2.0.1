@@ -12,16 +12,16 @@ namespace HwProj.AuthService.API.Controllers
     [ApiController]
     public class ExpertsController : ControllerBase
     {
-        private readonly IAccountService _accountService;
+        private readonly IExpertsService _expertsService;
         private readonly IAuthTokenService _tokenService;
         private readonly IUserManager _userManager;
 
         public ExpertsController(
-            IAccountService accountService,
+            IExpertsService expertsService,
             IAuthTokenService authTokenService,
             IUserManager userManager)
         {
-            _accountService = accountService;
+            _expertsService = expertsService;
             _tokenService = authTokenService;
             _userManager = userManager;
         }
@@ -30,7 +30,7 @@ namespace HwProj.AuthService.API.Controllers
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Register([FromBody] RegisterExpertViewModel model, string lecturerId)
         {
-            var result = await _accountService.RegisterExpertAsync(model, lecturerId);
+            var result = await _expertsService.RegisterExpertAsync(model, lecturerId);
             return Ok(result);
         }
 
@@ -38,7 +38,7 @@ namespace HwProj.AuthService.API.Controllers
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Login(TokenCredentials tokenCredentials)
         {
-            var result = await _accountService.LoginExpertAsync(tokenCredentials).ConfigureAwait(false);
+            var result = await _expertsService.LoginExpertAsync(tokenCredentials).ConfigureAwait(false);
             return Ok(result);
         }
 
@@ -55,7 +55,7 @@ namespace HwProj.AuthService.API.Controllers
         [ProducesResponseType(typeof(Result<bool>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetIsProfileEdited(string expertId)
         {
-            var result = await _accountService.GetIsExpertProfileEdited(expertId);
+            var result = await _expertsService.GetIsExpertProfileEdited(expertId);
             return Ok(result);
         }
 
@@ -63,7 +63,7 @@ namespace HwProj.AuthService.API.Controllers
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> SetProfileIsEdited(string expertId)
         {
-            var result = await _accountService.SetExpertProfileIsEdited(expertId);
+            var result = await _expertsService.SetExpertProfileIsEdited(expertId);
             return Ok(result);
         }
 
@@ -71,7 +71,7 @@ namespace HwProj.AuthService.API.Controllers
         [ProducesResponseType(typeof(ExpertDataDTO[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetAll()
         {
-            var allExperts = await _accountService.GetAllExperts();
+            var allExperts = await _expertsService.GetAllExperts();
 
             return Ok(allExperts);
         }
@@ -80,7 +80,7 @@ namespace HwProj.AuthService.API.Controllers
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> UpdateTags(string lecturerId, [FromBody] UpdateExpertTagsDTO updateExpertTagsDto)
         {
-            var experts = await _accountService.UpdateExpertTags(lecturerId, updateExpertTagsDto);
+            var experts = await _expertsService.UpdateExpertTags(lecturerId, updateExpertTagsDto);
 
             return Ok(experts);
         }

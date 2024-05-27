@@ -8,9 +8,7 @@ namespace HwProj.AuthService.API.Services
     public interface IAuthTokenService
     {
         Task<TokenCredentials> GetTokenAsync(User user);
-
         Task<Result<TokenCredentials>> GetExpertTokenAsync(User expert);
-
         TokenClaims GetTokenClaims(TokenCredentials tokenCredentials);
     }
 }
